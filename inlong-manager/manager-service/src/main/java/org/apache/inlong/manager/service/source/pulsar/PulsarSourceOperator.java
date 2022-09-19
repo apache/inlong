@@ -26,7 +26,6 @@ import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -155,7 +154,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             if (DataTypeEnum.CSV.getName().equalsIgnoreCase(pulsarSource.getSerializationType())) {
                 pulsarSource.setDataSeparator(streamInfo.getDataSeparator());
                 if (StringUtils.isEmpty(pulsarSource.getDataSeparator())) {
-                    pulsarSource.setDataSeparator(DataSeparator.COMMA.getAsciiCode().toString());
+                    pulsarSource.setDataSeparator(",");
                 }
             }
             pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());

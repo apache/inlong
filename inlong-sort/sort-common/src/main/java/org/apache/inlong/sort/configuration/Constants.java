@@ -60,6 +60,12 @@ public class Constants {
 
     public static final String HIVE_SINK_ORC_PREFIX = HIVE_SINK_PREFIX + "orc.";
 
+    public static final String GROUP_ID = "groupId";
+
+    public static final String STREAM_ID = "streamId";
+
+    public static final String NODE_ID = "nodeId";
+
     // ------------------------------------------------------------------------
     //  Operator uid
     // ------------------------------------------------------------------------
@@ -275,10 +281,18 @@ public class Constants {
             .defaultValue(5)
             .withDescription("minutes");
 
-    public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS = key("metrics.audit.proxy.hosts")
-            .noDefaultValue()
-            .withDescription("Audit proxy host address for reporting audit metrics. "
-                    + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
+    public static final ConfigOption<String> METRICS_LABELS =
+            ConfigOptions.key("inlong.metric.labels")
+                    .noDefaultValue()
+                    .withDescription("INLONG metric labels, format is 'key1=value1&key2=value2',"
+                            + "default is 'groupId=xxx&streamId=xxx&nodeId=xxx'");
+
+
+    public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS =
+            ConfigOptions.key("metrics.audit.proxy.hosts")
+                    .noDefaultValue()
+                    .withDescription("Audit proxy host address for reporting audit metrics. \n"
+                            + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
 
     // ------------------------------------------------------------------------
     //  Single tenant related

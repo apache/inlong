@@ -20,8 +20,10 @@ package org.apache.inlong.manager.pojo.group.kafka;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
@@ -32,9 +34,13 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Inlong group info for Kafka")
 public class InlongKafkaDTO {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
     // partition number
     private Integer numPartitions;
     // replicationFactor number
@@ -44,14 +50,15 @@ public class InlongKafkaDTO {
     // autocommit interval
     private String autoCommit;
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
-
     /**
      * Get the dto instance from the request
      */
     public static InlongKafkaDTO getFromRequest(InlongKafkaRequest request) {
         return InlongKafkaDTO.builder()
+                .numPartitions(request.getNumPartitions())
+                .replicationFactor(request.getReplicationFactor())
+                .groupId(request.getGroupId())
+                .autoCommit(request.getAutoCommit())
                 .build();
     }
 

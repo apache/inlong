@@ -71,7 +71,7 @@ public class BrokerServiceImpl implements BrokerService {
     }
 
     @Override
-    public boolean checkIfBrokersAllExsit(List<Long> brokerIdList, long clusterId) {
+    public boolean checkIfBrokersAllExist(List<Long> brokerIdList, long clusterId) {
         List<BrokerEntry> brokerEntries = brokerRepository
                 .findBrokerEntryByBrokerIdInAndClusterIdEquals(brokerIdList, clusterId);
         List<Long> regionBrokerIdList = brokerEntries.stream().map(BrokerEntry::getBrokerId).collect(

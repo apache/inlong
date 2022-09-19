@@ -18,18 +18,6 @@
 package org.apache.inlong.dataproxy.source;
 
 import com.google.common.base.Splitter;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.dataproxy.base.ProxyMessage;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.exception.ErrorCode;
-import org.apache.inlong.dataproxy.exception.MessageIDException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xerial.snappy.Snappy;
-
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -38,6 +26,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.inlong.dataproxy.base.ProxyMessage;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.exception.ErrorCode;
+import org.apache.inlong.dataproxy.exception.MessageIDException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xerial.snappy.Snappy;
 
 public class DefaultServiceDecoder implements ServiceDecoder {
 
@@ -108,34 +108,19 @@ public class DefaultServiceDecoder implements ServiceDecoder {
         return resultMap;
     }
 
-    private void handleDateTime(Map<String, String> commonAttrMap, Channel channel,
-            long uniq, long dataTime, int msgCount) {
+    private void handleDateTime(Map<String, String> commonAttrMap, long uniq,
+                                long dataTime, int msgCount, String strRemoteIP,
+                                long msgRcvTime) {
         commonAttrMap.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
-        String time = "";
-        if (commonAttrMap.containsKey(ConfigConstants.PKG_TIME_KEY)) {
-            time = commonAttrMap
-                    .get(ConfigConstants.PKG_TIME_KEY);
-        } else {
-            time = String.valueOf(dataTime);
-        }
-        StringBuilder sidBuilder = new StringBuilder();
-        /*
-         * udp need use msgEvent get remote address
-         */
-        String remoteAddress = "";
-        if (channel != null && channel.remoteAddress() != null) {
-            remoteAddress = channel.remoteAddress().toString();
-        }
-        sidBuilder.append(remoteAddress).append("#").append(time)
-                .append("#").append(uniq);
-        commonAttrMap.put(AttributeConstants.SEQUENCE_ID, new String(sidBuilder));
-
-        // datetime from sdk
+        String time = String.valueOf(dataTime);
+        commonAttrMap.put(AttributeConstants.SEQUENCE_ID,
+                new StringBuilder(256).append(strRemoteIP)
+                        .append("#").append(time).append("#").append(uniq).toString());
+        // dt from sdk
         commonAttrMap.put(AttributeConstants.DATA_TIME, String.valueOf(dataTime));
         commonAttrMap
-                .put(AttributeConstants.RCV_TIME, String.valueOf(System.currentTimeMillis()));
-        commonAttrMap.put(AttributeConstants.MESSAGE_COUNT,
-                String.valueOf(msgCount != 0 ? msgCount : 1));
+                .put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
+        commonAttrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(msgCount));
     }
 
     private boolean handleExtMap(Map<String, String> commonAttrMap, ByteBuf cb,
@@ -165,18 +150,18 @@ public class DefaultServiceDecoder implements ServiceDecoder {
     }
 
     private ByteBuffer handleTrace(Channel channel, ByteBuf cb, int extendField,
-            int msgHeadPos, int totalDataLen, int attrLen, String strAttr, int bodyLen) {
+                                   int msgHeadPos, int totalDataLen, int attrLen,
+                                   String strAttr, int bodyLen, long msgRcvTime) {
         // whether enable trace
-        boolean enableTrace = (((extendField & 0x2) >> 1) == 0x1);
         ByteBuffer dataBuf;
+        boolean enableTrace = (((extendField & 0x2) >> 1) == 0x1);
         if (!enableTrace) {
             dataBuf = ByteBuffer.allocate(totalDataLen + BIN_MSG_TOTALLEN_SIZE);
             cb.getBytes(msgHeadPos, dataBuf.array(), 0,
                     totalDataLen + BIN_MSG_TOTALLEN_SIZE);
         } else {
-            String traceInfo;
+            // get local address
             String strNode2Ip = null;
-
             SocketAddress loacalSockAddr = channel.localAddress();
             if (null != loacalSockAddr) {
                 strNode2Ip = loacalSockAddr.toString();
@@ -187,11 +172,9 @@ public class DefaultServiceDecoder implements ServiceDecoder {
                             strNode2Ip, loacalSockAddr);
                 }
             }
-
-            traceInfo = "node2ip=" + strNode2Ip + "&rtime2=" + System.currentTimeMillis();
-
+            // build trace information
             int newTotalLen = 0;
-
+            String traceInfo = "node2ip=" + strNode2Ip + "&rtime2=" + msgRcvTime;
             if (attrLen != 0) {
                 newTotalLen = totalDataLen + traceInfo.length() + "&".length();
                 strAttr = strAttr + "&" + traceInfo;
@@ -199,7 +182,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
                 newTotalLen = totalDataLen + traceInfo.length();
                 strAttr = traceInfo;
             }
-
+            // build trace information bytes
             dataBuf = ByteBuffer.allocate(newTotalLen + BIN_MSG_TOTALLEN_SIZE);
             cb.getBytes(msgHeadPos, dataBuf.array(), 0,
                     bodyLen + (BIN_MSG_FORMAT_SIZE - BIN_MSG_ATTRLEN_SIZE
@@ -207,11 +190,9 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             dataBuf.putShort(
                     bodyLen + (BIN_MSG_FORMAT_SIZE - BIN_MSG_ATTRLEN_SIZE - BIN_MSG_MAGIC_SIZE),
                     (short) strAttr.length());
-
             System.arraycopy(strAttr.getBytes(StandardCharsets.UTF_8), 0, dataBuf.array(),
                     bodyLen + (BIN_MSG_FORMAT_SIZE - BIN_MSG_MAGIC_SIZE),
                     strAttr.length());
-
             dataBuf.putInt(0, newTotalLen);
             dataBuf.putShort(newTotalLen + BIN_MSG_TOTALLEN_SIZE - BIN_MSG_MAGIC_SIZE,
                     (short) 0xee01);
@@ -223,57 +204,51 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * extract bin data, message type is 7
      */
     private Map<String, Object> extractNewBinData(Map<String, Object> resultMap,
-            ByteBuf cb, Channel channel,
-            int totalDataLen, MsgType msgType) throws Exception {
+                                                  ByteBuf cb, Channel channel,
+                                                  int totalDataLen, MsgType msgType,
+                                                  String strRemoteIP,
+                                                  long msgRcvTime) throws Exception {
         int msgHeadPos = cb.readerIndex() - 5;
-
+        // get body length
         int bodyLen = cb.getInt(msgHeadPos + BIN_MSG_BODYLEN_OFFSET);
+        if (bodyLen == 0) {
+            throw new Exception(
+                    "Error msg,  bodyLen is empty; connection info:" + strRemoteIP);
+        }
+        // get attribute length
         int attrLen = cb.getShort(msgHeadPos + BIN_MSG_BODY_OFFSET + bodyLen);
+        // get msg magic
         int msgMagic = cb.getUnsignedShort(msgHeadPos + BIN_MSG_BODY_OFFSET
                 + bodyLen + BIN_MSG_ATTRLEN_SIZE + attrLen);
-
-        if (bodyLen == 0) {
-            throw new Exception(new Throwable("err msg,  bodyLen is empty"
-                    + ";Connection info:" + channel.toString()));
-        }
-
-        if ((totalDataLen + BIN_MSG_TOTALLEN_SIZE < (bodyLen + attrLen + BIN_MSG_FORMAT_SIZE))
-                || (msgMagic != BIN_MSG_MAGIC)) {
-            throw new Exception(new Throwable(
-                    "err msg, bodyLen + attrLen > totalDataLen,or msgMagic is valid! and bodyLen="
-                            + bodyLen + ",totalDataLen=" + totalDataLen + ",attrLen=" + attrLen
+        if ((msgMagic != BIN_MSG_MAGIC)
+                || (totalDataLen + BIN_MSG_TOTALLEN_SIZE < (bodyLen + attrLen + BIN_MSG_FORMAT_SIZE))) {
+            throw new Exception(
+                    "Error msg, bodyLen + attrLen > totalDataLen,or msgMagic is valid! and bodyLen="
+                            + bodyLen + ",attrLen=" + attrLen + ",totalDataLen=" + totalDataLen
                             + ";magic=" + Integer.toHexString(msgMagic)
-                            + ";Connection info:" + channel.toString()));
+                            + "; connection info:" + strRemoteIP);
         }
-
+        // read data from ByteBuf
         int groupIdNum = cb.readUnsignedShort();
         int streamIdNum = cb.readUnsignedShort();
         final int extendField = cb.readUnsignedShort();
         long dataTime = cb.readUnsignedInt();
-        int msgCount = cb.readUnsignedShort();
-        long uniq = cb.readUnsignedInt();
-
         dataTime = dataTime * 1000;
-        Map<String, String> commonAttrMap = new HashMap<String, String>();
+        int msgCount = cb.readUnsignedShort();
+        msgCount = (msgCount != 0) ? msgCount : 1;
+        long uniq = cb.readUnsignedInt();
         cb.skipBytes(BIN_MSG_BODYLEN_SIZE + bodyLen + BIN_MSG_ATTRLEN_SIZE);
-        resultMap.put(ConfigConstants.COMMON_ATTR_MAP, commonAttrMap);
-
-        resultMap.put(ConfigConstants.EXTRA_ATTR, ((extendField & 0x1) == 0x1) ? "true" : "false");
-
         // read body data
         byte[] bodyData = new byte[bodyLen];
         cb.getBytes(msgHeadPos + BIN_MSG_BODY_OFFSET, bodyData, 0, bodyLen);
-        resultMap.put(ConfigConstants.DECODER_BODY, bodyData);
-
         // read attr and write to map.
         String strAttr = null;
+        Map<String, String> commonAttrMap = new HashMap<>();
         if (attrLen != 0) {
             byte[] attrData = new byte[attrLen];
             cb.readBytes(attrData, 0, attrLen);
             strAttr = new String(attrData, StandardCharsets.UTF_8);
-            LOG.debug("strAttr = {}, length = {}", strAttr, strAttr.length());
             resultMap.put(ConfigConstants.DECODER_ATTRS, strAttr);
-
             try {
                 commonAttrMap.putAll(mapSplitter.split(strAttr));
             } catch (Exception e) {
@@ -281,26 +256,23 @@ public class DefaultServiceDecoder implements ServiceDecoder {
                 throw new MessageIDException(uniq,
                         ErrorCode.ATTR_ERROR,
                         new Throwable("[Parse Error]new six segment protocol ,attr is "
-                                + strAttr + " , channel info:" + channel.toString()));
+                                + strAttr + " , channel info:" + strRemoteIP));
             }
         }
-
+        // build attributes
+        resultMap.put(ConfigConstants.COMMON_ATTR_MAP, commonAttrMap);
+        resultMap.put(ConfigConstants.EXTRA_ATTR, ((extendField & 0x1) == 0x1) ? "true" : "false");
+        resultMap.put(ConfigConstants.DECODER_BODY, bodyData);
         try {
-            handleDateTime(commonAttrMap, channel, uniq, dataTime, msgCount);
-            final boolean index = handleExtMap(commonAttrMap, cb, resultMap, extendField, msgHeadPos);
+            // handle common attribute information
+            handleDateTime(commonAttrMap, uniq, dataTime, msgCount, strRemoteIP, msgRcvTime);
+            final boolean isIndexMsg =
+                    handleExtMap(commonAttrMap, cb, resultMap, extendField, msgHeadPos);
             ByteBuffer dataBuf = handleTrace(channel, cb, extendField, msgHeadPos,
-                    totalDataLen, attrLen, strAttr, bodyLen);
-
-            String groupId = null;
-            String streamId = null;
-
-            if (commonAttrMap.containsKey(AttributeConstants.GROUP_ID)) {
-                groupId = commonAttrMap.get(AttributeConstants.GROUP_ID);
-            }
-            if (commonAttrMap.containsKey(AttributeConstants.STREAM_ID)) {
-                streamId = commonAttrMap.get(AttributeConstants.STREAM_ID);
-            }
-
+                    totalDataLen, attrLen, strAttr, bodyLen, msgRcvTime);
+            // Check if groupId and streamId are number-to-name
+            String groupId = commonAttrMap.get(AttributeConstants.GROUP_ID);
+            String streamId = commonAttrMap.get(AttributeConstants.STREAM_ID);
             if ((groupId != null) && (streamId != null)) {
                 commonAttrMap.put(AttributeConstants.NUM2NAME, "FALSE");
                 dataBuf.putShort(BIN_MSG_EXTEND_OFFSET, (short) (extendField | 0x4));
@@ -312,15 +284,16 @@ public class DefaultServiceDecoder implements ServiceDecoder {
                     commonAttrMap.put(AttributeConstants.STREAMID_NUM, String.valueOf(streamIdNum));
                 }
             }
-
-            if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType) && !index) {
+            // build ProxyMessage
+            if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
                 List<ProxyMessage> msgList = new ArrayList<>(1);
-                msgList.add(new ProxyMessage(groupId, streamId, commonAttrMap, dataBuf.array()));
-                resultMap.put(ConfigConstants.MSG_LIST, msgList);
-            } else if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
-                List<ProxyMessage> msgList = new ArrayList<>(1);
-                msgList.add(new ProxyMessage(groupId, streamId, commonAttrMap,
-                        (byte[]) resultMap.get(ConfigConstants.FILE_BODY)));
+                if (isIndexMsg) {
+                    msgList.add(new ProxyMessage(groupId, streamId, commonAttrMap,
+                            (byte[]) resultMap.get(ConfigConstants.FILE_BODY)));
+                } else {
+                    msgList.add(new ProxyMessage(groupId,
+                            streamId, commonAttrMap, dataBuf.array()));
+                }
                 resultMap.put(ConfigConstants.MSG_LIST, msgList);
             }
         } catch (Exception ex) {
@@ -328,7 +301,6 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             cb.clear();
             throw new MessageIDException(uniq, ErrorCode.OTHER_ERROR, ex.getCause());
         }
-
         return resultMap;
     }
 
@@ -336,97 +308,97 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * extract bin data, message type less than 7
      */
     private Map<String, Object> extractDefaultData(Map<String, Object> resultMap,
-            ByteBuf cb, Channel channel,
-            int totalDataLen, MsgType msgType) throws Exception {
+                                                   ByteBuf cb, int totalDataLen,
+                                                   MsgType msgType, String strRemoteIP,
+                                                   long msgRcvTime) throws Exception {
         int bodyLen = cb.readInt();
         if (bodyLen == 0) {
-            throw new Exception(new Throwable("err msg,  bodyLen is empty" + ";"
-                    + "Connection info:" + channel.toString()));
+            throw new Exception("Error msg: bodyLen is empty, connection info:" + strRemoteIP);
         }
         // if body len is bigger than totalDataLen - 5(bodyLen bytes + message type bytes),
         // that means an invalid message, reject it.
         if (bodyLen > totalDataLen - 5) {
-            throw new Exception(new Throwable("err msg, firstLen > totalDataLen, and bodyLen="
+            throw new Exception("Error msg, firstLen > totalDataLen, and bodyLen="
                     + bodyLen + ",totalDataLen=" + totalDataLen
-                    + ";Connection info:" + channel.toString()));
+                    + ", connection info:" + strRemoteIP);
         }
-
         // extract body bytes
         byte[] bodyData = new byte[bodyLen];
         cb.readBytes(bodyData, 0, bodyLen);
         resultMap.put(ConfigConstants.DECODER_BODY, bodyData);
-
+        // extract attribute
         int attrLen = cb.readInt();
         // 9 means bodyLen bytes(4) + message type bytes(1) + attrLen bytes(4)
         if (totalDataLen != 9 + attrLen + bodyLen) {
-            throw new Exception(new Throwable(
-                    "err msg, totalDataLen != 9 + bodyLen + attrLen,and bodyLen=" + bodyLen
+            throw new Exception(
+                    "Error msg, totalDataLen != 9 + bodyLen + attrLen,and bodyLen=" + bodyLen
                             + ",totalDataLen=" + totalDataLen + ",attrDataLen=" + attrLen
-                            + ";Connection info:" + channel.toString()));
+                            + ", connection info:" + strRemoteIP);
         }
-
         // extract attr bytes
         byte[] attrData = new byte[attrLen];
         cb.readBytes(attrData, 0, attrLen);
-        String strAttr = new String(attrData, StandardCharsets.UTF_8);
-        resultMap.put(ConfigConstants.DECODER_ATTRS, strAttr);
-
         // convert attr bytes to map
         Map<String, String> commonAttrMap;
+        String strAttr = new String(attrData, StandardCharsets.UTF_8);
         try {
             commonAttrMap = new HashMap<>(mapSplitter.split(strAttr));
         } catch (Exception e) {
-            throw new Exception(new Throwable("Parse commonAttrMap error.commonAttrString is: "
-                    + strAttr + " ,channel is :" + channel.toString()));
+            throw new Exception("Parse commonAttrMap error.commonAttrString is: "
+                    + strAttr + " , connection info:" + strRemoteIP);
         }
+        resultMap.put(ConfigConstants.DECODER_ATTRS, strAttr);
         resultMap.put(ConfigConstants.COMMON_ATTR_MAP, commonAttrMap);
-
         // decompress body data if compress type exists.
         String compressType = commonAttrMap.get(AttributeConstants.COMPRESS_TYPE);
-        resultMap.put(ConfigConstants.COMPRESS_TYPE, compressType);
         if (StringUtils.isNotBlank(compressType)) {
+            resultMap.put(ConfigConstants.COMPRESS_TYPE, compressType);
             byte[] unCompressedData = processUnCompress(bodyData, compressType);
             if (unCompressedData == null || unCompressedData.length == 0) {
-                throw new Exception(new Throwable("Uncompressed data error!compress type:"
-                        + compressType + ";data:" + new String(bodyData, StandardCharsets.UTF_8)
-                        + ";attr:" + strAttr + ";channel:" + channel.toString()));
+                throw new Exception("Uncompressed data error! compress type:"
+                        + compressType + ";attr:" + strAttr
+                        + " , connection info:" + strRemoteIP);
             }
             bodyData = unCompressedData;
         }
-
         // fill up attr map with some keys.
-        commonAttrMap.put(AttributeConstants.RCV_TIME, String.valueOf(System.currentTimeMillis()));
         String groupId = commonAttrMap.get(AttributeConstants.GROUP_ID);
         String streamId = commonAttrMap.get(AttributeConstants.STREAM_ID);
-
-        // add message count attr
-        String cntStr = commonAttrMap.get(AttributeConstants.MESSAGE_COUNT);
-        int msgCnt = cntStr != null ? Integer.parseInt(cntStr) : 1;
-        commonAttrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(msgCnt));
-
+        String strDataTime = commonAttrMap.get(AttributeConstants.DATA_TIME);
+        long longDataTime = NumberUtils.toLong(strDataTime, msgRcvTime);
+        commonAttrMap.put(AttributeConstants.DATA_TIME, String.valueOf(longDataTime));
+        commonAttrMap.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
+        // check message count attr
+        String strMsgCnt = commonAttrMap.get(AttributeConstants.MESSAGE_COUNT);
+        int intMsgCnt = NumberUtils.toInt(strMsgCnt, 1);
+        commonAttrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(intMsgCnt));
         // extract data from bodyData and if message type is 5, convert data into list.
+        int calCnt = 0;
         List<ProxyMessage> msgList = null;
         ByteBuffer bodyBuffer = ByteBuffer.wrap(bodyData);
         if (MsgType.MSG_MULTI_BODY.equals(msgType)) {
-            msgList = new ArrayList<>(msgCnt);
+            msgList = new ArrayList<>(intMsgCnt);
             while (bodyBuffer.remaining() > 0) {
                 int singleMsgLen = bodyBuffer.getInt();
                 if (singleMsgLen <= 0 || singleMsgLen > bodyBuffer.remaining()) {
-                    throw new Exception(new Throwable("[Malformed Data]Invalid data len!channel is "
-                            + channel.toString()));
+                    throw new Exception(
+                            "[Malformed Data]Invalid data len! channel is " + strRemoteIP);
                 }
                 byte[] record = new byte[singleMsgLen];
                 bodyBuffer.get(record);
-
                 ProxyMessage message = new ProxyMessage(groupId, streamId, commonAttrMap, record);
                 msgList.add(message);
+                calCnt++;
             }
         } else {
             msgList = new ArrayList<>(1);
             msgList.add(new ProxyMessage(groupId, streamId, commonAttrMap, bodyData));
+            calCnt++;
+        }
+        if (calCnt != intMsgCnt) {
+            commonAttrMap.put(AttributeConstants.MESSAGE_COUNT, String.valueOf(calCnt));
         }
         resultMap.put(ConfigConstants.MSG_LIST, msgList);
-
         return resultMap;
     }
 
@@ -452,7 +424,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * +--------+--------+--------+----------------+--------+----------------+------------------------+
      */
     @Override
-    public Map<String, Object> extractData(ByteBuf cb, Channel channel) throws Exception {
+    public Map<String, Object> extractData(ByteBuf cb, String strRemoteIP,
+                                           long msgRcvTime, Channel channel) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
         if (null == cb) {
             LOG.error("cb == null");
@@ -460,8 +433,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
         }
         int totalLen = cb.readableBytes();
         if (ConfigConstants.MSG_MAX_LENGTH_BYTES < totalLen) {
-            throw new Exception(new Throwable("err msg, ConfigConstants.MSG_MAX_LENGTH_BYTES "
-                    + "< totalLen, and  totalLen=" + totalLen));
+            throw new Exception("Error msg, ConfigConstants.MSG_MAX_LENGTH_BYTES "
+                    + "< totalLen, and  totalLen=" + totalLen);
         }
         // save index, reset it if buffer is not satisfied.
         cb.markReaderIndex();
@@ -481,14 +454,16 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
                 return extractNewBinHB(resultMap, cb, channel, totalDataLen);
             }
-
+            // process data message
             if (msgType.getValue() >= MsgType.MSG_BIN_MULTI_BODY.getValue()) {
                 resultMap.put(ConfigConstants.COMPRESS_TYPE, (compressType != 0) ? "snappy" : "");
-                return extractNewBinData(resultMap, cb, channel, totalDataLen, msgType);
+                return extractNewBinData(resultMap, cb,
+                        channel, totalDataLen, msgType,
+                        strRemoteIP, msgRcvTime);
             } else {
-                return extractDefaultData(resultMap, cb, channel, totalDataLen, msgType);
+                return extractDefaultData(resultMap, cb,
+                        totalDataLen, msgType, strRemoteIP, msgRcvTime);
             }
-
         } else {
             // reset index.
             cb.resetReaderIndex();

@@ -17,11 +17,12 @@
  * under the License.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import merge from 'lodash/merge';
-import { trim } from '@/utils';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Form } from 'antd';
 import type { FormProps } from 'antd';
+import merge from 'lodash/merge';
+import { usePersistFn } from '@/hooks';
+import { trim } from '@/utils';
 import FormItemContent, { FormItemProps as ItemType } from './FormItemContent';
 
 export interface FormItemProps extends Omit<ItemType, 'props'> {
@@ -73,7 +74,7 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
 
   const viewOnly = props.viewOnly ?? false;
 
-  const combineContentWithProps = useCallback(
+  const combineContentWithProps = usePersistFn(
     (initialContent: Record<string, any>[], props: FormGeneratorProps) => {
       return initialContent.map((v: any) => {
         const initialProps =
@@ -132,7 +133,6 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
         };
       });
     },
-    [realTimeValues, form, viewOnly],
   );
 
   // A real-time value is generated when it is first mounted, because the initialValue may be defined on the FormItem
@@ -168,25 +168,7 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
     }
   }, [props.content, props.contents, props, combineContentWithProps]);
 
-  const { layout = 'horizontal', useMaxWidth } = props;
-  const isHorizontal = layout === 'horizontal';
-  const {
-    labelCol = isHorizontal && !props.labelCol ? { span: 6 } : props.labelCol,
-    wrapperCol = isHorizontal && !props.labelCol ? { span: 18 } : props.wrapperCol,
-    labelAlign = 'left',
-    style = useMaxWidth
-      ? {
-          ...props.style,
-          maxWidth: typeof useMaxWidth === 'number' ? useMaxWidth : 1200,
-        }
-      : props.style,
-    children,
-    onFilter,
-  } = props;
-
-  const isInline = layout === 'inline';
-
-  const onValuesChange = (changedValues, allValues) => {
+  const onValuesChange = usePersistFn((changedValues, allValues) => {
     props.onValuesChange && props.onValuesChange(changedValues, allValues);
 
     if (contents && contents.length) {
@@ -197,42 +179,48 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
       });
       const newRealTimeValues = trim(allValues) as any;
       setRealTimeValues(newRealTimeValues);
-      if (noPrevent && onFilter) {
-        onFilter(newRealTimeValues);
+      if (noPrevent && props.onFilter) {
+        props.onFilter(newRealTimeValues);
       }
     }
-  };
+  });
 
-  const formProps = { ...props };
-  delete formProps.useMaxWidth;
-  delete formProps.content;
-  delete formProps.contents;
-  delete formProps.onFilter;
-  delete formProps.initialValues;
+  const formProps = useMemo(() => {
+    const { layout = 'horizontal', useMaxWidth } = props;
+    const isHorizontal = layout === 'horizontal';
+    const {
+      labelCol = isHorizontal && !props.labelCol ? { span: 6 } : props.labelCol,
+      wrapperCol = isHorizontal && !props.labelCol ? { span: 18 } : props.wrapperCol,
+      labelAlign = 'left',
+      style = useMaxWidth
+        ? {
+            ...props.style,
+            maxWidth: typeof useMaxWidth === 'number' ? useMaxWidth : 1200,
+          }
+        : props.style,
+    } = props;
+    const obj = { ...props, labelCol, wrapperCol, labelAlign, style };
+    delete obj.useMaxWidth;
+    delete obj.content;
+    delete obj.contents;
+    delete obj.onFilter;
+    delete obj.initialValues;
+    return obj;
+  }, [props]);
 
   return (
-    <Form
-      {...formProps}
-      requiredMark={!viewOnly}
-      form={form}
-      layout={layout}
-      labelCol={labelCol}
-      wrapperCol={wrapperCol}
-      labelAlign={labelAlign}
-      style={style}
-      onValuesChange={onValuesChange}
-    >
+    <Form {...formProps} requiredMark={!viewOnly} form={form} onValuesChange={onValuesChange}>
       {contents &&
         contents.map((val: ContentsItemProps, index) => (
           <FormItemContent
             content={val.content}
             target={val.target}
-            useInline={isInline}
+            useInline={formProps.layout === 'inline'}
             key={index}
             values={realTimeValues}
           />
         ))}
-      {children}
+      {props.children}
     </Form>
   );
 };

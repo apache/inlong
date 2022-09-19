@@ -17,16 +17,59 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import org.apache.inlong.manager.common.enums.ProcessEvent;
+import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
+
+import java.util.Map;
 
 public interface WorkflowEventApi {
 
+    /**
+     * Get event list by paginating
+     */
     @GET("workflow/event/list")
-    Call<Response<PageResult<EventLogResponse>>> getInlongGroupError(@Query("inlongGroupId") String groupId,
-            @Query("status") Integer status);
+    Call<Response<PageResult<EventLogResponse>>> list(@Query("map") Map<String, Object> map);
+
+    /**
+     * Execute the listener based on the event log ID
+     */
+    @POST("workflow/event/executeEventListener/{id}")
+    Call<Response<Object>> executeEventListener(@Path("id") Integer id);
+
+    /**
+     * Re-execute the specified listener based on the process ID
+     */
+    @POST("workflow/event/≈")
+    Call<Response<Object>> executeProcessEventListener(
+            @Query("processId") Integer processId, @Query("listenerName") String listenerName);
+
+    /**
+     * Re-execute the specified listener based on the task ID
+     */
+    @POST("workflow/event/executeTaskEventListener")
+    Call<Response<Object>> executeTaskEventListener(
+            @Query("taskId") Integer taskId, @Query("listenerName") String listenerName);
+
+    /**
+     * Re-trigger the process event based on the process ID
+     */
+    @POST("workflow/event/triggerProcessEvent")
+    Call<Response<Object>> triggerProcessEvent(
+            @Query("processId") Integer processId, @Query("processEvent") ProcessEvent processEvent);
+
+    /**
+     * Re-trigger the process event based on the task ID
+     */
+    @POST("workflow/event/triggerProcessEvent")
+    Call<Response<Object>> triggerTaskEvent(
+            @Query("taskId") Integer taskId, @Query("taskEvent") TaskEvent taskEvent);
+
 }

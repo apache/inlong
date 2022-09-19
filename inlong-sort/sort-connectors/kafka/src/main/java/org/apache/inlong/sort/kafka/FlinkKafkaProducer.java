@@ -28,6 +28,7 @@ import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.time.Time;
+import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeutils.SimpleTypeSerializerSnapshot;
 import org.apache.flink.api.common.typeutils.TypeSerializerSnapshot;
@@ -56,10 +57,11 @@ import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.NetUtils;
 import org.apache.flink.util.TemporaryClassLoaderContext;
-import org.apache.inlong.audit.AuditImp;
-import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -78,7 +80,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -93,9 +94,12 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
 /**
  * Copy from org.apache.flink:flink-connector-kafka_2.11:1.13.5
@@ -239,23 +243,15 @@ public class FlinkKafkaProducer<IN>
     @Nullable
     protected transient volatile Exception asyncException;
     /**
-     * audit implement
-     */
-    private transient AuditImp auditImp;
-    /**
-     * inLong groupId
-     */
-    private String inlongGroupId;
-    /**
-     * inLong streamId
-     */
-    private String inlongStreamId;
-    /**
      * sink metric data
      */
     private SinkMetricData metricData;
     private Long dataSize = 0L;
     private Long rowSize = 0L;
+
+    private transient ListState<MetricState> metricStateListState;
+
+    private MetricState metricState;
     /**
      * State for nextTransactionalIdHint.
      */
@@ -905,57 +901,29 @@ public class FlinkKafkaProducer<IN>
                     RuntimeContextInitializationContextAdapters.serializationAdapter(
                             getRuntimeContext(), metricGroup -> metricGroup.addGroup("user")));
         }
-        if (inlongMetric != null && !inlongMetric.isEmpty()) {
-            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
-            inlongGroupId = inlongMetricArray[0];
-            inlongStreamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            metricData = new SinkMetricData(inlongGroupId, inlongStreamId, nodeId, ctx.getMetricGroup());
-            metricData.registerMetricsForDirtyBytes(new ThreadSafeCounter());
-            metricData.registerMetricsForDirtyRecords(new ThreadSafeCounter());
-            metricData.registerMetricsForNumBytesOut(new ThreadSafeCounter());
-            metricData.registerMetricsForNumRecordsOut(new ThreadSafeCounter());
-            metricData.registerMetricsForNumBytesOutPerSecond();
-            metricData.registerMetricsForNumRecordsOutPerSecond();
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withInlongAudit(auditHostAndPorts)
+                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
+                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .build();
+        if (metricOption != null) {
+            metricData = new SinkMetricData(metricOption, ctx.getMetricGroup());
         }
-
-        if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
-            auditImp = AuditImp.getInstance();
-        }
-
         super.open(configuration);
     }
 
     private void sendOutMetrics(Long rowSize, Long dataSize) {
         if (metricData != null) {
-            metricData.getNumRecordsOut().inc(rowSize);
-            metricData.getNumBytesOut().inc(dataSize);
+            metricData.invoke(rowSize, dataSize);
         }
     }
 
     private void sendDirtyMetrics(Long rowSize, Long dataSize) {
         if (metricData != null) {
-            metricData.getDirtyRecords().inc(rowSize);
-            metricData.getDirtyBytes().inc(dataSize);
+            metricData.invokeDirty(rowSize, dataSize);
         }
-    }
-
-    private void outputMetricForAudit(ProducerRecord<byte[], byte[]> record) {
-        if (auditImp != null) {
-            auditImp.add(
-                    Constants.AUDIT_SORT_OUTPUT,
-                    inlongGroupId,
-                    inlongStreamId,
-                    System.currentTimeMillis(),
-                    1,
-                    record.value().length);
-        }
-    }
-
-    private void resetMetricSize() {
-        dataSize = 0L;
-        rowSize = 0L;
     }
 
     // ------------------- Logic for handling checkpoint flushing -------------------------- //
@@ -965,7 +933,6 @@ public class FlinkKafkaProducer<IN>
             FlinkKafkaProducer.KafkaTransactionState transaction, IN next, Context context)
             throws FlinkKafkaException {
         checkErroneous();
-        resetMetricSize();
 
         ProducerRecord<byte[], byte[]> record;
         if (keyedSchema != null) {
@@ -1029,10 +996,7 @@ public class FlinkKafkaProducer<IN>
                             + "is a bug.");
         }
 
-        rowSize++;
-        dataSize = dataSize + record.value().length;
-        sendOutMetrics(rowSize, dataSize);
-        outputMetricForAudit(record);
+        sendOutMetrics(1L, (long) record.value().length);
 
         pendingRecords.incrementAndGet();
         transaction.producer.send(record, callback);
@@ -1247,6 +1211,10 @@ public class FlinkKafkaProducer<IN>
                             getRuntimeContext().getNumberOfParallelSubtasks(),
                             nextFreeTransactionalId));
         }
+        if (metricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, metricData,
+                    getRuntimeContext().getIndexOfThisSubtask());
+        }
     }
 
     @Override
@@ -1258,6 +1226,14 @@ public class FlinkKafkaProducer<IN>
                     semantic,
                     FlinkKafkaProducer.Semantic.NONE);
             semantic = FlinkKafkaProducer.Semantic.NONE;
+        }
+
+        if (this.inlongMetric != null) {
+            this.metricStateListState =
+                    context.getOperatorStateStore().getUnionListState(
+                            new ListStateDescriptor<>(
+                                    INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                            })));
         }
 
         nextTransactionalIdHintState =
@@ -1311,6 +1287,11 @@ public class FlinkKafkaProducer<IN>
             } else {
                 nextTransactionalIdHint = transactionalIdHints.get(0);
             }
+        }
+
+        if (context.isRestored()) {
+            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
         }
 
         super.initializeState(context);

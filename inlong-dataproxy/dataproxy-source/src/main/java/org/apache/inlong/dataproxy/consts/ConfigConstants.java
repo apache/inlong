@@ -75,6 +75,8 @@ public class ConfigConstants {
 
     public static final String TOPIC_KEY = "topic";
     public static final String REMOTE_IP_KEY = "srcIp";
+    public static final String DATAPROXY_IP_KEY = "dpIp";
+    public static final String MSG_ENCODE_VER = "msgEnType";
     public static final String REMOTE_IDC_KEY = "idc";
     public static final String MSG_COUNTER_KEY = "msgcnt";
     public static final String PKG_COUNTER_KEY = "pkgcnt";
@@ -94,6 +96,7 @@ public class ConfigConstants {
     public static final String CLUSTER_ID_KEY = "clusterId";
     public static final String MANAGER_HOST = "manager.hosts";
     public static final String PROXY_CLUSTER_NAME = "proxy.cluster.name";
+    public static final String DEFAULT_PROXY_CLUSTER_NAME = "DataProxy";
     public static final String PROXY_CLUSTER_TAG = "proxy.cluster.tag";
     public static final String PROXY_CLUSTER_INCHARGES = "proxy.cluster.inCharges";
     public static final String PROXY_REPORT_IP = "proxy.report.ip";

@@ -15,53 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.event.task;
+package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.inlong.manager.workflow.event.WorkflowEvent;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.sources.reader.MongoDBReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Task event
+ * MongoDBSource : mongo source, split mongo source job into multi readers
  */
-public enum TaskEvent implements WorkflowEvent {
+public class MongoDBSource extends AbstractSource {
 
-    /**
-     * Task is created
-     */
-    CREATE,
+    private static final Logger LOGGER = LoggerFactory.getLogger(MongoDBSource.class);
 
-    /**
-     * Task is approved
-     */
-    APPROVE,
-
-    /**
-     * Task is rejected
-     */
-    REJECT,
-
-    /**
-     * Transfer task to someone else
-     */
-    TRANSFER,
-
-    /**
-     * Task is cancelled
-     */
-    CANCEL,
-
-    /**
-     * Automatic task completion
-     */
-    COMPLETE,
-
-    /**
-     * Task was terminated
-     */
-    TERMINATE,
-
-    /**
-     * System task failed
-     */
-    FAIL,
-
+    @Override
+    public List<Reader> split(JobProfile conf) {
+        super.init(conf);
+        List<Reader> readerList = Collections.singletonList(new MongoDBReader());
+        sourceMetric.sourceSuccessCount.incrementAndGet();
+        return readerList;
+    }
 }

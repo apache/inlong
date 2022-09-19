@@ -22,7 +22,6 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.connectors.kafka.config.StartupMode;
 import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
@@ -41,13 +40,12 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Preconditions;
-
+import org.apache.inlong.sort.kafka.FlinkKafkaConsumer;
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema.MetadataConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,14 +72,21 @@ public class KafkaDynamicSource
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
 
-    /** Data type that describes the final output of the source. */
+    /**
+     * Data type that describes the final output of the source.
+     */
     protected DataType producedDataType;
 
-    /** Metadata that is appended at the end of a physical source row. */
+    /**
+     * Metadata that is appended at the end of a physical source row.
+     */
     protected List<String> metadataKeys;
 
-    /** Watermark strategy that is used to generate per-partition watermark. */
-    protected @Nullable WatermarkStrategy<RowData> watermarkStrategy;
+    /**
+     * Watermark strategy that is used to generate per-partition watermark.
+     */
+    protected @Nullable
+    WatermarkStrategy<RowData> watermarkStrategy;
 
     // --------------------------------------------------------------------------------------------
     // Format attributes
@@ -89,35 +94,55 @@ public class KafkaDynamicSource
 
     private static final String VALUE_METADATA_PREFIX = "value.";
 
-    /** Data type to configure the formats. */
+    /**
+     * Data type to configure the formats.
+     */
     protected final DataType physicalDataType;
 
-    /** Optional format for decoding keys from Kafka. */
-    protected final @Nullable DecodingFormat<DeserializationSchema<RowData>> keyDecodingFormat;
+    /**
+     * Optional format for decoding keys from Kafka.
+     */
+    protected final @Nullable
+    DecodingFormat<DeserializationSchema<RowData>> keyDecodingFormat;
 
-    /** Format for decoding values from Kafka. */
+    /**
+     * Format for decoding values from Kafka.
+     */
     protected final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat;
 
-    /** Indices that determine the key fields and the target position in the produced row. */
+    /**
+     * Indices that determine the key fields and the target position in the produced row.
+     */
     protected final int[] keyProjection;
 
-    /** Indices that determine the value fields and the target position in the produced row. */
+    /**
+     * Indices that determine the value fields and the target position in the produced row.
+     */
     protected final int[] valueProjection;
 
-    /** Prefix that needs to be removed from fields when constructing the physical data type. */
-    protected final @Nullable String keyPrefix;
+    /**
+     * Prefix that needs to be removed from fields when constructing the physical data type.
+     */
+    protected final @Nullable
+    String keyPrefix;
 
     // --------------------------------------------------------------------------------------------
     // Kafka-specific attributes
     // --------------------------------------------------------------------------------------------
 
-    /** The Kafka topics to consume. */
+    /**
+     * The Kafka topics to consume.
+     */
     protected final List<String> topics;
 
-    /** The Kafka topic pattern to consume. */
+    /**
+     * The Kafka topic pattern to consume.
+     */
     protected final Pattern topicPattern;
 
-    /** Properties for the Kafka consumer. */
+    /**
+     * Properties for the Kafka consumer.
+     */
     protected final Properties properties;
 
     /**
@@ -137,7 +162,9 @@ public class KafkaDynamicSource
      */
     protected final long startupTimestampMillis;
 
-    /** Flag to determine source mode. In upsert mode, it will keep the tombstone message. * */
+    /**
+     * Flag to determine source mode. In upsert mode, it will keep the tombstone message. *
+     */
     protected final boolean upsertMode;
 
     protected final String inlongMetric;
@@ -214,7 +241,7 @@ public class KafkaDynamicSource
 
         final FlinkKafkaConsumer<RowData> kafkaConsumer =
                 createKafkaConsumer(keyDeserialization, valueDeserialization,
-                    producedTypeInfo, inlongMetric, auditHostAndPorts);
+                        producedTypeInfo, inlongMetric, auditHostAndPorts);
 
         return SourceFunctionProvider.of(kafkaConsumer, false);
     }
@@ -350,8 +377,8 @@ public class KafkaDynamicSource
             DeserializationSchema<RowData> keyDeserialization,
             DeserializationSchema<RowData> valueDeserialization,
             TypeInformation<RowData> producedTypeInfo,
-        String inlongMetric,
-        String auditHostAndPorts) {
+            String inlongMetric,
+            String auditHostAndPorts) {
 
         final MetadataConverter[] metadataConverters =
                 metadataKeys.stream()
@@ -390,13 +417,15 @@ public class KafkaDynamicSource
                         hasMetadata,
                         metadataConverters,
                         producedTypeInfo,
-                        upsertMode, inlongMetric, auditHostAndPorts);
+                        upsertMode);
 
         final FlinkKafkaConsumer<RowData> kafkaConsumer;
         if (topics != null) {
-            kafkaConsumer = new FlinkKafkaConsumer<>(topics, kafkaDeserializer, properties);
+            kafkaConsumer = new FlinkKafkaConsumer<>(topics, kafkaDeserializer, properties, inlongMetric,
+                    auditHostAndPorts);
         } else {
-            kafkaConsumer = new FlinkKafkaConsumer<>(topicPattern, kafkaDeserializer, properties);
+            kafkaConsumer = new FlinkKafkaConsumer<>(topicPattern, kafkaDeserializer, properties, inlongMetric,
+                    auditHostAndPorts);
         }
 
         switch (startupMode) {
@@ -425,7 +454,8 @@ public class KafkaDynamicSource
         return kafkaConsumer;
     }
 
-    private @Nullable DeserializationSchema<RowData> createDeserialization(
+    private @Nullable
+    DeserializationSchema<RowData> createDeserialization(
             DynamicTableSource.Context context,
             @Nullable DecodingFormat<DeserializationSchema<RowData>> format,
             int[] projection,

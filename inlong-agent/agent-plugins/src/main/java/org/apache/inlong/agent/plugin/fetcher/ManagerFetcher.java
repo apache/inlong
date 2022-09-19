@@ -255,7 +255,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * request manager to get db collect task, make sure it is not throwing exceptions
      */
     public void fetchDbCollectTask() {
-        if (agentManager.getJobManager().sqlJobExsit()) {
+        if (agentManager.getJobManager().sqlJobExist()) {
             return;
         }
         JsonObject resultData = getResultData(httpManager.doSentPost(managerDbCollectorTaskUrl, getSqlTaskRequest()));
@@ -387,7 +387,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         Collection<File> suitFiles = PluginUtils.findSuitFiles(triggerProfile);
         // filter files exited before
         List<File> pendingFiles = suitFiles.stream().filter(file ->
-                !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
+                !agentManager.getJobManager().checkJobExist(file.getAbsolutePath()))
                 .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
             JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,

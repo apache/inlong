@@ -24,6 +24,7 @@ import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.message.SequentialID;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.metric.MetricRegister;
@@ -226,13 +227,8 @@ public class SenderManager {
         }
         try {
             selectSender(groupId).asyncSendMessage(
-                    new AgentSenderCallback(jobId, groupId, streamId, bodyList, retry, dataTime),
-                    bodyList, groupId, streamId,
-                    dataTime,
-                    SEQUENTIAL_ID.getNextUuid(),
-                    maxSenderTimeout,
-                    TimeUnit.SECONDS
-            );
+                    new AgentSenderCallback(jobId, groupId, streamId, bodyList, retry, dataTime), bodyList,
+                    groupId, streamId, dataTime, SEQUENTIAL_ID.getNextUuid(), maxSenderTimeout, TimeUnit.SECONDS);
         } catch (Exception exception) {
             LOGGER.error("Exception caught", exception);
             // retry time
@@ -259,17 +255,28 @@ public class SenderManager {
             LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
+        Map<String, String> dims = new HashMap<>();
+        dims.put(KEY_INLONG_GROUP_ID, groupId);
+        dims.put(KEY_INLONG_STREAM_ID, streamId);
         try {
-            selectSender(groupId).sendMessage(
-                    bodyList, groupId, streamId, dataTime, "",
-                    maxSenderTimeout, TimeUnit.SECONDS, extraMap
-            );
-            semaphore.release(bodyList.size());
+            SendResult result = selectSender(groupId).sendMessage(bodyList, groupId, streamId, dataTime, "",
+                    maxSenderTimeout, TimeUnit.SECONDS, extraMap);
+            if (result == SendResult.OK) {
+                semaphore.release(bodyList.size());
+                getMetricItem(dims).pluginSendSuccessCount.addAndGet(bodyList.size());
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size());
+            } else {
+                getMetricItem(dims).pluginSendFailCount.addAndGet(bodyList.size());
+                LOGGER.warn("send data to dataproxy error {}", result.toString());
+                sendBatchSync(groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
+            }
+
         } catch (Exception exception) {
             LOGGER.error("Exception caught", exception);
             // retry time
             try {
                 TimeUnit.SECONDS.sleep(1);
+                getMetricItem(dims).pluginSendFailCount.addAndGet(bodyList.size());
                 sendBatchSync(groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
             } catch (Exception ignored) {
                 // ignore it.
@@ -312,6 +319,7 @@ public class SenderManager {
             Map<String, String> dims = new HashMap<>();
             dims.put(KEY_INLONG_GROUP_ID, groupId);
             dims.put(KEY_INLONG_STREAM_ID, streamId);
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size());
             getMetricItem(dims).pluginSendSuccessCount.addAndGet(bodyList.size());
             if (sourcePath != null) {
                 taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());

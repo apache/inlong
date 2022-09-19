@@ -57,7 +57,7 @@ const defaultCommonFields: FieldItemType[] = [
   },
   {
     name: 'sourceType',
-    type: 'radio',
+    type: 'select',
     label: i18n.t('meta.Sources.Type'),
     rules: [{ required: true }],
     initialValue: allSources[0].value,

@@ -79,7 +79,7 @@ public class HiveSinkDTO {
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
     private String dataEncoding;
 
-    @ApiModelProperty("Data separator, stored as ASCII code")
+    @ApiModelProperty("Data separator")
     private String dataSeparator;
 
     @ApiModelProperty("Properties for hive")

@@ -20,7 +20,7 @@ package org.apache.inlong.tubemq.manager.service;
 public class TubeMQErrorConst {
     public static final String PARAM_ILLEGAL = "param illegal";
     public static final String BROKER_IN_OTHER_REGION = "resource already used";
-    public static final String RESOURCE_NOT_EXIST = "resource not exsit";
+    public static final String RESOURCE_NOT_EXIST = "resource not exist";
     public static final String MYSQL_ERROR = "mysql error";
     public static final String NO_SUCH_CLUSTER = "no such cluster";
     public static final String NO_SUCH_METHOD = "no such method";

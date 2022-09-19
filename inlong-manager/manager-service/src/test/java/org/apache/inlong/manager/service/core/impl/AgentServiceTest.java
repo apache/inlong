@@ -17,9 +17,19 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.google.common.collect.Lists;
+import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.db.CommandEntity;
+import org.apache.inlong.common.enums.PullJobTypeEnum;
+import org.apache.inlong.common.pojo.agent.DataConfig;
+import org.apache.inlong.common.pojo.agent.TaskRequest;
+import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.SourceStatus;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AgentService;
@@ -57,6 +67,20 @@ class AgentServiceTest extends ServiceBaseTest {
     }
 
     /**
+     * Save template source
+     */
+    public Integer saveTemplateSource() {
+        streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
+        FileSourceRequest sourceInfo = new FileSourceRequest();
+        sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
+        sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
+        sourceInfo.setSourceType(SourceType.FILE);
+        sourceInfo.setSourceName("template_source_in_agent_service_test");
+        sourceInfo.setInlongClusterName(GLOBAL_CLUSTER_NAME);
+        return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
+    }
+
+    /**
      * Test report snapshot.
      */
     @Test
@@ -76,6 +100,50 @@ class AgentServiceTest extends ServiceBaseTest {
         Assertions.assertTrue(result);
 
         sourceService.delete(id, GLOBAL_OPERATOR);
+    }
+
+    /**
+     * Test sub-source task status manipulation.
+     */
+    @Test
+    void testGetAndReportSubSourceTask() {
+        // create template source for cluster agents and approve
+        final Integer templateId = this.saveTemplateSource();
+        sourceService.updateStatus(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, SourceStatus.TO_BE_ISSUED_ADD.getCode(),
+                GLOBAL_OPERATOR);
+
+        // get sub-source task
+        TaskRequest getRequest = new TaskRequest();
+        getRequest.setAgentIp("127.0.0.1");
+        getRequest.setClusterName(GLOBAL_CLUSTER_NAME);
+        getRequest.setPullJobType(PullJobTypeEnum.NEW.getType());
+        TaskResult result = agentService.getTaskResult(getRequest);
+        Assertions.assertEquals(1, result.getDataConfigs().size());
+        DataConfig subSourceTask = result.getDataConfigs().get(0);
+        // new sub-source version must be 1
+        Assertions.assertEquals(1, subSourceTask.getVersion());
+        // sub-source's id must be different from its template source
+        Assertions.assertNotEquals(templateId, subSourceTask.getTaskId());
+        // operation is to add new task
+        Assertions.assertEquals(SourceStatus.BEEN_ISSUED_ADD.getCode() % 100,
+                Integer.valueOf(subSourceTask.getOp()));
+
+        // report sub-source status
+        CommandEntity reportTask = new CommandEntity();
+        reportTask.setTaskId(subSourceTask.getTaskId());
+        reportTask.setVersion(subSourceTask.getVersion());
+        reportTask.setCommandResult(Constants.RESULT_SUCCESS);
+        TaskRequest reportRequest = new TaskRequest();
+        reportRequest.setAgentIp("127.0.0.1");
+        reportRequest.setCommandInfo(Lists.newArrayList(reportTask));
+        agentService.report(reportRequest);
+
+        // check sub-source task status
+        StreamSource subSource = sourceService.get(subSourceTask.getTaskId());
+        Assertions.assertEquals(SourceStatus.SOURCE_NORMAL.getCode(), subSource.getStatus());
+
+        sourceService.delete(templateId, GLOBAL_OPERATOR);
+        sourceService.delete(subSource.getId(), GLOBAL_OPERATOR);
     }
 
 }

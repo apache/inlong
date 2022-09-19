@@ -22,12 +22,8 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_DATA
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_GROUPID;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.group.ChannelGroup;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -38,14 +34,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
-import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
@@ -56,11 +56,9 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
+import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 
 /**
  * Server message handler
@@ -93,7 +91,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             return new SimpleDateFormat("yyyyMMddHHmmss");
         }
     };
-    private AbstractSource source;
+    private BaseSource source;
     private final ChannelGroup allChannels;
     private int maxConnections = Integer.MAX_VALUE;
     private boolean filterEmptyMsg = false;
@@ -118,7 +116,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
      * @param isCompressed
      * @param protocolType
      */
-    public SimpleMessageHandler(AbstractSource source, ServiceDecoder serProcessor,
+    public SimpleMessageHandler(BaseSource source, ServiceDecoder serProcessor,
             ChannelGroup allChannels,
             String topic, String attr, Boolean filterEmptyMsg, Integer maxMsgLength,
             Integer maxCons,
@@ -136,11 +134,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
         this.isCompressed = isCompressed;
         this.maxConnections = maxCons;
         this.protocolType = protocolType;
-        if (source instanceof SimpleTcpSource) {
-            this.metricItemSet = ((SimpleTcpSource) source).getMetricItemSet();
-        } else {
-            this.metricItemSet = new DataProxyMetricItemSet(this.toString());
-        }
+        this.metricItemSet = source.getMetricItemSet();
     }
 
     private String getRemoteIp(Channel channel) {
@@ -476,6 +470,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
         headers.put(Constants.TOPIC, proxyMessage.getTopic());
         headers.put(Constants.HEADER_KEY_MSG_TIME, commonHeaders.get(AttributeConstants.DATA_TIME));
         headers.put(Constants.HEADER_KEY_SOURCE_IP, commonHeaders.get(AttributeConstants.NODE_IP));
+        headers.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V1.getName());
         Event event = EventBuilder.withBody(proxyMessage.getData(), headers);
         return event;
     }
@@ -581,6 +576,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             return;
         }
         Channel remoteChannel = ctx.channel();
+        String strRemoteIP = getRemoteIp(remoteChannel);
         ByteBuf cb = (ByteBuf) msg;
         try {
             int len = cb.readableBytes();
@@ -591,8 +587,10 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
             Map<String, Object> resultMap = null;
+            final long msgRcvTime = System.currentTimeMillis();
             try {
-                resultMap = serviceProcessor.extractData(cb, remoteChannel);
+                resultMap = serviceProcessor.extractData(cb,
+                        strRemoteIP, msgRcvTime, remoteChannel);
             } catch (MessageIDException ex) {
                 this.addMetric(false, 0, null);
                 throw new IOException(ex.getCause());
@@ -628,7 +626,6 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                     && !commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                     && !commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
                 Map<String, HashMap<String, List<ProxyMessage>>> messageMap = new HashMap<>(msgList.size());
-                String strRemoteIP = getRemoteIp(remoteChannel);
                 updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP, msgType);
 
                 formatMessagesAndSend(commonAttrMap, messageMap, strRemoteIP, msgType);

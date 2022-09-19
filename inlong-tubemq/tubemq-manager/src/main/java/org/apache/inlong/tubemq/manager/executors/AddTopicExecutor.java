@@ -146,13 +146,13 @@ public class AddTopicExecutor {
             if (topicBrokerList.isEmpty()) {
                 brandNewTopics.add(topic);
             } else {
-                handleAddingExsitTopics(masterEntry, brokerInfoList, topic, topicBrokerList);
+                handleAddingExistTopics(masterEntry, brokerInfoList, topic, topicBrokerList);
             }
         }
         handleAddingNewTopics(masterEntry, brokerInfoList, brandNewTopics);
     }
 
-    private void handleAddingExsitTopics(MasterEntry masterEntry, TubeHttpBrokerInfoList brokerInfoList,
+    private void handleAddingExistTopics(MasterEntry masterEntry, TubeHttpBrokerInfoList brokerInfoList,
                                          String topic, List<Integer> topicBrokerList) {
         // remove brokers which have been added.
         List<Integer> configurableBrokerIdList =

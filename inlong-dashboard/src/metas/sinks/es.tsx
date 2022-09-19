@@ -17,15 +17,9 @@
  * under the License.
  */
 
-import {
-  getColsFromFields,
-  GetStorageColumnsType,
-  GetStorageFormFieldsType,
-} from '@/utils/metaData';
 import i18n from '@/i18n';
-import { ColumnsType } from 'antd/es/table';
-import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
-import { excludeObject } from '@/utils';
+import type { FieldItemType } from '@/metas/common';
+import EditableTable from '@/components/EditableTable';
 import { sourceFields } from './common/sourceFields';
 
 const esTypes = [
@@ -46,138 +40,126 @@ const esTypes = [
   value: item,
 }));
 
-const getForm: GetStorageFormFieldsType = (
-  type: 'form' | 'col' = 'form',
-  { currentValues, inlongGroupId, isEdit, dataType } = {} as any,
-) => {
-  const fileds = [
-    {
-      name: 'indexName',
-      type: 'input',
-      label: i18n.t('meta.Sinks.Es.IndexName'),
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      name: 'enableCreateResource',
-      type: 'radio',
-      label: i18n.t('meta.Sinks.EnableCreateResource'),
-      rules: [{ required: true }],
-      initialValue: 1,
-      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        options: [
-          {
-            label: i18n.t('basic.Yes'),
-            value: 1,
-          },
-          {
-            label: i18n.t('basic.No'),
-            value: 0,
-          },
-        ],
-      },
-    },
-    {
-      name: 'username',
-      type: 'input',
-      label: i18n.t('meta.Sinks.Username'),
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      name: 'password',
-      type: 'password',
-      label: i18n.t('meta.Sinks.Password'),
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        style: {
-          maxWidth: 500,
+export const es: FieldItemType[] = [
+  {
+    name: 'indexName',
+    type: 'input',
+    label: i18n.t('meta.Sinks.Es.IndexName'),
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    name: 'enableCreateResource',
+    type: 'radio',
+    label: i18n.t('meta.Sinks.EnableCreateResource'),
+    rules: [{ required: true }],
+    initialValue: 1,
+    tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: 1,
         },
-      },
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.Es.Host'),
-      name: 'host',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-    {
-      name: 'port',
-      type: 'inputnumber',
-      label: i18n.t('meta.Sinks.Es.Port'),
-      initialValue: 9200,
-      props: {
-        min: 1,
-        max: 65535,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      rules: [{ required: true }],
-    },
-    {
-      name: 'flushInterval',
-      type: 'inputnumber',
-      label: i18n.t('meta.Sinks.Es.FlushInterval'),
-      initialValue: 1,
-      props: {
-        min: 1,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      rules: [{ required: true }],
-      suffix: i18n.t('meta.Sinks.Es.FlushIntervalUnit'),
-    },
-    {
-      name: 'flushRecord',
-      type: 'inputnumber',
-      label: i18n.t('meta.Sinks.Es.FlushRecord'),
-      initialValue: 1000,
-      props: {
-        min: 1,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      rules: [{ required: true }],
-      suffix: i18n.t('meta.Sinks.Es.FlushRecordUnit'),
-    },
-    {
-      name: 'retryTime',
-      type: 'inputnumber',
-      label: i18n.t('meta.Sinks.Es.RetryTimes'),
-      initialValue: 3,
-      props: {
-        min: 1,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      rules: [{ required: true }],
-      suffix: i18n.t('meta.Sinks.Es.RetryTimesUnit'),
-    },
-    {
-      name: 'sinkFieldList',
-      type: EditableTable,
-      props: {
-        size: 'small',
-        editing: ![110, 130].includes(currentValues?.status),
-        columns: getFieldListColumns(dataType, currentValues),
-      },
-    },
-  ];
+        {
+          label: i18n.t('basic.No'),
+          value: 0,
+        },
+      ],
+    }),
+  },
+  {
+    name: 'username',
+    type: 'input',
+    label: i18n.t('meta.Sinks.Username'),
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    name: 'password',
+    type: 'password',
+    label: i18n.t('meta.Sinks.Password'),
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.Es.Host'),
+    name: 'host',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  },
+  {
+    name: 'port',
+    type: 'inputnumber',
+    label: i18n.t('meta.Sinks.Es.Port'),
+    initialValue: 9200,
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      min: 1,
+      max: 65535,
+    }),
+    rules: [{ required: true }],
+  },
+  {
+    name: 'flushInterval',
+    type: 'inputnumber',
+    label: i18n.t('meta.Sinks.Es.FlushInterval'),
+    initialValue: 1,
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      min: 1,
+    }),
+    rules: [{ required: true }],
+    suffix: i18n.t('meta.Sinks.Es.FlushIntervalUnit'),
+  },
+  {
+    name: 'flushRecord',
+    type: 'inputnumber',
+    label: i18n.t('meta.Sinks.Es.FlushRecord'),
+    initialValue: 1000,
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      min: 1,
+    }),
+    rules: [{ required: true }],
+    suffix: i18n.t('meta.Sinks.Es.FlushRecordUnit'),
+  },
+  {
+    name: 'retryTime',
+    type: 'inputnumber',
+    label: i18n.t('meta.Sinks.Es.RetryTimes'),
+    initialValue: 3,
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      min: 1,
+    }),
+    rules: [{ required: true }],
+    suffix: i18n.t('meta.Sinks.Es.RetryTimesUnit'),
+  },
+  {
+    name: 'sinkFieldList',
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      editing: ![110, 130].includes(values?.status),
+      columns: getFieldListColumns(values),
+    }),
+  },
+];
 
-  return type === 'col'
-    ? getColsFromFields(fileds)
-    : fileds.map(item => excludeObject(['_inTable'], item));
-};
-
-const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
+const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
@@ -191,7 +173,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
@@ -200,7 +182,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       initialValue: esTypes[0].value,
       type: 'select',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
         options: esTypes,
       }),
       rules: [{ required: true }],
@@ -210,7 +192,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       dataIndex: 'analyzer',
       type: 'input',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
       visible: (text, record) => record.fieldType === 'text',
     },
@@ -218,7 +200,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       title: 'SearchAnalyzer',
       dataIndex: 'searchAnalyzer',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
       visible: (text, record) => record.fieldType === 'text',
     },
@@ -226,7 +208,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       title: i18n.t('meta.Sinks.Es.DateFormat'),
       dataIndex: 'format',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
       visible: (text, record) => record.fieldType === 'date',
     },
@@ -234,7 +216,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       title: 'ScalingFactor',
       dataIndex: 'scalingFactor',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
       visible: (text, record) => record.fieldType === 'scaled_float',
     },
@@ -242,16 +224,8 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       title: `ES ${i18n.t('meta.Sinks.Es.FieldDescription')}`,
       dataIndex: 'fieldComment',
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
     },
-  ] as ColumnsItemProps[];
-};
-
-const tableColumns = getForm('col') as ColumnsType;
-
-export const es = {
-  getForm,
-  getFieldListColumns,
-  tableColumns,
+  ];
 };

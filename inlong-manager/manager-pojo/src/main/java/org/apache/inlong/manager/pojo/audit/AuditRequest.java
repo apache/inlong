@@ -24,7 +24,6 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -38,10 +37,11 @@ public class AuditRequest {
     @NotBlank(message = "inlongGroupId not be blank")
     @ApiModelProperty(value = "inlong group id", required = true)
     private String inlongGroupId;
+
     @NotBlank(message = "inlongStreamId not be blank")
     @ApiModelProperty(value = "inlong stream id", required = true)
     private String inlongStreamId;
-    @NotEmpty(message = "auditIds not be empty")
+
     @ApiModelProperty(value = "audit id list", required = true)
     private List<String> auditIds;
 

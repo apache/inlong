@@ -46,10 +46,10 @@ public class AutoPushSourceDTO {
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
     private String dataEncoding;
 
-    @ApiModelProperty(value = "Data separator, stored as ASCII code")
+    @ApiModelProperty(value = "Data separator")
     private String dataSeparator;
 
-    @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
+    @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
 
     public static AutoPushSourceDTO getFromRequest(AutoPushSourceRequest request) {

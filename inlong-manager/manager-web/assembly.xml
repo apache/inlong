@@ -85,6 +85,8 @@
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>manager-client*.jar</include>
+                <include>converter-jackson-*</include>
+                <include>retrofit-*</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -92,6 +94,7 @@
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>/manager-client-tools*.jar</include>
+                <include>jcommander-*.jar</include>
             </includes>
         </fileSet>
 

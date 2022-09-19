@@ -52,7 +52,7 @@ public class TestBinlogOffsetManager {
         byte[] snapshotBytes = new byte[]{-65, -14, -23};
         final Base64 base64 = new Base64();
         String encodeSnapshot = base64.encodeAsString(snapshotBytes);
-        snapshotManager.save(encodeSnapshot);
+        snapshotManager.save(encodeSnapshot, snapshotManager.getFile());
         Assert.assertEquals(snapshotManager.getSnapshot(), encodeSnapshot);
     }
 

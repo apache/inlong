@@ -28,12 +28,12 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongCluster;
 import org.apache.inlong.manager.client.api.InlongGroup;
-import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
-import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
+import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
@@ -108,17 +108,17 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) {
-        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(expr, status, pageNum,
-                pageSize);
+        PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(expr, status, pageNum, pageSize);
         if (CollectionUtils.isEmpty(pageInfo.getList())) {
             return Lists.newArrayList();
-        } else {
-            return pageInfo.getList().stream().map(briefInfo -> {
-                String groupId = briefInfo.getInlongGroupId();
-                InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupId);
-                return new InlongGroupImpl(groupInfo, configuration);
-            }).collect(Collectors.toList());
         }
+
+        return pageInfo.getList().stream()
+                .map(info -> {
+                    String groupId = info.getInlongGroupId();
+                    InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupId);
+                    return new InlongGroupImpl(groupInfo, configuration);
+                }).collect(Collectors.toList());
     }
 
     @Override

@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.workflow.event.process;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;

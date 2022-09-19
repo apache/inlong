@@ -70,9 +70,9 @@ public class CreateCommand extends AbstractCommand {
                         return;
                     }
                 }
-                // first extract groupconfig from the file passed in
+                // first extract group config from the file passed in
                 CreateGroupConf groupConf = objectMapper.readValue(content, CreateGroupConf.class);
-                // get the correspodning inlonggroup, a.k.a the task to execute
+                // get the corresponding inlong group, aka the task to execute
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
                 InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamInfo());

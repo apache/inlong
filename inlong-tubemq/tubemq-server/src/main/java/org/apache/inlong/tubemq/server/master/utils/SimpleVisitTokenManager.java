@@ -57,20 +57,14 @@ public class SimpleVisitTokenManager extends AbstractDaemonService {
     }
 
     @Override
-    protected void loopProcess(long intervalMs) {
-        while (!super.isStopped()) {
-            try {
-                Thread.sleep(intervalMs);
-                validVisitAuthorized.set(freshVisitAuthorized.getAndSet(System.currentTimeMillis()));
-                brokerVisitTokens = strBuilder.append(validVisitAuthorized.get())
+    protected void loopProcess() {
+        try {
+            validVisitAuthorized.set(freshVisitAuthorized.getAndSet(System.currentTimeMillis()));
+            brokerVisitTokens = strBuilder.append(validVisitAuthorized.get())
                     .append(TokenConstants.ARRAY_SEP).append(freshVisitAuthorized.get()).toString();
-                strBuilder.delete(0, strBuilder.length());
-            } catch (InterruptedException e) {
-                logger.warn("[VisitToken Manager] Daemon generator thread has been interrupted");
-                return;
-            } catch (Throwable t) {
-                logger.error("[VisitToken Manager] Daemon generator thread throw error ", t);
-            }
+            strBuilder.delete(0, strBuilder.length());
+        }  catch (Throwable t) {
+            logger.error("[VisitToken Manager] Daemon generator thread throw error ", t);
         }
     }
 

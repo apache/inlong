@@ -264,7 +264,7 @@
     <select id="countByQuery"
             parameterType="org.apache.inlong.manager.pojo.consumption.ConsumptionQuery"
             resultType="org.apache.inlong.manager.pojo.common.CountInfo">
-        select status as `key`, count(1) as value
+        select status as `key`, count(1) as `value`
         from consumption
         where is_deleted=0
         <if test="consumerGroup != null and consumerGroup != ''">

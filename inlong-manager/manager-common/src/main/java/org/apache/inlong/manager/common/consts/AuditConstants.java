@@ -15,16 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.event;
+package org.apache.inlong.manager.common.consts;
 
 /**
- * Workflow event
+ * Constant class for audit ids
  */
-public interface WorkflowEvent {
+public class AuditConstants {
 
-    /**
-     * Get event name
-     */
-    String name();
+    public static final String AUDIT_ID_SDK_COLLECT = "1";
+    public static final String AUDIT_ID_SDK_SENT = "2";
+    public static final String AUDIT_ID_AGENT_COLLECT = "3";
+    public static final String AUDIT_ID_AGENT_SENT = "4";
+    public static final String AUDIT_ID_DATAPROXY_RECEIVED = "5";
+    public static final String AUDIT_ID_DATAPROXY_SENT = "6";
+    public static final String AUDIT_ID_SORT_INPUT = "7";
+    public static final String AUDIT_ID_SORT_OUTPUT = "8";
 
 }

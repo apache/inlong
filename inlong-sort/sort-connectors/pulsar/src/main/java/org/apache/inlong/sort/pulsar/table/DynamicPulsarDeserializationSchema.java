@@ -33,7 +33,8 @@ import org.apache.flink.types.DeserializationException;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.pulsar.withoutadmin.CallbackCollector;
 import org.apache.pulsar.client.api.Message;
@@ -44,13 +45,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /**
  * A specific {@link PulsarDeserializationSchema} for {@link PulsarDynamicTableSource}.
@@ -75,12 +71,6 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
     private SourceMetricData sourceMetricData;
     private String inlongMetric;
     private String auditHostAndPorts;
-
-    private AuditImp auditImp;
-
-    private String inlongGroupId;
-
-    private String inlongStreamId;
 
     DynamicPulsarDeserializationSchema(
             int physicalArity,
@@ -120,23 +110,14 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         }
         valueDeserialization.open(context);
 
-        if (inlongMetric != null && !inlongMetric.isEmpty()) {
-            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
-            inlongGroupId = inlongMetricArray[0];
-            inlongStreamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            sourceMetricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, getMetricGroup(context));
-            sourceMetricData.registerMetricsForNumBytesIn();
-            sourceMetricData.registerMetricsForNumBytesInPerSecond();
-            sourceMetricData.registerMetricsForNumRecordsIn();
-            sourceMetricData.registerMetricsForNumRecordsInPerSecond();
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withInlongAudit(auditHostAndPorts)
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .build();
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption, getMetricGroup(context));
         }
-
-        if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
-            auditImp = AuditImp.getInstance();
-        }
-
     }
 
     /**
@@ -191,7 +172,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
             valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
-                sourceMetricData.outputMetrics(1L, inputRow.toString().getBytes(StandardCharsets.UTF_8).length);
+                sourceMetricData.outputMetricsWithEstimate(inputRow);
                 collector.collect(inputRow);
             }));
             return;
@@ -212,7 +193,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             outputCollector.collect(null);
         } else {
             valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
-                sourceMetricData.outputMetrics(1L, inputRow.toString().getBytes(StandardCharsets.UTF_8).length);
+                sourceMetricData.outputMetricsWithEstimate(inputRow);
                 outputCollector.collect(inputRow);
             }));
         }
