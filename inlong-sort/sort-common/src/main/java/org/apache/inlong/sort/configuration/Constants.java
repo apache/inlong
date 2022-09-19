@@ -282,9 +282,10 @@ public class Constants {
             .withDescription("minutes");
 
     public static final ConfigOption<String> METRICS_LABELS =
-            ConfigOptions.key("inlong.metric.label")
+            ConfigOptions.key("inlong.metric.labels")
                     .noDefaultValue()
-                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
+                    .withDescription("INLONG metric labels, format is 'key1=value1&key2=value2',"
+                            + "default is 'groupId=xxx&streamId=xxx&nodeId=xxx'");
 
 
     public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS =

@@ -66,7 +66,6 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -832,18 +831,12 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
                 .withInlongLabels(inlongMetric)
                 .withInlongAudit(inlongAudit)
                 .withRegisterMetric(RegisteredMetric.ALL)
+                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_IN) : 0L)
+                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_IN) : 0L)
                 .build();
         if (metricOption != null) {
             sourceMetricData = new SourceMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
-        ThreadSafeCounter recordsInCounter = new ThreadSafeCounter();
-        ThreadSafeCounter bytesInCounter = new ThreadSafeCounter();
-        if (metricState != null) {
-            recordsInCounter.inc(metricState.getMetricValue(NUM_RECORDS_IN));
-            bytesInCounter.inc(metricState.getMetricValue(NUM_BYTES_IN));
-        }
-        sourceMetricData.registerMetricsForNumRecordsInForMeter(new ThreadSafeCounter());
-        sourceMetricData.registerMetricsForNumBytesInForMeter(new ThreadSafeCounter());
         if (this.deserializer instanceof DynamicKafkaDeserializationSchema) {
             DynamicKafkaDeserializationSchema dynamicKafkaDeserializationSchema =
                     (DynamicKafkaDeserializationSchema) deserializer;

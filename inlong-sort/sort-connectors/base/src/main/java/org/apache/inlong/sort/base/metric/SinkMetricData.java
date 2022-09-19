@@ -24,15 +24,10 @@ import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 
-import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
 
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
@@ -60,17 +55,12 @@ public class SinkMetricData implements MetricData {
     private Meter numBytesOutPerSecond;
 
     public SinkMetricData(MetricOption option, MetricGroup metricGroup) {
-        this(option.getLabels(), option.getRegisteredMetric(), metricGroup, option.getIpPorts());
-    }
-
-    public SinkMetricData(
-            Map<String, String> labels,
-            @Nullable RegisteredMetric registeredMetric,
-            MetricGroup metricGroup,
-            @Nullable String auditHostAndPorts) {
         this.metricGroup = metricGroup;
-        this.labels = labels;
-        switch (registeredMetric) {
+        this.labels = option.getLabels();
+
+        ThreadSafeCounter recordsOutCounter = new ThreadSafeCounter();
+        ThreadSafeCounter bytesOutCounter = new ThreadSafeCounter();
+        switch (option.getRegisteredMetric()) {
             case DIRTY:
                 registerMetricsForDirtyBytes(new ThreadSafeCounter());
                 registerMetricsForDirtyRecords(new ThreadSafeCounter());
@@ -80,6 +70,11 @@ public class SinkMetricData implements MetricData {
                 registerMetricsForNumRecordsOut(new ThreadSafeCounter());
                 registerMetricsForNumBytesOutPerSecond();
                 registerMetricsForNumRecordsOutPerSecond();
+
+                recordsOutCounter.inc(option.getInitRecords());
+                bytesOutCounter.inc(option.getInitBytes());
+                registerMetricsForNumRecordsOutForMeter(recordsOutCounter);
+                registerMetricsForNumRecordsOutForMeter(bytesOutCounter);
                 break;
             default:
                 registerMetricsForDirtyBytes(new ThreadSafeCounter());
@@ -88,12 +83,17 @@ public class SinkMetricData implements MetricData {
                 registerMetricsForNumRecordsOut(new ThreadSafeCounter());
                 registerMetricsForNumBytesOutPerSecond();
                 registerMetricsForNumRecordsOutPerSecond();
+
+                recordsOutCounter.inc(option.getInitRecords());
+                bytesOutCounter.inc(option.getInitBytes());
+                registerMetricsForNumRecordsOutForMeter(recordsOutCounter);
+                registerMetricsForNumRecordsOutForMeter(bytesOutCounter);
                 break;
 
         }
 
-        if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+        if (option.getIpPorts().isPresent()) {
+            AuditImp.getInstance().setAuditProxy(option.getIpPortList());
             this.auditImp = AuditImp.getInstance();
         }
     }
@@ -286,9 +286,9 @@ public class SinkMetricData implements MetricData {
     @Override
     public String toString() {
         return "SinkMetricData{"
-                + "groupId='" + groupId + '\''
-                + ", streamId='" + streamId + '\''
-                + ", nodeId='" + nodeId + '\''
+                + "metricGroup=" + metricGroup
+                + ", labels=" + labels
+                + ", auditImp=" + auditImp
                 + ", numRecordsOut=" + numRecordsOut.getCount()
                 + ", numBytesOut=" + numBytesOut.getCount()
                 + ", numRecordsOutForMeter=" + numRecordsOutForMeter.getCount()
@@ -298,4 +298,5 @@ public class SinkMetricData implements MetricData {
                 + ", numRecordsOutPerSecond=" + numRecordsOutPerSecond.getRate()
                 + ", numBytesOutPerSecond=" + numBytesOutPerSecond.getRate()
                 + '}';
-    }}
+    }
+}

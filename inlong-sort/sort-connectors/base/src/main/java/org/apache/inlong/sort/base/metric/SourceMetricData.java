@@ -24,16 +24,10 @@ import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-
-import javax.annotation.Nullable;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
 
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
@@ -57,28 +51,27 @@ public class SourceMetricData implements MetricData {
     private AuditImp auditImp;
 
     public SourceMetricData(MetricOption option, MetricGroup metricGroup) {
-        this(option.getLabels(), option.getRegisteredMetric(), metricGroup, option.getIpPorts());
-    }
-
-    public SourceMetricData(
-            Map<String, String> labels,
-            @Nullable RegisteredMetric registeredMetric,
-            MetricGroup metricGroup,
-            @Nullable String auditHostAndPorts) {
         this.metricGroup = metricGroup;
-        this.labels = labels;
-        switch (registeredMetric) {
+        this.labels = option.getLabels();
+
+        SimpleCounter recordsInCounter = new SimpleCounter();
+        SimpleCounter bytesInCounter = new SimpleCounter();
+        switch (option.getRegisteredMetric()) {
             default:
                 registerMetricsForNumRecordsIn();
                 registerMetricsForNumBytesIn();
                 registerMetricsForNumBytesInPerSecond();
                 registerMetricsForNumRecordsInPerSecond();
-                break;
 
+                recordsInCounter.inc(option.getInitRecords());
+                bytesInCounter.inc(option.getInitBytes());
+                registerMetricsForNumBytesInForMeter(recordsInCounter);
+                registerMetricsForNumRecordsInForMeter(bytesInCounter);
+                break;
         }
 
-        if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+        if (option.getIpPorts() != null) {
+            AuditImp.getInstance().setAuditProxy(option.getIpPortList());
             this.auditImp = AuditImp.getInstance();
         }
     }
@@ -228,5 +221,20 @@ public class SourceMetricData implements MetricData {
                     rowCountSize,
                     rowDataSize);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SourceMetricData{"
+                + "metricGroup=" + metricGroup
+                + ", labels=" + labels
+                + ", numRecordsIn=" + numRecordsIn.getCount()
+                + ", numBytesIn=" + numBytesIn.getCount()
+                + ", numRecordsInForMeter=" + numRecordsInForMeter.getCount()
+                + ", numBytesInForMeter=" + numBytesInForMeter.getCount()
+                + ", numRecordsInPerSecond=" + numRecordsInPerSecond.getRate()
+                + ", numBytesInPerSecond=" + numBytesInPerSecond.getRate()
+                + ", auditImp=" + auditImp
+                + '}';
     }
 }

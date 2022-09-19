@@ -89,7 +89,7 @@ public final class Constants {
         ConfigOptions.key("inlong.metric.labels")
             .stringType()
             .noDefaultValue()
-            .withDescription("INLONG metric labels, format is 'key1=value1&key2&value2',"
+            .withDescription("INLONG metric labels, format is 'key1=value1&key2=value2',"
                     + "default is 'groupId=xxx&streamId=xxx&nodeId=xxx'");
 
     public static final ConfigOption<String> INLONG_AUDIT =

@@ -420,8 +420,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 .build();
         if (metricOption != null) {
             sourceMetricData = new SourceMetricData(metricOption, getRuntimeContext().getMetricGroup());
-            sourceMetricData.registerMetricsForNumBytesInForMeter();
-            sourceMetricData.registerMetricsForNumRecordsInForMeter();        }
+        }
 
         properties.setProperty("name", "engine");
         properties.setProperty("offset.storage", FlinkOffsetBackingStore.class.getCanonicalName());

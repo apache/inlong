@@ -22,9 +22,10 @@ import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -42,17 +43,23 @@ public class MetricOption {
 
     private Map<String, String> labels;
     private final HashSet<String> ipPortList;
-    private String ipPorts;
+    private Optional<String> ipPorts;
     private RegisteredMetric registeredMetric;
+    private long initRecords;
+    private long initBytes;
 
     private MetricOption(
             String inlongLabels,
             @Nullable String inlongAudit,
-            @Nullable RegisteredMetric registeredMetric) {
+            RegisteredMetric registeredMetric,
+            long initRecords,
+            long initBytes) {
         Preconditions.checkArgument(!StringUtils.isNullOrWhitespaceOnly(inlongLabels),
                 "Inlong labels must be set for register metric.");
 
-        this.labels = new HashMap<>();
+        this.initRecords = initRecords;
+        this.initBytes = initBytes;
+        this.labels = new LinkedHashMap<>();
         String[] inLongLabelArray = inlongLabels.split(DELIMITER);
         Preconditions.checkArgument(Stream.of(inLongLabelArray).allMatch(label -> label.contains("=")),
                 "InLong metric label format must be xxx=xxx");
@@ -63,12 +70,11 @@ public class MetricOption {
         });
 
         this.ipPortList = new HashSet<>();
-        this.ipPorts = null;
-        if (inlongAudit != null) {
+        this.ipPorts = Optional.ofNullable(inlongAudit);
+        if (ipPorts.isPresent()) {
             Preconditions.checkArgument(labels.containsKey(GROUP_ID) && labels.containsKey(STREAM_ID),
                     "groupId and streamId must be set when enable inlong audit collect.");
             String[] ipPortStrs = inlongAudit.split(DELIMITER);
-            this.ipPorts = inlongAudit;
             for (String ipPort : ipPortStrs) {
                 Preconditions.checkArgument(Pattern.matches(IP_OR_HOST_PORT, ipPort),
                         "Error inLong audit format: " + inlongAudit);
@@ -89,12 +95,20 @@ public class MetricOption {
         return ipPortList;
     }
 
-    public String getIpPorts() {
+    public Optional<String> getIpPorts() {
         return ipPorts;
     }
 
     public RegisteredMetric getRegisteredMetric() {
         return registeredMetric;
+    }
+
+    public long getInitRecords() {
+        return initRecords;
+    }
+
+    public long getInitBytes() {
+        return initBytes;
     }
 
     public static Builder builder() {
@@ -111,6 +125,8 @@ public class MetricOption {
         private String inlongLabels;
         private String inlongAudit;
         private RegisteredMetric registeredMetric = RegisteredMetric.ALL;
+        private long initRecords = 0L;
+        private long initBytes = 0L;
 
         private Builder() {
         }
@@ -130,11 +146,21 @@ public class MetricOption {
             return this;
         }
 
+        public MetricOption.Builder withInitRecords(long initRecords) {
+            this.initRecords = initRecords;
+            return this;
+        }
+
+        public MetricOption.Builder withInitBytes(long initBytes) {
+            this.initBytes = initBytes;
+            return this;
+        }
+
         public MetricOption build() {
             if (inlongLabels == null && inlongAudit == null) {
                 return null;
             }
-            return new MetricOption(inlongLabels, inlongAudit, registeredMetric);
+            return new MetricOption(inlongLabels, inlongAudit, registeredMetric, initRecords, initBytes);
         }
     }
 }
