@@ -45,7 +45,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
   const { data: sourceData = [], run } = useRequest(
     {
-      url: '/audit/lists',
+      url: '/audit/list',
       params: {
         ...query,
         dt: timestampFormat(query.dt, 'yyyy-MM-dd'),
