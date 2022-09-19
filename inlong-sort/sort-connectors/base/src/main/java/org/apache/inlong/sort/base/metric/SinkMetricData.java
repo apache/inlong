@@ -262,6 +262,14 @@ public class SinkMetricData implements MetricData {
             numBytesOut.inc(rowSize);
         }
 
+        if (numRecordsOutForMeter != null) {
+            numRecordsOutForMeter.inc(rowCount);
+        }
+
+        if (numBytesOutForMeter != null) {
+            numBytesOutForMeter.inc(rowCount);
+        }
+
         if (auditImp != null) {
             auditImp.add(
                     Constants.AUDIT_SORT_OUTPUT,
