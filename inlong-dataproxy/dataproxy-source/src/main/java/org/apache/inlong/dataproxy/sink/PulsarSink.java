@@ -323,7 +323,8 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
         ConfigManager configManager = ConfigManager.getInstance();
         String clusterId =
                 configManager.getCommonProperties().getOrDefault(
-                        ConfigConstants.PROXY_CLUSTER_NAME, "DataProxy");
+                        ConfigConstants.PROXY_CLUSTER_NAME,
+                        ConfigConstants.DEFAULT_PROXY_CLUSTER_NAME);
         this.metricItemSet = new DataProxyMetricItemSet(clusterId, this.getName());
         MetricRegister.register(metricItemSet);
         this.canTake = true;
