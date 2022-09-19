@@ -48,7 +48,6 @@ import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
-import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
@@ -87,7 +86,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
     private static final ZoneId defZoneId = ZoneId.systemDefault();
 
-    private AbstractSource source;
+    private BaseSource source;
     private final ChannelGroup allChannels;
     private int maxConnections = Integer.MAX_VALUE;
     private boolean filterEmptyMsg = false;
@@ -112,7 +111,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
      * @param isCompressed
      * @param protocolType
      */
-    public SimpleMessageHandler(AbstractSource source, ServiceDecoder serProcessor,
+    public SimpleMessageHandler(BaseSource source, ServiceDecoder serProcessor,
             ChannelGroup allChannels,
             String topic, String attr, Boolean filterEmptyMsg, Integer maxMsgLength,
             Integer maxCons,
@@ -130,11 +129,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
         this.isCompressed = isCompressed;
         this.maxConnections = maxCons;
         this.protocolType = protocolType;
-        if (source instanceof SimpleTcpSource) {
-            this.metricItemSet = ((SimpleTcpSource) source).getMetricItemSet();
-        } else {
-            this.metricItemSet = new DataProxyMetricItemSet(this.toString());
-        }
+        this.metricItemSet = source.getMetricItemSet();
     }
 
     private String getRemoteIp(Channel channel) {

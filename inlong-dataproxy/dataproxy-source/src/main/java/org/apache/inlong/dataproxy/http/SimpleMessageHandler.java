@@ -36,7 +36,6 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
@@ -175,14 +174,14 @@ public class SimpleMessageHandler implements MessageHandler {
                         intMsgCnt, 1, data.length, 0);
                 monitorIndexExt.incrementAndGet("EVENT_SUCCESS");
             }
-            addMetric(true, data.length, event);
+            addStatistics(true, data.length, event);
         } catch (ChannelException ex) {
             if (monitorIndex != null) {
                 monitorIndex.addAndGet(strBuff.toString(),
                         0, 0, 0, intMsgCnt);
                 monitorIndexExt.incrementAndGet("EVENT_DROPPED");
             }
-            addMetric(false, data.length, event);
+            addStatistics(false, data.length, event);
             logCounter++;
             if (logCounter == 1 || logCounter % 1000 == 0) {
                 LOG.error("Error writing to channel, and will retry after 1s, ex={},"
@@ -223,31 +222,19 @@ public class SimpleMessageHandler implements MessageHandler {
     }
 
     /**
-     * add audit metric
+     * add statistics information
      *
-     * @param result  success or failure
+     * @param isSuccess  success or failure
      * @param size    message size
      * @param event   message event
      */
-    private void addMetric(boolean result, long size, Event event) {
-        Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
-        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, this.metricItemSet.getName());
-        dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, this.metricItemSet.getName());
-        DataProxyMetricItem.fillInlongId(event, dimensions);
-        DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
-        DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
-        if (result) {
-            metricItem.readSuccessCount.incrementAndGet();
-            metricItem.readSuccessSize.addAndGet(size);
-            try {
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
-            } catch (Exception e) {
-                LOG.error("add audit metric has exception e= {}", e);
-            }
-        } else {
-            metricItem.readFailCount.incrementAndGet();
-            metricItem.readFailSize.addAndGet(size);
+    private void addStatistics(boolean isSuccess, long size, Event event) {
+        if (event == null) {
+            return;
+        }
+        metricItemSet.fillSrcMetricItemsByEvent(event, isSuccess, size);
+        if (isSuccess) {
+            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
         }
     }
 }

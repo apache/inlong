@@ -42,7 +42,6 @@ import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
-import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.InLongMsg;
@@ -52,7 +51,6 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
@@ -82,7 +80,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             .on(AttributeConstants.SEPARATOR)
             .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
-    private AbstractSource source;
+    private BaseSource source;
 
     private final ChannelGroup allChannels;
 
@@ -124,7 +122,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
      * @param monitorIndexExt MonitorIndexExt
      * @param protocolType protocolType
      */
-    public ServerMessageHandler(AbstractSource source, ServiceDecoder serviceDecoder,
+    public ServerMessageHandler(BaseSource source, ServiceDecoder serviceDecoder,
             ChannelGroup allChannels,
             String topic, String attr, Boolean filterEmptyMsg,
             Integer maxCons, Boolean isCompressed, MonitorIndex monitorIndex,
@@ -137,16 +135,11 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         if (null != attr) {
             this.defaultMXAttr = attr;
         }
-
         this.filterEmptyMsg = filterEmptyMsg;
         this.isCompressed = isCompressed;
         this.maxConnections = maxCons;
         this.protocolType = protocolType;
-        if (source instanceof SimpleTcpSource) {
-            this.metricItemSet = ((SimpleTcpSource) source).getMetricItemSet();
-        } else {
-            this.metricItemSet = new DataProxyMetricItemSet(this.toString());
-        }
+        this.metricItemSet = source.getMetricItemSet();
         this.monitorIndex = monitorIndex;
         this.monitorIndexExt = monitorIndexExt;
     }
@@ -461,7 +454,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 try {
                     processor.processEvent(event);
                     monitorIndexExt.incrementAndGet("EVENT_SUCCESS");
-                    this.addMetric(true, data.length, event);
+                    this.addStatistics(true, data.length, event);
                     monitorIndex.addAndGet(strBuff.toString(),
                             streamMsgCnt, 1, data.length, 0);
                     strBuff.delete(0, strBuff.length());
@@ -469,7 +462,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     logger.error("Error writting to channel,data will discard.", ex);
                     monitorIndexExt.incrementAndGet("EVENT_DROPPED");
                     monitorIndex.addAndGet(strBuff.toString(), 0, 0, 0, streamMsgCnt);
-                    this.addMetric(false, data.length, event);
+                    this.addStatistics(false, data.length, event);
                     strBuff.delete(0, strBuff.length());
                     throw new ChannelException("ProcessEvent error can't write event to channel.");
                 }
@@ -548,7 +541,6 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg == null) {
             logger.error("Get null msg, just skip!");
-            this.addMetric(false, 0, null);
             return;
         }
         ByteBuf cb = (ByteBuf) msg;
@@ -558,7 +550,6 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             int len = cb.readableBytes();
             if (len == 0 && this.filterEmptyMsg) {
                 logger.warn("Get empty msg from {}, just skip!", strRemoteIP);
-                this.addMetric(false, 0, null);
                 return;
             }
             // parse message
@@ -569,12 +560,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         strRemoteIP, msgRcvTime, remoteChannel);
                 if (resultMap == null || resultMap.isEmpty()) {
                     logger.info("Parse message result is null, from {}", strRemoteIP);
-                    this.addMetric(false, 0, null);
                     return;
                 }
             } catch (MessageIDException ex) {
                 logger.error("MessageIDException ex = {}", ex);
-                this.addMetric(false, 0, null);
                 throw new IOException(ex.getCause());
             }
             // process message by msgType
@@ -583,12 +572,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 ByteBuf heartbeatBuffer = ByteBufAllocator.DEFAULT.buffer(5);
                 heartbeatBuffer.writeBytes(new byte[]{0, 0, 0, 1, 1});
                 remoteChannel.writeAndFlush(heartbeatBuffer);
-                this.addMetric(false, 0, null);
                 return;
             }
             // process heart beat 8
             if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
-                this.addMetric(false, 0, null);
                 return;
             }
             // process data message
@@ -616,10 +603,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         }
                         try {
                             processor.processEvent(event);
-                            this.addMetric(true, body.length, event);
+                            this.addStatistics(true, body.length, event);
                         } catch (Throwable ex) {
                             logger.error("Error writing to controller,data will discard.", ex);
-                            this.addMetric(false, body.length, event);
+                            this.addStatistics(false, body.length, event);
                             throw new ChannelException(
                                     "Process Controller Event error can't write event to channel.");
                         }
@@ -640,10 +627,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         }
                         try {
                             processor.processEvent(event);
-                            this.addMetric(true, body.length, event);
+                            this.addStatistics(true, body.length, event);
                         } catch (Throwable ex) {
                             logger.error("Error writing to controller,data will discard.", ex);
-                            this.addMetric(false, body.length, event);
+                            this.addStatistics(false, body.length, event);
                             throw new ChannelException(
                                     "Process Controller Event error can't write event to channel.");
                         }
@@ -677,31 +664,19 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * addMetric
+     * add statistics information
      *
-     * @param result
-     * @param size
-     * @param event
+     * @param isSuccess  success or failure
+     * @param size    message size
+     * @param event   message event
      */
-    private void addMetric(boolean result, long size, Event event) {
-        Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
-        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, source.getName());
-        dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, source.getName());
-        DataProxyMetricItem.fillInlongId(event, dimensions);
-        DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
-        DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
-        if (result) {
-            metricItem.readSuccessCount.incrementAndGet();
-            metricItem.readSuccessSize.addAndGet(size);
-            try {
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
-            } catch (Exception e) {
-                logger.error("add metric has exception e= {}", e);
-            }
-        } else {
-            metricItem.readFailCount.incrementAndGet();
-            metricItem.readFailSize.addAndGet(size);
+    private void addStatistics(boolean isSuccess, long size, Event event) {
+        if (event == null) {
+            return;
+        }
+        this.metricItemSet.fillSrcMetricItemsByEvent(event, isSuccess, size);
+        if (isSuccess) {
+            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
         }
     }
 }

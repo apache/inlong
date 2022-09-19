@@ -21,7 +21,6 @@ import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEP_HASHTAG;
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
 
 import com.google.common.base.Preconditions;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -52,7 +51,6 @@ import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.common.MsgDedupHandler;
@@ -94,7 +92,6 @@ public class TubeSink extends AbstractSink implements Configurable {
     // used for RoundRobin different cluster while send message
     private RateLimiter diskRateLimiter;
     private Thread[] sinkThreadPool;
-    private Map<String, String> dimensions;
     private DataProxyMetricItemSet metricItemSet;
     private final AtomicBoolean started = new AtomicBoolean(false);
     private static final LogCounter LOG_SINK_TASK_PRINTER =
@@ -186,12 +183,13 @@ public class TubeSink extends AbstractSink implements Configurable {
             monitorIndexExt = new MonitorIndexExt("Tube_Sink_monitors#" + this.getName(),
                     statIntervalSec, maxMonitorCnt);
         }
-        // initial dimensions
-        this.dimensions = new HashMap<>();
-        this.dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
-        this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
         // register metrics
-        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
+        ConfigManager configManager = ConfigManager.getInstance();
+        String clusterId =
+                configManager.getCommonProperties().getOrDefault(
+                        ConfigConstants.PROXY_CLUSTER_NAME,
+                        ConfigConstants.DEFAULT_PROXY_CLUSTER_NAME);
+        this.metricItemSet = new DataProxyMetricItemSet(clusterId, this.getName());
         MetricRegister.register(metricItemSet);
         // create tube connection
         try {
@@ -272,27 +270,17 @@ public class TubeSink extends AbstractSink implements Configurable {
                 if (diskRateLimiter != null) {
                     diskRateLimiter.acquire(event.getBody().length);
                 }
-                Map<String, String> dimensions;
-                dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID,
-                        event.getHeaders().getOrDefault(ConfigConstants.TOPIC_KEY, ""));
                 if (eventQueue.offer(event, 3 * 1000, TimeUnit.MILLISECONDS)) {
                     tx.commit();
                     cachedMsgCnt.incrementAndGet();
-                    DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
-                    metricItem.readSuccessCount.incrementAndGet();
-                    metricItem.readSuccessSize.addAndGet(event.getBody().length);
+                    this.metricItemSet.fillSinkReadMetricItemsByEvent(
+                            event, true, event.getBody().length);
                 } else {
                     tx.rollback();
-                    //logger.info("[{}] Channel --> Queue(has no enough space,current code point) "
-                    //        + "--> TubeMQ, check if TubeMQ server or network is ok.(if this situation last long time "
-                    //        + "it will cause memoryChannel full and fileChannel write.)", getName());
-                    // metric
-                    DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
-                    metricItem.readFailCount.incrementAndGet();
-                    metricItem.readFailSize.addAndGet(event.getBody().length);
+                    this.metricItemSet.fillSinkReadMetricItemsByEvent(
+                            event, false, event.getBody().length);
                 }
             } else {
-                // logger.info("[{}]No data to process in the channel.",getName());
                 status = Status.BACKOFF;
                 tx.commit();
             }
@@ -436,17 +424,9 @@ public class TubeSink extends AbstractSink implements Configurable {
                 successMsgCnt.incrementAndGet();
                 inflightMsgCnt.decrementAndGet();
                 takenMsgCnt.decrementAndGet();
-                this.addMetric(myEventStat.getEvent(), true, sendTime);
-                if (statIntervalSec > 0) {
-                    monitorIndexExt.incrementAndGet(KEY_SINK_SUCCESS);
-                }
-                this.editStatistic(myEventStat.getEvent(), true);
+                this.addStatistics(myEventStat.getEvent(), true, false, sendTime);
             } else {
-                this.addMetric(myEventStat.getEvent(), false, 0);
-                if (statIntervalSec > 0) {
-                    monitorIndexExt.incrementAndGet(KEY_SINK_FAILURE);
-                }
-                this.editStatistic(myEventStat.getEvent(), false);
+                this.addStatistics(myEventStat.getEvent(), false, false, 0);
                 if (result.getErrCode() == TErrCodeConstants.FORBIDDEN) {
                     logger.warn("Send message failed, error message: {}, resendQueue size: {}, event:{}",
                             result.getErrMsg(), resendQueue.size(),
@@ -464,50 +444,34 @@ public class TubeSink extends AbstractSink implements Configurable {
 
         @Override
         public void onException(final Throwable e) {
-            if (statIntervalSec > 0) {
-                monitorIndexExt.incrementAndGet(KEY_SINK_EXP);
-            }
-            this.editStatistic(myEventStat.getEvent(), false);
+            addStatistics(myEventStat.getEvent(), false, true, 0);
             resendEvent(myEventStat, true);
         }
 
         /**
-         * addMetric
+         * Add statistics information
+         *
+         * @param event   the statistic event
+         * @param isSuccess  is processed successfully
+         * @param isException is exception when failure processed
+         * @param sendTime   the send time when success processed
          */
-        private void addMetric(Event event, boolean result, long sendTime) {
-            Map<String, String> dimensions = new HashMap<>();
-            dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, TubeSink.this.getName());
-            dimensions.put(DataProxyMetricItem.KEY_SINK_ID, TubeSink.this.getName());
-            dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID,
-                    event.getHeaders().get(ConfigConstants.TOPIC_KEY));
-            DataProxyMetricItem.fillInlongId(event, dimensions);
-            DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
-            DataProxyMetricItem metricItem = TubeSink.this.metricItemSet.findMetricItem(dimensions);
-            if (result) {
-                metricItem.sendSuccessCount.incrementAndGet();
-                metricItem.sendSuccessSize.addAndGet(event.getBody().length);
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
-                if (sendTime > 0) {
-                    long currentTime = System.currentTimeMillis();
-                    long msgDataTimeL = Long.parseLong(
-                            event.getHeaders().get(AttributeConstants.DATA_TIME));
-                    long msgRcvTimeL = Long.parseLong(
-                            event.getHeaders().get(AttributeConstants.RCV_TIME));
-                    metricItem.sinkDuration.addAndGet(currentTime - sendTime);
-                    metricItem.nodeDuration.addAndGet(currentTime - msgRcvTimeL);
-                    metricItem.wholeDuration.addAndGet(currentTime - msgDataTimeL);
-                }
-            } else {
-                metricItem.sendFailCount.incrementAndGet();
-                metricItem.sendFailSize.addAndGet(event.getBody().length);
-            }
-        }
-
-        private void editStatistic(final Event event, boolean isSuccess) {
-            if (event == null || statIntervalSec <= 0) {
+        private void addStatistics(Event event, boolean isSuccess,
+                                   boolean isException, long sendTime) {
+            if (event == null) {
                 return;
             }
-            // get statistic items
+            // add jmx metric items;
+            TubeSink.this.metricItemSet.fillSinkSendMetricItemsByEvent(
+                    event, sendTime, isSuccess, event.getBody().length);
+            // add audit items;
+            if (isSuccess) {
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+            }
+            if (statIntervalSec <= 0) {
+                return;
+            }
+            // add monitor items base file storage
             String topic = event.getHeaders().get(ConfigConstants.TOPIC_KEY);
             String streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
             String nodeIp = event.getHeaders().get(ConfigConstants.REMOTE_IP_KEY);
@@ -526,9 +490,14 @@ public class TubeSink extends AbstractSink implements Configurable {
             if (isSuccess) {
                 monitorIndex.addAndGet(newBase.toString(),
                         intMsgCnt, 1, event.getBody().length, 0);
+                monitorIndexExt.incrementAndGet(KEY_SINK_SUCCESS);
             } else {
                 monitorIndex.addAndGet(newBase.toString(),
                         0, 0, 0, intMsgCnt);
+                monitorIndexExt.incrementAndGet(KEY_SINK_FAILURE);
+                if (isException) {
+                    monitorIndexExt.incrementAndGet(KEY_SINK_EXP);
+                }
             }
         }
     }
@@ -588,14 +557,6 @@ public class TubeSink extends AbstractSink implements Configurable {
                         + resendQueue.size(), throwable);
             }
         }
-    }
-
-    private Map<String, String> getNewDimension(String otherKey, String value) {
-        Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
-        dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
-        dimensions.put(otherKey, value);
-        return dimensions;
     }
 
     /**
@@ -695,14 +656,4 @@ public class TubeSink extends AbstractSink implements Configurable {
         }
         return tmpMasterAddr;
     }
-
-    /**
-     * get metricItemSet
-     *
-     * @return the metricItemSet
-     */
-    private DataProxyMetricItemSet getMetricItemSet() {
-        return metricItemSet;
-    }
-
 }

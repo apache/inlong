@@ -34,7 +34,6 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.EventStat;
 import org.apache.inlong.dataproxy.source.MsgType;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
@@ -176,6 +175,7 @@ public class PulsarClientService {
         // build and send message
         Map<String, String> proMap =
                 MessageUtils.getXfsAttrs(event.getHeaders(), pkgVersion);
+        long startTime = System.currentTimeMillis();
         if (es.isOrderMessage()) {
             String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
             try {
@@ -184,8 +184,7 @@ public class PulsarClientService {
                         .key(partitionKey)
                         .value(event.getBody())
                         .send();
-                sendMessageCallBack.handleMessageSendSuccess(topic, msgId, es);
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
+                sendMessageCallBack.handleMessageSendSuccess(topic, msgId, es, startTime);
                 forCallBackP.setCanUseSend(true);
                 result = true;
             } catch (PulsarClientException ex) {
@@ -205,9 +204,8 @@ public class PulsarClientService {
                     .value(event.getBody())
                     .sendAsync()
                     .thenAccept((msgId) -> {
-                        AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_SEND_SUCCESS, event);
                         forCallBackP.setCanUseSend(true);
-                        sendMessageCallBack.handleMessageSendSuccess(topic, msgId, es);
+                        sendMessageCallBack.handleMessageSendSuccess(topic, msgId, es, startTime);
                     })
                     .exceptionally((e) -> {
                         forCallBackP.setCanUseSend(false);

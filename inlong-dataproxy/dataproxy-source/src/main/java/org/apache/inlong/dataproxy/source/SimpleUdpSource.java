@@ -50,6 +50,7 @@ public class SimpleUdpSource
     @Override
     public void startSource() {
         // setup Netty server
+        logger.info("start " + this.getName());
         bootstrap = new Bootstrap();
         logger.info("Set max workers : {} ;",maxThreads);
         bootstrap.channel(NioDatagramChannel.class);
