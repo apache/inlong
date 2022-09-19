@@ -37,6 +37,7 @@ import com.moilioncircle.redis.replicator.rdb.datatype.KeyStringValueString;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyStringValueZSet;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.rdb.datatype.ZSetEntry;
+import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
@@ -140,22 +141,22 @@ public class RedisReader extends AbstractReader {
         StringBuffer sb = new StringBuffer("redis://");
         sb.append(hostName).append(":").append(port);
         sb.append("?");
-        if (authPassword != null && !authPassword.equals("")) {
+        if (!StringUtils.isEmpty(authPassword)) {
             sb.append("authPassword=").append(authPassword).append("&");
         }
-        if (authUser != null && !authUser.equals("")) {
+        if (!StringUtils.isEmpty(authUser)) {
             sb.append("authUser=").append(authUser).append("&");
         }
-        if (readTimeout != null && !readTimeout.equals("")) {
+        if (!StringUtils.isEmpty(readTimeout)) {
             sb.append("readTimeout=").append(readTimeout).append("&");
         }
         if (ssl) {
             sb.append("ssl=").append("yes").append("&");
         }
-        if (snapShot != null && !snapShot.equals("")) {
+        if (!StringUtils.isEmpty(snapShot)) {
             sb.append("replOffset=").append(snapShot).append("&");
         }
-        if (replId != null && !replId.equals("")) {
+        if (!StringUtils.isEmpty(replId)) {
             sb.append("replId=").append(replId).append("&");
         }
         if (sb.charAt(sb.length() - 1) == '?' || sb.charAt(sb.length() - 1) == '&') {
