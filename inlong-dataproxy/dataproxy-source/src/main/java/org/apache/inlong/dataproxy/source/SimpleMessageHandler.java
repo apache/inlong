@@ -22,26 +22,24 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_DATA
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_GROUPID;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import java.io.IOException;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.ChannelException;
@@ -62,9 +60,6 @@ import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-
 /**
  * Server message handler
  *
@@ -82,10 +77,20 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             .on(AttributeConstants.SEPARATOR)
             .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
-    private static final DateTimeFormatter DATE_FORMATTER
-            = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-    private static final ZoneId defZoneId = ZoneId.systemDefault();
+    private static final ThreadLocal<SimpleDateFormat> dateFormator = new ThreadLocal<SimpleDateFormat>() {
 
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat("yyyyMMddHHmm");
+        }
+    };
+    private static final ThreadLocal<SimpleDateFormat> dateFormator4Transfer = new ThreadLocal<SimpleDateFormat>() {
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat("yyyyMMddHHmmss");
+        }
+    };
     private BaseSource source;
     private final ChannelGroup allChannels;
     private int maxConnections = Integer.MAX_VALUE;
@@ -381,18 +386,20 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                         inLongMsg.addMsg(mapJoiner.join(message.getAttributeMap()), message.getData());
                     }
                 }
-                // get msgTime
-                long currTIme = System.currentTimeMillis();
-                String strMsgTime = commonAttrMap.get(Constants.HEADER_KEY_MSG_TIME);
-                long pkgTimeInMillis = NumberUtils.toLong(strMsgTime, currTIme);
-                LocalDateTime localDateTime =
-                        LocalDateTime.ofInstant(Instant.ofEpochMilli(pkgTimeInMillis), defZoneId);
-                String pkgTimeStr = DATE_FORMATTER.format(localDateTime);
-                headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(pkgTimeInMillis));
-                headers.put(ConfigConstants.PKG_TIME_KEY, pkgTimeStr);
-                // get data time
-                long dtTime = NumberUtils.toLong(
-                        commonAttrMap.get(AttributeConstants.DATA_TIME), currTIme);
+
+                long pkgTimeInMillis = inLongMsg.getCreatetime();
+                String pkgTimeStr = dateFormator.get().format(pkgTimeInMillis);
+
+                if (inLongMsgVer == 4) {
+                    if (commonAttrMap.containsKey(ConfigConstants.PKG_TIME_KEY)) {
+                        pkgTimeStr = commonAttrMap.get(ConfigConstants.PKG_TIME_KEY);
+                    } else {
+                        pkgTimeStr = dateFormator.get().format(System.currentTimeMillis());
+                    }
+                }
+
+                long dtTime = NumberUtils.toLong(commonAttrMap.get(AttributeConstants.DATA_TIME),
+                        System.currentTimeMillis());
                 headers.put(AttributeConstants.DATA_TIME, String.valueOf(dtTime));
 
                 headers.put(ConfigConstants.TOPIC_KEY, topicEntry.getKey());
@@ -414,6 +421,8 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                             .append(SEPARATOR).append(sequenceId);
                     headers.put(ConfigConstants.SEQUENCE_ID, sidBuilder.toString());
                 }
+
+                headers.put(ConfigConstants.PKG_TIME_KEY, pkgTimeStr);
 
                 // process proxy message list
                 this.processProxyMessageList(headers, streamIdEntry.getValue());

@@ -26,7 +26,6 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
 import org.apache.flume.channel.ChannelProcessor;
-import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
@@ -46,7 +45,7 @@ public class ServerMessageFactory
 
     private static int MSG_LENGTH_LEN = 4;
 
-    private AbstractSource source;
+    private BaseSource source;
 
     private ChannelProcessor processor;
 
@@ -93,7 +92,7 @@ public class ServerMessageFactory
      * @param monitorIndexExt
      * @param name
      */
-    public ServerMessageFactory(AbstractSource source, ChannelGroup allChannels, String protocol,
+    public ServerMessageFactory(BaseSource source, ChannelGroup allChannels, String protocol,
             ServiceDecoder serviceDecoder, String messageHandlerName, Integer maxMsgLength,
             String topic, String attr, Boolean filterEmptyMsg, Integer maxCons,
             Boolean isCompressed, MonitorIndex monitorIndex, MonitorIndexExt monitorIndexExt,
@@ -135,7 +134,7 @@ public class ServerMessageFactory
                         .forName(messageHandlerName);
 
                 Constructor<?> ctor = clazz.getConstructor(
-                        AbstractSource.class, ServiceDecoder.class, ChannelGroup.class,
+                        BaseSource.class, ServiceDecoder.class, ChannelGroup.class,
                         String.class, String.class, Boolean.class,
                         Integer.class, Boolean.class, MonitorIndex.class,
                         MonitorIndexExt.class, String.class);

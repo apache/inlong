@@ -61,9 +61,9 @@ public class TubeUtils {
         Message message = new Message(topicName, event.getBody());
         String pkgVersion = headers.get(ConfigConstants.MSG_ENCODE_VER);
         if (InLongMsgVer.INLONG_V1.getName().equalsIgnoreCase(pkgVersion)) {
-            String streamId = headers.get(Constants.INLONG_STREAM_ID);
-            message.putSystemHeader(streamId,
-                    headers.get(ConfigConstants.PKG_TIME_KEY));
+            long dataTimeL = Long.parseLong(headers.get(ConfigConstants.PKG_TIME_KEY));
+            message.putSystemHeader(headers.get(Constants.INLONG_STREAM_ID),
+                    DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
         } else {
             long dataTimeL = Long.parseLong(headers.get(AttributeConstants.DATA_TIME));
             message.putSystemHeader(headers.get(AttributeConstants.STREAM_ID),
