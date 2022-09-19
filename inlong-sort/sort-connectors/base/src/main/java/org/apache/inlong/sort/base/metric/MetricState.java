@@ -62,4 +62,12 @@ public class MetricState implements Serializable {
         }
         return 0L;
     }
+
+    @Override
+    public String toString() {
+        return "MetricState{"
+                + "subtaskIndex=" + subtaskIndex
+                + ", metrics=" + metrics.toString()
+                + '}';
+    }
 }
