@@ -19,13 +19,19 @@
 package org.apache.inlong.sort.base.metric;
 
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
+import org.apache.flink.util.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import static org.apache.inlong.sort.base.Constants.GROUP_ID;
+import static org.apache.inlong.sort.base.Constants.STREAM_ID;
 
 public class MetricOption {
     private static final String IP_OR_HOST_PORT = "^(.*):([0-9]|[1-9]\\d|[1-9]\\d{"
@@ -35,55 +41,126 @@ public class MetricOption {
             + "3}|65[0-4]\\d{"
             + "2}|655[0-2]\\d|6553[0-5])$";
 
-    private final String groupId;
-    private final String streamId;
-    private final String nodeId;
+    private Map<String, String> labels;
     private final HashSet<String> ipPortList;
-    private String ipPorts;
+    private Optional<String> ipPorts;
+    private RegisteredMetric registeredMetric;
+    private long initRecords;
+    private long initBytes;
 
-    public MetricOption(String inLongMetric) {
-        this(inLongMetric, null);
-    }
+    private MetricOption(
+            String inlongLabels,
+            @Nullable String inlongAudit,
+            RegisteredMetric registeredMetric,
+            long initRecords,
+            long initBytes) {
+        Preconditions.checkArgument(!StringUtils.isNullOrWhitespaceOnly(inlongLabels),
+                "Inlong labels must be set for register metric.");
 
-    public MetricOption(String inLongMetric, @Nullable String inLongAudit) {
-        ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inLongMetric, inLongAudit);
-        String[] inLongMetricArray = inLongMetric.split(DELIMITER);
-        Preconditions.checkArgument(inLongMetricArray.length == 3,
-                "Error inLong metric format: " + inLongMetric);
-        this.groupId = inLongMetricArray[0];
-        this.streamId = inLongMetricArray[1];
-        this.nodeId = inLongMetricArray[2];
+        this.initRecords = initRecords;
+        this.initBytes = initBytes;
+        this.labels = new LinkedHashMap<>();
+        String[] inLongLabelArray = inlongLabels.split(DELIMITER);
+        Preconditions.checkArgument(Stream.of(inLongLabelArray).allMatch(label -> label.contains("=")),
+                "InLong metric label format must be xxx=xxx");
+        Stream.of(inLongLabelArray).forEach(label -> {
+            String key = label.substring(0, label.indexOf('='));
+            String value = label.substring(label.indexOf('=') + 1);
+            labels.put(key, value);
+        });
+
         this.ipPortList = new HashSet<>();
-        this.ipPorts = null;
-
-        if (inLongAudit != null) {
-            String[] ipPortStrs = inLongAudit.split(DELIMITER);
-            this.ipPorts = inLongAudit;
+        this.ipPorts = Optional.ofNullable(inlongAudit);
+        if (ipPorts.isPresent()) {
+            Preconditions.checkArgument(labels.containsKey(GROUP_ID) && labels.containsKey(STREAM_ID),
+                    "groupId and streamId must be set when enable inlong audit collect.");
+            String[] ipPortStrs = inlongAudit.split(DELIMITER);
             for (String ipPort : ipPortStrs) {
                 Preconditions.checkArgument(Pattern.matches(IP_OR_HOST_PORT, ipPort),
-                        "Error inLong audit format: " + inLongAudit);
+                        "Error inLong audit format: " + inlongAudit);
                 this.ipPortList.add(ipPort);
             }
         }
+
+        if (registeredMetric != null) {
+            this.registeredMetric = registeredMetric;
+        }
     }
 
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public String getStreamId() {
-        return streamId;
-    }
-
-    public String getNodeId() {
-        return nodeId;
+    public Map<String, String> getLabels() {
+        return labels;
     }
 
     public HashSet<String> getIpPortList() {
         return ipPortList;
     }
 
-    public String getIpPorts() {
+    public Optional<String> getIpPorts() {
         return ipPorts;
+    }
+
+    public RegisteredMetric getRegisteredMetric() {
+        return registeredMetric;
+    }
+
+    public long getInitRecords() {
+        return initRecords;
+    }
+
+    public long getInitBytes() {
+        return initBytes;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public enum RegisteredMetric {
+        ALL,
+        NORMAL,
+        DIRTY
+    }
+
+    public static class Builder {
+        private String inlongLabels;
+        private String inlongAudit;
+        private RegisteredMetric registeredMetric = RegisteredMetric.ALL;
+        private long initRecords = 0L;
+        private long initBytes = 0L;
+
+        private Builder() {
+        }
+
+        public MetricOption.Builder withInlongLabels(String inlongLabels) {
+            this.inlongLabels = inlongLabels;
+            return this;
+        }
+
+        public MetricOption.Builder withInlongAudit(String inlongAudit) {
+            this.inlongAudit = inlongAudit;
+            return this;
+        }
+
+        public MetricOption.Builder withRegisterMetric(RegisteredMetric registeredMetric) {
+            this.registeredMetric = registeredMetric;
+            return this;
+        }
+
+        public MetricOption.Builder withInitRecords(long initRecords) {
+            this.initRecords = initRecords;
+            return this;
+        }
+
+        public MetricOption.Builder withInitBytes(long initBytes) {
+            this.initBytes = initBytes;
+            return this;
+        }
+
+        public MetricOption build() {
+            if (inlongLabels == null && inlongAudit == null) {
+                return null;
+            }
+            return new MetricOption(inlongLabels, inlongAudit, registeredMetric, initRecords, initBytes);
+        }
     }
 }

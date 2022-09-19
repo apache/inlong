@@ -25,12 +25,9 @@ import org.apache.flink.metrics.SimpleCounter;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
 
-import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Map;
 
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
@@ -45,10 +42,8 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
  */
 public class SinkMetricData implements MetricData {
 
-    private final MetricGroup metricGroup;
-    private final String groupId;
-    private final String streamId;
-    private final String nodeId;
+    private MetricGroup metricGroup;
+    private Map<String, String> labels;
     private AuditImp auditImp;
     private Counter numRecordsOut;
     private Counter numBytesOut;
@@ -59,23 +54,46 @@ public class SinkMetricData implements MetricData {
     private Meter numRecordsOutPerSecond;
     private Meter numBytesOutPerSecond;
 
-    public SinkMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup) {
-        this(groupId, streamId, nodeId, metricGroup, null);
-    }
-
     public SinkMetricData(MetricOption option, MetricGroup metricGroup) {
-        this(option.getGroupId(), option.getStreamId(), option.getNodeId(), metricGroup, option.getIpPorts());
-    }
-
-    public SinkMetricData(
-            String groupId, String streamId, String nodeId, MetricGroup metricGroup,
-            @Nullable String auditHostAndPorts) {
         this.metricGroup = metricGroup;
-        this.groupId = groupId;
-        this.streamId = streamId;
-        this.nodeId = nodeId;
-        if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
+        this.labels = option.getLabels();
+
+        ThreadSafeCounter recordsOutCounter = new ThreadSafeCounter();
+        ThreadSafeCounter bytesOutCounter = new ThreadSafeCounter();
+        switch (option.getRegisteredMetric()) {
+            case DIRTY:
+                registerMetricsForDirtyBytes(new ThreadSafeCounter());
+                registerMetricsForDirtyRecords(new ThreadSafeCounter());
+                break;
+            case NORMAL:
+                registerMetricsForNumBytesOut(new ThreadSafeCounter());
+                registerMetricsForNumRecordsOut(new ThreadSafeCounter());
+                registerMetricsForNumBytesOutPerSecond();
+                registerMetricsForNumRecordsOutPerSecond();
+
+                recordsOutCounter.inc(option.getInitRecords());
+                bytesOutCounter.inc(option.getInitBytes());
+                registerMetricsForNumRecordsOutForMeter(recordsOutCounter);
+                registerMetricsForNumRecordsOutForMeter(bytesOutCounter);
+                break;
+            default:
+                registerMetricsForDirtyBytes(new ThreadSafeCounter());
+                registerMetricsForDirtyRecords(new ThreadSafeCounter());
+                registerMetricsForNumBytesOut(new ThreadSafeCounter());
+                registerMetricsForNumRecordsOut(new ThreadSafeCounter());
+                registerMetricsForNumBytesOutPerSecond();
+                registerMetricsForNumRecordsOutPerSecond();
+
+                recordsOutCounter.inc(option.getInitRecords());
+                bytesOutCounter.inc(option.getInitBytes());
+                registerMetricsForNumRecordsOutForMeter(recordsOutCounter);
+                registerMetricsForNumRecordsOutForMeter(bytesOutCounter);
+                break;
+
+        }
+
+        if (option.getIpPorts().isPresent()) {
+            AuditImp.getInstance().setAuditProxy(option.getIpPortList());
             this.auditImp = AuditImp.getInstance();
         }
     }
@@ -218,18 +236,8 @@ public class SinkMetricData implements MetricData {
     }
 
     @Override
-    public String getGroupId() {
-        return groupId;
-    }
-
-    @Override
-    public String getStreamId() {
-        return streamId;
-    }
-
-    @Override
-    public String getNodeId() {
-        return nodeId;
+    public Map<String, String> getLabels() {
+        return labels;
     }
 
     public Counter getNumRecordsOutForMeter() {
@@ -242,26 +250,26 @@ public class SinkMetricData implements MetricData {
 
     public void invokeWithEstimate(Object o) {
         long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
-        this.numRecordsOut.inc();
-        this.numBytesOut.inc(size);
-        this.numRecordsOutForMeter.inc();
-        this.numBytesOutForMeter.inc(size);
-        if (auditImp != null) {
-            auditImp.add(
-                    Constants.AUDIT_SORT_OUTPUT,
-                    getGroupId(),
-                    getStreamId(),
-                    System.currentTimeMillis(),
-                    1,
-                    size);
-        }
+        invoke(1, size);
     }
 
     public void invoke(long rowCount, long rowSize) {
-        this.numRecordsOut.inc(rowCount);
-        this.numBytesOut.inc(rowSize);
-        this.numRecordsOutForMeter.inc(rowCount);
-        this.numBytesOutForMeter.inc(rowSize);
+        if (numRecordsOut != null) {
+            numRecordsOut.inc(rowCount);
+        }
+
+        if (numBytesOut != null) {
+            numBytesOut.inc(rowSize);
+        }
+
+        if (numRecordsOutForMeter != null) {
+            numRecordsOutForMeter.inc(rowCount);
+        }
+
+        if (numBytesOutForMeter != null) {
+            numBytesOutForMeter.inc(rowCount);
+        }
+
         if (auditImp != null) {
             auditImp.add(
                     Constants.AUDIT_SORT_OUTPUT,
@@ -273,12 +281,22 @@ public class SinkMetricData implements MetricData {
         }
     }
 
+    public void invokeDirty(long rowCount, long rowSize) {
+        if (dirtyRecords != null) {
+            dirtyRecords.inc(rowCount);
+        }
+
+        if (dirtyBytes != null) {
+            dirtyBytes.inc(rowSize);
+        }
+    }
+
     @Override
     public String toString() {
         return "SinkMetricData{"
-                + "groupId='" + groupId + '\''
-                + ", streamId='" + streamId + '\''
-                + ", nodeId='" + nodeId + '\''
+                + "metricGroup=" + metricGroup
+                + ", labels=" + labels
+                + ", auditImp=" + auditImp
                 + ", numRecordsOut=" + numRecordsOut.getCount()
                 + ", numBytesOut=" + numBytesOut.getCount()
                 + ", numRecordsOutForMeter=" + numRecordsOutForMeter.getCount()
