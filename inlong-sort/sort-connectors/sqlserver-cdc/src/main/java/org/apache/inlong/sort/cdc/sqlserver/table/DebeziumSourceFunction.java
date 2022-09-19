@@ -20,7 +20,6 @@ package org.apache.inlong.sort.cdc.sqlserver.table;
 
 import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
 import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
 import com.ververica.cdc.debezium.Validator;
@@ -42,9 +41,7 @@ import io.debezium.heartbeat.Heartbeat;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -54,7 +51,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.apache.commons.collections.map.LinkedMap;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.state.CheckpointListener;
@@ -76,8 +72,8 @@ import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.audit.AuditImp;
-import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
@@ -217,13 +213,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private SourceMetricData metricData;
 
-    private String inlongGroupId;
-
     private String auditHostAndPorts;
-
-    private String inlongStreamId;
-
-    private transient AuditImp auditImp;
 
     // ---------------------------------------------------------------------------------------
 
@@ -412,20 +402,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 (Gauge<Long>) () -> debeziumChangeFetcher.getEmitDelay());
         metricGroup.gauge(
                 "sourceIdleTime", (Gauge<Long>) () -> debeziumChangeFetcher.getIdleTime());
-        if (StringUtils.isNotEmpty(this.inlongMetric)) {
-            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
-            inlongGroupId = inlongMetricArray[0];
-            inlongStreamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            metricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, metricGroup);
-            metricData.registerMetricsForNumRecordsIn();
-            metricData.registerMetricsForNumBytesIn();
-            metricData.registerMetricsForNumBytesInPerSecond();
-            metricData.registerMetricsForNumRecordsInPerSecond();
-        }
-        if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
-            auditImp = AuditImp.getInstance();
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withInlongAudit(auditHostAndPorts)
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .build();
+        if (metricOption != null) {
+            metricData = new SourceMetricData(metricOption, metricGroup);
         }
         properties.setProperty("name", "engine");
         properties.setProperty("offset.storage", FlinkOffsetBackingStore.class.getCanonicalName());
@@ -464,7 +447,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         new DebeziumDeserializationSchema<T>() {
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                outputMetrics(record);
+                                if (metricData != null) {
+                                    metricData.outputMetricsWithEstimate(record.value());
+                                }
                                 deserializer.deserialize(record, out);
                             }
 
@@ -500,23 +485,6 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
         // start the real debezium consumer
         debeziumChangeFetcher.runFetchLoop();
-    }
-
-    private void outputMetrics(SourceRecord record) {
-        if (metricData != null) {
-            metricData.getNumRecordsIn().inc(1L);
-            metricData.getNumBytesIn()
-                    .inc(record.value().toString().getBytes(StandardCharsets.UTF_8).length);
-        }
-        if (auditImp != null) {
-            auditImp.add(
-                Constants.AUDIT_SORT_INPUT,
-                inlongGroupId,
-                inlongStreamId,
-                System.currentTimeMillis(),
-                1,
-                record.value().toString().getBytes(StandardCharsets.UTF_8).length);
-        }
     }
 
     @Override

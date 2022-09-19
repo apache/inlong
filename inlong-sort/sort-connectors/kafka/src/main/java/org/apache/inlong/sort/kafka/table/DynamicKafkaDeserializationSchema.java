@@ -120,7 +120,9 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
         if (keyDeserialization == null && !hasMetadata) {
             valueDeserialization.deserialize(record.value(), collector);
             // output metrics
-            outputMetrics(record);
+            if (metricData != null) {
+                metricData.outputMetrics(1, record.value().length);
+            }
             return;
         }
 
@@ -140,7 +142,9 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
         } else {
             valueDeserialization.deserialize(record.value(), outputCollector);
             // output metrics
-            outputMetrics(record);
+            if (metricData != null) {
+                metricData.outputMetrics(1, record.value().length);
+            }
         }
 
         keyCollector.buffer.clear();

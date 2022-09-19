@@ -77,7 +77,6 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.utils.PartitionPathUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
 import org.apache.inlong.sort.filesystem.stream.StreamingSink;
 
 import javax.annotation.Nullable;
@@ -157,7 +156,6 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         this.configuredParallelism = tableOptions.get(FileSystemOptions.SINK_PARALLELISM);
         this.inlongMetric = tableOptions.get(INLONG_METRIC);
         this.inlongAudit = tableOptions.get(INLONG_AUDIT);
-        ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inlongMetric, inlongAudit);
     }
 
     @Override

@@ -20,6 +20,7 @@ package org.apache.inlong.sort.parser.impl;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.table.api.TableEnvironment;
+import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.function.EncryptFunction;
@@ -64,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Flink sql parse handler
@@ -149,7 +151,7 @@ public class FlinkSqlParser implements Parser {
         Preconditions.checkNotNull(streamInfo.getRelations(), "relations is null");
         Preconditions.checkState(!streamInfo.getRelations().isEmpty(), "relations is empty");
         log.info("start parse stream, streamId:{}", streamInfo.getStreamId());
-        // Inject the `inlong.metric` for ExtractNode or LoadNode
+        // Inject the metric option for ExtractNode or LoadNode
         injectInlongMetric(streamInfo);
         Map<String, Node> nodeMap = new HashMap<>(streamInfo.getNodes().size());
         streamInfo.getNodes().forEach(s -> {
@@ -169,7 +171,7 @@ public class FlinkSqlParser implements Parser {
     }
 
     /**
-     * Inject the `inlong.metric` for ExtractNode or LoadNode
+     * Inject the metric option for ExtractNode or LoadNode
      *
      * @param streamInfo The encapsulation of nodes and node relations
      */
@@ -183,16 +185,19 @@ public class FlinkSqlParser implements Parser {
                 } else if (node instanceof ExtractNode) {
                     ((ExtractNode) node).setProperties(properties);
                 } else {
-                    throw new UnsupportedOperationException(String.format("Unsupported inlong metric for: %s",
-                            node.getClass().getSimpleName()));
+                    throw new UnsupportedOperationException(String.format(
+                            "Unsupported inlong group stream node for: %s", node.getClass().getSimpleName()));
                 }
             }
-            properties.put(InlongMetric.METRIC_KEY,
-                    String.format(InlongMetric.METRIC_VALUE_FORMAT, groupInfo.getGroupId(),
-                            streamInfo.getStreamId(), node.getId()));
-            if (StringUtils.isNotEmpty(groupInfo.getProperties().get(InlongMetric.AUDIT_KEY))) {
-                properties.put(InlongMetric.AUDIT_KEY,
-                        groupInfo.getProperties().get(InlongMetric.AUDIT_KEY));
+            properties.put(Constants.METRICS_LABELS.key(),
+                    Stream.of(Constants.GROUP_ID + "=" + groupInfo.getGroupId(),
+                                    Constants.STREAM_ID + "=" + streamInfo.getStreamId(),
+                                    Constants.NODE_ID + "=" + node.getId())
+                            .collect(Collectors.joining("&")));
+            // METRICS_AUDIT_PROXY_HOSTS depends on INLONG_GROUP_STREAM_NODE
+            if (StringUtils.isNotEmpty(groupInfo.getProperties().get(Constants.METRICS_AUDIT_PROXY_HOSTS.key()))) {
+                properties.put(Constants.METRICS_AUDIT_PROXY_HOSTS.key(),
+                        groupInfo.getProperties().get(Constants.METRICS_AUDIT_PROXY_HOSTS.key()));
             }
         });
     }

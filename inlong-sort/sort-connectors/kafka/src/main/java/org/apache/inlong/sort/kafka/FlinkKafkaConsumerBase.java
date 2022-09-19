@@ -19,7 +19,6 @@
 package org.apache.inlong.sort.kafka;
 
 import org.apache.commons.collections.map.LinkedMap;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.ExecutionConfig;
@@ -63,10 +62,10 @@ import org.apache.flink.streaming.runtime.operators.util.AssignerWithPeriodicWat
 import org.apache.flink.streaming.runtime.operators.util.AssignerWithPunctuatedWatermarksAdapter;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.SerializedValue;
-import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -74,10 +73,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -90,7 +87,6 @@ import static org.apache.flink.streaming.connectors.kafka.internals.metrics.Kafk
 import static org.apache.flink.streaming.connectors.kafka.internals.metrics.KafkaConsumerMetricConstants.KAFKA_CONSUMER_METRICS_GROUP;
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
@@ -831,36 +827,20 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 
     @Override
     public void run(SourceContext<T> sourceContext) throws Exception {
-
-        if (StringUtils.isNotEmpty(this.inlongMetric)) {
-            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
-            String groupId = inlongMetricArray[0];
-            String streamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            AuditImp auditImp = null;
-            if (inlongAudit != null) {
-                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inlongAudit.split(DELIMITER))));
-                auditImp = AuditImp.getInstance();
-            }
-            sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, getRuntimeContext().getMetricGroup(),
-                    auditImp);
-            ThreadSafeCounter recordsInCounter = new ThreadSafeCounter();
-            ThreadSafeCounter bytesInCounter = new ThreadSafeCounter();
-            if (metricState != null) {
-                recordsInCounter.inc(metricState.getMetricValue(NUM_RECORDS_IN));
-                bytesInCounter.inc(metricState.getMetricValue(NUM_BYTES_IN));
-            }
-            sourceMetricData.registerMetricsForNumRecordsIn(recordsInCounter);
-            sourceMetricData.registerMetricsForNumBytesIn(bytesInCounter);
-            sourceMetricData.registerMetricsForNumRecordsInForMeter(new ThreadSafeCounter());
-            sourceMetricData.registerMetricsForNumBytesInForMeter(new ThreadSafeCounter());
-            sourceMetricData.registerMetricsForNumBytesInPerSecond();
-            sourceMetricData.registerMetricsForNumRecordsInPerSecond();
-            if (this.deserializer instanceof DynamicKafkaDeserializationSchema) {
-                DynamicKafkaDeserializationSchema dynamicKafkaDeserializationSchema =
-                        (DynamicKafkaDeserializationSchema) deserializer;
-                dynamicKafkaDeserializationSchema.setMetricData(sourceMetricData);
-            }
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withInlongAudit(inlongAudit)
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_IN) : 0L)
+                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_IN) : 0L)
+                .build();
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption, getRuntimeContext().getMetricGroup());
+        }
+        if (this.deserializer instanceof DynamicKafkaDeserializationSchema) {
+            DynamicKafkaDeserializationSchema dynamicKafkaDeserializationSchema =
+                    (DynamicKafkaDeserializationSchema) deserializer;
+            dynamicKafkaDeserializationSchema.setMetricData(sourceMetricData);
         }
 
         if (subscribedPartitionsToStartOffsets == null) {

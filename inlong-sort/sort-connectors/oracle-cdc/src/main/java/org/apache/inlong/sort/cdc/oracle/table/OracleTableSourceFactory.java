@@ -28,7 +28,6 @@ import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -114,7 +113,6 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String inlongAudit = config.get(INLONG_AUDIT);
-        ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inlongMetric, inlongAudit);
         return new OracleTableSource(
                 physicalSchema,
                 port,
