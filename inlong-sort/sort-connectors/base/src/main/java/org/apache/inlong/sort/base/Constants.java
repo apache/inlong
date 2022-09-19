@@ -37,6 +37,10 @@ public final class Constants {
 
     public static final String NUM_RECORDS_OUT = "numRecordsOut";
 
+    public static final String NUM_BYTES_OUT_FOR_METER = "numBytesOutForMeter";
+
+    public static final String NUM_RECORDS_OUT_FOR_METER = "numRecordsOutForMeter";
+
     public static final String NUM_BYTES_OUT_PER_SECOND = "numBytesOutPerSecond";
 
     public static final String NUM_RECORDS_OUT_PER_SECOND = "numRecordsOutPerSecond";

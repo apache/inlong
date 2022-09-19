@@ -28,23 +28,18 @@ import org.apache.flink.types.DeserializationException;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.audit.AuditImp;
-import org.apache.inlong.sort.base.Constants;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /**
  * deserialization schema for {@link KafkaDynamicSource}.
  */
-class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<RowData> {
+public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1L;
 
@@ -63,17 +58,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
 
     private final boolean upsertMode;
 
-    private final String inlongMetric;
-
     private SourceMetricData metricData;
-
-    private String inlongGroupId;
-
-    private String auditHostAndPorts;
-
-    private String inlongStreamId;
-
-    private transient AuditImp auditImp;
 
     DynamicKafkaDeserializationSchema(
             int physicalArity,
@@ -84,9 +69,7 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             boolean hasMetadata,
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> producedTypeInfo,
-            boolean upsertMode,
-            String inlongMetric,
-            String auditHostAndPorts) {
+            boolean upsertMode) {
         if (upsertMode) {
             Preconditions.checkArgument(
                     keyDeserialization != null && keyProjection.length > 0,
@@ -105,9 +88,10 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
                         upsertMode);
         this.producedTypeInfo = producedTypeInfo;
         this.upsertMode = upsertMode;
-        this.inlongMetric = inlongMetric;
-        this.auditHostAndPorts = auditHostAndPorts;
+    }
 
+    public void setMetricData(SourceMetricData metricData) {
+        this.metricData = metricData;
     }
 
     @Override
@@ -116,21 +100,6 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
             keyDeserialization.open(context);
         }
         valueDeserialization.open(context);
-        if (inlongMetric != null && !inlongMetric.isEmpty()) {
-            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
-            inlongGroupId = inlongMetricArray[0];
-            inlongStreamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            metricData = new SourceMetricData(inlongGroupId, inlongStreamId, nodeId, context.getMetricGroup());
-            metricData.registerMetricsForNumBytesIn();
-            metricData.registerMetricsForNumBytesInPerSecond();
-            metricData.registerMetricsForNumRecordsIn();
-            metricData.registerMetricsForNumRecordsInPerSecond();
-        }
-        if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
-            auditImp = AuditImp.getInstance();
-        }
     }
 
     @Override
@@ -178,26 +147,8 @@ class DynamicKafkaDeserializationSchema implements KafkaDeserializationSchema<Ro
     }
 
     private void outputMetrics(ConsumerRecord<byte[], byte[]> record) {
-        outputMetricForFlink(record);
-        outputMetricForAudit(record);
-    }
-
-    private void outputMetricForAudit(ConsumerRecord<byte[], byte[]> record) {
-        if (auditImp != null) {
-            auditImp.add(
-                    Constants.AUDIT_SORT_INPUT,
-                    inlongGroupId,
-                    inlongStreamId,
-                    System.currentTimeMillis(),
-                    1,
-                    record.value().length);
-        }
-    }
-
-    private void outputMetricForFlink(ConsumerRecord<byte[], byte[]> record) {
         if (metricData != null) {
-            metricData.getNumBytesIn().inc(record.value().length);
-            metricData.getNumRecordsIn().inc(1);
+            metricData.outputMetrics(1, record.value().length);
         }
     }
 

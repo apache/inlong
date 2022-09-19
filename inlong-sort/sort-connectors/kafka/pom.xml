@@ -93,6 +93,12 @@
                             </filters>
                             <relocations>
                                 <relocation>
+                                    <pattern>org.apache.inlong.sort.base</pattern>
+                                    <shadedPattern>
+                                        org.apache.inlong.sort.kafka.shaded.org.apache.inlong.sort.base
+                                    </shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>org.apache.kafka</pattern>
                                     <shadedPattern>org.apache.flink.kafka.shaded.org.apache.kafka</shadedPattern>
                                 </relocation>

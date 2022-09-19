@@ -34,8 +34,10 @@ import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_PER_SECOND;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
 
 /**
@@ -50,6 +52,8 @@ public class SinkMetricData implements MetricData {
     private AuditImp auditImp;
     private Counter numRecordsOut;
     private Counter numBytesOut;
+    private Counter numRecordsOutForMeter;
+    private Counter numBytesOutForMeter;
     private Counter dirtyRecords;
     private Counter dirtyBytes;
     private Meter numRecordsOutPerSecond;
@@ -74,6 +78,43 @@ public class SinkMetricData implements MetricData {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
             this.auditImp = AuditImp.getInstance();
         }
+    }
+
+    /**
+     * Default counter is {@link SimpleCounter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     */
+    public void registerMetricsForNumRecordsOutForMeter() {
+        registerMetricsForNumRecordsOutForMeter(new SimpleCounter());
+    }
+
+    /**
+     * User can use custom counter that extends from {@link Counter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     */
+    public void registerMetricsForNumRecordsOutForMeter(Counter counter) {
+        numRecordsOutForMeter = registerCounter(NUM_RECORDS_OUT_FOR_METER, counter);
+    }
+
+    /**
+     * Default counter is {@link SimpleCounter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     */
+    public void registerMetricsForNumBytesOutForMeter() {
+        registerMetricsForNumBytesOutForMeter(new SimpleCounter());
+
+    }
+
+    /**
+     * User can use custom counter that extends from {@link Counter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     */
+    public void registerMetricsForNumBytesOutForMeter(Counter counter) {
+        numBytesOutForMeter = registerCounter(NUM_BYTES_OUT_FOR_METER, counter);
     }
 
     /**
@@ -114,11 +155,11 @@ public class SinkMetricData implements MetricData {
     }
 
     public void registerMetricsForNumRecordsOutPerSecond() {
-        numRecordsOutPerSecond = registerMeter(NUM_RECORDS_OUT_PER_SECOND, this.numRecordsOut);
+        numRecordsOutPerSecond = registerMeter(NUM_RECORDS_OUT_PER_SECOND, this.numRecordsOutForMeter);
     }
 
     public void registerMetricsForNumBytesOutPerSecond() {
-        numBytesOutPerSecond = registerMeter(NUM_BYTES_OUT_PER_SECOND, this.numBytesOut);
+        numBytesOutPerSecond = registerMeter(NUM_BYTES_OUT_PER_SECOND, this.numBytesOutForMeter);
     }
 
     public void registerMetricsForDirtyRecords() {
@@ -191,10 +232,20 @@ public class SinkMetricData implements MetricData {
         return nodeId;
     }
 
+    public Counter getNumRecordsOutForMeter() {
+        return numRecordsOutForMeter;
+    }
+
+    public Counter getNumBytesOutForMeter() {
+        return numBytesOutForMeter;
+    }
+
     public void invokeWithEstimate(Object o) {
         long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
-        getNumRecordsOut().inc();
-        getNumBytesOut().inc(size);
+        this.numRecordsOut.inc();
+        this.numBytesOut.inc(size);
+        this.numRecordsOutForMeter.inc();
+        this.numBytesOutForMeter.inc(size);
         if (auditImp != null) {
             auditImp.add(
                     Constants.AUDIT_SORT_OUTPUT,
@@ -207,8 +258,10 @@ public class SinkMetricData implements MetricData {
     }
 
     public void invoke(long rowCount, long rowSize) {
-        getNumRecordsOut().inc(rowCount);
-        getNumBytesOut().inc(rowSize);
+        this.numRecordsOut.inc(rowCount);
+        this.numBytesOut.inc(rowSize);
+        this.numRecordsOutForMeter.inc(rowCount);
+        this.numBytesOutForMeter.inc(rowSize);
         if (auditImp != null) {
             auditImp.add(
                     Constants.AUDIT_SORT_OUTPUT,
@@ -218,5 +271,22 @@ public class SinkMetricData implements MetricData {
                     rowCount,
                     rowSize);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SinkMetricData{"
+                + "groupId='" + groupId + '\''
+                + ", streamId='" + streamId + '\''
+                + ", nodeId='" + nodeId + '\''
+                + ", numRecordsOut=" + numRecordsOut.getCount()
+                + ", numBytesOut=" + numBytesOut.getCount()
+                + ", numRecordsOutForMeter=" + numRecordsOutForMeter.getCount()
+                + ", numBytesOutForMeter=" + numBytesOutForMeter.getCount()
+                + ", dirtyRecords=" + dirtyRecords.getCount()
+                + ", dirtyBytes=" + dirtyBytes.getCount()
+                + ", numRecordsOutPerSecond=" + numRecordsOutPerSecond.getRate()
+                + ", numBytesOutPerSecond=" + numBytesOutPerSecond.getRate()
+                + '}';
     }
 }
