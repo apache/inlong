@@ -19,12 +19,18 @@
 package org.apache.inlong.sort.base.metric;
 
 import org.apache.flink.util.Preconditions;
+import org.apache.flink.util.StringUtils;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import static org.apache.inlong.sort.base.Constants.GROUP_ID;
+import static org.apache.inlong.sort.base.Constants.STREAM_ID;
 
 public class MetricOption {
     private static final String IP_OR_HOST_PORT = "^(.*):([0-9]|[1-9]\\d|[1-9]\\d{"
@@ -34,31 +40,33 @@ public class MetricOption {
             + "3}|65[0-4]\\d{"
             + "2}|655[0-2]\\d|6553[0-5])$";
 
-    private String groupId;
-    private String streamId;
-    private String nodeId;
+    private Map<String, String> labels;
     private final HashSet<String> ipPortList;
     private String ipPorts;
     private RegisteredMetric registeredMetric;
 
     private MetricOption(
-            String inlongGroupStreamNode,
+            String inlongLabels,
             @Nullable String inlongAudit,
             @Nullable RegisteredMetric registeredMetric) {
-        Preconditions.checkNotNull(inlongGroupStreamNode,
-                "Inlong group stream node must be set for register metric.");
-        if (inlongGroupStreamNode != null) {
-            String[] inLongGroupStreamNodeArray = inlongGroupStreamNode.split(DELIMITER);
-            Preconditions.checkArgument(inLongGroupStreamNodeArray.length == 3,
-                    "Error inLong metric format: " + inlongGroupStreamNode);
-            this.groupId = inLongGroupStreamNodeArray[0];
-            this.streamId = inLongGroupStreamNodeArray[1];
-            this.nodeId = inLongGroupStreamNodeArray[2];
-        }
+        Preconditions.checkArgument(!StringUtils.isNullOrWhitespaceOnly(inlongLabels),
+                "Inlong labels must be set for register metric.");
+
+        this.labels = new HashMap<>();
+        String[] inLongLabelArray = inlongLabels.split(DELIMITER);
+        Preconditions.checkArgument(Stream.of(inLongLabelArray).allMatch(label -> label.contains("=")),
+                "InLong metric label format must be xxx=xxx");
+        Stream.of(inLongLabelArray).forEach(label -> {
+            String key = label.substring(0, label.indexOf('='));
+            String value = label.substring(label.indexOf('=') + 1);
+            labels.put(key, value);
+        });
 
         this.ipPortList = new HashSet<>();
         this.ipPorts = null;
         if (inlongAudit != null) {
+            Preconditions.checkArgument(labels.containsKey(GROUP_ID) && labels.containsKey(STREAM_ID),
+                    "groupId and streamId must be set when enable inlong audit collect.");
             String[] ipPortStrs = inlongAudit.split(DELIMITER);
             this.ipPorts = inlongAudit;
             for (String ipPort : ipPortStrs) {
@@ -73,16 +81,8 @@ public class MetricOption {
         }
     }
 
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public String getStreamId() {
-        return streamId;
-    }
-
-    public String getNodeId() {
-        return nodeId;
+    public Map<String, String> getLabels() {
+        return labels;
     }
 
     public HashSet<String> getIpPortList() {
@@ -108,15 +108,15 @@ public class MetricOption {
     }
 
     public static class Builder {
-        private String inlongGroupStreamNode;
+        private String inlongLabels;
         private String inlongAudit;
         private RegisteredMetric registeredMetric = RegisteredMetric.ALL;
 
         private Builder() {
         }
 
-        public MetricOption.Builder withInlongGroupStreamNode(String inlongGroupStreamNode) {
-            this.inlongGroupStreamNode = inlongGroupStreamNode;
+        public MetricOption.Builder withInlongLabels(String inlongLabels) {
+            this.inlongLabels = inlongLabels;
             return this;
         }
 
@@ -131,10 +131,10 @@ public class MetricOption {
         }
 
         public MetricOption build() {
-            if (inlongGroupStreamNode == null && inlongAudit == null) {
+            if (inlongLabels == null && inlongAudit == null) {
                 return null;
             }
-            return new MetricOption(inlongGroupStreamNode, inlongAudit, registeredMetric);
+            return new MetricOption(inlongLabels, inlongAudit, registeredMetric);
         }
     }
 }

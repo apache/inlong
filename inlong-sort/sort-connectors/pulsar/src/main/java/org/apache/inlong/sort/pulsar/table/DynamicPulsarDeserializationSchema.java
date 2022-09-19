@@ -111,7 +111,7 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
         valueDeserialization.open(context);
 
         MetricOption metricOption = MetricOption.builder()
-                .withInlongGroupStreamNode(inlongMetric)
+                .withInlongLabels(inlongMetric)
                 .withInlongAudit(auditHostAndPorts)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();

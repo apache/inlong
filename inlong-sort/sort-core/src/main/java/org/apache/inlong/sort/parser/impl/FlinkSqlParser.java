@@ -189,8 +189,10 @@ public class FlinkSqlParser implements Parser {
                             "Unsupported inlong group stream node for: %s", node.getClass().getSimpleName()));
                 }
             }
-            properties.put(Constants.INLONG_GROUP_STREAM_NODE.key(),
-                    Stream.of(groupInfo.getGroupId(), streamInfo.getStreamId(), node.getId())
+            properties.put(Constants.METRICS_LABELS.key(),
+                    Stream.of(Constants.GROUP_ID + "=" + groupInfo.getGroupId(),
+                                    Constants.STREAM_ID + "=" + streamInfo.getStreamId(),
+                                    Constants.NODE_ID + "=" + node.getId())
                             .collect(Collectors.joining("&")));
             // METRICS_AUDIT_PROXY_HOSTS depends on INLONG_GROUP_STREAM_NODE
             if (StringUtils.isNotEmpty(groupInfo.getProperties().get(Constants.METRICS_AUDIT_PROXY_HOSTS.key()))) {

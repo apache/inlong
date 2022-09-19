@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
@@ -47,9 +48,7 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
 public class SinkMetricData implements MetricData {
 
     private MetricGroup metricGroup;
-    private String groupId;
-    private String streamId;
-    private String nodeId;
+    private Map<String, String> labels;
     private AuditImp auditImp;
     private Counter numRecordsOut;
     private Counter numBytesOut;
@@ -61,21 +60,16 @@ public class SinkMetricData implements MetricData {
     private Meter numBytesOutPerSecond;
 
     public SinkMetricData(MetricOption option, MetricGroup metricGroup) {
-        this(option.getGroupId(), option.getStreamId(), option.getNodeId(),
-                option.getRegisteredMetric(), metricGroup, option.getIpPorts());
+        this(option.getLabels(), option.getRegisteredMetric(), metricGroup, option.getIpPorts());
     }
 
     public SinkMetricData(
-            String groupId,
-            String streamId,
-            String nodeId,
+            Map<String, String> labels,
             @Nullable RegisteredMetric registeredMetric,
             MetricGroup metricGroup,
             @Nullable String auditHostAndPorts) {
         this.metricGroup = metricGroup;
-        this.groupId = groupId;
-        this.streamId = streamId;
-        this.nodeId = nodeId;
+        this.labels = labels;
         switch (registeredMetric) {
             case DIRTY:
                 registerMetricsForDirtyBytes(new ThreadSafeCounter());
@@ -242,18 +236,8 @@ public class SinkMetricData implements MetricData {
     }
 
     @Override
-    public String getGroupId() {
-        return groupId;
-    }
-
-    @Override
-    public String getStreamId() {
-        return streamId;
-    }
-
-    @Override
-    public String getNodeId() {
-        return nodeId;
+    public Map<String, String> getLabels() {
+        return labels;
     }
 
     public Counter getNumRecordsOutForMeter() {

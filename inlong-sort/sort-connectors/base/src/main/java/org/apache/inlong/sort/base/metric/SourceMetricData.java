@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
@@ -46,9 +47,7 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
 public class SourceMetricData implements MetricData {
 
     private MetricGroup metricGroup;
-    private String groupId;
-    private String streamId;
-    private String nodeId;
+    private Map<String, String> labels;
     private Counter numRecordsIn;
     private Counter numBytesIn;
     private Counter numRecordsInForMeter;
@@ -58,31 +57,24 @@ public class SourceMetricData implements MetricData {
     private AuditImp auditImp;
 
     public SourceMetricData(MetricOption option, MetricGroup metricGroup) {
-        this(option.getGroupId(), option.getStreamId(), option.getNodeId(),
-                option.getRegisteredMetric(), metricGroup, option.getIpPorts());
+        this(option.getLabels(), option.getRegisteredMetric(), metricGroup, option.getIpPorts());
     }
 
     public SourceMetricData(
-            String groupId,
-            String streamId,
-            String nodeId,
+            Map<String, String> labels,
             @Nullable RegisteredMetric registeredMetric,
             MetricGroup metricGroup,
             @Nullable String auditHostAndPorts) {
         this.metricGroup = metricGroup;
-        if (groupId != null && streamId != null && nodeId != null) {
-            this.groupId = groupId;
-            this.streamId = streamId;
-            this.nodeId = nodeId;
-            switch (registeredMetric) {
-                default:
-                    registerMetricsForNumRecordsIn();
-                    registerMetricsForNumBytesIn();
-                    registerMetricsForNumBytesInPerSecond();
-                    registerMetricsForNumRecordsInPerSecond();
-                    break;
+        this.labels = labels;
+        switch (registeredMetric) {
+            default:
+                registerMetricsForNumRecordsIn();
+                registerMetricsForNumBytesIn();
+                registerMetricsForNumBytesInPerSecond();
+                registerMetricsForNumRecordsInPerSecond();
+                break;
 
-            }
         }
 
         if (auditHostAndPorts != null) {
@@ -201,18 +193,8 @@ public class SourceMetricData implements MetricData {
     }
 
     @Override
-    public String getGroupId() {
-        return groupId;
-    }
-
-    @Override
-    public String getStreamId() {
-        return streamId;
-    }
-
-    @Override
-    public String getNodeId() {
-        return nodeId;
+    public Map<String, String> getLabels() {
+        return labels;
     }
 
     public void outputMetricsWithEstimate(Object o) {
@@ -246,20 +228,5 @@ public class SourceMetricData implements MetricData {
                     rowCountSize,
                     rowDataSize);
         }
-    }
-
-    @Override
-    public String toString() {
-        return "SourceMetricData{"
-                + "groupId='" + groupId + '\''
-                + ", streamId='" + streamId + '\''
-                + ", nodeId='" + nodeId + '\''
-                + ", numRecordsIn=" + numRecordsIn.getCount()
-                + ", numBytesIn=" + numBytesIn.getCount()
-                + ", numRecordsInForMeter=" + numRecordsInForMeter.getCount()
-                + ", numBytesInForMeter=" + numBytesInForMeter.getCount()
-                + ", numRecordsInPerSecond=" + numRecordsInPerSecond.getRate()
-                + ", numBytesInPerSecond=" + numBytesInPerSecond.getRate()
-                + '}';
     }
 }

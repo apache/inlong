@@ -268,7 +268,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     public void open(Configuration parameters) throws Exception {
         client = callBridge.createClient(userConfig);
         MetricOption metricOption = MetricOption.builder()
-                .withInlongGroupStreamNode(inlongMetric)
+                .withInlongLabels(inlongMetric)
                 .withRegisterMetric(RegisteredMetric.DIRTY)
                 .build();
         if (metricOption != null) {

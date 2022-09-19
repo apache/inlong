@@ -903,7 +903,7 @@ public class FlinkKafkaProducer<IN>
                             getRuntimeContext(), metricGroup -> metricGroup.addGroup("user")));
         }
         MetricOption metricOption = MetricOption.builder()
-                .withInlongGroupStreamNode(inlongMetric)
+                .withInlongLabels(inlongMetric)
                 .withInlongAudit(auditHostAndPorts)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();

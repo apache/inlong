@@ -124,7 +124,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
         try {
             this.runtimeContext = getRuntimeContext();
             MetricOption metricOption = MetricOption.builder()
-                    .withInlongGroupStreamNode(inlongMetric)
+                    .withInlongLabels(inlongMetric)
                     .withInlongAudit(inlongAudit)
                     .withRegisterMetric(RegisteredMetric.ALL)
                     .build();

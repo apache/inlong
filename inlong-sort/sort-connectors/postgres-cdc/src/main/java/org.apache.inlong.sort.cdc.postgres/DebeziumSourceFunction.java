@@ -439,7 +439,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         metricGroup.gauge(
                 "sourceIdleTime", (Gauge<Long>) () -> debeziumChangeFetcher.getIdleTime());
         MetricOption metricOption = MetricOption.builder()
-                .withInlongGroupStreamNode(inlongMetric)
+                .withInlongLabels(inlongMetric)
                 .withInlongAudit(inlongAudit)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
@@ -452,7 +452,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 bytesInCounter.inc(metricState.getMetricValue(NUM_BYTES_IN));
             }
             sourceMetricData.registerMetricsForNumRecordsIn(recordsInCounter);
-            sourceMetricData.registerMetricsForNumBytesIn(bytesInCounter);        }
+            sourceMetricData.registerMetricsForNumBytesIn(bytesInCounter);
+        }
         properties.setProperty("name", "engine");
         properties.setProperty("offset.storage", FlinkOffsetBackingStore.class.getCanonicalName());
         if (restoredOffsetState != null) {

@@ -414,7 +414,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         metricGroup.gauge(
                 "sourceIdleTime", (Gauge<Long>) () -> debeziumChangeFetcher.getIdleTime());
         MetricOption metricOption = MetricOption.builder()
-                .withInlongGroupStreamNode(inlongMetric)
+                .withInlongLabels(inlongMetric)
                 .withInlongAudit(inlongAudit)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();

@@ -60,6 +60,12 @@ public class Constants {
 
     public static final String HIVE_SINK_ORC_PREFIX = HIVE_SINK_PREFIX + "orc.";
 
+    public static final String GROUP_ID = "groupId";
+
+    public static final String STREAM_ID = "streamId";
+
+    public static final String NODE_ID = "nodeId";
+
     // ------------------------------------------------------------------------
     //  Operator uid
     // ------------------------------------------------------------------------
@@ -110,11 +116,6 @@ public class Constants {
 
     public static final ConfigOption<String> SINK_TYPE = key("sink.type").noDefaultValue()
             .withDescription("The type of sink, currently only 'clickhouse' and 'iceberg' are supported");
-
-    public static final ConfigOption<String> INLONG_GROUP_STREAM_NODE =
-            ConfigOptions.key("inlong.group_stream_node")
-                    .noDefaultValue()
-                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 
     // ------------------------------------------------------------------------
     //  Operator parallelism configs
@@ -279,6 +280,12 @@ public class Constants {
     public static final ConfigOption<Integer> METRICS_AGGREGATOR_WINDOW_SIZE = key("metrics.aggregator.window.size")
             .defaultValue(5)
             .withDescription("minutes");
+
+    public static final ConfigOption<String> METRICS_LABELS =
+            ConfigOptions.key("inlong.metric.label")
+                    .noDefaultValue()
+                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
+
 
     public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS =
             ConfigOptions.key("metrics.audit.proxy.hosts")

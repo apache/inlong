@@ -86,7 +86,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         indexGenerator.open();
         this.runtimeContext = ctx;
         MetricOption metricOption = MetricOption.builder()
-                .withInlongGroupStreamNode(inlongMetric)
+                .withInlongLabels(inlongMetric)
                 .withInlongAudit(auditHostAndPorts)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();

@@ -79,7 +79,7 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
 
         // Initialize metric
         MetricOption metricOption = MetricOption.builder()
-                .withInlongGroupStreamNode(inlongMetric)
+                .withInlongLabels(inlongMetric)
                 .withInlongAudit(auditHostAndPorts)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
