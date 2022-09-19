@@ -74,11 +74,14 @@ public class SourceMetricData implements MetricData {
             this.groupId = groupId;
             this.streamId = streamId;
             this.nodeId = nodeId;
-            if (RegisteredMetric.ALL.equals(registeredMetric)) {
-                registerMetricsForNumRecordsIn();
-                registerMetricsForNumBytesIn();
-                registerMetricsForNumBytesInPerSecond();
-                registerMetricsForNumRecordsInPerSecond();
+            switch (registeredMetric) {
+                default:
+                    registerMetricsForNumRecordsIn();
+                    registerMetricsForNumBytesIn();
+                    registerMetricsForNumBytesInPerSecond();
+                    registerMetricsForNumRecordsInPerSecond();
+                    break;
+
             }
         }
 

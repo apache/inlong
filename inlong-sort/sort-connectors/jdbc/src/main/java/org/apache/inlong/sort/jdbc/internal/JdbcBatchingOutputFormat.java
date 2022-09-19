@@ -125,8 +125,8 @@ public class JdbcBatchingOutputFormat<
         super.open(taskNumber, numTasks);
         this.runtimeContext = getRuntimeContext();
         MetricOption metricOption = MetricOption.builder()
-                .withInLongMetric(inlongMetric)
-                .withInLongAudit(auditHostAndPorts)
+                .withInlongGroupStreamNode(inlongMetric)
+                .withInlongAudit(auditHostAndPorts)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {

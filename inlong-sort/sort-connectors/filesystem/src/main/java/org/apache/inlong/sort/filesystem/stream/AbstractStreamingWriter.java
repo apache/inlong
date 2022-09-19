@@ -102,9 +102,9 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     public void open() throws Exception {
         super.open();
         MetricOption metricOption = MetricOption.builder()
-                .withInLongMetric(inlongMetric)
+                .withInlongGroupStreamNode(inlongMetric)
                 .withRegisterMetric(RegisteredMetric.ALL)
-                .withInLongAudit(inlongAudit)
+                .withInlongAudit(inlongAudit)
                 .build();
         if (metricOption != null) {
             metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());

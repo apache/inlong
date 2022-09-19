@@ -76,21 +76,26 @@ public class SinkMetricData implements MetricData {
         this.groupId = groupId;
         this.streamId = streamId;
         this.nodeId = nodeId;
-        if (RegisteredMetric.ALL.equals(registeredMetric)) {
-            registerMetricsForDirtyBytes(new ThreadSafeCounter());
-            registerMetricsForDirtyRecords(new ThreadSafeCounter());
-            registerMetricsForNumBytesOut(new ThreadSafeCounter());
-            registerMetricsForNumRecordsOut(new ThreadSafeCounter());
-            registerMetricsForNumBytesOutPerSecond();
-            registerMetricsForNumRecordsOutPerSecond();
-        } else if (RegisteredMetric.DIRTY.equals(registeredMetric)) {
-            registerMetricsForDirtyBytes(new ThreadSafeCounter());
-            registerMetricsForDirtyRecords(new ThreadSafeCounter());
-        } else if (RegisteredMetric.NORMAL.equals(registeredMetric)) {
-            registerMetricsForNumBytesOut(new ThreadSafeCounter());
-            registerMetricsForNumRecordsOut(new ThreadSafeCounter());
-            registerMetricsForNumBytesOutPerSecond();
-            registerMetricsForNumRecordsOutPerSecond();
+        switch (registeredMetric) {
+            case DIRTY:
+                registerMetricsForDirtyBytes(new ThreadSafeCounter());
+                registerMetricsForDirtyRecords(new ThreadSafeCounter());
+                break;
+            case NORMAL:
+                registerMetricsForNumBytesOut(new ThreadSafeCounter());
+                registerMetricsForNumRecordsOut(new ThreadSafeCounter());
+                registerMetricsForNumBytesOutPerSecond();
+                registerMetricsForNumRecordsOutPerSecond();
+                break;
+            default:
+                registerMetricsForDirtyBytes(new ThreadSafeCounter());
+                registerMetricsForDirtyRecords(new ThreadSafeCounter());
+                registerMetricsForNumBytesOut(new ThreadSafeCounter());
+                registerMetricsForNumRecordsOut(new ThreadSafeCounter());
+                registerMetricsForNumBytesOutPerSecond();
+                registerMetricsForNumRecordsOutPerSecond();
+                break;
+
         }
 
         if (auditHostAndPorts != null) {

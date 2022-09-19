@@ -136,8 +136,8 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         TableSchema tableSchema = TableSchemaUtils.getPhysicalSchema(catalogTable.getSchema());
         SyncRewriteDataFilesActionOption compactOption = new SyncRewriteDataFilesActionOption(tableProps);
         MetricOption metricOption = MetricOption.builder()
-                .withInLongMetric(tableProps.getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue()))
-                .withInLongAudit(tableProps.getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue()))
+                .withInlongGroupStreamNode(tableProps.getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue()))
+                .withInlongAudit(tableProps.getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue()))
                 .build();
 
         boolean appendMode = tableProps.containsKey(ICEBERG_IGNORE_ALL_CHANGELOG.key())

@@ -111,8 +111,8 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     public void open() throws Exception {
         super.open();
         MetricOption metricOption = MetricOption.builder()
-                .withInLongMetric(inlongMetric)
-                .withInLongAudit(auditHostAndPorts)
+                .withInlongGroupStreamNode(inlongMetric)
+                .withInlongAudit(auditHostAndPorts)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
