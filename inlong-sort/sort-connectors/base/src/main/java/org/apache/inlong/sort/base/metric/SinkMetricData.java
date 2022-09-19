@@ -24,6 +24,7 @@ import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
@@ -45,10 +46,10 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
  */
 public class SinkMetricData implements MetricData {
 
-    private final MetricGroup metricGroup;
-    private final String groupId;
-    private final String streamId;
-    private final String nodeId;
+    private MetricGroup metricGroup;
+    private String groupId;
+    private String streamId;
+    private String nodeId;
     private AuditImp auditImp;
     private Counter numRecordsOut;
     private Counter numBytesOut;
@@ -59,21 +60,40 @@ public class SinkMetricData implements MetricData {
     private Meter numRecordsOutPerSecond;
     private Meter numBytesOutPerSecond;
 
-    public SinkMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup) {
-        this(groupId, streamId, nodeId, metricGroup, null);
-    }
-
     public SinkMetricData(MetricOption option, MetricGroup metricGroup) {
-        this(option.getGroupId(), option.getStreamId(), option.getNodeId(), metricGroup, option.getIpPorts());
+        this(option.getGroupId(), option.getStreamId(), option.getNodeId(),
+                option.getRegisteredMetric(), metricGroup, option.getIpPorts());
     }
 
     public SinkMetricData(
-            String groupId, String streamId, String nodeId, MetricGroup metricGroup,
+            @Nullable String groupId,
+            @Nullable String streamId,
+            @Nullable String nodeId,
+            @Nullable RegisteredMetric registeredMetric,
+            MetricGroup metricGroup,
             @Nullable String auditHostAndPorts) {
         this.metricGroup = metricGroup;
-        this.groupId = groupId;
-        this.streamId = streamId;
-        this.nodeId = nodeId;
+        if (groupId != null && streamId != null && nodeId != null) {
+            this.groupId = groupId;
+            this.streamId = streamId;
+            this.nodeId = nodeId;
+            if (RegisteredMetric.ALL.equals(registeredMetric)) {
+                registerMetricsForDirtyBytes(new ThreadSafeCounter());
+                registerMetricsForDirtyRecords(new ThreadSafeCounter());
+                registerMetricsForNumBytesOut(new ThreadSafeCounter());
+                registerMetricsForNumRecordsOut(new ThreadSafeCounter());
+                registerMetricsForNumBytesOutPerSecond();
+                registerMetricsForNumRecordsOutPerSecond();
+            } else if (RegisteredMetric.DIRTY.equals(registeredMetric)) {
+                registerMetricsForDirtyBytes(new ThreadSafeCounter());
+                registerMetricsForDirtyRecords(new ThreadSafeCounter());
+            } else if (RegisteredMetric.NORMAL.equals(registeredMetric)) {
+                registerMetricsForNumBytesOut(new ThreadSafeCounter());
+                registerMetricsForNumRecordsOut(new ThreadSafeCounter());
+                registerMetricsForNumBytesOutPerSecond();
+                registerMetricsForNumRecordsOutPerSecond();
+            }
+        }
         if (auditHostAndPorts != null) {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
             this.auditImp = AuditImp.getInstance();
@@ -242,26 +262,18 @@ public class SinkMetricData implements MetricData {
 
     public void invokeWithEstimate(Object o) {
         long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
-        this.numRecordsOut.inc();
-        this.numBytesOut.inc(size);
-        this.numRecordsOutForMeter.inc();
-        this.numBytesOutForMeter.inc(size);
-        if (auditImp != null) {
-            auditImp.add(
-                    Constants.AUDIT_SORT_OUTPUT,
-                    getGroupId(),
-                    getStreamId(),
-                    System.currentTimeMillis(),
-                    1,
-                    size);
-        }
+        invoke(1, size);
     }
 
     public void invoke(long rowCount, long rowSize) {
-        this.numRecordsOut.inc(rowCount);
-        this.numBytesOut.inc(rowSize);
-        this.numRecordsOutForMeter.inc(rowCount);
-        this.numBytesOutForMeter.inc(rowSize);
+        if (numRecordsOut != null) {
+            numRecordsOut.inc(rowCount);
+        }
+
+        if (numBytesOut != null) {
+            numBytesOut.inc(rowSize);
+        }
+
         if (auditImp != null) {
             auditImp.add(
                     Constants.AUDIT_SORT_OUTPUT,
@@ -270,6 +282,16 @@ public class SinkMetricData implements MetricData {
                     System.currentTimeMillis(),
                     rowCount,
                     rowSize);
+        }
+    }
+
+    public void invokeDirty(long rowCount, long rowSize) {
+        if (dirtyRecords != null) {
+            dirtyRecords.inc(rowCount);
+        }
+
+        if (dirtyBytes != null) {
+            dirtyBytes.inc(rowSize);
         }
     }
 
@@ -288,5 +310,4 @@ public class SinkMetricData implements MetricData {
                 + ", numRecordsOutPerSecond=" + numRecordsOutPerSecond.getRate()
                 + ", numBytesOutPerSecond=" + numBytesOutPerSecond.getRate()
                 + '}';
-    }
-}
+    }}

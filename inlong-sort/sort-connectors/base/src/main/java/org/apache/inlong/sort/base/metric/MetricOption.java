@@ -19,7 +19,6 @@
 package org.apache.inlong.sort.base.metric;
 
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.util.ValidateMetricOptionUtils;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -35,27 +34,28 @@ public class MetricOption {
             + "3}|65[0-4]\\d{"
             + "2}|655[0-2]\\d|6553[0-5])$";
 
-    private final String groupId;
-    private final String streamId;
-    private final String nodeId;
+    private String groupId;
+    private String streamId;
+    private String nodeId;
     private final HashSet<String> ipPortList;
     private String ipPorts;
+    private RegisteredMetric registeredMetric;
 
-    public MetricOption(String inLongMetric) {
-        this(inLongMetric, null);
-    }
+    private MetricOption(
+            @Nullable String inLongMetric,
+            @Nullable String inLongAudit,
+            @Nullable RegisteredMetric registeredMetric) {
+        if (inLongMetric != null) {
+            String[] inLongMetricArray = inLongMetric.split(DELIMITER);
+            Preconditions.checkArgument(inLongMetricArray.length == 3,
+                    "Error inLong metric format: " + inLongMetric);
+            this.groupId = inLongMetricArray[0];
+            this.streamId = inLongMetricArray[1];
+            this.nodeId = inLongMetricArray[2];
+        }
 
-    public MetricOption(String inLongMetric, @Nullable String inLongAudit) {
-        ValidateMetricOptionUtils.validateInlongMetricIfSetInlongAudit(inLongMetric, inLongAudit);
-        String[] inLongMetricArray = inLongMetric.split(DELIMITER);
-        Preconditions.checkArgument(inLongMetricArray.length == 3,
-                "Error inLong metric format: " + inLongMetric);
-        this.groupId = inLongMetricArray[0];
-        this.streamId = inLongMetricArray[1];
-        this.nodeId = inLongMetricArray[2];
         this.ipPortList = new HashSet<>();
         this.ipPorts = null;
-
         if (inLongAudit != null) {
             String[] ipPortStrs = inLongAudit.split(DELIMITER);
             this.ipPorts = inLongAudit;
@@ -64,6 +64,11 @@ public class MetricOption {
                         "Error inLong audit format: " + inLongAudit);
                 this.ipPortList.add(ipPort);
             }
+        }
+
+        if (registeredMetric != null) {
+            Preconditions.checkNotNull(inLongMetric, "Inlong metric must be set for register metric.");
+            this.registeredMetric = registeredMetric;
         }
     }
 
@@ -85,5 +90,50 @@ public class MetricOption {
 
     public String getIpPorts() {
         return ipPorts;
+    }
+
+    public RegisteredMetric getRegisteredMetric() {
+        return registeredMetric;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public enum RegisteredMetric {
+        ALL,
+        NORMAL,
+        DIRTY
+    }
+
+    public static class Builder {
+        private String inLongMetric;
+        private String inLongAudit;
+        private RegisteredMetric registeredMetric = RegisteredMetric.ALL;
+
+        private Builder() {
+        }
+
+        public MetricOption.Builder withInLongMetric(String inLongMetric) {
+            this.inLongMetric = inLongMetric;
+            return this;
+        }
+
+        public MetricOption.Builder withInLongAudit(String inLongAudit) {
+            this.inLongAudit = inLongAudit;
+            return this;
+        }
+
+        public MetricOption.Builder withRegisterMetric(RegisteredMetric registeredMetric) {
+            this.registeredMetric = registeredMetric;
+            return this;
+        }
+
+        public MetricOption build() {
+            if (inLongMetric == null && inLongAudit == null) {
+                return null;
+            }
+            return new MetricOption(inLongMetric, inLongAudit, registeredMetric);
+        }
     }
 }

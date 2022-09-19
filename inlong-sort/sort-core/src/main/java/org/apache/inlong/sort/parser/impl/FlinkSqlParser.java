@@ -20,6 +20,7 @@ package org.apache.inlong.sort.parser.impl;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.table.api.TableEnvironment;
+import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.function.EncryptFunction;
@@ -64,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Flink sql parse handler
@@ -187,12 +189,12 @@ public class FlinkSqlParser implements Parser {
                             node.getClass().getSimpleName()));
                 }
             }
-            properties.put(InlongMetric.METRIC_KEY,
-                    String.format(InlongMetric.METRIC_VALUE_FORMAT, groupInfo.getGroupId(),
-                            streamInfo.getStreamId(), node.getId()));
-            if (StringUtils.isNotEmpty(groupInfo.getProperties().get(InlongMetric.AUDIT_KEY))) {
-                properties.put(InlongMetric.AUDIT_KEY,
-                        groupInfo.getProperties().get(InlongMetric.AUDIT_KEY));
+            properties.put(Constants.METRICS_GROUP_STREAM_NODE.key(),
+                    Stream.of(groupInfo.getGroupId(), streamInfo.getStreamId(), node.getId())
+                            .collect(Collectors.joining("&")));
+            if (StringUtils.isNotEmpty(groupInfo.getProperties().get(Constants.METRICS_AUDIT_PROXY_HOSTS.key()))) {
+                properties.put(Constants.METRICS_AUDIT_PROXY_HOSTS.key(),
+                        groupInfo.getProperties().get(Constants.METRICS_AUDIT_PROXY_HOSTS.key()));
             }
         });
     }

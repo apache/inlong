@@ -20,8 +20,8 @@ package org.apache.inlong.sort.elasticsearch.table;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.inlong.audit.AuditImp;
-import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.table.api.TableException;
@@ -37,12 +37,8 @@ import org.elasticsearch.common.xcontent.XContentType;
 
 import javax.annotation.Nullable;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.function.Function;
-
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /** Sink function for converting upserts into Elasticsearch {@link ActionRequest}s. */
 public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<RowData> {
@@ -63,11 +59,6 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private transient  RuntimeContext runtimeContext;
 
     private SinkMetricData sinkMetricData;
-    private Long dataSize = 0L;
-    private Long rowSize = 0L;
-    private String groupId;
-    private String streamId;
-    private transient AuditImp auditImp;
 
     public RowElasticsearchSinkFunction(
             IndexGenerator indexGenerator,
@@ -94,44 +85,20 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     public void open(RuntimeContext ctx) {
         indexGenerator.open();
         this.runtimeContext = ctx;
-        if (inlongMetric != null && !inlongMetric.isEmpty()) {
-            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
-            groupId = inlongMetricArray[0];
-            streamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, runtimeContext.getMetricGroup());
-            sinkMetricData.registerMetricsForNumBytesOut();
-            sinkMetricData.registerMetricsForNumRecordsOut();
-            sinkMetricData.registerMetricsForNumBytesOutPerSecond();
-            sinkMetricData.registerMetricsForNumRecordsOutPerSecond();
-        }
-
-        if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
-            auditImp = AuditImp.getInstance();
-        }
-    }
-
-    private void outputMetricForAudit(long size) {
-        if (auditImp != null) {
-            auditImp.add(
-                    Constants.AUDIT_SORT_OUTPUT,
-                    groupId,
-                    streamId,
-                    System.currentTimeMillis(),
-                    1,
-                    size);
+        MetricOption metricOption = MetricOption.builder()
+                .withInLongMetric(inlongMetric)
+                .withInLongAudit(auditHostAndPorts)
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .build();
+        if (metricOption != null) {
+            sinkMetricData = new SinkMetricData(metricOption, runtimeContext.getMetricGroup());
         }
     }
 
     private void sendMetrics(byte[] document) {
-        if (sinkMetricData.getNumBytesOut() != null) {
-            sinkMetricData.getNumBytesOut().inc(document.length);
+        if (sinkMetricData != null) {
+            sinkMetricData.invoke(1, document.length);
         }
-        if (sinkMetricData.getNumRecordsOut() != null) {
-            sinkMetricData.getNumRecordsOut().inc();
-        }
-        outputMetricForAudit(document.length);
     }
 
     @Override

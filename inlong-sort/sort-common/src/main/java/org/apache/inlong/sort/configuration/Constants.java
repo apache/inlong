@@ -275,10 +275,16 @@ public class Constants {
             .defaultValue(5)
             .withDescription("minutes");
 
-    public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS = key("metrics.audit.proxy.hosts")
-            .noDefaultValue()
-            .withDescription("Audit proxy host address for reporting audit metrics. "
-                    + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
+    public static final ConfigOption<String> METRICS_GROUP_STREAM_NODE =
+            ConfigOptions.key("inlong.metric")
+                    .noDefaultValue()
+                    .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
+
+    public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS =
+            ConfigOptions.key("metrics.audit.proxy.hosts")
+                    .noDefaultValue()
+                    .withDescription("Audit proxy host address for reporting audit metrics. \n"
+                            + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
 
     // ------------------------------------------------------------------------
     //  Single tenant related

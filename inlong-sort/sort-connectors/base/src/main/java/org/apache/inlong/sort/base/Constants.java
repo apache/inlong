@@ -91,12 +91,12 @@ public final class Constants {
             .noDefaultValue()
             .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
 
-
     public static final ConfigOption<String> INLONG_AUDIT =
-        ConfigOptions.key("inlong.audit")
+        ConfigOptions.key("metrics.audit.proxy.hosts")
             .stringType()
             .noDefaultValue()
-            .withDescription("INLONG AUDIT HOST + '&' + PORT");
+            .withDescription("Audit proxy host address for reporting audit metrics. \n"
+                    + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
 
     public static final ConfigOption<Boolean> IGNORE_ALL_CHANGELOG =
             ConfigOptions.key("sink.ignore.changelog")

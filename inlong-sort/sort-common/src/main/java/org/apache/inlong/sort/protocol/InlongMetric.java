@@ -19,29 +19,11 @@ package org.apache.inlong.sort.protocol;
 
 /**
  * The class is the abstract of Inlong Metric.
- * We agree that the key of the inlong metric report is `inlong.metric`,
+ * We agree that the key of the inlong metric report is
+ * {@link org.apache.inlong.sort.configuration.Constants#METRICS_GROUP_STREAM_NODE},
  * and its value is format by `groupId&streamId&nodeId`.
  * If node implements this interface, we will inject the key and value into the corresponding Sort-Connectors
  * during flink sql parser
  */
 public interface InlongMetric {
-
-    /**
-     * The key of metric, it must be `inlong.metric` here.
-     */
-    String METRIC_KEY = "inlong.metric";
-
-    /**
-     * The value format, it must be `groupId&streamId&nodeId` here.
-     * The groupId is the id of Inlong Group
-     * The streamId is the id of Inlong Stream
-     * The nodeId is the id of Inlong Source or Sink
-     */
-    String METRIC_VALUE_FORMAT = "%s&%s&%s";
-
-    /**
-     * The key of InLong audit, the value should be ip:port&ip:port
-     */
-    String AUDIT_KEY = "inlong.audit";
-
 }

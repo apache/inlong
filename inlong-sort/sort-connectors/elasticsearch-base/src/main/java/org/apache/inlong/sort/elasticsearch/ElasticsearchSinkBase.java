@@ -29,6 +29,8 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.util.InstantiationUtil;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
@@ -50,7 +52,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
 
 /**
  * Base class for all Flink Elasticsearch Sinks.
@@ -266,15 +267,14 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     @Override
     public void open(Configuration parameters) throws Exception {
         client = callBridge.createClient(userConfig);
-        if (inlongMetric != null && !inlongMetric.isEmpty()) {
-            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
-            String groupId = inlongMetricArray[0];
-            String streamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, getRuntimeContext().getMetricGroup());
-            sinkMetricData.registerMetricsForDirtyBytes();
-            sinkMetricData.registerMetricsForDirtyRecords();
+        MetricOption metricOption = MetricOption.builder()
+                .withInLongMetric(inlongMetric)
+                .withRegisterMetric(RegisteredMetric.DIRTY)
+                .build();
+        if (metricOption != null) {
+            sinkMetricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
+
         callBridge.verifyClientConnection(client);
         bulkProcessor = buildBulkProcessor(new BulkProcessorListener(sinkMetricData));
         requestIndexer =
@@ -482,8 +482,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                         if (failure != null) {
                             restStatus = itemResponse.getFailure().getStatus();
                             actionRequest = request.requests().get(i);
-                            if (sinkMetricData.getDirtyRecords() != null) {
-                                sinkMetricData.getDirtyRecords().inc();
+                            if (sinkMetricData != null) {
+                                sinkMetricData.invokeDirty(1, 0);
                             }
                             if (restStatus == null) {
                                 if (actionRequest instanceof ActionRequest) {
@@ -526,8 +526,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
         public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
             try {
                 for (DocWriteRequest writeRequest : request.requests()) {
-                    if (sinkMetricData.getDirtyRecords() != null) {
-                        sinkMetricData.getDirtyRecords().inc();
+                    if (sinkMetricData != null) {
+                        sinkMetricData.invokeDirty(1, 0);
                     }
                     if (writeRequest instanceof ActionRequest) {
                         failureHandler.onFailure(

@@ -24,9 +24,11 @@ import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 
 import javax.annotation.Nullable;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -43,46 +45,46 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
  */
 public class SourceMetricData implements MetricData {
 
-    private final MetricGroup metricGroup;
-    private final String groupId;
-    private final String streamId;
-    private final String nodeId;
+    private MetricGroup metricGroup;
+    private String groupId;
+    private String streamId;
+    private String nodeId;
     private Counter numRecordsIn;
     private Counter numBytesIn;
     private Counter numRecordsInForMeter;
     private Counter numBytesInForMeter;
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
-    private final AuditImp auditImp;
-
-    public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup) {
-        this(groupId, streamId, nodeId, metricGroup, (AuditImp) null);
-    }
+    private AuditImp auditImp;
 
     public SourceMetricData(MetricOption option, MetricGroup metricGroup) {
-        this(option.getGroupId(), option.getStreamId(), option.getNodeId(), metricGroup, option.getIpPorts());
+        this(option.getGroupId(), option.getStreamId(), option.getNodeId(),
+                option.getRegisteredMetric(), metricGroup, option.getIpPorts());
     }
 
-    public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup,
-            AuditImp auditImp) {
-        this.groupId = groupId;
-        this.streamId = streamId;
-        this.nodeId = nodeId;
-        this.metricGroup = metricGroup;
-        this.auditImp = auditImp;
-    }
-
-    public SourceMetricData(String groupId, String streamId, String nodeId, MetricGroup metricGroup,
+    public SourceMetricData(
+            @Nullable String groupId,
+            @Nullable String streamId,
+            @Nullable String nodeId,
+            @Nullable RegisteredMetric registeredMetric,
+            MetricGroup metricGroup,
             @Nullable String auditHostAndPorts) {
-        this.groupId = groupId;
-        this.streamId = streamId;
-        this.nodeId = nodeId;
         this.metricGroup = metricGroup;
+        if (groupId != null && streamId != null && nodeId != null) {
+            this.groupId = groupId;
+            this.streamId = streamId;
+            this.nodeId = nodeId;
+            if (RegisteredMetric.ALL.equals(registeredMetric)) {
+                registerMetricsForNumRecordsIn();
+                registerMetricsForNumBytesIn();
+                registerMetricsForNumBytesInPerSecond();
+                registerMetricsForNumRecordsInPerSecond();
+            }
+        }
+
         if (auditHostAndPorts != null) {
             AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
             this.auditImp = AuditImp.getInstance();
-        } else {
-            this.auditImp = null;
         }
     }
 
@@ -210,12 +212,28 @@ public class SourceMetricData implements MetricData {
         return nodeId;
     }
 
-    public void outputMetrics(long rowCountSize, long rowDataSize) {
-        outputMetricForFlink(rowCountSize, rowDataSize);
-        outputMetricForAudit(rowCountSize, rowDataSize);
+    public void outputMetricsWithEstimate(Object o) {
+        long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
+        outputMetrics(1, size);
     }
 
-    public void outputMetricForAudit(long rowCountSize, long rowDataSize) {
+    public void outputMetrics(long rowCountSize, long rowDataSize) {
+        if (numRecordsIn != null) {
+            this.numRecordsIn.inc(rowCountSize);
+        }
+
+        if (numBytesIn != null) {
+            this.numBytesIn.inc(rowDataSize);
+        }
+
+        if (numRecordsInForMeter != null) {
+            this.numRecordsInForMeter.inc(rowCountSize);
+        }
+
+        if (numBytesInForMeter != null) {
+            this.numBytesInForMeter.inc(rowDataSize);
+        }
+
         if (auditImp != null) {
             auditImp.add(
                     Constants.AUDIT_SORT_INPUT,
@@ -225,13 +243,6 @@ public class SourceMetricData implements MetricData {
                     rowCountSize,
                     rowDataSize);
         }
-    }
-
-    public void outputMetricForFlink(long rowCountSize, long rowDataSize) {
-        this.numBytesIn.inc(rowDataSize);
-        this.numRecordsIn.inc(rowCountSize);
-        this.numBytesInForMeter.inc(rowDataSize);
-        this.numRecordsInForMeter.inc(rowCountSize);
     }
 
     @Override

@@ -64,6 +64,8 @@ import org.apache.flink.streaming.runtime.operators.util.AssignerWithPunctuatedW
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.SerializedValue;
 import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
@@ -831,36 +833,26 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
 
     @Override
     public void run(SourceContext<T> sourceContext) throws Exception {
-
-        if (StringUtils.isNotEmpty(this.inlongMetric)) {
-            String[] inlongMetricArray = inlongMetric.split(DELIMITER);
-            String groupId = inlongMetricArray[0];
-            String streamId = inlongMetricArray[1];
-            String nodeId = inlongMetricArray[2];
-            AuditImp auditImp = null;
-            if (inlongAudit != null) {
-                AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(inlongAudit.split(DELIMITER))));
-                auditImp = AuditImp.getInstance();
-            }
-            sourceMetricData = new SourceMetricData(groupId, streamId, nodeId, getRuntimeContext().getMetricGroup(),
-                    auditImp);
-            ThreadSafeCounter recordsInCounter = new ThreadSafeCounter();
-            ThreadSafeCounter bytesInCounter = new ThreadSafeCounter();
-            if (metricState != null) {
-                recordsInCounter.inc(metricState.getMetricValue(NUM_RECORDS_IN));
-                bytesInCounter.inc(metricState.getMetricValue(NUM_BYTES_IN));
-            }
-            sourceMetricData.registerMetricsForNumRecordsIn(recordsInCounter);
-            sourceMetricData.registerMetricsForNumBytesIn(bytesInCounter);
-            sourceMetricData.registerMetricsForNumRecordsInForMeter(new ThreadSafeCounter());
-            sourceMetricData.registerMetricsForNumBytesInForMeter(new ThreadSafeCounter());
-            sourceMetricData.registerMetricsForNumBytesInPerSecond();
-            sourceMetricData.registerMetricsForNumRecordsInPerSecond();
-            if (this.deserializer instanceof DynamicKafkaDeserializationSchema) {
-                DynamicKafkaDeserializationSchema dynamicKafkaDeserializationSchema =
-                        (DynamicKafkaDeserializationSchema) deserializer;
-                dynamicKafkaDeserializationSchema.setMetricData(sourceMetricData);
-            }
+        MetricOption metricOption = MetricOption.builder()
+                .withInLongMetric(inlongMetric)
+                .withInLongAudit(inlongAudit)
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .build();
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption, getRuntimeContext().getMetricGroup());
+        }
+        ThreadSafeCounter recordsInCounter = new ThreadSafeCounter();
+        ThreadSafeCounter bytesInCounter = new ThreadSafeCounter();
+        if (metricState != null) {
+            recordsInCounter.inc(metricState.getMetricValue(NUM_RECORDS_IN));
+            bytesInCounter.inc(metricState.getMetricValue(NUM_BYTES_IN));
+        }
+        sourceMetricData.registerMetricsForNumRecordsInForMeter(new ThreadSafeCounter());
+        sourceMetricData.registerMetricsForNumBytesInForMeter(new ThreadSafeCounter());
+        if (this.deserializer instanceof DynamicKafkaDeserializationSchema) {
+            DynamicKafkaDeserializationSchema dynamicKafkaDeserializationSchema =
+                    (DynamicKafkaDeserializationSchema) deserializer;
+            dynamicKafkaDeserializationSchema.setMetricData(sourceMetricData);
         }
 
         if (subscribedPartitionsToStartOffsets == null) {

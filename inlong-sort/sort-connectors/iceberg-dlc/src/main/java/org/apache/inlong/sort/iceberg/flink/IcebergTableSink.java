@@ -43,7 +43,7 @@ import java.util.Map;
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
  * Add a table property `write.compact.enable` to support small file compact.
- * Add option `inlong.metric` and `inlong.audit` to support collect inlong metrics and audit
+ * Add option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect inlong metrics and audit
  */
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
     private static final Logger LOG = LoggerFactory.getLogger(IcebergTableSink.class);
