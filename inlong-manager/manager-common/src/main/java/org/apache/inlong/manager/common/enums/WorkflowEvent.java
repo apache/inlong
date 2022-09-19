@@ -15,53 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.event.task;
-
-import org.apache.inlong.manager.workflow.event.WorkflowEvent;
+package org.apache.inlong.manager.common.enums;
 
 /**
- * Task event
+ * Workflow event
  */
-public enum TaskEvent implements WorkflowEvent {
+public interface WorkflowEvent {
 
     /**
-     * Task is created
+     * Get event name
      */
-    CREATE,
-
-    /**
-     * Task is approved
-     */
-    APPROVE,
-
-    /**
-     * Task is rejected
-     */
-    REJECT,
-
-    /**
-     * Transfer task to someone else
-     */
-    TRANSFER,
-
-    /**
-     * Task is cancelled
-     */
-    CANCEL,
-
-    /**
-     * Automatic task completion
-     */
-    COMPLETE,
-
-    /**
-     * Task was terminated
-     */
-    TERMINATE,
-
-    /**
-     * System task failed
-     */
-    FAIL,
+    String name();
 
 }

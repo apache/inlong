@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.service.core;
 
+import org.apache.inlong.manager.common.enums.ProcessEvent;
+import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
 import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
-import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
 /**
  * Workflow event related services

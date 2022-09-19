@@ -15,16 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.event;
+package org.apache.inlong.manager.common.enums;
 
 /**
- * Workflow event
+ * WorkflowProcess event type
  */
-public interface WorkflowEvent {
+public enum ProcessEvent implements WorkflowEvent {
 
     /**
-     * Get event name
+     * Process creation
      */
-    String name();
+    CREATE,
+
+    /**
+     * Process approval completed
+     */
+    COMPLETE,
+
+    /**
+     * Process rejected
+     */
+    REJECT,
+
+    /**
+     * Process cancellation
+     */
+    CANCEL,
+
+    /**
+     * Process termination
+     */
+    TERMINATE,
+
+    /**
+     * Process failed-there is an automatic task execution failure
+     */
+    FAIL,
 
 }

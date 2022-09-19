@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import org.apache.inlong.manager.common.enums.ProcessEvent;
+import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -27,8 +29,6 @@ import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.service.core.WorkflowEventService;
 import org.apache.inlong.manager.workflow.core.EventListenerService;
 import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
-import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
