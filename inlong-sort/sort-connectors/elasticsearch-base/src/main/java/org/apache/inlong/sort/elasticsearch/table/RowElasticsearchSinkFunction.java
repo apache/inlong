@@ -88,7 +88,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
                 .withInlongAudit(auditHostAndPorts)
-                .withRegisterMetric(RegisteredMetric.ALL)
+                .withRegisterMetric(RegisteredMetric.NORMAL)
                 .build();
         if (metricOption != null) {
             sinkMetricData = new SinkMetricData(metricOption, runtimeContext.getMetricGroup());
