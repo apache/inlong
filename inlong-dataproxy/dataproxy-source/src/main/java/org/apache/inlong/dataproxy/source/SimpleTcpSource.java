@@ -39,9 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
-import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.utils.EventLoopUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +80,6 @@ public class SimpleTcpSource extends BaseSource
     protected String topic;
 
     private ServerBootstrap bootstrap;
-
-    private DataProxyMetricItemSet metricItemSet;
 
     public SimpleTcpSource() {
         super();
@@ -182,8 +178,6 @@ public class SimpleTcpSource extends BaseSource
     @Override
     public synchronized void startSource() {
         logger.info("start " + this.getName());
-        this.metricItemSet = new DataProxyMetricItemSet(this.getName());
-        MetricRegister.register(metricItemSet);
         checkBlackListThread = new CheckBlackListThread();
         checkBlackListThread.start();
 //        ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
@@ -268,14 +262,6 @@ public class SimpleTcpSource extends BaseSource
             logger.warn("Simple TCP Source max-threads property must specify an integer value. {}",
                     context.getString(ConfigConstants.MAX_THREADS));
         }
-    }
-
-    /**
-     * get metricItemSet
-     * @return the metricItemSet
-     */
-    public DataProxyMetricItemSet getMetricItemSet() {
-        return metricItemSet;
     }
 
     @Override
