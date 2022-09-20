@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Form } from 'antd';
 import type { FormProps } from 'antd';
 import merge from 'lodash/merge';
@@ -74,7 +74,7 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
 
   const viewOnly = props.viewOnly ?? false;
 
-  const combineContentWithProps = usePersistFn(
+  const combineContentWithProps = useCallback(
     (initialContent: Record<string, any>[], props: FormGeneratorProps) => {
       return initialContent.map((v: any) => {
         const initialProps =
@@ -133,6 +133,7 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
         };
       });
     },
+    [realTimeValues, form, viewOnly],
   );
 
   // A real-time value is generated when it is first mounted, because the initialValue may be defined on the FormItem
