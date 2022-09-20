@@ -26,6 +26,8 @@ ADD ${DATAPROXY_TARBALL} /opt/inlong-dataproxy
 EXPOSE 46801
 ENV MANAGER_OPENAPI_IP=127.0.0.1
 ENV MANAGER_OPENAPI_PORT=8083
+# enable audit, true or false
+ENV AUDIT_ENABLE=true
 ENV AUDIT_PROXY_URL=127.0.0.1:10081
 # pulsar or tubemq
 ENV MQ_TYPE=pulsar
