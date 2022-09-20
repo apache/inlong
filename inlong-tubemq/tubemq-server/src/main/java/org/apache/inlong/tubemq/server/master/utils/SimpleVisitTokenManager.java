@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.master.utils;
 
 import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.daemon.AbstractDaemonService;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
@@ -31,16 +32,12 @@ public class SimpleVisitTokenManager extends AbstractDaemonService {
     private final AtomicLong validVisitAuthorized = new AtomicLong(0);
     private final AtomicLong freshVisitAuthorized = new AtomicLong(0);
     private String brokerVisitTokens = "";
-    private StringBuilder strBuilder = new StringBuilder(256);
 
     public SimpleVisitTokenManager(final MasterConfig masterConfig) {
         super("[VisitToken Manager]", (masterConfig.getVisitTokenValidPeriodMs() * 4) / 5);
         this.masterConfig = masterConfig;
-        freshVisitAuthorized.set(System.currentTimeMillis());
-        validVisitAuthorized.set(freshVisitAuthorized.get());
-        brokerVisitTokens = strBuilder.append(validVisitAuthorized.get())
-            .append(TokenConstants.ARRAY_SEP).append(freshVisitAuthorized.get()).toString();
-        strBuilder.delete(0, strBuilder.length());
+        buildVisitTokens(true,
+                new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE));
         super.start();
     }
 
@@ -57,12 +54,9 @@ public class SimpleVisitTokenManager extends AbstractDaemonService {
     }
 
     @Override
-    protected void loopProcess() {
+    protected void loopProcess(StringBuilder strBuff) {
         try {
-            validVisitAuthorized.set(freshVisitAuthorized.getAndSet(System.currentTimeMillis()));
-            brokerVisitTokens = strBuilder.append(validVisitAuthorized.get())
-                    .append(TokenConstants.ARRAY_SEP).append(freshVisitAuthorized.get()).toString();
-            strBuilder.delete(0, strBuilder.length());
+            buildVisitTokens(false, strBuff);
         }  catch (Throwable t) {
             logger.error("[VisitToken Manager] Daemon generator thread throw error ", t);
         }
@@ -73,6 +67,18 @@ public class SimpleVisitTokenManager extends AbstractDaemonService {
             return;
         }
         logger.info("[VisitToken Manager] VisitToken Manager service stopped!");
+    }
+
+    private void buildVisitTokens(boolean initial, StringBuilder strBuff) {
+        if (initial) {
+            freshVisitAuthorized.set(System.currentTimeMillis());
+            validVisitAuthorized.set(freshVisitAuthorized.get());
+        } else {
+            validVisitAuthorized.set(freshVisitAuthorized.getAndSet(System.currentTimeMillis()));
+        }
+        brokerVisitTokens = strBuff.append(validVisitAuthorized.get())
+                .append(TokenConstants.ARRAY_SEP).append(freshVisitAuthorized.get()).toString();
+        strBuff.delete(0, strBuff.length());
     }
 
 }

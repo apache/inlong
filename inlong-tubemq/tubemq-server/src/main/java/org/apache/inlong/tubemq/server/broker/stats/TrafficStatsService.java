@@ -67,12 +67,10 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
     }
 
     @Override
-    protected void loopProcess() {
+    protected void loopProcess(StringBuilder strBuff) {
         try {
-            // Snapshot metric data
-            int befIndex = writableIndex.getAndIncrement();
-            // Output 2 file
-            output2file(befIndex);
+            // Snapshot metric data and output data to file
+            output2file(writableIndex.getAndIncrement());
         } catch (Throwable throwable) {
             logger.error("[Traffic Stats] Daemon commit thread throw error ", throwable);
         }
