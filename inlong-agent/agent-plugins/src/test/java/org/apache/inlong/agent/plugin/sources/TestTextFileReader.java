@@ -146,7 +146,7 @@ public class TestTextFileReader {
         jobConfiguration.set(JOB_GROUP_ID, "groupid");
         jobConfiguration.set(JOB_STREAM_ID, "streamid");
         jobConfiguration.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
-        jobConfiguration.set(JOB_FILE_LINE_END_PATTERN, "ab{2}");
+        jobConfiguration.set(JOB_FILE_LINE_END_PATTERN, "line-end-symbol");
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
         Assert.assertEquals(1, readerList.size());
