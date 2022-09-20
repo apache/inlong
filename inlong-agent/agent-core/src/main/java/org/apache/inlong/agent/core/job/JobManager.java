@@ -246,6 +246,7 @@ public class JobManager extends AbstractDaemon {
             while (isRunnable()) {
                 try {
                     jobProfileDb.removeExpireJobs(jobDbCacheTime);
+                    // TODO: manager handles those job state in the future and it's saved locally now.
                     Map<String, List<String>> jobStateMap = jobProfileDb.getJobsState();
                     LOGGER.info("check local job state: {}", GsonUtil.toJson(jobStateMap));
                 } catch (Exception ex) {

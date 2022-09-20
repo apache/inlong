@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -180,7 +181,7 @@ public class TriggerManager extends AbstractDaemon {
         List<Task> tasks = jobWrapper.getAllTasks();
         for (Task task : tasks) {
             JobProfile runJobProfile = task.getJobConf();
-            if (runJobProfile.get(JOB_DIR_FILTER_PATTERN).equals(profile.get(JOB_DIR_FILTER_PATTERN))) {
+            if (Objects.equals(runJobProfile.get(JOB_DIR_FILTER_PATTERN), profile.get(JOB_DIR_FILTER_PATTERN))) {
                 return false;
             }
         }

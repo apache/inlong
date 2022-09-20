@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -317,7 +318,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         jobsByState.addAll(jobProfileDb.getJobsByState(StateSearchKey.RUNNING));
         AtomicBoolean jobIsRunning = new AtomicBoolean(false);
         jobsByState.forEach(jobProfile -> {
-            if (jobProfile.get(JOB_ID).equals(newProfile.get(JOB_ID))) {
+            if (Objects.equals(jobProfile.get(JOB_ID),newProfile.get(JOB_ID))) {
                 LOGGER.error("job is running or accepted, {} submit failed", newProfile.get(JOB_ID));
                 jobIsRunning.set(true);
             }

@@ -81,6 +81,8 @@ public final class TextFileReader extends AbstractFileReader {
                         }
                         resultLines.add(splitLines[i].trim());
                     }
+                    // handles cases where the ending is a delimiter.
+                    // for example--> line ends pattern: ab{2} and line string: cabbdabbfabb
                     if (data.startsWith(splitStr, data.length() - splitStr.length() - 1)) {
                         length = 1;
                         resultLines.add(lineStringBuffer.get(fileReaderOperator.file));

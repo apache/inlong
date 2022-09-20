@@ -200,9 +200,9 @@ public class JobProfileDb {
     }
 
     /**
-     * check local job state.
+     * check local job state from rocksDB.
      *
-     * @return KV, key is job id and value is subtask of job
+     * @return KV, key is job id and value is subtask config of job
      */
     public Map<String, List<String>> getJobsState() {
         List<KeyValueEntity> entityList = db.search(Arrays.asList(StateSearchKey.values()));

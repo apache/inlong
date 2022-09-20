@@ -94,8 +94,8 @@ public class Job {
     /**
      * build task from job config
      *
-     * @param jobConf
-     * @return
+     * @param jobConf subtask config in the job
+     * @return new task
      */
     public Task createTask(JobProfile jobConf) {
         return getTasks(jobConf).isEmpty() ? null : createTasks().get(0);
