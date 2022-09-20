@@ -92,7 +92,7 @@ public class TriggerManager extends AbstractDaemon {
             trigger.init(triggerProfile);
             trigger.run();
         } catch (Throwable ex) {
-            LOGGER.error("exception caught", ex);
+            LOGGER.error("add trigger error: ", ex);
             ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
             return false;
         }
@@ -132,7 +132,7 @@ public class TriggerManager extends AbstractDaemon {
         if (FileCollectType.INCREMENT.equals(syncType)) {
             return;
         }
-        LOGGER.info("initialize submit full path. trigger {} ", profile.getTriggerId());
+        LOGGER.info("initialize submit full sync trigger {}", profile.getTriggerId());
         manager.getJobManager().submitFileJobProfile(profile);
     }
 
@@ -163,10 +163,8 @@ public class TriggerManager extends AbstractDaemon {
                 } catch (Throwable e) {
                     LOGGER.info("ignored Exception ", e);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
-
                 }
             }
-
         };
     }
 
@@ -174,8 +172,8 @@ public class TriggerManager extends AbstractDaemon {
         JobWrapper jobWrapper;
         try {
             jobWrapper = jobWrapperMap.get(profile.getInstanceId());
-        } catch (Exception exception) {
-            LOGGER.warn("jobWrapper is null");
+        } catch (Exception e) {
+            LOGGER.warn("get jobWrapper error: ", e);
             return false;
         }
         List<Task> tasks = jobWrapper.getAllTasks();
@@ -230,8 +228,7 @@ public class TriggerManager extends AbstractDaemon {
                 try {
                     triggerJobMap.forEach((s, jobProfiles) -> {
                         for (String jobId : jobProfiles.keySet()) {
-                            Map<String, JobWrapper> jobs =
-                                    manager.getJobManager().getJobs();
+                            Map<String, JobWrapper> jobs = manager.getJobManager().getJobs();
                             if (jobs.get(jobId) == null) {
                                 triggerJobMap.remove(jobId);
                             }
@@ -251,10 +248,8 @@ public class TriggerManager extends AbstractDaemon {
      * need to put profile in triggerJobMap
      */
     private void addToTriggerMap(String triggerId, JobProfile profile) {
-        ConcurrentHashMap<String, JobProfile> tmpList =
-                new ConcurrentHashMap<>();
-        ConcurrentHashMap<String, JobProfile> jobWrappers =
-                triggerJobMap.putIfAbsent(triggerId, tmpList);
+        ConcurrentHashMap<String, JobProfile> tmpList = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, JobProfile> jobWrappers = triggerJobMap.putIfAbsent(triggerId, tmpList);
         if (jobWrappers == null) {
             jobWrappers = tmpList;
         }
