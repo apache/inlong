@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.pojo.cluster.agent;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -36,6 +37,13 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 @JsonTypeDefine(value = ClusterType.AGENT)
 @ApiModel("Inlong cluster info for Agent")
 public class AgentClusterInfo extends ClusterInfo {
+
+    @ApiModelProperty(value = "Transfer machine IP, such as: http://127.0.0.1:8080", notes = "Transfer machine IP")
+    private String transferIp;
+
+    @ApiModelProperty(value = "Version number of the server list collected by the cluster",
+            notes = "Version number of the server list collected by the cluster")
+    private String serverVersion;
 
     public AgentClusterInfo() {
         this.setType(ClusterType.AGENT);
