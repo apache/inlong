@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import java.util.concurrent.TimeUnit;
 
 /**
  * MySQL data node info
@@ -45,17 +44,14 @@ public class MySQLDataNodeDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLDataNodeDTO.class);
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(
+            DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
 
     @ApiModelProperty("URL of backup DB server")
     private String backupUrl;
 
     @ApiModelProperty("Include region ID")
     private Integer isRegionId;
-
-    static {
-        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
 
     /**
      * Get the dto instance from the request
