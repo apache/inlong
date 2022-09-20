@@ -183,7 +183,7 @@ public class AgentConstants {
     public static final String PROMETHEUS_EXPORTER_PORT = "agent.prometheus.exporter.port";
     public static final int DEFAULT_PROMETHEUS_EXPORTER_PORT = 8080;
 
-    public static final String AUDIT_ENABLE = "agent.audit.enable";
+    public static final String AUDIT_ENABLE = "audit.enable";
     public static final boolean DEFAULT_AUDIT_ENABLE = true;
 
     public static final String AUDIT_KEY_PROXYS = "audit.proxys";
