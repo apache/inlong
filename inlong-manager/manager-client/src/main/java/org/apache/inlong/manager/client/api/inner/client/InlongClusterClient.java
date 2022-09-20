@@ -141,10 +141,10 @@ public class InlongClusterClient {
      * @param request query conditions
      * @return cluster list
      */
-    public ClusterInfo list(ClusterPageRequest request) {
-        Response<ClusterInfo> clusterInfoResponse = ClientUtils.executeHttpCall(inlongClusterApi.list(request));
-        ClientUtils.assertRespSuccess(clusterInfoResponse);
-        return clusterInfoResponse.getData();
+    public PageResult<ClusterInfo> list(ClusterPageRequest request) {
+        Response<PageResult<ClusterInfo>> response = ClientUtils.executeHttpCall(inlongClusterApi.list(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
     }
 
     /**

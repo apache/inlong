@@ -59,7 +59,7 @@ public interface InlongClusterApi {
     Call<Response<ClusterInfo>> get(@Path("id") Integer id);
 
     @POST("cluster/list")
-    Call<Response<ClusterInfo>> list(@Body ClusterPageRequest request);
+    Call<Response<PageResult<ClusterInfo>>> list(@Body ClusterPageRequest request);
 
     @POST("cluster/update")
     Call<Response<Boolean>> update(@Body ClusterRequest request);
