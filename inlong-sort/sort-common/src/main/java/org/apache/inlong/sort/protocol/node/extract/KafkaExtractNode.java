@@ -22,6 +22,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.enums.MetaField;
@@ -52,6 +54,7 @@ import java.util.Set;
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("kafkaExtract")
+@JsonInclude(Include.NON_NULL)
 @Data
 public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metadata, Serializable {
 
@@ -78,6 +81,21 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
 
     @JsonProperty("scanSpecificOffsets")
     private String scanSpecificOffsets;
+
+    public KafkaExtractNode(@JsonProperty("id") String id,
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
+            @JsonProperty("properties") Map<String, String> properties,
+            @Nonnull @JsonProperty("topic") String topic,
+            @Nonnull @JsonProperty("bootstrapServers") String bootstrapServers,
+            @Nonnull @JsonProperty("format") Format format,
+            @JsonProperty("scanStartupMode") KafkaScanStartupMode kafkaScanStartupMode,
+            @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("groupId") String groupId) {
+        this(id, name, fields, watermarkField, properties, topic, bootstrapServers, format, kafkaScanStartupMode,
+                primaryKey, groupId, null);
+    }
 
     @JsonCreator
     public KafkaExtractNode(@JsonProperty("id") String id,
@@ -130,7 +148,9 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
             options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
             options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
-            options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
+            if (StringUtils.isNotEmpty(scanSpecificOffsets)) {
+                options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
+            }
             options.putAll(format.generateOptions(false));
         } else {
             throw new IllegalArgumentException("kafka extract node format is IllegalArgument");
