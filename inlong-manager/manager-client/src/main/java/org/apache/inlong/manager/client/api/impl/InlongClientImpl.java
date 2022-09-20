@@ -201,7 +201,7 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public ClusterInfo list(ClusterPageRequest request) {
+    public PageResult<ClusterInfo> list(ClusterPageRequest request) {
         return clusterClient.list(request);
     }
 
