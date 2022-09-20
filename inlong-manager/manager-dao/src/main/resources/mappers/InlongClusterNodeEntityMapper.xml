@@ -95,8 +95,11 @@
             <if test="type != null and type != ''">
                 and type = #{type, jdbcType=VARCHAR}
             </if>
-            <if test="parentId != null and parentId != ''">
+            <if test="parentId != null">
                 and parent_id = #{parentId, jdbcType=INTEGER}
+            </if>
+            <if test="status != null">
+                and status = #{status, jdbcType=INTEGER}
             </if>
             <if test="keyword != null and keyword != ''">
                 and (
