@@ -204,13 +204,13 @@ public class TriggerManager extends AbstractDaemon {
      */
     private void deleteRelatedJobs(String triggerId) {
         LOGGER.info("start to delete related jobs in triggerId {}", triggerId);
-        ConcurrentHashMap<String, JobProfile> jobProfiles =
-                triggerJobMap.get(triggerId);
-        if (jobProfiles != null) {
-            LOGGER.info("trigger can only run one job, stop the others {}", jobProfiles.keySet());
-            jobProfiles.keySet().forEach(this::deleteJob);
-            triggerJobMap.remove(triggerId);
-        }
+        List<JobProfile> jobProfileList = getJobProfiles();
+        jobProfileList.forEach(jobProfile -> {
+            if (Objects.equals(jobProfile.get(JOB_ID), triggerId)) {
+                deleteJob(jobProfile.getInstanceId());
+            }
+        });
+        triggerJobMap.remove(triggerId);
     }
 
     private List<JobProfile> getJobProfiles() {

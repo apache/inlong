@@ -318,7 +318,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         jobsByState.addAll(jobProfileDb.getJobsByState(StateSearchKey.RUNNING));
         AtomicBoolean jobIsRunning = new AtomicBoolean(false);
         jobsByState.forEach(jobProfile -> {
-            if (Objects.equals(jobProfile.get(JOB_ID),newProfile.get(JOB_ID))) {
+            if (Objects.equals(jobProfile.get(JOB_ID), newProfile.get(JOB_ID))) {
                 LOGGER.error("job is running or accepted, {} submit failed", newProfile.get(JOB_ID));
                 jobIsRunning.set(true);
             }
