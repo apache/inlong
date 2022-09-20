@@ -65,7 +65,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     }
 
     @Override
-    protected void loopProcess() {
+    protected void loopProcess(StringBuilder strBuff) {
         try {
             commitCfmOffsets(false);
         } catch (Throwable t) {

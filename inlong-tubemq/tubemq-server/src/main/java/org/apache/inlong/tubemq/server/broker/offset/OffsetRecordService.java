@@ -53,9 +53,8 @@ public class OffsetRecordService extends AbstractDaemonService {
     }
 
     @Override
-    protected void loopProcess() {
+    protected void loopProcess(StringBuilder strBuff) {
         try {
-            StringBuilder strBuff = new StringBuilder(2048);
             // get group offset information
             storeRecord2LocalTopic(strBuff);
         } catch (Throwable throwable) {

@@ -17,11 +17,8 @@
 
 package org.apache.inlong.tubemq.corebase.daemon;
 
-import io.netty.util.concurrent.DefaultThreadFactory;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,26 +30,45 @@ public abstract class AbstractDaemonService implements Service, Runnable {
     private final Thread daemon;
     private final AtomicBoolean shutdown =
             new AtomicBoolean(false);
-    private final ScheduledExecutorService processorExecutor;
 
     public AbstractDaemonService(final String serviceName, final long intervalMs) {
         this.name = serviceName;
         this.intervalMs = intervalMs;
         this.daemon = new Thread(this, serviceName + "-daemon-thread");
         this.daemon.setDaemon(true);
-        this.processorExecutor = Executors
-                .newSingleThreadScheduledExecutor(
-                        new DefaultThreadFactory("tubemq-core-loop-processor"));
     }
 
     @Override
     public void run() {
-        logger.info(new StringBuilder(256).append(name)
+        StringBuilder strBuff =
+                new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
+        logger.info(strBuff.append(name)
                 .append("-daemon-thread started").toString());
-        processorExecutor.schedule(this::loopProcess, intervalMs, TimeUnit.MILLISECONDS);
+        strBuff.delete(0, strBuff.length());
+        // process daemon task
+        while (!isStopped()) {
+            try {
+                Thread.sleep(intervalMs);
+                loopProcess(strBuff);
+            } catch (InterruptedException e) {
+                strBuff.delete(0, strBuff.length());
+                logger.warn(strBuff.append(name)
+                        .append("-daemon-thread thread has been interrupted").toString());
+                strBuff.delete(0, strBuff.length());
+                return;
+            } catch (Throwable t) {
+                strBuff.delete(0, strBuff.length());
+                logger.error(strBuff.append(name)
+                        .append("-daemon-thread throw a exception").toString(), t);
+                strBuff.delete(0, strBuff.length());
+            }
+        }
+        logger.info(strBuff.append(name)
+                .append("-daemon-thread stopped").toString());
+        strBuff.delete(0, strBuff.length());
     }
 
-    protected abstract void loopProcess();
+    protected abstract void loopProcess(StringBuilder strBuff);
 
     @Override
     public void start() {
@@ -72,7 +88,14 @@ public abstract class AbstractDaemonService implements Service, Runnable {
         if (this.shutdown.compareAndSet(false, true)) {
             logger.info(new StringBuilder(256).append(name)
                     .append("-daemon-thread closing ......").toString());
-            this.processorExecutor.shutdown();
+            try {
+                if (this.daemon != null) {
+                    this.daemon.interrupt();
+                    this.daemon.join();
+                }
+            } catch (Throwable e) {
+                //
+            }
             logger.info(new StringBuilder(256).append(name)
                     .append("-daemon-thread stopped!").toString());
             return false;
