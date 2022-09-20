@@ -110,6 +110,7 @@ public class SenderGroup {
             }
             if (channel == null) {
                 logger.error("can not get a channel");
+                dataBuf.release();
                 return new SenderResult("can not get a channel", 0, false);
             }
 
@@ -122,6 +123,8 @@ public class SenderGroup {
                     }
                     t = channel.getChannel().writeAndFlush(dataBuf).sync().await();
                 }
+            } else {
+                dataBuf.release();
             }
             return new SenderResult(channel.getIpPort().ip, channel.getIpPort().port, t.isSuccess());
         } catch (Throwable ex) {
