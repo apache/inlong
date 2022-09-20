@@ -47,12 +47,12 @@ import java.util.Set;
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("mysqlExtract")
+@JsonInclude(Include.NON_NULL)
 @Data
 public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMetric, Serializable {
 
     private static final long serialVersionUID = -5521981462461235277L;
 
-    @JsonInclude(Include.NON_NULL)
     @JsonProperty("primaryKey")
     private String primaryKey;
     @JsonProperty("tableNames")
@@ -66,16 +66,12 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     private String password;
     @JsonProperty("database")
     private String database;
-    @JsonInclude(Include.NON_NULL)
     @JsonProperty("port")
     private Integer port;
-    @JsonInclude(Include.NON_NULL)
     @JsonProperty("serverId")
     private Integer serverId;
-    @JsonInclude(Include.NON_NULL)
     @JsonProperty("incrementalSnapshotEnabled")
     private Boolean incrementalSnapshotEnabled;
-    @JsonInclude(Include.NON_NULL)
     @JsonProperty("serverTimeZone")
     private String serverTimeZone;
     @Nonnull
@@ -193,13 +189,14 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
         super(id, name, fields, watermarkField, properties);
         this.tableNames = Preconditions.checkNotNull(tableNames, "tableNames is null");
         Preconditions.checkState(!tableNames.isEmpty(), "tableNames is empty");
-        if (extractMode == ExtractMode.CDC) {
-            this.hostname = Preconditions.checkNotNull(hostname, "hostname is null");
-            this.database = Preconditions.checkNotNull(database, "database is null");
-        } else {
+        if (extractMode == ExtractMode.SCAN) {
             this.hostname = hostname;
             this.database = database;
             this.url = Preconditions.checkNotNull(url, "url is null");
+        } else {
+            extractMode = ExtractMode.CDC;
+            this.hostname = Preconditions.checkNotNull(hostname, "hostname is null");
+            this.database = Preconditions.checkNotNull(database, "database is null");
         }
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
