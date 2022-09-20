@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.util.concurrent.TimeUnit;
 
 /**
  * MySQL data node info
@@ -46,11 +47,15 @@ public class MySQLDataNodeDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty("The url of the backup DB service")
+    @ApiModelProperty("URL of backup DB server")
     private String backupUrl;
 
     @ApiModelProperty("Include region ID")
     private Integer isRegionId;
+
+    static {
+        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
     /**
      * Get the dto instance from the request
@@ -67,7 +72,6 @@ public class MySQLDataNodeDTO {
      */
     public static MySQLDataNodeDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, MySQLDataNodeDTO.class);
         } catch (Exception e) {
             LOGGER.error("Failed to extract additional parameters for MySQL data node: ", e);

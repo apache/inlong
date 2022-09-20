@@ -37,7 +37,7 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 @ApiModel("Hive data node info")
 public class MySQLDataNodeInfo extends DataNodeInfo {
 
-    @ApiModelProperty("The url of the backup DB service")
+    @ApiModelProperty("URL of backup DB servere")
     private String backupUrl;
 
     @ApiModelProperty("Include region ID")

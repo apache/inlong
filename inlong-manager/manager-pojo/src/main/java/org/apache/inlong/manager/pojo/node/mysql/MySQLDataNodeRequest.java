@@ -36,7 +36,7 @@ import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 @ApiModel("MySQL data node request")
 public class MySQLDataNodeRequest extends DataNodeRequest {
 
-    @ApiModelProperty("The url of the backup DB service")
+    @ApiModelProperty("URL of backup DB server")
     private String backupUrl;
 
     @ApiModelProperty("Include region ID")
