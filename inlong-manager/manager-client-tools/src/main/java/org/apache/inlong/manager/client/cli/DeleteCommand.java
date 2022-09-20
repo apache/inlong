@@ -21,6 +21,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
+import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 
 import java.util.List;
@@ -37,7 +38,8 @@ public class DeleteCommand extends AbstractCommand {
 
     public DeleteCommand() {
         super("delete");
-        jcommander.addCommand("group", new DeleteCommand.DeleteGroup());
+        jcommander.addCommand("group", new DeleteGroup());
+        jcommander.addCommand("cluster", new DeleteCluster());
     }
 
     @Parameters(commandDescription = "Delete group by group id")
@@ -60,6 +62,29 @@ public class DeleteCommand extends AbstractCommand {
                 System.out.println("delete group success");
             } catch (Exception e) {
                 System.out.format("Delete group failed! message: %s \n", e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Delete cluster by cluster id")
+    private static class DeleteCluster extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster id")
+        private int clusterId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                if (clusterClient.delete(clusterId)) {
+                    System.out.println("Delete cluster success");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
         }
     }

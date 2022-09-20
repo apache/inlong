@@ -19,10 +19,13 @@ package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.beust.jcommander.converters.FileConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
+import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 
 import java.io.File;
@@ -41,6 +44,7 @@ public class UpdateCommand extends AbstractCommand {
     public UpdateCommand() {
         super("update");
         jcommander.addCommand("group", new UpdateCommand.UpdateGroup());
+        jcommander.addCommand("cluster", new UpdateCommand.UpdateCluster());
     }
 
     @Parameters(commandDescription = "Update group by json file")
@@ -70,6 +74,35 @@ public class UpdateCommand extends AbstractCommand {
                 BaseSortConf sortConf = objectMapper.readValue(fileContent, BaseSortConf.class);
                 group.update(sortConf);
                 System.out.println("update group success");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Update cluster by json file")
+    private static class UpdateCluster extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-f", "--file"}, description = "json file", converter = FileConverter.class)
+        private File file;
+
+        @Override
+        void run() {
+            try {
+                String content = ClientUtils.readFile(file);
+                if (StringUtils.isBlank(content)) {
+                    System.out.println("Update cluster failed: file was empty!");
+                    return;
+                }
+                ClusterRequest request = objectMapper.readValue(content, ClusterRequest.class);
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                if (clusterClient.update(request)) {
+                    System.out.println("update cluster success");
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
