@@ -39,7 +39,4 @@ public class MySQLDataNodeRequest extends DataNodeRequest {
     @ApiModelProperty("URL of backup DB server")
     private String backupUrl;
 
-    @ApiModelProperty("Include region ID")
-    private Integer isRegionId;
-
 }

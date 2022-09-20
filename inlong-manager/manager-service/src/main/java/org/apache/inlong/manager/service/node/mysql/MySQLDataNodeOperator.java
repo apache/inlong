@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.node;
+package org.apache.inlong.manager.service.node.mysql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -29,14 +29,17 @@ import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeRequest;
+import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * MySQL data node operator
+ */
 @Service
 public class MySQLDataNodeOperator extends AbstractDataNodeOperator {
-
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLDataNodeOperator.class);
 

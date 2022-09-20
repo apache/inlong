@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 
 /**
- * Hive data node info
+ * MySQL data node info
  */
 @Data
 @ToString(callSuper = true)
@@ -39,9 +39,6 @@ public class MySQLDataNodeInfo extends DataNodeInfo {
 
     @ApiModelProperty("URL of backup DB servere")
     private String backupUrl;
-
-    @ApiModelProperty("Include region ID")
-    private Integer isRegionId;
 
     public MySQLDataNodeInfo() {
         this.setType(DataNodeType.MYSQL);
