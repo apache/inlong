@@ -19,7 +19,6 @@ package org.apache.inlong.manager.pojo.sink.doris;
 
 import lombok.Data;
 
-
 import java.util.List;
 
 /**

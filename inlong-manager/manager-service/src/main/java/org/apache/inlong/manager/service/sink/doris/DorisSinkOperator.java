@@ -88,5 +88,4 @@ public class DorisSinkOperator extends AbstractSinkOperator {
         return sink;
     }
 
-
 }

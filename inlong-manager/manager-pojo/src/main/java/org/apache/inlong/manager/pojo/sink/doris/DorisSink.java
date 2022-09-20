@@ -57,8 +57,12 @@ public class DorisSink extends StreamSink {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
-    public DorisSink(){this.setSinkType(SinkType.DORIS);}
+    public DorisSink() {
+        this.setSinkType(SinkType.DORIS);
+    }
 
     @Override
-    public SinkRequest genSinkRequest(){return CommonBeanUtils.copyProperties(this,DorisSinkRequest::new);}
+    public SinkRequest genSinkRequest() {
+        return CommonBeanUtils.copyProperties(this,DorisSinkRequest::new);
+    }
 }
