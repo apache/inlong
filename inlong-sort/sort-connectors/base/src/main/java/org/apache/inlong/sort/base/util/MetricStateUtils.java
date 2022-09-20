@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sort.base.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
@@ -28,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
@@ -37,8 +38,9 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 /**
  * metric state for {@link MetricState} supporting snapshot and restore
  */
-@Slf4j
 public class MetricStateUtils {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(MetricStateUtils.class);
 
     /**
      *
@@ -54,7 +56,7 @@ public class MetricStateUtils {
         if (metricStateListState == null || metricStateListState.get() == null) {
             return null;
         }
-        log.info("restoreMetricState:{}, subtaskIndex:{}, currentSubtaskNum:{}", metricStateListState, subtaskIndex,
+        LOGGER.info("restoreMetricState:{}, subtaskIndex:{}, currentSubtaskNum:{}", metricStateListState, subtaskIndex,
                 currentSubtaskNum);
         MetricState currentMetricState;
         Map<Integer, MetricState> map = new HashMap<>(16);
@@ -118,7 +120,7 @@ public class MetricStateUtils {
     public static void snapshotMetricStateForSourceMetricData(ListState<MetricState> metricStateListState,
             SourceMetricData sourceMetricData, Integer subtaskIndex)
             throws Exception {
-        log.info("snapshotMetricStateForSourceMetricData:{}, sourceMetricData:{}, subtaskIndex:{}",
+        LOGGER.info("snapshotMetricStateForSourceMetricData:{}, sourceMetricData:{}, subtaskIndex:{}",
                 metricStateListState, sourceMetricData, subtaskIndex);
         metricStateListState.clear();
         Map<String, Long> metricDataMap = new HashMap<>();
@@ -139,7 +141,7 @@ public class MetricStateUtils {
     public static void snapshotMetricStateForSinkMetricData(ListState<MetricState> metricStateListState,
             SinkMetricData sinkMetricData, Integer subtaskIndex)
             throws Exception {
-        log.info("snapshotMetricStateForSinkMetricData:{}, sinkMetricData:{}, subtaskIndex:{}",
+        LOGGER.info("snapshotMetricStateForSinkMetricData:{}, sinkMetricData:{}, subtaskIndex:{}",
                 metricStateListState, sinkMetricData, subtaskIndex);
         metricStateListState.clear();
         Map<String, Long> metricDataMap = new HashMap<>();
