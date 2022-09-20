@@ -79,6 +79,7 @@ public class SenderGroup {
         try {
             if (channels.size() <= 0) {
                 logger.error("channels is empty");
+                dataBuf.release();
                 return new SenderResult("channels is empty", 0, false);
             }
             boolean isOk = false;
