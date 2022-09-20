@@ -23,7 +23,9 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Agent cluster info")
 public class AgentClusterDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(
+            DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    ; // thread safe
 
     @ApiModelProperty(value = "Transfer machine IP, such as: http://127.0.0.1:8080", notes = "Transfer machine IP")
     private String transferIp;
@@ -32,9 +34,6 @@ public class AgentClusterDTO {
             notes = "Version number of the server list collected by the cluster")
     private String serverVersion;
 
-    static {
-        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
     /**
      * Get the dto instance from the request
      */
