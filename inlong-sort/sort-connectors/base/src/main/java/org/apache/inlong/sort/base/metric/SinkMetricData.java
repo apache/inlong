@@ -66,28 +66,26 @@ public class SinkMetricData implements MetricData {
                 registerMetricsForDirtyRecords(new ThreadSafeCounter());
                 break;
             case NORMAL:
-                registerMetricsForNumBytesOut(new ThreadSafeCounter());
-                registerMetricsForNumRecordsOut(new ThreadSafeCounter());
-                registerMetricsForNumBytesOutPerSecond();
-                registerMetricsForNumRecordsOutPerSecond();
-
                 recordsOutCounter.inc(option.getInitRecords());
                 bytesOutCounter.inc(option.getInitBytes());
-                registerMetricsForNumRecordsOutForMeter(recordsOutCounter);
-                registerMetricsForNumRecordsOutForMeter(bytesOutCounter);
+                registerMetricsForNumBytesOut(bytesOutCounter);
+                registerMetricsForNumRecordsOut(recordsOutCounter);
+                registerMetricsForNumBytesOutForMeter(new ThreadSafeCounter());
+                registerMetricsForNumRecordsOutForMeter(new ThreadSafeCounter());
+                registerMetricsForNumBytesOutPerSecond();
+                registerMetricsForNumRecordsOutPerSecond();
                 break;
             default:
                 registerMetricsForDirtyBytes(new ThreadSafeCounter());
                 registerMetricsForDirtyRecords(new ThreadSafeCounter());
-                registerMetricsForNumBytesOut(new ThreadSafeCounter());
-                registerMetricsForNumRecordsOut(new ThreadSafeCounter());
-                registerMetricsForNumBytesOutPerSecond();
-                registerMetricsForNumRecordsOutPerSecond();
-
                 recordsOutCounter.inc(option.getInitRecords());
                 bytesOutCounter.inc(option.getInitBytes());
-                registerMetricsForNumRecordsOutForMeter(recordsOutCounter);
-                registerMetricsForNumRecordsOutForMeter(bytesOutCounter);
+                registerMetricsForNumBytesOut(bytesOutCounter);
+                registerMetricsForNumRecordsOut(recordsOutCounter);
+                registerMetricsForNumBytesOutForMeter(new ThreadSafeCounter());
+                registerMetricsForNumRecordsOutForMeter(new ThreadSafeCounter());
+                registerMetricsForNumBytesOutPerSecond();
+                registerMetricsForNumRecordsOutPerSecond();
                 break;
 
         }
@@ -267,7 +265,7 @@ public class SinkMetricData implements MetricData {
         }
 
         if (numBytesOutForMeter != null) {
-            numBytesOutForMeter.inc(rowCount);
+            numBytesOutForMeter.inc(rowSize);
         }
 
         if (auditImp != null) {

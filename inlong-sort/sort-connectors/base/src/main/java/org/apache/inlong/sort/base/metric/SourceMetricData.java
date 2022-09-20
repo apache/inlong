@@ -54,23 +54,22 @@ public class SourceMetricData implements MetricData {
         this.metricGroup = metricGroup;
         this.labels = option.getLabels();
 
-        SimpleCounter recordsInCounter = new SimpleCounter();
-        SimpleCounter bytesInCounter = new SimpleCounter();
+        ThreadSafeCounter recordsInCounter = new ThreadSafeCounter();
+        ThreadSafeCounter bytesInCounter = new ThreadSafeCounter();
         switch (option.getRegisteredMetric()) {
             default:
-                registerMetricsForNumRecordsIn();
-                registerMetricsForNumBytesIn();
-                registerMetricsForNumBytesInPerSecond();
-                registerMetricsForNumRecordsInPerSecond();
-
                 recordsInCounter.inc(option.getInitRecords());
                 bytesInCounter.inc(option.getInitBytes());
-                registerMetricsForNumBytesInForMeter(recordsInCounter);
-                registerMetricsForNumRecordsInForMeter(bytesInCounter);
+                registerMetricsForNumRecordsIn(recordsInCounter);
+                registerMetricsForNumBytesIn(bytesInCounter);
+                registerMetricsForNumBytesInForMeter(new ThreadSafeCounter());
+                registerMetricsForNumRecordsInForMeter(new ThreadSafeCounter());
+                registerMetricsForNumBytesInPerSecond();
+                registerMetricsForNumRecordsInPerSecond();
                 break;
         }
 
-        if (option.getIpPorts() != null) {
+        if (option.getIpPorts().isPresent()) {
             AuditImp.getInstance().setAuditProxy(option.getIpPortList());
             this.auditImp = AuditImp.getInstance();
         }
