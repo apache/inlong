@@ -114,9 +114,9 @@ public class CreateCommand extends AbstractCommand {
             ClusterRequest request = objectMapper.readValue(content, ClusterRequest.class);
             ClientUtils.initClientFactory();
             InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
-            Integer isSave = clusterClient.saveCluster(request);
-            if (isSave != null) {
-                System.out.println("Create cluster success! ID:" + isSave);
+            Integer clusterId = clusterClient.saveCluster(request);
+            if (clusterId != null) {
+                System.out.println("Create cluster success! ID:" + clusterId);
             }
         }
     }
