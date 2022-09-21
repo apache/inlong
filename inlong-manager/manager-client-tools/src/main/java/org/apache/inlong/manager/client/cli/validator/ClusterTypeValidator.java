@@ -28,6 +28,10 @@ public class ClusterTypeValidator implements IParameterValidator {
 
     @Override
     public void validate(String name, String value) throws ParameterException {
-        ClusterType.forType(value);
+        try {
+            ClusterType.checkType(value);
+        } catch (Exception e) {
+            throw new ParameterException(e.getMessage());
+        }
     }
 }

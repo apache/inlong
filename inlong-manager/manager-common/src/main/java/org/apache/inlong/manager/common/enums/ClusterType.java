@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.common.enums;
 
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,13 +43,17 @@ public class ClusterType {
         }
     };
 
-    public static String forType(String clusterType) {
-        for (String type : TYPE_SET) {
-            if (type.equals(clusterType)) {
-                return type;
-            }
+    /**
+     * Check whether the cluster type is supported
+     *
+     * @param clusterType cluster type
+     * @return cluster type
+     */
+    public static String checkType(String clusterType) {
+        if (TYPE_SET.contains(clusterType)) {
+            return clusterType;
         }
-        throw new IllegalArgumentException(String.format("Unsupported cluster type=%s, "
-                + "supported cluster types are: %s.", clusterType, TYPE_SET));
+        throw new BusinessException(String.format("Unsupported cluster type=%s,"
+                + " supported cluster types are: %s", clusterType, TYPE_SET));
     }
 }
