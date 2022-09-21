@@ -77,11 +77,7 @@ public abstract class AbstractJdbcOutputFormat<T> extends RichOutputFormat<T> im
         return connectionProvider.getConnection();
     }
 
-    public void snapshotState(FunctionSnapshotContext context) throws Exception {
+    abstract void snapshotState(FunctionSnapshotContext context) throws Exception;
 
-    }
-
-    public void initializeState(FunctionInitializationContext context) throws Exception {
-
-    }
+    abstract void initializeState(FunctionInitializationContext context) throws Exception;
 }
