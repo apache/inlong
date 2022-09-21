@@ -42,6 +42,7 @@ import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSink;
 import org.apache.inlong.manager.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
+import org.apache.inlong.manager.pojo.sink.doris.DorisSink;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.StringTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -135,6 +136,8 @@ public class LoadNodeUtils {
                 return createLoadNode((TDSQLPostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.DLCICEBERG:
                 return createLoadNode((DLCIcebergSink) streamSink, fieldInfos, fieldRelations, properties);
+            case SinkType.DORIS:
+                return createLoadNode((DorisSink) streamSink, fieldInfos, fieldRelations, properties);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -490,6 +493,28 @@ public class LoadNodeUtils {
                 dlcIcebergSink.getPrimaryKey(),
                 dlcIcebergSink.getCatalogUri(),
                 dlcIcebergSink.getWarehouse()
+        );
+    }
+
+    /**
+     * Create load node of Doris.
+     */
+    public static DorisLoadNode createLoadNode(DorisSink dorisSink, List<FieldInfo> fieldInfos,
+                                               List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        return new DorisLoadNode(
+                dorisSink.getSinkName(),
+                dorisSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                dorisSink.getJdbcUrl(),
+                dorisSink.getUsername(),
+                dorisSink.getPassword(),
+                dorisSink.getTableName(),
+                dorisSink.getPrimaryKey()
         );
     }
 
