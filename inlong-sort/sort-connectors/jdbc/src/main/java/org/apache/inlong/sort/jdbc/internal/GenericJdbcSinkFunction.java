@@ -21,7 +21,6 @@ package org.apache.inlong.sort.jdbc.internal;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.connector.jdbc.internal.AbstractJdbcOutputFormat;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
@@ -60,12 +59,14 @@ public class GenericJdbcSinkFunction<T> extends RichSinkFunction<T>
     }
 
     @Override
-    public void initializeState(FunctionInitializationContext context) {
+    public void initializeState(FunctionInitializationContext context) throws Exception {
+            outputFormat.initializeState(context);
     }
 
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
         outputFormat.flush();
+        outputFormat.snapshotState(context);
     }
 
     @Override
