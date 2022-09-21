@@ -21,7 +21,6 @@ package org.apache.inlong.sort.pulsar.withoutadmin;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.RuntimeContextInitializationContextAdapters;
 import org.apache.flink.api.common.state.CheckpointListener;
 import org.apache.flink.api.common.state.ListState;
@@ -47,7 +46,6 @@ import org.apache.flink.streaming.api.operators.StreamingRuntimeContext;
 import org.apache.flink.streaming.connectors.pulsar.config.StartupMode;
 import org.apache.flink.streaming.connectors.pulsar.internal.CachedPulsarClient;
 import org.apache.flink.streaming.connectors.pulsar.internal.MessageIdSerializer;
-import org.apache.flink.streaming.connectors.pulsar.internal.PulsarClientUtils;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarSourceStateSerializer;
 import org.apache.flink.streaming.connectors.pulsar.internal.SerializableRange;
 import org.apache.flink.streaming.connectors.pulsar.internal.SourceSinkUtils;
@@ -60,6 +58,12 @@ import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 import org.apache.flink.streaming.util.serialization.PulsarDeserializationSchema;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.SerializedValue;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.pulsar.table.DynamicPulsarDeserializationSchema;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
@@ -87,6 +91,9 @@ import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.Puls
 import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITS_SUCCEEDED_METRICS_COUNTER;
 import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.PULSAR_SOURCE_METRICS_GROUP;
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 
 /**
  * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9,
@@ -223,11 +230,31 @@ public class FlinkPulsarSource<T>
 
     private transient int numParallelTasks;
 
+
+    private MetricState metricState;
+
+    /**
+     * Metric for InLong
+     */
+    private String inlongMetric;
+    /**
+     * audit host and ports
+     */
+    private String inlongAudit;
+
+    private SourceMetricData sourceMetricData;
+
+    private transient ListState<MetricState> metricStateListState;
+
     public FlinkPulsarSource(
             String serverUrl,
             ClientConfigurationData clientConf,
             PulsarDeserializationSchema<T> deserializer,
-            Properties properties) {
+            Properties properties,
+            String inlongMetric,
+            String inlongAudit) {
+        this.inlongAudit = inlongAudit;
+        this.inlongMetric = inlongMetric;
         this.serverUrl = checkNotNull(serverUrl);
         this.clientConfigurationData = checkNotNull(clientConf);
         this.deserializer = deserializer;
@@ -251,14 +278,6 @@ public class FlinkPulsarSource<T>
             throw new IllegalArgumentException("ServiceUrl must be supplied in the client configuration");
         }
         this.oldStateVersion = SourceSinkUtils.getOldStateVersion(caseInsensitiveParams, oldStateVersion);
-    }
-
-    public FlinkPulsarSource(
-            String serviceUrl,
-            DeserializationSchema<T> deserializer,
-            Properties properties) {
-        this(serviceUrl, PulsarClientUtils.newClientConf(checkNotNull(serviceUrl), properties),
-                PulsarDeserializationSchema.valueOnly(deserializer), properties);
     }
 
     // ------------------------------------------------------------------------
@@ -408,14 +427,34 @@ public class FlinkPulsarSource<T>
 
     @Override
     public void open(Configuration parameters) throws Exception {
+
+        MetricOption metricOption = MetricOption.builder()
+            .withInlongLabels(inlongMetric)
+            .withInlongAudit(inlongAudit)
+            .withRegisterMetric(RegisteredMetric.ALL)
+            .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_IN) : 0L)
+            .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_IN) : 0L)
+            .build();
+
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption, getRuntimeContext().getMetricGroup());
+        }
+
         if (this.deserializer != null) {
+
+            DynamicPulsarDeserializationSchema dynamicKafkaDeserializationSchema =
+                (DynamicPulsarDeserializationSchema) deserializer;
+            dynamicKafkaDeserializationSchema.setMetricData(sourceMetricData);
+
             this.deserializer.open(
                     RuntimeContextInitializationContextAdapters.deserializationAdapter(
                             getRuntimeContext(),
                             metricGroup -> metricGroup.addGroup("user")
                     )
             );
+
         }
+
         this.taskIndex = getRuntimeContext().getIndexOfThisSubtask();
         this.numParallelTasks = getRuntimeContext().getNumberOfParallelSubtasks();
 
@@ -708,9 +747,20 @@ public class FlinkPulsarSource<T>
                         createStateSerializer()
                 ));
 
+        if (this.inlongMetric != null) {
+            this.metricStateListState =
+                stateStore.getUnionListState(
+                    new ListStateDescriptor<>(
+                        INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                    })));
+        }
+
         if (context.isRestored()) {
             restoredState = new TreeMap<>();
             Iterator<Tuple2<TopicSubscription, MessageId>> iterator = unionOffsetStates.get().iterator();
+
+            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
+                getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
 
             if (!iterator.hasNext()) {
                 iterator = tryMigrateState(stateStore);
@@ -809,6 +859,12 @@ public class FlinkPulsarSource<T>
         if (!running) {
             log.debug("snapshotState() called on closed source");
         } else {
+
+            if (sourceMetricData != null && metricStateListState != null) {
+                MetricStateUtils.snapshotMetricStateForSourceMetricData(metricStateListState, sourceMetricData,
+                    getRuntimeContext().getIndexOfThisSubtask());
+            }
+
             unionOffsetStates.clear();
 
             PulsarFetcher<T> fetcher = this.pulsarFetcher;

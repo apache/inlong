@@ -320,7 +320,9 @@ public class PulsarDynamicTableSource implements ScanTableSource, SupportsReadin
                 serviceUrl,
                 clientConfigurationData,
                 deserializationSchema,
-                properties
+                properties,
+                inlongMetric,
+                auditHostAndPorts
         );
 
         if (watermarkStrategy != null) {
