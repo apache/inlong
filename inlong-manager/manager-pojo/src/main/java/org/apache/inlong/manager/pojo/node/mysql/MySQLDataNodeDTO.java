@@ -45,7 +45,7 @@ public class MySQLDataNodeDTO {
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLDataNodeDTO.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @ApiModelProperty("URL of backup DB server")
     private String backupUrl;
@@ -66,8 +66,7 @@ public class MySQLDataNodeDTO {
         try {
             return OBJECT_MAPPER.readValue(extParams, MySQLDataNodeDTO.class);
         } catch (Exception e) {
-            LOGGER.error("Failed to extract additional parameters for MySQL data node: ", e);
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 }
