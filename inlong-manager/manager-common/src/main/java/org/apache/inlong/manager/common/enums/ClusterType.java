@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.common.enums;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Constant of cluster type.
  */
@@ -27,4 +30,24 @@ public class ClusterType {
     public static final String PULSAR = "PULSAR";
     public static final String DATAPROXY = "DATAPROXY";
     public static final String KAFKA = "KAFKA";
+
+    private static final Set<String> TYPE_SET = new HashSet<String>() {
+        {
+            add(ClusterType.AGENT);
+            add(ClusterType.TUBEMQ);
+            add(ClusterType.PULSAR);
+            add(ClusterType.DATAPROXY);
+            add(ClusterType.KAFKA);
+        }
+    };
+
+    public static String forType(String clusterType) {
+        for (String type : TYPE_SET) {
+            if (type.equals(clusterType)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupported cluster type=%s, "
+                + "supported cluster types are: AGENT, TUBEMQ, PULSAR, DATAPROXY, KAFKA.", clusterType));
+    }
 }

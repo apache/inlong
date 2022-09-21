@@ -59,7 +59,7 @@ public class DeleteCommand extends AbstractCommand {
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.getGroup(inlongGroupId);
                 group.delete();
-                System.out.println("delete group success");
+                System.out.println("Delete group success!");
             } catch (Exception e) {
                 System.out.format("Delete group failed! message: %s \n", e.getMessage());
             }
@@ -81,7 +81,7 @@ public class DeleteCommand extends AbstractCommand {
                 ClientUtils.initClientFactory();
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 if (clusterClient.delete(clusterId)) {
-                    System.out.println("Delete cluster success");
+                    System.out.println("Delete cluster success!");
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());

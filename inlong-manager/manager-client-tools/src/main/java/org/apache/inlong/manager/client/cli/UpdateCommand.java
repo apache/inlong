@@ -70,10 +70,10 @@ public class UpdateCommand extends AbstractCommand {
                     System.out.println("Update group failed: file was empty!");
                     return;
                 }
-                // first extract groupconfig from the file passed in
+                // first extract group config from the file passed in
                 BaseSortConf sortConf = objectMapper.readValue(fileContent, BaseSortConf.class);
                 group.update(sortConf);
-                System.out.println("update group success");
+                System.out.println("Update group success!");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -101,7 +101,7 @@ public class UpdateCommand extends AbstractCommand {
                 ClientUtils.initClientFactory();
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 if (clusterClient.update(request)) {
-                    System.out.println("update cluster success");
+                    System.out.println("Update cluster success!");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
