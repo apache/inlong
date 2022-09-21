@@ -48,7 +48,7 @@ public class AgentClusterDTO {
 
     @ApiModelProperty(value = "Version number of the server list collected by the cluster",
             notes = "Version number of the server list collected by the cluster")
-    private String serverVersion;
+    private Integer serverVersion;
 
     /**
      * Get the dto instance from the request

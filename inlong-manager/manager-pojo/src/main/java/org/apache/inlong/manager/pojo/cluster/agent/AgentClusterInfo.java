@@ -19,6 +19,7 @@ package org.apache.inlong.manager.pojo.cluster.agent;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.models.security.SecurityScheme.In;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -43,7 +44,7 @@ public class AgentClusterInfo extends ClusterInfo {
 
     @ApiModelProperty(value = "Version number of the server list collected by the cluster",
             notes = "Version number of the server list collected by the cluster")
-    private String serverVersion;
+    private Integer serverVersion;
 
     public AgentClusterInfo() {
         this.setType(ClusterType.AGENT);

@@ -41,7 +41,7 @@ public class AgentClusterRequest extends ClusterRequest {
 
     @ApiModelProperty(value = "Version number of the server list collected by the cluster",
             notes = "Version number of the server list collected by the cluster")
-    private String serverVersion;
+    private Integer serverVersion = 1;
 
     public AgentClusterRequest() {
         this.setType(ClusterType.AGENT);
