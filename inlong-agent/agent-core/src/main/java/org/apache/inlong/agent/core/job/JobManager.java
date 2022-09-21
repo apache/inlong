@@ -28,6 +28,7 @@ import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.GsonUtil;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.slf4j.Logger;
@@ -114,16 +115,20 @@ public class JobManager extends AbstractDaemon {
      * @param job job
      */
     private void addJob(Job job) {
+        if (pendingJobs.containsKey(job.getJobInstanceId())) {
+            return;
+        }
         try {
             JobWrapper jobWrapper = new JobWrapper(agentManager, job);
-            this.runningPool.execute(jobWrapper);
             JobWrapper jobWrapperRet = jobs.putIfAbsent(jobWrapper.getJob().getJobInstanceId(), jobWrapper);
             if (jobWrapperRet != null) {
                 LOGGER.warn("{} has been added to running pool, "
                         + "cannot be added repeatedly", job.getJobInstanceId());
+                return;
             } else {
                 getJobMetric().jobRunningCount.incrementAndGet();
             }
+            this.runningPool.execute(jobWrapper);
         } catch (Exception rje) {
             LOGGER.debug("reject job {}", job.getJobInstanceId(), rje);
             pendingJobs.putIfAbsent(job.getJobInstanceId(), job);
@@ -241,6 +246,9 @@ public class JobManager extends AbstractDaemon {
             while (isRunnable()) {
                 try {
                     jobProfileDb.removeExpireJobs(jobDbCacheTime);
+                    // TODO: manager handles those job state in the future and it's saved locally now.
+                    Map<String, List<String>> jobStateMap = jobProfileDb.getJobsState();
+                    LOGGER.info("check local job state: {}", GsonUtil.toJson(jobStateMap));
                 } catch (Exception ex) {
                     LOGGER.error("removeExpireJobs error caught", ex);
                 }

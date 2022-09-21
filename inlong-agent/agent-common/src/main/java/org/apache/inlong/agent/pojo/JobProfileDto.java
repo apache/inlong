@@ -123,6 +123,7 @@ public class JobProfileDto {
         if (null != fileJobTaskConfig.getLineEndPattern()) {
             FileJob.Line line = new Line();
             line.setEndPattern(fileJobTaskConfig.getLineEndPattern());
+            fileJob.setLine(line);
         }
 
         if (null != fileJobTaskConfig.getEnvList()) {

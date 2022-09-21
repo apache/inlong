@@ -58,7 +58,8 @@ public final class TextFileReader extends AbstractFileReader {
         List<String> lines = Files.newBufferedReader(fileReaderOperator.file.toPath()).lines().skip(
                 fileReaderOperator.position)
                 .collect(Collectors.toList());
-        LOGGER.info("path is {}, data reads size {}", fileReaderOperator.file.getName(), lines.size());
+        LOGGER.info("path is {}, position is {}, data reads size {}", fileReaderOperator.file.getName(),
+                fileReaderOperator.position, lines.size());
         List<String> resultLines = new ArrayList<>();
         //TODO line regular expression matching
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
@@ -70,7 +71,8 @@ public final class TextFileReader extends AbstractFileReader {
                 String data = lineStringBuffer.get(fileReaderOperator.file);
                 Matcher matcher = pattern.matcher(data);
                 if (matcher.find() && StringUtils.isNoneBlank(matcher.group())) {
-                    String[] splitLines = data.split(matcher.group());
+                    String splitStr = matcher.group();
+                    String[] splitLines = data.split(splitStr);
                     int length = splitLines.length;
                     for (int i = 0; i < length; i++) {
                         if (i > 0 && i == length - 1 && null != splitLines[i]) {
@@ -78,6 +80,12 @@ public final class TextFileReader extends AbstractFileReader {
                             break;
                         }
                         resultLines.add(splitLines[i].trim());
+                    }
+                    // handles cases where the ending is a delimiter.
+                    // for example--> line ends pattern: ab{2} and line string: cabbdabbfabb
+                    if (data.startsWith(splitStr, data.length() - splitStr.length() - 1)) {
+                        length = 1;
+                        resultLines.add(lineStringBuffer.get(fileReaderOperator.file));
                     }
                     if (1 == length) {
                         lineStringBuffer.remove(fileReaderOperator.file);
