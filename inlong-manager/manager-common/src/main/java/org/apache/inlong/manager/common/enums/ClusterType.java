@@ -48,6 +48,6 @@ public class ClusterType {
             }
         }
         throw new IllegalArgumentException(String.format("Unsupported cluster type=%s, "
-                + "supported cluster types are: AGENT, TUBEMQ, PULSAR, DATAPROXY, KAFKA.", clusterType));
+                + "supported cluster types are: %s.", clusterType, TYPE_SET));
     }
 }
