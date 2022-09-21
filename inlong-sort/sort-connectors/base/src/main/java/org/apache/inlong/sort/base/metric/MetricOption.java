@@ -111,6 +111,14 @@ public class MetricOption {
         return initBytes;
     }
 
+    public void setInitRecords(long initRecords) {
+        this.initRecords = initRecords;
+    }
+
+    public void setInitBytes(long initBytes) {
+        this.initBytes = initBytes;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
