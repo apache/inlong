@@ -18,11 +18,8 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.serialization.RuntimeContextInitializationContextAdapters;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.streaming.connectors.pulsar.table.PulsarDynamicTableSource;
 import org.apache.flink.streaming.util.serialization.FlinkSchema;
 import org.apache.flink.streaming.util.serialization.PulsarDeserializationSchema;
@@ -33,8 +30,6 @@ import org.apache.flink.types.DeserializationException;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.pulsar.withoutadmin.CallbackCollector;
 import org.apache.pulsar.client.api.Message;
@@ -43,15 +38,13 @@ import org.apache.pulsar.client.api.Schema;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A specific {@link PulsarDeserializationSchema} for {@link PulsarDynamicTableSource}.
  */
-class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<RowData> {
+public class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1L;
     private static final ThreadLocal<SimpleCollector<RowData>> tlsCollector =
@@ -109,54 +102,15 @@ class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<
             keyDeserialization.open(context);
         }
         valueDeserialization.open(context);
-
-        MetricOption metricOption = MetricOption.builder()
-                .withInlongLabels(inlongMetric)
-                .withInlongAudit(auditHostAndPorts)
-                .withRegisterMetric(RegisteredMetric.ALL)
-                .build();
-        if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption, getMetricGroup(context));
-        }
-    }
-
-    /**
-     * reflect get metricGroup
-     *
-     * @param context Contextual information that can be used during initialization.
-     * @return metric group that can be used to register new metrics with Flink and to create a nested hierarchy based
-     *         on the group names.
-     */
-    private MetricGroup getMetricGroup(DeserializationSchema.InitializationContext context)
-            throws NoSuchFieldException, IllegalAccessException {
-        MetricGroup metricGroup;
-        String className = "RuntimeContextDeserializationInitializationContextAdapter";
-        String fieldName = "runtimeContext";
-        Class runtimeContextDeserializationInitializationContextAdapter = null;
-        Class[] innerClazz = RuntimeContextInitializationContextAdapters.class.getDeclaredClasses();
-        for (Class clazz : innerClazz) {
-            int mod = clazz.getModifiers();
-            if (Modifier.isPrivate(mod)) {
-                if (className.equalsIgnoreCase(clazz.getSimpleName())) {
-                    runtimeContextDeserializationInitializationContextAdapter = clazz;
-                    break;
-                }
-            }
-        }
-        if (runtimeContextDeserializationInitializationContextAdapter != null) {
-            Field field = runtimeContextDeserializationInitializationContextAdapter.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            RuntimeContext runtimeContext = (RuntimeContext) field.get(context);
-            metricGroup = runtimeContext.getMetricGroup();
-        } else {
-            metricGroup = context.getMetricGroup();
-        }
-        return metricGroup;
     }
 
     @Override
     public boolean isEndOfStream(RowData nextElement) {
         return false;
+    }
+
+    public void setMetricData(SourceMetricData metricData) {
+        this.sourceMetricData = metricData;
     }
 
     @Override
