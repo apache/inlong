@@ -40,8 +40,8 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Agent cluster info")
 public class AgentClusterDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(
-            DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @ApiModelProperty(value = "Transfer machine IP, such as: http://127.0.0.1:8080", notes = "Transfer machine IP")
     private String transferIp;

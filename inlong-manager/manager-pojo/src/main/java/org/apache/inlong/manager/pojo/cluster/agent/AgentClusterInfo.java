@@ -19,7 +19,6 @@ package org.apache.inlong.manager.pojo.cluster.agent;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.v3.oas.models.security.SecurityScheme.In;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
