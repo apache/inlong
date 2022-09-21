@@ -24,10 +24,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
+import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Create resource by json file.
@@ -36,18 +39,19 @@ import java.io.File;
 public class CreateCommand extends AbstractCommand {
 
     @Parameter()
-    private java.util.List<String> params;
+    private List<String> params;
 
     public CreateCommand() {
         super("create");
         jcommander.addCommand("group", new CreateGroup());
+        jcommander.addCommand("cluster", new CreateCluster());
     }
 
     @Parameters(commandDescription = "Create group by json file")
     private static class CreateGroup extends AbstractCommandRunner {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-f", "--file"},
                 converter = FileConverter.class,
@@ -87,6 +91,32 @@ public class CreateCommand extends AbstractCommand {
             } catch (Exception e) {
                 System.out.println("Create group failed!");
                 System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Create cluster by json file")
+    private static class CreateCluster extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-f", "--file"}, description = "json file", converter = FileConverter.class)
+        private File file;
+
+        @Override
+        void run() throws Exception {
+            String content = ClientUtils.readFile(file);
+            if (StringUtils.isBlank(content)) {
+                System.out.println("Create cluster failed: file was empty!");
+                return;
+            }
+            ClusterRequest request = objectMapper.readValue(content, ClusterRequest.class);
+            ClientUtils.initClientFactory();
+            InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+            Integer clusterId = clusterClient.saveCluster(request);
+            if (clusterId != null) {
+                System.out.println("Create cluster success! ID:" + clusterId);
             }
         }
     }
