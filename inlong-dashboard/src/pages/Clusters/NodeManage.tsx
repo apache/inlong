@@ -39,8 +39,8 @@ const getFilterFormContent = defaultValues => [
 const Comp: React.FC = () => {
   const location = useLocation();
   const { type, clusterId } = useMemo<Record<string, string>>(
-    () => (parse(location.search.slice(1)) as Record<string, string>) || {},
-    [location.search],
+      () => (parse(location.search.slice(1)) as Record<string, string>) || {},
+      [location.search],
   );
 
   const [options, setOptions] = useState({
@@ -60,16 +60,16 @@ const Comp: React.FC = () => {
     loading,
     run: getList,
   } = useRequest(
-    {
-      url: '/cluster/node/list',
-      method: 'POST',
-      data: {
-        ...options,
+      {
+        url: '/cluster/node/list',
+        method: 'POST',
+        data: {
+          ...options,
+        },
       },
-    },
-    {
-      refreshDeps: [options],
-    },
+      {
+        refreshDeps: [options],
+      },
   );
 
   const onEdit = ({ id }) => {
@@ -77,20 +77,20 @@ const Comp: React.FC = () => {
   };
 
   const onDelete = useCallback(
-    ({ id }) => {
-      Modal.confirm({
-        title: i18n.t('basic.DeleteConfirm'),
-        onOk: async () => {
-          await request({
-            url: `/cluster/node/delete/${id}`,
-            method: 'DELETE',
-          });
-          await getList();
-          message.success(i18n.t('basic.DeleteSuccess'));
-        },
-      });
-    },
-    [getList],
+      ({ id }) => {
+        Modal.confirm({
+          title: i18n.t('basic.DeleteConfirm'),
+          onOk: async () => {
+            await request({
+              url: `/cluster/node/delete/${id}`,
+              method: 'DELETE',
+            });
+            await getList();
+            message.success(i18n.t('basic.DeleteSuccess'));
+          },
+        });
+      },
+      [getList],
   );
 
   const onChange = ({ current: pageNum, pageSize }) => {
@@ -126,14 +126,18 @@ const Comp: React.FC = () => {
         dataIndex: 'port',
       },
       {
+        title: i18n.t('pages.Clusters.Node.ProtocolType'),
+        dataIndex: 'protocolType',
+      },
+      {
         title: i18n.t('pages.Clusters.Node.LastModifier'),
         dataIndex: 'modifier',
         width: 150,
         render: (text, record: any) => (
-          <>
-            <div>{text}</div>
-            <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
-          </>
+            <>
+              <div>{text}</div>
+              <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+            </>
         ),
       },
       {
@@ -141,53 +145,53 @@ const Comp: React.FC = () => {
         dataIndex: 'action',
         width: 120,
         render: (text, record) => (
-          <>
-            <Button type="link" onClick={() => onEdit(record)}>
-              {i18n.t('basic.Edit')}
-            </Button>
-            <Button type="link" onClick={() => onDelete(record)}>
-              {i18n.t('basic.Delete')}
-            </Button>
-          </>
+            <>
+              <Button type="link" onClick={() => onEdit(record)}>
+                {i18n.t('basic.Edit')}
+              </Button>
+              <Button type="link" onClick={() => onDelete(record)}>
+                {i18n.t('basic.Delete')}
+              </Button>
+            </>
         ),
       },
     ];
   }, [onDelete]);
 
   return (
-    <PageContainer breadcrumb={[{ name: `${type} ${i18n.t('pages.Clusters.Node.Name')}` }]}>
-      <HighTable
-        filterForm={{
-          content: getFilterFormContent(options),
-          onFilter,
-        }}
-        suffix={
-          <Button type="primary" onClick={() => setNodeEditModal({ visible: true })}>
-            {i18n.t('pages.Clusters.Node.Create')}
-          </Button>
-        }
-        table={{
-          columns,
-          rowKey: 'id',
-          dataSource: data?.list,
-          pagination,
-          loading,
-          onChange,
-        }}
-      />
+      <PageContainer breadcrumb={[{ name: `${type} ${i18n.t('pages.Clusters.Node.Name')}` }]}>
+        <HighTable
+            filterForm={{
+              content: getFilterFormContent(options),
+              onFilter,
+            }}
+            suffix={
+              <Button type="primary" onClick={() => setNodeEditModal({ visible: true })}>
+                {i18n.t('pages.Clusters.Node.Create')}
+              </Button>
+            }
+            table={{
+              columns,
+              rowKey: 'id',
+              dataSource: data?.list,
+              pagination,
+              loading,
+              onChange,
+            }}
+        />
 
-      <NodeEditModal
-        type={type}
-        clusterId={+clusterId}
-        {...nodeEditModal}
-        visible={nodeEditModal.visible as boolean}
-        onOk={async () => {
-          await getList();
-          setNodeEditModal({ visible: false });
-        }}
-        onCancel={() => setNodeEditModal({ visible: false })}
-      />
-    </PageContainer>
+        <NodeEditModal
+            type={type}
+            clusterId={+clusterId}
+            {...nodeEditModal}
+            visible={nodeEditModal.visible as boolean}
+            onOk={async () => {
+              await getList();
+              setNodeEditModal({ visible: false });
+            }}
+            onCancel={() => setNodeEditModal({ visible: false })}
+        />
+      </PageContainer>
   );
 };
 

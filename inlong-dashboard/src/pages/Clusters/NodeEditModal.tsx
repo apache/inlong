@@ -36,15 +36,15 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
   const [form] = useForm();
 
   const { data: savedData, run: getData } = useRequest(
-    id => ({
-      url: `/cluster/node/get/${id}`,
-    }),
-    {
-      manual: true,
-      onSuccess: result => {
-        form.setFieldsValue(result);
+      id => ({
+        url: `/cluster/node/get/${id}`,
+      }),
+      {
+        manual: true,
+        onSuccess: result => {
+          form.setFieldsValue(result);
+        },
       },
-    },
   );
 
   const onOk = async () => {
@@ -107,6 +107,11 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         },
       },
       {
+        type: 'input',
+        label: i18n.t('pages.Clusters.Node.ProtocolType'),
+        name: 'protocolType',
+      },
+      {
         type: 'textarea',
         label: i18n.t('pages.Clusters.Description'),
         name: 'description',
@@ -118,9 +123,9 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
   }, []);
 
   return (
-    <Modal {...modalProps} title={i18n.t('pages.Clusters.Node.Name')} onOk={onOk}>
-      <FormGenerator content={content} form={form} useMaxWidth />
-    </Modal>
+      <Modal {...modalProps} title={i18n.t('pages.Clusters.Node.Name')} onOk={onOk}>
+        <FormGenerator content={content} form={form} useMaxWidth />
+      </Modal>
   );
 };
 

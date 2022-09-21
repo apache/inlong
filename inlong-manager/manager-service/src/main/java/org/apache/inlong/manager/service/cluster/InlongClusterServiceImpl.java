@@ -567,8 +567,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // check cluster node if exist
         InlongClusterNodeEntity exist = clusterNodeMapper.selectByUniqueKey(request);
         if (exist != null && !Objects.equals(id, exist.getId())) {
-            String errMsg = String.format("inlong cluster node already exist for type=%s ip=%s port=%s",
-                    request.getType(), request.getIp(), request.getPort());
+            String errMsg = String.format("inlong cluster node already exist for type=%s ip=%s port=%s protocolType=%s",
+                    request.getType(), request.getIp(), request.getPort(), request.getProtocolType());
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
@@ -578,8 +578,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error("cluster node not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        String errMsg = String.format("cluster node has already updated with parentId=%s, type=%s, ip=%s, port=%s",
-                request.getParentId(), request.getType(), request.getIp(), request.getPort());
+        String errMsg = String.format("cluster node has already updated with parentId=%s, type=%s, ip=%s, port=%s"
+                        + " protocolType=%s",
+                request.getParentId(), request.getType(), request.getIp(), request.getPort(),
+                request.getProtocolType());
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
             LOGGER.warn(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
@@ -616,8 +618,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
         if (InlongConstants.AFFECTED_ONE_ROW != clusterNodeMapper.updateById(entity)) {
-            LOGGER.error("cluster node has already updated with parentId={}, type={}, ip={}, port={}",
-                    entity.getParentId(), entity.getType(), entity.getIp(), entity.getPort());
+            LOGGER.error("cluster node has already updated with parentId={}, type={}, ip={}, port={}, protocolType={}",
+                    entity.getParentId(), entity.getType(), entity.getIp(), entity.getPort(), entity.getProtocolType());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         LOGGER.info("success to delete inlong cluster node by id={}", id);
@@ -659,6 +661,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 nodeInfo.setId(nodeEntity.getId());
                 nodeInfo.setIp(nodeEntity.getIp());
                 nodeInfo.setPort(nodeEntity.getPort());
+                nodeInfo.setProtocolType(nodeEntity.getProtocolType());
                 nodeInfos.add(nodeInfo);
             }
         }
