@@ -36,6 +36,7 @@ import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -649,11 +650,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             throw new BusinessException(msg);
         }
 
-        // if more than one data proxy cluster, currently takes first
         // TODO consider the data proxy load and re-balance
         List<DataProxyNodeInfo> nodeInfos = new ArrayList<>();
         for (InlongClusterEntity entity : clusterList) {
-            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(entity.getId());
+            ClusterPageRequest request = ClusterPageRequest.builder()
+                    .parentId(entity.getId())
+                    .status(NodeStatus.NORMAL.getStatus())
+                    .build();
+            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByCondition(request);
             for (InlongClusterNodeEntity nodeEntity : nodeList) {
                 DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
                 nodeInfo.setId(nodeEntity.getId());
