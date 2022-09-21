@@ -112,8 +112,10 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                     source -> parseConstantFieldMap(source.getSourceName(), source.getFieldList(), fieldMap));
 
             List<TransformResponse> transformResponseList = transformMap.get(streamId);
-            transformResponseList.forEach(
-                    trans -> parseConstantFieldMap(trans.getTransformName(), trans.getFieldList(), fieldMap));
+            if (CollectionUtils.isNotEmpty(transformResponseList)) {
+                transformResponseList.forEach(
+                        trans -> parseConstantFieldMap(trans.getTransformName(), trans.getFieldList(), fieldMap));
+            }
 
             // build a stream info from the nodes and relations
             List<StreamSource> sources = sourceMap.get(streamId);
