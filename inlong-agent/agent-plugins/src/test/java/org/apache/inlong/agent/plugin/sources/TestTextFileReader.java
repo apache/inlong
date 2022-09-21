@@ -56,7 +56,9 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYP
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_CONTENT_COLLECT_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 
 @PowerMockIgnore({"javax.management.*", "javax.script.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*",
         "org.w3c.*"})
@@ -110,6 +112,8 @@ public class TestTextFileReader {
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
+        jobConfiguration.set(JOB_GROUP_ID, "groupid");
+        jobConfiguration.set(JOB_STREAM_ID, "streamid");
         TextFileSource fileSource = new TextFileSource();
         List<Reader> readerList = fileSource.split(jobConfiguration);
         Assert.assertEquals(1, readerList.size());
@@ -139,6 +143,8 @@ public class TestTextFileReader {
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
+        jobConfiguration.set(JOB_GROUP_ID, "groupid");
+        jobConfiguration.set(JOB_STREAM_ID, "streamid");
         jobConfiguration.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
         jobConfiguration.set(JOB_FILE_LINE_END_PATTERN, "line-end-symbol");
         TextFileSource fileSource = new TextFileSource();
@@ -171,6 +177,8 @@ public class TestTextFileReader {
         jobConfiguration.set(JOB_INSTANCE_ID, "test");
         jobConfiguration.set(PROXY_INLONG_GROUP_ID, "groupid");
         jobConfiguration.set(PROXY_INLONG_STREAM_ID, "streamid");
+        jobConfiguration.set(JOB_GROUP_ID, "groupid");
+        jobConfiguration.set(JOB_STREAM_ID, "streamid");
         jobConfiguration.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
         jobConfiguration.set(JOB_FILE_CONTENT_COLLECT_TYPE, DataCollectType.INCREMENT);
         TextFileSource fileSource = new TextFileSource();

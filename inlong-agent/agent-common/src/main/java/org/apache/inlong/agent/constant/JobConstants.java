@@ -103,7 +103,7 @@ public class JobConstants extends CommonConstants {
 
     public static final String JOB_READ_WAIT_TIMEOUT = "job.file.read.wait";
 
-    public static final int DEFAULT_JOB_READ_WAIT_TIMEOUT = 100;
+    public static final int DEFAULT_JOB_READ_WAIT_TIMEOUT = 10;
 
     public static final String JOB_ID_PREFIX = "job_";
 

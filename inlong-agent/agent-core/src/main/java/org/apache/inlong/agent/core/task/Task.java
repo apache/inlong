@@ -62,6 +62,10 @@ public class Task {
         return channel;
     }
 
+    public JobProfile getJobConf() {
+        return jobConf;
+    }
+
     public void init() {
         this.channel.init(jobConf);
         this.sink.init(jobConf);

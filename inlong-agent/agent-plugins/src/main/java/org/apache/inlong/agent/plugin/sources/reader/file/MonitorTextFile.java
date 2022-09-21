@@ -106,6 +106,7 @@ public final class MonitorTextFile {
         public void run() {
             try {
                 TimeUnit.SECONDS.sleep(WAIT_TIME);
+                LOGGER.info("start {} monitor", this.fileReaderOperator.file.getAbsolutePath());
                 while (!this.fileReaderOperator.finished) {
                     long expireTime = Long.parseLong(fileReaderOperator.jobConf
                             .get(JOB_FILE_MONITOR_EXPIRE, JOB_FILE_MONITOR_DEFAULT_EXPIRE));

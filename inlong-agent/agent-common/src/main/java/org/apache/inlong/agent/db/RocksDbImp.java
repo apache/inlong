@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -234,6 +235,22 @@ public class RocksDbImp implements Db {
             while (it.isValid()) {
                 KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
                 if (keyValue.getStateSearchKey().equals(searchKey)) {
+                    results.add(keyValue);
+                }
+                it.next();
+            }
+        }
+        return results;
+    }
+
+    @Override
+    public List<KeyValueEntity> search(List<StateSearchKey> searchKeys) {
+        List<KeyValueEntity> results = new LinkedList<>();
+        try (final RocksIterator it = db.newIterator(columnHandlesMap.get(defaultFamilyName))) {
+            it.seekToFirst();
+            while (it.isValid()) {
+                KeyValueEntity keyValue = GSON.fromJson(new String(it.value()), KeyValueEntity.class);
+                if (Objects.nonNull(keyValue) && searchKeys.contains(keyValue.getStateSearchKey())) {
                     results.add(keyValue);
                 }
                 it.next();

@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.core.job;
 
 import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.task.Task;
@@ -166,7 +167,17 @@ public class JobWrapper extends AbstractStateWrapper {
         }));
     }
 
+    /**
+     * get all running task
+     */
     public List<Task> getAllTasks() {
         return allTasks;
+    }
+
+    public synchronized void addTask(JobProfile jobProfile) {
+        Task task = job.createTask(jobProfile);
+        allTasks.add(task);
+        LOGGER.info("job name is {} and add new task, total task {}", job.getName(), allTasks.size());
+        taskManager.submitTask(task);
     }
 }

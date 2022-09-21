@@ -46,6 +46,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+
 /**
  * Watch directory, if new valid files are created, create jobs correspondingly.
  */
@@ -272,9 +274,8 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         interval = profile.getInt(
                 AgentConstants.TRIGGER_CHECK_INTERVAL, AgentConstants.DEFAULT_TRIGGER_CHECK_INTERVAL);
         this.profile = profile;
-
-        if (this.profile.hasKey(JobConstants.JOB_DIR_FILTER_PATTERN)) {
-            String pathPattern = this.profile.get(JobConstants.JOB_DIR_FILTER_PATTERN);
+        if (this.profile.hasKey(JOB_DIR_FILTER_PATTERN)) {
+            String pathPattern = this.profile.get(JOB_DIR_FILTER_PATTERN);
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");
             if (timeOffset.isEmpty()) {
                 register(pathPattern);

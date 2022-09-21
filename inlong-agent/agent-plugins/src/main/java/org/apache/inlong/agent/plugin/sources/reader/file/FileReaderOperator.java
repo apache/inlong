@@ -98,6 +98,9 @@ public class FileReaderOperator extends AbstractReader {
     }
 
     private boolean validateMessage(String message) {
+        if (StringUtils.isBlank(message)) {
+            return false;
+        }
         if (validators.isEmpty()) {
             return true;
         }

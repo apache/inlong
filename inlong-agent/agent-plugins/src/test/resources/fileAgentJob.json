@@ -17,6 +17,8 @@
     "source": "org.apache.inlong.agent.plugin.sources.TextFileSource",
     "sink": "org.apache.inlong.agent.plugin.sinks.MockSink",
     "channel": "org.apache.inlong.agent.plugin.channel.MemoryChannel",
-    "pattern": "test"
+    "pattern": "test",
+    "groupId":  "test_20220913_221",
+    "streamId": "test_20220913_221"
   }
 }
