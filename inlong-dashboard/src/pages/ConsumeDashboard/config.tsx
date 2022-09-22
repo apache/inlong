@@ -67,7 +67,7 @@ export const getFilterFormContent = defaultValues =>
   );
 
 export const getColumns = ({ onDelete }) => {
-  const genCreateUrl = record => `/consume/create?id=${record.id}`;
+  const genCreateUrl = record => `/consume/create/${record.id}`;
   const genDetailUrl = record =>
     [0, 10].includes(record.status) ? genCreateUrl(record) : `/consume/detail/${record.id}`;
 
