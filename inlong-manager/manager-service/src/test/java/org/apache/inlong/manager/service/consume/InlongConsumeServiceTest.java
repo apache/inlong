@@ -84,7 +84,7 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(countInfo);
 
         // test update operation
-        Assertions.assertTrue(this.testUpdate(consumeInfo));
+        Assertions.assertNotNull(this.testUpdate(consumeInfo));
 
         // test delete operation
         Assertions.assertTrue(this.testDelete(consumeId));
@@ -127,7 +127,7 @@ public class InlongConsumeServiceTest extends ServiceBaseTest {
         return consumeService.list(request);
     }
 
-    private Boolean testUpdate(InlongConsumeInfo consumeInfo) {
+    private Integer testUpdate(InlongConsumeInfo consumeInfo) {
         ConsumePulsarRequest request = new ConsumePulsarRequest();
         request.setId(consumeInfo.getId());
         request.setMqType(MQType.PULSAR);
