@@ -24,13 +24,13 @@ import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
- * The approval form of the consumption
+ * The approval form of the inlong consume
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ConsumptionApproveForm extends BaseTaskForm {
+public class ConsumeApproveForm extends BaseTaskForm {
 
-    public static final String FORM_NAME = "ConsumptionApproveForm";
+    public static final String FORM_NAME = "ConsumeApproveForm";
 
     @ApiModelProperty("Consumer group")
     private String consumerGroup;

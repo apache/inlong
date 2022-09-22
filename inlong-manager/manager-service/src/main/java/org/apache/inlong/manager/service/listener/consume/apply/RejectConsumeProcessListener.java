@@ -15,57 +15,59 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.listener.consumption;
+package org.apache.inlong.manager.service.listener.consume.apply;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
-import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
+import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
+import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumeProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Added data consumption process cancellation event listener
+ * Inlong consume process rejection event listener
  */
-@Slf4j
 @Component
-public class ConsumptionCancelProcessListener implements ProcessEventListener {
+public class RejectConsumeProcessListener implements ProcessEventListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RejectConsumeProcessListener.class);
 
     @Autowired
-    private ConsumptionEntityMapper consumptionEntityMapper;
+    private InlongConsumeEntityMapper consumeMapper;
 
     @Autowired
-    public ConsumptionCancelProcessListener(ConsumptionEntityMapper consumptionEntityMapper) {
-        this.consumptionEntityMapper = consumptionEntityMapper;
+    public RejectConsumeProcessListener(InlongConsumeEntityMapper consumeMapper) {
+        this.consumeMapper = consumeMapper;
     }
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.CANCEL;
+        return ProcessEvent.REJECT;
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        ApplyConsumptionProcessForm processForm = (ApplyConsumptionProcessForm) context.getProcessForm();
+        ApplyConsumeProcessForm processForm = (ApplyConsumeProcessForm) context.getProcessForm();
+        InlongConsumeEntity consumeEntity = consumeMapper.selectById(processForm.getConsumeInfo().getId());
+        consumeEntity.setStatus(ConsumeStatus.APPROVE_REJECTED.getCode());
 
-        ConsumptionEntity update = consumptionEntityMapper.selectByPrimaryKey(processForm.getConsumptionInfo().getId());
-        update.setStatus(ConsumeStatus.CANCELED.getCode());
-        int rowCount = consumptionEntityMapper.updateByPrimaryKeySelective(update);
+        int rowCount = consumeMapper.updateByIdSelective(consumeEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            log.error("consumption information has already updated, id={}, curVersion={}",
-                    update.getId(), update.getVersion());
+            LOGGER.error("inlong consume has already updated, id={}, curVersion={}",
+                    consumeEntity.getId(), consumeEntity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
-        return ListenerResult.success("Application process is cancelled");
-    }
 
+        return ListenerResult.success("The consume application was rejected");
+    }
 }

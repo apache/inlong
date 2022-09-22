@@ -104,7 +104,7 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         entity.setFilterEnabled(0);
 
         entity.setInCharges(groupInfo.getInCharges());
-        entity.setStatus(ConsumeStatus.APPROVED.getCode());
+        entity.setStatus(ConsumeStatus.APPROVE_PASSED.getCode());
         String operator = groupInfo.getCreator();
         entity.setCreator(operator);
         entity.setModifier(operator);
@@ -153,11 +153,11 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
             int status = Integer.parseInt(countInfo.getKey());
             int count = countInfo.getValue();
             result.setTotalCount(result.getTotalCount() + count);
-            if (status == ConsumeStatus.WAIT_ASSIGN.getCode()) {
+            if (status == ConsumeStatus.TO_BE_SUBMIT.getCode()) {
                 result.setWaitAssignCount(result.getWaitAssignCount() + count);
-            } else if (status == ConsumeStatus.WAIT_APPROVE.getCode()) {
+            } else if (status == ConsumeStatus.TO_BE_APPROVAL.getCode()) {
                 result.setWaitApproveCount(result.getWaitApproveCount() + count);
-            } else if (status == ConsumeStatus.REJECTED.getCode()) {
+            } else if (status == ConsumeStatus.APPROVE_REJECTED.getCode()) {
                 result.setRejectCount(result.getRejectCount() + count);
             }
         }
@@ -186,7 +186,8 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ,
+    @Transactional(rollbackFor = Throwable.class,
+            isolation = Isolation.REPEATABLE_READ,
             propagation = Propagation.REQUIRES_NEW)
     public Integer update(InlongConsumeRequest request, String operator) {
         LOGGER.debug("begin to update inlong consume={} by user={}", request, operator);
@@ -205,8 +206,8 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
-        ConsumeStatus consumeStatus = ConsumeStatus.fromStatus(existEntity.getStatus());
-        Preconditions.checkTrue(ConsumeStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumeStatus),
+        ConsumeStatus consumeStatus = ConsumeStatus.forCode(existEntity.getStatus());
+        Preconditions.checkTrue(ConsumeStatus.ALLOW_SAVE_UPDATE_SET.contains(consumeStatus),
                 "inlong consume not allowed update when status is " + consumeStatus.name());
 
         InlongConsumeOperator consumeOperator = consumeOperatorFactory.getInstance(request.getMqType());
@@ -215,6 +216,33 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         LOGGER.info("success to update inlong consume={} by user={}", request, operator);
         return consumeId;
     }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class,
+            isolation = Isolation.REPEATABLE_READ,
+            propagation = Propagation.REQUIRES_NEW)
+    public Boolean updateStatus(Integer id, Integer status, String operator) {
+        LOGGER.info("begin to update consume status to [{}] for id={} by user={}", status, id, operator);
+        Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
+        InlongConsumeEntity entity = consumeMapper.selectById(id);
+        if (entity == null) {
+            LOGGER.error("inlong consume not found by id={}", id);
+            throw new BusinessException(ErrorCodeEnum.CONSUME_NOT_FOUND);
+        }
+
+        ConsumeStatus curStatus = ConsumeStatus.forCode(entity.getStatus());
+        ConsumeStatus nextStatus = ConsumeStatus.forCode(status);
+        if (ConsumeStatus.notAllowedTransfer(curStatus, nextStatus)) {
+            String errorMsg = String.format("Current status=%s cannot transfer to status=%s", curStatus, nextStatus);
+            LOGGER.error(errorMsg);
+            throw new BusinessException(errorMsg);
+        }
+
+        consumeMapper.updateStatus(id, status, operator);
+        LOGGER.info("success to update consume status to [{}] for id={} by user={}", status, id, operator);
+        return true;
+    }
+
 
     @Override
     public Boolean delete(Integer id, String operator) {

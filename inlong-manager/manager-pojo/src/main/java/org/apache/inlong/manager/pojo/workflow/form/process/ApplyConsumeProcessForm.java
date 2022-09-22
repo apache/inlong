@@ -22,8 +22,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 
 import java.util.Map;
 
@@ -32,16 +32,16 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ApplyConsumptionProcessForm extends BaseProcessForm {
+public class ApplyConsumeProcessForm extends BaseProcessForm {
 
-    public static final String FORM_NAME = "ApplyConsumptionProcessForm";
+    public static final String FORM_NAME = "ApplyConsumeProcessForm";
 
-    @ApiModelProperty(value = "Data consumption information")
-    private ConsumptionInfo consumptionInfo;
+    @ApiModelProperty(value = "Inlong consume info")
+    private InlongConsumeInfo consumeInfo;
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(consumptionInfo, "Data consumption information cannot be empty");
+        Preconditions.checkNotNull(consumeInfo, "Inlong consume cannot be empty");
     }
 
     @Override
@@ -51,14 +51,14 @@ public class ApplyConsumptionProcessForm extends BaseProcessForm {
 
     @Override
     public String getInlongGroupId() {
-        return consumptionInfo.getConsumerGroup();
+        return consumeInfo.getInlongGroupId();
     }
 
     @Override
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
-        if (consumptionInfo != null) {
-            show.put("inlongGroupId", consumptionInfo.getInlongGroupId());
+        if (consumeInfo != null) {
+            show.put("inlongGroupId", consumeInfo.getInlongGroupId());
         }
         return show;
     }

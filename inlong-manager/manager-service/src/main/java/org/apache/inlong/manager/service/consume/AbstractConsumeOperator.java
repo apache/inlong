@@ -50,7 +50,7 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
         // set the ext params, init status, and other info
         InlongConsumeEntity entity = CommonBeanUtils.copyProperties(request, InlongConsumeEntity::new);
         this.setTargetEntity(request, entity);
-        entity.setStatus(ConsumeStatus.WAIT_ASSIGN.getCode());
+        entity.setStatus(ConsumeStatus.TO_BE_SUBMIT.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);
 

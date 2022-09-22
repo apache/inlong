@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.consumption;
+package org.apache.inlong.manager.service.workflow.consume;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumeProcessForm;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.ProcessDetailHandler;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
@@ -28,10 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Apply consumption process handler
+ * Apply inlong consume process handler
  */
 @Component
-public class ApplyConsumptionProcessHandler implements ProcessDetailHandler {
+public class ApplyConsumeProcessHandler implements ProcessDetailHandler {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -41,7 +41,7 @@ public class ApplyConsumptionProcessHandler implements ProcessDetailHandler {
     @Override
     public ProcessDetailResponse handle(ProcessDetailResponse processResponse) {
         WorkflowProcess process = processDefinitionService.getByName(processResponse.getWorkflow().getName());
-        ApplyConsumptionProcessForm processForm = WorkflowUtils.parseProcessForm(objectMapper,
+        ApplyConsumeProcessForm processForm = WorkflowUtils.parseProcessForm(objectMapper,
                 processResponse.getProcessInfo().getFormData().toString(), process);
         if (processForm == null) {
             return processResponse;

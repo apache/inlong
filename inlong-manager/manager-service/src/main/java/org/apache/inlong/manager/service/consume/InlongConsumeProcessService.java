@@ -18,18 +18,10 @@
 package org.apache.inlong.manager.service.consume;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity;
-import org.apache.inlong.manager.dao.mapper.ConsumptionPulsarEntityMapper;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
-import org.apache.inlong.manager.service.core.ConsumptionService;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumeProcessForm;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,11 +34,9 @@ import org.springframework.stereotype.Service;
 public class InlongConsumeProcessService {
 
     @Autowired
-    private ConsumptionService consumptionService;
+    private InlongConsumeService consumeService;
     @Autowired
     private WorkflowService workflowService;
-    @Autowired
-    private ConsumptionPulsarEntityMapper consumptionPulsarMapper;
 
     /**
      * Start the process for the specified ID.
@@ -56,30 +46,13 @@ public class InlongConsumeProcessService {
      * @return workflow result
      */
     public WorkflowResult startProcess(Integer id, String operator) {
-        ConsumptionInfo consumptionInfo = consumptionService.get(id);
-        Preconditions.checkTrue(ConsumeStatus.ALLOW_START_WORKFLOW_STATUS.contains(
-                        ConsumeStatus.fromStatus(consumptionInfo.getStatus())),
-                "current status not allowed to start workflow");
-
-        consumptionInfo.setStatus(ConsumeStatus.WAIT_APPROVE.getCode());
-        boolean rowCount = consumptionService.update(consumptionInfo, operator);
-        Preconditions.checkTrue(rowCount, "update consumption failed");
-
-        return workflowService.start(ProcessName.APPLY_CONSUMPTION_PROCESS, operator,
-                genConsumptionProcessForm(consumptionInfo));
+        consumeService.updateStatus(id, ConsumeStatus.TO_BE_APPROVAL.getCode(), operator);
+        return workflowService.start(ProcessName.APPLY_CONSUME_PROCESS, operator, genApplyConsumeProcessForm(id));
     }
 
-    private ApplyConsumptionProcessForm genConsumptionProcessForm(ConsumptionInfo consumptionInfo) {
-        ApplyConsumptionProcessForm form = new ApplyConsumptionProcessForm();
-        Integer id = consumptionInfo.getId();
-        String mqType = consumptionInfo.getMqType();
-        if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
-            ConsumptionPulsarEntity consumptionPulsarEntity = consumptionPulsarMapper.selectByConsumptionId(id);
-            ConsumptionPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(consumptionPulsarEntity,
-                    ConsumptionPulsarInfo::new);
-            consumptionInfo.setMqExtInfo(pulsarInfo);
-        }
-        form.setConsumptionInfo(consumptionInfo);
+    private ApplyConsumeProcessForm genApplyConsumeProcessForm(Integer id) {
+        ApplyConsumeProcessForm form = new ApplyConsumeProcessForm();
+        form.setConsumeInfo(consumeService.get(id));
         return form;
     }
 

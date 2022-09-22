@@ -15,20 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.consumption;
+package org.apache.inlong.manager.service.workflow.consume;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
-import org.apache.inlong.manager.pojo.workflow.form.task.ConsumptionApproveForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumeProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.ConsumeApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.listener.consume.OperateConsumeTaskListener;
+import org.apache.inlong.manager.service.listener.consume.apply.ApproveConsumeProcessListener;
+import org.apache.inlong.manager.service.listener.consume.apply.CancelConsumeProcessListener;
+import org.apache.inlong.manager.service.listener.consume.apply.RejectConsumeProcessListener;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.listener.consumption.ConsumptionCancelProcessListener;
-import org.apache.inlong.manager.service.listener.consumption.ConsumptionCompleteProcessListener;
-import org.apache.inlong.manager.service.listener.consumption.ConsumptionPassTaskListener;
-import org.apache.inlong.manager.service.listener.consumption.ConsumptionRejectProcessListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
@@ -42,29 +42,24 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * New data consumption workflow definition
+ * New inlong consume workflow definition
  */
 @Component
-public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
+public class ApplyConsumeWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private ConsumptionCompleteProcessListener consumptionCompleteProcessListener;
-
+    private CancelConsumeProcessListener cancelConsumeProcessListener;
     @Autowired
-    private ConsumptionPassTaskListener consumptionPassTaskListener;
-
+    private RejectConsumeProcessListener rejectConsumeProcessListener;
     @Autowired
-    private ConsumptionRejectProcessListener consumptionRejectProcessListener;
-
+    private ApproveConsumeProcessListener approveConsumeProcessListener;
     @Autowired
-    private ConsumptionCancelProcessListener consumptionCancelProcessListener;
+    private OperateConsumeTaskListener operateConsumeTaskListener;
 
     @Autowired
     private WorkflowApproverService workflowApproverService;
-
     @Autowired
-    private ApplyConsumptionProcessHandler applyConsumptionProcessHandler;
-
+    private ApplyConsumeProcessHandler applyConsumeProcessHandler;
     @Autowired
     private InlongGroupService groupService;
 
@@ -75,9 +70,9 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
         process.setName(getProcessName().name());
         process.setType(getProcessName().getDisplayName());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(ApplyConsumptionProcessForm.class);
+        process.setFormClass(ApplyConsumeProcessForm.class);
         process.setVersion(1);
-        process.setProcessDetailHandler(applyConsumptionProcessHandler);
+        process.setProcessDetailHandler(applyConsumeProcessHandler);
 
         // Start node
         StartEvent startEvent = new StartEvent();
@@ -98,9 +93,9 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
         UserTask adminUserTask = new UserTask();
         adminUserTask.setName(UT_ADMIN_NAME);
         adminUserTask.setDisplayName("SystemAdmin");
-        adminUserTask.setFormClass(ConsumptionApproveForm.class);
+        adminUserTask.setFormClass(ConsumeApproveForm.class);
         adminUserTask.setApproverAssign(context -> getTaskApprovers(adminUserTask.getName()));
-        adminUserTask.addListener(consumptionPassTaskListener);
+        adminUserTask.addListener(operateConsumeTaskListener);
         process.addTask(adminUserTask);
 
         // Set order relation
@@ -109,16 +104,16 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
         adminUserTask.addNext(endEvent);
 
         // Set up the listener
-        process.addListener(consumptionCompleteProcessListener);
-        process.addListener(consumptionRejectProcessListener);
-        process.addListener(consumptionCancelProcessListener);
+        process.addListener(approveConsumeProcessListener);
+        process.addListener(rejectConsumeProcessListener);
+        process.addListener(cancelConsumeProcessListener);
 
         return process;
     }
 
     private List<String> groupOwnerUserTaskApprover(WorkflowContext context) {
-        ApplyConsumptionProcessForm form = (ApplyConsumptionProcessForm) context.getProcessForm();
-        InlongGroupInfo groupInfo = groupService.get(form.getConsumptionInfo().getInlongGroupId());
+        ApplyConsumeProcessForm form = (ApplyConsumeProcessForm) context.getProcessForm();
+        InlongGroupInfo groupInfo = groupService.get(form.getConsumeInfo().getInlongGroupId());
         if (groupInfo == null || groupInfo.getInCharges() == null) {
             return Collections.emptyList();
         }
@@ -128,7 +123,7 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
 
     @Override
     public ProcessName getProcessName() {
-        return ProcessName.APPLY_CONSUMPTION_PROCESS;
+        return ProcessName.APPLY_CONSUME_PROCESS;
     }
 
     /**

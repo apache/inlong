@@ -103,9 +103,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
         return ConsumptionSummary.builder()
                 .totalCount(countMap.values().stream().mapToInt(c -> c).sum())
-                .waitingAssignCount(countMap.getOrDefault(ConsumeStatus.WAIT_ASSIGN.getCode() + "", 0))
-                .waitingApproveCount(countMap.getOrDefault(ConsumeStatus.WAIT_APPROVE.getCode() + "", 0))
-                .rejectedCount(countMap.getOrDefault(ConsumeStatus.REJECTED.getCode() + "", 0)).build();
+                .waitingAssignCount(countMap.getOrDefault(ConsumeStatus.TO_BE_SUBMIT.getCode() + "", 0))
+                .waitingApproveCount(countMap.getOrDefault(ConsumeStatus.TO_BE_APPROVAL.getCode() + "", 0))
+                .rejectedCount(countMap.getOrDefault(ConsumeStatus.APPROVE_REJECTED.getCode() + "", 0)).build();
     }
 
     @Override
@@ -165,8 +165,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         if (info.getId() != null) {
             ConsumptionEntity consumptionEntity = consumptionMapper.selectByPrimaryKey(info.getId());
             Preconditions.checkNotNull(consumptionEntity, "consumption not exist with id: " + info.getId());
-            ConsumeStatus consumeStatus = ConsumeStatus.fromStatus(consumptionEntity.getStatus());
-            Preconditions.checkTrue(ConsumeStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumeStatus),
+            ConsumeStatus consumeStatus = ConsumeStatus.forCode(consumptionEntity.getStatus());
+            Preconditions.checkTrue(ConsumeStatus.ALLOW_SAVE_UPDATE_SET.contains(consumeStatus),
                     "consumption not allow update when status is " + consumeStatus.name());
         }
 
@@ -283,7 +283,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
             // If the consumption has been approved, then close/open DLQ or RLQ, it is necessary to
             // add/remove inlong streams in the inlong group
-            if (ConsumeStatus.APPROVED.getCode() == exists.getStatus()) {
+            if (ConsumeStatus.APPROVE_PASSED.getCode() == exists.getStatus()) {
                 String groupId = info.getInlongGroupId();
                 String dlqNameOld = pulsarEntity.getDeadLetterTopic();
                 String dlqNameNew = update.getDeadLetterTopic();
@@ -337,7 +337,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator) {
         ConsumptionEntity entity = CommonBeanUtils.copyProperties(info, ConsumptionEntity::new);
-        entity.setStatus(ConsumeStatus.WAIT_ASSIGN.getCode());
+        entity.setStatus(ConsumeStatus.TO_BE_SUBMIT.getCode());
         entity.setCreator(operator);
         entity.setModifier(operator);
 

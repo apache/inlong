@@ -48,9 +48,9 @@ public enum ProcessName {
     DELETE_GROUP_PROCESS("Delete-Group"),
 
     /**
-     * Apply consumption process
+     * Apply inlong consume process
      */
-    APPLY_CONSUMPTION_PROCESS("Apply-Consumption"),
+    APPLY_CONSUME_PROCESS("Apply-Consume"),
 
     /**
      * Create inlong stream process

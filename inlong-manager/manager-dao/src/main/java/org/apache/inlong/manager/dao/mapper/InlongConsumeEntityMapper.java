@@ -43,6 +43,8 @@ public interface InlongConsumeEntityMapper {
 
     int updateByIdSelective(InlongConsumeEntity record);
 
+    void updateStatus(@Param("id") Integer id, @Param("status") Integer status, @Param("modifier") String modifier);
+
     int deleteById(Integer id);
 
 }

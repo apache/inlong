@@ -594,10 +594,10 @@ CREATE TABLE IF NOT EXISTS `workflow_approver`
     KEY `process_name_task_name_index` (`process_name`, `task_name`)
 );
 
--- create default approver for new consumption and new inlong group
+-- create workflow approver for newly inlong group and inlong consume.
 INSERT INTO `workflow_approver`(`process_name`, `task_name`, `approvers`, `creator`, `modifier`)
-VALUES ('APPLY_CONSUMPTION_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init'),
-       ('APPLY_GROUP_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init');
+VALUES ('APPLY_GROUP_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init'),
+       ('APPLY_CONSUME_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init');
 
 -- ----------------------------
 -- Table structure for workflow_event_log
