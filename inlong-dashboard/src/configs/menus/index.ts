@@ -33,7 +33,7 @@ const menus: MenuItemType[] = [
   },
   {
     path: '/consume',
-    name: i18n.t('configs.menus.DataConsumption'),
+    name: i18n.t('configs.menus.Consumes'),
   },
   {
     name: i18n.t('configs.menus.Clusters'),
@@ -50,7 +50,7 @@ const menus: MenuItemType[] = [
   },
   {
     path: '/node',
-    name: i18n.t('configs.menus.Node'),
+    name: i18n.t('configs.menus.Nodes'),
   },
   {
     path: '/process',

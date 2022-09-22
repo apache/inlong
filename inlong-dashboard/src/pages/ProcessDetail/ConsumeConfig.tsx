@@ -20,10 +20,10 @@
 import React from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
-import { consumptionForm } from '@/metas/consumption';
+import { consumeForm } from '@/metas/consume';
 
 const getContent = () => {
-  return consumptionForm.map(item => {
+  return consumeForm.map(item => {
     const obj = { ...item };
     if (typeof obj.suffix !== 'string') {
       delete obj.suffix;
@@ -64,7 +64,7 @@ export const getFormContent = (
             type: 'input',
             label: i18n.t('pages.ApprovalDetail.ConsumeConfig.ConsumerGroup'),
             name: ['form', 'consumerGroup'],
-            initialValue: formData.consumptionInfo?.consumerGroup,
+            initialValue: formData.consumeInfo?.consumerGroup,
             rules: [{ required: true }],
             props: {
               disabled: isFinished,
