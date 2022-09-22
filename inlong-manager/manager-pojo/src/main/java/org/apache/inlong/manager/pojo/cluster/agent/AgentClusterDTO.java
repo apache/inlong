@@ -43,7 +43,7 @@ public class AgentClusterDTO {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-    @ApiModelProperty(value = "Version number of the server list collected by the cluster", notes = "Version number")
+    @ApiModelProperty(value = "Version number of the server list collected by the cluster")
     private Integer serverVersion;
 
     /**
