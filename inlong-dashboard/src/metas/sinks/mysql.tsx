@@ -20,31 +20,40 @@ import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from './common/sourceFields';
 
-const mysqlFieldTypes = [
-  'TINYINT',
-  'SMALLINT',
-  'MEDIUMINT',
-  'INT',
-  'FLOAT',
-  'BIGINT',
-  'DOUBLE',
-  'NUMERIC',
-  'DECIMAL',
-  'BOOLEAN',
-  'DATE',
-  'TIME',
-  'DATETIME',
-  'CHAR',
-  'VARCHAR',
-  'TEXT',
-  'BINARY',
-  'VARBINARY',
-  'BLOB',
-  // 'interval',
-].map(item => ({
-  label: item,
-  value: item,
-}));
+const fieldTypesConf = {
+  TINYINT: (m, d) => (1 <= m && m <= 4 ? '' : '1<=M<=4'),
+  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1<=M<=6'),
+  MEDIUMINT: (m, d) => (1 <= m && m <= 9 ? '' : '1<=M<=9'),
+  INT: (m, d) => (1 <= m && m <= 11 ? '' : '1<=M<=11'),
+  FLOAT: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1<=M<=20'),
+  DOUBLE: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  NUMERIC: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  DECIMAL: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  BOOLEAN: () => '',
+  DATE: () => '',
+  TIME: () => '',
+  DATETIME: () => '',
+  CHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  VARCHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  TEXT: () => '',
+  BINARY: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),
+  VARBINARY: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),
+  BLOB: () => '',
+};
+
+const fieldTypes = Object.keys(fieldTypesConf).reduce(
+  (acc, key) =>
+    acc.concat({
+      label: key,
+      value: key,
+    }),
+  [],
+);
 
 export const mysql: FieldItemType[] = [
   {
@@ -148,13 +157,31 @@ const getFieldListColumns = sinkValues => {
     {
       title: `MYSQL${i18n.t('meta.Sinks.MySQL.FieldType')}`,
       dataIndex: 'fieldType',
-      initialValue: mysqlFieldTypes[0].value,
-      type: 'select',
+      initialValue: fieldTypes[0].value,
+      type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
-        options: mysqlFieldTypes,
+        options: fieldTypes,
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        allowClear: true,
       }),
-      rules: [{ required: true }],
+      rules: [
+        { required: true },
+        () => ({
+          validator(_, val) {
+            if (val) {
+              const [, type = val, typeLength = ''] = val.match(/^(.+)\((.+)\)$/) || [];
+              if (fieldTypesConf.hasOwnProperty(type)) {
+                const [m = -1, d = -1] = typeLength.split(',');
+                const errMsg = fieldTypesConf[type]?.(m, d);
+                if (typeLength && errMsg) return Promise.reject(new Error(errMsg));
+              } else {
+                return Promise.reject(new Error('FieldType error'));
+              }
+            }
+            return Promise.resolve();
+          },
+        }),
+      ],
     },
     {
       title: i18n.t('meta.Sinks.MySQL.IsMetaField'),

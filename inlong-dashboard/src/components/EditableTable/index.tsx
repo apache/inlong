@@ -52,6 +52,8 @@ export interface ColumnsItemProps {
 }
 
 export interface EditableTableProps {
+  // id comes from FormItem, like name
+  id?: string;
   value?: RowValueType[];
   onChange?: (value: RowValueType[]) => void;
   size?: string;
@@ -92,6 +94,7 @@ const addIdToValues = (values: RowValueType[]): RecordType[] =>
   });
 
 const Comp = ({
+  id,
   value,
   onChange,
   columns,
@@ -101,6 +104,12 @@ const Comp = ({
   canAdd = true,
   size,
 }: EditableTableProps) => {
+  if (!id) {
+    console.error(
+      'The id is lost, which may cause an error in the value of the array. Please check! Has the component library changed?',
+    );
+  }
+
   const { t } = useTranslation();
 
   const [data, setData] = useState<RecordType[]>(
@@ -234,12 +243,15 @@ const Comp = ({
         // Use div to wrap input, select, etc. so that the value and onChange events are not taken over by FormItem
         // So the actual value change must be changed by onChange itself and then exposed to the outer component
         <Form.Item
-          rules={item.rules?.map(item => ({
-            ...item,
-            transform: () => text ?? '',
-          }))}
+          rules={
+            id
+              ? item.rules
+              : item.rules?.map(rule =>
+                  typeof rule === 'function' ? rule : { ...rule, transform: () => text ?? '' },
+                )
+          }
           messageVariables={{ label: item.title }}
-          name={['__proto__', 'editableRow', idx, item.dataIndex]}
+          name={id ? [id, idx, item.dataIndex] : ['__proto__', 'editableRow', idx, item.dataIndex]}
           className={styles.formItem}
         >
           <div>{formCompObj[item.type || 'input']}</div>
