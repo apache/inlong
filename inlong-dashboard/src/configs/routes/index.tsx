@@ -54,7 +54,7 @@ const routes: RouteProps[] = [
     exact: true,
     childRoutes: [
       {
-        path: '/create',
+        path: '/create/:id?',
         component: () => import('@/pages/ConsumeDetail'),
         exact: true,
       },
