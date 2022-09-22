@@ -36,7 +36,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 @ApiModel("Inlong cluster request for Agent")
 public class AgentClusterRequest extends ClusterRequest {
 
-    @ApiModelProperty(value = "Version number of the server list collected by the cluster", notes = "Version number")
+    @ApiModelProperty(value = "Version number of the server list collected by the cluster")
     private Integer serverVersion = 1;
 
     public AgentClusterRequest() {
