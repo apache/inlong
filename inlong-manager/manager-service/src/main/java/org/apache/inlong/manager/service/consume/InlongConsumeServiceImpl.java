@@ -243,7 +243,6 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         return true;
     }
 
-
     @Override
     public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete inlong consume for id={} by user={}", id, operator);

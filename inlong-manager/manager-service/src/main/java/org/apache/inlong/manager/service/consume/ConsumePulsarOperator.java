@@ -42,8 +42,6 @@ import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 /**
  * Inlong consume operator for Pulsar.
  */
