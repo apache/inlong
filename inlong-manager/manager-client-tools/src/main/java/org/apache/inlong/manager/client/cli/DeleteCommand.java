@@ -40,6 +40,7 @@ public class DeleteCommand extends AbstractCommand {
         super("delete");
         jcommander.addCommand("group", new DeleteGroup());
         jcommander.addCommand("cluster", new DeleteCluster());
+        jcommander.addCommand("cluster-tag", new DeleteClusterTag());
     }
 
     @Parameters(commandDescription = "Delete group by group id")
@@ -82,6 +83,29 @@ public class DeleteCommand extends AbstractCommand {
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 if (clusterClient.delete(clusterId)) {
                     System.out.println("Delete cluster success!");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Delete cluster tag by tag id")
+    private static class DeleteClusterTag extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster tag id")
+        private int tagId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                if (clusterClient.deleteTag(tagId)) {
+                    System.out.println("Delete cluster tag success!");
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());

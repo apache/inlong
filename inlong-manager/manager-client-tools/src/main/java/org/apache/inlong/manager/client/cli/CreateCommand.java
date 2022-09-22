@@ -20,7 +20,6 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.FileConverter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
@@ -28,6 +27,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 
 import java.io.File;
 import java.util.List;
@@ -45,6 +45,7 @@ public class CreateCommand extends AbstractCommand {
         super("create");
         jcommander.addCommand("group", new CreateGroup());
         jcommander.addCommand("cluster", new CreateCluster());
+        jcommander.addCommand("cluster-tag", new CreateClusterTag());
     }
 
     @Parameters(commandDescription = "Create group by json file")
@@ -69,10 +70,6 @@ public class CreateCommand extends AbstractCommand {
                     content = input;
                 } else {
                     content = ClientUtils.readFile(file);
-                    if (StringUtils.isBlank(content)) {
-                        System.out.println("Create group failed: file was empty!");
-                        return;
-                    }
                 }
                 // first extract group config from the file passed in
                 CreateGroupConf groupConf = objectMapper.readValue(content, CreateGroupConf.class);
@@ -105,18 +102,44 @@ public class CreateCommand extends AbstractCommand {
         private File file;
 
         @Override
-        void run() throws Exception {
-            String content = ClientUtils.readFile(file);
-            if (StringUtils.isBlank(content)) {
-                System.out.println("Create cluster failed: file was empty!");
-                return;
+        void run() {
+            try {
+                String content = ClientUtils.readFile(file);
+                ClusterRequest request = objectMapper.readValue(content, ClusterRequest.class);
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                Integer clusterId = clusterClient.saveCluster(request);
+                if (clusterId != null) {
+                    System.out.println("Create cluster success! ID: " + clusterId);
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-            ClusterRequest request = objectMapper.readValue(content, ClusterRequest.class);
-            ClientUtils.initClientFactory();
-            InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
-            Integer clusterId = clusterClient.saveCluster(request);
-            if (clusterId != null) {
-                System.out.println("Create cluster success! ID:" + clusterId);
+        }
+    }
+
+    @Parameters(commandDescription = "Create cluster tag by json file")
+    private static class CreateClusterTag extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-f", "--file"}, description = "json file", converter = FileConverter.class)
+        private File file;
+
+        @Override
+        void run() {
+            try {
+                String content = ClientUtils.readFile(file);
+                ClusterTagRequest request = objectMapper.readValue(content, ClusterTagRequest.class);
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                Integer tagId = clusterClient.saveTag(request);
+                if (tagId != null) {
+                    System.out.println("Create cluster tag success! ID: " + tagId);
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
         }
     }
