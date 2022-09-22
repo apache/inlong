@@ -19,6 +19,6 @@
 
 import type { FieldItemType } from '@/metas/common';
 
-export const consumptionExtends: FieldItemType[] = [
-  // You can extended consumption fields here...
+export const consumeExtends: FieldItemType[] = [
+  // You can extended consume fields here...
 ];

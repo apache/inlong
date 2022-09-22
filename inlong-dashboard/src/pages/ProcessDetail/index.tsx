@@ -175,7 +175,7 @@ const Comp: React.FC = () => {
   const Form = useMemo(() => {
     return {
       APPLY_GROUP_PROCESS: Access,
-      APPLY_CONSUMPTION_PROCESS: Consume,
+      APPLY_CONSUME_PROCESS: Consume,
     }[processInfo?.name];
   }, [processInfo]);
 

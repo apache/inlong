@@ -17,10 +17,10 @@
  * under the License.
  */
 
-import React, { useMemo, useImperativeHandle, forwardRef } from 'react';
-import { Button, Space, message } from 'antd';
+import React, { forwardRef, useImperativeHandle, useMemo } from 'react';
+import { Button, message, Space } from 'antd';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
-import { useRequest, useBoolean } from '@/hooks';
+import { useBoolean, useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
 import { CommonInterface } from '../common';
@@ -38,22 +38,17 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
     return !!id;
   }, [id]);
 
-  const { data, run: getDetail } = useRequest(
-    {
-      url: `/consumption/get/${id}`,
+  const { data, run: getDetail } = useRequest(`/consume/get/${id}`, {
+    ready: isUpdate,
+    refreshDeps: [id],
+    formatResult: result => ({
+      ...result,
+      inCharges: result.inCharges?.split(',') || [],
+    }),
+    onSuccess: data => {
+      form.setFieldsValue(data);
     },
-    {
-      ready: !!id,
-      refreshDeps: [id],
-      formatResult: result => ({
-        ...result,
-        inCharges: result.inCharges?.split(',') || [],
-      }),
-      onSuccess: data => {
-        form.setFieldsValue(data);
-      },
-    },
-  );
+  });
 
   const onOk = async () => {
     const values = await form.validateFields();
@@ -61,20 +56,18 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
       ...values,
       inCharges: values.inCharges.join(','),
       consumerGroup: values.consumerGroup || data?.consumerGroup,
-      topic: Array.isArray(values.topic) ? values.topic.join(',') : values.topic,
-      version: data?.version,
-      mqExtInfo: {
-        ...values.mqExtInfo,
-        mqType: values.mqType,
-      },
     };
 
-    const result = await request({
-      url: isUpdate ? `/consumption/update/${id}` : '/consumption/save',
+    if (isUpdate) {
+      submitData.id = data?.id;
+      submitData.version = data?.version;
+    }
+
+    return await request({
+      url: isUpdate ? `/consume/update` : '/consume/save',
       method: 'POST',
       data: submitData,
     });
-    return result;
   };
 
   useImperativeHandle(ref, () => ({

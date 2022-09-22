@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Tabs, Button, Card, message, Steps, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { parse } from 'qs';
@@ -41,7 +41,11 @@ const Comp: React.FC = () => {
   const childRef = useRef(null);
   const [isCreate] = useState(location.pathname.indexOf('/consume/create') === 0);
 
-  const { data } = useRequest(`/consumption/get/${id}`, {
+  useEffect(() => {
+    if (!hasOpened(current)) addOpened(current);
+  }, [current, addOpened, hasOpened]);
+
+  const { data } = useRequest(`/consume/get/${id}`, {
     ready: !!id,
     refreshDeps: [id],
   });
@@ -51,7 +55,7 @@ const Comp: React.FC = () => {
   const list = useMemo(
     () => [
       {
-        label: t('pages.ConsumeDetail.ConsumptionDetails'),
+        label: t('pages.ConsumeDetail.ConsumeDetails'),
         value: 'consumeDetail',
         content: Info,
       },
@@ -79,7 +83,7 @@ const Comp: React.FC = () => {
 
   const onSubmit = async _id => {
     await request({
-      url: `/consumption/startProcess/${_id}`,
+      url: `/consume/startProcess/${_id}`,
       method: 'POST',
       data,
     });
@@ -129,7 +133,7 @@ const Comp: React.FC = () => {
         {
           name: isCreate
             ? t('pages.ConsumeCreate.NewConsume')
-            : `${t('pages.ConsumeDetail.ConsumptionDetails')}${data?.id}`,
+            : `${t('pages.ConsumeDetail.ConsumeDetails')}${data?.id}`,
         },
       ]}
       useDefaultContainer={!isCreate}

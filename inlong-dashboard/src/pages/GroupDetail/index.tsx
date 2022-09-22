@@ -42,7 +42,6 @@ const Comp: React.FC = () => {
   const [, { add: addOpened, has: hasOpened }] = useSet([current]);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [id, setId] = useState(groupId || '');
-
   const childRef = useRef(null);
   const [mqType, setMqType] = useState();
 
@@ -95,7 +94,6 @@ const Comp: React.FC = () => {
 
   const onOk = async current => {
     const onOk = childRef?.current?.onOk;
-
     setConfirmLoading(true);
     try {
       const result = onOk && (await onOk());

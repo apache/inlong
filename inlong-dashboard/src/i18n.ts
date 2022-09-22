@@ -26,27 +26,27 @@ const resources = {
   en: {
     translation: {
       'configs.menus.Process': 'Approval',
-      'configs.menus.Groups': 'Data Groups',
-      'configs.menus.DataConsumption': 'Data Consumptions',
+      'configs.menus.Groups': 'Inlong Groups',
+      'configs.menus.Consumes': 'Inlong Consumes',
       'configs.menus.Clusters': 'Clusters',
       'configs.menus.ClusterTags': 'ClusterTags',
       'configs.menus.SystemManagement': 'System',
       'configs.menus.UserManagement': 'User Management',
       'configs.menus.ApprovalManagement': 'Approval Management',
-      'configs.menus.Node': 'Nodes',
+      'configs.menus.Nodes': 'Nodes',
     },
   },
   cn: {
     translation: {
       'configs.menus.Process': '审批管理',
       'configs.menus.Groups': '数据流组',
-      'configs.menus.DataConsumption': '数据消费',
+      'configs.menus.Consumes': '数据消费',
       'configs.menus.Clusters': '集群管理',
       'configs.menus.ClusterTags': '标签管理',
       'configs.menus.SystemManagement': '系统管理',
       'configs.menus.UserManagement': '用户管理',
       'configs.menus.ApprovalManagement': '审批责任人管理',
-      'configs.menus.Node': '节点管理',
+      'configs.menus.Nodes': '节点管理',
     },
   },
 };

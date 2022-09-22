@@ -29,38 +29,34 @@ import {
   genStatusTag,
   genLastConsumerStatusTag,
 } from './status';
-import { consumptionExtends } from './extends';
+import { consumeExtends } from './extends';
 
-const consumptionDefault: FieldItemType[] = [
+const consumeDefault: FieldItemType[] = [
   {
     type: 'input',
-    label: i18n.t('meta.Consumption.ConsumerGroupName'),
+    label: i18n.t('meta.Consume.ConsumerGroupName'),
     name: 'consumerGroup',
-    extra: i18n.t('meta.Consumption.ConsumerGroupNameRules'),
+    extra: i18n.t('meta.Consume.ConsumerGroupNameRules'),
     rules: [
       { required: true },
       {
-        pattern: /^[0-9a-z_\d]+$/,
-        message: i18n.t('meta.Consumption.ConsumerGroupNameRules'),
+        pattern: /^[0-9a-z_-]+$/,
+        message: i18n.t('meta.Consume.ConsumerGroupNameRules'),
       },
     ],
     _renderTable: true,
   },
   {
     type: <UserSelect mode="multiple" currentUserClosable={false} />,
-    label: i18n.t('meta.Consumption.Owner'),
+    label: i18n.t('meta.Consume.Owner'),
     name: 'inCharges',
-    extra: i18n.t('meta.Consumption.OwnersExtra'),
-    rules: [
-      {
-        required: true,
-      },
-    ],
+    extra: i18n.t('meta.Consume.OwnersExtra'),
+    rules: [{ required: true }],
     _renderTable: true,
   },
   {
     type: 'select',
-    label: i18n.t('meta.Consumption.ConsumerTargetBusinessID'),
+    label: i18n.t('meta.Consume.TargetInlongGroupID'),
     name: 'inlongGroupId',
     extraNames: ['mqType'],
     rules: [{ required: true }],
@@ -96,8 +92,15 @@ const consumptionDefault: FieldItemType[] = [
     _renderTable: true,
   },
   {
+    type: 'text',
+    label: i18n.t('meta.Consume.MQType'),
+    name: 'mqType',
+    visible: false,
+    _renderTable: true,
+  },
+  {
     type: 'select',
-    label: 'Topic',
+    label: i18n.t('meta.Consume.TopicName'),
     name: 'topic',
     rules: [{ required: true }],
     props: values => ({
@@ -132,13 +135,6 @@ const consumptionDefault: FieldItemType[] = [
     _renderTable: true,
   },
   {
-    type: 'text',
-    label: 'MQ Type',
-    name: 'mqType',
-    visible: false,
-    _renderTable: true,
-  },
-  {
     type: 'select',
     label: i18n.t('basic.Status'),
     name: 'status',
@@ -154,8 +150,8 @@ const consumptionDefault: FieldItemType[] = [
   },
   {
     type: 'input',
-    label: i18n.t('pages.ConsumeDashboard.config.RecentConsumptionTime'),
-    name: 'lastConsumptionTime',
+    label: i18n.t('pages.ConsumeDashboard.config.RecentConsumeTime'),
+    name: 'lastConsumeTime',
     visible: false,
     _renderTable: {
       render: text => text && timestampFormat(text),
@@ -164,7 +160,7 @@ const consumptionDefault: FieldItemType[] = [
   {
     type: 'select',
     label: i18n.t('pages.ConsumeDashboard.config.OperatingStatus'),
-    name: 'lastConsumptionStatus',
+    name: 'lastConsumeStatus',
     props: {
       allowClear: true,
       dropdownMatchSelectWidth: false,
@@ -177,17 +173,17 @@ const consumptionDefault: FieldItemType[] = [
   },
   {
     type: 'radio',
-    label: i18n.t('meta.Consumption.filterEnabled'),
+    label: i18n.t('meta.Consume.FilterEnabled'),
     name: 'filterEnabled',
     initialValue: 0,
     props: {
       options: [
         {
-          label: i18n.t('meta.Consumption.Yes'),
+          label: i18n.t('meta.Consume.Yes'),
           value: 1,
         },
         {
-          label: i18n.t('meta.Consumption.No'),
+          label: i18n.t('meta.Consume.No'),
           value: 0,
         },
       ],
@@ -197,31 +193,30 @@ const consumptionDefault: FieldItemType[] = [
   },
   {
     type: 'input',
-    label: i18n.t('meta.Consumption.ConsumerDataStreamID'),
+    label: i18n.t('meta.Consume.TargetInlongStreamID'),
     name: 'inlongStreamId',
-    extra: i18n.t('meta.Consumption.DataStreamIDsHelp'),
     rules: [{ required: true }],
-    visible: values => values.mqType === 'PULSAR' || values.filterEnabled,
+    visible: values => values.filterEnabled,
   },
   {
     type: 'text',
-    label: i18n.t('meta.Consumption.MasterAddress'),
+    label: i18n.t('meta.Consume.MQAddress'),
     name: 'masterUrl',
   },
   {
     type: 'radio',
     label: 'isDlq',
-    name: 'mqExtInfo.isDlq',
+    name: 'isDlq',
     initialValue: 0,
     rules: [{ required: true }],
     props: {
       options: [
         {
-          label: i18n.t('meta.Consumption.Yes'),
+          label: i18n.t('meta.Consume.Yes'),
           value: 1,
         },
         {
-          label: i18n.t('meta.Consumption.No'),
+          label: i18n.t('meta.Consume.No'),
           value: 0,
         },
       ],
@@ -231,42 +226,41 @@ const consumptionDefault: FieldItemType[] = [
   {
     type: 'input',
     label: 'deadLetterTopic',
-    name: 'mqExtInfo.deadLetterTopic',
+    name: 'deadLetterTopic',
     rules: [{ required: true }],
-    visible: values => values.mqExtInfo?.isDlq && values.mqType === 'PULSAR',
+    visible: values => values?.isDlq && values.mqType === 'PULSAR',
   },
   {
     type: 'radio',
     label: 'isRlq',
-    name: 'mqExtInfo.isRlq',
+    name: 'isRlq',
     initialValue: 0,
     rules: [{ required: true }],
     props: {
       options: [
         {
-          label: i18n.t('meta.Consumption.Yes'),
+          label: i18n.t('meta.Consume.Yes'),
           value: 1,
         },
         {
-          label: i18n.t('meta.Consumption.No'),
+          label: i18n.t('meta.Consume.No'),
           value: 0,
         },
       ],
     },
-    visible: values => values.mqExtInfo?.isDlq && values.mqType === 'PULSAR',
+    visible: values => values?.isDlq && values.mqType === 'PULSAR',
   },
   {
     type: 'input',
     label: 'retryLetterTopic',
-    name: 'mqExtInfo.retryLetterTopic',
+    name: 'retryLetterTopic',
     rules: [{ required: true }],
-    visible: values =>
-      values.mqExtInfo?.isDlq && values.mqExtInfo?.isRlq && values.mqType === 'PULSAR',
+    visible: values => values?.isDlq && values?.isRlq && values.mqType === 'PULSAR',
   },
 ];
 
-export const consumption = genFields(consumptionDefault, consumptionExtends);
+export const consume = genFields(consumeDefault, consumeExtends);
 
-export const consumptionForm = genForm(consumption);
+export const consumeForm = genForm(consume);
 
-export const consumptionTable = genTable(consumption);
+export const consumeTable = genTable(consume);
