@@ -7,9 +7,9 @@ TubeMQ Python Client library is a wrapper over the existing [C++ client library]
 
 build C++ client SDK from source, and install:
 
-1, copy `tubemq` include directory  to `/usr/local/include/`
+1, copy `include/tubemq` directory  to `/usr/local/include/`
 
-2, copy `libtubemq_rel.a` to `/usr/local/lib`
+2, copy `./release/tubemq/lib/libtubemq_rel.a` to `/usr/local/lib`
 &nbsp;
 
 - install python-devel
@@ -36,11 +36,11 @@ import time
 import tubemq
 
 topic_list = ['demo']
-master_addr = '127.0.0.1:8000'
-group_name = 'test_group'
+MASTER_ADDR = '127.0.0.1:8000'
+GROUP_NAME = 'test_group'
 
 # Start consumer
-consumer = tubemq.consumer(master_addr, group_name, topic_list)
+consumer = tubemq.Consumer(MASTER_ADDR, GROUP_NAME, topic_list)
 
 # Test consumer
 start_time = time.time()
