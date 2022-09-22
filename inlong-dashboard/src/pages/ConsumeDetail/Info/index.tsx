@@ -56,12 +56,15 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
       ...values,
       inCharges: values.inCharges.join(','),
       consumerGroup: values.consumerGroup || data?.consumerGroup,
-      topic: Array.isArray(values.topic) ? values.topic.join(',') : values.topic,
-      version: data?.version,
     };
 
+    if (isUpdate) {
+      submitData.id = data?.id;
+      submitData.version = data?.version;
+    }
+
     return await request({
-      url: isUpdate ? `/consume/update/${id}` : '/consume/save',
+      url: isUpdate ? `/consume/update` : '/consume/save',
       method: 'POST',
       data: submitData,
     });
