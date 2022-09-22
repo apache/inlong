@@ -24,6 +24,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
+import org.apache.inlong.manager.client.cli.pojo.ClusterTagInfo;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.pojo.SinkInfo;
 import org.apache.inlong.manager.client.cli.pojo.SourceInfo;
@@ -34,6 +35,8 @@ import org.apache.inlong.manager.client.cli.validator.ClusterTypeValidator;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
@@ -60,6 +63,7 @@ public class ListCommand extends AbstractCommand {
         jcommander.addCommand("sink", new ListSink());
         jcommander.addCommand("source", new ListSource());
         jcommander.addCommand("cluster", new ListCluster());
+        jcommander.addCommand("cluster-tag", new ListClusterTag());
     }
 
     @Parameters(commandDescription = "Get stream summary information")
@@ -201,6 +205,30 @@ public class ListCommand extends AbstractCommand {
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 PageResult<ClusterInfo> clusterInfo = clusterClient.list(request);
                 PrintUtils.print(clusterInfo.getList(), org.apache.inlong.manager.client.cli.pojo.ClusterInfo.class);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get cluster tag summary information")
+    private static class ListClusterTag extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-ct", "--tag"}, description = "cluster tag")
+        private String tag;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                ClusterTagPageRequest request = new ClusterTagPageRequest();
+                request.setKeyword(tag);
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                PageResult<ClusterTagResponse> tagInfo = clusterClient.listTag(request);
+                PrintUtils.print(tagInfo.getList(), ClusterTagInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

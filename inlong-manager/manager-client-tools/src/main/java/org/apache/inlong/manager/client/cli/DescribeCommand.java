@@ -28,6 +28,7 @@ import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
@@ -54,6 +55,7 @@ public class DescribeCommand extends AbstractCommand {
         jcommander.addCommand("sink", new DescribeSink());
         jcommander.addCommand("source", new DescribeSource());
         jcommander.addCommand("cluster", new DescribeCluster());
+        jcommander.addCommand("cluster-tag", new DescribeClusterTag());
     }
 
     @Parameters(commandDescription = "Get stream details")
@@ -178,6 +180,28 @@ public class DescribeCommand extends AbstractCommand {
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 ClusterInfo clusterInfo = clusterClient.get(clusterId);
                 PrintUtils.printJson(clusterInfo);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get cluster tag details")
+    private static class DescribeClusterTag extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster tag id")
+        private int tagId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                ClusterTagResponse tagInfo = clusterClient.getTag(tagId);
+                PrintUtils.printJson(tagInfo);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

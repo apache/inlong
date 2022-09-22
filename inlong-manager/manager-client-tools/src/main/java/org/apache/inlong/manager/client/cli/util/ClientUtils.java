@@ -21,6 +21,7 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -59,9 +60,8 @@ public class ClientUtils {
      * Get the file content.
      */
     public static String readFile(File file) {
-        if (!file.exists()) {
-            System.out.println("File does not exist.");
-            return null;
+        if (!file.exists() || file.length() == 0) {
+            throw new BusinessException("File does not exist or is empty.");
         }
         StringBuilder stringBuilder = new StringBuilder();
         try (Reader reader = new InputStreamReader(Files.newInputStream(file.toPath()))) {

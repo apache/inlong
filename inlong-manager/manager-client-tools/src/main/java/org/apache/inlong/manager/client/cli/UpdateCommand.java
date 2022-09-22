@@ -26,6 +26,7 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 
 import java.io.File;
@@ -45,6 +46,7 @@ public class UpdateCommand extends AbstractCommand {
         super("update");
         jcommander.addCommand("group", new UpdateCommand.UpdateGroup());
         jcommander.addCommand("cluster", new UpdateCommand.UpdateCluster());
+        jcommander.addCommand("cluster-tag", new UpdateCommand.UpdateClusterTag());
     }
 
     @Parameters(commandDescription = "Update group by json file")
@@ -75,7 +77,7 @@ public class UpdateCommand extends AbstractCommand {
                 group.update(sortConf);
                 System.out.println("Update group success!");
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -93,10 +95,6 @@ public class UpdateCommand extends AbstractCommand {
         void run() {
             try {
                 String content = ClientUtils.readFile(file);
-                if (StringUtils.isBlank(content)) {
-                    System.out.println("Update cluster failed: file was empty!");
-                    return;
-                }
                 ClusterRequest request = objectMapper.readValue(content, ClusterRequest.class);
                 ClientUtils.initClientFactory();
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
@@ -104,7 +102,32 @@ public class UpdateCommand extends AbstractCommand {
                     System.out.println("Update cluster success!");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Update cluster tag by json file")
+    private static class UpdateClusterTag extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-f", "--file"}, description = "json file", converter = FileConverter.class)
+        private File file;
+
+        @Override
+        void run() {
+            try {
+                String content = ClientUtils.readFile(file);
+                ClusterTagRequest request = objectMapper.readValue(content, ClusterTagRequest.class);
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                if (clusterClient.updateTag(request)) {
+                    System.out.println("Update cluster tag success!");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
         }
     }
