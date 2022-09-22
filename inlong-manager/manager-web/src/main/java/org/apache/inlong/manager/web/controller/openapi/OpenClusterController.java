@@ -20,12 +20,14 @@ package org.apache.inlong.manager.web.controller.openapi;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,6 +57,19 @@ public class OpenClusterController {
     @ApiOperation(value = "Get clusters by paginating")
     public Response<PageResult<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
         return Response.success(clusterService.list(request));
+    }
+
+    @PostMapping(value = "/cluster/insert")
+    @ApiOperation(value = "insert raw cluster info")
+    public Response<Integer> insert(@RequestBody InlongClusterEntity request) {
+        return Response.success(clusterService.saveRaw(request));
+    }
+
+    @DeleteMapping(value = "/cluster/delete/{name}")
+    @ApiOperation(value = "delete cluster by name")
+    @ApiImplicitParam(name = "name", value = "Cluster name", dataTypeClass = String.class, required = true)
+    public Response<Boolean> deleteByName(@PathVariable String name) {
+        return Response.success(clusterService.deleteByName(name));
     }
 
 }

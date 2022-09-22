@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.cluster;
 
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
@@ -91,6 +92,16 @@ public interface InlongClusterService {
     Integer save(ClusterRequest request, String operator);
 
     /**
+     * Save raw cluster info.
+     *
+     * This method should be repeatable.
+     *
+     * @param request raw inlong cluster info
+     * @return cluster id after saving
+     */
+    Integer saveRaw(InlongClusterEntity request);
+
+    /**
      * Get cluster info by id.
      *
      * @param id cluster id
@@ -144,6 +155,14 @@ public interface InlongClusterService {
      * @return whether succeed
      */
     Boolean delete(Integer id, String operator);
+
+    /**
+     * Delete cluster by cluster name
+     *
+     * @param name cluster name
+     * @return whether succeed
+     */
+    Boolean deleteByName(String name);
 
     /**
      * Save cluster node info.

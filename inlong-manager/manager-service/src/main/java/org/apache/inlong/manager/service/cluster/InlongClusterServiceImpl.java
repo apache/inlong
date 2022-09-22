@@ -296,6 +296,30 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
+    public Integer saveRaw(InlongClusterEntity request) {
+        LOGGER.debug("begin to save raw inlong cluster={}", request);
+        Preconditions.checkNotNull(request, "inlong raw cluster request cannot be null");
+        clusterMapper.insertOnDuplicateKeyUpdate(request);
+        LOGGER.info("success to save raw inlong cluster={}", request);
+        return request.getId();
+
+    }
+
+    @Override
+    public Boolean deleteByName(String name) {
+        LOGGER.debug("begin to delete inlong cluster={}", name);
+        Preconditions.checkNotEmpty(name, "cluster name should not be empty");
+        InlongClusterEntity cluster = clusterMapper.selectByNameAndType(name, null);
+        if (Objects.isNull(cluster)) {
+            LOGGER.info("inlong cluster not found by name={}", name);
+            return false;
+        }
+        clusterMapper.deleteByPrimaryKey(cluster.getId());
+        LOGGER.info("success to delete inlong cluster={}", name);
+        return true;
+    }
+
+    @Override
     public ClusterInfo get(Integer id, String currentUser) {
         Preconditions.checkNotNull(id, "inlong cluster id cannot be empty");
         InlongClusterEntity entity = clusterMapper.selectById(id);
