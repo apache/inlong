@@ -36,11 +36,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 @ApiModel("Inlong cluster request for Agent")
 public class AgentClusterRequest extends ClusterRequest {
 
-    @ApiModelProperty(value = "Transfer machine IP, such as: http://127.0.0.1:8080", notes = "Transfer machine IP")
-    private String transferIp;
-
-    @ApiModelProperty(value = "Version number of the server list collected by the cluster",
-            notes = "Version number of the server list collected by the cluster")
+    @ApiModelProperty(value = "Version number of the server list collected by the cluster", notes = "Version number")
     private Integer serverVersion = 1;
 
     public AgentClusterRequest() {

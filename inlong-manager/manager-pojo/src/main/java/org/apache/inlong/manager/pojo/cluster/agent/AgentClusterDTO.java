@@ -43,11 +43,7 @@ public class AgentClusterDTO {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-    @ApiModelProperty(value = "Transfer machine IP, such as: http://127.0.0.1:8080", notes = "Transfer machine IP")
-    private String transferIp;
-
-    @ApiModelProperty(value = "Version number of the server list collected by the cluster",
-            notes = "Version number of the server list collected by the cluster")
+    @ApiModelProperty(value = "Version number of the server list collected by the cluster", notes = "Version number")
     private Integer serverVersion;
 
     /**
@@ -55,7 +51,6 @@ public class AgentClusterDTO {
      */
     public static AgentClusterDTO getFromRequest(AgentClusterRequest request) {
         return AgentClusterDTO.builder()
-                .transferIp(request.getTransferIp())
                 .serverVersion(request.getServerVersion())
                 .build();
     }
