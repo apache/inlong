@@ -93,7 +93,6 @@ export const clickhouse: FieldItemType[] = [
     name: 'password',
     type: 'password',
     label: i18n.t('meta.Sinks.Password'),
-    rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
