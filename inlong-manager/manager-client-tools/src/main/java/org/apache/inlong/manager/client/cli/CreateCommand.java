@@ -110,7 +110,7 @@ public class CreateCommand extends AbstractCommand {
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 Integer clusterId = clusterClient.saveCluster(request);
                 if (clusterId != null) {
-                    System.out.println("Create cluster success! ID:" + clusterId);
+                    System.out.println("Create cluster success! ID: " + clusterId);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -136,7 +136,7 @@ public class CreateCommand extends AbstractCommand {
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 Integer tagId = clusterClient.saveTag(request);
                 if (tagId != null) {
-                    System.out.println("Create cluster tag success! ID:" + tagId);
+                    System.out.println("Create cluster tag success! ID: " + tagId);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
