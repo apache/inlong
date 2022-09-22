@@ -17,7 +17,7 @@
 
 package org.apache.inlong.tubemq.manager.service;
 
-import io.netty.util.concurrent.DefaultThreadFactory;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import lombok.extern.slf4j.Slf4j;
@@ -70,10 +70,10 @@ public class TopicBackendWorker implements DisposableBean, Runnable  {
     private int queueMaxRunningSize;
 
     TopicBackendWorker() {
-        Thread thread = new Thread(this);
+        ThreadFactoryBuilder factoryBuilder = new ThreadFactoryBuilder();
         this.workerExecutor = Executors
                 .newSingleThreadScheduledExecutor(
-                        new DefaultThreadFactory("tubemq-manager-topic-backend-worker"));
+                        factoryBuilder.setNameFormat("tubemq-manager-topic-backend-worker").build());
         workerExecutor.schedule(this, queueThreadInterval, TimeUnit.SECONDS);
         nodeService = new NodeServiceImpl(this);
     }
