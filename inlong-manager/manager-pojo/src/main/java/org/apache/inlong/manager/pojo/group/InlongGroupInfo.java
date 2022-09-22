@@ -101,6 +101,9 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty(value = "Status")
     private Integer status;
 
+    @ApiModelProperty(value = "Previous status")
+    private Integer previousStatus;
+
     @ApiModelProperty(value = "Name of creator")
     private String creator;
 
