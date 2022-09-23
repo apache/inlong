@@ -161,6 +161,8 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
                 metricItem.sendFailCount.incrementAndGet();
                 metricItem.sendFailSize.addAndGet(event.getBody().length);
             }
+            metricItem.sendCount.incrementAndGet();
+            metricItem.sendSize.addAndGet(event.getBody().length);
         }
     }
 
