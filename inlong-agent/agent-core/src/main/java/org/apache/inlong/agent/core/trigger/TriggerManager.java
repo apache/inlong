@@ -169,17 +169,23 @@ public class TriggerManager extends AbstractDaemon {
     }
 
     private boolean isRunningJob(JobProfile profile, Map<String, JobWrapper> jobWrapperMap) {
-        JobWrapper jobWrapper;
         try {
-            jobWrapper = jobWrapperMap.get(profile.getInstanceId());
-        } catch (Exception e) {
-            LOGGER.warn("get jobWrapper error: ", e);
+            if (Objects.isNull(jobWrapperMap) || null == jobWrapperMap
+                    .get(profile.get(JobConstants.JOB_INSTANCE_ID, ""))) {
+                return false;
+            }
+        } catch (Exception exception) {
+            LOGGER.warn("don't hive the job {} in the jobs.", profile.toJsonStr());
             return false;
         }
+        JobWrapper jobWrapper = jobWrapperMap.get(profile.getInstanceId());
         List<Task> tasks = jobWrapper.getAllTasks();
+        if (Objects.isNull(tasks)) {
+            return true;
+        }
         for (Task task : tasks) {
             JobProfile runJobProfile = task.getJobConf();
-            if (Objects.equals(runJobProfile.get(JOB_DIR_FILTER_PATTERN), profile.get(JOB_DIR_FILTER_PATTERN))) {
+            if (runJobProfile.hasKey(profile.get(JOB_DIR_FILTER_PATTERN))) {
                 return false;
             }
         }

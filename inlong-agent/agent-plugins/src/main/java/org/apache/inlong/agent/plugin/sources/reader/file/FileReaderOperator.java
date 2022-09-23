@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
 import static org.apache.inlong.agent.constant.MetadataConstants.KUBERNETES;
@@ -90,7 +93,9 @@ public class FileReaderOperator extends AbstractReader {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
                 readerMetric.pluginReadCount.incrementAndGet();
-                return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8));
+                Map<String, String> header = new HashMap<>();
+                header.put(PROXY_KEY_DATA, DigestUtils.md5Hex(inlongGroupId));
+                return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8), header);
             }
         }
         AgentUtils.silenceSleepInMs(waitTimeout);
