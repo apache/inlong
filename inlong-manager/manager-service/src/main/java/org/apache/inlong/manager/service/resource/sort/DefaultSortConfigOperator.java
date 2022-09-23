@@ -171,7 +171,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         for (TransformResponse transform : transforms) {
             for (StreamField field : transform.getFieldList()) {
                 String originNodeName = field.getOriginNodeName();
-                if (!(validNameSet.contains(originNodeName))) {
+                if (!validNameSet.contains(originNodeName)) {
                     // in standard mode transform input node must either be mq source node or transform node,
                     // otherwise replace it with mq node name, which should be stream id
                     field.setOriginNodeName(mqNodeName);
@@ -193,7 +193,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             List<String> inputs = relation.getInputs();
             for (int index = 0; index < inputs.size(); ++index) {
                 String inputName = inputs.get(index);
-                if (!(validNameSet.contains(inputName))) {
+                if (!validNameSet.contains(inputName)) {
                     inputs.set(index, mqNodeName);
                 }
             }
