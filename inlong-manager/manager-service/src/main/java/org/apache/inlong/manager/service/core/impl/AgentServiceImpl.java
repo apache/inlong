@@ -55,6 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -264,7 +265,8 @@ public class AgentServiceImpl implements AgentService {
             fileEntity.setExtParams(sourceEntity.getExtParams());
             fileEntity.setAgentIp(agentIp);
             fileEntity.setUuid(uuid);
-            fileEntity.setSourceName(fileEntity.getSourceName() + "-" + RandomStringUtils.randomAlphanumeric(10));
+            fileEntity.setSourceName(fileEntity.getSourceName() + "-"
+                    + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
             fileEntity.setTemplateId(sourceEntity.getId());
             int nextStatus = getNextStatus(fileEntity.getStatus());
             fileEntity.setStatus(nextStatus);
