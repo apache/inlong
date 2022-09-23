@@ -24,7 +24,6 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.resource.sort.SortConfigOperator;
@@ -62,7 +61,7 @@ public class StreamSortConfigListener implements SortOperateListener {
         ProcessForm processForm = context.getProcessForm();
         String className = processForm.getClass().getSimpleName();
         String groupId = processForm.getInlongGroupId();
-        if (processForm instanceof GroupResourceProcessForm || processForm instanceof StreamResourceProcessForm) {
+        if (processForm instanceof StreamResourceProcessForm) {
             LOGGER.info("accept sort config listener as the process is {} for groupId [{}]", className, groupId);
             return true;
         } else {
