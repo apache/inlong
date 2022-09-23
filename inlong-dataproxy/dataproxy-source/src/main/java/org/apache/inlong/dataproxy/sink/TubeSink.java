@@ -273,12 +273,8 @@ public class TubeSink extends AbstractSink implements Configurable {
                 if (eventQueue.offer(event, 3 * 1000, TimeUnit.MILLISECONDS)) {
                     tx.commit();
                     cachedMsgCnt.incrementAndGet();
-                    this.metricItemSet.fillSinkReadMetricItemsByEvent(
-                            event, true, event.getBody().length);
                 } else {
                     tx.rollback();
-                    this.metricItemSet.fillSinkReadMetricItemsByEvent(
-                            event, false, event.getBody().length);
                 }
             } else {
                 status = Status.BACKOFF;

@@ -402,14 +402,8 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
                             + "--> pulsar,Check if pulsar server or network is ok.(if this situation "
                             + "last long time it will cause memoryChannel full and fileChannel write.)", getName());
                     tx.rollback();
-                    // metric
-                    this.metricItemSet.fillSinkReadMetricItemsByEvent(
-                            event, false, event.getBody().length);
                 } else {
                     tx.commit();
-                    // metric
-                    this.metricItemSet.fillSinkReadMetricItemsByEvent(
-                            event, true, event.getBody().length);
                 }
             } else {
                 status = Status.BACKOFF;
