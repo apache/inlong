@@ -120,7 +120,7 @@ public class DeleteCommand extends AbstractCommand {
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster tag id")
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster node id")
         private int nodeId;
 
         @Override

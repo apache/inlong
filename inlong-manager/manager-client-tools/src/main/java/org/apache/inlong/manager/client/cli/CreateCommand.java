@@ -146,7 +146,7 @@ public class CreateCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Create cluster Node by json file")
+    @Parameters(commandDescription = "Create cluster node by json file")
     private static class CreateClusterNode extends AbstractCommandRunner {
 
         @Parameter()

@@ -210,7 +210,7 @@ public class DescribeCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Get cluster Node details")
+    @Parameters(commandDescription = "Get cluster node details")
     private static class DescribeClusterNode extends AbstractCommandRunner {
 
         @Parameter()
