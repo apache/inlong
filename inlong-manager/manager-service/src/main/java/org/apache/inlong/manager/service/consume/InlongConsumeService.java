@@ -87,9 +87,9 @@ public interface InlongConsumeService {
      *
      * @param request inlong consume request that needs to be updated
      * @param operator name of operator
-     * @return whether succeed
+     * @return inlong consume id after saving
      */
-    Boolean update(@Valid @NotNull(message = "inlong consume request cannot be null") InlongConsumeRequest request,
+    Integer update(@Valid @NotNull(message = "inlong consume request cannot be null") InlongConsumeRequest request,
             String operator);
 
     /**

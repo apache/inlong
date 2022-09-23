@@ -73,10 +73,10 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
 
+    @Builder.Default
     @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes",
             notes = "Each task under this stream sends data synchronously, "
                     + "which will affect the throughput of data collection, please choose carefully")
-    @Builder.Default
     private Integer syncSend = 0;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
@@ -103,8 +103,8 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Previous status")
     private Integer previousStatus;
 
-    @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
     @Builder.Default
+    @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
     private Integer isDeleted = 0;
 
     @ApiModelProperty(value = "Name of creator")
@@ -125,12 +125,12 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Inlong stream Extension properties")
     private List<InlongStreamExtInfo> extList;
 
-    @ApiModelProperty("Stream source infos")
     @Builder.Default
+    @ApiModelProperty("Stream source infos")
     private List<StreamSource> sourceList = new ArrayList<>();
 
-    @ApiModelProperty("Stream sink infos")
     @Builder.Default
+    @ApiModelProperty("Stream sink infos")
     private List<StreamSink> sinkList = new ArrayList<>();
 
     @ApiModelProperty(value = "Version number")

@@ -42,6 +42,7 @@ public class InlongConsumeEntity implements Serializable {
 
     private String inCharges;
     private Integer status;
+    private Integer previousStatus;
     private Integer isDeleted;
     private String creator;
     private String modifier;

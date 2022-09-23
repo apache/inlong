@@ -88,10 +88,10 @@ public class InlongConsumeController {
         return Response.success(consumeService.list(request));
     }
 
-    @PostMapping("/consume/update/{id}")
+    @PostMapping("/consume/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong consume")
-    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody InlongConsumeRequest request) {
+    public Response<Integer> update(@Validated(UpdateValidation.class) @RequestBody InlongConsumeRequest request) {
         return Response.success(consumeService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 

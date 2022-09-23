@@ -69,6 +69,9 @@ public abstract class InlongConsumeInfo {
     @ApiModelProperty(value = "Consume status")
     private Integer status;
 
+    @ApiModelProperty(value = "Previous status")
+    private Integer previousStatus;
+
     @ApiModelProperty(value = "Name of creator")
     private String creator;
 
