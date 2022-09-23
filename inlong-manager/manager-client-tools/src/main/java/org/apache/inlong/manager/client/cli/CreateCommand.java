@@ -26,6 +26,7 @@ import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 
@@ -46,6 +47,7 @@ public class CreateCommand extends AbstractCommand {
         jcommander.addCommand("group", new CreateGroup());
         jcommander.addCommand("cluster", new CreateCluster());
         jcommander.addCommand("cluster-tag", new CreateClusterTag());
+        jcommander.addCommand("cluster-node", new CreateClusterNode());
     }
 
     @Parameters(commandDescription = "Create group by json file")
@@ -137,6 +139,32 @@ public class CreateCommand extends AbstractCommand {
                 Integer tagId = clusterClient.saveTag(request);
                 if (tagId != null) {
                     System.out.println("Create cluster tag success! ID: " + tagId);
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Create cluster Node by json file")
+    private static class CreateClusterNode extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-f", "--file"}, description = "json file", converter = FileConverter.class)
+        private File file;
+
+        @Override
+        void run() {
+            try {
+                String content = ClientUtils.readFile(file);
+                ClusterNodeRequest request = objectMapper.readValue(content, ClusterNodeRequest.class);
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                Integer nodeId = clusterClient.saveNode(request);
+                if (nodeId != null) {
+                    System.out.println("Create cluster node success! ID: " + nodeId);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
