@@ -24,6 +24,7 @@ import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -53,14 +54,16 @@ public class SinkMetricData implements MetricData {
     private Counter dirtyBytes;
     private Meter numRecordsOutPerSecond;
     private Meter numBytesOutPerSecond;
+    private RegisteredMetric registeredMetric;
 
     public SinkMetricData(MetricOption option, MetricGroup metricGroup) {
         this.metricGroup = metricGroup;
         this.labels = option.getLabels();
+        this.registeredMetric = option.getRegisteredMetric();
 
         ThreadSafeCounter recordsOutCounter = new ThreadSafeCounter();
         ThreadSafeCounter bytesOutCounter = new ThreadSafeCounter();
-        switch (option.getRegisteredMetric()) {
+        switch (registeredMetric) {
             case DIRTY:
                 registerMetricsForDirtyBytes(new ThreadSafeCounter());
                 registerMetricsForDirtyRecords(new ThreadSafeCounter());
@@ -291,18 +294,41 @@ public class SinkMetricData implements MetricData {
 
     @Override
     public String toString() {
-        return "SinkMetricData{"
-                + "metricGroup=" + metricGroup
-                + ", labels=" + labels
-                + ", auditImp=" + auditImp
-                + ", numRecordsOut=" + numRecordsOut.getCount()
-                + ", numBytesOut=" + numBytesOut.getCount()
-                + ", numRecordsOutForMeter=" + numRecordsOutForMeter.getCount()
-                + ", numBytesOutForMeter=" + numBytesOutForMeter.getCount()
-                + ", dirtyRecords=" + dirtyRecords.getCount()
-                + ", dirtyBytes=" + dirtyBytes.getCount()
-                + ", numRecordsOutPerSecond=" + numRecordsOutPerSecond.getRate()
-                + ", numBytesOutPerSecond=" + numBytesOutPerSecond.getRate()
-                + '}';
+        switch (registeredMetric) {
+            case DIRTY:
+                 return "SinkMetricData{"
+                        + "metricGroup=" + metricGroup
+                        + ", labels=" + labels
+                        + ", auditImp=" + auditImp
+                        + ", dirtyRecords=" + dirtyRecords.getCount()
+                        + ", dirtyBytes=" + dirtyBytes.getCount()
+                        + '}';
+            case NORMAL:
+                return "SinkMetricData{"
+                        + "metricGroup=" + metricGroup
+                        + ", labels=" + labels
+                        + ", auditImp=" + auditImp
+                        + ", numRecordsOut=" + numRecordsOut.getCount()
+                        + ", numBytesOut=" + numBytesOut.getCount()
+                        + ", numRecordsOutForMeter=" + numRecordsOutForMeter.getCount()
+                        + ", numBytesOutForMeter=" + numBytesOutForMeter.getCount()
+                        + ", numRecordsOutPerSecond=" + numRecordsOutPerSecond.getRate()
+                        + ", numBytesOutPerSecond=" + numBytesOutPerSecond.getRate()
+                        + '}';
+            default:
+                return "SinkMetricData{"
+                        + "metricGroup=" + metricGroup
+                        + ", labels=" + labels
+                        + ", auditImp=" + auditImp
+                        + ", numRecordsOut=" + numRecordsOut.getCount()
+                        + ", numBytesOut=" + numBytesOut.getCount()
+                        + ", numRecordsOutForMeter=" + numRecordsOutForMeter.getCount()
+                        + ", numBytesOutForMeter=" + numBytesOutForMeter.getCount()
+                        + ", dirtyRecords=" + dirtyRecords.getCount()
+                        + ", dirtyBytes=" + dirtyBytes.getCount()
+                        + ", numRecordsOutPerSecond=" + numRecordsOutPerSecond.getRate()
+                        + ", numBytesOutPerSecond=" + numBytesOutPerSecond.getRate()
+                        + '}';
+        }
     }
 }

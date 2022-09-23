@@ -69,4 +69,8 @@ public interface ElasticsearchSinkFunction<T> extends Serializable, Function {
     default void snapshotState(FunctionSnapshotContext context) throws Exception {
 
     }
+
+    default  void setRuntimeContext(RuntimeContext ctx) {
+
+    }
 }

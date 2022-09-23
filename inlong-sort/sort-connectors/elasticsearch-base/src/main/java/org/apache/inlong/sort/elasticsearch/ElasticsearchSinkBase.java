@@ -293,6 +293,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
         // no initialization needed
+        elasticsearchSinkFunction.setRuntimeContext(getRuntimeContext());
         elasticsearchSinkFunction.initializeState(context);
     }
 

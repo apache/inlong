@@ -118,6 +118,11 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     }
 
     @Override
+    public void setRuntimeContext(RuntimeContext ctx) {
+        this.runtimeContext = ctx;
+    }
+
+    @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
         if (this.inlongMetric != null) {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(

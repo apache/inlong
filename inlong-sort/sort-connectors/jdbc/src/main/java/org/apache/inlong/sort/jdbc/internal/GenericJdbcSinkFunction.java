@@ -60,7 +60,8 @@ public class GenericJdbcSinkFunction<T> extends RichSinkFunction<T>
 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
-            outputFormat.initializeState(context);
+        outputFormat.setRuntimeContext(getRuntimeContext());
+        outputFormat.initializeState(context);
     }
 
     @Override
