@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.resource.sort;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -120,13 +122,22 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             // build a stream info from the nodes and relations
             List<StreamSource> sources = sourceMap.get(streamId);
             List<StreamSink> sinks = sinkMap.get(streamId);
-            List<Node> nodes = this.createNodes(sources, transformResponseList, sinks, fieldMap);
             List<NodeRelation> relations;
             if (CollectionUtils.isEmpty(transformResponseList)) {
                 relations = NodeRelationUtils.createNodeRelations(sources, sinks);
             } else {
                 relations = NodeRelationUtils.createNodeRelations(inlongStream);
             }
+
+            // redirect transform input fields node if necessary
+            preprocessTransformList(groupInfo, sources, transformResponseList);
+
+            // create extract-transform-load nodes
+            List<Node> nodes = this.createNodes(sources, transformResponseList, sinks, fieldMap);
+
+            // replace upstream source node id with mq node in standard mode
+            adjustNodeRelations(relations, groupInfo, sources, transformResponseList);
+
             StreamInfo streamInfo = new StreamInfo(streamId, nodes, relations);
             sortStreamInfos.add(streamInfo);
 
@@ -135,6 +146,58 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         }
 
         return new GroupInfo(groupInfo.getInlongGroupId(), sortStreamInfos);
+    }
+
+    private Set<String> getValidInputNodeNamesInStandardMode(List<StreamSource> mqSources,
+            List<TransformResponse> transforms) {
+        Set<String> mqSourceNameSet = mqSources.stream().map(StreamSource::getSourceName).collect(Collectors.toSet());
+        Set<String> transformNameSet = transforms.stream().map(TransformResponse::getTransformName)
+                .collect(Collectors.toSet());
+        Set<String> result = Sets.newHashSet();
+        result.addAll(mqSourceNameSet);
+        result.addAll(transformNameSet);
+        return result;
+    }
+
+    private void preprocessTransformList(InlongGroupInfo groupInfo, List<StreamSource> sources,
+            List<TransformResponse> transforms) {
+        if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
+            return;
+        }
+
+        // set transform fields' origin node to mq node when necessary
+        String mqNodeName = sources.get(0).getSourceName();
+        Set<String> validNameSet = getValidInputNodeNamesInStandardMode(sources, transforms);
+        for (TransformResponse transform : transforms) {
+            for (StreamField field : transform.getFieldList()) {
+                String originNodeName = field.getOriginNodeName();
+                if (!(validNameSet.contains(originNodeName))) {
+                    // in standard mode transform input node must either be mq source node or transform node,
+                    // otherwise replace it with mq node name, which should be stream id
+                    field.setOriginNodeName(mqNodeName);
+                }
+            }
+        }
+    }
+
+    private void adjustNodeRelations(List<NodeRelation> relations, InlongGroupInfo groupInfo,
+            List<StreamSource> sources, List<TransformResponse> transforms) {
+        if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
+            return;
+        }
+
+        // set relations' input node to mq node when necessary
+        String mqNodeName = sources.get(0).getSourceName();
+        Set<String> validNameSet = getValidInputNodeNamesInStandardMode(sources, transforms);
+        for (NodeRelation relation : relations) {
+            List<String> inputs = relation.getInputs();
+            for (int index = 0; index < inputs.size(); ++index) {
+                String inputName = inputs.get(index);
+                if (!(validNameSet.contains(inputName))) {
+                    inputs.set(index, mqNodeName);
+                }
+            }
+        }
     }
 
     private List<Node> createNodes(List<StreamSource> sources, List<TransformResponse> transformResponses,
