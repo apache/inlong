@@ -264,7 +264,9 @@ public class SenderManager {
             if (result == SendResult.OK) {
                 semaphore.release(bodyList.size());
                 getMetricItem(dims).pluginSendSuccessCount.addAndGet(bodyList.size());
-                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size());
+                long totalSize = bodyList.stream().mapToLong(body -> body.length).sum();
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size(),
+                        totalSize);
             } else {
                 getMetricItem(dims).pluginSendFailCount.addAndGet(bodyList.size());
                 LOGGER.warn("send data to dataproxy error {}", result.toString());
@@ -319,7 +321,9 @@ public class SenderManager {
             Map<String, String> dims = new HashMap<>();
             dims.put(KEY_INLONG_GROUP_ID, groupId);
             dims.put(KEY_INLONG_STREAM_ID, streamId);
-            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size());
+            long totalSize = bodyList.stream().mapToLong(body -> body.length).sum();
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size(),
+                    totalSize);
             getMetricItem(dims).pluginSendSuccessCount.addAndGet(bodyList.size());
             if (sourcePath != null) {
                 taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());

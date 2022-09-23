@@ -91,8 +91,8 @@ public class FileReaderOperator extends AbstractReader {
         if (iterator != null && iterator.hasNext()) {
             String message = iterator.next();
             if (validateMessage(message)) {
-                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
-                        inlongGroupId, inlongStreamId, System.currentTimeMillis());
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+                        System.currentTimeMillis(), 1, message.length());
                 readerMetric.pluginReadCount.incrementAndGet();
                 String proxyPartitionKey = jobConf.get(PROXY_SEND_PARTITION_KEY, DigestUtils.md5Hex(inlongGroupId));
                 Map<String, String> header = new HashMap<>();

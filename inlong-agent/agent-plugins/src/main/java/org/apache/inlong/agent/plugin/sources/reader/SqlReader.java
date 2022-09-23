@@ -115,8 +115,9 @@ public class SqlReader extends AbstractReader {
                     }
                     lineColumns.add(dataValue);
                 }
+                long dataSize = lineColumns.stream().mapToLong(column -> column.length()).sum();
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
-                        inlongGroupId, inlongStreamId, System.currentTimeMillis());
+                        inlongGroupId, inlongStreamId, System.currentTimeMillis(), 1, dataSize);
                 readerMetric.pluginReadCount.incrementAndGet();
                 return generateMessage(lineColumns);
             } else {

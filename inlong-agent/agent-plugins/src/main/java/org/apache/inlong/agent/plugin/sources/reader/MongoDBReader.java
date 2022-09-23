@@ -45,68 +45,68 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.HOSTS;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.USER;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.PASSWORD;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.AUTO_DISCOVER_MEMBERS;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.CAPTURE_MODE;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.COLLECTION_EXCLUDE_LIST;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.COLLECTION_INCLUDE_LIST;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.CONNECT_BACKOFF_INITIAL_DELAY_MS;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.CONNECT_BACKOFF_MAX_DELAY_MS;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.CONNECT_TIMEOUT_MS;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SOCKET_TIMEOUT_MS;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SERVER_SELECTION_TIMEOUT_MS;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.MONGODB_POLL_INTERVAL_MS;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.MAX_FAILED_CONNECTIONS;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.AUTO_DISCOVER_MEMBERS;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SSL_ENABLED;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SSL_ALLOW_INVALID_HOSTNAMES;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.CURSOR_MAX_AWAIT_TIME_MS;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.DATABASE_INCLUDE_LIST;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.DATABASE_EXCLUDE_LIST;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.COLLECTION_INCLUDE_LIST;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.COLLECTION_EXCLUDE_LIST;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.DATABASE_INCLUDE_LIST;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.FIELD_EXCLUDE_LIST;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.FIELD_RENAMES;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.HOSTS;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.MAX_COPY_THREADS;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.MAX_FAILED_CONNECTIONS;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.MONGODB_POLL_INTERVAL_MS;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.PASSWORD;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SERVER_SELECTION_TIMEOUT_MS;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SNAPSHOT_MODE;
-import static io.debezium.connector.mongodb.MongoDbConnectorConfig.CAPTURE_MODE;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SOCKET_TIMEOUT_MS;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SSL_ALLOW_INVALID_HOSTNAMES;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.SSL_ENABLED;
+import static io.debezium.connector.mongodb.MongoDbConnectorConfig.USER;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_HOSTS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_USER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_PASSWORD;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_DATABASE_INCLUDE_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_DATABASE_EXCLUDE_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_COLLECTION_INCLUDE_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_COLLECTION_EXCLUDE_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_FIELD_EXCLUDE_LIST;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SNAPSHOT_MODE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_BACKOFF_INITIAL_DELAY;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_BACKOFF_MAX_DELAY;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_CAPTURE_MODE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_QUEUE_SIZE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_STORE_HISTORY_FILENAME;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_OFFSETS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_COLLECTION_EXCLUDE_LIST;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_COLLECTION_INCLUDE_LIST;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_CONNECT_MAX_ATTEMPTS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_CONNECT_TIMEOUT_MS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_CURSOR_MAX_AWAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SOCKET_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SELECTION_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_DATABASE_EXCLUDE_LIST;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_DATABASE_INCLUDE_LIST;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_FIELD_EXCLUDE_LIST;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_FIELD_RENAMES;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_MEMBERS_DISCOVER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_CONNECT_MAX_ATTEMPTS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_BACKOFF_MAX_DELAY;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_BACKOFF_INITIAL_DELAY;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_HOSTS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_INITIAL_SYNC_MAX_THREADS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SSL_INVALID_HOSTNAME_ALLOWED;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SSL_ENABLE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_MEMBERS_DISCOVER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_OFFSETS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_PASSWORD;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_POLL_INTERVAL;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_QUEUE_SIZE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SELECTION_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SNAPSHOT_MODE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SOCKET_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SSL_ENABLE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SSL_INVALID_HOSTNAME_ALLOWED;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_STORE_HISTORY_FILENAME;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_USER;
 
 /**
  * MongoDBReader : mongo source, split mongo source job into multi readers
@@ -254,10 +254,10 @@ public class MongoDBReader extends AbstractReader {
      * Handle the completion of the embedded connector engine.
      *
      * @param success {@code true} if the connector completed normally,
-     *                or {@code false} if the connector produced an error
-     *                that prevented startup or premature termination.
+     *         or {@code false} if the connector produced an error
+     *         that prevented startup or premature termination.
      * @param message the completion message; never null
-     * @param error   the error, or null if there was no exception
+     * @param error the error, or null if there was no exception
      */
     private void handle(boolean success, String message, Throwable error) {
         //jobConf.getInstanceId()
@@ -318,7 +318,7 @@ public class MongoDBReader extends AbstractReader {
     }
 
     private void setEngineConfigIfNecessary(JobProfile jobConf,
-                                            Configuration.Builder builder, String key, Field field) {
+            Configuration.Builder builder, String key, Field field) {
         String value = jobConf.get(key, field.defaultValueAsString());
         if (StringUtils.isBlank(value)) {
             return;
@@ -352,11 +352,11 @@ public class MongoDBReader extends AbstractReader {
      * Handles a batch of records, calling the {@link DebeziumEngine.RecordCommitter#markProcessed(Object)}
      * for each record and {@link DebeziumEngine.RecordCommitter#markBatchFinished()} when this batch is finished.
      *
-     * @param records   the records to be processed
+     * @param records the records to be processed
      * @param committer the committer that indicates to the system that we are finished
      */
     private void handleChangeEvent(List<ChangeEvent<String, String>> records,
-                                   DebeziumEngine.RecordCommitter<ChangeEvent<String, String>> committer) {
+            DebeziumEngine.RecordCommitter<ChangeEvent<String, String>> committer) {
         try {
             for (ChangeEvent<String, String> record : records) {
                 DebeziumFormat debeziumFormat = JSONPath.read(record.value(), "$.payload", DebeziumFormat.class);
@@ -364,8 +364,9 @@ public class MongoDBReader extends AbstractReader {
                 committer.markProcessed(record);
             }
             committer.markBatchFinished();
+            long dataSize = records.stream().mapToLong(c -> c.value().length()).sum();
             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, super.inlongGroupId, super.inlongStreamId,
-                    System.currentTimeMillis(), records.size());
+                    System.currentTimeMillis(), records.size(), dataSize);
             readerMetric.pluginReadCount.addAndGet(records.size());
         } catch (InterruptedException e) {
             e.printStackTrace();
