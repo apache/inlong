@@ -48,8 +48,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConsumePulsarOperator extends AbstractConsumeOperator {
 
-    private static final int DLQ_RLQ_ENABLE = 1;
-    private static final int DLQ__RLQ_DISABLE = 0;
+    private static final Integer DLQ_RLQ_ENABLE = 1;
+    private static final Integer DLQ__RLQ_DISABLE = 0;
     // Topic prefix for the dead letter queue
     private static final String PREFIX_DLQ = "dlq";
     // Topic prefix for the retry letter queue
@@ -116,8 +116,8 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         // prerequisite for RLQ to be turned on: DLQ must be turned on.
         // it means, if DLQ is closed, RLQ cannot exist alone and must be closed.
         ConsumePulsarRequest pulsarRequest = (ConsumePulsarRequest) request;
-        boolean dlqEnable = (DLQ_RLQ_ENABLE == pulsarRequest.getIsDlq());
-        boolean rlqEnable = (DLQ_RLQ_ENABLE == pulsarRequest.getIsRlq());
+        boolean dlqEnable = DLQ_RLQ_ENABLE.equals(pulsarRequest.getIsDlq());
+        boolean rlqEnable = DLQ_RLQ_ENABLE.equals(pulsarRequest.getIsRlq());
         if (rlqEnable && !dlqEnable) {
             throw new BusinessException(ErrorCodeEnum.PULSAR_DLQ_RLQ_ERROR);
         }
