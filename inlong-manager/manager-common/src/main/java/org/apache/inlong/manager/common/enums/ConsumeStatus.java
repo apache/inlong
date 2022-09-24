@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -42,9 +41,9 @@ public enum ConsumeStatus {
 
     ;
 
-    public static final Set<ConsumeStatus> ALLOW_SAVE_UPDATE_SET = ImmutableSet.of(TO_BE_SUBMIT, APPROVE_REJECTED,
-            APPROVE_CANCELED);
-
+    /**
+     * State automaton for InlongConsume
+     */
     private static final Map<ConsumeStatus, Set<ConsumeStatus>> CONSUME_STATE_AUTOMATON = Maps.newHashMap();
 
     /*
@@ -96,6 +95,15 @@ public enum ConsumeStatus {
     public static boolean notAllowedTransfer(ConsumeStatus cur, ConsumeStatus next) {
         Set<ConsumeStatus> nextSet = CONSUME_STATE_AUTOMATON.get(cur);
         return nextSet == null || !nextSet.contains(next);
+    }
+
+    /**
+     * Checks whether the given status allows the update.
+     */
+    public static boolean allowedUpdate(ConsumeStatus status) {
+        return status == ConsumeStatus.TO_BE_SUBMIT
+                || status == ConsumeStatus.APPROVE_REJECTED
+                || status == ConsumeStatus.APPROVE_CANCELED;
     }
 
     public Integer getCode() {

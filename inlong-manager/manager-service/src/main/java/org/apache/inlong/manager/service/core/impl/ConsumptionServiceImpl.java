@@ -166,7 +166,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             ConsumptionEntity consumptionEntity = consumptionMapper.selectByPrimaryKey(info.getId());
             Preconditions.checkNotNull(consumptionEntity, "consumption not exist with id: " + info.getId());
             ConsumeStatus consumeStatus = ConsumeStatus.forCode(consumptionEntity.getStatus());
-            Preconditions.checkTrue(ConsumeStatus.ALLOW_SAVE_UPDATE_SET.contains(consumeStatus),
+            Preconditions.checkTrue(ConsumeStatus.allowedUpdate(consumeStatus),
                     "consumption not allow update when status is " + consumeStatus.name());
         }
 

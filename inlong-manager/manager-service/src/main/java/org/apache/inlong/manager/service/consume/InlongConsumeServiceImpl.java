@@ -207,7 +207,7 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         }
 
         ConsumeStatus consumeStatus = ConsumeStatus.forCode(existEntity.getStatus());
-        Preconditions.checkTrue(ConsumeStatus.ALLOW_SAVE_UPDATE_SET.contains(consumeStatus),
+        Preconditions.checkTrue(ConsumeStatus.allowedUpdate(consumeStatus),
                 "inlong consume not allowed update when status is " + consumeStatus.name());
 
         InlongConsumeOperator consumeOperator = consumeOperatorFactory.getInstance(request.getMqType());
