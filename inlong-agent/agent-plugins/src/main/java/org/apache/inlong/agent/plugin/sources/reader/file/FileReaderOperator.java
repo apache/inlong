@@ -45,6 +45,7 @@ import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
 import static org.apache.inlong.agent.constant.MetadataConstants.KUBERNETES;
@@ -93,8 +94,9 @@ public class FileReaderOperator extends AbstractReader {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
                 readerMetric.pluginReadCount.incrementAndGet();
+                String proxyPartitionKey = jobConf.get(PROXY_SEND_PARTITION_KEY, DigestUtils.md5Hex(inlongGroupId));
                 Map<String, String> header = new HashMap<>();
-                header.put(PROXY_KEY_DATA, DigestUtils.md5Hex(inlongGroupId));
+                header.put(PROXY_KEY_DATA, proxyPartitionKey);
                 return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8), header);
             }
         }

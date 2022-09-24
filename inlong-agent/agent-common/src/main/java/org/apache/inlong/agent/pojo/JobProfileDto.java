@@ -234,6 +234,9 @@ public class JobProfileDto {
         if (null != dataConfigs.getSyncSend()) {
             proxy.setSync(dataConfigs.getSyncSend() == SYNC_SEND_OPEN);
         }
+        if (null != dataConfigs.getSyncPartitionKey()) {
+            proxy.setPartitionKey(dataConfigs.getSyncPartitionKey());
+        }
         return proxy;
     }
 
@@ -331,6 +334,7 @@ public class JobProfileDto {
         private String inlongStreamId;
         private Manager manager;
         private Boolean sync;
+        private String partitionKey;
     }
 
 }
