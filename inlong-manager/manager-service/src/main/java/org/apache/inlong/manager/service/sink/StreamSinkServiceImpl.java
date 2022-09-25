@@ -99,6 +99,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // Make sure that there is no sink info with the current groupId and streamId
         String streamId = request.getInlongStreamId();
         String sinkName = request.getSinkName();
+        // Check whether the stream exist or not
+        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        Preconditions.checkNotNull(streamEntity, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
         for (StreamSinkEntity sinkEntity : sinkList) {
             if (sinkEntity != null && Objects.equals(sinkEntity.getSinkName(), sinkName)) {
@@ -115,7 +118,22 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             fields.forEach(sinkField -> sinkField.setId(null));
         }
         int id = sinkOperator.saveOpt(request, operator);
-
+        boolean streamSuccess = StreamStatus.CONFIG_SUCCESSFUL.getCode().equals(streamEntity.getStatus());
+        if (streamSuccess || StreamStatus.CONFIG_FAILED.getCode().equals(streamEntity.getStatus())) {
+            SinkStatus nextStatus = SinkStatus.CONFIG_ING;
+            StreamSinkEntity sinkEntity = sinkMapper.selectByPrimaryKey(id);
+            sinkEntity.setStatus(nextStatus.getCode());
+            sinkMapper.updateStatus(sinkEntity);
+        }
+        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
+        if (streamSuccess) {
+            // To work around the circular reference check we manually instantiate and wire
+            if (streamProcessOperation == null) {
+                streamProcessOperation = new InlongStreamProcessService();
+                autowireCapableBeanFactory.autowireBean(streamProcessOperation);
+            }
+            streamProcessOperation.startProcess(groupId, streamId, operator, false);
+        }
         LOGGER.info("success to save sink info: {}", request);
         return id;
     }
