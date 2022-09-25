@@ -78,7 +78,7 @@ public class TestTaskWrapper {
         }
         await().atMost(80, TimeUnit.SECONDS).until(()
                 -> writer.getWriterCount() > 0);
-        Assert.assertEquals("reader and  writer are running",
+        Assert.assertEquals("reader and writer are running",
                 reader.getCount() > 0, writer.getWriterCount() > 0);
     }
 
