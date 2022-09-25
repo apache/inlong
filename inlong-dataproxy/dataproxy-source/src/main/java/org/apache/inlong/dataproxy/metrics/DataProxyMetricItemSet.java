@@ -81,17 +81,6 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
     }
 
     /**
-     * Fill sink metric items by event
-     *
-     * @param event    the event object
-     * @param isSuccess  whether success read or send
-     * @param size       the message size
-     */
-    public void fillSinkReadMetricItemsByEvent(Event event, boolean isSuccess, long size) {
-        fillMetricItemsByEvent(event, false, true, isSuccess, size, 0);
-    }
-
-    /**
      * Fill sink send metric items by event
      *
      * @param event    the event object
@@ -124,6 +113,8 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
                 event.getHeaders().get(AttributeConstants.STREAM_ID));
         long dataTime = NumberUtils.toLong(
                 event.getHeaders().get(AttributeConstants.DATA_TIME));
+        long msgCount = NumberUtils.toLong(
+                event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
         long auditFormatTime = dataTime - dataTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         if (isSource) {
@@ -137,16 +128,16 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
         DataProxyMetricItem metricItem = findMetricItem(dimensions);
         if (isReadOp) {
             if (isSuccess) {
-                metricItem.readSuccessCount.incrementAndGet();
+                metricItem.readSuccessCount.addAndGet(msgCount);
                 metricItem.readSuccessSize.addAndGet(size);
             } else {
-                metricItem.readFailCount.incrementAndGet();
+                metricItem.readFailCount.addAndGet(msgCount);
                 metricItem.readFailSize.addAndGet(size);
             }
         } else {
             if (isSuccess) {
-                metricItem.sendSuccessCount.incrementAndGet();
-                metricItem.sendSuccessSize.addAndGet(event.getBody().length);
+                metricItem.sendSuccessCount.addAndGet(msgCount);
+                metricItem.sendSuccessSize.addAndGet(size);
                 if (sendTime > 0) {
                     long currentTime = System.currentTimeMillis();
                     long msgDataTimeL = Long.parseLong(
@@ -158,11 +149,11 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
                     metricItem.wholeDuration.addAndGet(currentTime - msgDataTimeL);
                 }
             } else {
-                metricItem.sendFailCount.incrementAndGet();
-                metricItem.sendFailSize.addAndGet(event.getBody().length);
+                metricItem.sendFailCount.addAndGet(msgCount);
+                metricItem.sendFailSize.addAndGet(size);
             }
-            metricItem.sendCount.incrementAndGet();
-            metricItem.sendSize.addAndGet(event.getBody().length);
+            metricItem.sendCount.addAndGet(msgCount);
+            metricItem.sendSize.addAndGet(size);
         }
     }
 
