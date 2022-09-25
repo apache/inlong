@@ -189,6 +189,9 @@
             <if test="status != null">
                 status = #{status, jdbcType=INTEGER},
             </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
             <if test="modifier != null">
                 modifier = #{modifier, jdbcType=VARCHAR},
             </if>
@@ -197,6 +200,14 @@
         where id = #{id, jdbcType=INTEGER}
         and is_deleted = 0
         and version = #{version, jdbcType=INTEGER}
+    </update>
+    <update id="updateStatus">
+        update inlong_consume
+        set previous_status = status,
+            status          = #{status, jdbcType=INTEGER},
+            modifier        = #{modifier, jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+          and is_deleted = 0
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">

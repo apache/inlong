@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.listener.consumption;
+package org.apache.inlong.manager.service.listener.consume;
 
 import com.alibaba.druid.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +23,10 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
-import org.apache.inlong.manager.pojo.workflow.form.task.ConsumptionApproveForm;
-import org.apache.inlong.manager.service.core.ConsumptionService;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumeProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.ConsumeApproveForm;
+import org.apache.inlong.manager.service.consume.InlongConsumeService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
@@ -34,14 +34,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * New data consumption-system administrator approval task event listener
+ * New inlong consume approval task event listener
  */
 @Slf4j
 @Component
-public class ConsumptionPassTaskListener implements TaskEventListener {
+public class OperateConsumeTaskListener implements TaskEventListener {
 
     @Autowired
-    private ConsumptionService consumptionService;
+    private InlongConsumeService consumeService;
 
     @Override
     public TaskEvent event() {
@@ -50,19 +50,20 @@ public class ConsumptionPassTaskListener implements TaskEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        ApplyConsumptionProcessForm form = (ApplyConsumptionProcessForm) context.getProcessForm();
-        ConsumptionApproveForm approveForm = (ConsumptionApproveForm) context.getActionContext().getForm();
-        ConsumptionInfo info = form.getConsumptionInfo();
-        if (StringUtils.equals(approveForm.getConsumerGroup(), info.getConsumerGroup())) {
-            return ListenerResult.success("The consumer group has not been modified");
+        ApplyConsumeProcessForm consumeForm = (ApplyConsumeProcessForm) context.getProcessForm();
+        ConsumeApproveForm approveForm = (ConsumeApproveForm) context.getActionContext().getForm();
+        InlongConsumeInfo consumeInfo = consumeForm.getConsumeInfo();
+        if (StringUtils.equals(approveForm.getConsumerGroup(), consumeInfo.getConsumerGroup())) {
+            return ListenerResult.success("Consumer group has not been modified");
         }
-        boolean exist = consumptionService.isConsumerGroupExists(approveForm.getConsumerGroup(), info.getId());
+
+        boolean exist = consumeService.consumerGroupExists(approveForm.getConsumerGroup(), consumeInfo.getId());
         if (exist) {
             log.error("consumer group {} already exist", approveForm.getConsumerGroup());
             throw new BusinessException(ErrorCodeEnum.CONSUMER_GROUP_DUPLICATED);
         }
-        return ListenerResult.success("Consumer group from " + info.getConsumerGroup()
-                + " change to " + approveForm.getConsumerGroup());
+        return ListenerResult.success(String.format("Consumer group %s change to %s",
+                consumeInfo.getConsumerGroup(), approveForm.getConsumerGroup()));
     }
 
 }

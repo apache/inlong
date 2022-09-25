@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.listener.consumption;
+package org.apache.inlong.manager.service.listener.consume.apply;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,15 +28,15 @@ import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
+import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumeProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarOperator;
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
@@ -52,16 +52,16 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Added data consumption process complete archive event listener
+ * Inlong consume process complete archive event listener
  */
 @Slf4j
 @Component
-public class ConsumptionCompleteProcessListener implements ProcessEventListener {
+public class ApproveConsumeProcessListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
-    private ConsumptionEntityMapper consumptionMapper;
+    private InlongConsumeEntityMapper consumeMapper;
     @Autowired
     private InlongClusterService clusterService;
     @Autowired
@@ -76,13 +76,12 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        ApplyConsumptionProcessForm consumptionForm = (ApplyConsumptionProcessForm) context.getProcessForm();
-
-        // Real-time query of consumption information
-        Integer consumptionId = consumptionForm.getConsumptionInfo().getId();
-        ConsumptionEntity entity = consumptionMapper.selectByPrimaryKey(consumptionId);
+        // query of inlong consume info from DB
+        ApplyConsumeProcessForm consumeForm = (ApplyConsumeProcessForm) context.getProcessForm();
+        Integer consumeId = consumeForm.getConsumeInfo().getId();
+        InlongConsumeEntity entity = consumeMapper.selectById(consumeId);
         if (entity == null) {
-            throw new WorkflowListenerException("consumption not exits for id=" + consumptionId);
+            throw new WorkflowListenerException("inlong consume not exits for id=" + consumeId);
         }
 
         String mqType = entity.getMqType();
@@ -92,13 +91,13 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         } else if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             this.createPulsarSubscription(entity);
         } else if (MQType.KAFKA.equals(mqType)) {
-            //TODO add kakfa
-
+            // TODO add Kafka
         } else {
             throw new WorkflowListenerException("Unsupported MQ type " + mqType);
         }
 
-        this.updateConsumerInfo(consumptionId, entity.getConsumerGroup());
+        // the consumer group may be changed when approving
+        this.updateConsumerInfo(consumeId, entity.getConsumerGroup());
         return ListenerResult.success("Create MQ consumer group successful");
     }
 
@@ -106,13 +105,13 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
      * Update consumption after approve
      */
     private void updateConsumerInfo(Integer consumptionId, String consumerGroup) {
-        ConsumptionEntity update = consumptionMapper.selectByPrimaryKey(consumptionId);
-        update.setStatus(ConsumeStatus.APPROVED.getCode());
-        update.setConsumerGroup(consumerGroup);
-        int rowCount = consumptionMapper.updateByPrimaryKeySelective(update);
+        InlongConsumeEntity existEntity = consumeMapper.selectById(consumptionId);
+        existEntity.setStatus(ConsumeStatus.APPROVE_PASSED.getCode());
+        existEntity.setConsumerGroup(consumerGroup);
+        int rowCount = consumeMapper.updateByIdSelective(existEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            log.error("consumption information has already updated, id={}, curVersion={}",
-                    update.getId(), update.getVersion());
+            log.error("inlong consume has already updated, id={}, curVersion={}",
+                    existEntity.getId(), existEntity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
     }
@@ -120,7 +119,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     /**
      * Create Pulsar subscription
      */
-    private void createPulsarSubscription(ConsumptionEntity entity) {
+    private void createPulsarSubscription(InlongConsumeEntity entity) {
         String groupId = entity.getInlongGroupId();
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         Preconditions.checkNotNull(groupEntity, "inlong group not found for groupId=" + groupId);
@@ -162,7 +161,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     /**
      * Create TubeMQ consumer group
      */
-    private void createTubeConsumerGroup(ConsumptionEntity entity, String operator) {
+    private void createTubeConsumerGroup(InlongConsumeEntity entity, String operator) {
         String groupId = entity.getInlongGroupId();
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         Preconditions.checkNotNull(groupEntity, "inlong group not found for groupId=" + groupId);

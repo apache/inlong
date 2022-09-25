@@ -93,6 +93,16 @@ public interface InlongConsumeService {
             String operator);
 
     /**
+     * Update the inlong consume status to the specified status
+     *
+     * @param id inlong consume id
+     * @param status modified status
+     * @param operator name of operator
+     * @return whether succeed
+     */
+    Boolean updateStatus(Integer id, Integer status, String operator);
+
+    /**
      * Delete the inlong consume by the id
      *
      * @param id inlong consume id that needs to be deleted

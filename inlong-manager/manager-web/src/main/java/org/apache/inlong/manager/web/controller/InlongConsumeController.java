@@ -62,7 +62,7 @@ public class InlongConsumeController {
     @RequestMapping(value = "/consume/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong consume")
-    public Response<Integer> save(@Validated(UpdateValidation.class) @RequestBody InlongConsumeRequest request) {
+    public Response<Integer> save(@RequestBody InlongConsumeRequest request) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(consumeService.save(request, operator));
     }
@@ -100,7 +100,7 @@ public class InlongConsumeController {
     @ApiOperation(value = "Delete inlong consume by ID")
     @ApiImplicitParam(name = "id", value = "Inlong consume ID", dataTypeClass = Integer.class, required = true)
     public Response<Object> delete(@PathVariable(name = "id") Integer id) {
-        this.consumeService.delete(id, LoginUserUtils.getLoginUser().getName());
+        consumeService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success();
     }
 
