@@ -22,6 +22,7 @@ import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,7 +34,8 @@ import static org.apache.inlong.sort.base.Constants.DELIMITER;
 import static org.apache.inlong.sort.base.Constants.GROUP_ID;
 import static org.apache.inlong.sort.base.Constants.STREAM_ID;
 
-public class MetricOption {
+public class MetricOption implements Serializable {
+    private static final long serialVersionUID = 1L;
     private static final String IP_OR_HOST_PORT = "^(.*):([0-9]|[1-9]\\d|[1-9]\\d{"
             + "2}|[1-9]\\d{"
             + "3}|[1-5]\\d{"
@@ -43,7 +45,7 @@ public class MetricOption {
 
     private Map<String, String> labels;
     private final HashSet<String> ipPortList;
-    private Optional<String> ipPorts;
+    private String ipPorts;
     private RegisteredMetric registeredMetric;
     private long initRecords;
     private long initBytes;
@@ -70,8 +72,8 @@ public class MetricOption {
         });
 
         this.ipPortList = new HashSet<>();
-        this.ipPorts = Optional.ofNullable(inlongAudit);
-        if (ipPorts.isPresent()) {
+        this.ipPorts = inlongAudit;
+        if (ipPorts != null) {
             Preconditions.checkArgument(labels.containsKey(GROUP_ID) && labels.containsKey(STREAM_ID),
                     "groupId and streamId must be set when enable inlong audit collect.");
             String[] ipPortStrs = inlongAudit.split(DELIMITER);
@@ -96,7 +98,7 @@ public class MetricOption {
     }
 
     public Optional<String> getIpPorts() {
-        return ipPorts;
+        return Optional.ofNullable(ipPorts);
     }
 
     public RegisteredMetric getRegisteredMetric() {
