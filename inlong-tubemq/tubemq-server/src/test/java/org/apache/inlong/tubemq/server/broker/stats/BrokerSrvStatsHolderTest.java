@@ -31,11 +31,11 @@ public class BrokerSrvStatsHolderTest {
     @Test
     public void testBrokerSrvStatsHolder() {
         // add consumer online count add 3, dec 2
-        BrokerSrvStatsHolder.incConsumerOnlineCnt();
-        BrokerSrvStatsHolder.incConsumerOnlineCnt();
-        BrokerSrvStatsHolder.incConsumerOnlineCnt();
-        BrokerSrvStatsHolder.decConsumerOnlineCnt(true);
-        BrokerSrvStatsHolder.decConsumerOnlineCnt(false);
+        BrokerSrvStatsHolder.incConsumeOnlineCnt();
+        BrokerSrvStatsHolder.incConsumeOnlineCnt();
+        BrokerSrvStatsHolder.incConsumeOnlineCnt();
+        BrokerSrvStatsHolder.decConsumeOnlineCnt(true);
+        BrokerSrvStatsHolder.decConsumeOnlineCnt(false);
         // add hb exception, add 3
         BrokerSrvStatsHolder.incBrokerHBExcCnt();
         BrokerSrvStatsHolder.incBrokerHBExcCnt();
@@ -58,8 +58,8 @@ public class BrokerSrvStatsHolderTest {
         // check result
         Map<String, Long> retMap = new LinkedHashMap<>();
         BrokerSrvStatsHolder.getValue(retMap);
-        Assert.assertEquals(1, retMap.get("consumer_online_cnt").longValue());
-        Assert.assertEquals(1, retMap.get("consumer_timeout_cnt").longValue());
+        Assert.assertEquals(1, retMap.get("consume_online_cnt").longValue());
+        Assert.assertEquals(1, retMap.get("consume_timeout_cnt").longValue());
         Assert.assertEquals(3, retMap.get("broker_hb_exc_cnt").longValue());
         Assert.assertEquals(2, retMap.get("broker_timeout_cnt").longValue());
         Assert.assertEquals(3, retMap.get("zk_sync_dlt_count").longValue());
@@ -80,12 +80,12 @@ public class BrokerSrvStatsHolderTest {
         BrokerSrvStatsHolder.snapShort(retMap);
         retMap.clear();
         // add consumer online count, add 1
-        BrokerSrvStatsHolder.incConsumerOnlineCnt();
+        BrokerSrvStatsHolder.incConsumeOnlineCnt();
         // add disk sync data, add 1
         BrokerSrvStatsHolder.updDiskSyncDataDlt(999);
         BrokerSrvStatsHolder.snapShort(retMap);
-        Assert.assertEquals(2, retMap.get("consumer_online_cnt").longValue());
-        Assert.assertEquals(0, retMap.get("consumer_timeout_cnt").longValue());
+        Assert.assertEquals(2, retMap.get("consume_online_cnt").longValue());
+        Assert.assertEquals(0, retMap.get("consume_timeout_cnt").longValue());
         Assert.assertEquals(0, retMap.get("broker_hb_exc_cnt").longValue());
         Assert.assertEquals(0, retMap.get("broker_timeout_cnt").longValue());
         Assert.assertEquals(0, retMap.get("zk_sync_dlt_count").longValue());

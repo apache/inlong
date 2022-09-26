@@ -64,25 +64,25 @@ public class MsgStoreStatsHolder {
     }
 
     /**
-     * Add appended message size statistic.
+     * Add write message success statistics.
      *
      * @param msgSize   the message size
      */
-    public void addCacheMsgSize(int msgSize) {
+    public void addMsgWriteSuccess(int msgSize) {
         if (isClosed) {
             return;
         }
-        msgStoreStatsSets[getIndex()].cacheMsgRcvStats.update(msgSize);
+        msgStoreStatsSets[getIndex()].msgAppendSizeStats.update(msgSize);
     }
 
     /**
-     * Add write message failure count statistics.
+     * Add write message failure statistics.
      */
-    public void addMsgWriteCacheFail() {
+    public void addMsgWriteFailure() {
         if (isClosed) {
             return;
         }
-        msgStoreStatsSets[getIndex()].cacheWriteFailCnt.incValue();
+        msgStoreStatsSets[getIndex()].msgAppendFailCnt.incValue();
     }
 
     /**
@@ -131,12 +131,12 @@ public class MsgStoreStatsHolder {
     }
 
     /**
-     * Add flush time statistic.
+     * Add cache timeout flush statistic.
      *
      * @param flushTime          the flush time
      * @param isTimeoutFlush     whether is timeout flush
      */
-    public void addCacheFlushTime(long flushTime, boolean isTimeoutFlush) {
+    public void addCacheTimeoutFlush(long flushTime, boolean isTimeoutFlush) {
         if (isClosed) {
             return;
         }
@@ -400,9 +400,9 @@ public class MsgStoreStatsHolder {
                 statsSet.resetTime.getSinceTime());
         statsMap.put("isClosed", (isStatsClosed() ? 1L : 0L));
         // for memory store
-        statsSet.cacheMsgRcvStats.getValue(statsMap, false);
-        statsMap.put(statsSet.cacheWriteFailCnt.getFullName(),
-                statsSet.cacheWriteFailCnt.getValue());
+        statsSet.msgAppendSizeStats.getValue(statsMap, false);
+        statsMap.put(statsSet.msgAppendFailCnt.getFullName(),
+                statsSet.msgAppendFailCnt.getValue());
         statsMap.put(statsSet.cacheDataSizeFullCnt.getFullName(),
                 statsSet.cacheDataSizeFullCnt.getValue());
         statsMap.put(statsSet.cacheIndexSizeFullCnt.getFullName(),
@@ -459,9 +459,9 @@ public class MsgStoreStatsHolder {
         strBuff.append("{\"").append(statsSet.resetTime.getFullName())
                 .append("\":\"").append(statsSet.resetTime.getStrSinceTime())
                 .append("\",\"isClosed\":").append(isStatsClosed()).append(",");
-        statsSet.cacheMsgRcvStats.getValue(strBuff, false);
-        strBuff.append(",\"").append(statsSet.cacheWriteFailCnt.getFullName())
-                .append("\":").append(statsSet.cacheWriteFailCnt.getValue())
+        statsSet.msgAppendSizeStats.getValue(strBuff, false);
+        strBuff.append(",\"").append(statsSet.msgAppendFailCnt.getFullName())
+                .append("\":").append(statsSet.msgAppendFailCnt.getValue())
                 .append(",\"").append(statsSet.cacheDataSizeFullCnt.getFullName())
                 .append("\":").append(statsSet.cacheDataSizeFullCnt.getValue())
                 .append(",\"").append(statsSet.cacheMsgCountFullCnt.getFullName())
@@ -516,12 +516,12 @@ public class MsgStoreStatsHolder {
         // The reset time of statistics set
         protected final SinceTime resetTime =
                 new SinceTime("reset_time", null);
-        // The status of messages received by cache
-        protected final SimpleHistogram cacheMsgRcvStats =
-                new SimpleHistogram("cache_msg_in", null);
-        // The count of message append cache failures
-        protected final LongStatsCounter cacheWriteFailCnt =
-                new LongStatsCounter("cache_append_fail", null);
+        // The message size received
+        protected final SimpleHistogram msgAppendSizeStats =
+                new SimpleHistogram("msg_append_size", null);
+        // The count of message append failures
+        protected final LongStatsCounter msgAppendFailCnt =
+                new LongStatsCounter("msg_append_fail", null);
         // The cached message data full statistics
         protected final LongStatsCounter cacheDataSizeFullCnt =
                 new LongStatsCounter("cache_data_full", null);
@@ -555,10 +555,10 @@ public class MsgStoreStatsHolder {
                 new LongStatsCounter("file_total_index_size", null);
         // The data flushed statistics
         protected final SimpleHistogram fileFlushedDataSize =
-                new SimpleHistogram("file_flushed_data", null);
+                new SimpleHistogram("file_flush_data_size", null);
         // The message count flushed statistics
         protected final SimpleHistogram fileFlushedMsgCnt =
-                new SimpleHistogram("file_flushed_msg", null);
+                new SimpleHistogram("file_flush_msg_cnt", null);
         // The new data segment statistics
         protected final LongStatsCounter fileDataSegAddCnt =
                 new LongStatsCounter("file_data_seg", null);
@@ -603,9 +603,10 @@ public class MsgStoreStatsHolder {
             this.fileMetaFlushCnt.clear();
             this.fileMsgCountFullCnt.clear();
             this.fileCachedTimeFullCnt.clear();
+            // for message metric items
+            this.msgAppendSizeStats.clear();
+            this.msgAppendFailCnt.clear();
             // for cache metric items
-            this.cacheMsgRcvStats.clear();
-            this.cacheWriteFailCnt.clear();
             this.cacheDataSizeFullCnt.clear();
             this.cacheIndexSizeFullCnt.clear();
             this.cacheMsgCountFullCnt.clear();
