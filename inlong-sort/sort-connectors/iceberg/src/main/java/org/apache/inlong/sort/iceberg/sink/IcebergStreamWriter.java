@@ -50,15 +50,15 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
-class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
+public class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
         implements OneInputStreamOperator<T, WriteResult>, BoundedOneInput {
 
     private static final long serialVersionUID = 1L;
 
     private final String fullTableName;
-    private final TaskWriterFactory<T> taskWriterFactory;
     private final String inlongMetric;
     private final String auditHostAndPorts;
+    private TaskWriterFactory<T> taskWriterFactory;
 
     private transient TaskWriter<T> writer;
     private transient int subTaskId;
@@ -68,7 +68,7 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
 
-    IcebergStreamWriter(
+    public IcebergStreamWriter(
             String fullTableName,
             TaskWriterFactory<T> taskWriterFactory,
             String inlongMetric,

@@ -20,8 +20,11 @@
 package org.apache.inlong.sort.iceberg.sink;
 
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.typeinfo.TypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.formats.common.TimestampFormat;
+import org.apache.flink.formats.json.JsonToRowDataConverters;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -40,6 +43,7 @@ import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.SerializableTable;
 import org.apache.iceberg.Table;
+import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.flink.sink.TaskWriterFactory;
@@ -49,6 +53,12 @@ import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.types.TypeUtil;
 import org.apache.iceberg.util.PropertyUtil;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleFilesCommiter;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleStreamWriter;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessOperator;
+import org.apache.inlong.sort.iceberg.sink.multiple.MultipleWriteResult;
+import org.apache.inlong.sort.iceberg.sink.multiple.RecordWithSchema;
+import org.apache.inlong.sort.iceberg.sink.multiple.WholeDatabaseMigrationOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +88,12 @@ public class FlinkSink {
 
     private static final String ICEBERG_STREAM_WRITER_NAME = IcebergStreamWriter.class.getSimpleName();
     private static final String ICEBERG_FILES_COMMITTER_NAME = IcebergFilesCommitter.class.getSimpleName();
+    private static final String ICEBERG_MULTIPLE_STREAM_WRITER_NAME =
+            IcebergMultipleStreamWriter.class.getSimpleName();
+    private static final String ICEBERG_MULTIPLE_FILES_COMMITTER_NAME =
+            IcebergMultipleFilesCommiter.class.getSimpleName();
+    private static final String ICEBERG_WHOLE_DATABASE_MIGRATION_NAME =
+            WholeDatabaseMigrationOperator.class.getSimpleName();
 
     private FlinkSink() {
     }
@@ -141,6 +157,8 @@ public class FlinkSink {
         private String uidPrefix = null;
         private String inlongMetric = null;
         private String auditHostAndPorts = null;
+        private CatalogLoader catalogLoader = null;
+        private boolean multipleSink = false;
 
         private Builder() {
         }
@@ -188,6 +206,16 @@ public class FlinkSink {
          */
         public Builder tableLoader(TableLoader newTableLoader) {
             this.tableLoader = newTableLoader;
+            return this;
+        }
+
+        public Builder catalogLoader(CatalogLoader catalogLoader) {
+            this.catalogLoader = catalogLoader;
+            return this;
+        }
+
+        public Builder multipleSink(boolean multipleSink) {
+            this.multipleSink = multipleSink;
             return this;
         }
 
@@ -302,6 +330,11 @@ public class FlinkSink {
         }
 
         private <T> DataStreamSink<T> chainIcebergOperators() {
+            return multipleSink ? chainIcebergMultipleSinkOperators() : chainIcebergSingleSinkOperators();
+        }
+
+        private <T> DataStreamSink<T> chainIcebergSingleSinkOperators() {
+
             Preconditions.checkArgument(inputCreator != null,
                     "Please use forRowData() or forMapperOutputType() to initialize the input DataStream.");
             Preconditions.checkNotNull(tableLoader, "Table loader shouldn't be null");
@@ -335,6 +368,25 @@ public class FlinkSink {
             return appendDummySink(committerStream);
         }
 
+        private <T> DataStreamSink<T> chainIcebergMultipleSinkOperators() {
+            Preconditions.checkArgument(inputCreator != null,
+                    "Please use forRowData() or forMapperOutputType() to initialize the input DataStream.");
+            // 校验flink的schema应该为string，并且只有一个string
+            DataStream<RowData> rowDataInput = inputCreator.apply(uidPrefix);
+
+            // Add parallel writers that append rows to files
+            SingleOutputStreamOperator<MultipleWriteResult> writerStream = appendMultipleWriter(rowDataInput);
+
+            // Add single-parallelism committer that commits files
+            // after successful checkpoint or end of input
+            SingleOutputStreamOperator<Void> committerStream = appendMultipleCommitter(writerStream);
+
+            // Add dummy discard sink
+            return appendDummySink(committerStream);
+        }
+
+
+
         /**
          * Append the iceberg sink operators to write records to iceberg table.
          *
@@ -364,7 +416,8 @@ public class FlinkSink {
         private <T> DataStreamSink<T> appendDummySink(SingleOutputStreamOperator<Void> committerStream) {
             DataStreamSink<T> resultStream = committerStream
                     .addSink(new DiscardingSink())
-                    .name(operatorName(String.format("IcebergSink %s", this.table.name())))
+                    .name(operatorName(
+                            String.format("IcebergSink %s", multipleSink ? "whole migration" : this.table.name())))
                     .setParallelism(1);
             if (uidPrefix != null) {
                 resultStream = resultStream.uid(uidPrefix + "-dummysink");
@@ -376,6 +429,20 @@ public class FlinkSink {
             IcebergFilesCommitter filesCommitter = new IcebergFilesCommitter(tableLoader, overwrite);
             SingleOutputStreamOperator<Void> committerStream = writerStream
                     .transform(operatorName(ICEBERG_FILES_COMMITTER_NAME), Types.VOID, filesCommitter)
+                    .setParallelism(1)
+                    .setMaxParallelism(1);
+            if (uidPrefix != null) {
+                committerStream = committerStream.uid(uidPrefix + "-committer");
+            }
+            return committerStream;
+        }
+
+        private SingleOutputStreamOperator<Void> appendMultipleCommitter(
+                SingleOutputStreamOperator<MultipleWriteResult> writerStream) {
+            IcebergProcessOperator<MultipleWriteResult, Void> multipleFilesCommiter =
+                    new IcebergProcessOperator<>(new IcebergMultipleFilesCommiter(catalogLoader, overwrite));
+            SingleOutputStreamOperator<Void> committerStream = writerStream
+                    .transform(operatorName(ICEBERG_MULTIPLE_FILES_COMMITTER_NAME), Types.VOID, multipleFilesCommiter)
                     .setParallelism(1)
                     .setMaxParallelism(1);
             if (uidPrefix != null) {
@@ -423,6 +490,34 @@ public class FlinkSink {
             SingleOutputStreamOperator<WriteResult> writerStream = input
                     .transform(operatorName(ICEBERG_STREAM_WRITER_NAME),
                             TypeInformation.of(WriteResult.class),
+                            streamWriter)
+                    .setParallelism(parallelism);
+            if (uidPrefix != null) {
+                writerStream = writerStream.uid(uidPrefix + "-writer");
+            }
+            return writerStream;
+        }
+
+        private SingleOutputStreamOperator<MultipleWriteResult> appendMultipleWriter(DataStream<RowData> input) {
+            // equality field will be initialized at runtime
+            // upsert mode will be initialized at runtime
+
+            int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
+            WholeDatabaseMigrationOperator routeOperator = new WholeDatabaseMigrationOperator(
+                    catalogLoader,
+                    new JsonToRowDataConverters(true, false, TimestampFormat.SQL));
+            SingleOutputStreamOperator<RecordWithSchema> routeStream = input
+                    .transform(operatorName(ICEBERG_WHOLE_DATABASE_MIGRATION_NAME),
+                            TypeInformation.of(RecordWithSchema.class),
+                            routeOperator)
+                    .setParallelism(parallelism);  // todo:这个并行度理论上应该和上游的并行度保持一致，后面再抽取一个单独的参数设置这个并行度
+
+
+            IcebergProcessOperator streamWriter =
+                    new IcebergProcessOperator(new IcebergMultipleStreamWriter(appendMode, catalogLoader));
+            SingleOutputStreamOperator<MultipleWriteResult> writerStream = routeStream
+                    .transform(operatorName(ICEBERG_MULTIPLE_STREAM_WRITER_NAME),
+                            TypeInformation.of(IcebergProcessOperator.class),
                             streamWriter)
                     .setParallelism(parallelism);
             if (uidPrefix != null) {
@@ -501,7 +596,7 @@ public class FlinkSink {
 
         Table serializableTable = SerializableTable.copyOf(table);
         TaskWriterFactory<RowData> taskWriterFactory = new RowDataTaskWriterFactory(
-                serializableTable, flinkRowType, targetFileSize,
+                serializableTable, serializableTable.schema(), flinkRowType, targetFileSize,
                 fileFormat, equalityFieldIds, upsert, appendMode);
 
         return new IcebergStreamWriter<>(table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts);

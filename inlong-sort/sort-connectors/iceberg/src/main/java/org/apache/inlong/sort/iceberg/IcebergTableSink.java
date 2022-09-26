@@ -29,6 +29,7 @@ import org.apache.flink.table.connector.sink.abilities.SupportsOverwrite;
 import org.apache.flink.table.connector.sink.abilities.SupportsPartitioning;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
+import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
 import org.apache.inlong.sort.iceberg.sink.FlinkSink;
@@ -41,6 +42,7 @@ import java.util.Optional;
 
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
 import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
 
 /**
@@ -56,6 +58,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
     private final TableSchema tableSchema;
 
     private final CatalogTable catalogTable;
+    private final CatalogLoader catalogLoader;
 
     private boolean overwrite = false;
 
@@ -64,12 +67,14 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
         this.tableSchema = toCopy.tableSchema;
         this.overwrite = toCopy.overwrite;
         this.catalogTable = toCopy.catalogTable;
+        this.catalogLoader = toCopy.catalogLoader;
     }
 
-    public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable) {
+    public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable, CatalogLoader catalogLoader) {
         this.tableLoader = tableLoader;
         this.tableSchema = tableSchema;
         this.catalogTable = catalogTable;
+        this.catalogLoader = catalogLoader;
     }
 
     @Override
@@ -81,6 +86,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                 .map(UniqueConstraint::getColumns)
                 .orElseGet(ImmutableList::of);
 
+        // todo:优化参数的构造器，加一些校验，例如在多路输出的时候就不需要表这些参数了
         return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
                 .tableLoader(tableLoader)
                 .tableSchema(tableSchema)
@@ -91,6 +97,10 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                                 .orElse(ICEBERG_IGNORE_ALL_CHANGELOG.defaultValue().toString())))
                 .metric(catalogTable.getOptions().getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue()),
                         catalogTable.getOptions().getOrDefault(INLONG_AUDIT.key(), INLONG_AUDIT.defaultValue()))
+                .catalogLoader(catalogLoader)
+                .multipleSink(Boolean.valueOf(
+                        Optional.ofNullable(catalogTable.getOptions().get(SINK_MULTIPLE_ENABLE.key()))
+                                .orElse(SINK_MULTIPLE_ENABLE.defaultValue().toString())))
                 .append();
     }
 

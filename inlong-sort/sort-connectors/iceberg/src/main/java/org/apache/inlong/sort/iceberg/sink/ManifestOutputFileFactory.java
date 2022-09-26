@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
-class ManifestOutputFileFactory {
+public class ManifestOutputFileFactory {
     // Users could define their own flink manifests directory by setting this value in table properties.
     static final String FLINK_MANIFEST_LOCATION = "flink.manifests.location";
 
@@ -58,7 +58,7 @@ class ManifestOutputFileFactory {
                 attemptNumber, checkpointId, fileCount.incrementAndGet()));
     }
 
-    OutputFile create(long checkpointId) {
+    public OutputFile create(long checkpointId) {
         String flinkManifestDir = props.get(FLINK_MANIFEST_LOCATION);
 
         String newManifestFullPath;
