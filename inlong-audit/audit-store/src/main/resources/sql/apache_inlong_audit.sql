@@ -24,6 +24,7 @@ SET time_zone = "+00:00";
 -- Database for InLong Audit
 -- ----------------------------
 CREATE DATABASE IF NOT EXISTS apache_inlong_audit;
+
 USE apache_inlong_audit;
 
 -- ----------------------------
