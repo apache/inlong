@@ -20,21 +20,25 @@ package org.apache.inlong.audit.db.entities;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Getter
 @Setter
 public class AuditDataPo {
+
     private String ip;
     private String dockerId;
     private String threadId;
     private Date sdkTs;
-    private long packetId;
+    private Long packetId;
     private Date logTs;
     private String inlongGroupId;
     private String inlongStreamId;
     private String auditId;
-    private long count;
-    private long size;
-    private long delay;
+    private Long count;
+    private Long size;
+    private Long delay;
+    private Timestamp updateTime;
+
 }
