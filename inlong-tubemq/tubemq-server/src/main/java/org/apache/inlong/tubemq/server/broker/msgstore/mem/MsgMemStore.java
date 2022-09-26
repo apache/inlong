@@ -164,7 +164,7 @@ public class MsgMemStore implements Closeable {
         } finally {
             this.writeLock.unlock();
             if (isAppended) {
-                memStatsHolder.addCacheMsgSize(dataEntryLength);
+                memStatsHolder.addMsgWriteSuccess(dataEntryLength);
             } else {
                 memStatsHolder.addCacheFullType(fullDataSize, fullIndexSize, fullCount);
             }

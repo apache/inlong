@@ -446,7 +446,7 @@ public class MessageStore implements Closeable {
                 }
                 ThreadUtils.sleep(waitRetryMs);
             } while (count-- >= 0);
-            msgStoreStatsHolder.addMsgWriteCacheFail();
+            msgStoreStatsHolder.addMsgWriteFailure();
             return false;
         } else {
             StringBuilder strBuffer =
@@ -784,7 +784,7 @@ public class MessageStore implements Closeable {
                         } catch (Throwable e) {
                             logger.error("[Data Store] Error during flush", e);
                         } finally {
-                            msgStoreStatsHolder.addCacheFlushTime(
+                            msgStoreStatsHolder.addCacheTimeoutFlush(
                                     (System.currentTimeMillis() - startTime2), isTimeTrigger);
                         }
                     }

@@ -36,7 +36,7 @@ import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
 public class BrokerSrvStatsHolder {
     // Consumer client online statistic
     private static final LongOnlineCounter csmOnlineCnt =
-            new LongOnlineCounter("consumer_online_cnt", null);
+            new LongOnlineCounter("consume_online_cnt", null);
     // Switchable statistic items
     private static final ServiceStatsSet[] switchableSets = new ServiceStatsSet[2];
     // Current writable index
@@ -98,11 +98,11 @@ public class BrokerSrvStatsHolder {
     // metric set operate APIs end
 
     // metric item operate APIs begin
-    public static void incConsumerOnlineCnt() {
+    public static void incConsumeOnlineCnt() {
         csmOnlineCnt.incValue();
     }
 
-    public static void decConsumerOnlineCnt(boolean isTimeout) {
+    public static void decConsumeOnlineCnt(boolean isTimeout) {
         csmOnlineCnt.decValue();
         if (isTimeout) {
             switchableSets[getIndex()].csmTimeoutStats.incValue();
@@ -280,7 +280,7 @@ public class BrokerSrvStatsHolder {
                 new LongStatsCounter("broker_hb_exc_cnt", null);
         // Consumer 2 Broker status statistics
         protected final LongStatsCounter csmTimeoutStats =
-                new LongStatsCounter("consumer_timeout_cnt", null);
+                new LongStatsCounter("consume_timeout_cnt", null);
 
         public ServiceStatsSet() {
             resetSinceTime();
