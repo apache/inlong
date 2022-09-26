@@ -30,4 +30,5 @@ public class DorisColumnInfo {
     private String type;
 
     private String comment;
+
 }

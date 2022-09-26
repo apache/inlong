@@ -36,4 +36,5 @@ public class DorisTableInfo {
     private String userName;
 
     private List<DorisColumnInfo> columns;
+
 }

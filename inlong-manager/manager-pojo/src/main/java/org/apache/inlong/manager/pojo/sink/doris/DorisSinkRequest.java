@@ -35,6 +35,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ApiModel(value = "Doris sink request")
 @JsonTypeDefine(value = SinkType.DORIS)
 public class DorisSinkRequest extends SinkRequest {
+
     @ApiModelProperty("Doris JDBC URL, such as jdbc:mysql://host:port/database")
     private String jdbcUrl;
 

@@ -65,4 +65,5 @@ public class DorisSink extends StreamSink {
     public SinkRequest genSinkRequest() {
         return CommonBeanUtils.copyProperties(this,DorisSinkRequest::new);
     }
+
 }

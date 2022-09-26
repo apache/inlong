@@ -501,7 +501,7 @@ public class LoadNodeUtils {
      * Create load node of Doris.
      */
     public static DorisLoadNode createLoadNode(DorisSink dorisSink, List<FieldInfo> fieldInfos,
-                                               List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
         return new DorisLoadNode(
                 dorisSink.getSinkName(),
                 dorisSink.getSinkName(),

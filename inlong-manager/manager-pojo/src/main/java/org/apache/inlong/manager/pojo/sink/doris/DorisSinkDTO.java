@@ -41,7 +41,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DorisSinkDTO {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DorisSinkDTO.class);
 
     @ApiModelProperty("Doris JDBC URL, such as jdbc:mysql://host:port/database")
@@ -81,8 +81,9 @@ public class DorisSinkDTO {
      */
     public static DorisSinkDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, DorisSinkDTO.class);
+            ObjectMapper objectMapper = new ObjectMapper().configure(
+                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return objectMapper.readValue(extParams, DorisSinkDTO.class);
         } catch (Exception e) {
             LOGGER.error("fetch doris sink info failed from json params: " + extParams, e);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
@@ -100,4 +101,5 @@ public class DorisSinkDTO {
         tableInfo.setColumns(columnList);
         return tableInfo;
     }
+
 }
