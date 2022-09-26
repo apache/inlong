@@ -127,16 +127,16 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
                 relations = NodeRelationUtils.createNodeRelations(sources, sinks);
             } else {
                 relations = NodeRelationUtils.createNodeRelations(inlongStream);
-            }
 
-            // redirect transform input fields node if necessary
-            preprocessTransformList(groupInfo, sources, transformResponseList);
+                // redirect transform input fields node if necessary
+                preprocessTransformList(groupInfo, sources, transformResponseList);
+
+                // replace upstream source node id with mq node in standard mode
+                adjustNodeRelations(relations, groupInfo, sources, transformResponseList);
+            }
 
             // create extract-transform-load nodes
             List<Node> nodes = this.createNodes(sources, transformResponseList, sinks, fieldMap);
-
-            // replace upstream source node id with mq node in standard mode
-            adjustNodeRelations(relations, groupInfo, sources, transformResponseList);
 
             StreamInfo streamInfo = new StreamInfo(streamId, nodes, relations);
             sortStreamInfos.add(streamInfo);
@@ -150,12 +150,13 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
 
     private Set<String> getValidInputNodeNamesInStandardMode(List<StreamSource> mqSources,
             List<TransformResponse> transforms) {
-        Set<String> mqSourceNameSet = mqSources.stream().map(StreamSource::getSourceName).collect(Collectors.toSet());
-        Set<String> transformNameSet = transforms.stream().map(TransformResponse::getTransformName)
-                .collect(Collectors.toSet());
         Set<String> result = Sets.newHashSet();
-        result.addAll(mqSourceNameSet);
-        result.addAll(transformNameSet);
+        if (CollectionUtils.isNotEmpty(mqSources)) {
+            result.addAll(mqSources.stream().map(StreamSource::getSourceName).collect(Collectors.toSet()));
+        }
+        if (CollectionUtils.isNotEmpty(transforms)) {
+            result.addAll(transforms.stream().map(TransformResponse::getTransformName).collect(Collectors.toSet()));
+        }
         return result;
     }
 
