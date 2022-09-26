@@ -37,7 +37,6 @@ import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.EventStat;
 import org.apache.inlong.dataproxy.source.MsgType;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
-import org.apache.inlong.dataproxy.utils.NetworkUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.CompressionType;
