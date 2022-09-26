@@ -28,6 +28,7 @@ import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
@@ -56,6 +57,7 @@ public class DescribeCommand extends AbstractCommand {
         jcommander.addCommand("source", new DescribeSource());
         jcommander.addCommand("cluster", new DescribeCluster());
         jcommander.addCommand("cluster-tag", new DescribeClusterTag());
+        jcommander.addCommand("cluster-node", new DescribeClusterNode());
     }
 
     @Parameters(commandDescription = "Get stream details")
@@ -202,6 +204,28 @@ public class DescribeCommand extends AbstractCommand {
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 ClusterTagResponse tagInfo = clusterClient.getTag(tagId);
                 PrintUtils.printJson(tagInfo);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get cluster node details")
+    private static class DescribeClusterNode extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster node id")
+        private int nodeId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                ClusterNodeResponse nodeInfo = clusterClient.getNode(nodeId);
+                PrintUtils.printJson(nodeInfo);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

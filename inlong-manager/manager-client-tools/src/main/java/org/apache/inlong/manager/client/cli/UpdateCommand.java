@@ -25,6 +25,7 @@ import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
@@ -47,6 +48,7 @@ public class UpdateCommand extends AbstractCommand {
         jcommander.addCommand("group", new UpdateCommand.UpdateGroup());
         jcommander.addCommand("cluster", new UpdateCommand.UpdateCluster());
         jcommander.addCommand("cluster-tag", new UpdateCommand.UpdateClusterTag());
+        jcommander.addCommand("cluster-node", new UpdateCommand.UpdateClusterNode());
     }
 
     @Parameters(commandDescription = "Update group by json file")
@@ -125,6 +127,31 @@ public class UpdateCommand extends AbstractCommand {
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 if (clusterClient.updateTag(request)) {
                     System.out.println("Update cluster tag success!");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Update cluster node by json file")
+    private static class UpdateClusterNode extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-f", "--file"}, description = "json file", converter = FileConverter.class)
+        private File file;
+
+        @Override
+        void run() {
+            try {
+                String content = ClientUtils.readFile(file);
+                ClusterNodeRequest request = objectMapper.readValue(content, ClusterNodeRequest.class);
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                if (clusterClient.updateNode(request)) {
+                    System.out.println("Update cluster node success!");
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());
