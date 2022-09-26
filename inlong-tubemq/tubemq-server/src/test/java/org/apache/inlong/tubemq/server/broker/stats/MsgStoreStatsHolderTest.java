@@ -122,7 +122,7 @@ public class MsgStoreStatsHolderTest {
         Assert.assertEquals(0, retMap.get("file_total_msg_cnt").longValue());
         Assert.assertEquals(0, retMap.get("file_total_data_size").longValue());
         Assert.assertEquals(0, retMap.get("file_total_index_size").longValue());
-        Assert.assertEquals(0, retMap.get("file_flush_data_size").longValue());
+        Assert.assertEquals(0, retMap.get("file_flush_data_size_count").longValue());
         Assert.assertEquals(Long.MIN_VALUE, retMap.get("file_flush_data_size_max").longValue());
         Assert.assertEquals(Long.MAX_VALUE, retMap.get("file_flush_data_size_min").longValue());
         Assert.assertEquals(0, retMap.get("file_flush_msg_cnt_count").longValue());
