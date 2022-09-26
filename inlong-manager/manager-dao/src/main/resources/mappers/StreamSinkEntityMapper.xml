@@ -324,6 +324,7 @@
         sink.status,
         sink.creator,
         sink.sink_name,
+        sink.data_node_name,
         stream.mq_resource,
         stream.data_type,
         stream.data_separator as sourceSeparator,

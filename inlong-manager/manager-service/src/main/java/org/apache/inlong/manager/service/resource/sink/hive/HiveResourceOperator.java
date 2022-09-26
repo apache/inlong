@@ -18,16 +18,20 @@
 package org.apache.inlong.manager.service.resource.sink.hive;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.pojo.sink.hive.HiveTableInfo;
+import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -51,6 +55,8 @@ public class HiveResourceOperator implements SinkResourceOperator {
     private StreamSinkService sinkService;
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired
+    private DataNodeOperateHelper dataNodeHelper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -78,6 +84,28 @@ public class HiveResourceOperator implements SinkResourceOperator {
         this.createTable(sinkInfo);
     }
 
+    private HiveSinkDTO getHiveInfo(SinkInfo sinkInfo) {
+        HiveSinkDTO hiveInfo = new HiveSinkDTO();
+        String dataNodeName = sinkInfo.getDataNodeName();
+
+        // firstly use data node info if exists
+        if (StringUtils.isNotBlank(dataNodeName)) {
+            HiveDataNodeInfo dataNodeInfo = (HiveDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    dataNodeName, sinkInfo.getSinkType());
+            CommonBeanUtils.copyProperties(dataNodeInfo, hiveInfo);
+            hiveInfo.setJdbcUrl(dataNodeInfo.getUrl());
+            hiveInfo.setUsername(dataNodeInfo.getUsername());
+            hiveInfo.setPassword(dataNodeInfo.getToken());
+        }
+
+        // secondly overwrite with whatever user has otherwise specified
+        if (StringUtils.isNotBlank(sinkInfo.getExtParams())) {
+            HiveSinkDTO userDefined = HiveSinkDTO.getFromJson(sinkInfo.getExtParams());
+            CommonBeanUtils.copyProperties(userDefined, hiveInfo);
+        }
+        return hiveInfo;
+    }
+
     private void createTable(SinkInfo sinkInfo) {
         LOGGER.info("begin to create hive table for sinkId={}", sinkInfo.getId());
 
@@ -97,7 +125,7 @@ public class HiveResourceOperator implements SinkResourceOperator {
         }
 
         try {
-            HiveSinkDTO hiveInfo = HiveSinkDTO.getFromJson(sinkInfo.getExtParams());
+            HiveSinkDTO hiveInfo = this.getHiveInfo(sinkInfo);
             HiveTableInfo tableInfo = HiveSinkDTO.getHiveTableInfo(hiveInfo, columnList);
             String url = hiveInfo.getJdbcUrl();
             String user = hiveInfo.getUsername();
