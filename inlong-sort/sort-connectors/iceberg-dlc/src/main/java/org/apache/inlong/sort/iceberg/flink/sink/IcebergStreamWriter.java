@@ -56,12 +56,12 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
 
     private final String fullTableName;
     private final TaskWriterFactory<T> taskWriterFactory;
+    @Nullable
     private final MetricOption metricOption;
 
     private transient TaskWriter<T> writer;
     private transient int subTaskId;
     private transient int attemptId;
-    @Nullable
     private transient SinkMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
@@ -115,7 +115,7 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
     public void initializeState(StateInitializationContext context) throws Exception {
         super.initializeState(context);
         // init metric state
-        if (this.metricData != null) {
+        if (this.metricOption != null) {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
