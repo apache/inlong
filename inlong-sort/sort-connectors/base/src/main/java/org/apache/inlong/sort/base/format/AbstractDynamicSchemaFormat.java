@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.base.format;
 
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.RowType;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,6 +116,38 @@ public abstract class AbstractDynamicSchemaFormat<T> {
         }
         return extractValues(data, pkNames.toArray(new String[]{}));
     }
+
+    /**
+     * Extract is-ddl flag
+     *
+     * @param data The raw data
+     * @return The flag of whether is ddl
+     */
+    public abstract boolean extractDDLFlag(T data);
+
+    public RowType extractSchema(T data) {
+        return extractSchema(data, extractPrimaryKeyNames(data));
+    }
+
+    /**
+     * Extract data schema info {@link RowType} from data
+     *
+     * @param data The raw data
+     * @return The data schema info
+     */
+    public abstract RowType extractSchema(T data, List<String> pkNames);
+
+    public List<RowData> extractRowData(T data) {
+        return extractRowData(data, extractSchema(data));
+    }
+
+    /**
+     * Extract data {@link RowData} from data
+     *
+     * @param data The raw data
+     * @return The row data
+     */
+    public abstract List<RowData> extractRowData(T data, RowType rowType);
 
     /**
      * Deserialize from byte array
