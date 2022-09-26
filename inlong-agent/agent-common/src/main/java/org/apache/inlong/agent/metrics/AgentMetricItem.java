@@ -19,6 +19,7 @@ package org.apache.inlong.agent.metrics;
 
 import org.apache.inlong.common.metric.CountMetric;
 import org.apache.inlong.common.metric.Dimension;
+import org.apache.inlong.common.metric.GaugeMetric;
 import org.apache.inlong.common.metric.MetricDomain;
 import org.apache.inlong.common.metric.MetricItem;
 
@@ -61,13 +62,13 @@ public class AgentMetricItem extends MetricItem {
     @Dimension
     public String inlongStreamId;
 
-    @CountMetric
+    @GaugeMetric
     public AtomicLong jobRunningCount = new AtomicLong(0);
     @CountMetric
     public AtomicLong jobFatalCount = new AtomicLong(0);
-    @CountMetric
+    @GaugeMetric
     public AtomicLong taskRunningCount = new AtomicLong(0);
-    @CountMetric
+    @GaugeMetric
     public AtomicLong taskRetryingCount = new AtomicLong(0);
     @CountMetric
     public AtomicLong taskFatalCount = new AtomicLong(0);

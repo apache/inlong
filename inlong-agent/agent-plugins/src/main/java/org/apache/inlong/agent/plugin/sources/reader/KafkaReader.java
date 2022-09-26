@@ -121,6 +121,7 @@ public class KafkaReader<K, V> extends AbstractReader {
                         "partition:" + record.partition()
                                 + ", value:" + new String(recordValue) + ", offset:" + record.offset());
                 // control speed
+                readerMetric.pluginReadSuccessCount.incrementAndGet();
                 readerMetric.pluginReadCount.incrementAndGet();
                 // commit succeed,then record current offset
                 snapshot = record.partition() + JOB_KAFKA_PARTITION_OFFSET_DELIMITER + record.offset();
