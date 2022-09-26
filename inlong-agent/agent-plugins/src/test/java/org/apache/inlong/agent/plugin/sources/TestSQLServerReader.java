@@ -143,6 +143,7 @@ public class TestSQLServerReader {
         whenNew(AgentMetricItemSet.class).withArguments(anyString()).thenReturn(agentMetricItemSet);
         when(agentMetricItemSet.findMetricItem(any())).thenReturn(agentMetricItem);
         field(AgentMetricItem.class, "pluginReadCount").set(agentMetricItem, atomicLong);
+        field(AgentMetricItem.class, "pluginReadSuccessCount").set(agentMetricItem, atomicLong);
 
         //init method
         (reader = new SQLServerReader(sql)).init(jobProfile);
