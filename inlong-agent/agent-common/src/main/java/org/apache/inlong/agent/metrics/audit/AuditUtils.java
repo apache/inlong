@@ -72,21 +72,12 @@ public class AuditUtils {
     /**
      * add audit metric
      */
-    public static void add(int auditID, String inlongGroupId, String inlongStreamId, long logTime, int count) {
+    public static void add(int auditID, String inlongGroupId, String inlongStreamId, long logTime, int count,
+            long size) {
         if (!IS_AUDIT) {
             return;
         }
-        AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, count, 0);
-    }
-
-    /**
-     * add
-     */
-    public static void add(int auditID, String inlongGroupId, String inlongStreamId, long logTime) {
-        if (!IS_AUDIT) {
-            return;
-        }
-        AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, 1, 0);
+        AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, count, size);
     }
 
     /**

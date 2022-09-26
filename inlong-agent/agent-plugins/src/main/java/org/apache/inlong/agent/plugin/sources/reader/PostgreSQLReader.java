@@ -162,8 +162,9 @@ public class PostgreSQLReader extends AbstractReader {
                             committer.markProcessed(record);
                         }
                         committer.markBatchFinished();
+                        long dataSize = records.stream().mapToLong(c -> c.value().length()).sum();
                         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
-                                System.currentTimeMillis(), records.size());
+                                System.currentTimeMillis(), records.size(), dataSize);
                         readerMetric.pluginReadCount.addAndGet(records.size());
                     } catch (Exception e) {
                         readerMetric.pluginReadFailCount.addAndGet(records.size());

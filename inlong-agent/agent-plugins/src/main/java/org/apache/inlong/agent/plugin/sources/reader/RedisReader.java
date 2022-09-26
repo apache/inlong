@@ -108,9 +108,10 @@ public class RedisReader extends AbstractReader {
                 public void onEvent(Replicator replicator, Event event) {
                     try {
                         if (event instanceof DefaultCommand || event instanceof KeyValuePair<?, ?>) {
-                            redisMessageQueue.put(gson.toJson(event));
+                            String eventJson = gson.toJson(event);
+                            redisMessageQueue.put(eventJson);
                             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
-                                    System.currentTimeMillis(), 1);
+                                    System.currentTimeMillis(), 1, eventJson.length());
                             readerMetric.pluginReadCount.incrementAndGet();
                         }
                         if (event instanceof PostRdbSyncEvent) {
