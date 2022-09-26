@@ -141,7 +141,7 @@ public class TaskPositionManager extends AbstractDaemon {
         if (position == null) {
             position = positionTemp;
         }
-        Long beforePosition = position.getOrDefault(sourcePath, 1L);
+        Long beforePosition = position.getOrDefault(sourcePath, 0L);
         position.put(sourcePath, beforePosition + size);
     }
 

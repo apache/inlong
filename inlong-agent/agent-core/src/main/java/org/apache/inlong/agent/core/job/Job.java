@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.core.job;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.task.Task;
@@ -115,7 +116,9 @@ public class Job {
                 Channel channel = (Channel) Class.forName(jobConf.get(JobConstants.JOB_CHANNEL)).newInstance();
                 String taskId = String.format("%s_%d", jobInstanceId, threadNum.get());
                 threadNum.set(threadNum.get() + COUNTER);
-                taskList.add(new Task(taskId, reader, writer, channel, getJobConf()));
+                JobProfile jobProfile = getJobConf();
+                jobProfile.set(reader.getReadSource(), DigestUtils.md5Hex(reader.getReadSource()));
+                taskList.add(new Task(taskId, reader, writer, channel, jobProfile));
             }
         } catch (Throwable ex) {
             LOGGER.error("create task failed", ex);

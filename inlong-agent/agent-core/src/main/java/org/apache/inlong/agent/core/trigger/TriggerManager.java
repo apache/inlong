@@ -161,7 +161,7 @@ public class TriggerManager extends AbstractDaemon {
                     });
                     TimeUnit.SECONDS.sleep(triggerFetchInterval);
                 } catch (Throwable e) {
-                    LOGGER.info("ignored Exception ", e);
+                    LOGGER.info("ignored exception: ", e);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
                 }
             }
@@ -169,21 +169,27 @@ public class TriggerManager extends AbstractDaemon {
     }
 
     private boolean isRunningJob(JobProfile profile, Map<String, JobWrapper> jobWrapperMap) {
-        JobWrapper jobWrapper;
         try {
-            jobWrapper = jobWrapperMap.get(profile.getInstanceId());
-        } catch (Exception e) {
-            LOGGER.warn("get jobWrapper error: ", e);
-            return false;
-        }
-        List<Task> tasks = jobWrapper.getAllTasks();
-        for (Task task : tasks) {
-            JobProfile runJobProfile = task.getJobConf();
-            if (Objects.equals(runJobProfile.get(JOB_DIR_FILTER_PATTERN), profile.get(JOB_DIR_FILTER_PATTERN))) {
+            if (jobWrapperMap == null || jobWrapperMap.get(profile.getInstanceId()) == null) {
                 return false;
             }
+
+            JobWrapper jobWrapper = jobWrapperMap.get(profile.getInstanceId());
+            List<Task> tasks = jobWrapper.getAllTasks();
+            if (tasks == null) {
+                return true;
+            }
+            for (Task task : tasks) {
+                if (task.getJobConf().hasKey(profile.get(JOB_DIR_FILTER_PATTERN))) {
+                    return false;
+                }
+            }
+
+            return true;
+        } catch (Exception e) {
+            LOGGER.warn("not found job {} in the jobs, error: ", profile.toJsonStr(), e);
+            return false;
         }
-        return true;
     }
 
     private boolean isExistJob(JobProfile profile) {
