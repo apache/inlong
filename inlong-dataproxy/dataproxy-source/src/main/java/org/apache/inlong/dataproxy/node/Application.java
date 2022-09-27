@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -70,31 +70,25 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Application {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(Application.class);
-
     public static final String CONF_MONITOR_CLASS = "flume.monitoring.type";
     public static final String CONF_MONITOR_PREFIX = "flume.monitoring.";
-
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
     private final List<LifecycleAware> components;
     private final LifecycleSupervisor supervisor;
+    private final ReentrantLock lifecycleLock = new ReentrantLock();
     private MaterializedConfiguration materializedConfiguration;
     private MonitorService monitorServer;
-    private final ReentrantLock lifecycleLock = new ReentrantLock();
     private AdminTask adminTask;
-    private HeartbeatManager heartbeatManager;
 
     /**
      * Constructor
      */
     public Application() {
-        this(new ArrayList<LifecycleAware>(0));
+        this(new ArrayList<>(0));
     }
 
     /**
      * Constructor
-     *
-     * @param components
      */
     public Application(List<LifecycleAware> components) {
         this.components = components;
@@ -102,223 +96,11 @@ public class Application {
     }
 
     /**
-     * start
-     */
-    public void start() {
-        lifecycleLock.lock();
-        try {
-            for (LifecycleAware component : components) {
-                // update dataproxy config
-                if (component instanceof IDataProxyConfigHolder) {
-                    ((IDataProxyConfigHolder) component)
-                            .setDataProxyConfig(
-                                    RemoteConfigManager.getInstance().getCurrentClusterConfigRef());
-                }
-                supervisor.supervise(component,
-                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
-            }
-            // start admin task
-            this.adminTask = new AdminTask(new Context(CommonPropertiesHolder.get()));
-            this.adminTask.start();
-            this.heartbeatManager = new HeartbeatManager();
-            this.heartbeatManager.start();
-        } finally {
-            lifecycleLock.unlock();
-        }
-    }
-
-    /**
-     * handleConfigurationEvent
-     *
-     * @param conf
-     */
-    @Subscribe
-    public void handleConfigurationEvent(MaterializedConfiguration conf) {
-        try {
-            lifecycleLock.lockInterruptibly();
-            stopAllComponents();
-            startAllComponents(conf);
-        } catch (InterruptedException e) {
-            logger.info("Interrupted while trying to handle configuration event");
-            return;
-        } finally {
-            // If interrupted while trying to lock, we don't own the lock, so must not attempt to unlock
-            if (lifecycleLock.isHeldByCurrentThread()) {
-                lifecycleLock.unlock();
-            }
-        }
-    }
-
-    /**
-     * stop
-     */
-    public void stop() {
-        lifecycleLock.lock();
-        stopAllComponents();
-        try {
-            supervisor.stop();
-            if (monitorServer != null) {
-                monitorServer.stop();
-            }
-            // stop admin task
-            if (this.adminTask != null) {
-                this.adminTask.stop();
-            }
-        } finally {
-            lifecycleLock.unlock();
-        }
-    }
-
-    /**
-     * stopAllComponents
-     */
-    private void stopAllComponents() {
-        if (this.materializedConfiguration != null) {
-            logger.info("Shutting down configuration: {}", this.materializedConfiguration);
-            for (Entry<String, SourceRunner> entry : this.materializedConfiguration
-                    .getSourceRunners().entrySet()) {
-                try {
-                    logger.info("Stopping Source " + entry.getKey());
-                    supervisor.unsupervise(entry.getValue());
-                } catch (Exception e) {
-                    logger.error("Error while stopping {}", entry.getValue(), e);
-                }
-            }
-
-            for (Entry<String, SinkRunner> entry : this.materializedConfiguration.getSinkRunners()
-                    .entrySet()) {
-                try {
-                    logger.info("Stopping Sink " + entry.getKey());
-                    supervisor.unsupervise(entry.getValue());
-                } catch (Exception e) {
-                    logger.error("Error while stopping {}", entry.getValue(), e);
-                }
-            }
-
-            for (Entry<String, Channel> entry : this.materializedConfiguration.getChannels()
-                    .entrySet()) {
-                try {
-                    logger.info("Stopping Channel " + entry.getKey());
-                    supervisor.unsupervise(entry.getValue());
-                } catch (Exception e) {
-                    logger.error("Error while stopping {}", entry.getValue(), e);
-                }
-            }
-        }
-        if (monitorServer != null) {
-            monitorServer.stop();
-        }
-    }
-
-    /**
-     * startAllComponents
-     *
-     * @param materializedConfiguration
-     */
-    private void startAllComponents(MaterializedConfiguration materializedConfiguration) {
-        logger.info("Starting new configuration:{}", materializedConfiguration);
-
-        this.materializedConfiguration = materializedConfiguration;
-
-        for (Entry<String, Channel> entry : materializedConfiguration.getChannels().entrySet()) {
-            try {
-                logger.info("Starting Channel " + entry.getKey());
-                supervisor.supervise(entry.getValue(),
-                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
-            } catch (Exception e) {
-                logger.error("Error while starting {}", entry.getValue(), e);
-            }
-        }
-
-        /*
-         * Wait for all channels to start.
-         */
-        for (Channel ch : materializedConfiguration.getChannels().values()) {
-            while (ch.getLifecycleState() != LifecycleState.START
-                    && !supervisor.isComponentInErrorState(ch)) {
-                try {
-                    logger.info("Waiting for channel: " + ch.getName()
-                            + " to start. Sleeping for 500 ms");
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    logger.error("Interrupted while waiting for channel to start.", e);
-                    Throwables.propagate(e);
-                }
-            }
-        }
-
-        for (Entry<String, SinkRunner> entry : materializedConfiguration.getSinkRunners()
-                .entrySet()) {
-            try {
-                logger.info("Starting Sink " + entry.getKey());
-                supervisor.supervise(entry.getValue(),
-                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
-            } catch (Exception e) {
-                logger.error("Error while starting {}", entry.getValue(), e);
-            }
-        }
-
-        for (Entry<String, SourceRunner> entry : materializedConfiguration.getSourceRunners()
-                .entrySet()) {
-            try {
-                logger.info("Starting Source " + entry.getKey());
-                supervisor.supervise(entry.getValue(),
-                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
-            } catch (Exception e) {
-                logger.error("Error while starting {}", entry.getValue(), e);
-            }
-        }
-
-        this.loadMonitoring();
-    }
-
-    /**
-     * loadMonitoring
-     */
-    @SuppressWarnings("unchecked")
-    private void loadMonitoring() {
-        Properties systemProps = System.getProperties();
-        Set<String> keys = systemProps.stringPropertyNames();
-        try {
-            if (keys.contains(CONF_MONITOR_CLASS)) {
-                String monitorType = systemProps.getProperty(CONF_MONITOR_CLASS);
-                Class<? extends MonitorService> klass;
-                try {
-                    // Is it a known type?
-                    klass = MonitoringType.valueOf(
-                            monitorType.toUpperCase(Locale.ENGLISH)).getMonitorClass();
-                } catch (Exception e) {
-                    // Not a known type, use FQCN
-                    klass = (Class<? extends MonitorService>) Class.forName(monitorType);
-                }
-                this.monitorServer = klass.getDeclaredConstructor().newInstance();
-                Context context = new Context();
-                for (String key : keys) {
-                    if (key.startsWith(CONF_MONITOR_PREFIX)) {
-                        context.put(key.substring(CONF_MONITOR_PREFIX.length()),
-                                systemProps.getProperty(key));
-                    }
-                }
-                monitorServer.configure(context);
-                monitorServer.start();
-            }
-        } catch (Exception e) {
-            logger.warn("Error starting monitoring. "
-                    + "Monitoring might not be available.", e);
-        }
-
-    }
-
-    /**
-     * main
-     *
-     * @param args
+     * Main entrance
      */
     public static void main(String[] args) {
-
         try {
             SSLUtil.initGlobalSSLParameters();
-
             Options options = new Options();
 
             Option option = new Option("n", "name", true, "the name of this agent");
@@ -371,10 +153,7 @@ public class Application {
             String agentName = commandLine.getOptionValue('n');
             boolean reload = !commandLine.hasOption("no-reload-conf");
 
-            boolean isZkConfigured = false;
-            if (commandLine.hasOption('z') || commandLine.hasOption("zkConnString")) {
-                isZkConfigured = true;
-            }
+            boolean isZkConfigured = commandLine.hasOption('z') || commandLine.hasOption("zkConnString");
 
             Application application;
             if (isZkConfigured) {
@@ -408,11 +187,9 @@ public class Application {
                         try {
                             path = configurationFile.getCanonicalPath();
                         } catch (IOException ex) {
-                            logger.error("Failed to read canonical path for file: " + path,
-                                    ex);
+                            logger.error("Failed to read canonical path for file: " + path, ex);
                         }
-                        throw new ParseException(
-                                "The specified configuration file does not exist: " + path);
+                        throw new ParseException("The specified configuration file does not exist: " + path);
                     }
                 }
                 List<LifecycleAware> components = Lists.newArrayList();
@@ -427,8 +204,7 @@ public class Application {
                     eventBus.register(application);
                 } else {
                     PropertiesFileConfigurationProvider configurationProvider;
-                    configurationProvider = new PropertiesFileConfigurationProvider(
-                            agentName, configurationFile);
+                    configurationProvider = new PropertiesFileConfigurationProvider(agentName, configurationFile);
                     application = new Application();
                     application.handleConfigurationEvent(configurationProvider.getConfiguration());
                 }
@@ -440,10 +216,9 @@ public class Application {
 
             final Application appReference = application;
             Runtime.getRuntime().addShutdownHook(new Thread("agent-shutdown-hook") {
-
                 @Override
                 public void run() {
-                    AuditUtils.sendReport();
+                    AuditUtils.send();
                     appReference.stop();
                 }
             });
@@ -457,14 +232,11 @@ public class Application {
     }
 
     /**
-     * startByManagerConf
-     *
-     * @param commandLine
+     * Start by Manager config
      */
     private static void startByManagerConf(CommandLine commandLine) {
         String proxyName = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
-        ManagerPropertiesConfigurationProvider configurationProvider = new ManagerPropertiesConfigurationProvider(
-                proxyName);
+        ManagerPropsConfigProvider configurationProvider = new ManagerPropsConfigProvider(proxyName);
         Application application = new Application();
         application.handleConfigurationEvent(configurationProvider.getConfiguration());
         application.start();
@@ -478,4 +250,201 @@ public class Application {
             }
         });
     }
+
+    /**
+     * start
+     */
+    public void start() {
+        lifecycleLock.lock();
+        try {
+            for (LifecycleAware component : components) {
+                // update dataproxy config
+                if (component instanceof IDataProxyConfigHolder) {
+                    ((IDataProxyConfigHolder) component)
+                            .setDataProxyConfig(
+                                    RemoteConfigManager.getInstance().getCurrentClusterConfigRef());
+                }
+                supervisor.supervise(component,
+                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
+            }
+            // start admin task
+            this.adminTask = new AdminTask(new Context(CommonPropertiesHolder.get()));
+            this.adminTask.start();
+            HeartbeatManager heartbeatManager = new HeartbeatManager();
+            heartbeatManager.start();
+        } finally {
+            lifecycleLock.unlock();
+        }
+    }
+
+    /**
+     * handleConfigurationEvent
+     */
+    @Subscribe
+    public void handleConfigurationEvent(MaterializedConfiguration conf) {
+        try {
+            lifecycleLock.lockInterruptibly();
+            stopAllComponents();
+            startAllComponents(conf);
+        } catch (InterruptedException e) {
+            logger.info("Interrupted while trying to handle configuration event");
+        } finally {
+            // If interrupted while trying to lock, we don't own the lock, so must not attempt to unlock
+            if (lifecycleLock.isHeldByCurrentThread()) {
+                lifecycleLock.unlock();
+            }
+        }
+    }
+
+    /**
+     * Stop
+     */
+    public void stop() {
+        lifecycleLock.lock();
+        stopAllComponents();
+        try {
+            supervisor.stop();
+            if (monitorServer != null) {
+                monitorServer.stop();
+            }
+            // stop admin task
+            if (this.adminTask != null) {
+                this.adminTask.stop();
+            }
+        } finally {
+            lifecycleLock.unlock();
+        }
+    }
+
+    /**
+     * Stop all components
+     */
+    private void stopAllComponents() {
+        if (this.materializedConfiguration != null) {
+            logger.info("Shutting down configuration: {}", this.materializedConfiguration);
+            for (Entry<String, SourceRunner> entry : this.materializedConfiguration
+                    .getSourceRunners().entrySet()) {
+                try {
+                    logger.info("Stopping Source " + entry.getKey());
+                    supervisor.unsupervise(entry.getValue());
+                } catch (Exception e) {
+                    logger.error("Error while stopping {}", entry.getValue(), e);
+                }
+            }
+
+            for (Entry<String, SinkRunner> entry : this.materializedConfiguration.getSinkRunners()
+                    .entrySet()) {
+                try {
+                    logger.info("Stopping Sink " + entry.getKey());
+                    supervisor.unsupervise(entry.getValue());
+                } catch (Exception e) {
+                    logger.error("Error while stopping {}", entry.getValue(), e);
+                }
+            }
+
+            for (Entry<String, Channel> entry : this.materializedConfiguration.getChannels()
+                    .entrySet()) {
+                try {
+                    logger.info("Stopping Channel " + entry.getKey());
+                    supervisor.unsupervise(entry.getValue());
+                } catch (Exception e) {
+                    logger.error("Error while stopping {}", entry.getValue(), e);
+                }
+            }
+        }
+        if (monitorServer != null) {
+            monitorServer.stop();
+        }
+    }
+
+    /**
+     * Start all components
+     */
+    private void startAllComponents(MaterializedConfiguration materializedConfiguration) {
+        logger.info("Starting new configuration:{}", materializedConfiguration);
+
+        this.materializedConfiguration = materializedConfiguration;
+
+        for (Entry<String, Channel> entry : materializedConfiguration.getChannels().entrySet()) {
+            try {
+                logger.info("Starting Channel " + entry.getKey());
+                supervisor.supervise(entry.getValue(),
+                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
+            } catch (Exception e) {
+                logger.error("Error while starting {}", entry.getValue(), e);
+            }
+        }
+
+        /*
+         * Wait for all channels to start.
+         */
+        for (Channel ch : materializedConfiguration.getChannels().values()) {
+            while (ch.getLifecycleState() != LifecycleState.START
+                    && !supervisor.isComponentInErrorState(ch)) {
+                try {
+                    logger.info("Waiting for channel: {} to start. Sleeping for 500 ms", ch.getName());
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    logger.error("Interrupted while waiting for channel to start.", e);
+                    Throwables.propagate(e);
+                }
+            }
+        }
+
+        for (Entry<String, SinkRunner> entry : materializedConfiguration.getSinkRunners().entrySet()) {
+            try {
+                logger.info("Starting Sink " + entry.getKey());
+                supervisor.supervise(entry.getValue(),
+                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
+            } catch (Exception e) {
+                logger.error("Error while starting {}", entry.getValue(), e);
+            }
+        }
+
+        for (Entry<String, SourceRunner> entry : materializedConfiguration.getSourceRunners().entrySet()) {
+            try {
+                logger.info("Starting Source " + entry.getKey());
+                supervisor.supervise(entry.getValue(),
+                        new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
+            } catch (Exception e) {
+                logger.error("Error while starting {}", entry.getValue(), e);
+            }
+        }
+
+        this.loadMonitoring();
+    }
+
+    /**
+     * Load monitoring
+     */
+    @SuppressWarnings("unchecked")
+    private void loadMonitoring() {
+        Properties systemProps = System.getProperties();
+        Set<String> keys = systemProps.stringPropertyNames();
+        try {
+            if (keys.contains(CONF_MONITOR_CLASS)) {
+                String monitorType = systemProps.getProperty(CONF_MONITOR_CLASS);
+                Class<? extends MonitorService> klass;
+                try {
+                    // Is it a known type?
+                    klass = MonitoringType.valueOf(monitorType.toUpperCase(Locale.ENGLISH)).getMonitorClass();
+                } catch (Exception e) {
+                    // Not a known type, use FQCN
+                    klass = (Class<? extends MonitorService>) Class.forName(monitorType);
+                }
+                this.monitorServer = klass.getDeclaredConstructor().newInstance();
+                Context context = new Context();
+                for (String key : keys) {
+                    if (key.startsWith(CONF_MONITOR_PREFIX)) {
+                        context.put(key.substring(CONF_MONITOR_PREFIX.length()), systemProps.getProperty(key));
+                    }
+                }
+                monitorServer.configure(context);
+                monitorServer.start();
+            }
+        } catch (Exception e) {
+            logger.warn("Error starting monitoring. Monitoring might not be available.", e);
+        }
+    }
+
 }

@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,48 +17,38 @@
 
 package org.apache.inlong.dataproxy.node;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.flume.conf.FlumeConfiguration;
 import org.apache.flume.node.AbstractConfigurationProvider;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * 
- * ManagerPropertiesConfigurationProvider
+ * Manager properties configuration provider
  */
-public class ManagerPropertiesConfigurationProvider extends
-        AbstractConfigurationProvider {
+public class ManagerPropsConfigProvider extends AbstractConfigurationProvider {
 
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(ManagerPropertiesConfigurationProvider.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ManagerPropsConfigProvider.class);
 
-    /**
-     * ManagerPropertiJesConfigurationProvider
-     * 
-     * @param agentName
-     */
-    public ManagerPropertiesConfigurationProvider(String agentName) {
+    public ManagerPropsConfigProvider(String agentName) {
         super(agentName);
     }
 
     /**
-     * getFlumeConfiguration
-     * 
-     * @return
+     * Get Flume configuration
      */
     @Override
     public FlumeConfiguration getFlumeConfiguration() {
         try {
             Map<String, String> flumeProperties = RemoteConfigManager.getInstance().getFlumeProperties();
-            LOGGER.info("flumeProperties:{}", flumeProperties);
+            LOGGER.info("all flume props: {}", flumeProperties);
             return new FlumeConfiguration(flumeProperties);
         } catch (Exception e) {
-            LOGGER.error("exception catch:" + e.getMessage(), e);
+            LOGGER.error("get flume props error: ", e);
         }
-        return new FlumeConfiguration(new HashMap<String, String>());
+        return new FlumeConfiguration(new HashMap<>());
     }
 }
