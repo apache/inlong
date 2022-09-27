@@ -86,6 +86,32 @@ class DataNodeControllerTest extends WebBaseTest {
     }
 
     @Test
+    void testSaveAndGetAndDeleteByName() throws Exception {
+        HiveDataNodeRequest request = getHiveDataNodeRequest();
+        // save
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", request);
+
+        Integer dataNodeId = getResBodyObj(mvcResult, Integer.class);
+        Assertions.assertNotNull(dataNodeId);
+
+        // get
+        MvcResult getResult = getForSuccessMvcResult("/api/node/get/{id}", dataNodeId);
+
+        DataNodeResponse dataNode = getResBodyObj(getResult, DataNodeResponse.class);
+        Assertions.assertNotNull(dataNode);
+        Assertions.assertEquals(getHiveDataNodeRequest().getName(), dataNode.getName());
+
+        // delete
+        MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/deleteByName/{name}", request.getName());
+
+        Boolean success = getResBodyObj(deleteResult, Boolean.class);
+        Assertions.assertTrue(success);
+
+        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectById(dataNodeId);
+        Assertions.assertEquals(dataNodeEntity.getId(), dataNodeEntity.getIsDeleted());
+    }
+
+    @Test
     void testUpdate() throws Exception {
         // insert the test data
         DataNodeEntity nodeEntity = new DataNodeEntity();
