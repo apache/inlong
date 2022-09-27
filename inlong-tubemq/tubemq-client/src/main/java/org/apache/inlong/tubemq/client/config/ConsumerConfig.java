@@ -245,11 +245,7 @@ public class ConsumerConfig extends TubeClientConfig {
     }
 
     public void setMaxSubInfoReportIntvlTimes(int maxSubInfoReportIntvlTimes) {
-        if (maxSubInfoReportIntvlTimes < 3) {
-            this.maxSubInfoReportIntvlTimes = 3;
-        } else {
-            this.maxSubInfoReportIntvlTimes = maxSubInfoReportIntvlTimes;
-        }
+        this.maxSubInfoReportIntvlTimes = Math.max(maxSubInfoReportIntvlTimes, 3);
     }
 
     private void validConsumerGroupParameter(String consumerGroup) {
