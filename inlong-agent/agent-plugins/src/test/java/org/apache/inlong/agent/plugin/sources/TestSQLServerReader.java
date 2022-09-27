@@ -93,6 +93,8 @@ public class TestSQLServerReader {
 
     private AtomicLong atomicLong;
 
+    private AtomicLong atomicCountLong;
+
     private String sql;
 
     @Before
@@ -107,6 +109,7 @@ public class TestSQLServerReader {
         final String groupId = "group01";
         final String streamId = "stream01";
         atomicLong = new AtomicLong(0L);
+        atomicCountLong = new AtomicLong(0L);
 
         sql = "select * from dbo.test01";
 
@@ -143,7 +146,7 @@ public class TestSQLServerReader {
         whenNew(AgentMetricItemSet.class).withArguments(anyString()).thenReturn(agentMetricItemSet);
         when(agentMetricItemSet.findMetricItem(any())).thenReturn(agentMetricItem);
         field(AgentMetricItem.class, "pluginReadCount").set(agentMetricItem, atomicLong);
-        field(AgentMetricItem.class, "pluginReadSuccessCount").set(agentMetricItem, atomicLong);
+        field(AgentMetricItem.class, "pluginReadSuccessCount").set(agentMetricItem, atomicCountLong);
 
         //init method
         (reader = new SQLServerReader(sql)).init(jobProfile);
