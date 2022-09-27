@@ -25,6 +25,9 @@ import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
 import org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type;
 import org.apache.inlong.audit.protocol.AuditApi.Pong;
 
+/**
+ * Audit commands, used to get various of ByteBuf.
+ */
 public class Commands {
 
     public static int HEAD_LENGTH = 4;
@@ -45,24 +48,24 @@ public class Commands {
 
     public static ByteBuf getAuditRequestBuffer(AuditRequest auditRequest) {
         BaseCommand cmdAuditRequest = BaseCommand.newBuilder()
-                .setType(Type.AUDITREQUEST)
+                .setType(Type.AUDIT_REQUEST)
                 .setAuditRequest(auditRequest).build();
         return getChannelBuffer(cmdAuditRequest.toByteArray());
     }
 
-    public static ByteBuf getAuditReplylBuffer(AuditReply auditReply) {
+    public static ByteBuf getAuditReplyBuffer(AuditReply auditReply) {
         BaseCommand cmdAuditReply = BaseCommand.newBuilder()
-                .setType(Type.AUDITREPLY)
+                .setType(Type.AUDIT_REPLY)
                 .setAuditReply(auditReply).build();
         return getChannelBuffer(cmdAuditReply.toByteArray());
     }
 
     private static ByteBuf getChannelBuffer(byte[] body) {
-        /* [totalSize] | [body]*/
+        // [totalSize] | [body]
         int totalLength = body.length;
-        ByteBuf cmdPingBuffer = ByteBufAllocator.DEFAULT.buffer(HEAD_LENGTH + totalLength);
-        cmdPingBuffer.writeInt(totalLength);
-        cmdPingBuffer.writeBytes(body);
-        return cmdPingBuffer;
+        ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer(HEAD_LENGTH + totalLength);
+        buffer.writeInt(totalLength);
+        buffer.writeBytes(body);
+        return buffer;
     }
 }

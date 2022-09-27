@@ -24,33 +24,27 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AuditData implements Serializable {
+
     public static int HEAD_LENGTH = 4;
-    private final long sdkTime;
     private final AuditApi.BaseCommand content;
-    private AtomicInteger resendTimes = new AtomicInteger(0);
+    private final AtomicInteger resendTimes = new AtomicInteger(0);
 
     /**
      * Constructor
-     *
-     * @param sdkTime
-     * @param content
      */
-    public AuditData(long sdkTime, AuditApi.BaseCommand content) {
-        this.sdkTime = sdkTime;
+    public AuditData(AuditApi.BaseCommand content) {
         this.content = content;
     }
 
     /**
-     * set resendTimes
+     * Increase and get resend times
      */
     public int increaseResendTimes() {
         return this.resendTimes.incrementAndGet();
     }
 
     /**
-     * getDataByte
-     *
-     * @return
+     * Get data byte array
      */
     public byte[] getDataByte() {
         return addBytes(ByteBuffer.allocate(HEAD_LENGTH).putInt(content.toByteArray().length).array(),
@@ -60,9 +54,7 @@ public class AuditData implements Serializable {
     /**
      * Concatenated byte array
      *
-     * @param data1
-     * @param data2
-     * @return data1 and  data2 combined package result
+     * @return data1 and data2 combined package result
      */
     public byte[] addBytes(byte[] data1, byte[] data2) {
         byte[] data3 = new byte[data1.length + data2.length];
