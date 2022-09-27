@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeInfo;
@@ -86,22 +87,22 @@ public class HiveResourceOperator implements SinkResourceOperator {
 
     private HiveSinkDTO getHiveInfo(SinkInfo sinkInfo) {
         HiveSinkDTO hiveInfo = new HiveSinkDTO();
-        String dataNodeName = sinkInfo.getDataNodeName();
 
-        // firstly use data node info if exists
-        if (StringUtils.isNotBlank(dataNodeName)) {
+        if (StringUtils.isNotBlank(sinkInfo.getExtParams())) {
+            HiveSinkDTO userSinkInfo = HiveSinkDTO.getFromJson(sinkInfo.getExtParams());
+            CommonBeanUtils.copyProperties(userSinkInfo, hiveInfo);
+        }
+
+        // read from data node if not supplied by user
+        if (StringUtils.isBlank(hiveInfo.getJdbcUrl())) {
+            String dataNodeName = sinkInfo.getDataNodeName();
+            Preconditions.checkNotEmpty(dataNodeName, "hive jdbc url not specified and data node is empty");
             HiveDataNodeInfo dataNodeInfo = (HiveDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, hiveInfo);
             hiveInfo.setJdbcUrl(dataNodeInfo.getUrl());
             hiveInfo.setUsername(dataNodeInfo.getUsername());
             hiveInfo.setPassword(dataNodeInfo.getToken());
-        }
-
-        // secondly overwrite with whatever user has otherwise specified
-        if (StringUtils.isNotBlank(sinkInfo.getExtParams())) {
-            HiveSinkDTO userDefined = HiveSinkDTO.getFromJson(sinkInfo.getExtParams());
-            CommonBeanUtils.copyProperties(userDefined, hiveInfo);
         }
         return hiveInfo;
     }
