@@ -329,24 +329,14 @@ public class TubeBroker implements Stoppable {
         // update default flow controller rules
         FlowCtrlRuleHandler defFlowCtrlHandler =
                 metadataManager.getFlowCtrlRuleHandler();
-        long flowCheckId = defFlowCtrlHandler.getFlowCtrlId();
-        int qryPriorityId = defFlowCtrlHandler.getQryPriorityId();
-        if (response.hasFlowCheckId()) {
-            qryPriorityId = response.hasQryPriorityId()
-                    ? response.getQryPriorityId() : qryPriorityId;
-            if (response.getFlowCheckId() != flowCheckId) {
-                flowCheckId = response.getFlowCheckId();
-                try {
-                    defFlowCtrlHandler
-                            .updateFlowCtrlInfo(qryPriorityId,
-                                    flowCheckId, response.getFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn(
-                            "[HeartBeat response] found parse flowCtrl rules failure", e1);
-                }
-            }
-            if (qryPriorityId != defFlowCtrlHandler.getQryPriorityId()) {
-                defFlowCtrlHandler.setQryPriorityId(qryPriorityId);
+        if (response.hasFlowCheckId()
+                && response.getFlowCheckId() >= 0
+                && response.getFlowCheckId() != defFlowCtrlHandler.getFlowCtrlId()) {
+            try {
+                defFlowCtrlHandler.updateFlowCtrlInfo(response.getQryPriorityId(),
+                        response.getFlowCheckId(), response.getFlowControlInfo(), strBuff);
+            } catch (Exception e1) {
+                logger.warn("[HeartBeat response] found update flowCtrl rules failure", e1);
             }
         }
         // update configure report requirement
@@ -450,20 +440,14 @@ public class TubeBroker implements Stoppable {
         // process default flow controller rules
         FlowCtrlRuleHandler defFlowCtrlHandler =
                 metadataManager.getFlowCtrlRuleHandler();
-        if (response.hasFlowCheckId()) {
-            int qryPriorityId = response.hasQryPriorityId()
-                    ? response.getQryPriorityId() : defFlowCtrlHandler.getQryPriorityId();
-            if (response.getFlowCheckId() != defFlowCtrlHandler.getFlowCtrlId()) {
-                try {
-                    defFlowCtrlHandler
-                            .updateFlowCtrlInfo(response.getQryPriorityId(),
-                                    response.getFlowCheckId(), response.getFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn("[Register response] found parse flowCtrl rules failure", e1);
-                }
-            }
-            if (qryPriorityId != defFlowCtrlHandler.getQryPriorityId()) {
-                defFlowCtrlHandler.setQryPriorityId(qryPriorityId);
+        if (response.hasFlowCheckId()
+                && response.getFlowCheckId() >= 0
+                && response.getFlowCheckId() != defFlowCtrlHandler.getFlowCtrlId()) {
+            try {
+                defFlowCtrlHandler.updateFlowCtrlInfo(response.getQryPriorityId(),
+                        response.getFlowCheckId(), response.getFlowControlInfo(), strBuff);
+            } catch (Exception e1) {
+                logger.warn("[Register response] update default flowCtrl rules failure", e1);
             }
         }
         // update auth info

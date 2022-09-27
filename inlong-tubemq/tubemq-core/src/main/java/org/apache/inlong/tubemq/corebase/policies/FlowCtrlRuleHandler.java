@@ -88,30 +88,27 @@ public class FlowCtrlRuleHandler {
     /**
      * Parse flow control information and update stored cached old content
      *
-     * @param qyrPriorityId    query priority id
+     * @param qryPriorityId    the query priority id
      * @param flowCtrlId       flow control information id
      * @param flowCtrlInfo     flow control information content
-     * @throws Exception       Exception thrown
+     * @param strBuff          the string buffer
+     * @throws Exception       the exception thrown
      */
-    public void updateFlowCtrlInfo(final int qyrPriorityId,
-                                   final long flowCtrlId,
-                                   final String flowCtrlInfo) throws Exception {
+    public void updateFlowCtrlInfo(int qryPriorityId, long flowCtrlId,
+                                   String flowCtrlInfo, StringBuilder strBuff) throws Exception {
         if (flowCtrlId == this.flowCtrlId.get()) {
             return;
         }
+        long befFlowCtrlId;
+        int befQryPriorityId = TBaseConstants.META_VALUE_UNDEFINED;
         Map<Integer, List<FlowCtrlItem>> flowCtrlItemsMap = null;
         if (TStringUtils.isNotBlank(flowCtrlInfo)) {
             flowCtrlItemsMap = parseFlowCtrlInfo(flowCtrlInfo);
         }
         writeLock.lock();
         try {
-            this.flowCtrlId.set(flowCtrlId);
+            befFlowCtrlId = this.flowCtrlId.getAndSet(flowCtrlId);
             this.strFlowCtrlInfo = flowCtrlInfo;
-            logger.info(new StringBuilder(512)
-                .append("[Flow Ctrl] Updated ").append(flowCtrlName)
-                .append(" to flowId=").append(flowCtrlId)
-                .append(",qyrPriorityId=").append(qyrPriorityId).toString());
-            this.qryPriorityId.set(qyrPriorityId);
             clearStatisData();
             if (flowCtrlItemsMap == null
                     || flowCtrlItemsMap.isEmpty()) {
@@ -120,10 +117,24 @@ public class FlowCtrlRuleHandler {
                 flowCtrlRuleSet = flowCtrlItemsMap;
                 initialStatisData();
             }
+            if (qryPriorityId != TBaseConstants.META_VALUE_UNDEFINED
+                    && qryPriorityId != this.qryPriorityId.get()) {
+                befQryPriorityId = this.qryPriorityId.getAndSet(qryPriorityId);
+            }
             this.lastUpdateTime = System.currentTimeMillis();
         } finally {
             writeLock.unlock();
         }
+        strBuff.append("[Flow Ctrl] Update ").append(flowCtrlName)
+                .append(", flowId from ").append(befFlowCtrlId)
+                .append(" to ").append(flowCtrlId);
+        if (qryPriorityId != TBaseConstants.META_VALUE_UNDEFINED
+                && qryPriorityId != befQryPriorityId) {
+            strBuff.append(", qryPriorityId from ").append(befQryPriorityId)
+                    .append(" to ").append(qryPriorityId);
+        }
+        logger.info(strBuff.toString());
+        strBuff.delete(0, strBuff.length());
     }
 
     /**
@@ -782,5 +793,4 @@ public class FlowCtrlRuleHandler {
         }
         return timeHour * 100 + timeMin;
     }
-
 }

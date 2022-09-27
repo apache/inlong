@@ -73,7 +73,7 @@ public class RmtDataCache implements Closeable {
     private long lastEmptyBrokerPrintTime = 0;
     private long lastEmptyTopicPrintTime = 0;
     private long lastBrokerUpdatedTime = System.currentTimeMillis();
-    private AtomicLong lstBrokerConfigId =
+    private final AtomicLong lstBrokerConfigId =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private Map<Integer, BrokerInfo> brokersMap =
             new ConcurrentHashMap<>();
@@ -96,12 +96,15 @@ public class RmtDataCache implements Closeable {
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private boolean isFirstReport = true;
     private long reportIntCount = 0;
+    private final long maxReportTimes;
     // partition cache
     private final AtomicInteger waitCont = new AtomicInteger(0);
     private final ConcurrentHashMap<String, Timeout> timeouts =
             new ConcurrentHashMap<>();
     private final ConcurrentLinkedQueue<String> indexPartition =
             new ConcurrentLinkedQueue<String>();
+    private volatile long lstReportTime = 0;
+    private final AtomicLong partMapChgTime = new AtomicLong(0);
     private final ConcurrentHashMap<String /* index */, PartitionExt> partitionMap =
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String /* index */, Long> partitionUsedMap =
@@ -116,7 +119,7 @@ public class RmtDataCache implements Closeable {
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* partitionKey */, Integer> partRegisterBookMap =
             new ConcurrentHashMap<>();
-    private AtomicBoolean isClosed = new AtomicBoolean(false);
+    private final AtomicBoolean isClosed = new AtomicBoolean(false);
     private CountDownLatch dataProcessSync = new CountDownLatch(0);
 
     /**
@@ -130,6 +133,7 @@ public class RmtDataCache implements Closeable {
         if (refCont.incrementAndGet() == 1) {
             timer = new HashedWheelTimer();
         }
+        this.maxReportTimes = consumerConfig.getMaxSubInfoReportIntvlTimes() * 10L;
         Map<Partition, ConsumeOffsetInfo> tmpPartOffsetMap = new HashMap<>();
         if (partitionList != null) {
             for (Partition partition : partitionList) {
@@ -163,40 +167,38 @@ public class RmtDataCache implements Closeable {
      * update ops task in cache
      *
      * @param opsTaskInfo ops task info
+     * @param strBuff   the string buffer
      *
      */
-    public void updOpsTaskInfo(ClientMaster.OpsTaskInfo opsTaskInfo) {
+    public void updOpsTaskInfo(ClientMaster.OpsTaskInfo opsTaskInfo, StringBuilder strBuff) {
         if (opsTaskInfo == null) {
             return;
         }
-        // update flowctrl info
-        if (opsTaskInfo.hasGroupFlowCheckId()) {
-            if (opsTaskInfo.getGroupFlowCheckId() >= 0
-                    && opsTaskInfo.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    groupFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                            opsTaskInfo.getGroupFlowCheckId(), opsTaskInfo.getGroupFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn("[Remote Data Cache] found parse group flowCtrl rules failure", e1);
-                }
+        // update group flowctrl info
+        if (opsTaskInfo.hasGroupFlowCheckId()
+                && opsTaskInfo.getGroupFlowCheckId() >= 0
+                && opsTaskInfo.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
+            try {
+                groupFlowCtrlRuleHandler.updateFlowCtrlInfo(
+                        opsTaskInfo.getQryPriorityId(),
+                        opsTaskInfo.getGroupFlowCheckId(),
+                        opsTaskInfo.getGroupFlowControlInfo(), strBuff);
+            } catch (Exception e1) {
+                logger.warn("[Remote Data Cache] found parse group flowCtrl rules failure", e1);
             }
         }
-        if (opsTaskInfo.hasDefFlowCheckId()) {
-            if (opsTaskInfo.getDefFlowCheckId() >= 0
-                    && opsTaskInfo.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    defFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                            opsTaskInfo.getDefFlowCheckId(), opsTaskInfo.getDefFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn("[Remote Data Cache] found parse default flowCtrl rules failure", e1);
-                }
+        // update default flowctrl info
+        if (opsTaskInfo.hasDefFlowCheckId()
+                && opsTaskInfo.getDefFlowCheckId() >= 0
+                && opsTaskInfo.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
+            try {
+                defFlowCtrlRuleHandler.updateFlowCtrlInfo(
+                        TBaseConstants.META_VALUE_UNDEFINED,
+                        opsTaskInfo.getDefFlowCheckId(),
+                        opsTaskInfo.getDefFlowControlInfo(), strBuff);
+            } catch (Exception e1) {
+                logger.warn("[Remote Data Cache] found parse default flowCtrl rules failure", e1);
             }
-        }
-        // update priority id
-        int qryPriorityId = opsTaskInfo.hasQryPriorityId()
-                ? opsTaskInfo.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
-        if (qryPriorityId != groupFlowCtrlRuleHandler.getQryPriorityId()) {
-            groupFlowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
         }
         // update consume control info
         if (opsTaskInfo.hasCsmFrmMaxOffsetCtrlId()
@@ -217,82 +219,80 @@ public class RmtDataCache implements Closeable {
     /**
      * update ops task in cache
      *
-     * @param response master register response
+     * @param response   master register response
+     * @param strBuff  the string buffer
      *
      */
-    public void updFlowCtrlInfoInfo(ClientMaster.RegisterResponseM2C response) {
+    public void updFlowCtrlInfoInfo(ClientMaster.RegisterResponseM2C response,
+                                    StringBuilder strBuff) {
         if (response == null) {
             return;
         }
-        // update flowctrl info
-        if (response.hasGroupFlowCheckId()) {
-            if (response.getGroupFlowCheckId() >= 0
-                    && response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    groupFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                            response.getGroupFlowCheckId(), response.getGroupFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn("[Remote Data Cache] found parse group flowCtrl rules failure", e1);
-                }
+        // update group flowctrl info
+        if (response.hasGroupFlowCheckId()
+                && response.getGroupFlowCheckId() >= 0
+                && response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
+            try {
+                groupFlowCtrlRuleHandler.updateFlowCtrlInfo(
+                        response.getQryPriorityId(),
+                        response.getGroupFlowCheckId(),
+                        response.getGroupFlowControlInfo(), strBuff);
+            } catch (Exception e1) {
+                logger.warn("[Remote Data Cache] found parse group flowCtrl rules failure", e1);
             }
         }
-        if (response.hasDefFlowCheckId()) {
-            if (response.getDefFlowCheckId() >= 0
-                    && response.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    defFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                            response.getDefFlowCheckId(), response.getDefFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn("[Remote Data Cache] found parse default flowCtrl rules failure", e1);
-                }
+        // update default flowctrl info
+        if (response.hasDefFlowCheckId()
+                && response.getDefFlowCheckId() >= 0
+                && response.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
+            try {
+                defFlowCtrlRuleHandler.updateFlowCtrlInfo(
+                        TBaseConstants.META_VALUE_UNDEFINED,
+                        response.getDefFlowCheckId(),
+                        response.getDefFlowControlInfo(), strBuff);
+            } catch (Exception e1) {
+                logger.warn("[Remote Data Cache] found parse default flowCtrl rules failure", e1);
             }
-        }
-        // update priority id
-        int qryPriorityId = response.hasQryPriorityId()
-                ? response.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
-        if (qryPriorityId != groupFlowCtrlRuleHandler.getQryPriorityId()) {
-            groupFlowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
         }
     }
 
     /**
      * update ops task in cache
      *
-     * @param response master register response
+     * @param response   master register response
+     * @param strBuff  the string buffer
      *
      */
-    public void updFlowCtrlInfoInfo(ClientMaster.HeartResponseM2C response) {
+    public void updFlowCtrlInfoInfo(ClientMaster.HeartResponseM2C response,
+                                    StringBuilder strBuff) {
         if (response == null) {
             return;
         }
-        // update flowctrl info
-        if (response.hasGroupFlowCheckId()) {
-            if (response.getGroupFlowCheckId() >= 0
-                    && response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    groupFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                            response.getGroupFlowCheckId(), response.getGroupFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn("[Remote Data Cache] found parse group flowCtrl rules failure", e1);
-                }
+        // update group flowctrl info
+        if (response.hasGroupFlowCheckId()
+                && response.getGroupFlowCheckId() >= 0
+                && response.getGroupFlowCheckId() != groupFlowCtrlRuleHandler.getFlowCtrlId()) {
+            try {
+                groupFlowCtrlRuleHandler.updateFlowCtrlInfo(
+                        response.getQryPriorityId(),
+                        response.getGroupFlowCheckId(),
+                        response.getGroupFlowControlInfo(), strBuff);
+            } catch (Exception e1) {
+                logger.warn("[Remote Data Cache] found parse group flowCtrl rules failure", e1);
             }
         }
-        if (response.hasDefFlowCheckId()) {
-            if (response.getDefFlowCheckId() >= 0
-                    && response.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    defFlowCtrlRuleHandler.updateFlowCtrlInfo(TBaseConstants.META_VALUE_UNDEFINED,
-                            response.getDefFlowCheckId(), response.getDefFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn("[Remote Data Cache] found parse default flowCtrl rules failure", e1);
-                }
+        // update default flowctrl info
+        if (response.hasDefFlowCheckId()
+                && response.getDefFlowCheckId() >= 0
+                && response.getDefFlowCheckId() != defFlowCtrlRuleHandler.getFlowCtrlId()) {
+            try {
+                defFlowCtrlRuleHandler.updateFlowCtrlInfo(
+                        TBaseConstants.META_VALUE_UNDEFINED,
+                        response.getDefFlowCheckId(),
+                        response.getDefFlowControlInfo(), strBuff);
+            } catch (Exception e1) {
+                logger.warn("[Remote Data Cache] found parse default flowCtrl rules failure", e1);
             }
-        }
-        // update priority id
-        int qryPriorityId = response.hasQryPriorityId()
-                ? response.getQryPriorityId() : groupFlowCtrlRuleHandler.getQryPriorityId();
-        if (qryPriorityId != groupFlowCtrlRuleHandler.getQryPriorityId()) {
-            groupFlowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
         }
     }
 
@@ -566,12 +566,16 @@ public class RmtDataCache implements Closeable {
             if (!this.partitionMap.isEmpty()) {
                 isFirstReport = false;
                 builder.setReportSubInfo(true);
+                lstReportTime = partMapChgTime.get();
                 builder.addAllPartSubInfo(getSubscribedPartitionInfo());
             }
-        } else if ((++this.reportIntCount)
-                % consumerConfig.getMaxSubInfoReportIntvlTimes() == 0) {
-            builder.setReportSubInfo(true);
-            builder.addAllPartSubInfo(getSubscribedPartitionInfo());
+        } else {
+            if (lstReportTime != partMapChgTime.get()
+                    || ((++this.reportIntCount) % this.maxReportTimes == 0)) {
+                builder.setReportSubInfo(true);
+                lstReportTime = partMapChgTime.get();
+                builder.addAllPartSubInfo(getSubscribedPartitionInfo());
+            }
         }
         return builder.build();
     }
@@ -1068,7 +1072,7 @@ public class RmtDataCache implements Closeable {
             for (Map.Entry<BrokerInfo, List<Partition>> entry : unRegisterInfoMap.entrySet()) {
                 for (Partition partition : entry.getValue()) {
                     PartitionExt partitionExt =
-                            partitionMap.remove(partition.getPartitionKey());
+                            rmvPartitionFromMap(partition.getPartitionKey());
                     if (partitionExt != null) {
                         lastPackConsumed = partitionExt.isLastPackConsumed();
                         if (!cancelTimeTask(partition.getPartitionKey())
@@ -1137,7 +1141,7 @@ public class RmtDataCache implements Closeable {
         try {
             waitPartitions(partitionKeys, inUseWaitPeriodMs);
             PartitionExt partitionExt =
-                    partitionMap.remove(partitionKey);
+                    rmvPartitionFromMap(partitionKey);
             if (partitionExt == null) {
                 result.setSuccResult(null);
                 return result.isSuccess();
@@ -1187,7 +1191,7 @@ public class RmtDataCache implements Closeable {
      * @param partition partition to be removed
      */
     public void removePartition(Partition partition) {
-        partitionMap.remove(partition.getPartitionKey());
+        rmvPartitionFromMap(partition.getPartitionKey());
         cancelTimeTask(partition.getPartitionKey());
         indexPartition.remove(partition.getPartitionKey());
         partitionUsedMap.remove(partition.getPartitionKey());
@@ -1505,7 +1509,7 @@ public class RmtDataCache implements Closeable {
             }
             updateOffsetCache(partition.getPartitionKey(),
                     entry.getValue().getCurrOffset(), entry.getValue().getMaxOffset());
-            partitionMap.put(partition.getPartitionKey(),
+            addPartitionToMap(partition.getPartitionKey(),
                     new PartitionExt(this.groupFlowCtrlRuleHandler,
                             this.defFlowCtrlRuleHandler, partition.getBroker(),
                             partition.getTopic(), partition.getPartitionId()));
@@ -1528,6 +1532,19 @@ public class RmtDataCache implements Closeable {
     public boolean isRebProcessing() {
         return (this.dataProcessSync != null
                 && this.dataProcessSync.getCount() != 0);
+    }
+
+    private void addPartitionToMap(String partKey, PartitionExt partitionExt) {
+        partitionMap.put(partKey, partitionExt);
+        partMapChgTime.set(System.currentTimeMillis());
+    }
+
+    private PartitionExt rmvPartitionFromMap(String partKey) {
+        PartitionExt tmpPartExt = partitionMap.remove(partKey);
+        if (tmpPartExt != null) {
+            partMapChgTime.set(System.currentTimeMillis());
+        }
+        return tmpPartExt;
     }
 
     private void pauseProcess() {
