@@ -15,32 +15,37 @@
  * limitations under the License.
  */
 
-SET NAMES utf8mb4;
+SET NAMES utf8;
 SET FOREIGN_KEY_CHECKS = 0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
 -- ----------------------------
--- database for Manager Web
+-- Database for InLong Audit
 -- ----------------------------
 CREATE DATABASE IF NOT EXISTS apache_inlong_audit;
+
 USE apache_inlong_audit;
 
-CREATE TABLE `audit_data`
+-- ----------------------------
+-- Table structure for audit_data
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `audit_data`
 (
-    `id`               int(32)      not null primary key auto_increment COMMENT 'id',
-    `ip`               varchar(32)  NOT NULL DEFAULT '' COMMENT 'client ip',
-    `docker_id`        varchar(100) NOT NULL DEFAULT '' COMMENT 'client docker id',
-    `thread_id`        varchar(50)  NOT NULL DEFAULT '' COMMENT 'client thread id',
-    `sdk_ts`           TIMESTAMP    NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'sdk timestamp',
-    `packet_id`        BIGINT       NOT NULL DEFAULT '0' COMMENT '' COMMENT 'packet id',
-    `log_ts`           TIMESTAMP    NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'log timestamp',
-    `inlong_group_id`  varchar(100) NOT NULL DEFAULT '' COMMENT 'inlong group id',
-    `inlong_stream_id` varchar(100) NOT NULL DEFAULT '' COMMENT 'inlong stream id',
-    `audit_id`         varchar(100) NOT NULL DEFAULT '' COMMENT 'audit id',
-    `count`            BIGINT       NOT NULL DEFAULT '0' COMMENT 'msg count',
-    `size`             BIGINT       NOT NULL DEFAULT '0' COMMENT 'msg size',
-    `delay`            BIGINT       NOT NULL DEFAULT '0' COMMENT 'msg delay',
-    `updateTime`       timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',
+    `id`               int(32)      NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `ip`               varchar(32)  NOT NULL DEFAULT '' COMMENT 'Client IP',
+    `docker_id`        varchar(100) NOT NULL DEFAULT '' COMMENT 'Client docker id',
+    `thread_id`        varchar(50)  NOT NULL DEFAULT '' COMMENT 'Client thread id',
+    `sdk_ts`           TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'SDK timestamp',
+    `packet_id`        BIGINT       NOT NULL DEFAULT '0' COMMENT 'Packet id',
+    `log_ts`           TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Log timestamp',
+    `inlong_group_id`  varchar(100) NOT NULL DEFAULT '' COMMENT 'The target inlong group id',
+    `inlong_stream_id` varchar(100) NOT NULL DEFAULT '' COMMENT 'The target inlong stream id',
+    `audit_id`         varchar(100) NOT NULL DEFAULT '' COMMENT 'Audit id',
+    `count`            BIGINT       NOT NULL DEFAULT '0' COMMENT 'Message count',
+    `size`             BIGINT       NOT NULL DEFAULT '0' COMMENT 'Message size',
+    `delay`            BIGINT       NOT NULL DEFAULT '0' COMMENT 'Message delay count',
+    `update_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
     INDEX ip_packet (`ip`, `inlong_group_id`, `inlong_stream_id`, `log_ts`)
-);
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8 COMMENT ='Inlong audit data table';
