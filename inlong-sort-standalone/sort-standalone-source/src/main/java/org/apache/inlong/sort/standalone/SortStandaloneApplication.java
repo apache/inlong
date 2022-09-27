@@ -25,38 +25,35 @@ import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
 /**
- * 
- * SortStandaloneApplication
+ * Sort Standalone Application
  */
 public class SortStandaloneApplication {
 
-    public static final Logger LOG = InlongLoggerFactory.getLogger(Application.class);
+    public static final Logger LOGGER = InlongLoggerFactory.getLogger(Application.class);
 
     /**
-     * main
-     * 
-     * @param args
+     * Main entrance
      */
     public static void main(String[] args) {
-        LOG.info("start to sort-standalone");
+        LOGGER.info("start to sort-standalone");
         try {
             SortCluster cluster = new SortCluster();
-            Runtime.getRuntime().addShutdownHook(new Thread("sortstandalone-shutdown-hook") {
+            Runtime.getRuntime().addShutdownHook(new Thread("sort-standalone-shutdown-hook") {
 
                 @Override
                 public void run() {
-                    AuditUtils.sendReport();
+                    AuditUtils.send();
                     cluster.close();
                 }
             });
-            //
+            // start the cluster
             cluster.start();
             // metrics
             MetricObserver.init(CommonPropertiesHolder.get());
             AuditUtils.initAudit();
             Thread.sleep(5000);
         } catch (Exception e) {
-            LOG.error("A fatal error occurred while running. Exception follows.", e);
+            LOGGER.error("fatal error occurred while running sort-standalone: ", e);
         }
     }
 }
