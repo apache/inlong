@@ -104,7 +104,7 @@ public class TestAgentCustomPrometheusListener {
     public String visitWeb(String httpUrl) throws IOException {
         URL url = new URL(httpUrl);
         HttpURLConnection urlcon = (HttpURLConnection) url.openConnection();
-        urlcon.connect();         //获取连接
+        urlcon.connect();
         InputStream is = urlcon.getInputStream();
         BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
         StringBuffer bs = new StringBuffer();
