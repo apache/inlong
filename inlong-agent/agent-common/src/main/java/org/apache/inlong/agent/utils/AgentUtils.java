@@ -27,22 +27,15 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -78,6 +71,7 @@ public class AgentUtils {
     public static final String MINUTE = "m";
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentUtils.class);
     private static final String HEX_PREFIX = "0x";
+    private static final String HIDDEN_DIR = "/**/";
 
     /**
      * Get MD5 of file.
@@ -86,7 +80,7 @@ public class AgentUtils {
         try (InputStream is = Files.newInputStream(Paths.get(file.getAbsolutePath()))) {
             return DigestUtils.md5Hex(is);
         } catch (Exception ex) {
-            LOGGER.warn("cannot get md5 of {}", file, ex);
+            LOGGER.warn("cannot get md5 of file: " + file, ex);
         }
         return "";
     }
@@ -108,7 +102,7 @@ public class AgentUtils {
             try {
                 resource.close();
             } catch (Exception ex) {
-                LOGGER.info("error while closing", ex);
+                LOGGER.info("error while closing: " + resource, ex);
             }
         }
     }
@@ -123,37 +117,9 @@ public class AgentUtils {
             try {
                 resource.close();
             } catch (Exception ex) {
-                LOGGER.error("error while closing", ex);
+                LOGGER.info("error while closing: " + resource, ex);
             }
         }
-    }
-
-    /**
-     * Get declare fields.
-     */
-    public static List<Field> getDeclaredFieldsIncludingInherited(Class<?> clazz) {
-        List<Field> fields = new ArrayList<Field>();
-        // check whether parent exists
-        while (clazz != null) {
-            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-            clazz = clazz.getSuperclass();
-        }
-        return fields;
-    }
-
-    /**
-     * Get declare methods.
-     *
-     * @param clazz class of field from method return
-     * @return list of methods
-     */
-    public static List<Method> getDeclaredMethodsIncludingInherited(Class<?> clazz) {
-        List<Method> methods = new ArrayList<>();
-        while (clazz != null) {
-            methods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
-            clazz = clazz.getSuperclass();
-        }
-        return methods;
     }
 
     /**
@@ -212,7 +178,7 @@ public class AgentUtils {
         try {
             TimeUnit.MILLISECONDS.sleep(millisecond);
         } catch (Exception e) {
-            LOGGER.warn("silenceSleepInMs: ", e);
+            LOGGER.warn("error in silence sleep: ", e);
         }
     }
 
@@ -223,18 +189,7 @@ public class AgentUtils {
         try {
             TimeUnit.MINUTES.sleep(minutes);
         } catch (Exception e) {
-            LOGGER.warn("silenceSleepInMs: ", e);
-        }
-    }
-
-    public static String parseHexStr(String delimiter) throws IllegalArgumentException {
-        if (delimiter.trim().toLowerCase().startsWith(HEX_PREFIX)) {
-            // only one char
-            byte[] byteArr = new byte[1];
-            byteArr[0] = Byte.decode(delimiter.trim());
-            return new String(byteArr, StandardCharsets.UTF_8);
-        } else {
-            throw new IllegalArgumentException("delimiter not start with " + HEX_PREFIX);
+            LOGGER.warn("error in silence sleep: ", e);
         }
     }
 
@@ -281,19 +236,37 @@ public class AgentUtils {
      * @return true if all match
      */
     public static boolean regexMatch(String pathStr, String patternStr) {
-        String[] pathNames = StringUtils.split(pathStr, FileSystems.getDefault().getSeparator());
-        String[] patternNames = StringUtils
-                .split(patternStr, FileSystems.getDefault().getSeparator());
+        // /tmp/dir1/**/test.xml
+        if (patternStr.contains(HIDDEN_DIR)) {
+            return matchHiddenDir(pathStr, patternStr);
+        }
+
+        boolean result = true;
+        String[] pathNames = StringUtils.split(pathStr, File.separator);
+        String[] patternNames = StringUtils.split(patternStr, File.separator);
         for (int i = 0; i < pathNames.length && i < patternNames.length; i++) {
             if (!pathNames[i].equals(patternNames[i])) {
                 Matcher matcher = Pattern.compile(patternNames[i]).matcher(pathNames[i]);
                 if (!matcher.matches()) {
-                    return false;
+                    result = false;
+                    break;
                 }
             }
         }
-        LOGGER.info("path name:{} , pattern name:{}", Arrays.toString(pathNames), Arrays.toString(patternNames));
-        return true;
+        LOGGER.info("path: {}, pattern: {}, result: {}", pathNames, patternNames, result);
+        return result;
+    }
+
+    private static boolean matchHiddenDir(String pathStr, String patternStr) {
+        String[] patternNames = StringUtils.split(patternStr, File.separator);
+        String filePattern = patternNames[patternNames.length - 1];
+
+        String[] pathNames = StringUtils.split(pathStr, File.separator);
+        String fileName = pathNames[pathNames.length - 1];
+        Matcher matcher = Pattern.compile(filePattern).matcher(fileName);
+
+        String[] patternPathNames = patternStr.split("[**]");
+        return pathStr.contains(patternPathNames[0]) && matcher.matches();
     }
 
     /**
@@ -360,8 +333,7 @@ public class AgentUtils {
      */
     public static String fetchLocalUuid() {
         String uuid = "";
-        if (!AgentConfiguration.getAgentConf()
-                .getBoolean(AGENT_LOCAL_UUID_OPEN, DEFAULT_AGENT_LOCAL_UUID_OPEN)) {
+        if (!AgentConfiguration.getAgentConf().getBoolean(AGENT_LOCAL_UUID_OPEN, DEFAULT_AGENT_LOCAL_UUID_OPEN)) {
             return uuid;
         }
         try {
@@ -377,7 +349,7 @@ public class AgentUtils {
                 return uuid;
             }
         } catch (Exception e) {
-            LOGGER.error("fetch uuid  error", e);
+            LOGGER.error("fetch uuid error", e);
         }
         return uuid;
     }
