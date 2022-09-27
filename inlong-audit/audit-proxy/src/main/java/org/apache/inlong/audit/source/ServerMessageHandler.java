@@ -48,7 +48,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerMessageHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerMessageHandler.class);
     private static final Gson GSON = new Gson();
 
     private final ChannelGroup allChannels;
@@ -69,7 +69,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         if (allChannels.size() - 1 >= maxConnections) {
             ctx.channel().disconnect();
             ctx.channel().close();
-            logger.warn("refuse to connect to channel: {}, connections={}, maxConnections={}",
+            LOGGER.warn("refuse to connect to channel: {}, connections={}, maxConnections={}",
                     ctx.channel(), allChannels.size() - 1, maxConnections);
         }
         allChannels.add(ctx.channel());
@@ -85,13 +85,13 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg == null) {
-            logger.warn("get null message event, just skip");
+            LOGGER.warn("get null message event, just skip");
             return;
         }
         ByteBuf buf = (ByteBuf) msg;
         int len = buf.readableBytes();
         if (len == 0) {
-            logger.warn("receive message skip empty msg");
+            LOGGER.warn("receive message skip empty msg");
             buf.clear();
             return;
         }
@@ -100,11 +100,11 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         try {
             cmd = serviceDecoder.extractData(buf, remoteChannel);
         } catch (Exception ex) {
-            logger.error("extract data error: ", ex);
+            LOGGER.error("extract data error: ", ex);
             throw new IOException(ex);
         }
         if (cmd == null) {
-            logger.warn("extract data from received msg is null");
+            LOGGER.warn("extract data from received msg is null");
             return;
         }
 
@@ -164,7 +164,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 Event event = EventBuilder.withBody(body, null);
                 processor.processEvent(event);
             } catch (Throwable ex) {
-                logger.error("writing data error, discard it: ", ex);
+                LOGGER.error("writing data error, discard it: ", ex);
                 errorMsgBody++;
             }
         }
@@ -180,8 +180,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("exception caught", cause);
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        LOGGER.error("exception caught", cause);
     }
 
     private void writeResponse(Channel channel, ByteBuf buffer) throws Exception {
@@ -190,8 +190,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
-        String msg = "remote channel=" + channel + " is not writable, please check remote client!";
-        logger.warn(msg);
+        String msg = String.format("remote channel=%s is not writable, please check remote client!", channel);
+        LOGGER.warn(msg);
         throw new Exception(msg);
     }
 
