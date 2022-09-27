@@ -108,7 +108,6 @@ public class PostgreSQLReader extends AbstractReader {
     @Override
     public Message read() {
         if (!postgreSQLMessageQueue.isEmpty()) {
-            readerMetric.pluginReadCount.incrementAndGet();
             return getPostgreSQLMessage();
         } else {
             return null;
@@ -165,9 +164,11 @@ public class PostgreSQLReader extends AbstractReader {
                         long dataSize = records.stream().mapToLong(c -> c.value().length()).sum();
                         AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
                                 System.currentTimeMillis(), records.size(), dataSize);
+                        readerMetric.pluginReadSuccessCount.addAndGet(records.size());
                         readerMetric.pluginReadCount.addAndGet(records.size());
                     } catch (Exception e) {
                         readerMetric.pluginReadFailCount.addAndGet(records.size());
+                        readerMetric.pluginReadCount.addAndGet(records.size());
                         LOGGER.error("parse binlog message error", e);
                     }
                 })

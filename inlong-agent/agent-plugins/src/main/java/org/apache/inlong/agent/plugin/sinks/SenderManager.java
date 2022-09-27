@@ -256,6 +256,7 @@ public class SenderManager {
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
         Map<String, String> dims = new HashMap<>();
+        dims.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
         dims.put(KEY_INLONG_GROUP_ID, groupId);
         dims.put(KEY_INLONG_STREAM_ID, streamId);
         try {
@@ -264,11 +265,13 @@ public class SenderManager {
             if (result == SendResult.OK) {
                 semaphore.release(bodyList.size());
                 getMetricItem(dims).pluginSendSuccessCount.addAndGet(bodyList.size());
+                getMetricItem(dims).pluginSendCount.addAndGet(bodyList.size());
                 long totalSize = bodyList.stream().mapToLong(body -> body.length).sum();
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size(),
                         totalSize);
             } else {
                 getMetricItem(dims).pluginSendFailCount.addAndGet(bodyList.size());
+                getMetricItem(dims).pluginSendCount.addAndGet(bodyList.size());
                 LOGGER.warn("send data to dataproxy error {}", result.toString());
                 sendBatchSync(groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
             }
@@ -279,6 +282,7 @@ public class SenderManager {
             try {
                 TimeUnit.SECONDS.sleep(1);
                 getMetricItem(dims).pluginSendFailCount.addAndGet(bodyList.size());
+                getMetricItem(dims).pluginSendCount.addAndGet(bodyList.size());
                 sendBatchSync(groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
             } catch (Exception ignored) {
                 // ignore it.
@@ -319,12 +323,14 @@ public class SenderManager {
             }
             semaphore.release(bodyList.size());
             Map<String, String> dims = new HashMap<>();
+            dims.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
             dims.put(KEY_INLONG_GROUP_ID, groupId);
             dims.put(KEY_INLONG_STREAM_ID, streamId);
             long totalSize = bodyList.stream().mapToLong(body -> body.length).sum();
             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size(),
                     totalSize);
             getMetricItem(dims).pluginSendSuccessCount.addAndGet(bodyList.size());
+            getMetricItem(dims).pluginSendCount.addAndGet(bodyList.size());
             if (sourcePath != null) {
                 taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
             }

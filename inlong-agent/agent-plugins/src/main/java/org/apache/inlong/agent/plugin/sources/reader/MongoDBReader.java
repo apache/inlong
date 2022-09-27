@@ -136,7 +136,6 @@ public class MongoDBReader extends AbstractReader {
     @Override
     public Message read() {
         if (!bufferPool.isEmpty()) {
-            super.readerMetric.pluginReadCount.incrementAndGet();
             return this.pollMessage();
         } else {
             return null;
@@ -367,12 +366,13 @@ public class MongoDBReader extends AbstractReader {
             long dataSize = records.stream().mapToLong(c -> c.value().length()).sum();
             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, super.inlongGroupId, super.inlongStreamId,
                     System.currentTimeMillis(), records.size(), dataSize);
+            readerMetric.pluginReadSuccessCount.addAndGet(records.size());
             readerMetric.pluginReadCount.addAndGet(records.size());
         } catch (InterruptedException e) {
             e.printStackTrace();
             LOGGER.error("parse mongo message error", e);
-
             readerMetric.pluginReadFailCount.addAndGet(records.size());
+            readerMetric.pluginReadCount.addAndGet(records.size());
         }
     }
 }
