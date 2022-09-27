@@ -421,16 +421,18 @@ public class MessageStoreManager implements StoreService {
         if (qryTopicSet.isEmpty()) {
             return topicPubStoreInfoMap;
         }
+        Map<Integer, MessageStore> storeMap;
+        Map<Integer, TopicPubStoreInfo> storeInfoMap;
         for (String topic : qryTopicSet) {
             topicMetadata = confTopicInfo.get(topic);
             if (topicMetadata == null) {
                 continue;
             }
-            Map<Integer, MessageStore> storeMap = dataStores.get(topic);
+            storeMap = dataStores.get(topic);
             if (storeMap == null) {
                 continue;
             }
-            Map<Integer, TopicPubStoreInfo> storeInfoMap = new HashMap<>();
+            storeInfoMap = new HashMap<>();
             for (Map.Entry<Integer, MessageStore> entry : storeMap.entrySet()) {
                 if (entry == null
                         || entry.getKey() == null
@@ -439,11 +441,10 @@ public class MessageStoreManager implements StoreService {
                 }
                 store = entry.getValue();
                 for (Integer partitionId : topicMetadata.getPartIdsByStoreId(entry.getKey())) {
-                    TopicPubStoreInfo storeInfo =
-                            new TopicPubStoreInfo(topic, entry.getKey(), partitionId,
-                                    store.getIndexMinOffset(), store.getIndexMaxOffset(),
-                                    store.getDataMinOffset(), store.getDataMaxOffset());
-                    storeInfoMap.put(partitionId, storeInfo);
+                    storeInfoMap.put(partitionId, new TopicPubStoreInfo(topic,
+                            entry.getKey(), partitionId, store.getIndexMinOffset(),
+                            store.getIndexMaxOffset(), store.getDataMinOffset(),
+                            store.getDataMaxOffset()));
                 }
             }
             topicPubStoreInfoMap.put(topic, storeInfoMap);
@@ -460,12 +461,13 @@ public class MessageStoreManager implements StoreService {
     @Override
     public void getTopicPublishInfos(Map<String, OffsetRecordInfo> groupOffsetMap) {
         MessageStore store = null;
+        Map<Integer, MessageStore> storeMap;
+        Map<String, Map<Integer, RecordItem>> topicOffsetMap;
         for (Map.Entry<String, OffsetRecordInfo> entry : groupOffsetMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
-            Map<String, Map<Integer, RecordItem>> topicOffsetMap =
-                    entry.getValue().getOffsetMap();
+            topicOffsetMap = entry.getValue().getOffsetMap();
             // Get offset records by topic
             for (Map.Entry<String, Map<Integer, RecordItem>> entryTopic
                     : topicOffsetMap.entrySet()) {
@@ -475,8 +477,7 @@ public class MessageStoreManager implements StoreService {
                     continue;
                 }
                 // Get message store instance
-                Map<Integer, MessageStore> storeMap =
-                        dataStores.get(entryTopic.getKey());
+                storeMap = dataStores.get(entryTopic.getKey());
                 if (storeMap == null) {
                     continue;
                 }

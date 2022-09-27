@@ -78,7 +78,7 @@ public class TopicMetadata {
             return;
         }
         String[] topicConfInfoArr =
-                topicMetaConfInfo.split(TokenConstants.ATTR_SEP);
+                topicMetaConfInfo.split(TokenConstants.ATTR_SEP, -1);
         this.topic = topicConfInfoArr[0];
         if (TStringUtils.isBlank(topicConfInfoArr[1])) {
             this.numPartitions = brokerDefMetadata.getNumPartitions();

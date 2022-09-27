@@ -255,8 +255,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         OffsetStorageInfo regInfo =
                 loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
         if ((tmpOffset == 0) && (!regInfo.isFirstCreate())) {
-            updatedOffset = regInfo.getOffset();
-            return updatedOffset;
+            return regInfo.getOffset();
         }
         updatedOffset = regInfo.addAndGetOffset(tmpOffset);
         if (logger.isDebugEnabled()) {
@@ -462,6 +461,8 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
      */
     @Override
     public Map<String, OffsetRecordInfo> getOnlineGroupOffsetInfo() {
+        OffsetRecordInfo recordInfo;
+        Map<String, OffsetStorageInfo> storeMap;
         Map<String, OffsetRecordInfo> result = new HashMap<>();
         for (Map.Entry<String,
                 ConcurrentHashMap<String, OffsetStorageInfo>> entry : cfmOffsetMap.entrySet()) {
@@ -469,7 +470,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 continue;
             }
             // read offset map information
-            Map<String, OffsetStorageInfo> storeMap = entry.getValue();
+            storeMap = entry.getValue();
             if (storeMap.isEmpty()) {
                 continue;
             }
@@ -477,7 +478,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 if (storageInfo == null) {
                     continue;
                 }
-                OffsetRecordInfo recordInfo = result.get(entry.getKey());
+                recordInfo = result.get(entry.getKey());
                 if (recordInfo == null) {
                     recordInfo = new OffsetRecordInfo(
                             brokerConfig.getBrokerId(), entry.getKey());
@@ -740,5 +741,4 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         return (lagValue > TServerConstants.CFG_OFFSET_RESET_MID_ALARM_CHECK)
                 ? 2 : (lagValue > TServerConstants.CFG_OFFSET_RESET_MIN_ALARM_CHECK) ? 1 : 0;
     }
-
 }
