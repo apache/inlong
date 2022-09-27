@@ -44,6 +44,9 @@ public class DorisSinkDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DorisSinkDTO.class);
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().configure(
+            DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
     @ApiModelProperty("Doris JDBC URL, such as jdbc:mysql://host:port/database")
     private String jdbcUrl;
 
@@ -81,9 +84,7 @@ public class DorisSinkDTO {
      */
     public static DorisSinkDTO getFromJson(@NotNull String extParams) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper().configure(
-                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return objectMapper.readValue(extParams, DorisSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, DorisSinkDTO.class);
         } catch (Exception e) {
             LOGGER.error("fetch doris sink info failed from json params: " + extParams, e);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
@@ -97,7 +98,7 @@ public class DorisSinkDTO {
         DorisTableInfo tableInfo = new DorisTableInfo();
         tableInfo.setTableName(dorisSink.getTableName());
         tableInfo.setPrimaryKey(dorisSink.getPrimaryKey());
-        tableInfo.setUserName(dorisSink.getUsername());
+        tableInfo.setUsername(dorisSink.getUsername());
         tableInfo.setColumns(columnList);
         return tableInfo;
     }

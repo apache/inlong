@@ -35,13 +35,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DorisSinkServiceTest extends ServiceBaseTest {
 
     // Partial test data
-    private static final String globalGroupId = "b_group1";
-    private static final String globalStreamId = "stream1_doris";
-    private static final String globalOperator = "admin";
-    private static final String dorisJdbcUrl = "jdbc:mysql://127.0.0.1:6603/default";
-    private static final String dorisUsername = "doris_user";
-    private static final String dorisPassword = "doris_passwd";
-    private static final String dorisTableName = "doris_tbl";
+    private final String globalGroupId = "b_group1";
+    private final String globalStreamId = "stream1_doris";
+    private final String globalOperator = "admin";
+    private final String dorisJdbcUrl = "jdbc:mysql://127.0.0.1:6603/default";
+    private final String dorisUsername = "doris_user";
+    private final String dorisPassword = "doris_passwd";
+    private final String dorisTableName = "doris_tbl";
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
@@ -52,18 +52,17 @@ public class DorisSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        DorisSinkRequest sinkInfo = new DorisSinkRequest();
-        sinkInfo.setInlongGroupId(globalGroupId);
-        sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkName(sinkName);
-        sinkInfo.setSinkType(SinkType.DORIS);
-        sinkInfo.setJdbcUrl(dorisJdbcUrl);
-        sinkInfo.setUsername(dorisUsername);
-        sinkInfo.setPassword(dorisPassword);
-        sinkInfo.setTableName(dorisTableName);
-        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
-        sinkInfo.setId((int) (Math.random() * 100000 + 1));
-        return sinkService.save(sinkInfo, globalOperator);
+        DorisSinkRequest sinkRequest = new DorisSinkRequest();
+        sinkRequest.setInlongGroupId(globalGroupId);
+        sinkRequest.setInlongStreamId(globalStreamId);
+        sinkRequest.setSinkName(sinkName);
+        sinkRequest.setSinkType(SinkType.DORIS);
+        sinkRequest.setJdbcUrl(dorisJdbcUrl);
+        sinkRequest.setUsername(dorisUsername);
+        sinkRequest.setPassword(dorisPassword);
+        sinkRequest.setTableName(dorisTableName);
+        sinkRequest.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        return sinkService.save(sinkRequest, globalOperator);
     }
 
     /**

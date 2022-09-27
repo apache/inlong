@@ -33,7 +33,7 @@ public class DorisTableInfo {
 
     private String primaryKey;
 
-    private String userName;
+    private String username;
 
     private List<DorisColumnInfo> columns;
 
