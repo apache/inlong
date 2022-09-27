@@ -22,7 +22,7 @@ import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
-import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.sort.base.Constants;
 
 import java.nio.charset.StandardCharsets;
@@ -40,15 +40,15 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
  */
 public class SourceMetricData implements MetricData {
 
-    private MetricGroup metricGroup;
-    private Map<String, String> labels;
+    private final MetricGroup metricGroup;
+    private final Map<String, String> labels;
     private Counter numRecordsIn;
     private Counter numBytesIn;
     private Counter numRecordsInForMeter;
     private Counter numBytesInForMeter;
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
-    private AuditImp auditImp;
+    private AuditOperator auditOperator;
 
     public SourceMetricData(MetricOption option, MetricGroup metricGroup) {
         this.metricGroup = metricGroup;
@@ -70,8 +70,8 @@ public class SourceMetricData implements MetricData {
         }
 
         if (option.getIpPorts().isPresent()) {
-            AuditImp.getInstance().setAuditProxy(option.getIpPortList());
-            this.auditImp = AuditImp.getInstance();
+            AuditOperator.getInstance().setAuditProxy(option.getIpPortList());
+            this.auditOperator = AuditOperator.getInstance();
         }
     }
 
@@ -211,8 +211,8 @@ public class SourceMetricData implements MetricData {
             this.numBytesInForMeter.inc(rowDataSize);
         }
 
-        if (auditImp != null) {
-            auditImp.add(
+        if (auditOperator != null) {
+            auditOperator.add(
                     Constants.AUDIT_SORT_INPUT,
                     getGroupId(),
                     getStreamId(),
@@ -233,7 +233,7 @@ public class SourceMetricData implements MetricData {
                 + ", numBytesInForMeter=" + numBytesInForMeter.getCount()
                 + ", numRecordsInPerSecond=" + numRecordsInPerSecond.getRate()
                 + ", numBytesInPerSecond=" + numBytesInPerSecond.getRate()
-                + ", auditImp=" + auditImp
+                + ", auditOperator=" + auditOperator
                 + '}';
     }
 }
