@@ -142,6 +142,20 @@ public class DataNodeServiceImpl implements DataNodeService {
             return false;
         }
 
+        return delete(entity, operator);
+    }
+
+    @Override
+    public Boolean deleteByName(String name, String operator) {
+        DataNodeEntity entity = dataNodeMapper.selectByNameAndType(name, null);
+        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
+            LOGGER.error("data node not found or was already deleted for name={}", name);
+            return false;
+        }
+        return delete(entity, operator);
+    }
+
+    private Boolean delete(DataNodeEntity entity, String operator) {
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
         int rowCount = dataNodeMapper.updateById(entity);
@@ -150,7 +164,7 @@ public class DataNodeServiceImpl implements DataNodeService {
                     entity.getName(), entity.getType(), entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
-        LOGGER.info("success to delete data node by id={}", id);
+        LOGGER.info("success to delete data node by name={}", entity.getName());
         return true;
     }
 

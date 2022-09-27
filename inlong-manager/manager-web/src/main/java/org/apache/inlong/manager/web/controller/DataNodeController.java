@@ -92,6 +92,15 @@ public class DataNodeController {
         return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
 
+    @DeleteMapping(value = "/node/deleteByName/{name}")
+    @ApiOperation(value = "Delete data node by name")
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiImplicitParam(name = "name", value = "Data node name", dataTypeClass = String.class, readOnly = true)
+    @RequiresRoles(value = UserRoleCode.ADMIN)
+    public Response<Boolean> deleteByName(@PathVariable String name) {
+        return Response.success(dataNodeService.deleteByName(name, LoginUserUtils.getLoginUser().getName()));
+    }
+
     @PostMapping("/node/testConnection")
     @ApiOperation(value = "Test connection for data node")
     public Response<Boolean> testConnection(@Validated @RequestBody DataNodeRequest request) {

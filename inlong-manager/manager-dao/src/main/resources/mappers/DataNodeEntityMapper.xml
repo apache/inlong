@@ -67,7 +67,9 @@
         from data_node
         where is_deleted = 0
         and name = #{name, jdbcType=VARCHAR}
-        and type = #{type, jdbcType=VARCHAR}
+        <if test="type != null and type != ''">
+            and type = #{type, jdbcType=VARCHAR}
+        </if>
     </select>
     <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.pojo.node.DataNodePageRequest"

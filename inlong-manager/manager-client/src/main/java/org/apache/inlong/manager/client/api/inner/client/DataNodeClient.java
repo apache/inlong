@@ -107,4 +107,17 @@ public class DataNodeClient {
         return response.getData();
     }
 
+    /**
+     * Delete data node by name.
+     *
+     * @param name node name to be deleted
+     * @return whether succeed
+     */
+    public Boolean delete(String name) {
+        Preconditions.checkNotEmpty(name, "data node name cannot be empty or null");
+        Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.deleteByName(name));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
 }
