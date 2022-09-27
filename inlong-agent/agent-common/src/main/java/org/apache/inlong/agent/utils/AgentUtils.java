@@ -78,6 +78,7 @@ public class AgentUtils {
     public static final String MINUTE = "m";
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentUtils.class);
     private static final String HEX_PREFIX = "0x";
+    private static final String HIDDEN_DIR = "/**/";
 
     /**
      * Get MD5 of file.
@@ -281,6 +282,13 @@ public class AgentUtils {
      * @return true if all match
      */
     public static boolean regexMatch(String pathStr, String patternStr) {
+        // /tmp/dir1/**/test.xml
+        if (patternStr.contains(HIDDEN_DIR)) {
+            if (matchHiddenDir(pathStr, patternStr)) {
+                return true;
+            }
+            return false;
+        }
         String[] pathNames = StringUtils.split(pathStr, FileSystems.getDefault().getSeparator());
         String[] patternNames = StringUtils
                 .split(patternStr, FileSystems.getDefault().getSeparator());
@@ -294,6 +302,19 @@ public class AgentUtils {
         }
         LOGGER.info("path name:{} , pattern name:{}", Arrays.toString(pathNames), Arrays.toString(patternNames));
         return true;
+    }
+
+    private static boolean matchHiddenDir(String pathStr, String patternStr) {
+        String[] pathNames = StringUtils.split(pathStr, FileSystems.getDefault().getSeparator());
+        String fileName = pathNames[pathNames.length - 1];
+        String[] patternPathNames = patternStr.split("[**]");
+        String[] patternNames = StringUtils.split(patternStr, FileSystems.getDefault().getSeparator());
+        String filePattern = patternNames[patternNames.length - 1];
+        Matcher matcher = Pattern.compile(filePattern).matcher(fileName);
+        if (pathStr.contains(patternPathNames[0]) && matcher.matches()) {
+            return true;
+        }
+        return false;
     }
 
     /**
