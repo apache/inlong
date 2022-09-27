@@ -23,13 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
-    private static final Logger logger = LoggerFactory.getLogger(SenderHandler.class);
-    private SenderManager manager;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SenderHandler.class);
+    private final SenderManager manager;
 
     /**
      * Constructor
-     *
-     * @param manager
      */
     public SenderHandler(SenderManager manager) {
         this.manager = manager;
@@ -39,11 +38,11 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
      * Message Received
      */
     @Override
-    public void channelRead0(io.netty.channel.ChannelHandlerContext ctx, byte[] e)  {
+    public void channelRead0(io.netty.channel.ChannelHandlerContext ctx, byte[] e) {
         try {
             manager.onMessageReceived(ctx, e);
         } catch (Throwable ex) {
-            logger.error(ex.getMessage());
+            LOGGER.error("channelRead0 error: ", ex);
         }
     }
 
@@ -55,7 +54,7 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
         try {
             manager.onExceptionCaught(ctx, e);
         } catch (Throwable ex) {
-            logger.error(ex.getMessage());
+            LOGGER.error("caught exception: ", ex);
         }
     }
 
@@ -63,11 +62,11 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
      * Disconnected channel
      */
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         try {
             super.channelInactive(ctx);
         } catch (Throwable ex) {
-            logger.error(ex.getMessage());
+            LOGGER.error("channelInactive error: ", ex);
         }
     }
 
@@ -79,7 +78,7 @@ public class SenderHandler extends SimpleChannelInboundHandler<byte[]> {
         try {
             super.channelUnregistered(ctx);
         } catch (Throwable ex) {
-            logger.error(ex.getMessage());
+            LOGGER.error("channelUnregistered error: ", ex);
         }
     }
 }

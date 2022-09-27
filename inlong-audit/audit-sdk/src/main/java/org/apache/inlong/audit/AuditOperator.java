@@ -36,47 +36,61 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDITREQUEST;
+import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDIT_REQUEST;
 
-public class AuditImp {
-    private static final Logger logger = LoggerFactory.getLogger(AuditImp.class);
-    private static AuditImp auditImp = new AuditImp();
+/**
+ * Audit operator, which is singleton.
+ */
+public class AuditOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuditOperator.class);
     private static final String FIELD_SEPARATORS = ":";
-    private ConcurrentHashMap<String, StatInfo> countMap = new ConcurrentHashMap<String, StatInfo>();
-    private HashMap<String, StatInfo> threadSumMap = new HashMap<String, StatInfo>();
-    private ConcurrentHashMap<String, StatInfo> deleteCountMap = new ConcurrentHashMap<String, StatInfo>();
-    private List<String> deleteKeyList = new ArrayList<String>();
-    private AuditConfig auditConfig = null;
-    private Config config = new Config();
-    private Long sdkTime;
+    private static final int BATCH_NUM = 100;
+    private static final AuditOperator AUDIT_OPERATOR = new AuditOperator();
+    private static final ReentrantLock GLOBAL_LOCK = new ReentrantLock();
+    private static final int PERIOD = 1000 * 60;
+    private final ConcurrentHashMap<String, StatInfo> countMap = new ConcurrentHashMap<>();
+    private final HashMap<String, StatInfo> threadCountMap = new HashMap<>();
+    private final ConcurrentHashMap<String, StatInfo> deleteCountMap = new ConcurrentHashMap<>();
+    private final List<String> deleteKeyList = new ArrayList<>();
+    private final Config config = new Config();
+    private final Timer timer = new Timer();
     private int packageId = 1;
     private int dataId = 0;
-    private static final int BATCH_NUM = 100;
-    boolean inited = false;
+    private boolean initialized = false;
     private SenderManager manager;
-    private static ReentrantLock globalLock = new ReentrantLock();
-    private static int PERIOD = 1000 * 60;
-    private Timer timer = new Timer();
-    private TimerTask timerTask = new TimerTask() {
+
+    private final TimerTask timerTask = new TimerTask() {
         @Override
         public void run() {
             try {
-                sendReport();
+                send();
             } catch (Exception e) {
-                logger.error(e.getMessage());
+                LOGGER.error(e.getMessage());
             }
         }
     };
+    private AuditConfig auditConfig = null;
 
-    public static AuditImp getInstance() {
-        return auditImp;
+    /**
+     * Not support create from outer.
+     */
+    private AuditOperator() {
+
+    }
+
+    /**
+     * Get AuditOperator instance.
+     */
+    public static AuditOperator getInstance() {
+        return AUDIT_OPERATOR;
     }
 
     /**
      * init
      */
     private void init() {
-        if (inited) {
+        if (initialized) {
             return;
         }
         config.init();
@@ -88,29 +102,25 @@ public class AuditImp {
     }
 
     /**
-     * setAuditProxy
-     *
-     * @param ipPortList
+     * Set AuditProxy from the ip
      */
     public void setAuditProxy(HashSet<String> ipPortList) {
         try {
-            globalLock.lockInterruptibly();
-            if (!inited) {
+            GLOBAL_LOCK.lockInterruptibly();
+            if (!initialized) {
                 init();
-                inited = true;
+                initialized = true;
             }
             this.manager.setAuditProxy(ipPortList);
         } catch (InterruptedException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         } finally {
-            globalLock.unlock();
+            GLOBAL_LOCK.unlock();
         }
     }
 
     /**
      * set audit config
-     *
-     * @param config
      */
     public void setAuditConfig(AuditConfig config) {
         auditConfig = config;
@@ -118,14 +128,7 @@ public class AuditImp {
     }
 
     /**
-     * api
-     *
-     * @param auditID
-     * @param inlongGroupID
-     * @param inlongStreamID
-     * @param logTime
-     * @param count
-     * @param size
+     * Add audit data
      */
     public void add(int auditID, String inlongGroupID, String inlongStreamID, Long logTime, long count, long size) {
         long delayTime = System.currentTimeMillis() - logTime;
@@ -135,30 +138,21 @@ public class AuditImp {
     }
 
     /**
-     * add by key
-     *
-     * @param key
-     * @param count
-     * @param size
-     * @param delayTime
+     * Add audit info by key.
      */
     private void addByKey(String key, long count, long size, long delayTime) {
-        try {
-            if (countMap.get(key) == null) {
-                countMap.put(key, new StatInfo(0L, 0L, 0L));
-            }
-            countMap.get(key).count.addAndGet(count);
-            countMap.get(key).size.addAndGet(size);
-            countMap.get(key).delay.addAndGet(delayTime * count);
-        } catch (Exception e) {
-            return;
+        if (countMap.get(key) == null) {
+            countMap.put(key, new StatInfo(0L, 0L, 0L));
         }
+        countMap.get(key).count.addAndGet(count);
+        countMap.get(key).size.addAndGet(size);
+        countMap.get(key).delay.addAndGet(delayTime * count);
     }
 
     /**
-     * Report audit data
+     * Send audit data
      */
-    public synchronized void sendReport() {
+    public synchronized void send() {
         manager.clearBuffer();
         resetStat();
         // Retrieve statistics from the list of objects without statistics to be eliminated
@@ -183,76 +177,78 @@ public class AuditImp {
             this.deleteCountMap.put(key, value);
         }
         this.deleteKeyList.clear();
-        sdkTime = Calendar.getInstance().getTimeInMillis();
-        AuditApi.AuditMessageHeader mssageHeader = AuditApi.AuditMessageHeader.newBuilder()
+
+        long sdkTime = Calendar.getInstance().getTimeInMillis();
+        AuditApi.AuditMessageHeader msgHeader = AuditApi.AuditMessageHeader.newBuilder()
                 .setIp(config.getLocalIP()).setDockerId(config.getDockerId())
                 .setThreadId(String.valueOf(Thread.currentThread().getId()))
                 .setSdkTs(sdkTime).setPacketId(packageId)
                 .build();
-        AuditApi.AuditRequest.Builder requestBulid = AuditApi.AuditRequest.newBuilder();
-        requestBulid.setMsgHeader(mssageHeader).setRequestId(manager.nextRequestId());
-        for (Map.Entry<String, StatInfo> entry : threadSumMap.entrySet()) {
+        AuditApi.AuditRequest.Builder requestBuild = AuditApi.AuditRequest.newBuilder();
+        requestBuild.setMsgHeader(msgHeader).setRequestId(manager.nextRequestId());
+
+        // process the stat info for all threads
+        for (Map.Entry<String, StatInfo> entry : threadCountMap.entrySet()) {
             String[] keyArray = entry.getKey().split(FIELD_SEPARATORS);
             long logTime = Long.parseLong(keyArray[0]) * PERIOD;
             String inlongGroupID = keyArray[1];
             String inlongStreamID = keyArray[2];
             String auditID = keyArray[3];
             StatInfo value = entry.getValue();
-            AuditApi.AuditMessageBody mssageBody = AuditApi.AuditMessageBody.newBuilder()
-                    .setLogTs(logTime).setInlongGroupId(inlongGroupID)
-                    .setInlongStreamId(inlongStreamID).setAuditId(auditID)
-                    .setCount(value.count.get()).setSize(value.size.get())
+            AuditApi.AuditMessageBody msgBody = AuditApi.AuditMessageBody.newBuilder()
+                    .setLogTs(logTime)
+                    .setInlongGroupId(inlongGroupID)
+                    .setInlongStreamId(inlongStreamID)
+                    .setAuditId(auditID)
+                    .setCount(value.count.get())
+                    .setSize(value.size.get())
                     .setDelay(value.delay.get())
                     .build();
-            requestBulid.addMsgBody(mssageBody);
+            requestBuild.addMsgBody(msgBody);
+
             if (dataId++ >= BATCH_NUM) {
                 dataId = 0;
                 packageId++;
-                sendByBaseCommand(sdkTime, requestBulid.build());
-                requestBulid.clearMsgBody();
+                sendByBaseCommand(requestBuild.build());
+                requestBuild.clearMsgBody();
             }
         }
-        if (requestBulid.getMsgBodyCount() > 0) {
-            sendByBaseCommand(sdkTime, requestBulid.build());
-            requestBulid.clearMsgBody();
+        if (requestBuild.getMsgBodyCount() > 0) {
+            sendByBaseCommand(requestBuild.build());
+            requestBuild.clearMsgBody();
         }
-        threadSumMap.clear();
-        logger.info("finish send report.");
+        threadCountMap.clear();
+
+        LOGGER.info("finish report audit data");
     }
 
     /**
-     * send base command
-     *
-     * @param sdkTime
-     * @param auditRequest
+     * Send base command
      */
-    private void sendByBaseCommand(long sdkTime, AuditApi.AuditRequest auditRequest) {
+    private void sendByBaseCommand(AuditApi.AuditRequest auditRequest) {
         AuditApi.BaseCommand.Builder baseCommand = AuditApi.BaseCommand.newBuilder();
-        baseCommand.setType(AUDITREQUEST).setAuditRequest(auditRequest).build();
-        manager.send(sdkTime, baseCommand.build());
+        baseCommand.setType(AUDIT_REQUEST).setAuditRequest(auditRequest).build();
+        manager.send(baseCommand.build());
     }
 
     /**
      * Summary
-     *
-     * @param key
-     * @param statInfo
      */
     private void sumThreadGroup(String key, StatInfo statInfo) {
         long count = statInfo.count.getAndSet(0);
         if (0 == count) {
             return;
         }
-        if (threadSumMap.get(key) == null) {
-            threadSumMap.put(key, new StatInfo(0, 0, 0));
+        if (threadCountMap.get(key) == null) {
+            threadCountMap.put(key, new StatInfo(0, 0, 0));
         }
 
         long size = statInfo.size.getAndSet(0);
         long delay = statInfo.delay.getAndSet(0);
 
-        threadSumMap.get(key).count.addAndGet(count);
-        threadSumMap.get(key).size.addAndGet(size);
-        threadSumMap.get(key).delay.addAndGet(delay);
+        threadCountMap.get(key).count.addAndGet(count);
+        threadCountMap.get(key).size.addAndGet(size);
+        threadCountMap.get(key).delay.addAndGet(delay);
     }
 
     /**

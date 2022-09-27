@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,13 +17,11 @@
 
 package org.apache.inlong.dataproxy.metrics.audit;
 
-import java.util.HashSet;
-import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Event;
-import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
@@ -32,9 +30,12 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+
 /**
- * 
- * AuditUtils
+ * Audit utils
  */
 public class AuditUtils {
 
@@ -51,7 +52,7 @@ public class AuditUtils {
     private static boolean IS_AUDIT = true;
 
     /**
-     * initAudit
+     * Init audit
      */
     public static void initAudit() {
         // IS_AUDIT
@@ -62,26 +63,21 @@ public class AuditUtils {
             HashSet<String> proxys = new HashSet<>();
             if (!StringUtils.isBlank(strIpPorts)) {
                 String[] ipPorts = strIpPorts.split("\\s+");
-                for (String ipPort : ipPorts) {
-                    proxys.add(ipPort);
-                }
+                Collections.addAll(proxys, ipPorts);
             }
-            AuditImp.getInstance().setAuditProxy(proxys);
+            AuditOperator.getInstance().setAuditProxy(proxys);
             // AuditConfig
             String filePath = CommonPropertiesHolder.getString(AUDIT_KEY_FILE_PATH, AUDIT_DEFAULT_FILE_PATH);
             int maxCacheRow = NumberUtils.toInt(
                     CommonPropertiesHolder.getString(AUDIT_KEY_MAX_CACHE_ROWS),
                     AUDIT_DEFAULT_MAX_CACHE_ROWS);
             AuditConfig auditConfig = new AuditConfig(filePath, maxCacheRow);
-            AuditImp.getInstance().setAuditConfig(auditConfig);
+            AuditOperator.getInstance().setAuditConfig(auditConfig);
         }
     }
 
     /**
-     * add
-     *
-     * @param auditID
-     * @param event
+     * Add audit data
      */
     public static void add(int auditID, Event event) {
         if (!IS_AUDIT || event == null) {
@@ -97,23 +93,20 @@ public class AuditUtils {
             if (event.getHeaders().containsKey(ConfigConstants.MSG_COUNTER_KEY)) {
                 msgCount = Long.parseLong(event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
             }
-            AuditImp.getInstance().add(auditID, inlongGroupId,
+            AuditOperator.getInstance().add(auditID, inlongGroupId,
                     inlongStreamId, logTime, msgCount, event.getBody().length);
         } else {
             String groupId = headers.get(AttributeConstants.GROUP_ID);
             String streamId = headers.get(AttributeConstants.STREAM_ID);
             long dataTime = NumberUtils.toLong(headers.get(AttributeConstants.DATA_TIME));
             long msgCount = NumberUtils.toLong(headers.get(ConfigConstants.MSG_COUNTER_KEY));
-            AuditImp.getInstance().add(auditID, groupId,
+            AuditOperator.getInstance().add(auditID, groupId,
                     streamId, dataTime, msgCount, event.getBody().length);
         }
     }
 
     /**
-     * getLogTime
-     * 
-     * @param  headers
-     * @return
+     * Get LogTime from headers
      */
     public static long getLogTime(Map<String, String> headers) {
         String strLogTime = headers.get(Constants.HEADER_KEY_MSG_TIME);
@@ -131,10 +124,7 @@ public class AuditUtils {
     }
 
     /**
-     * getLogTime
-     * 
-     * @param  event
-     * @return
+     * Get LogTime from event
      */
     public static long getLogTime(Event event) {
         if (event != null) {
@@ -145,20 +135,16 @@ public class AuditUtils {
     }
 
     /**
-     * getAuditFormatTime
-     * 
-     * @param  msgTime
-     * @return
+     * Get AuditFormatTime
      */
     public static long getAuditFormatTime(long msgTime) {
-        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
-        return auditFormatTime;
+        return msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
     }
 
     /**
-     * sendReport
+     * Send audit data
      */
-    public static void sendReport() {
-        AuditImp.getInstance().sendReport();
+    public static void send() {
+        AuditOperator.getInstance().send();
     }
 }

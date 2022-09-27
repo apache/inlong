@@ -20,19 +20,20 @@ package org.apache.inlong.audit.util;
 import org.apache.inlong.audit.protocol.AuditApi;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class AuditDataTest {
+
     @Test
     public void increaseResendTimes() {
-        AuditApi.BaseCommand content = null;
-        AuditData test = new AuditData(System.currentTimeMillis(), content);
+        AuditData test = new AuditData(null);
         int resendTimes = test.increaseResendTimes();
-        assertTrue(resendTimes == 1);
+        assertEquals(1, resendTimes);
         resendTimes = test.increaseResendTimes();
-        assertTrue(resendTimes == 2);
+        assertEquals(2, resendTimes);
         resendTimes = test.increaseResendTimes();
-        assertTrue(resendTimes == 3);
+        assertEquals(3, resendTimes);
     }
 
     @Test
@@ -54,12 +55,9 @@ public class AuditDataTest {
         AuditApi.AuditRequest request = AuditApi.AuditRequest.newBuilder().setMsgHeader(headerBuilder.build())
                 .addMsgBody(bodyBuilder.build()).build();
         AuditApi.BaseCommand baseCommand = AuditApi.BaseCommand.newBuilder().setAuditRequest(request).build();
-        AuditData test = new AuditData(System.currentTimeMillis(), baseCommand);
+        AuditData test = new AuditData(baseCommand);
         byte[] data = test.getDataByte();
         assertTrue(data.length > 0);
     }
 
-    @Test
-    public void addBytes() {
-    }
 }

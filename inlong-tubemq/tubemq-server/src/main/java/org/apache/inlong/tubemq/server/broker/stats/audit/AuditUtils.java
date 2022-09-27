@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,8 +17,7 @@
 
 package org.apache.inlong.tubemq.server.broker.stats.audit;
 
-import java.util.Map;
-import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
@@ -26,18 +25,21 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
 import org.apache.inlong.tubemq.server.common.fileconfig.ADConfig;
 
+import java.util.Map;
+
 /**
  * AuditUtils
  *
  * A wrapper class for Audit report operations
  */
 public class AuditUtils {
+
     private static ADConfig auditConfig = new ADConfig();
 
     /**
      * init audit instance
      *
-     * @param adConfig  the initial configure
+     * @param adConfig the initial configure
      */
     public static void initAudit(ADConfig adConfig) {
         // check whether enable audit
@@ -48,28 +50,27 @@ public class AuditUtils {
         auditConfig = adConfig;
 
         // initial audit instance
-        AuditImp.getInstance().setAuditProxy(adConfig.getAuditProxyAddrSet());
+        AuditOperator.getInstance().setAuditProxy(adConfig.getAuditProxyAddrSet());
         AuditConfig auditConfig =
                 new AuditConfig(adConfig.getAuditCacheFilePath(),
                         adConfig.getAuditCacheMaxRows());
-        AuditImp.getInstance().setAuditConfig(auditConfig);
+        AuditOperator.getInstance().setAuditConfig(auditConfig);
     }
 
     /**
      * add produce record
      *
-     * @param groupId   the group id
-     * @param streamId  the stream id
-     * @param logTime   the record time
-     * @param count     the record count
-     * @param size      the record size
+     * @param groupId the group id
+     * @param streamId the stream id
+     * @param logTime the record time
+     * @param count the record count
+     * @param size the record size
      */
-    public static void addProduceRecord(String groupId, String streamId,
-                                        String logTime, long count, long size) {
+    public static void addProduceRecord(String groupId, String streamId, String logTime, long count, long size) {
         if (!auditConfig.isAuditEnable()) {
             return;
         }
-        AuditImp.getInstance().add(auditConfig.getAuditIdProduce(),
+        AuditOperator.getInstance().add(auditConfig.getAuditIdProduce(),
                 groupId, streamId, DateTimeConvertUtils.yyyyMMddHHmm2ms(logTime), count, size);
     }
 
@@ -79,8 +80,7 @@ public class AuditUtils {
      * @param trafficInfos the consumed traffic information
      */
     public static void addConsumeRecord(Map<String, TrafficInfo> trafficInfos) {
-        if (!auditConfig.isAuditEnable()
-                || trafficInfos == null || trafficInfos.isEmpty()) {
+        if (!auditConfig.isAuditEnable() || trafficInfos == null || trafficInfos.isEmpty()) {
             return;
         }
         for (Map.Entry<String, TrafficInfo> entry : trafficInfos.entrySet()) {
@@ -99,19 +99,19 @@ public class AuditUtils {
             //       #127.0.0.1#32677#test_consume#2#202207041219
             //       topicName, brokerIP, clientId,
             //       clientIP, client processId, consume group, partitionId, msgTime
-            AuditImp.getInstance().add(auditConfig.getAuditIdConsume(),
+            AuditOperator.getInstance().add(auditConfig.getAuditIdConsume(),
                     statKeyItems[0], statKeyItems[5], DateTimeConvertUtils.yyyyMMddHHmm2ms(statKeyItems[7]),
                     entry.getValue().getMsgCount(), entry.getValue().getMsgSize());
         }
     }
 
     /**
-     * close audit report
+     * Close audit, if it was enabled, send its data first.
      */
     public static void closeAudit() {
         if (!auditConfig.isAuditEnable()) {
             return;
         }
-        AuditImp.getInstance().sendReport();
+        AuditOperator.getInstance().send();
     }
 }
