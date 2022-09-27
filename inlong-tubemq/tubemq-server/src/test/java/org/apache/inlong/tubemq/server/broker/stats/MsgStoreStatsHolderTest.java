@@ -32,12 +32,11 @@ public class MsgStoreStatsHolderTest {
     public void testMemPartStats() {
         MsgStoreStatsHolder msgStoreStatsHolder = new MsgStoreStatsHolder();
         // case 1, not started
-        msgStoreStatsHolder.addMsgWriteSuccess(50);
+        msgStoreStatsHolder.addMsgWriteSuccess(50, 2);
         msgStoreStatsHolder.addCacheFullType(true, false, false);
         msgStoreStatsHolder.addCacheFullType(false, true, false);
         msgStoreStatsHolder.addCacheFullType(false, false, true);
-        msgStoreStatsHolder.addCacheTimeoutFlush(50, false);
-        msgStoreStatsHolder.addCacheTimeoutFlush(10, true);
+        msgStoreStatsHolder.addCacheTimeoutFlush();
         msgStoreStatsHolder.addMsgWriteFailure();
         Map<String, Long> retMap = new LinkedHashMap<>();
         msgStoreStatsHolder.getValue(retMap);
@@ -52,9 +51,6 @@ public class MsgStoreStatsHolderTest {
         Assert.assertEquals(0, retMap.get("cache_time_full").longValue());
         Assert.assertEquals(0, retMap.get("cache_flush_pending").longValue());
         Assert.assertEquals(0, retMap.get("cache_realloc").longValue());
-        Assert.assertEquals(0, retMap.get("cache_flush_dlt_count").longValue());
-        Assert.assertEquals(Long.MIN_VALUE, retMap.get("cache_flush_dlt_max").longValue());
-        Assert.assertEquals(Long.MAX_VALUE, retMap.get("cache_flush_dlt_min").longValue());
         Assert.assertNotNull(retMap.get("end_time"));
         retMap.clear();
         // get content by StringBuilder
@@ -66,16 +62,14 @@ public class MsgStoreStatsHolderTest {
         // System.out.println("getAllMemStatsInfo : " + strBuff);
         strBuff.delete(0, strBuff.length());
         // case 2 started
-        msgStoreStatsHolder.addMsgWriteSuccess(50);
-        msgStoreStatsHolder.addMsgWriteSuccess(500);
-        msgStoreStatsHolder.addMsgWriteSuccess(5);
+        msgStoreStatsHolder.addMsgWriteSuccess(50, 10);
+        msgStoreStatsHolder.addMsgWriteSuccess(500, 20);
+        msgStoreStatsHolder.addMsgWriteSuccess(5, 3);
         msgStoreStatsHolder.addCacheFullType(true, false, false);
         msgStoreStatsHolder.addCacheFullType(false, true, false);
         msgStoreStatsHolder.addCacheFullType(false, false, true);
-        msgStoreStatsHolder.addCacheTimeoutFlush(50, false);
-        msgStoreStatsHolder.addCacheTimeoutFlush(10, true);
-        msgStoreStatsHolder.addCacheTimeoutFlush(100, true);
-        msgStoreStatsHolder.addCacheTimeoutFlush(1, false);
+        msgStoreStatsHolder.addCacheTimeoutFlush();
+        msgStoreStatsHolder.addCacheTimeoutFlush();
         msgStoreStatsHolder.addMsgWriteFailure();
         msgStoreStatsHolder.addMsgWriteFailure();
         msgStoreStatsHolder.addCacheReAlloc();
@@ -95,16 +89,9 @@ public class MsgStoreStatsHolderTest {
         Assert.assertEquals(2, retMap.get("cache_time_full").longValue());
         Assert.assertEquals(3, retMap.get("cache_flush_pending").longValue());
         Assert.assertEquals(2, retMap.get("cache_realloc").longValue());
-        Assert.assertEquals(4, retMap.get("cache_flush_dlt_count").longValue());
-        Assert.assertEquals(100, retMap.get("cache_flush_dlt_max").longValue());
-        Assert.assertEquals(1, retMap.get("cache_flush_dlt_min").longValue());
-        Assert.assertEquals(1, retMap.get("cache_flush_dlt_cell_0t2").longValue());
-        Assert.assertEquals(1, retMap.get("cache_flush_dlt_cell_8t16").longValue());
-        Assert.assertEquals(1, retMap.get("cache_flush_dlt_cell_32t64").longValue());
-        Assert.assertEquals(1, retMap.get("cache_flush_dlt_cell_64t128").longValue());
         Assert.assertNotNull(retMap.get("end_time"));
         msgStoreStatsHolder.getMsgStoreStatsInfo(false, strBuff);
-        // System.out.println("\n the second is : " + strBuff.toString());
+        System.out.println("\n the second is : " + strBuff.toString());
         strBuff.delete(0, strBuff.length());
     }
 
@@ -114,7 +101,7 @@ public class MsgStoreStatsHolderTest {
         // case 1, not started
         msgStoreStatsHolder.addFileFlushStatsInfo(2, 30, 500,
                 0, 0, true, true,
-                true, true, true, true);
+                true, true, true, true, 5);
         msgStoreStatsHolder.addFileTimeoutFlushStats(1, 500, false);
         Map<String, Long> retMap = new LinkedHashMap<>();
         msgStoreStatsHolder.getValue(retMap);
@@ -133,6 +120,9 @@ public class MsgStoreStatsHolderTest {
         Assert.assertEquals(0, retMap.get("file_data_full").longValue());
         Assert.assertEquals(0, retMap.get("file_count_full").longValue());
         Assert.assertEquals(0, retMap.get("file_time_full").longValue());
+        Assert.assertEquals(0, retMap.get("file_flush_dlt_count").longValue());
+        Assert.assertEquals(Long.MAX_VALUE, retMap.get("file_flush_dlt_min").longValue());
+        Assert.assertEquals(Long.MIN_VALUE, retMap.get("file_flush_dlt_max").longValue());
         Assert.assertNotNull(retMap.get("end_time"));
         retMap.clear();
         // get content by StringBuilder
@@ -159,27 +149,36 @@ public class MsgStoreStatsHolderTest {
         Assert.assertEquals(0, retMap.get("file_data_full").longValue());
         Assert.assertEquals(0, retMap.get("file_count_full").longValue());
         Assert.assertEquals(1, retMap.get("file_time_full").longValue());
+        Assert.assertEquals(0, retMap.get("file_flush_dlt_count").longValue());
+        Assert.assertEquals(Long.MAX_VALUE, retMap.get("file_flush_dlt_min").longValue());
+        Assert.assertEquals(Long.MIN_VALUE, retMap.get("file_flush_dlt_max").longValue());
         Assert.assertNotNull(retMap.get("end_time"));
         retMap.clear();
         // get value when started
         msgStoreStatsHolder.addFileFlushStatsInfo(1, 1, 1,
                 1, 1, true, false,
-                false, false, false, false);
+                false, false, false, false,
+                6);
         msgStoreStatsHolder.addFileFlushStatsInfo(6, 6, 6,
                 6, 6, false, false,
-                false, false, false, true);
+                false, false, false, true,
+                100);
         msgStoreStatsHolder.addFileFlushStatsInfo(2, 2, 2,
                 2, 2, false, true,
-                false, false, false, false);
+                false, false, false, false,
+                10);
         msgStoreStatsHolder.addFileFlushStatsInfo(5, 5, 5,
                 5, 5, false, false,
-                false, false, true, false);
+                false, false, true, false,
+                200);
         msgStoreStatsHolder.addFileFlushStatsInfo(4, 4, 4,
                 4, 4, false, false,
-                false, true, false, false);
+                false, true, false, false,
+                50);
         msgStoreStatsHolder.addFileFlushStatsInfo(3, 3, 3,
                 3, 3, false, false,
-                true, false, false, false);
+                true, false, false, false,
+                150);
         msgStoreStatsHolder.snapShort(retMap);
         Assert.assertNotNull(retMap.get("reset_time"));
         Assert.assertEquals(21, retMap.get("file_total_msg_cnt").longValue());
@@ -197,6 +196,9 @@ public class MsgStoreStatsHolderTest {
         Assert.assertEquals(2, retMap.get("file_meta_flush").longValue());
         Assert.assertEquals(1, retMap.get("file_count_full").longValue());
         Assert.assertEquals(2, retMap.get("file_time_full").longValue());
+        Assert.assertEquals(6, retMap.get("file_flush_dlt_count").longValue());
+        Assert.assertEquals(6, retMap.get("file_flush_dlt_min").longValue());
+        Assert.assertEquals(200, retMap.get("file_flush_dlt_max").longValue());
         Assert.assertNotNull(retMap.get("end_time"));
         retMap.clear();
         msgStoreStatsHolder.getMsgStoreStatsInfo(true, strBuff);
