@@ -55,7 +55,6 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_IN
  * Config manager class.
  */
 public class ConfigManager {
-    private static final Logger LOG = LoggerFactory.getLogger(ReloadConfigWorker.class);
 
     public static final List<ConfigHolder> CONFIG_HOLDER_LIST = new ArrayList<>();
     private static volatile boolean isInit = false;
@@ -257,6 +256,7 @@ public class ConfigManager {
      */
     public static class ReloadConfigWorker extends Thread {
 
+        private static final Logger LOG = LoggerFactory.getLogger(ReloadConfigWorker.class);
         private final ConfigManager configManager;
         private final CloseableHttpClient httpClient;
         private final Gson gson = new Gson();
