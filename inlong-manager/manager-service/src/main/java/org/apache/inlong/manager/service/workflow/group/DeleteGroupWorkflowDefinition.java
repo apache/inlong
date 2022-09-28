@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.enums.ProcessName;
-import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
+import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.listener.group.UpdateGroupCompleteListener;
 import org.apache.inlong.manager.service.listener.group.UpdateGroupFailedListener;
 import org.apache.inlong.manager.service.listener.group.UpdateGroupListener;
-import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -69,14 +69,6 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
-        // Delete Source
-        ServiceTask deleteSourceTask = new ServiceTask();
-        deleteSourceTask.setName("DeleteSource");
-        deleteSourceTask.setDisplayName("Group-DeleteSource");
-        deleteSourceTask.setServiceTaskType(ServiceTaskType.DELETE_SOURCE);
-        deleteSourceTask.setListenerFactory(groupTaskListenerFactory);
-        process.addTask(deleteSourceTask);
-
         // Delete MQ
         ServiceTask deleteMQTask = new ServiceTask();
         deleteMQTask.setName("DeleteMQ");
@@ -85,22 +77,12 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
         deleteMQTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(deleteMQTask);
 
-        // Delete Sort
-        ServiceTask deleteSortTask = new ServiceTask();
-        deleteSortTask.setName("DeleteSort");
-        deleteSortTask.setDisplayName("Group-DeleteSort");
-        deleteSortTask.setServiceTaskType(ServiceTaskType.DELETE_SORT);
-        deleteSortTask.setListenerFactory(groupTaskListenerFactory);
-        process.addTask(deleteSortTask);
-
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        startEvent.addNext(deleteSourceTask);
-        deleteSourceTask.addNext(deleteMQTask);
-        deleteMQTask.addNext(deleteSortTask);
-        deleteSortTask.addNext(endEvent);
+        startEvent.addNext(deleteMQTask);
+        deleteMQTask.addNext(endEvent);
 
         return process;
     }

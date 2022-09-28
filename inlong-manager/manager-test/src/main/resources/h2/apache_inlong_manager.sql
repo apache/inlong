@@ -607,6 +607,7 @@ CREATE TABLE IF NOT EXISTS `workflow_process`
     `type`            varchar(256)          DEFAULT NULL COMMENT 'Process classification',
     `title`           varchar(256)          DEFAULT NULL COMMENT 'Process title',
     `inlong_group_id` varchar(256)          DEFAULT NULL COMMENT 'Inlong group id: to facilitate related inlong group',
+    `inlong_stream_id`varchar(256)          DEFAULT NULL COMMENT 'Inlong stream id: to facilitate related inlong stream',
     `applicant`       varchar(256) NOT NULL COMMENT 'Applicant',
     `status`          varchar(64)  NOT NULL COMMENT 'Status',
     `form_data`       mediumtext COMMENT 'Form information',

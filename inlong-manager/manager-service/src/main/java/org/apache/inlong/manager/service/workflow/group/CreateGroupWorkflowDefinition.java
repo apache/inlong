@@ -77,30 +77,6 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initMQTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(initMQTask);
 
-        // Init Sink
-        ServiceTask initSinkTask = new ServiceTask();
-        initSinkTask.setName("InitSink");
-        initSinkTask.setDisplayName("Group-InitSink");
-        initSinkTask.setServiceTaskType(ServiceTaskType.INIT_SINK);
-        initSinkTask.setListenerFactory(groupTaskListenerFactory);
-        process.addTask(initSinkTask);
-
-        // Init Sort
-        ServiceTask initSortTask = new ServiceTask();
-        initSortTask.setName("InitSort");
-        initSortTask.setDisplayName("Group-InitSort");
-        initSortTask.setServiceTaskType(ServiceTaskType.INIT_SORT);
-        initSortTask.setListenerFactory(groupTaskListenerFactory);
-        process.addTask(initSortTask);
-
-        // Init Source
-        ServiceTask initSourceTask = new ServiceTask();
-        initSourceTask.setName("InitSource");
-        initSourceTask.setDisplayName("Group-InitSource");
-        initSourceTask.setServiceTaskType(ServiceTaskType.INIT_SOURCE);
-        initSourceTask.setListenerFactory(groupTaskListenerFactory);
-        process.addTask(initSourceTask);
-
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
@@ -108,10 +84,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         // Task dependency order: 1.MQ -> 2.Sink -> 3.Sort -> 4.Source
         // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
         startEvent.addNext(initMQTask);
-        initMQTask.addNext(initSinkTask);
-        initSinkTask.addNext(initSortTask);
-        initSortTask.addNext(initSourceTask);
-        initSourceTask.addNext(endEvent);
+        initMQTask.addNext(endEvent);
 
         return process;
     }

@@ -34,6 +34,7 @@ public class WorkflowProcessEntity {
     private String title;
 
     private String inlongGroupId;
+    private String inlongStreamId;
     private String applicant;
     private String status;
     private String formData;
