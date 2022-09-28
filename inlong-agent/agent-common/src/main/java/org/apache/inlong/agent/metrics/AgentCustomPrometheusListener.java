@@ -100,7 +100,7 @@ public class AgentCustomPrometheusListener extends Collector implements MetricLi
         for (MetricItemValue itemValue : itemValues) {
             Map<String, String> dimensionMap = itemValue.getDimensions();
             // add dimension
-            String metricName = "total";
+            String metricName = "inlong_information";
             Sample sample = new Sample(metricName,
                     Arrays.asList(KEY_PLUGIN_ID, KEY_INLONG_GROUP_ID, KEY_INLONG_STREAM_ID, KEY_COMPONENT_NAME),
                     Arrays.asList(dimensionMap.getOrDefault(KEY_PLUGIN_ID, "-"),
@@ -111,7 +111,7 @@ public class AgentCustomPrometheusListener extends Collector implements MetricLi
                     Collections.singletonList(sample));
             mfs.add(samples);
             //add metrics
-            CounterMetricFamily metricsCounter = new CounterMetricFamily("group=total", "The metric of  dimension",
+            CounterMetricFamily metricsCounter = new CounterMetricFamily("group", "The metric of  dimension",
                     Collections.singletonList("dimension"));
             Map<String, MetricValue> metricMap = itemValue.getMetrics();
             ArrayList<String> metricStrings = new ArrayList<>(Arrays.asList(M_JOB_RUNNING_COUNT, M_JOB_FATAL_COUNT,
