@@ -115,7 +115,7 @@ public final class KubernetesFileReader extends AbstractFileReader {
             return null;
         }
         Map<String, String> k8sInfo = MetaDataUtils.getLogInfo(fileReaderOperator.file.getName());
-        log.info("k8s information size:{}", k8sInfo.size());
+        log.info("file name is: {}, k8s information size: {}", fileReaderOperator.file.getName(), k8sInfo.size());
         Map<String, String> metadata = new HashMap<>();
         if (k8sInfo.isEmpty()) {
             return metadata;
