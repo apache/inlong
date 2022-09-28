@@ -139,9 +139,9 @@ public class PulsarClientService {
         boolean result;
         final String pkgVersion =
                 event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER);
-        final String inlongStreamId =
-                event.getHeaders().get(AttributeConstants.GROUP_ID);
         final String inlongGroupId =
+                event.getHeaders().get(AttributeConstants.GROUP_ID);
+        final String inlongStreamId =
                 event.getHeaders().get(AttributeConstants.STREAM_ID);
         try {
             producerInfo = getProducerInfo(poolIndex, topic, inlongGroupId, inlongStreamId);
