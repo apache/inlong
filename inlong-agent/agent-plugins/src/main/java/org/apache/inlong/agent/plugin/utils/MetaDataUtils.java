@@ -81,12 +81,6 @@ public class MetaDataUtils {
         return podInf;
     }
 
-    public static void main(String[] args) {
-        System.out.println(getLogInfo(
-                "testcase-0_xb-test240_testcase2-8050825882878a0aef05cd597abb09917a1e090d09f4d1ed288488311ca0309c.log")
-                .values());
-    }
-
     /**
      * standard log for k8s
      *
