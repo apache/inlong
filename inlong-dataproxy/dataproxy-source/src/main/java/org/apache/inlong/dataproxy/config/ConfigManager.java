@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -101,6 +102,72 @@ public class ConfigManager {
         return topicConfig.getHolder();
     }
 
+    public boolean addTopicProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, topicConfig, true);
+    }
+
+    public boolean deleteTopicProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, topicConfig, false);
+    }
+
+    public Map<String, String> getMxProperties() {
+        return mxConfig.getHolder();
+    }
+
+    public boolean addMxProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, mxConfig, true);
+    }
+
+    public boolean deleteMxProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, mxConfig, false);
+    }
+
+    public boolean updateTopicProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, topicConfig);
+    }
+
+    public boolean updateMQClusterProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, mqClusterConfigHolder);
+    }
+
+    public boolean updateMxProperties(Map<String, String> result) {
+        return updatePropertiesHolder(result, mxConfig);
+    }
+
+    /**
+     * update old maps, reload local files if changed.
+     *
+     * @param result - map pending to be added
+     * @param holder - property holder
+     * @return true if changed else false.
+     */
+    private boolean updatePropertiesHolder(Map<String, String> result,
+                                           PropertiesConfigHolder holder) {
+        boolean changed = false;
+        Map<String, String> tmpHolder = holder.forkHolder();
+        // Delete non-existent configuration records
+        Iterator<Map.Entry<String, String>> it = tmpHolder.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, String> entry = it.next();
+            if (!result.containsKey(entry.getKey())) {
+                it.remove();
+                changed = true;
+            }
+        }
+        // add new configure records
+        for (Map.Entry<String, String> entry : result.entrySet()) {
+            String oldValue = tmpHolder.put(entry.getKey(), entry.getValue());
+            if (!ObjectUtils.equals(oldValue, entry.getValue())) {
+                changed = true;
+            }
+        }
+        if (changed) {
+            return holder.loadFromHolderToFile(tmpHolder);
+        } else {
+            return false;
+        }
+    }
+
     /**
      * update old maps, reload local files if changed.
      *
@@ -109,8 +176,9 @@ public class ConfigManager {
      * @param addElseRemove - if add(true) else remove(false)
      * @return true if changed else false.
      */
-    private boolean updatePropertiesHolder(Map<String, String> result, PropertiesConfigHolder holder,
-            boolean addElseRemove) {
+    private boolean updatePropertiesHolder(Map<String, String> result,
+                                           PropertiesConfigHolder holder,
+                                           boolean addElseRemove) {
         Map<String, String> tmpHolder = holder.forkHolder();
         boolean changed = false;
 
@@ -133,30 +201,6 @@ public class ConfigManager {
         } else {
             return false;
         }
-    }
-
-    public boolean addTopicProperties(Map<String, String> result) {
-        return updatePropertiesHolder(result, topicConfig, true);
-    }
-
-    public boolean deleteTopicProperties(Map<String, String> result) {
-        return updatePropertiesHolder(result, topicConfig, false);
-    }
-
-    public boolean updateMQClusterProperties(Map<String, String> result) {
-        return updatePropertiesHolder(result, mqClusterConfigHolder, true);
-    }
-
-    public Map<String, String> getMxProperties() {
-        return mxConfig.getHolder();
-    }
-
-    public boolean addMxProperties(Map<String, String> result) {
-        return updatePropertiesHolder(result, mxConfig, true);
-    }
-
-    public boolean deleteMxProperties(Map<String, String> result) {
-        return updatePropertiesHolder(result, mxConfig, false);
     }
 
     public Map<String, String> getDcMappingProperties() {
@@ -328,8 +372,8 @@ public class ConfigManager {
                             groupIdToTopic.put(topic.getInlongGroupId(), topic.getTopic());
                         }
                     }
-                    configManager.addMxProperties(groupIdToMValue);
-                    configManager.addTopicProperties(groupIdToTopic);
+                    configManager.updateMxProperties(groupIdToMValue);
+                    configManager.updateTopicProperties(groupIdToTopic);
                     // other params for mq
                     mqConfig.putAll(clusterSet.get(0).getParams());
                     configManager.updateMQClusterProperties(mqConfig);
