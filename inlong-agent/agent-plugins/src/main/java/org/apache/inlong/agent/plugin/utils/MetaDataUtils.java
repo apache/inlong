@@ -51,13 +51,15 @@ public class MetaDataUtils {
     // standard log path for k8s
     private static final String FILE_NAME_PATTERN = "(^[-a-zA-Z0-9]+)_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)(.log)";
 
+    private static final Pattern PATTERN = Pattern.compile(FILE_NAME_PATTERN);
+
     /**
      * standard log for k8s
      *
      * get pod_name,namespace,container_name,container_id
      */
     public static Map<String, String> getLogInfo(String fileName) {
-        Matcher matcher = Pattern.compile(FILE_NAME_PATTERN).matcher(fileName);
+        Matcher matcher = PATTERN.matcher(fileName);
         Map<String, String> podInf = new HashMap<>();
         if (StringUtils.isBlank(fileName) || !matcher.matches()) {
             return podInf;
