@@ -36,6 +36,8 @@ import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.heartbeat.HeartbeatManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;
@@ -50,6 +52,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     private InlongClusterService clusterService;
     @Autowired
     private HeartbeatManager heartbeatManager;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceTest.class);
 
     /**
      * Save data proxy cluster
@@ -112,12 +116,13 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Save cluster node info.
      */
-    public Integer saveClusterNode(Integer parentId, String type, String ip, Integer port) {
+    public Integer saveClusterNode(Integer parentId, String type, String ip, Integer port, String protocolType) {
         ClusterNodeRequest request = new ClusterNodeRequest();
         request.setParentId(parentId);
         request.setType(type);
         request.setIp(ip);
         request.setPort(port);
+        request.setProtocolType(protocolType);
         return clusterService.saveNode(request, GLOBAL_OPERATOR);
     }
 
@@ -149,6 +154,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(ip);
         heartbeatMsg.setPort(port);
+        heartbeatMsg.setProtocolType("http");
         heartbeatMsg.setComponentType(type);
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         heartbeatMsg.setClusterName(clusterName);
@@ -193,7 +199,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Integer parentId = id;
         String ip = "127.0.0.1";
         Integer port = 8080;
-        Integer nodeId = this.saveClusterNode(parentId, ClusterType.PULSAR, ip, port);
+        Integer nodeId = this.saveClusterNode(parentId, ClusterType.PULSAR, ip, port, "http");
         Assertions.assertNotNull(nodeId);
 
         // list cluster node
@@ -229,11 +235,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // save cluster node
         String ip = "127.0.0.1";
         Integer port1 = 46800;
-        Integer nodeId1 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port1);
+        Integer nodeId1 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port1, "tcp");
         Assertions.assertNotNull(nodeId1);
 
         Integer port2 = 46801;
-        Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port2);
+        Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port2, "tcp");
         Assertions.assertNotNull(nodeId2);
 
         // report heartbeat
@@ -250,15 +256,27 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         groupService.update(updateGroupInfo.genRequest(), GLOBAL_OPERATOR);
 
         // get the data proxy nodes, the first port should is p1, second port is p2
-        DataProxyNodeResponse nodeResponse = clusterService.getDataProxyNodes(inlongGroupId);
+        DataProxyNodeResponse nodeResponse = clusterService.getDataProxyNodes(inlongGroupId, "tcp");
         List<DataProxyNodeInfo> ipList = nodeResponse.getNodeList();
         ipList.sort(Comparator.comparingInt(DataProxyNodeInfo::getId));
         Assertions.assertEquals(ipList.size(), 2);
         Assertions.assertEquals(port1, ipList.get(0).getPort());
         Assertions.assertEquals(port2, ipList.get(1).getPort());
 
-        this.deleteClusterNode(nodeId1);
-        this.deleteClusterNode(nodeId2);
+        nodeResponse = clusterService.getDataProxyNodes(inlongGroupId, "http");
+        ipList = nodeResponse.getNodeList();
+        ipList.sort(Comparator.comparingInt(DataProxyNodeInfo::getId));
+        Assertions.assertEquals(ipList.size(), 2);
+        Assertions.assertEquals(port1, ipList.get(0).getPort());
+        Assertions.assertEquals(port2, ipList.get(1).getPort());
+
+        nodeResponse = clusterService.getDataProxyNodes(inlongGroupId);
+        ipList = nodeResponse.getNodeList();
+
+        for (DataProxyNodeInfo dataProxyNodeInfo : ipList) {
+            this.deleteClusterNode(dataProxyNodeInfo.getId());
+        }
+
         this.deleteCluster(id);
     }
 

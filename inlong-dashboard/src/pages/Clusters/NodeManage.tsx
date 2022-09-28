@@ -126,6 +126,10 @@ const Comp: React.FC = () => {
         dataIndex: 'port',
       },
       {
+        title: i18n.t('pages.Clusters.Node.ProtocolType'),
+        dataIndex: 'protocolType',
+      },
+      {
         title: i18n.t('pages.Clusters.Node.LastModifier'),
         dataIndex: 'modifier',
         width: 150,

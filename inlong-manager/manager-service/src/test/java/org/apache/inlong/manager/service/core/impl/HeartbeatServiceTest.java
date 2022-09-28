@@ -53,6 +53,7 @@ public class HeartbeatServiceTest extends ServiceBaseTest {
         request.setComponentType(ComponentTypeEnum.Agent.getName());
         request.setIp("127.0.0.1");
         request.setReportTime(Instant.now().toEpochMilli());
+        request.setProtocolType("http");
 
         List<GroupHeartbeat> groupHeartbeats = new ArrayList<>();
         GroupHeartbeat groupHeartbeat = new GroupHeartbeat();

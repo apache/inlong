@@ -207,6 +207,15 @@ public interface InlongClusterService {
     DataProxyNodeResponse getDataProxyNodes(String inlongGroupId);
 
     /**
+     * Query data proxy nodes by the given inlong group id, protocolType
+     *
+     * @param inlongGroupId inlong group id
+     * @param protocolType protocolType
+     * @return data proxy node response
+     */
+    DataProxyNodeResponse getDataProxyNodes(String inlongGroupId, String protocolType);
+
+    /**
      * Get the configuration of DataProxy through the cluster name to which DataProxy belongs.
      *
      * @param clusterTag cluster tag

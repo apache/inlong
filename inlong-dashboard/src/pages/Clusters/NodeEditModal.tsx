@@ -107,6 +107,11 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         },
       },
       {
+        type: 'input',
+        label: i18n.t('pages.Clusters.Node.ProtocolType'),
+        name: 'protocolType',
+      },
+      {
         type: 'textarea',
         label: i18n.t('pages.Clusters.Description'),
         name: 'description',
