@@ -30,6 +30,7 @@ import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.pojo.transform.deduplication.DeDuplicationDefinition;
 import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition;
+import org.apache.inlong.manager.pojo.transform.joiner.LookUpJoinerDefinition;
 import org.apache.inlong.manager.pojo.transform.replacer.StringReplacerDefinition;
 import org.apache.inlong.manager.pojo.transform.splitter.SplitterDefinition;
 import org.apache.inlong.manager.pojo.transform.encrypt.EncryptDefinition;
@@ -52,11 +53,12 @@ public class StreamParseUtils {
 
     public static TransformDefinition parseTransformDefinition(String transformDefinition,
             TransformType transformType) {
+        JsonObject joinerJson = GSON.fromJson(transformDefinition, JsonObject.class);
         switch (transformType) {
             case FILTER:
                 return GSON.fromJson(transformDefinition, FilterDefinition.class);
             case JOINER:
-                return parseJoinerDefinition(transformDefinition);
+                return parseJoinerDefinition(transformDefinition, joinerJson);
             case SPLITTER:
                 return GSON.fromJson(transformDefinition, SplitterDefinition.class);
             case DE_DUPLICATION:
@@ -65,19 +67,28 @@ public class StreamParseUtils {
                 return GSON.fromJson(transformDefinition, StringReplacerDefinition.class);
             case ENCRYPT:
                 return GSON.fromJson(transformDefinition, EncryptDefinition.class);
+            case LOOKUP_JOINER:
+                return parseLookupJoinerDefinition(transformDefinition, joinerJson);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported transformType for %s", transformType));
         }
     }
 
-    public static JoinerDefinition parseJoinerDefinition(String transformDefinition) {
+    public static JoinerDefinition parseJoinerDefinition(String transformDefinition, JsonObject joinerJson) {
         JoinerDefinition joinerDefinition = GSON.fromJson(transformDefinition, JoinerDefinition.class);
-        JsonObject joinerJson = GSON.fromJson(transformDefinition, JsonObject.class);
-        JsonObject leftNode = joinerJson.getAsJsonObject(LEFT_NODE);
-        StreamNode leftStreamNode = parseNode(leftNode);
+        StreamNode leftStreamNode = parseNode(joinerJson.getAsJsonObject(LEFT_NODE));
         joinerDefinition.setLeftNode(leftStreamNode);
-        JsonObject rightNode = joinerJson.getAsJsonObject("rightNode");
-        StreamNode rightStreamNode = parseNode(rightNode);
+        StreamNode rightStreamNode = parseNode(joinerJson.getAsJsonObject(RIGHT_NODE));
+        joinerDefinition.setRightNode(rightStreamNode);
+        return joinerDefinition;
+    }
+
+    public static LookUpJoinerDefinition parseLookupJoinerDefinition(String transformDefinition,
+                                                                     JsonObject joinerJson) {
+        LookUpJoinerDefinition joinerDefinition = GSON.fromJson(transformDefinition, LookUpJoinerDefinition.class);
+        StreamNode leftStreamNode = parseNode(joinerJson.getAsJsonObject(LEFT_NODE));
+        joinerDefinition.setLeftNode(leftStreamNode);
+        StreamNode rightStreamNode = parseNode(joinerJson.getAsJsonObject(RIGHT_NODE));
         joinerDefinition.setRightNode(rightStreamNode);
         return joinerDefinition;
     }

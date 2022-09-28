@@ -49,6 +49,11 @@ public enum TransformType {
     JOINER("joiner"),
 
     /**
+     * A lookup join is typically used to enrich a table with data that is queried from an external system
+     */
+    LOOKUP_JOINER("lookup_joiner"),
+
+    /**
      * Encrypt records on given fields
      */
     ENCRYPT("encrypt");

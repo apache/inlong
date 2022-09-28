@@ -18,9 +18,11 @@
 package org.apache.inlong.manager.pojo.sort.util;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -33,6 +35,7 @@ import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition.JoinMode;
+import org.apache.inlong.manager.pojo.transform.joiner.LookUpJoinerDefinition;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
@@ -44,15 +47,17 @@ import org.apache.inlong.sort.protocol.transformation.operator.AndOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 import org.apache.inlong.sort.protocol.transformation.relation.InnerJoinNodeRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterTemporalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterJoinNodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.RightOuterJoinNodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -60,6 +65,15 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class NodeRelationUtils {
+
+    private static final Set<TransformType> JOIN_NODES = new HashSet<>();
+
+    static {
+
+        JOIN_NODES.add(TransformType.JOINER);
+        JOIN_NODES.add(TransformType.LOOKUP_JOINER);
+
+    }
 
     /**
      * Create node relation for the given stream
@@ -115,7 +129,8 @@ public class NodeRelationUtils {
                 .map(node -> (TransformNode) node)
                 .filter(transformNode -> {
                     TransformDefinition transformDefinition = transformTypeMap.get(transformNode.getName());
-                    return transformDefinition.getTransformType() == TransformType.JOINER;
+                    return JOIN_NODES
+                            .contains(transformDefinition.getTransformType());
                 }).collect(Collectors.toMap(TransformNode::getName, transformNode -> transformNode));
 
         List<NodeRelation> relations = streamInfo.getRelations();
@@ -128,8 +143,21 @@ public class NodeRelationUtils {
                 String nodeName = outputs.get(0);
                 if (joinNodes.get(nodeName) != null) {
                     TransformDefinition transformDefinition = transformTypeMap.get(nodeName);
-                    joinRelations.add(getNodeRelation((JoinerDefinition) transformDefinition, relation));
-                    shipIterator.remove();
+                    TransformType transformType = transformDefinition.getTransformType();
+                    switch (transformType) {
+                        case JOINER:
+                            joinRelations.add(getNodeRelation((JoinerDefinition) transformDefinition, relation));
+                            shipIterator.remove();
+                            break;
+                        case LOOKUP_JOINER:
+                            assert transformDefinition instanceof LookUpJoinerDefinition;
+                            joinRelations.add(getNodeRelation((LookUpJoinerDefinition) transformDefinition, relation));
+                            shipIterator.remove();
+                            break;
+                        default:
+                            throw new IllegalArgumentException(
+                                    String.format("Unsupported transformType for %s", transformType));
+                    }
                 }
             }
         }
@@ -148,14 +176,14 @@ public class NodeRelationUtils {
             StreamField leftField = leftJoinFields.get(index);
             StreamField rightField = rightJoinFields.get(index);
             LogicOperator operator;
-            if (index != leftJoinFields.size() - 1) {
+            if (index != 0) {
                 operator = AndOperator.getInstance();
             } else {
                 operator = EmptyOperator.getInstance();
             }
             filterFunctions.add(createFilterFunction(leftField, rightField, operator));
         }
-        Map<String, List<FilterFunction>> joinConditions = new HashMap<>();
+        Map<String, List<FilterFunction>> joinConditions = Maps.newHashMap();
         joinConditions.put(rightNode, filterFunctions);
         switch (joinMode) {
             case LEFT_JOIN:
@@ -167,6 +195,29 @@ public class NodeRelationUtils {
             default:
                 throw new IllegalArgumentException(String.format("Unsupported join mode=%s for inlong", joinMode));
         }
+    }
+    private static NodeRelation getNodeRelation(LookUpJoinerDefinition joinerDefinition, NodeRelation nodeRelation) {
+        String leftNode = getNodeName(joinerDefinition.getLeftNode());
+        String rightNode = getNodeName(joinerDefinition.getRightNode());
+        List<String> preNodes = Lists.newArrayList(leftNode, rightNode);
+        List<StreamField> leftJoinFields = joinerDefinition.getLeftJoinFields();
+        List<StreamField> rightJoinFields = joinerDefinition.getRightJoinFields();
+        List<FilterFunction> filterFunctions = Lists.newArrayList();
+        for (int index = 0; index < leftJoinFields.size(); index++) {
+            StreamField leftField = leftJoinFields.get(index);
+            StreamField rightField = rightJoinFields.get(index);
+            LogicOperator operator;
+            if (index != 0) {
+                operator = AndOperator.getInstance();
+            } else {
+                operator = EmptyOperator.getInstance();
+            }
+            filterFunctions.add(createFilterFunction(leftField, rightField, operator));
+        }
+        Map<String, List<FilterFunction>> joinConditions = Maps.newHashMap();
+        joinConditions.put(rightNode, filterFunctions);
+        FieldInfo systemTime = new FieldInfo(MetaField.PROCESS_TIME.name());
+        return new LeftOuterTemporalJoinRelation(preNodes, nodeRelation.getOutputs(), joinConditions,systemTime);
     }
 
     private static SingleValueFilterFunction createFilterFunction(StreamField leftField, StreamField rightField,
