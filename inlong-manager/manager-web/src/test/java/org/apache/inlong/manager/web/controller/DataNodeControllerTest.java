@@ -86,7 +86,7 @@ class DataNodeControllerTest extends WebBaseTest {
     }
 
     @Test
-    void testSaveAndGetAndDeleteByName() throws Exception {
+    void testSaveAndGetAndDeleteByNameAndType() throws Exception {
         HiveDataNodeRequest request = getHiveDataNodeRequest();
         // save
         MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", request);
@@ -102,7 +102,8 @@ class DataNodeControllerTest extends WebBaseTest {
         Assertions.assertEquals(getHiveDataNodeRequest().getName(), dataNode.getName());
 
         // delete
-        MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/deleteByName/{name}", request.getName());
+        MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/deleteByNameAndType/{name}/{type}",
+                request.getName(), request.getType());
 
         Boolean success = getResBodyObj(deleteResult, Boolean.class);
         Assertions.assertTrue(success);

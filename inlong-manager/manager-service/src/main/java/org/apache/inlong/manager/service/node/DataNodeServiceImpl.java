@@ -145,16 +145,6 @@ public class DataNodeServiceImpl implements DataNodeService {
         return delete(entity, operator);
     }
 
-    @Override
-    public Boolean deleteByName(String name, String operator) {
-        DataNodeEntity entity = dataNodeMapper.selectByNameAndType(name, null);
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
-            LOGGER.error("data node not found or was already deleted for name={}", name);
-            return false;
-        }
-        return delete(entity, operator);
-    }
-
     private Boolean delete(DataNodeEntity entity, String operator) {
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
@@ -166,6 +156,16 @@ public class DataNodeServiceImpl implements DataNodeService {
         }
         LOGGER.info("success to delete data node by name={}", entity.getName());
         return true;
+    }
+
+    @Override
+    public Boolean deleteByNameAndType(String name, String type, String operator) {
+        DataNodeEntity entity = dataNodeMapper.selectByNameAndType(name, type);
+        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
+            LOGGER.error("data node not found or was already deleted for name={}", name);
+            return false;
+        }
+        return delete(entity, operator);
     }
 
     @Override

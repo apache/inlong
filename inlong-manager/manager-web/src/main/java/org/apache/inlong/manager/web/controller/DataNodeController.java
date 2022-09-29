@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
@@ -92,13 +93,19 @@ public class DataNodeController {
         return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
 
-    @DeleteMapping(value = "/node/deleteByName/{name}")
-    @ApiOperation(value = "Delete data node by name")
+    @DeleteMapping(value = "/node/deleteByNameAndType/{name}/{type}")
+    @ApiOperation(value = "Delete data node by name and type")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "name", value = "Data node name", dataTypeClass = String.class, readOnly = true)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "Data node name", dataTypeClass = String.class, readOnly = true),
+            @ApiImplicitParam(name = "type", value = "Data node type", dataTypeClass = String.class, readOnly = true)
+    })
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Boolean> deleteByName(@PathVariable String name) {
-        return Response.success(dataNodeService.deleteByName(name, LoginUserUtils.getLoginUser().getName()));
+    public Response<Boolean> deleteByNameAndType(
+            @PathVariable String name,
+            @PathVariable String type) {
+        return Response.success(dataNodeService.deleteByNameAndType(name, type,
+                LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping("/node/testConnection")

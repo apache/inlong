@@ -45,7 +45,7 @@ public interface DataNodeApi {
     @DELETE("node/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);
 
-    @DELETE("node/delete/{name}")
-    Call<Response<Boolean>> deleteByName(@Path("name") String name);
+    @DELETE("node/deleteByNameAndType/{name}/{type}")
+    Call<Response<Boolean>> deleteByNameAndType(@Path("name") String name, @Path("type") String type);
 
 }

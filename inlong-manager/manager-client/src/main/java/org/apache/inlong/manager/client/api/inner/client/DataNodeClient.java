@@ -108,14 +108,16 @@ public class DataNodeClient {
     }
 
     /**
-     * Delete data node by name.
+     * Delete data node by name and type.
      *
      * @param name node name to be deleted
+     * @param type node type to be deleted
      * @return whether succeed
      */
-    public Boolean delete(String name) {
+    public Boolean delete(String name, String type) {
         Preconditions.checkNotEmpty(name, "data node name cannot be empty or null");
-        Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.deleteByName(name));
+        Preconditions.checkNotEmpty(type, "data node type cannot be empty or null");
+        Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.deleteByNameAndType(name, type));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

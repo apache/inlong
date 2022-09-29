@@ -71,13 +71,14 @@ public interface DataNodeService {
     Boolean delete(Integer id, String operator);
 
     /**
-     * Delete data node by name.
+     * Delete data node by name and type.
      *
      * @param name node name to be deleted
+     * @param type node type to be deleted
      * @param operator current operator
      * @return whether succeed
      */
-    Boolean deleteByName(String name, String operator);
+    Boolean deleteByNameAndType(String name, String type, String operator);
 
     /**
      * Test whether the connection can be successfully established.
