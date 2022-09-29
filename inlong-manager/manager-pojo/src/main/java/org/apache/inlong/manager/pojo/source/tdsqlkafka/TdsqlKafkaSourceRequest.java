@@ -15,41 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.pojo.source.tdsqlkafka;
 
-import lombok.Getter;
-
-import java.util.Locale;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.source.kafka.KafkaSourceRequest;
 
 /**
- * Enum of data format.
+ * Request of kafka source info
  */
-public enum DataFormat {
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@ApiModel(value = "Request of the kafka source info")
+@JsonTypeDefine(value = SourceType.TDSQL_KAFKA)
+public class TdsqlKafkaSourceRequest extends KafkaSourceRequest {
 
-    CSV("csv"),
-    AVRO("avro"),
-    CANAL("canal"),
-    JSON("json"),
-    DEBEZIUM_JSON("debezium_json"),
-    PROTOBUF("protobuf"),
-    NONE("none");
-
-    @Getter
-    private final String name;
-
-    DataFormat(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Get data format by name.
-     */
-    public static DataFormat forName(String name) {
-        for (DataFormat dataFormat : values()) {
-            if (dataFormat.getName().equals(name.toLowerCase(Locale.ROOT))) {
-                return dataFormat;
-            }
-        }
-        throw new IllegalArgumentException(String.format("Unsupported data format for %s", name));
+    public TdsqlKafkaSourceRequest() {
+        this.setSourceType(SourceType.TDSQL_KAFKA);
     }
 }
