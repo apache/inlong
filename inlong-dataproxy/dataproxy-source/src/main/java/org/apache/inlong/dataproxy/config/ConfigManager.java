@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_INTERVAL;
@@ -55,6 +56,7 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_IN
  * Config manager class.
  */
 public class ConfigManager {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
     public static final List<ConfigHolder> CONFIG_HOLDER_LIST = new ArrayList<>();
     private static volatile boolean isInit = false;
@@ -157,7 +159,8 @@ public class ConfigManager {
         // add new configure records
         for (Map.Entry<String, String> entry : result.entrySet()) {
             String oldValue = tmpHolder.put(entry.getKey(), entry.getValue());
-            if (!ObjectUtils.equals(oldValue, entry.getValue())) {
+            if ((entry.getValue() == null && !Objects.equals("null", oldValue))
+                    || (entry.getValue() != null && !Objects.equals(entry.getValue(), oldValue))) {
                 changed = true;
             }
         }
@@ -256,7 +259,6 @@ public class ConfigManager {
      */
     public static class ReloadConfigWorker extends Thread {
 
-        private static final Logger LOG = LoggerFactory.getLogger(ReloadConfigWorker.class);
         private final ConfigManager configManager;
         private final CloseableHttpClient httpClient;
         private final Gson gson = new Gson();
