@@ -27,12 +27,12 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
 /**
- * Hive data node request
+ * Iceberg data node request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = DataNodeType.HIVE)
+@JsonTypeDefine(value = DataNodeType.ICEBERG)
 @ApiModel("Iceberg data node request")
 public class IcebergDataNodeRequest extends DataNodeRequest {
 
@@ -43,7 +43,7 @@ public class IcebergDataNodeRequest extends DataNodeRequest {
     private String warehouse;
 
     public IcebergDataNodeRequest() {
-        this.setType(DataNodeType.HIVE);
+        this.setType(DataNodeType.ICEBERG);
     }
 
 }
