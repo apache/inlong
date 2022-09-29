@@ -18,10 +18,8 @@
 package org.apache.inlong.manager.service.listener.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
-import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
@@ -50,8 +48,6 @@ public class InitGroupCompleteListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
-    @Autowired
-    private StreamSourceService sourceService;
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
@@ -86,11 +82,6 @@ public class InitGroupCompleteListener implements ProcessEventListener {
         updateGroupRequest.setVersion(existGroup.getVersion());
         groupService.update(updateGroupRequest, operator);
 
-        if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
-            sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
-        } else {
-            sourceService.updateStatus(groupId, null, SourceStatus.TO_BE_ISSUED_ADD.getCode(), operator);
-        }
         List<InlongStreamInfo> streamList = form.getStreamInfos();
         for (InlongStreamInfo streamInfo : streamList) {
             streamProcessOperation.startProcess(groupId, streamInfo.getInlongStreamId(), operator, false);
