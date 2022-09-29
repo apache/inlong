@@ -56,6 +56,7 @@ public class IcebergSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setDataPath("hdfs://127.0.0.1:8020/data");
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setId((int) (Math.random() * 100000 + 1));
+        sinkInfo.setCatalogUri("thrift://127.0.0.1:9000");
         return sinkService.save(sinkInfo, globalOperator);
     }
 

@@ -87,7 +87,7 @@ public class IcebergSinkOperator extends AbstractSinkOperator {
         }
 
         IcebergSinkDTO dto = IcebergSinkDTO.getFromJson(entity.getExtParams());
-        if (StringUtils.isBlank(dto.getCatalogUri()) && dto.getCatalogType().equals(CATALOG_TYPE_HIVE)) {
+        if (StringUtils.isBlank(dto.getCatalogUri()) && CATALOG_TYPE_HIVE.equals(dto.getCatalogType())) {
             Preconditions.checkNotEmpty(entity.getDataNodeName(),
                     "iceberg catalog uri unspecified and data node is empty");
             IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeHelper.getDataNodeInfo(
