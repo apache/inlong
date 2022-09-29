@@ -26,6 +26,7 @@ public enum DataTypeEnum {
     JSON("json"),
     CANAL("canal"),
     DEBEZIUM_JSON("debezium_json"),
+    PROTOBUF("protobuf"),
     RAW("raw");
 
     @Getter
