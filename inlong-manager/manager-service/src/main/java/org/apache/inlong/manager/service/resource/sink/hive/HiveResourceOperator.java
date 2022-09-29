@@ -86,12 +86,7 @@ public class HiveResourceOperator implements SinkResourceOperator {
     }
 
     private HiveSinkDTO getHiveInfo(SinkInfo sinkInfo) {
-        HiveSinkDTO hiveInfo = new HiveSinkDTO();
-
-        if (StringUtils.isNotBlank(sinkInfo.getExtParams())) {
-            HiveSinkDTO userSinkInfo = HiveSinkDTO.getFromJson(sinkInfo.getExtParams());
-            CommonBeanUtils.copyProperties(userSinkInfo, hiveInfo);
-        }
+        HiveSinkDTO hiveInfo = HiveSinkDTO.getFromJson(sinkInfo.getExtParams());
 
         // read from data node if not supplied by user
         if (StringUtils.isBlank(hiveInfo.getJdbcUrl())) {
@@ -101,7 +96,6 @@ public class HiveResourceOperator implements SinkResourceOperator {
                     dataNodeName, sinkInfo.getSinkType());
             CommonBeanUtils.copyProperties(dataNodeInfo, hiveInfo);
             hiveInfo.setJdbcUrl(dataNodeInfo.getUrl());
-            hiveInfo.setUsername(dataNodeInfo.getUsername());
             hiveInfo.setPassword(dataNodeInfo.getToken());
         }
         return hiveInfo;

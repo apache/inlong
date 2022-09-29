@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.node.hive;
+package org.apache.inlong.manager.pojo.node.iceberg;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -33,25 +33,16 @@ import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = DataNodeType.HIVE)
-@ApiModel("Hive data node request")
-public class HiveDataNodeRequest extends DataNodeRequest {
+@ApiModel("Iceberg data node request")
+public class IcebergDataNodeRequest extends DataNodeRequest {
 
-    @ApiModelProperty("Version for Hive, such as: 3.2.1")
-    private String hiveVersion;
+    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
+    private String catalogType = "HIVE";
 
-    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
-    private String hiveConfDir;
-
-    @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
-    private String hdfsPath;
-
-    @ApiModelProperty("Hive warehouse path, such as: /user/hive/warehouse/")
+    @ApiModelProperty("Iceberg data warehouse dir")
     private String warehouse;
 
-    @ApiModelProperty("User and group information for writing data to HDFS")
-    private String hdfsUgi;
-
-    public HiveDataNodeRequest() {
+    public IcebergDataNodeRequest() {
         this.setType(DataNodeType.HIVE);
     }
 

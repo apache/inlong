@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.node.hive;
+package org.apache.inlong.manager.pojo.node.ck;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,32 +26,17 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
 /**
- * Hive data node request
+ * ClickHouse data node request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = DataNodeType.HIVE)
-@ApiModel("Hive data node request")
-public class HiveDataNodeRequest extends DataNodeRequest {
+@JsonTypeDefine(value = DataNodeType.CLICKHOUSE)
+@ApiModel("ClickHouse data node request")
+public class ClickHouseDataNodeRequest extends DataNodeRequest {
 
-    @ApiModelProperty("Version for Hive, such as: 3.2.1")
-    private String hiveVersion;
-
-    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
-    private String hiveConfDir;
-
-    @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
-    private String hdfsPath;
-
-    @ApiModelProperty("Hive warehouse path, such as: /user/hive/warehouse/")
-    private String warehouse;
-
-    @ApiModelProperty("User and group information for writing data to HDFS")
-    private String hdfsUgi;
-
-    public HiveDataNodeRequest() {
-        this.setType(DataNodeType.HIVE);
+    public ClickHouseDataNodeRequest() {
+        this.setType(DataNodeType.CLICKHOUSE);
     }
 
 }
