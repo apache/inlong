@@ -323,6 +323,21 @@ public class PulsarClientService {
         return initTopicProducer(topic, null, null);
     }
 
+    public boolean destroyProducerByTopic(String topic) {
+        List<TopicProducerInfo> producerInfoList = producerInfoMap.remove(topic);
+        if (producerInfoList == null || producerInfoList.isEmpty()) {
+            return true;
+        }
+        for (TopicProducerInfo producerInfo : producerInfoList) {
+            if (producerInfo == null) {
+                continue;
+            }
+            producerInfo.close();
+            logger.info("Destroy producer by topic = {}", topic);
+        }
+        return true;
+    }
+
     private TopicProducerInfo getProducerInfo(int poolIndex, String topic, String inlongGroupId,
             String inlongStreamId) {
         List<TopicProducerInfo> producerList = initTopicProducer(topic, inlongGroupId, inlongStreamId);
