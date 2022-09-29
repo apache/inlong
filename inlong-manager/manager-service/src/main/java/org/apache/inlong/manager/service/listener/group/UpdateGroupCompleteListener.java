@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.listener.group;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
@@ -40,11 +39,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The listener of InlongGroup when update operates successfully.
@@ -53,14 +47,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class UpdateGroupCompleteListener implements ProcessEventListener {
 
-    private final ExecutorService executorService = new ThreadPoolExecutor(
-            20,
-            40,
-            0L,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder().setNameFormat("inlong-stream-process-%s").build(),
-            new CallerRunsPolicy());
     @Autowired
     private InlongGroupService groupService;
     @Autowired
@@ -102,7 +88,7 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
             List<InlongStreamInfo> streamList = form.getStreamInfos();
             for (InlongStreamInfo streamInfo : streamList) {
                 StreamResourceProcessForm processForm = genStreamProcessForm(groupInfo, streamInfo, operateType);
-                executorService.execute(
+                EXECUTOR_SERVICE.execute(
                         () -> workflowService.start(ProcessName.DELETE_STREAM_RESOURCE, operator, processForm));
             }
         }

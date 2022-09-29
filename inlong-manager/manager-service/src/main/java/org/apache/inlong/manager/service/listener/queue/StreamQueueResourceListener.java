@@ -29,7 +29,6 @@ import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProces
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperatorFactory;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
@@ -45,8 +44,6 @@ public class StreamQueueResourceListener implements QueueOperateListener {
 
     @Autowired
     private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
     @Autowired
     private QueueResourceOperatorFactory queueOperatorFactory;
 
