@@ -159,14 +159,9 @@ public class ConfigManager {
         // add new configure records
         for (Map.Entry<String, String> entry : result.entrySet()) {
             String oldValue = tmpHolder.put(entry.getKey(), entry.getValue());
-            if (entry.getValue() == null) {
-                if (!Objects.equals(oldValue, "null")) {
-                    changed = true;
-                }
-            } else {
-                if (!ObjectUtils.equals(oldValue, entry.getValue())) {
-                    changed = true;
-                }
+            if ((entry.getValue() == null && !Objects.equals("null", oldValue))
+                    || (entry.getValue() != null && !Objects.equals(entry.getValue(), oldValue))) {
+                changed = true;
             }
         }
         if (changed) {
