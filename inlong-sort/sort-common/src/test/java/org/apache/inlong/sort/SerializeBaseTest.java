@@ -42,14 +42,18 @@ public abstract class SerializeBaseTest<T> {
      *
      * @return The test object
      */
-    public abstract T getTestObject();
+    public abstract T getTestObject() throws JsonProcessingException;
 
     /**
      * Init the test object
      */
     @Before
     public void init() {
-        this.testObject = Preconditions.checkNotNull(getTestObject());
+        try {
+            this.testObject = Preconditions.checkNotNull(getTestObject());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

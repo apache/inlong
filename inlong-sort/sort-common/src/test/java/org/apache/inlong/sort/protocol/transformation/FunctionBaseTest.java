@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.protocol.transformation;
 
 import com.google.common.base.Preconditions;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,6 +47,10 @@ public abstract class FunctionBaseTest extends SerializeBaseTest<Function> {
      */
     @Test
     public void testFormat() {
-        Assert.assertEquals(expectFormat, getTestObject().format());
+        try {
+            Assert.assertEquals(expectFormat, getTestObject().format());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 }

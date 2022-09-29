@@ -32,6 +32,10 @@
     <name>Apache InLong - Sort-connector-hive</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <hive-220.version>3.1.2</hive-220.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
@@ -60,6 +64,7 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-exec</artifactId>
+            <version>${hive-220.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>hive-vector-code-gen</artifactId>

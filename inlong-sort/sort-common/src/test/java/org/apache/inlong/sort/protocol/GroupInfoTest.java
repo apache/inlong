@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.protocol;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -92,6 +94,17 @@ public class GroupInfoTest extends SerializeBaseTest<GroupInfo> {
         Node output = buildKafkaNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(input, output), Collections.singletonList(
                 buildNodeRelation(Collections.singletonList(input), Collections.singletonList(output))));
+
+        String field = "{\"userid\": 1,\"username\": \"tom\",\"isTure\":  true}";
+        ObjectMapper mapper = new ObjectMapper();
+        String isTure = null;
+        try {
+            isTure = mapper.readTree(field).findValue("isTure").asText();
+        } catch (JsonProcessingException e) {
+            System.out.println(isTure);
+        }
+        System.out.println(isTure);
+
         return new GroupInfo("1", Collections.singletonList(streamInfo));
     }
 }

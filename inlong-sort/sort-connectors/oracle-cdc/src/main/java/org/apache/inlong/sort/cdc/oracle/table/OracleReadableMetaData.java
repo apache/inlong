@@ -1,11 +1,9 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Copyright 2022 Ververica Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,14 +14,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.mysql.table;
+package org.apache.inlong.sort.cdc.oracle.table;
 
+import com.tencent.cloud.wedata.common.util.GsonUtil;
+import com.ververica.cdc.connectors.oracle.table.OracleTableSource;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
-import java.util.Objects;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
@@ -34,25 +39,18 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
+import org.apache.flink.types.RowKind;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Defines the supported metadata columns for {@link MySqlTableSource}.
- */
+/** Defines the supported metadata columns for {@link OracleTableSource}. */
 @Slf4j
-public enum MySqlReadableMetadata {
-    /**
-     * Name of the table that contain the row.
-     */
+public enum OracleReadableMetaData {
+
+    /** Name of the table that contain the row. */
     TABLE_NAME(
             "table_name",
             DataTypes.STRING().notNull(),
@@ -64,10 +62,20 @@ public enum MySqlReadableMetadata {
                     return StringData.fromString(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
                 }
             }),
+    /** Name of the schema that contain the row. */
+    SCHEMA_NAME(
+            "schema_name",
+            DataTypes.STRING().notNull(),
+            new MetadataConverter() {
+                private static final long serialVersionUID = 1L;
 
-    /**
-     * Name of the database that contain the row.
-     */
+                @Override
+                public Object read(SourceRecord record) {
+                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.SCHEMA_NAME_KEY));
+                }
+            }),
+
+    /** Name of the database that contain the row. */
     DATABASE_NAME(
             "database_name",
             DataTypes.STRING().notNull(),
@@ -82,7 +90,7 @@ public enum MySqlReadableMetadata {
 
     /**
      * It indicates the time that the change was made in the database. If the record is read from
-     * snapshot of the table instead of the binlog, the value is always 0.
+     * snapshot of the table instead of the change stream, the value is always 0.
      */
     OP_TS(
             "op_ts",
@@ -93,7 +101,7 @@ public enum MySqlReadableMetadata {
                 @Override
                 public Object read(SourceRecord record) {
                     Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
+                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
                     return TimestampData.fromEpochMillis(
                             (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
                 }
@@ -117,10 +125,9 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record,
-                                   @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+                        @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
                     log.info("record is [{}], tablesSchema is [{}], rowData is [{}]",
-                            record.toString(), Objects.nonNull(tableSchema) ? tableSchema.toString() : "",
-                            rowData.toString());
+                            GsonUtil.toJson(record), GsonUtil.toJson(tableSchema), GsonUtil.toJson(rowData));
                     // construct canal json
                     Struct messageStruct = (Struct) record.value();
                     Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
@@ -143,7 +150,7 @@ public enum MySqlReadableMetadata {
                             .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
                             .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
                             .type(getOpType(record)).build();
-                    log.info("canal json is [{}]", canalJson.toString());
+                    log.info("canal json is [{}]", GsonUtil.toJson(canalJson));
                     try {
                         ObjectMapper objectMapper = new ObjectMapper();
                         return StringData.fromString(objectMapper.writeValueAsString(canalJson));
@@ -389,11 +396,14 @@ public enum MySqlReadableMetadata {
                 }
             });
 
+
     private final String key;
+
     private final DataType dataType;
+
     private final MetadataConverter converter;
 
-    MySqlReadableMetadata(String key, DataType dataType, MetadataConverter converter) {
+    OracleReadableMetaData(String key, DataType dataType, MetadataConverter converter) {
         this.key = key;
         this.dataType = dataType;
         this.converter = converter;
@@ -455,4 +465,5 @@ public enum MySqlReadableMetadata {
     public MetadataConverter getConverter() {
         return converter;
     }
+
 }

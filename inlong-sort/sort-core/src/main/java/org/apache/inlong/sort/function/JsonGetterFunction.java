@@ -43,7 +43,7 @@ public class JsonGetterFunction extends ScalarFunction {
         try {
             return mapper.readTree(field).findValue(key).asText();
         } catch (Exception e) {
-            LOG.error("json getter function error, key {}, field {}", key, field, e);
+            LOG.error("json getter function error, key {}, content {}", key, field, e);
             return null;
         }
     }
