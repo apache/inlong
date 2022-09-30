@@ -82,13 +82,10 @@ public class TDSQLKafkaExtractNode extends KafkaExtractNode implements InlongMet
             }
             options.putAll(getFormat().generateOptions(false));
         } else {
-            throw new IllegalArgumentException("kafka extract node format is IllegalArgument");
+            throw new IllegalArgumentException("tdsql kafka extract node format is IllegalArgument");
         }
         if (StringUtils.isNotEmpty(getGroupId())) {
             options.put(TDSQLKafkaConstant.PROPERTIES_GROUP_ID, getGroupId());
-        }
-        for (String key : getProperties().keySet()) {
-            options.put(key, getProperties().get(key));
         }
         return options;
     }
