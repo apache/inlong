@@ -87,6 +87,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
             insertServiceList.add(esService);
         }
         if (storeConfig.isClickHouseStore()) {
+            // create ck object
             ckService = new ClickHouseService(chConfig);
             insertServiceList.add(ckService);
         }
