@@ -34,6 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * ClickHouseService
@@ -54,7 +55,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
     private LinkedBlockingQueue<ClickHouseDataPo> batchQueue;
     private AtomicBoolean needBatchOutput = new AtomicBoolean(false);
     private AtomicInteger batchCounter = new AtomicInteger(0);
-
+    private AtomicLong lastCheckTime = new AtomicLong(System.currentTimeMillis());
     private Connection conn;
 
     /**
@@ -77,17 +78,11 @@ public class ClickHouseService implements InsertData, AutoCloseable {
             Class.forName(chConfig.getDriver());
             this.reconnect();
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            LOG.error("ClickHouseService start failure!", e);
         }
-        // timer
-        long currentTime = System.currentTimeMillis();
-        // batch output interval
-        timerService.scheduleWithFixedDelay(() -> needBatchOutput.compareAndSet(false, true),
-                currentTime + chConfig.getBatchIntervalMs(),
-                chConfig.getBatchIntervalMs(), TimeUnit.MILLISECONDS);
-        // batch output process
-        timerService.scheduleWithFixedDelay(() -> processOutput(),
-                currentTime + chConfig.getProcessIntervalMs(),
+        // start timer
+        timerService.scheduleWithFixedDelay(this::processOutput,
+                chConfig.getProcessIntervalMs(),
                 chConfig.getProcessIntervalMs(), TimeUnit.MILLISECONDS);
     }
 
@@ -95,7 +90,8 @@ public class ClickHouseService implements InsertData, AutoCloseable {
      * processOutput
      */
     private void processOutput() {
-        if (!this.needBatchOutput.get()) {
+        if (!this.needBatchOutput.get()
+                && (System.currentTimeMillis() - lastCheckTime.get() < chConfig.getBatchIntervalMs())) {
             return;
         }
         // output
@@ -140,6 +136,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
             }
         }
         // recover flag
+        lastCheckTime.set(System.currentTimeMillis());
         this.needBatchOutput.compareAndSet(true, false);
     }
 
