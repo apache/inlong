@@ -38,6 +38,9 @@ if [ "${MQ_TYPE}" = "tubemq" ]; then
   sed -i "s/agent1.sinks.tube-sink-msg1.master-host-port-list = .*$/agent1.sinks.tube-sink-msg1.master-host-port-list = ${TUBE_MASTER_LIST}/g" "${proxy_conf_file}"
   sed -i "s/agent1.sinks.tube-sink-msg2.master-host-port-list = .*$/agent1.sinks.tube-sink-msg2.master-host-port-list = ${TUBE_MASTER_LIST}/g" "${proxy_conf_file}"
 fi
+if [ -n "${STORE_MODE}" ]; then
+  sed -i "s/audit.config.store.mode=.*$/audit.config.store.mode=${STORE_MODE}/g" "${store_conf_file}"
+fi
 
 # Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
 if [[ "${JDBC_URL}" =~ (.+):([0-9]+) ]]; then
