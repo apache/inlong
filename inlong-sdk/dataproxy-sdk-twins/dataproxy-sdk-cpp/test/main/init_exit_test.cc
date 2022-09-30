@@ -19,6 +19,19 @@
 
 #include "../common.h"
 
+void subroutine()
+{
+    ClientConfig client_config;
+    tc_api_init(client_config);
+    for (size_t i = 0; i < 1000; i++)
+    {
+        LOG_ERROR("log error %d", i);
+        LOG_STAT("log stat %d", i);
+        LOG_INFO("log info %d", i);
+    }
+    tc_api_close(100);
+}
+
 TEST(initAndclose, test)
 {
     EXPECT_EQ(tc_api_init("config.json"), 0);
@@ -26,6 +39,20 @@ TEST(initAndclose, test)
 
     EXPECT_EQ(tc_api_close(100), 0);
     EXPECT_EQ(tc_api_close(100), SDKInvalidResult::kMultiExits);
+}
+
+TEST(multiThreadInit, test)
+{
+    thread threads[20];
+    for (size_t i = 0; i < 20; i++)
+    {
+        threads[i] = thread(subroutine);
+    }
+    for (size_t i = 0; i < 20; i++)
+    {
+        threads[i].join();
+    }
+    
 }
 
 int main(int argc, char* argv[])

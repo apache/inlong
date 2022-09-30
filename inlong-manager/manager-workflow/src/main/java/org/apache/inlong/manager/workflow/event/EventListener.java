@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.workflow.event;
 
+import org.apache.inlong.manager.common.enums.WorkflowEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 

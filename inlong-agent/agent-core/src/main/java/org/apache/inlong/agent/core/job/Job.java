@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.core.job;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.task.Task;
@@ -37,13 +38,18 @@ import java.util.List;
 public class Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Job.class);
-
+    private static int COUNTER = 1;
     private final JobProfile jobConf;
     // job name
     private String name;
     // job description
     private String description;
     private String jobInstanceId;
+    private ThreadLocal<Integer> threadNum = new ThreadLocal<Integer>() {
+        protected Integer initialValue() {
+            return 0;
+        }
+    };
 
     public Job(JobProfile jobConf) {
         this.jobConf = jobConf;
@@ -83,8 +89,21 @@ public class Job {
      * @return taskList
      */
     public List<Task> createTasks() {
+        return getTasks(this.jobConf);
+    }
+
+    /**
+     * build task from job config
+     *
+     * @param jobConf subtask config in the job
+     * @return new task
+     */
+    public Task createTask(JobProfile jobConf) {
+        return getTasks(jobConf).isEmpty() ? null : createTasks().get(0);
+    }
+
+    private List<Task> getTasks(JobProfile jobConf) {
         List<Task> taskList = new ArrayList<>();
-        int index = 0;
         try {
             LOGGER.info("job id: {}, source: {}, channel: {}, sink: {}",
                     getJobInstanceId(), jobConf.get(JobConstants.JOB_SOURCE_CLASS),
@@ -95,8 +114,11 @@ public class Job {
                 Sink writer = (Sink) Class.forName(jobConf.get(JobConstants.JOB_SINK)).newInstance();
                 writer.setSourceName(reader.getReadSource());
                 Channel channel = (Channel) Class.forName(jobConf.get(JobConstants.JOB_CHANNEL)).newInstance();
-                String taskId = String.format("%s_%d", jobInstanceId, index++);
-                taskList.add(new Task(taskId, reader, writer, channel, getJobConf()));
+                String taskId = String.format("%s_%d", jobInstanceId, threadNum.get());
+                threadNum.set(threadNum.get() + COUNTER);
+                JobProfile jobProfile = getJobConf();
+                jobProfile.set(reader.getReadSource(), DigestUtils.md5Hex(reader.getReadSource()));
+                taskList.add(new Task(taskId, reader, writer, channel, jobProfile));
             }
         } catch (Throwable ex) {
             LOGGER.error("create task failed", ex);

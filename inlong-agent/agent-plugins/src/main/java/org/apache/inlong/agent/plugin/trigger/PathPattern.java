@@ -59,6 +59,7 @@ public class PathPattern {
         rootDir = findRoot(watchDir);
         subDirs = new HashSet<>();
         dateFormatRegex = DateFormatRegex.ofRegex(watchDir).withOffset(offset);
+        updateDateFormatRegex();
     }
 
     /**

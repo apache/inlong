@@ -422,14 +422,14 @@ Apache 2.0 licenses
 The following components are provided under the Apache License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  org.eclipse.jetty:jetty-http:9.4.44.v20210927 - Jetty :: Http Utility (https://eclipse.org/jetty/jetty-http), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-io:9.4.44.v20210927 - Jetty :: IO Utility (https://eclipse.org/jetty/jetty-io), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-jmx:9.4.6.v20170531 - Jetty :: JMX Management (https://github.com/eclipse/jetty.project/tree/jetty-9.4.6.v20170531), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-security:9.4.44.v20210927 - Jetty :: Security (https://eclipse.org/jetty/jetty-security), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-server:9.4.44.v20210927 - Jetty :: Server Core (https://eclipse.org/jetty/jetty-server), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-servlet:9.4.44.v20210927 - Jetty :: Servlet Handling (https://eclipse.org/jetty/jetty-servlet), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-util:9.4.44.v20210927 - Jetty :: Utilities (https://eclipse.org/jetty/jetty-util), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-util-ajax:9.4.44.v20210927 - Jetty :: Utilities :: Ajax(JSON) (https://eclipse.org/jetty/jetty-util-ajax), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-http:9.4.48.v20220622 - Jetty :: Http Utility (https://eclipse.org/jetty/jetty-http), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-io:9.4.48.v20220622 - Jetty :: IO Utility (https://eclipse.org/jetty/jetty-io), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-jmx:9.4.48.v20220622 - Jetty :: JMX Management (https://eclipse.org/jetty/jetty-jmx), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-security:9.4.48.v20220622 - Jetty :: Security (https://eclipse.org/jetty/jetty-security), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-server:9.4.48.v20220622 - Jetty :: Server Core (https://eclipse.org/jetty/jetty-server), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-servlet:9.4.48.v20220622 - Jetty :: Servlet Handling (https://eclipse.org/jetty/jetty-servlet), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-util:9.4.48.v20220622 - Jetty :: Utilities (https://eclipse.org/jetty/jetty-util), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
+  org.eclipse.jetty:jetty-util-ajax:9.4.48.v20220622 - Jetty :: Utilities :: Ajax(JSON) (https://eclipse.org/jetty/jetty-util-ajax), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.apache.kafka:kafka-clients:2.4.1 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
   org.apache.thrift:libthrift:0.9.3 - Apache Thrift (http://thrift.apache.org), (The Apache Software License, Version 2.0)
   org.apache.logging.log4j:log4j-api:2.17.2 - Apache Log4j API (https://logging.apache.org/log4j/2.x/log4j-api/), (Apache License, Version 2.0)

@@ -25,6 +25,9 @@ import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 
 import java.util.List;
 
+/**
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
+ */
 class DeltaManifests {
 
     private static final CharSequence[] EMPTY_REF_DATA_FILES = new CharSequence[0];

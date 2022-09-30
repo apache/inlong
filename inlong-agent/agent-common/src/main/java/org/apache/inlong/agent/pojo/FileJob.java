@@ -34,9 +34,9 @@ public class FileJob {
     private String addictiveString;
     private String collectType;
     private Line line;
+
     // INCREMENT 
     // FULL
-
     private String contentCollectType;
 
     private String envList;
@@ -48,6 +48,15 @@ public class FileJob {
     private Map<String, String> filterMetaByLabels;
 
     private Map<String, Object> properties;
+
+    // Monitor interval for file
+    private Long monitorInterval;
+
+    // Monitor switch, 1 true and 0 false
+    private Integer monitorStatus;
+
+    // Monitor expire time and the time in milliseconds
+    private Long monitorExpire;
 
     @Data
     public static class Dir {
@@ -108,8 +117,17 @@ public class FileJob {
         // Metadata filters by label, special parameters for K8S
         private Map<String, String> filterMetaByLabels;
 
-        // Properties for File
+        // Properties for file
         private Map<String, Object> properties;
+
+        // Monitor interval for file
+        private Long monitorInterval;
+
+        // Monitor switch, 1 true and 0 false
+        private Integer monitorStatus;
+        
+        // Monitor expire time and the time in milliseconds
+        private Long monitorExpire;
 
     }
 

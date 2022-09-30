@@ -29,7 +29,7 @@ import lombok.Data;
 @JsonTypeInfo(use = Id.NAME, property = "formName")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ApplyGroupProcessForm.class, name = ApplyGroupProcessForm.FORM_NAME),
-        @JsonSubTypes.Type(value = ApplyConsumptionProcessForm.class, name = ApplyConsumptionProcessForm.FORM_NAME),
+        @JsonSubTypes.Type(value = ApplyConsumeProcessForm.class, name = ApplyConsumeProcessForm.FORM_NAME),
         @JsonSubTypes.Type(value = GroupResourceProcessForm.class, name = GroupResourceProcessForm.FORM_NAME),
         @JsonSubTypes.Type(value = StreamResourceProcessForm.class, name = StreamResourceProcessForm.FORM_NAME),
 })

@@ -33,8 +33,9 @@ public class FlumeConfigGenerator {
     public static final String KEY_SORT_CHANNEL_TYPE = "sortChannel.type";
     public static final String KEY_SORT_SINK_TYPE = "sortSink.type";
     public static final String KEY_SORT_SOURCE_TYPE = "sortSource.type";
-    public static final String KEY_SDK_START_TIME = "sortSdk.startTime";
-    public static final String KEY_SDK_STOP_TIME = "sortSdk.stopTime";
+    public static final String KEY_SORT_INTERCEPTOR_TYPE = "interceptor.type";
+    public static final String KEY_ROLLBACK_START_TIME = "rollback.startTime";
+    public static final String KEY_ROLLBACK_STOP_TIME = "rollback.stopTime";
 
     public static Map<String, String> generateFlumeConfiguration(SortTaskConfig taskConfig) {
         Map<String, String> flumeConf = new HashMap<>();
@@ -161,12 +162,24 @@ public class FlumeConfigGenerator {
         flumeConf.put(selectorTypeKey, "org.apache.flume.channel.ReplicatingChannelSelector");
         // valid msg time interval
         builder.setLength(0);
-        String startTimeKey = builder.append(prefix).append(KEY_SDK_START_TIME).toString();
-        Optional.ofNullable(sinkParams.get(KEY_SDK_START_TIME))
+        String interceptorKey = builder.append(prefix).append("interceptors").toString();
+        String interceptorName = name + "Interceptor";
+        flumeConf.put(interceptorKey, interceptorName);
+
+        builder.setLength(0);
+        String interceptorType = builder.append(prefix).append("interceptors.").append(interceptorName)
+                .append(".type").toString();
+        Optional.ofNullable(CommonPropertiesHolder.getString(KEY_SORT_INTERCEPTOR_TYPE))
+                .map(type -> flumeConf.put(interceptorType, type));
+        builder.setLength(0);
+        String startTimeKey = builder.append(prefix).append("interceptors.").append(interceptorName).append(".")
+                .append(KEY_ROLLBACK_START_TIME).toString();
+        Optional.ofNullable(CommonPropertiesHolder.getString(KEY_ROLLBACK_START_TIME))
                 .map(startTime -> flumeConf.put(startTimeKey, startTime));
         builder.setLength(0);
-        String stopTimeKey = builder.append(prefix).append(KEY_SDK_STOP_TIME).toString();
-        Optional.ofNullable(sinkParams.get(KEY_SDK_STOP_TIME))
+        String stopTimeKey = builder.append(prefix).append("interceptors.").append(interceptorName).append(".")
+                .append(KEY_ROLLBACK_STOP_TIME).toString();
+        Optional.ofNullable(CommonPropertiesHolder.getString(KEY_ROLLBACK_STOP_TIME))
                 .map(stopTime -> flumeConf.put(stopTimeKey, stopTime));
 
         appendCommon(flumeConf, prefix, null, name);

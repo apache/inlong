@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_FILTER_BY_LABELS;
@@ -46,14 +48,20 @@ public class MetaDataUtils {
 
     private static final String LOG_MARK = ".log";
 
+    // standard log path for k8s
+    private static final String FILE_NAME_PATTERN = "(^[-a-zA-Z0-9]+)_([a-zA-Z0-9-]+)_([a-zA-Z0-9-]+)(.log)";
+
+    private static final Pattern PATTERN = Pattern.compile(FILE_NAME_PATTERN);
+
     /**
      * standard log for k8s
      *
      * get pod_name,namespace,container_name,container_id
      */
     public static Map<String, String> getLogInfo(String fileName) {
+        Matcher matcher = PATTERN.matcher(fileName);
         Map<String, String> podInf = new HashMap<>();
-        if (!StringUtils.isNoneBlank(fileName) && fileName.contains(CommonConstants.DELIMITER_UNDERLINE)) {
+        if (StringUtils.isBlank(fileName) || !matcher.matches()) {
             return podInf;
         }
         // file name example: /var/log/containers/<pod_name>_<namespace>_<container_name>-<continer_id>.log

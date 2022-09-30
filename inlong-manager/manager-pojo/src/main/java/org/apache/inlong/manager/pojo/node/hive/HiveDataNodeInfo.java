@@ -37,9 +37,6 @@ import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 @ApiModel("Hive data node info")
 public class HiveDataNodeInfo extends DataNodeInfo {
 
-    @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
-    private String jdbcUrl;
-
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 

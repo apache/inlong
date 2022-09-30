@@ -15,142 +15,128 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import {
-  getColsFromFields,
-  GetStorageColumnsType,
-  GetStorageFormFieldsType,
-} from '@/utils/metaData';
-import { ColumnsType } from 'antd/es/table';
-import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import i18n from '@/i18n';
-import { excludeObject } from '@/utils';
+import type { FieldItemType } from '@/metas/common';
+import EditableTable from '@/components/EditableTable';
 import { sourceFields } from './common/sourceFields';
 
-// mysqlFieldTypes
-const mysqlFieldTypes = [
-  'TINYINT',
-  'SMALLINT',
-  'MEDIUMINT',
-  'INT',
-  'FLOAT',
-  'BIGINT',
-  'DOUBLE',
-  'NUMERIC',
-  'DECIMAL',
-  'BOOLEAN',
-  'DATE',
-  'TIME',
-  'DATETIME',
-  'CHAR',
-  'VARCHAR',
-  'TEXT',
-  'BINARY',
-  'VARBINARY',
-  'BLOB',
-  // 'interval',
-].map(item => ({
-  label: item,
-  value: item,
-}));
-
-const getForm: GetStorageFormFieldsType = (
-  type,
-  { currentValues, inlongGroupId, isEdit, dataType, form } = {} as any,
-) => {
-  const fileds = [
-    {
-      type: 'input',
-      label: 'JDBC URL',
-      name: 'jdbcUrl',
-      rules: [{ required: true }],
-      props: {
-        placeholder: 'jdbc:mysql://127.0.0.1:3306/write',
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        style: { width: 500 },
-      },
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.MySQL.TableName'),
-      name: 'tableName',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.Greenplum.PrimaryKey'),
-      name: 'primaryKey',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'radio',
-      label: i18n.t('meta.Sinks.EnableCreateResource'),
-      name: 'enableCreateResource',
-      rules: [{ required: true }],
-      initialValue: 1,
-      tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        options: [
-          {
-            label: i18n.t('basic.Yes'),
-            value: 1,
-          },
-          {
-            label: i18n.t('basic.No'),
-            value: 0,
-          },
-        ],
-      },
-    },
-    {
-      type: 'input',
-      label: i18n.t('meta.Sinks.Username'),
-      name: 'username',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'password',
-      label: i18n.t('meta.Sinks.Password'),
-      name: 'password',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        style: {
-          maxWidth: 500,
-        },
-      },
-    },
-    {
-      type: (
-        <EditableTable
-          size="small"
-          columns={getFieldListColumns(dataType, currentValues)}
-          canDelete={(record, idx, isNew) => !isEdit || isNew}
-        />
-      ),
-      name: 'sinkFieldList',
-    },
-  ];
-
-  return type === 'col'
-    ? getColsFromFields(fileds)
-    : fileds.map(item => excludeObject(['_inTable'], item));
+const fieldTypesConf = {
+  TINYINT: (m, d) => (1 <= m && m <= 4 ? '' : '1<=M<=4'),
+  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1<=M<=6'),
+  MEDIUMINT: (m, d) => (1 <= m && m <= 9 ? '' : '1<=M<=9'),
+  INT: (m, d) => (1 <= m && m <= 11 ? '' : '1<=M<=11'),
+  FLOAT: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1<=M<=20'),
+  DOUBLE: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  NUMERIC: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  DECIMAL: (m, d) =>
+    1 <= m && m <= 255 && 1 <= d && d <= 30 && d <= m - 2 ? '' : '1<=M<=255,1<=D<=30,D<=M-2',
+  BOOLEAN: () => '',
+  DATE: () => '',
+  TIME: () => '',
+  DATETIME: () => '',
+  CHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  VARCHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1<=M<=255'),
+  TEXT: () => '',
+  BINARY: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),
+  VARBINARY: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),
+  BLOB: () => '',
 };
 
-const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
+const fieldTypes = Object.keys(fieldTypesConf).reduce(
+  (acc, key) =>
+    acc.concat({
+      label: key,
+      value: key,
+    }),
+  [],
+);
+
+export const mysql: FieldItemType[] = [
+  {
+    type: 'input',
+    label: 'JDBC URL',
+    name: 'jdbcUrl',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      placeholder: 'jdbc:mysql://127.0.0.1:3306/write',
+    }),
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.MySQL.TableName'),
+    name: 'tableName',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.Greenplum.PrimaryKey'),
+    name: 'primaryKey',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+    _renderTable: true,
+  },
+  {
+    type: 'radio',
+    label: i18n.t('meta.Sinks.EnableCreateResource'),
+    name: 'enableCreateResource',
+    rules: [{ required: true }],
+    initialValue: 1,
+    tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+      options: [
+        {
+          label: i18n.t('basic.Yes'),
+          value: 1,
+        },
+        {
+          label: i18n.t('basic.No'),
+          value: 0,
+        },
+      ],
+    }),
+  },
+  {
+    type: 'input',
+    label: i18n.t('meta.Sinks.Username'),
+    name: 'username',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  },
+  {
+    type: 'password',
+    label: i18n.t('meta.Sinks.Password'),
+    name: 'password',
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  },
+  {
+    name: 'sinkFieldList',
+    type: EditableTable,
+    props: values => ({
+      size: 'small',
+      editing: ![110, 130].includes(values?.status),
+      columns: getFieldListColumns(values),
+    }),
+  },
+];
+
+const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
@@ -165,19 +151,37 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         },
       ],
       props: (text, record, idx, isNew) => ({
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
     },
     {
       title: `MYSQL${i18n.t('meta.Sinks.MySQL.FieldType')}`,
       dataIndex: 'fieldType',
-      initialValue: mysqlFieldTypes[0].value,
-      type: 'select',
+      initialValue: fieldTypes[0].value,
+      type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
-        options: mysqlFieldTypes,
-        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        options: fieldTypes,
+        disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
+        allowClear: true,
       }),
-      rules: [{ required: true }],
+      rules: [
+        { required: true },
+        () => ({
+          validator(_, val) {
+            if (val) {
+              const [, type = val, typeLength = ''] = val.match(/^(.+)\((.+)\)$/) || [];
+              if (fieldTypesConf.hasOwnProperty(type)) {
+                const [m = -1, d = -1] = typeLength.split(',');
+                const errMsg = fieldTypesConf[type]?.(m, d);
+                if (typeLength && errMsg) return Promise.reject(new Error(errMsg));
+              } else {
+                return Promise.reject(new Error('FieldType error'));
+              }
+            }
+            return Promise.resolve();
+          },
+        }),
+      ],
     },
     {
       title: i18n.t('meta.Sinks.MySQL.IsMetaField'),
@@ -216,13 +220,5 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       dataIndex: 'fieldComment',
       initialValue: '',
     },
-  ] as ColumnsItemProps[];
-};
-
-const tableColumns = getForm('col') as ColumnsType;
-
-export const mysql = {
-  getForm,
-  getFieldListColumns,
-  tableColumns,
+  ];
 };

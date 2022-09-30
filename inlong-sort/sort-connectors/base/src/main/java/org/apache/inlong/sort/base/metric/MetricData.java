@@ -23,6 +23,8 @@ import org.apache.flink.metrics.MeterView;
 import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 
+import java.util.Map;
+
 import static org.apache.inlong.sort.base.Constants.GROUP_ID;
 import static org.apache.inlong.sort.base.Constants.NODE_ID;
 import static org.apache.inlong.sort.base.Constants.STREAM_ID;
@@ -41,25 +43,38 @@ public interface MetricData {
     MetricGroup getMetricGroup();
 
     /**
+     * Get labels
+     *
+     * @return The labels defined in inlong
+     */
+    Map<String, String> getLabels();
+
+    /**
      * Get group id
      *
      * @return The group id defined in inlong
      */
-    String getGroupId();
+    default String getGroupId() {
+        return getLabels().get(GROUP_ID);
+    }
 
     /**
      * Get stream id
      *
      * @return The stream id defined in inlong
      */
-    String getStreamId();
+    default String getStreamId() {
+        return getLabels().get(STREAM_ID);
+    }
 
     /**
      * Get node id
      *
      * @return The node id defined in inlong
      */
-    String getNodeId();
+    default String getNodeId() {
+        return getLabels().get(NODE_ID);
+    }
 
     /**
      * Register a counter metric
@@ -69,8 +84,11 @@ public interface MetricData {
      * @return Counter of registered
      */
     default Counter registerCounter(String metricName, Counter counter) {
-        return getMetricGroup().addGroup(GROUP_ID, getGroupId()).addGroup(STREAM_ID, getStreamId())
-                .addGroup(NODE_ID, getNodeId()).counter(metricName, counter);
+        MetricGroup inlongMetricGroup = getMetricGroup();
+        for (Map.Entry<String, String> label : getLabels().entrySet()) {
+            inlongMetricGroup = inlongMetricGroup.addGroup(label.getKey(), label.getValue());
+        }
+        return inlongMetricGroup.counter(metricName, counter);
     }
 
     /**
@@ -90,8 +108,11 @@ public interface MetricData {
      * @return Meter of registered
      */
     default Meter registerMeter(String metricName, Counter counter) {
-        return getMetricGroup().addGroup(GROUP_ID, getGroupId()).addGroup(STREAM_ID, getStreamId())
-                .addGroup(NODE_ID, getNodeId()).meter(metricName, new MeterView(counter, TIME_SPAN_IN_SECONDS));
+        MetricGroup inlongMetricGroup = getMetricGroup();
+        for (Map.Entry<String, String> label : getLabels().entrySet()) {
+            inlongMetricGroup = inlongMetricGroup.addGroup(label.getKey(), label.getValue());
+        }
+        return inlongMetricGroup.meter(metricName, new MeterView(counter, TIME_SPAN_IN_SECONDS));
     }
 
 }

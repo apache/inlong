@@ -17,8 +17,11 @@
  * under the License.
  */
 
-import type { GetStorageFormFieldsType, GetStorageColumnsType } from '@/utils/metaData';
-import type { ColumnsType } from 'antd/es/table';
+import i18n from '@/i18n';
+import type { FieldItemType } from '@/metas/common';
+import { genFields, genForm, genTable } from '@/metas/common';
+import { statusList, genStatusTag } from './common/status';
+
 import { hive } from './hive';
 import { clickhouse } from './clickhouse';
 import { kafka } from './kafka';
@@ -32,80 +35,140 @@ import { sqlServer } from './sqlServer';
 import { tdsqlPostgreSQL } from './tdsqlPostgreSql';
 import { hbase } from './hbase';
 
-export interface SinkType {
-  label: string;
-  value: string;
-  // Generate form configuration for single data
-  getForm: GetStorageFormFieldsType;
-  // Generate table display configuration
-  tableColumns: ColumnsType;
-  // Detailed mapping data field configuration for this type of flow
-  getFieldListColumns?: GetStorageColumnsType;
-  // Custom convert interface data to front-end data format
-  toFormValues?: (values: unknown) => unknown;
-  // Custom convert front-end data to interface data format
-  toSubmitValues?: (values: unknown) => unknown;
-}
-
-export const Sinks: SinkType[] = [
+const allSinks = [
   {
     label: 'Hive',
     value: 'HIVE',
-    ...hive,
+    fields: hive,
   },
   {
     label: 'Iceberg',
     value: 'ICEBERG',
-    ...iceberg,
+    fields: iceberg,
   },
   {
     label: 'ClickHouse',
     value: 'CLICKHOUSE',
-    ...clickhouse,
+    fields: clickhouse,
   },
   {
     label: 'Kafka',
     value: 'KAFKA',
-    ...kafka,
+    fields: kafka,
   },
   {
     label: 'Elasticsearch',
     value: 'ELASTICSEARCH',
-    ...es,
+    fields: es,
   },
   {
     label: 'Greenplum',
     value: 'GREENPLUM',
-    ...greenplum,
+    fields: greenplum,
   },
   {
     label: 'HBase',
     value: 'HBASE',
-    ...hbase,
+    fields: hbase,
   },
   {
     label: 'MySQL',
     value: 'MYSQL',
-    ...mysql,
+    fields: mysql,
   },
   {
     label: 'Oracle',
     value: 'ORACLE',
-    ...oracle,
+    fields: oracle,
   },
   {
     label: 'PostgreSQL',
     value: 'POSTGRES',
-    ...postgreSql,
+    fields: postgreSql,
   },
   {
     label: 'SQLServer',
     value: 'SQLSERVER',
-    ...sqlServer,
+    fields: sqlServer,
   },
   {
     label: 'TDSQLPostgreSQL',
     value: 'TDSQLPOSTGRESQL',
-    ...tdsqlPostgreSQL,
+    fields: tdsqlPostgreSQL,
+  },
+].sort((a, b) => {
+  const a1 = a.label.toUpperCase();
+  const a2 = b.label.toUpperCase();
+  if (a1 < a2) return -1;
+  if (a1 > a2) return 1;
+  return 0;
+});
+
+const defaultCommonFields: FieldItemType[] = [
+  {
+    name: 'sinkName',
+    type: 'input',
+    label: i18n.t('meta.Sinks.SinkName'),
+    rules: [
+      { required: true },
+      {
+        pattern: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
+        message: i18n.t('meta.Sinks.SinkNameRule'),
+      },
+    ],
+    props: values => ({
+      disabled: !!values.id,
+      maxLength: 128,
+    }),
+    _renderTable: true,
+  },
+  {
+    name: 'sinkType',
+    type: 'select',
+    label: i18n.t('meta.Sinks.SinkType'),
+    rules: [{ required: true }],
+    initialValue: allSinks[0].value,
+    props: values => ({
+      dropdownMatchSelectWidth: false,
+      disabled: !!values.id,
+      options: allSinks,
+    }),
+  },
+  {
+    name: 'description',
+    type: 'textarea',
+    label: i18n.t('meta.Sinks.Description'),
+    props: {
+      showCount: true,
+      maxLength: 300,
+    },
+  },
+  {
+    name: 'status',
+    type: 'select',
+    label: i18n.t('basic.Status'),
+    props: {
+      allowClear: true,
+      options: statusList,
+      dropdownMatchSelectWidth: false,
+    },
+    visible: false,
+    _renderTable: {
+      render: text => genStatusTag(text),
+    },
   },
 ];
+
+export const sinks = allSinks.map(item => {
+  const itemFields = defaultCommonFields.concat(item.fields);
+  const fields = genFields(itemFields);
+
+  return {
+    ...item,
+    fields,
+    form: genForm(fields),
+    table: genTable(fields),
+    toFormValues: null,
+    toSubmitValues: null,
+  };
+});

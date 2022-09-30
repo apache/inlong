@@ -57,6 +57,8 @@ import java.util.Map;
  * </p>
  * To use a custom catalog that is not a Hive or Hadoop catalog, extend this class and override
  * {@link #createCatalogLoader(String, Map, Configuration)}.
+ *
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 public class FlinkCatalogFactory implements CatalogFactory {
 

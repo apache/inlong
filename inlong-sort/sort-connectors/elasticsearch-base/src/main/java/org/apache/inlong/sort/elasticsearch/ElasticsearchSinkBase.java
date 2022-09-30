@@ -29,6 +29,8 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.util.InstantiationUtil;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
@@ -121,7 +123,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      * sink is closed.
      */
     private final AtomicReference<Throwable> failureThrowable = new AtomicReference<>();
-    private final String inLongMetric;
+    private final String inlongMetric;
     /**
      * If true, the producer will wait until all outstanding action requests have been sent to
      * Elasticsearch.
@@ -167,8 +169,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
             Map<String, String> userConfig,
             ElasticsearchSinkFunction<T> elasticsearchSinkFunction,
             ActionRequestFailureHandler failureHandler,
-            String inLongMetric) {
-        this.inLongMetric = inLongMetric;
+            String inlongMetric) {
+        this.inlongMetric = inlongMetric;
         this.callBridge = checkNotNull(callBridge);
         this.elasticsearchSinkFunction = checkNotNull(elasticsearchSinkFunction);
         this.failureHandler = checkNotNull(failureHandler);
@@ -265,19 +267,14 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     @Override
     public void open(Configuration parameters) throws Exception {
         client = callBridge.createClient(userConfig);
-        if (inLongMetric != null && !inLongMetric.isEmpty()) {
-            String[] inLongMetricArray = inLongMetric.split("&");
-            String groupId = inLongMetricArray[0];
-            String streamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
-            sinkMetricData = new SinkMetricData(groupId, streamId, nodeId, getRuntimeContext().getMetricGroup());
-            sinkMetricData.registerMetricsForDirtyBytes();
-            sinkMetricData.registerMetricsForDirtyRecords();
-            sinkMetricData.registerMetricsForNumBytesOut();
-            sinkMetricData.registerMetricsForNumRecordsOut();
-            sinkMetricData.registerMetricsForNumBytesOutPerSecond();
-            sinkMetricData.registerMetricsForNumRecordsOutPerSecond();
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withRegisterMetric(RegisteredMetric.DIRTY)
+                .build();
+        if (metricOption != null) {
+            sinkMetricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
+
         callBridge.verifyClientConnection(client);
         bulkProcessor = buildBulkProcessor(new BulkProcessorListener(sinkMetricData));
         requestIndexer =
@@ -296,6 +293,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
         // no initialization needed
+        elasticsearchSinkFunction.setRuntimeContext(getRuntimeContext());
+        elasticsearchSinkFunction.initializeState(context);
     }
 
     @Override
@@ -308,6 +307,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                 checkAsyncErrorsAndRequests();
             }
         }
+
+        elasticsearchSinkFunction.snapshotState(context);
     }
 
     @Override
@@ -485,8 +486,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                         if (failure != null) {
                             restStatus = itemResponse.getFailure().getStatus();
                             actionRequest = request.requests().get(i);
-                            if (sinkMetricData.getDirtyRecords() != null) {
-                                sinkMetricData.getDirtyRecords().inc();
+                            if (sinkMetricData != null) {
+                                sinkMetricData.invokeDirty(1, 0);
                             }
                             if (restStatus == null) {
                                 if (actionRequest instanceof ActionRequest) {
@@ -512,9 +513,6 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                                 }
                             }
                         }
-                        if (sinkMetricData.getNumRecordsOut() != null) {
-                            sinkMetricData.getNumRecordsOut().inc();
-                        }
                     }
                 } catch (Throwable t) {
                     // fail the sink and skip the rest of the items
@@ -532,8 +530,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
         public void afterBulk(long executionId, BulkRequest request, Throwable failure) {
             try {
                 for (DocWriteRequest writeRequest : request.requests()) {
-                    if (sinkMetricData.getDirtyRecords() != null) {
-                        sinkMetricData.getDirtyRecords().inc();
+                    if (sinkMetricData != null) {
+                        sinkMetricData.invokeDirty(1, 0);
                     }
                     if (writeRequest instanceof ActionRequest) {
                         failureHandler.onFailure(

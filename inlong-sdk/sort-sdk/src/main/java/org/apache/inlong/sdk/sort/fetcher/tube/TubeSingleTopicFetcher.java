@@ -242,8 +242,8 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
                     ConsumerResult message = messageConsumer.getMessage();
                     context.getStateCounterByTopic(topic).addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
                     if (null != message && TErrCodeConstants.SUCCESS == message.getErrCode()) {
-                        List<InLongMessage> msgs = new ArrayList<>();
                         for (Message msg : message.getMessageList()) {
+                            List<InLongMessage> msgs = new ArrayList<>();
                             List<InLongMessage> deserialize = deserializer
                                     .deserialize(context, topic, getAttributeMap(msg.getAttribute()),
                                             msg.getData());
@@ -255,10 +255,9 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
                             context.getStateCounterByTopic(topic)
                                     .addMsgCount(deserialize.size())
                                     .addConsumeSize(msg.getData().length);
+                            handleAndCallbackMsg(new MessageRecord(topic.getTopicKey(), msgs,
+                                    message.getConfirmContext(), System.currentTimeMillis()));
                         }
-
-                        handleAndCallbackMsg(new MessageRecord(topic.getTopicKey(), msgs,
-                                message.getConfirmContext(), System.currentTimeMillis()));
                         sleepTime = 0L;
                     } else {
                         context.getStateCounterByTopic(topic).addEmptyFetchTimes(1L);

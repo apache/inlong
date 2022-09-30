@@ -20,37 +20,37 @@
 import React from 'react';
 import i18n from '@/i18n';
 import UserSelect from '@/components/UserSelect';
-import type { ClsConfigItemType, ClsTableItemType } from './common/types';
-import { DataProxy } from './DataProxy';
-import { Pulsar } from './Pulsar';
-import { TubeMQ } from './TubeMQ';
+import type { FieldItemType } from '@/metas/common';
+import { genFields, genForm, genTable } from '@/metas/common';
+import { agent } from './agent';
+import { dataProxy } from './dataProxy';
+import { pulsar } from './pulsar';
+import { tubeMQ } from './tubeMQ';
 
-export interface ClusterItemType {
-  label: string;
-  value: string;
-  config: ClsConfigItemType[];
-  tableColumns: ClsTableItemType[];
-}
-
-const _Clusters: Omit<ClusterItemType, 'tableColumns'>[] = [
+const allClusters = [
+  {
+    label: 'Agent',
+    value: 'AGENT',
+    fields: agent,
+  },
   {
     label: 'DataProxy',
     value: 'DATAPROXY',
-    config: DataProxy,
+    fields: dataProxy,
   },
   {
     label: 'Pulsar',
     value: 'PULSAR',
-    config: Pulsar,
+    fields: pulsar,
   },
   {
     label: 'TubeMQ',
     value: 'TUBEMQ',
-    config: TubeMQ,
+    fields: tubeMQ,
   },
 ];
 
-const defaultConfig: ClsConfigItemType[] = [
+const defaultCommonFields: FieldItemType[] = [
   {
     type: 'input',
     label: i18n.t('pages.Clusters.Name'),
@@ -59,16 +59,16 @@ const defaultConfig: ClsConfigItemType[] = [
     props: {
       maxLength: 128,
     },
-    _inTable: true,
+    _renderTable: true,
   },
   {
     type: 'radio',
     name: 'type',
     label: i18n.t('pages.Clusters.Type'),
-    initialValue: _Clusters[0].value,
+    initialValue: allClusters[0].value,
     rules: [{ required: true }],
     props: {
-      options: _Clusters.map(item => ({
+      options: allClusters.map(item => ({
         label: item.label,
         value: item.value,
       })),
@@ -103,14 +103,14 @@ const defaultConfig: ClsConfigItemType[] = [
         },
       },
     },
-    _inTable: true,
+    _renderTable: true,
   },
   {
     type: <UserSelect mode="multiple" />,
     label: i18n.t('pages.Clusters.InCharges'),
     name: 'inCharges',
     rules: [{ required: true }],
-    _inTable: true,
+    _renderTable: true,
   },
   {
     type: 'textarea',
@@ -122,22 +122,14 @@ const defaultConfig: ClsConfigItemType[] = [
   },
 ];
 
-export const Clusters: ClusterItemType[] = _Clusters.map(item => {
-  const config = defaultConfig.concat(item.config);
+export const clusters = allClusters.map(item => {
+  const itemFields = defaultCommonFields.concat(item.fields);
+  const fields = genFields(itemFields);
 
   return {
     ...item,
-    config,
-    tableColumns: config
-      .filter(k => k._inTable)
-      .map(k => {
-        if (typeof k._inTable === 'boolean') {
-          return {
-            title: k.label,
-            dataIndex: k.name,
-          };
-        }
-        return k._inTable;
-      }),
+    fields,
+    form: genForm(fields),
+    table: genTable(fields),
   };
 });

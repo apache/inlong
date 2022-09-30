@@ -17,6 +17,11 @@
 
 package org.apache.inlong.manager.common.enums;
 
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Constant of cluster type.
  */
@@ -26,4 +31,29 @@ public class ClusterType {
     public static final String TUBEMQ = "TUBEMQ";
     public static final String PULSAR = "PULSAR";
     public static final String DATAPROXY = "DATAPROXY";
+    public static final String KAFKA = "KAFKA";
+
+    private static final Set<String> TYPE_SET = new HashSet<String>() {
+        {
+            add(ClusterType.AGENT);
+            add(ClusterType.TUBEMQ);
+            add(ClusterType.PULSAR);
+            add(ClusterType.DATAPROXY);
+            add(ClusterType.KAFKA);
+        }
+    };
+
+    /**
+     * Check whether the cluster type is supported
+     *
+     * @param clusterType cluster type
+     * @return cluster type
+     */
+    public static String checkType(String clusterType) {
+        if (TYPE_SET.contains(clusterType)) {
+            return clusterType;
+        }
+        throw new BusinessException(String.format("Unsupported cluster type=%s,"
+                + " supported cluster types are: %s", clusterType, TYPE_SET));
+    }
 }

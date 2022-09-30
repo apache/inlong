@@ -18,13 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.metrics;
 
-import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Gauge;
-import org.apache.flink.metrics.Meter;
-import org.apache.flink.metrics.MeterView;
 import org.apache.flink.metrics.MetricGroup;
-import org.apache.inlong.audit.AuditImp;
-import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
 
 /**
@@ -53,54 +50,19 @@ public class MySqlSourceReaderMetrics {
      */
     private volatile long emitDelay = 0L;
 
-    private Counter numRecordsIn;
-    private Counter numBytesIn;
-    private Meter numRecordsInPerSecond;
-    private Meter numBytesInPerSecond;
-    private static Integer TIME_SPAN_IN_SECONDS = 60;
-    private static String STREAM_ID = "streamId";
-    private static String GROUP_ID = "groupId";
-    private static String NODE_ID = "nodeId";
-    private String inlongGroupId;
-    private String inlongSteamId;
-    private String nodeId;
-    private AuditImp auditImp;
+    private SourceMetricData sourceMetricData;
 
     public MySqlSourceReaderMetrics(MetricGroup metricGroup) {
         this.metricGroup = metricGroup;
     }
 
-    public void registerMetrics() {
+    public void registerMetrics(MetricOption metricOption) {
+        if (metricOption != null) {
+            sourceMetricData = new SourceMetricData(metricOption, metricGroup);
+        }
         metricGroup.gauge("currentFetchEventTimeLag", (Gauge<Long>) this::getFetchDelay);
         metricGroup.gauge("currentEmitEventTimeLag", (Gauge<Long>) this::getEmitDelay);
         metricGroup.gauge("sourceIdleTime", (Gauge<Long>) this::getIdleTime);
-    }
-
-    public void registerMetricsForNumRecordsIn(String metricName) {
-        numRecordsIn =
-                metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
-                        .addGroup(NODE_ID, this.nodeId)
-                        .counter(metricName);
-    }
-
-    public void registerMetricsForNumBytesIn(String metricName) {
-        numBytesIn =
-                metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
-                        .addGroup(NODE_ID, this.nodeId)
-                        .counter(metricName);
-    }
-
-    public void registerMetricsForNumRecordsInPerSecond(String metricName) {
-        numRecordsInPerSecond =
-                metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
-                        .addGroup(NODE_ID, nodeId)
-                        .meter(metricName, new MeterView(this.numRecordsIn, TIME_SPAN_IN_SECONDS));
-    }
-
-    public void registerMetricsForNumBytesInPerSecond(String metricName) {
-        numBytesInPerSecond = metricGroup.addGroup(GROUP_ID, this.inlongGroupId).addGroup(STREAM_ID, this.inlongSteamId)
-                .addGroup(NODE_ID, this.nodeId)
-                .meter(metricName, new MeterView(this.numBytesIn, TIME_SPAN_IN_SECONDS));
     }
 
     public long getFetchDelay() {
@@ -131,77 +93,9 @@ public class MySqlSourceReaderMetrics {
         this.emitDelay = emitDelay;
     }
 
-    public Counter getNumRecordsIn() {
-        return numRecordsIn;
-    }
-
-    public Counter getNumBytesIn() {
-        return numBytesIn;
-    }
-
-    public Meter getNumRecordsInPerSecond() {
-        return numRecordsInPerSecond;
-    }
-
-    public Meter getNumBytesInPerSecond() {
-        return numBytesInPerSecond;
-    }
-
-    public String getInlongGroupId() {
-        return inlongGroupId;
-    }
-
-    public String getInlongSteamId() {
-        return inlongSteamId;
-    }
-
-    public String getNodeId() {
-        return nodeId;
-    }
-
-    public void setInlongGroupId(String inlongGroupId) {
-        this.inlongGroupId = inlongGroupId;
-    }
-
-    public void setInlongSteamId(String inlongSteamId) {
-        this.inlongSteamId = inlongSteamId;
-    }
-
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
-
-    public AuditImp getAuditImp() {
-        return auditImp;
-    }
-
-    public void setAuditImp(AuditImp auditImp) {
-        this.auditImp = auditImp;
-    }
-
     public void outputMetrics(long rowCountSize, long rowDataSize) {
-        outputMetricForFlink(rowCountSize, rowDataSize);
-        outputMetricForAudit(rowCountSize, rowDataSize);
-    }
-
-    public void outputMetricForAudit(long rowCountSize, long rowDataSize) {
-        if (this.auditImp != null) {
-            this.auditImp.add(
-                    Constants.AUDIT_SORT_INPUT,
-                    getInlongGroupId(),
-                    getInlongSteamId(),
-                    System.currentTimeMillis(),
-                    rowCountSize,
-                    rowDataSize);
-        }
-    }
-
-    public void outputMetricForFlink(long rowCountSize, long rowDataSize) {
-        if (this.numBytesIn != null) {
-            numBytesIn.inc(rowDataSize);
-        }
-        if (this.numRecordsIn != null) {
-            this.numRecordsIn.inc(rowCountSize);
+        if (sourceMetricData != null) {
+            sourceMetricData.outputMetrics(rowCountSize, rowDataSize);
         }
     }
 }

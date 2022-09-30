@@ -39,7 +39,9 @@ import java.util.stream.Collectors;
 public abstract class MultiTopicsFetcher implements TopicFetcher {
     protected final ReentrantReadWriteLock mainLock = new ReentrantReadWriteLock(true);
     protected final ScheduledExecutorService executor;
+    protected final String fetchKey;
     protected Map<String, InLongTopic> onlineTopics;
+    protected List<InLongTopic> newTopics;
     protected ClientContext context;
     protected Deserializer deserializer;
     protected volatile Thread fetchThread;
@@ -56,7 +58,8 @@ public abstract class MultiTopicsFetcher implements TopicFetcher {
             List<InLongTopic> topics,
             ClientContext context,
             Interceptor interceptor,
-            Deserializer deserializer) {
+            Deserializer deserializer,
+            String fetchKey) {
         this.onlineTopics = topics.stream()
                 .filter(Objects::nonNull)
                 .collect((Collectors.toMap(InLongTopic::getTopic, t -> t)));
@@ -64,6 +67,12 @@ public abstract class MultiTopicsFetcher implements TopicFetcher {
         this.interceptor = interceptor;
         this.deserializer = deserializer;
         this.executor = Executors.newSingleThreadScheduledExecutor();
+        this.fetchKey = fetchKey;
+    }
+
+    @Override
+    public String getFetchKey() {
+        return fetchKey;
     }
 
     protected boolean needUpdate(Collection<InLongTopic> newTopics) {

@@ -19,7 +19,6 @@ package org.apache.inlong.agent.plugin.channel;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.plugin.Channel;
@@ -35,7 +34,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
 
 /**
@@ -49,38 +52,31 @@ public class MemoryChannel implements Channel {
     //metric
     private AgentMetricItemSet metricItemSet;
     private static final AtomicLong METRIC_INDEX = new AtomicLong(0);
+    private String inlongGroupId;
+    private String inlongStreamId;
 
     public MemoryChannel() {
     }
 
     @Override
     public void push(Message message) {
-        String groupId = DEFAULT_PROXY_INLONG_GROUP_ID;
         try {
             if (message != null) {
-                if (message instanceof ProxyMessage) {
-                    groupId = ((ProxyMessage) message).getInlongGroupId();
-                }
-                AgentMetricItem metricItem = getMetricItem(KEY_INLONG_GROUP_ID, groupId);
+                AgentMetricItem metricItem = getMetricItem(new HashMap<String, String>());
                 metricItem.pluginReadCount.incrementAndGet();
                 queue.put(message);
                 metricItem.pluginReadSuccessCount.incrementAndGet();
             }
         } catch (InterruptedException ex) {
-            getMetricItem(KEY_INLONG_GROUP_ID, groupId).pluginReadFailCount.incrementAndGet();
-            Thread.currentThread().interrupt();
+            this.metricItemReadFailed();
         }
     }
 
     @Override
     public boolean push(Message message, long timeout, TimeUnit unit) {
-        String groupId = DEFAULT_PROXY_INLONG_GROUP_ID;
         try {
             if (message != null) {
-                if (message instanceof ProxyMessage) {
-                    groupId = ((ProxyMessage) message).getInlongGroupId();
-                }
-                AgentMetricItem metricItem = getMetricItem(KEY_INLONG_GROUP_ID, groupId);
+                AgentMetricItem metricItem = getMetricItem(new HashMap<String, String>());
                 metricItem.pluginReadCount.incrementAndGet();
                 boolean result = queue.offer(message, timeout, unit);
                 if (result) {
@@ -91,36 +87,31 @@ public class MemoryChannel implements Channel {
                 return result;
             }
         } catch (InterruptedException ex) {
-            AgentMetricItem metricItem = getMetricItem(KEY_INLONG_GROUP_ID, groupId);
-            metricItem.pluginReadFailCount.incrementAndGet();
-            Thread.currentThread().interrupt();
+            this.metricItemReadFailed();
         }
         return false;
     }
 
     @Override
     public Message pull(long timeout, TimeUnit unit) {
-        String groupId = DEFAULT_PROXY_INLONG_GROUP_ID;
         try {
             Message message = queue.poll(timeout, unit);
             if (message != null) {
-                if (message instanceof ProxyMessage) {
-                    groupId = ((ProxyMessage) message).getInlongGroupId();
-                }
-                AgentMetricItem metricItem = getMetricItem(KEY_INLONG_GROUP_ID, groupId);
+                AgentMetricItem metricItem = getMetricItem(new HashMap<String, String>());
                 metricItem.pluginSendSuccessCount.incrementAndGet();
+                metricItem.pluginSendCount.incrementAndGet();
             }
             return message;
         } catch (InterruptedException ex) {
-            AgentMetricItem metricItem = getMetricItem(KEY_INLONG_GROUP_ID, groupId);
-            metricItem.pluginSendFailCount.incrementAndGet();
-            Thread.currentThread().interrupt();
+            this.metricItemSendFailed();
             throw new IllegalStateException(ex);
         }
     }
 
     @Override
     public void init(JobProfile jobConf) {
+        inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+        inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
         queue = new LinkedBlockingQueue<>(
                 jobConf.getInt(AgentConstants.CHANNEL_MEMORY_CAPACITY,
                         AgentConstants.DEFAULT_CHANNEL_MEMORY_CAPACITY));
@@ -138,10 +129,37 @@ public class MemoryChannel implements Channel {
         LOGGER.info("destroy channel, show memory channel metric:");
     }
 
-    private AgentMetricItem getMetricItem(String otherKey, String value) {
+    private AgentMetricItem getMetricItem(Map<String, String> dimens) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
-        dimensions.put(otherKey, value);
+        dimensions.put(KEY_INLONG_GROUP_ID, inlongGroupId);
+        dimensions.put(KEY_INLONG_STREAM_ID, inlongStreamId);
+        dimens.forEach((key, value) -> {
+            dimensions.put(key, value);
+        });
         return this.metricItemSet.findMetricItem(dimensions);
+    }
+
+    private void metricItemReadFailed() {
+        Map<String, String> dimensions = new HashMap<String, String>();
+        dimensions.put(KEY_INLONG_GROUP_ID, inlongGroupId);
+        dimensions.put(KEY_INLONG_STREAM_ID, inlongStreamId);
+        AgentMetricItem metricItem = getMetricItem(dimensions);
+        metricItem.pluginReadFailCount.incrementAndGet();
+        LOGGER.debug("plugin read failed:{}", dimensions.toString());
+        Thread.currentThread().interrupt();
+        return;
+    }
+
+    private void metricItemSendFailed() {
+        Map<String, String> dimensions = new HashMap<String, String>();
+        dimensions.put(KEY_INLONG_GROUP_ID, inlongGroupId);
+        dimensions.put(KEY_INLONG_STREAM_ID, inlongStreamId);
+        AgentMetricItem metricItem = getMetricItem(dimensions);
+        metricItem.pluginSendFailCount.incrementAndGet();
+        metricItem.pluginSendCount.incrementAndGet();
+        LOGGER.debug("plugin send failed:{}", dimensions.toString());
+        Thread.currentThread().interrupt();
+        return;
     }
 }

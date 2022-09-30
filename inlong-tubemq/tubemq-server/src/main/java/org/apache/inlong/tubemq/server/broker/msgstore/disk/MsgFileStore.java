@@ -118,6 +118,8 @@ public class MsgFileStore implements Closeable {
     /**
      * Append message to file segment
      *
+     * @param fromMem        whether data from memory directly
+     * @param currTime       the current time
      * @param sb             string buffer
      * @param msgCnt         the record count to append
      * @param indexSize      the index buffer length
@@ -128,7 +130,8 @@ public class MsgFileStore implements Closeable {
      * @param rightTime      the latest record timestamp
      * @return      file storage status, the index and data offsets of the added message
      */
-    public Tuple3<Boolean, Long, Long> appendMsg(StringBuilder sb, int msgCnt,
+    public Tuple3<Boolean, Long, Long> appendMsg(boolean fromMem, long currTime,
+                                                 StringBuilder sb, int msgCnt,
                                                  int indexSize, ByteBuffer indexBuffer,
                                                  int dataSize, ByteBuffer dataBuffer,
                                                  long leftTime, long rightTime) {
@@ -145,7 +148,7 @@ public class MsgFileStore implements Closeable {
         boolean pendingMsgSizeExceed = false;
         boolean pendingMsgTimeExceed = false;
         boolean isForceMetadata = false;
-        // flushed message message count and data size info
+        // flushed message count and data size info
         long flushedMsgCnt = 0;
         long flushedDataSize = 0;
         // Temporary variables in calculations
@@ -155,19 +158,29 @@ public class MsgFileStore implements Closeable {
         long inDataOffset;
         Segment curIndexSeg;
         long indexOffset = -1;
-        long currTime;
         // new file paths of creating
         String newDataFilePath = null;
         String newIndexFilePath = null;
         boolean fileStoreOK = false;
         this.writeLock.lock();
         try {
-            inIndexOffset = dataBuffer.getLong(DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF);
-            // filling data segment.
+            // position last segments
             curDataSeg = this.dataSegments.last();
+            curIndexSeg = this.indexSegments.last();
+            // get inputted offsets
+            if (fromMem) {
+                inIndexOffset = dataBuffer.getLong(DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF);
+                inDataOffset = indexBuffer.getLong(DataStoreUtils.INDEX_POS_DATAOFFSET);
+            } else {
+                inIndexOffset = curIndexSeg.getLast();
+                inDataOffset = curDataSeg.getLast();
+                indexBuffer.putLong(DataStoreUtils.INDEX_POS_DATAOFFSET, inDataOffset);
+                dataBuffer.putLong(DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF, inIndexOffset);
+            }
+            // filling data segment.
             this.curUnflushSize.addAndGet(dataSize);
             dataOffset = curDataSeg.append(dataBuffer, leftTime, rightTime);
-            // judge whether need to create a new data segment.
+            // judge whether we need to create a new data segment.
             if (curDataSeg.getCachedSize() >= this.tubeConfig.getMaxSegmentSize()) {
                 isDataSegFlushed = true;
                 long newDataOffset = curDataSeg.flush(true);
@@ -179,10 +192,8 @@ public class MsgFileStore implements Closeable {
                 this.dataSegments.append(new FileSegment(newDataOffset, newDataFile, SegmentType.DATA));
             }
             // filling index data.
-            inDataOffset = indexBuffer.getLong(DataStoreUtils.INDEX_POS_DATAOFFSET);
-            curIndexSeg = this.indexSegments.last();
             indexOffset = curIndexSeg.append(indexBuffer, leftTime, rightTime);
-            // judge whether need to create a new index segment.
+            // judge whether we need to create a new index segment.
             if (curIndexSeg.getCachedSize()
                 >= this.tubeConfig.getMaxIndexSegmentSize()) {
                 isIndexSegFlushed = true;
@@ -195,16 +206,17 @@ public class MsgFileStore implements Closeable {
                 this.indexSegments.append(new FileSegment(newIndexOffset,
                     newIndexFile, SegmentType.INDEX));
             }
-            // check whether need to flush to disk.
-            currTime = System.currentTimeMillis();
+            // check whether we need to flush to disk.
             pendingMsgSizeExceed = (messageStore.getUnflushDataHold() > 0)
                     && (curUnflushSize.get() >= messageStore.getUnflushDataHold());
-            pendingMsgCntExceed = this.curUnflushed.addAndGet(msgCnt) >= messageStore.getUnflushThreshold();
-            pendingMsgTimeExceed = currTime - this.lastFlushTime.get() >= messageStore.getUnflushInterval();
-            boolean isSegmentRollOver =  isDataSegFlushed || isIndexSegFlushed;
-
-            if (pendingMsgCntExceed || pendingMsgTimeExceed || pendingMsgSizeExceed || isSegmentRollOver) {
-                isForceMetadata = isSegmentRollOver || (currTime - this.lastMetaFlushTime.get() > MAX_META_REFRESH_DUR);
+            pendingMsgCntExceed =
+                    (this.curUnflushed.addAndGet(msgCnt) >= messageStore.getUnflushThreshold());
+            pendingMsgTimeExceed =
+                    (currTime - this.lastFlushTime.get() >= messageStore.getUnflushInterval());
+            if (pendingMsgCntExceed || pendingMsgTimeExceed
+                    || pendingMsgSizeExceed || isDataSegFlushed || isIndexSegFlushed) {
+                isForceMetadata = (isDataSegFlushed || isIndexSegFlushed
+                    || (currTime - this.lastMetaFlushTime.get() > MAX_META_REFRESH_DUR));
                 if (!isDataSegFlushed) {
                     curDataSeg.flush(isForceMetadata);
                 }
@@ -213,7 +225,7 @@ public class MsgFileStore implements Closeable {
                 }
                 flushedMsgCnt = this.curUnflushed.getAndSet(0);
                 flushedDataSize = this.curUnflushSize.getAndSet(0);
-                this.lastFlushTime.set(System.currentTimeMillis());
+                this.lastFlushTime.set(currTime);
                 if (isForceMetadata) {
                     this.lastMetaFlushTime.set(this.lastFlushTime.get());
                 }
@@ -243,18 +255,21 @@ public class MsgFileStore implements Closeable {
         } finally {
             this.writeLock.unlock();
             // add statistics.
-            msgStoreStatsHolder.addFileFlushStatsInfo(msgCnt, indexSize, dataSize,
-                    flushedMsgCnt, flushedDataSize, isDataSegFlushed, isIndexSegFlushed,
-                    pendingMsgSizeExceed, pendingMsgCntExceed, pendingMsgTimeExceed, isForceMetadata);
-            if (isDataSegFlushed) {
-                logger.info(sb.append("[File Store] Created data segment ")
-                        .append(newDataFilePath).toString());
-                sb.delete(0, sb.length());
-            }
-            if (isIndexSegFlushed) {
-                logger.info(sb.append("[File Store] Created index segment ")
-                        .append(newIndexFilePath).toString());
-                sb.delete(0, sb.length());
+            if (fileStoreOK) {
+                msgStoreStatsHolder.addFileFlushStatsInfo(msgCnt, indexSize, dataSize,
+                        flushedMsgCnt, flushedDataSize, isDataSegFlushed, isIndexSegFlushed,
+                        pendingMsgSizeExceed, pendingMsgCntExceed, pendingMsgTimeExceed,
+                        isForceMetadata, System.currentTimeMillis() - currTime);
+                if (isDataSegFlushed) {
+                    logger.info(sb.append("[File Store] Created data segment ")
+                            .append(newDataFilePath).toString());
+                    sb.delete(0, sb.length());
+                }
+                if (isIndexSegFlushed) {
+                    logger.info(sb.append("[File Store] Created index segment ")
+                            .append(newIndexFilePath).toString());
+                    sb.delete(0, sb.length());
+                }
             }
         }
         return new Tuple3<>(fileStoreOK, indexOffset, dataOffset);

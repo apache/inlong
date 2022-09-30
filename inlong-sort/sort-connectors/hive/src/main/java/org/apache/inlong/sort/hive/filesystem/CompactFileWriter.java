@@ -36,9 +36,9 @@ public class CompactFileWriter<T>
             StreamingFileSink.BucketsBuilder<
                     T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
                     bucketsBuilder,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
-        super(bucketCheckInterval, bucketsBuilder, inLongMetric, auditHostAndPorts);
+        super(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
     }
 
     @Override

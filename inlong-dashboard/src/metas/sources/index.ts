@@ -17,39 +17,84 @@
  * under the License.
  */
 
-import type { GetStorageFormFieldsType } from '@/utils/metaData';
-import type { ColumnsType } from 'antd/es/table';
+import i18n from '@/i18n';
+import type { FieldItemType } from '@/metas/common';
+import { genFields, genForm, genTable } from '@/metas/common';
+import { statusList, genStatusTag } from './common/status';
 import { autoPush } from './autoPush';
 import { binLog } from './binLog';
 import { file } from './file';
 
-export interface SourceType {
-  label: string;
-  value: string;
-  // Generate form configuration for single data
-  getForm: GetStorageFormFieldsType;
-  // Generate table display configuration
-  tableColumns: ColumnsType;
-  // Custom convert interface data to front-end data format
-  toFormValues?: (values: unknown) => unknown;
-  // Custom convert front-end data to interface data format
-  toSubmitValues?: (values: unknown) => unknown;
-}
-
-export const sources: SourceType[] = [
+const allSources = [
   {
     label: 'MySQL BinLog',
     value: 'MYSQL_BINLOG',
-    ...binLog,
+    fields: binLog,
   },
   {
     label: 'File',
     value: 'FILE',
-    ...file,
+    fields: file,
   },
   {
     label: 'Auto Push',
     value: 'AUTO_PUSH',
-    ...autoPush,
+    fields: autoPush,
   },
 ];
+
+const defaultCommonFields: FieldItemType[] = [
+  {
+    name: 'sourceName',
+    type: 'input',
+    label: i18n.t('meta.Sources.Name'),
+    rules: [{ required: true }],
+    props: values => ({
+      disabled: !!values.id,
+      maxLength: 128,
+    }),
+    _renderTable: true,
+  },
+  {
+    name: 'sourceType',
+    type: 'select',
+    label: i18n.t('meta.Sources.Type'),
+    rules: [{ required: true }],
+    initialValue: allSources[0].value,
+    props: values => ({
+      disabled: !!values.id,
+      options: allSources.map(item => ({
+        label: item.label,
+        value: item.value,
+      })),
+    }),
+  },
+  {
+    name: 'status',
+    type: 'select',
+    label: i18n.t('basic.Status'),
+    props: {
+      allowClear: true,
+      options: statusList,
+      dropdownMatchSelectWidth: false,
+    },
+    visible: false,
+    _renderTable: {
+      render: text => genStatusTag(text),
+    },
+  },
+];
+
+export const sources = allSources.map(item => {
+  const itemFields = defaultCommonFields.concat(item.fields);
+  const fields = genFields(itemFields);
+
+  return {
+    ...item,
+    fields,
+    form: genForm(fields),
+    table: genTable(fields),
+    toFormValues: null,
+    toSubmitValues: null,
+  };
+});

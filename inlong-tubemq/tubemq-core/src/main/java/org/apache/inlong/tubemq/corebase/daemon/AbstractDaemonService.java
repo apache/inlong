@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corebase.daemon;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,14 +40,35 @@ public abstract class AbstractDaemonService implements Service, Runnable {
 
     @Override
     public void run() {
-        logger.info(new StringBuilder(256).append(name)
+        StringBuilder strBuff =
+                new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
+        logger.info(strBuff.append(name)
                 .append("-daemon-thread started").toString());
-        this.loopProcess(this.intervalMs);
-        logger.info(new StringBuilder(256).append(name)
+        strBuff.delete(0, strBuff.length());
+        // process daemon task
+        while (!isStopped()) {
+            try {
+                Thread.sleep(intervalMs);
+                loopProcess(strBuff);
+            } catch (InterruptedException e) {
+                strBuff.delete(0, strBuff.length());
+                logger.warn(strBuff.append(name)
+                        .append("-daemon-thread thread has been interrupted").toString());
+                strBuff.delete(0, strBuff.length());
+                return;
+            } catch (Throwable t) {
+                strBuff.delete(0, strBuff.length());
+                logger.error(strBuff.append(name)
+                        .append("-daemon-thread throw a exception").toString(), t);
+                strBuff.delete(0, strBuff.length());
+            }
+        }
+        logger.info(strBuff.append(name)
                 .append("-daemon-thread stopped").toString());
+        strBuff.delete(0, strBuff.length());
     }
 
-    protected abstract void loopProcess(long intervalMs);
+    protected abstract void loopProcess(StringBuilder strBuff);
 
     @Override
     public void start() {

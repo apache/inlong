@@ -118,7 +118,7 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
     private LinkedHashMap<String, String> staticPartitionSpec = new LinkedHashMap<>();
     private boolean overwrite = false;
     private boolean dynamicGrouping = false;
-    private String inLongMetric;
+    private String inlongMetric;
     private String auditHostAndPorts;
 
     public HiveTableSink(
@@ -127,7 +127,7 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
             ObjectIdentifier identifier,
             CatalogTable table,
             @Nullable Integer configuredParallelism,
-            final String inLongMetric,
+            final String inlongMetric,
             final String auditHostAndPorts) {
         this.flinkConf = flinkConf;
         this.jobConf = jobConf;
@@ -140,7 +140,7 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
         hiveShim = HiveShimLoader.loadHiveShim(hiveVersion);
         tableSchema = TableSchemaUtils.getPhysicalSchema(table.getSchema());
         this.configuredParallelism = configuredParallelism;
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
     }
 
@@ -339,7 +339,7 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
                             createCompactReaderFactory(sd, tableProps),
                             compactionSize,
                             parallelism,
-                            inLongMetric,
+                            inlongMetric,
                             auditHostAndPorts);
         } else {
             writerStream =
@@ -348,7 +348,7 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
                             bucketCheckInterval,
                             builder,
                             parallelism,
-                            inLongMetric,
+                            inlongMetric,
                             auditHostAndPorts);
         }
 
@@ -492,7 +492,7 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
                         identifier,
                         catalogTable,
                         configuredParallelism,
-                        inLongMetric,
+                        inlongMetric,
                         auditHostAndPorts);
         sink.staticPartitionSpec = staticPartitionSpec;
         sink.overwrite = overwrite;

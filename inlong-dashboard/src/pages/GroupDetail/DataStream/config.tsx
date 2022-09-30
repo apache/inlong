@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
-import { statusList } from './status';
+import { streamForm } from '@/metas/stream';
+import { pickObjectArray } from '@/utils';
 
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {
@@ -26,13 +26,9 @@ export const getFilterFormContent = (defaultValues = {} as any) => [
     name: 'keyword',
     initialValue: defaultValues.keyword,
   },
-  {
-    type: 'select',
-    name: 'status',
-    label: i18n.t('basic.Status'),
-    props: {
-      allowClear: true,
-      options: statusList,
-    },
-  },
+  ...pickObjectArray(['status'], streamForm).map(item => ({
+    ...item,
+    visible: true,
+    initialValue: defaultValues[item.name],
+  })),
 ];

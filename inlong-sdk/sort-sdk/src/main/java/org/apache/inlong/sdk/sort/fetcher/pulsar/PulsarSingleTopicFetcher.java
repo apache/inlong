@@ -270,7 +270,6 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
 
                     context.getStateCounterByTopic(topic).addFetchTimeCost(System.currentTimeMillis() - startFetchTime);
                     if (null != messages && messages.size() != 0) {
-                        List<MessageRecord> msgs = new ArrayList<>();
                         for (Message<byte[]> msg : messages) {
                             // if need seek
                             if (msg.getPublishTime() < seeker.getSeekTime()) {
@@ -289,14 +288,14 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                                 ack(offsetKey);
                                 continue;
                             }
-
+                            List<MessageRecord> msgs = new ArrayList<>();
                             msgs.add(new MessageRecord(topic.getTopicKey(),
                                     inLongMessages,
                                     offsetKey, System.currentTimeMillis()));
                             context.getStateCounterByTopic(topic).addConsumeSize(msg.getData().length);
+                            context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
+                            handleAndCallbackMsg(msgs);
                         }
-                        context.getStateCounterByTopic(topic).addMsgCount(msgs.size());
-                        handleAndCallbackMsg(msgs);
                         sleepTime = 0L;
                     } else {
                         context.getStateCounterByTopic(topic).addEmptyFetchTimes(1L);

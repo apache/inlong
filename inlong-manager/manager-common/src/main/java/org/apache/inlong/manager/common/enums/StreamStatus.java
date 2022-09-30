@@ -24,7 +24,6 @@ public enum StreamStatus {
 
     DRAFT(0, "draft"),
 
-    // Stream related status
     NEW(100, "new"),
     CONFIG_ING(110, "in configure"),
     CONFIG_FAILED(120, "configuration failed"),
@@ -47,12 +46,12 @@ public enum StreamStatus {
         this.description = description;
     }
 
-    public Integer getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
+    /**
+     * Checks whether the given status allows the update.
+     */
+    public static boolean notAllowedUpdate(StreamStatus status) {
+        return status == StreamStatus.CONFIG_ING || status == StreamStatus.SUSPENDING
+                || status == StreamStatus.RESTARTING || status == StreamStatus.DELETING;
     }
 
     public static StreamStatus forCode(int code) {
@@ -62,6 +61,14 @@ public enum StreamStatus {
             }
         }
         throw new IllegalStateException(String.format("Illegal code=%s for StreamStatus", code));
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
 }

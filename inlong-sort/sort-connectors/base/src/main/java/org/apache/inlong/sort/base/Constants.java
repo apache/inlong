@@ -37,6 +37,10 @@ public final class Constants {
 
     public static final String NUM_RECORDS_OUT = "numRecordsOut";
 
+    public static final String NUM_BYTES_OUT_FOR_METER = "numBytesOutForMeter";
+
+    public static final String NUM_RECORDS_OUT_FOR_METER = "numRecordsOutForMeter";
+
     public static final String NUM_BYTES_OUT_PER_SECOND = "numBytesOutPerSecond";
 
     public static final String NUM_RECORDS_OUT_PER_SECOND = "numRecordsOutPerSecond";
@@ -44,6 +48,10 @@ public final class Constants {
     public static final String NUM_RECORDS_IN = "numRecordsIn";
 
     public static final String NUM_BYTES_IN = "numBytesIn";
+
+    public static final String NUM_RECORDS_IN_FOR_METER = "numRecordsInForMeter";
+
+    public static final String NUM_BYTES_IN_FOR_METER = "numBytesInForMeter";
 
     public static final String NUM_BYTES_IN_PER_SECOND = "numBytesInPerSecond";
 
@@ -75,23 +83,37 @@ public final class Constants {
     // sort send successfully
     public static final Integer AUDIT_SORT_OUTPUT = 8;
 
+    public static final String INLONG_METRIC_STATE_NAME = "inlong-metric-states";
+
     public static final ConfigOption<String> INLONG_METRIC =
-        ConfigOptions.key("inlong.metric")
+        ConfigOptions.key("inlong.metric.labels")
             .stringType()
             .noDefaultValue()
-            .withDescription("INLONG GROUP ID + '&' + STREAM ID + '&' + NODE ID");
-
+            .withDescription("INLONG metric labels, format is 'key1=value1&key2=value2',"
+                    + "default is 'groupId=xxx&streamId=xxx&nodeId=xxx'");
 
     public static final ConfigOption<String> INLONG_AUDIT =
-        ConfigOptions.key("inlong.audit")
+        ConfigOptions.key("metrics.audit.proxy.hosts")
             .stringType()
             .noDefaultValue()
-            .withDescription("INLONG AUDIT HOST + '&' + PORT");
+            .withDescription("Audit proxy host address for reporting audit metrics. \n"
+                    + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
 
     public static final ConfigOption<Boolean> IGNORE_ALL_CHANGELOG =
             ConfigOptions.key("sink.ignore.changelog")
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
+
+
+    /**
+     * It is used for jdbc url filter for avoiding url attack
+     * see also in https://su18.org/post/jdbc-connection-url-attack/
+     */
+    public static final String AUTO_DESERIALIZE = "autoDeserialize";
+
+    public static final String AUTO_DESERIALIZE_TRUE = "autoDeserialize=true";
+
+    public static final String AUTO_DESERIALIZE_FALSE = "autoDeserialize=false";
 
 }

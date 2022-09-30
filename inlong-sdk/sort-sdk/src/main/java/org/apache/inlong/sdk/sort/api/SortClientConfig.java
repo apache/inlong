@@ -55,13 +55,18 @@ public class SortClientConfig implements Serializable {
     private int ackTimeoutSec = 0;
     private volatile boolean stopConsume = false;
     private boolean isPrometheusEnabled = true;
-    private int emptyPollSleepStepMs = 50;
+    private int emptyPollSleepStepMs = 10;
     private int maxEmptyPollSleepMs = 500;
     private int emptyPollTimes = 10;
     private int cleanOldConsumerIntervalSec = 60;
+    private int maxConsumerSize = 5;
 
-    public SortClientConfig(String sortTaskId, String sortClusterName, InLongTopicChangeListener assignmentsListener,
-            ConsumeStrategy consumeStrategy, String localIp) {
+    public SortClientConfig(
+            String sortTaskId,
+            String sortClusterName,
+            InLongTopicChangeListener assignmentsListener,
+            ConsumeStrategy consumeStrategy,
+            String localIp) {
         this.sortTaskId = sortTaskId;
         this.sortClusterName = sortClusterName;
         this.assignmentsListener = assignmentsListener;
@@ -323,6 +328,14 @@ public class SortClientConfig implements Serializable {
         this.cleanOldConsumerIntervalSec = cleanOldConsumerIntervalSec;
     }
 
+    public int getMaxConsumerSize() {
+        return maxConsumerSize;
+    }
+
+    public void setMaxConsumerSize(int maxConsumerSize) {
+        this.maxConsumerSize = maxConsumerSize;
+    }
+
     /**
      * ConsumeStrategy
      */
@@ -367,7 +380,7 @@ public class SortClientConfig implements Serializable {
         this.managerApiVersion = sortSdkParams.getOrDefault("managerApiVersion", managerApiVersion);
         String strConsumeStrategy = sortSdkParams.getOrDefault("consumeStrategy", consumeStrategy.name());
         String strManagerType = sortSdkParams.getOrDefault("topicManagerType",
-                TopicType.SINGLE_TOPIC.toString());
+                TopicType.MULTI_TOPIC.toString());
         this.consumeStrategy = ConsumeStrategy.valueOf(strConsumeStrategy);
         this.topicType = TopicType.valueOf(strManagerType);
 
@@ -385,5 +398,6 @@ public class SortClientConfig implements Serializable {
         this.emptyPollSleepStepMs = NumberUtils.toInt(sortSdkParams.get("emptyPollSleepStepMs"), emptyPollSleepStepMs);
         this.maxEmptyPollSleepMs = NumberUtils.toInt(sortSdkParams.get("maxEmptyPollSleepMs"), maxEmptyPollSleepMs);
         this.emptyPollTimes = NumberUtils.toInt(sortSdkParams.get("emptyPollTimes"), emptyPollTimes);
+        this.maxConsumerSize = NumberUtils.toInt(sortSdkParams.get("maxConsumerSize"), maxConsumerSize);
     }
 }

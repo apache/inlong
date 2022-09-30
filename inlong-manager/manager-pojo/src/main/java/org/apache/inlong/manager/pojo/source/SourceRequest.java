@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.source;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -89,5 +90,9 @@ public class SourceRequest {
 
     @ApiModelProperty("Other properties if needed")
     private Map<String, Object> properties = new LinkedHashMap<>();
+
+    @JsonIgnore
+    @ApiModelProperty("Sub source information of existing agents")
+    private List<SubSourceDTO> subSourceList;
 
 }

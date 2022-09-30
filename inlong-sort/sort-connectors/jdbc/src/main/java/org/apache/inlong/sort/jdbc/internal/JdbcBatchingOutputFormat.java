@@ -19,10 +19,13 @@
 package org.apache.inlong.sort.jdbc.internal;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.api.common.state.ListState;
+import org.apache.flink.api.common.state.ListStateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
 import org.apache.flink.connector.jdbc.JdbcStatementBuilder;
-import org.apache.flink.connector.jdbc.internal.AbstractJdbcOutputFormat;
 import org.apache.flink.connector.jdbc.internal.connection.JdbcConnectionProvider;
 import org.apache.flink.connector.jdbc.internal.connection.SimpleJdbcConnectionProvider;
 import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecutor;
@@ -30,11 +33,16 @@ import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatementImpl;
 import org.apache.flink.connector.jdbc.utils.JdbcUtils;
+import org.apache.flink.runtime.state.FunctionInitializationContext;
+import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,18 +51,18 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+
 import static org.apache.flink.connector.jdbc.utils.JdbcUtils.setRecordToStatement;
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.base.Constants.AUDIT_SORT_INPUT;
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
 /**
  * A JDBC outputFormat that supports batching records before writing records to database.
@@ -69,7 +77,7 @@ public class JdbcBatchingOutputFormat<
     private final JdbcExecutionOptions executionOptions;
     private final StatementExecutorFactory<JdbcExec> statementExecutorFactory;
     private final RecordExtractor<In, JdbcIn> jdbcRecordExtractor;
-    private final String inLongMetric;
+    private final String inlongMetric;
     private final String auditHostAndPorts;
     private transient JdbcExec jdbcStatementExecutor;
     private transient int batchCount = 0;
@@ -79,10 +87,9 @@ public class JdbcBatchingOutputFormat<
     private transient volatile Exception flushException;
     private transient RuntimeContext runtimeContext;
 
+    private transient ListState<MetricState> metricStateListState;
+    private transient MetricState metricState;
     private SinkMetricData sinkMetricData;
-    private String inLongGroupId;
-    private String inLongStreamId;
-    private transient AuditImp auditImp;
     private Long dataSize = 0L;
     private Long rowSize = 0L;
 
@@ -91,13 +98,13 @@ public class JdbcBatchingOutputFormat<
             @Nonnull JdbcExecutionOptions executionOptions,
             @Nonnull StatementExecutorFactory<JdbcExec> statementExecutorFactory,
             @Nonnull RecordExtractor<In, JdbcIn> recordExtractor,
-            String inLongMetric,
+            String inlongMetric,
             String auditHostAndPorts) {
         super(connectionProvider);
         this.executionOptions = checkNotNull(executionOptions);
         this.statementExecutorFactory = checkNotNull(statementExecutorFactory);
         this.jdbcRecordExtractor = checkNotNull(recordExtractor);
-        this.inLongMetric = inLongMetric;
+        this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
     }
 
@@ -130,22 +137,15 @@ public class JdbcBatchingOutputFormat<
     public void open(int taskNumber, int numTasks) throws IOException {
         super.open(taskNumber, numTasks);
         this.runtimeContext = getRuntimeContext();
-        if (inLongMetric != null && !inLongMetric.isEmpty()) {
-            String[] inLongMetricArray = inLongMetric.split(DELIMITER);
-            inLongGroupId = inLongMetricArray[0];
-            inLongStreamId = inLongMetricArray[1];
-            String nodeId = inLongMetricArray[2];
-            sinkMetricData = new SinkMetricData(inLongGroupId, inLongStreamId, nodeId, runtimeContext.getMetricGroup());
-            sinkMetricData.registerMetricsForDirtyBytes();
-            sinkMetricData.registerMetricsForDirtyRecords();
-            sinkMetricData.registerMetricsForNumBytesOut();
-            sinkMetricData.registerMetricsForNumRecordsOut();
-            sinkMetricData.registerMetricsForNumBytesOutPerSecond();
-            sinkMetricData.registerMetricsForNumRecordsOutPerSecond();
-        }
-        if (auditHostAndPorts != null) {
-            AuditImp.getInstance().setAuditProxy(new HashSet<>(Arrays.asList(auditHostAndPorts.split(DELIMITER))));
-            auditImp = AuditImp.getInstance();
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withInlongAudit(auditHostAndPorts)
+                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
+                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .build();
+        if (metricOption != null) {
+            sinkMetricData = new SinkMetricData(metricOption, runtimeContext.getMetricGroup());
         }
         jdbcStatementExecutor = createAndOpenStatementExecutor(statementExecutorFactory);
         if (executionOptions.getBatchIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
@@ -159,20 +159,13 @@ public class JdbcBatchingOutputFormat<
                                     if (!closed) {
                                         try {
                                             flush();
-                                            if (sinkMetricData.getNumRecordsOut() != null) {
-                                                sinkMetricData.getNumRecordsOut().inc(rowSize);
-                                            }
-                                            if (sinkMetricData.getNumBytesOut() != null) {
-                                                sinkMetricData.getNumBytesOut()
-                                                        .inc(dataSize);
+                                            if (sinkMetricData != null) {
+                                                sinkMetricData.invoke(rowSize, dataSize);
                                             }
                                             resetStateAfterFlush();
                                         } catch (Exception e) {
-                                            if (sinkMetricData.getDirtyRecords() != null) {
-                                                sinkMetricData.getDirtyRecords().inc(rowSize);
-                                            }
-                                            if (sinkMetricData.getDirtyBytes() != null) {
-                                                sinkMetricData.getDirtyBytes().inc(dataSize);
+                                            if (sinkMetricData != null) {
+                                                sinkMetricData.invokeDirty(rowSize, dataSize);
                                             }
                                             resetStateAfterFlush();
                                             flushException = e;
@@ -203,46 +196,26 @@ public class JdbcBatchingOutputFormat<
         }
     }
 
-    private void outputMetricForAudit(long length) {
-        if (auditImp != null) {
-            auditImp.add(
-                    AUDIT_SORT_INPUT,
-                    inLongGroupId,
-                    inLongStreamId,
-                    System.currentTimeMillis(),
-                    1,
-                    length);
-        }
-    }
-
     @Override
     public final synchronized void writeRecord(In record) throws IOException {
         checkFlushException();
 
         rowSize++;
         dataSize = dataSize + record.toString().getBytes(StandardCharsets.UTF_8).length;
-        outputMetricForAudit(dataSize);
         try {
             addToBatch(record, jdbcRecordExtractor.apply(record));
             batchCount++;
             if (executionOptions.getBatchSize() > 0
                     && batchCount >= executionOptions.getBatchSize()) {
                 flush();
-                if (sinkMetricData.getNumRecordsOut() != null) {
-                    sinkMetricData.getNumRecordsOut().inc(rowSize);
-                }
-                if (sinkMetricData.getNumBytesOut() != null) {
-                    sinkMetricData.getNumBytesOut()
-                            .inc(dataSize);
+                if (sinkMetricData != null) {
+                    sinkMetricData.invoke(rowSize, dataSize);
                 }
                 resetStateAfterFlush();
             }
         } catch (Exception e) {
-            if (sinkMetricData.getDirtyRecords() != null) {
-                sinkMetricData.getDirtyRecords().inc(rowSize);
-            }
-            if (sinkMetricData.getDirtyBytes() != null) {
-                sinkMetricData.getDirtyBytes().inc(dataSize);
+            if (sinkMetricData != null) {
+                sinkMetricData.invokeDirty(rowSize, dataSize);
             }
             resetStateAfterFlush();
             throw new IOException("Writing records to JDBC failed.", e);
@@ -256,6 +229,29 @@ public class JdbcBatchingOutputFormat<
 
     protected void addToBatch(In original, JdbcIn extracted) throws SQLException {
         jdbcStatementExecutor.addToBatch(extracted);
+    }
+
+    @Override
+    public void snapshotState(FunctionSnapshotContext context) throws Exception {
+        if (sinkMetricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, sinkMetricData,
+                    getRuntimeContext().getIndexOfThisSubtask());
+        }
+    }
+
+    @Override
+    public void initializeState(FunctionInitializationContext context) throws Exception {
+        if (this.inlongMetric != null) {
+            this.metricStateListState = context.getOperatorStateStore().getUnionListState(
+                    new ListStateDescriptor<>(
+                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                    })));
+
+        }
+        if (context.isRestored()) {
+            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
+        }
     }
 
     @Override
@@ -371,7 +367,7 @@ public class JdbcBatchingOutputFormat<
         private String[] fieldNames;
         private String[] keyFields;
         private int[] fieldTypes;
-        private String inLongMetric;
+        private String inlongMetric;
         private String auditHostAndPorts;
         private JdbcExecutionOptions.Builder executionOptionsBuilder =
                 JdbcExecutionOptions.builder();
@@ -409,10 +405,10 @@ public class JdbcBatchingOutputFormat<
         }
 
         /**
-         * required, inLongMetric
+         * required, inlongMetric
          */
-        public Builder setinLongMetric(String inLongMetric) {
-            this.inLongMetric = inLongMetric;
+        public Builder setinlongMetric(String inlongMetric) {
+            this.inlongMetric = inlongMetric;
             return this;
         }
 
@@ -471,7 +467,7 @@ public class JdbcBatchingOutputFormat<
                         new SimpleJdbcConnectionProvider(options),
                         dml,
                         executionOptionsBuilder.build(),
-                        inLongMetric,
+                        inlongMetric,
                         auditHostAndPorts);
             } else {
                 // warn: don't close over builder fields
@@ -493,7 +489,7 @@ public class JdbcBatchingOutputFormat<
                             Preconditions.checkArgument(tuple2.f0);
                             return tuple2.f1;
                         },
-                        inLongMetric,
+                        inlongMetric,
                         auditHostAndPorts);
             }
         }

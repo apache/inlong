@@ -82,9 +82,9 @@ public abstract class StreamSink extends StreamNode {
     @ApiModelProperty("Sort consumer group")
     private String sortConsumerGroup;
 
-    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1",
-            notes = "Such as create Hive table")
     @Builder.Default
+    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1",
+            notes = "Such as enable or disable to create Hive table")
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty("Backend operation log")
@@ -93,7 +93,7 @@ public abstract class StreamSink extends StreamNode {
     @ApiModelProperty("Status")
     private Integer status;
 
-    @ApiModelProperty("Previous SimpleSourceStatus")
+    @ApiModelProperty("Previous status")
     private Integer previousStatus;
 
     @ApiModelProperty("Creator")
@@ -108,24 +108,24 @@ public abstract class StreamSink extends StreamNode {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    @ApiModelProperty("Sink field list")
     @Builder.Default
+    @ApiModelProperty("Sink field list")
     private List<SinkField> sinkFieldList = Lists.newArrayList();
 
-    @ApiModelProperty("Properties for sink")
     @Builder.Default
+    @ApiModelProperty("Properties for sink")
     private Map<String, Object> properties = Maps.newHashMap();
 
     @JsonIgnore
-    @ApiModelProperty("Data format type for stream sink")
     @Builder.Default
+    @ApiModelProperty("Data format type for stream sink")
     private DataFormat dataFormat = DataFormat.NONE;
 
     @JsonIgnore
     @ApiModelProperty("Authentication info if needed")
     private DefaultAuthentication authentication;
 
-    @ApiModelProperty(value = "Version number")
+    @ApiModelProperty("Version number")
     private Integer version;
 
     public SinkRequest genSinkRequest() {

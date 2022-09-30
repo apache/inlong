@@ -1035,7 +1035,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
                     lstMetaQueryTime.set(System.currentTimeMillis());
                 }
                 // Get the authorization rules and update the local rules
-                clientRmtDataCache.updOpsTaskInfo(response.getOpsTaskInfo());
+                clientRmtDataCache.updOpsTaskInfo(response.getOpsTaskInfo(), strBuffer);
                 // Get the latest authorized token
                 processHeartBeatAuthorizedToken(response);
                 // Warning if heartbeat interval is too long
@@ -1171,7 +1171,7 @@ public class SimpleClientBalanceConsumer implements ClientBalanceConsumer {
             clientRmtDataCache.updateReg2MasterTime();
             clientRmtDataCache.updateBrokerInfoList(response.getBrokerConfigId(),
                     response.getBrokerConfigListList(), sBuffer);
-            clientRmtDataCache.updOpsTaskInfo(response.getOpsTaskInfo());
+            clientRmtDataCache.updOpsTaskInfo(response.getOpsTaskInfo(), sBuffer);
             processRegAuthorizedToken(response);
             result.setSuccResult();
             return result.isSuccess();

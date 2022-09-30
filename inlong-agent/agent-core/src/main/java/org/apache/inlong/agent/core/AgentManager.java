@@ -111,7 +111,7 @@ public class AgentManager extends AbstractDaemon {
             // db is a required component, so if not init correctly,
             // throw exception and stop running.
             return (Db) Class.forName(conf.get(
-                            AgentConstants.AGENT_DB_CLASSNAME, AgentConstants.DEFAULT_AGENT_DB_CLASSNAME))
+                    AgentConstants.AGENT_DB_CLASSNAME, AgentConstants.DEFAULT_AGENT_DB_CLASSNAME))
                     .newInstance();
         } catch (Exception ex) {
             throw new UnsupportedClassVersionError(ex.getMessage());
@@ -124,6 +124,10 @@ public class AgentManager extends AbstractDaemon {
 
     public Db getDb() {
         return db;
+    }
+
+    public JobProfileDb getJobProfileDb() {
+        return jobProfileDb;
     }
 
     public ProfileFetcher getFetcher() {

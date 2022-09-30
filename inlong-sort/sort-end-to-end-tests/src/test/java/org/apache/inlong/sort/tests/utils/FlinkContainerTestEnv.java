@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sort.tests.utils;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.api.common.time.Deadline;
 import org.apache.flink.client.deployment.StandaloneClusterId;
@@ -42,7 +43,6 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.lifecycle.Startables;
-import sun.misc.IOUtils;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -283,7 +283,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
             jarFile.stream().forEach(entry -> {
                 try (InputStream is = jarFile.getInputStream(entry)) {
                     jos.putNextEntry(entry);
-                    jos.write(IOUtils.readNBytes(is, is.available()));
+                    jos.write(IOUtils.toByteArray(is));
                     jos.closeEntry();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -293,8 +293,10 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
             for (Path jar : jars) {
                 try (InputStream is = new FileInputStream(jar.toFile())) {
                     jos.putNextEntry(new JarEntry("lib/" + jar.getFileName().toString()));
-                    jos.write(IOUtils.readNBytes(is, is.available()));
+                    jos.write(IOUtils.toByteArray(is));
                     jos.closeEntry();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
 

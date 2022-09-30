@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
@@ -33,13 +32,17 @@ import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.pojo.source.postgresql.PostgreSQLSource;
 import org.apache.inlong.manager.pojo.source.pulsar.PulsarSource;
+import org.apache.inlong.manager.pojo.source.redis.RedisSource;
 import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSource;
 import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.LookupOptions;
 import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
+import org.apache.inlong.sort.protocol.enums.RedisCommand;
+import org.apache.inlong.sort.protocol.enums.RedisMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
@@ -47,6 +50,7 @@ import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.RedisExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
@@ -56,6 +60,7 @@ import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.format.RawFormat;
 
 import java.util.List;
 import java.util.Map;
@@ -97,6 +102,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((MongoDBSource) sourceInfo);
             case SourceType.TUBEMQ:
                 return createExtractNode((TubeMQSource) sourceInfo);
+            case SourceType.REDIS:
+                return createExtractNode((RedisSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -232,9 +239,7 @@ public class ExtractNodeUtils {
         DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
         switch (dataType) {
             case CSV:
-                String fieldDelimiter = (String) pulsarSource.getProperties()
-                        .get(InlongConstants.FIELD_DELIMITER);
-                format = StringUtils.isBlank(fieldDelimiter) ? new CsvFormat() : new CsvFormat(fieldDelimiter);
+                format = new CsvFormat(pulsarSource.getDataSeparator());
                 break;
             case AVRO:
                 format = new AvroFormat();
@@ -247,6 +252,9 @@ public class ExtractNodeUtils {
                 break;
             case DEBEZIUM_JSON:
                 format = new DebeziumJsonFormat();
+                break;
+            case RAW:
+                format = new RawFormat();
                 break;
             default:
                 throw new IllegalArgumentException(
@@ -391,6 +399,44 @@ public class ExtractNodeUtils {
                 source.getGroupId(),
                 source.getSessionKey(),
                 source.getTid()
+        );
+    }
+
+    /**
+     * Create Redis extract node
+     * @param source redis source info
+     * @return redis extract source info
+     */
+    public static RedisExtractNode createExtractNode(RedisSource source) {
+        List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
+        Map<String, String> properties = parseProperties(source.getProperties());
+        RedisCommand command = RedisCommand.forName(source.getRedisCommand());
+        RedisMode mode = RedisMode.forName(source.getRedisMode());
+        LookupOptions lookupOptions = new LookupOptions(source.getLookupCacheMaxRows(),source.getLookupCacheTtl(),
+                source.getLookupMaxRetries(),source.getLookupAsync());
+        return new RedisExtractNode(
+                source.getSourceName(),
+                source.getSourceName(),
+                fieldInfos,
+                null,
+                properties,
+                source.getPrimaryKey(),
+                mode,
+                command,
+                source.getClusterNodes(),
+                source.getMasterName(),
+                source.getSentinelsInfo(),
+                source.getHostname(),
+                source.getPort(),
+                source.getPassword(),
+                source.getAdditionalKey(),
+                source.getDatabase(),
+                source.getTimeout(),
+                source.getSoTimeout(),
+                source.getMaxTotal(),
+                source.getMaxIdle(),
+                source.getMinIdle(),
+                lookupOptions
         );
     }
 

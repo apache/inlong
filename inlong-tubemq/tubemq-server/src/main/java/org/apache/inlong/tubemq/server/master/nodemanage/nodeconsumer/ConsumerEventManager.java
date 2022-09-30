@@ -144,9 +144,10 @@ public class ConsumerEventManager {
             }
         }
         if (event != null) {
-            StringBuilder sBuilder = new StringBuilder(512);
-            sBuilder.append("[Event Removed] ");
-            logger.info(event.toStrBuilder(sBuilder).toString());
+            logger.info(new StringBuilder(512)
+                    .append("[Event Removed] rebalanceId=")
+                    .append(event.getRebalanceId()).append(",clientId=")
+                    .append(consumerId).toString());
         }
         return event;
     }

@@ -71,7 +71,7 @@ const Comp: React.FC = () => {
 
   const { id, type } = useParams<Record<string, string>>();
 
-  const taskId = useMemo<string>(() => parse(location.search.slice(1))?.taskId, [location.search]);
+  const taskId = useMemo(() => parse(location.search.slice(1))?.taskId, [location.search]);
 
   const formRef = useRef(null);
 
@@ -175,7 +175,7 @@ const Comp: React.FC = () => {
   const Form = useMemo(() => {
     return {
       APPLY_GROUP_PROCESS: Access,
-      APPLY_CONSUMPTION_PROCESS: Consume,
+      APPLY_CONSUME_PROCESS: Consume,
     }[processInfo?.name];
   }, [processInfo]);
 

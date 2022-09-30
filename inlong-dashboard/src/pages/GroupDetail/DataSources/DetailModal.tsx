@@ -24,7 +24,7 @@ import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import { FormItemProps } from '@/components/FormGenerator';
-import { sources, SourceType } from '@/metas/sources';
+import { sources } from '@/metas/sources';
 import request from '@/utils/request';
 
 export interface Props extends ModalProps {
@@ -33,7 +33,7 @@ export interface Props extends ModalProps {
   inlongGroupId?: string;
 }
 
-const sourcesMap: Record<string, SourceType> = sources.reduce(
+const sourcesMap: Record<string, typeof sources[0]> = sources.reduce(
   (acc, cur) => ({
     ...acc,
     [cur.value]: cur,
@@ -44,8 +44,6 @@ const sourcesMap: Record<string, SourceType> = sources.reduce(
 const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
   const [form] = useForm();
   const { t } = useTranslation();
-
-  const [currentValues, setCurrentValues] = useState({});
 
   const [type, setType] = useState(sources[0].value);
 
@@ -77,7 +75,6 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
       formatResult: result => toFormVals(result),
       onSuccess: result => {
         form.setFieldsValue(result);
-        setCurrentValues(result);
         setType(result.sourceType);
       },
     },
@@ -106,21 +103,17 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
-      form.resetFields(); // Note that it will cause the form to remount to initiate a select request
       if (id) {
         getData(id);
       }
     } else {
-      setCurrentValues({});
+      form.resetFields();
+      setType(sources[0].value);
     }
   }, [modalProps.visible]);
 
   const formContent = useMemo(() => {
-    const getForm = sourcesMap[type].getForm;
-    const config = getForm('form', {
-      currentValues,
-      form,
-    }) as FormItemProps[];
+    const currentForm = sourcesMap[type]?.form;
     return [
       {
         type: 'select',
@@ -148,38 +141,17 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
           },
         },
         rules: [{ required: true }],
-      },
-      {
-        name: 'sourceName',
-        type: 'input',
-        label: t('meta.Sources.Name'),
-        rules: [{ required: true }],
-        props: {
-          disabled: !!id,
-        },
-      },
-      {
-        name: 'sourceType',
-        type: 'radio',
-        label: t('meta.Sources.Type'),
-        rules: [{ required: true }],
-        initialValue: type,
-        props: {
-          disabled: !!id,
-          options: sources,
-          onChange: e => setType(e.target.value),
-        },
       } as FormItemProps,
-    ].concat(config);
-  }, [type, id, currentValues, form, t, inlongGroupId]);
+    ].concat(currentForm);
+  }, [type, id, t, inlongGroupId]);
 
   return (
     <>
       <Modal {...modalProps} title={sourcesMap[type]?.label} width={666} onOk={onOk}>
         <FormGenerator
           content={formContent}
-          onValuesChange={vals => setCurrentValues(prev => ({ ...prev, ...vals }))}
-          allValues={currentValues}
+          onValuesChange={(c, values) => setType(values.sourceType)}
+          initialValues={id ? data : {}}
           form={form}
           useMaxWidth
         />

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.workflow.event;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EventStatus;
+import org.apache.inlong.manager.common.enums.WorkflowEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.NetworkUtils;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;

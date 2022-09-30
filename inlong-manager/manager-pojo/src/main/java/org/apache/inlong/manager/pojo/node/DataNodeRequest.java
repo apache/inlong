@@ -34,7 +34,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Data node  request")
+@ApiModel("Data node request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
 public abstract class DataNodeRequest {
 

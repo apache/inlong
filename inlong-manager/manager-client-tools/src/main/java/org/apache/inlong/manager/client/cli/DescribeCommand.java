@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.cli;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
@@ -26,6 +27,9 @@ import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
@@ -42,7 +46,7 @@ import java.util.List;
 public class DescribeCommand extends AbstractCommand {
 
     @Parameter()
-    private java.util.List<String> params;
+    private List<String> params;
 
     public DescribeCommand() {
         super("describe");
@@ -51,13 +55,16 @@ public class DescribeCommand extends AbstractCommand {
         jcommander.addCommand("group", new DescribeGroup());
         jcommander.addCommand("sink", new DescribeSink());
         jcommander.addCommand("source", new DescribeSource());
+        jcommander.addCommand("cluster", new DescribeCluster());
+        jcommander.addCommand("cluster-tag", new DescribeClusterTag());
+        jcommander.addCommand("cluster-node", new DescribeClusterNode());
     }
 
     @Parameters(commandDescription = "Get stream details")
     private static class DescribeStream extends AbstractCommandRunner {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String groupId;
@@ -79,7 +86,7 @@ public class DescribeCommand extends AbstractCommand {
     private static class DescribeGroup extends AbstractCommandRunner {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-s", "--status"}, description = "inlong group status")
         private int status;
@@ -99,6 +106,7 @@ public class DescribeCommand extends AbstractCommand {
                 pageRequest.setKeyword(group);
                 PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
                 PrintUtils.print(pageInfo.getList(), GroupInfo.class);
+                pageInfo.getList().forEach(PrintUtils::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -109,7 +117,7 @@ public class DescribeCommand extends AbstractCommand {
     private static class DescribeSink extends AbstractCommandRunner {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
         private String stream;
@@ -134,7 +142,7 @@ public class DescribeCommand extends AbstractCommand {
     private static class DescribeSource extends AbstractCommandRunner {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
         private String stream;
@@ -152,6 +160,72 @@ public class DescribeCommand extends AbstractCommand {
                 StreamSourceClient sourceClient = ClientUtils.clientFactory.getSourceClient();
                 List<StreamSource> sources = sourceClient.listSources(group, stream, type);
                 sources.forEach(PrintUtils::printJson);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get cluster details")
+    private static class DescribeCluster extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster id")
+        private int clusterId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                ClusterInfo clusterInfo = clusterClient.get(clusterId);
+                PrintUtils.printJson(clusterInfo);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get cluster tag details")
+    private static class DescribeClusterTag extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster tag id")
+        private int tagId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                ClusterTagResponse tagInfo = clusterClient.getTag(tagId);
+                PrintUtils.printJson(tagInfo);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get cluster node details")
+    private static class DescribeClusterNode extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster node id")
+        private int nodeId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                ClusterNodeResponse nodeInfo = clusterClient.getNode(nodeId);
+                PrintUtils.printJson(nodeInfo);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

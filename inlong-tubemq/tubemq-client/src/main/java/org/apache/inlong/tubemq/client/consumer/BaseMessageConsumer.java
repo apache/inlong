@@ -111,7 +111,7 @@ public class BaseMessageConsumer implements MessageConsumer {
     // -1: Unsubscribed
     // 0: In Process
     // 1: Subscribed
-    private AtomicInteger subStatus = new AtomicInteger(-1);
+    private final AtomicInteger subStatus = new AtomicInteger(-1);
     // rebalance
     private int reportIntervalTimes = 0;
     private int rebalanceRetryTimes = 0;
@@ -610,7 +610,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                         masterService.consumerRegisterC2M(createMasterRegisterRequest(),
                                 AddressUtils.getLocalAddress(), consumerConfig.isTlsEnable());
                 if (response != null && response.getSuccess()) {
-                    processRegisterAllocAndRspFlowRules(response);
+                    processRegisterAllocAndRspFlowRules(response, strBuffer);
                     processRegAuthorizedToken(response);
                     break;
                 }
@@ -1094,11 +1094,12 @@ public class BaseMessageConsumer implements MessageConsumer {
         return builder.build();
     }
 
-    private void processRegisterAllocAndRspFlowRules(ClientMaster.RegisterResponseM2C response) {
+    private void processRegisterAllocAndRspFlowRules(ClientMaster.RegisterResponseM2C response,
+                                                     StringBuilder strBuffer) {
         if (response.hasNotAllocated() && !response.getNotAllocated()) {
             consumeSubInfo.compareAndSetIsNotAllocated(true, false);
         }
-        rmtDataCache.updFlowCtrlInfoInfo(response);
+        rmtDataCache.updFlowCtrlInfoInfo(response, strBuffer);
     }
 
     private void processRegAuthorizedToken(ClientMaster.RegisterResponseM2C response) {
@@ -1107,11 +1108,12 @@ public class BaseMessageConsumer implements MessageConsumer {
         }
     }
 
-    private void procHeartBeatRspAllocAndFlowRules(ClientMaster.HeartResponseM2C response) {
+    private void procHeartBeatRspAllocAndFlowRules(ClientMaster.HeartResponseM2C response,
+                                                   StringBuilder strBuffer) {
         if (response.hasNotAllocated() && !response.getNotAllocated()) {
             consumeSubInfo.compareAndSetIsNotAllocated(true, false);
         }
-        rmtDataCache.updFlowCtrlInfoInfo(response);
+        rmtDataCache.updFlowCtrlInfoInfo(response, strBuffer);
     }
 
     private ClientMaster.MasterCertificateInfo genMasterCertificateInfo(boolean force) {
@@ -1478,7 +1480,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                             } else {
                                 // Process the successful response. Record the response information,
                                 // including control rules and latest auth token.
-                                processRegisterAllocAndRspFlowRules(regResponse);
+                                processRegisterAllocAndRspFlowRules(regResponse, strBuffer);
                                 processRegAuthorizedToken(regResponse);
                                 logger.info(strBuffer.append("[Re-register] ")
                                         .append(consumerId).toString());
@@ -1505,7 +1507,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 // Process the heartbeat success response
                 heartbeatRetryTimes = 0;
                 // Get the authorization rules and update the local rules
-                procHeartBeatRspAllocAndFlowRules(response);
+                procHeartBeatRspAllocAndFlowRules(response, strBuffer);
                 // Get the latest authorized token
                 processHeartBeatAuthorizedToken(response);
                 // Check if master requires to check authorization next time. If so, set the flag
@@ -1524,7 +1526,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                     rebalanceEvents.put(newEvent);
                     if (logger.isDebugEnabled()) {
                         strBuffer.append("[Receive Consumer Event]");
-                        logger.debug(newEvent.toStrBuilder(strBuffer).toString());
+                        logger.debug(newEvent.toStrBuilder(consumerId, strBuffer).toString());
                         strBuffer.delete(0, strBuffer.length());
                     }
                 }
@@ -1695,5 +1697,4 @@ public class BaseMessageConsumer implements MessageConsumer {
             }
         }
     }
-
 }

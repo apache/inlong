@@ -90,6 +90,15 @@ public class KafkaSourceDTO {
     @ApiModelProperty("Field needed when serializationType is csv,json,avro")
     private String primaryKey;
 
+    @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
+    private String dataEncoding;
+
+    @ApiModelProperty(value = "Data separator")
+    private String dataSeparator;
+
+    @ApiModelProperty(value = "Data field escape symbol")
+    private String dataEscapeChar;
+
     @ApiModelProperty("Properties for Kafka")
     private Map<String, Object> properties;
 

@@ -53,21 +53,13 @@ public class OffsetRecordService extends AbstractDaemonService {
     }
 
     @Override
-    protected void loopProcess(long intervalMs) {
-        StringBuilder strBuff = new StringBuilder(2048);
-        logger.info("[Offset-Record Service] start offset-record service thread");
-        while (!super.isStopped()) {
-            try {
-                Thread.sleep(intervalMs);
-                // get group offset information
-                storeRecord2LocalTopic(strBuff);
-            } catch (InterruptedException e) {
-                return;
-            } catch (Throwable t) {
-                //
-            }
+    protected void loopProcess(StringBuilder strBuff) {
+        try {
+            // get group offset information
+            storeRecord2LocalTopic(strBuff);
+        } catch (Throwable throwable) {
+            logger.error("[Offset Record] Daemon commit thread throw error ", throwable);
         }
-        logger.info("[Offset-Record Service] exit offset-record service thread");
     }
 
     public void close() {

@@ -112,21 +112,21 @@ public class InlongSingleTopicManager extends TopicManager {
     private TopicFetcher createInLongTopicFetcher(InLongTopic topic) {
         if (InlongTopicTypeEnum.PULSAR.getName().equalsIgnoreCase(topic.getTopicType())) {
             LOGGER.info("the topic is pulsar {}", topic);
-            return TopicFetcherBuilder.pulsarSingleTopic()
+            return TopicFetcherBuilder.newPulsarBuilder()
                     .pulsarClient(pulsarClients.get(topic.getInLongCluster().getClusterId()))
                     .topic(topic)
                     .context(context)
                     .subscribe();
         } else if (InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(topic.getTopicType())) {
             LOGGER.info("the topic is kafka {}", topic);
-            return TopicFetcherBuilder.kafkaSingleTopic()
+            return TopicFetcherBuilder.newKafkaBuilder()
                     .bootstrapServers(topic.getInLongCluster().getBootstraps())
                     .topic(topic)
                     .context(context)
                     .subscribe();
         } else if (InlongTopicTypeEnum.TUBE.getName().equalsIgnoreCase(topic.getTopicType())) {
             LOGGER.info("the topic is tube {}", topic);
-            return TopicFetcherBuilder.tubeSingleTopic()
+            return TopicFetcherBuilder.newTubeBuilder()
                     .tubeConsumerCreater(tubeFactories.get(topic.getInLongCluster().getClusterId()))
                     .topic(topic)
                     .context(context)

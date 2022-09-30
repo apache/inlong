@@ -43,6 +43,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.AGENT_OS_NAME;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FILE_MAX_NUM;
 import static org.apache.inlong.agent.constant.CommonConstants.FILE_MAX_NUM;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
 
 /**
@@ -78,7 +79,9 @@ public class PluginUtils {
     public static Collection<File> findSuitFiles(JobProfile jobConf) {
         String dirPattern = jobConf.get(JOB_DIR_FILTER_PATTERN);
         LOGGER.info("start to find files with dir pattern {}", dirPattern);
-        PathPattern pattern = new PathPattern(dirPattern);
+        PathPattern pattern =
+                jobConf.hasKey(JOB_FILE_TIME_OFFSET) ? new PathPattern(dirPattern, jobConf.get(JOB_FILE_TIME_OFFSET))
+                        : new PathPattern(dirPattern);
         updateRetryTime(jobConf, pattern);
         int maxFileNum = jobConf.getInt(FILE_MAX_NUM, DEFAULT_FILE_MAX_NUM);
         LOGGER.info("dir pattern {}, max file num {}", dirPattern, maxFileNum);
@@ -132,7 +135,7 @@ public class PluginUtils {
                 allIps.add(InetAddress.getLocalHost().getHostAddress());
             }
         } catch (Exception e) {
-            LOGGER.error("get local ip list fail with ex {} ", e);
+            LOGGER.error("get local ip list fail with ex:", e);
         }
         return allIps;
     }

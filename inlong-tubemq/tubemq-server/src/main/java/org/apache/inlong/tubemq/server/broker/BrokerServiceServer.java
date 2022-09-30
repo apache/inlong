@@ -944,7 +944,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                             filterCondSet, reqSessionKey, reqSessionTime,
                             true, partStr, msgRcvFrom);
             if (consumerRegisterMap.put(partStr, consumerNodeInfo) == null) {
-                BrokerSrvStatsHolder.incConsumerOnlineCnt();
+                BrokerSrvStatsHolder.incConsumeOnlineCnt();
             }
             heartbeatManager.regConsumerNode(getHeartbeatNodeId(clientId, partStr), clientId, partStr);
             MessageStore dataStore = null;
@@ -990,7 +990,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     heartbeatManager.getConsumerRegMap().get(getHeartbeatNodeId(consumerId, partStr));
             if (timeoutInfo == null || System.currentTimeMillis() >= timeoutInfo.getTimeoutTime()) {
                 if (consumerRegisterMap.remove(partStr) != null) {
-                    BrokerSrvStatsHolder.decConsumerOnlineCnt(true);
+                    BrokerSrvStatsHolder.decConsumeOnlineCnt(true);
                 }
                 strBuffer.append("[Duplicated Register] Remove Invalid Consumer Register ")
                         .append(consumerId).append(TokenConstants.SEGMENT_SEP).append(partStr);
@@ -1056,7 +1056,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     .append(request.getPartitionId()).append(" updatedOffset:").append(updatedOffset).toString());
             strBuffer.delete(0, strBuffer.length());
             if (consumerRegisterMap.remove(partStr) != null) {
-                BrokerSrvStatsHolder.decConsumerOnlineCnt(false);
+                BrokerSrvStatsHolder.decConsumeOnlineCnt(false);
             }
             heartbeatManager.unRegConsumerNode(
                     getHeartbeatNodeId(clientId, partStr));
@@ -1344,7 +1344,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                     }
                     if (consumerNodeInfo.getConsumerId().equalsIgnoreCase(nodeInfo.getSecondKey())) {
                         if (consumerRegisterMap.remove(nodeInfo.getThirdKey()) != null) {
-                            BrokerSrvStatsHolder.decConsumerOnlineCnt(true);
+                            BrokerSrvStatsHolder.decConsumeOnlineCnt(true);
                         }
                         String[] groupTopicPart =
                                 consumerNodeInfo.getPartStr().split(TokenConstants.ATTR_SEP);

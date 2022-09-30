@@ -24,10 +24,10 @@ import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import i18n from '@/i18n';
 import DetailModal from './DetailModal';
-import { Sinks } from '@/metas/sinks';
+import { sinks } from '@/metas/sinks';
 import request from '@/utils/request';
+import { pickObjectArray } from '@/utils';
 import { CommonInterface } from '../common';
-import { statusList, genStatusTag } from './status';
 
 type Props = CommonInterface;
 
@@ -36,28 +36,11 @@ const getFilterFormContent = defaultValues => [
     type: 'inputsearch',
     name: 'keyword',
   },
-  {
-    type: 'select',
-    name: 'sinkType',
-    label: i18n.t('pages.GroupDetail.Sink.Type'),
-    initialValue: defaultValues.sinkType,
-    props: {
-      dropdownMatchSelectWidth: false,
-      options: Sinks.map(item => ({
-        label: item.label,
-        value: item.value,
-      })),
-    },
-  },
-  {
-    type: 'select',
-    name: 'status',
-    label: i18n.t('basic.Status'),
-    props: {
-      allowClear: true,
-      options: statusList,
-    },
-  },
+  ...pickObjectArray(['sinkType', 'status'], sinks[0].form).map(item => ({
+    ...item,
+    visible: true,
+    initialValue: defaultValues[item.name],
+  })),
 ];
 
 const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
@@ -65,14 +48,18 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    sinkType: Sinks[0].value,
+    sinkType: sinks[0].value,
   });
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
     visible: false,
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
       url: '/sink/list',
       params: {
@@ -130,10 +117,10 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
   const columnsMap = useMemo(
     () =>
-      Sinks.reduce(
+      sinks.reduce(
         (acc, cur) => ({
           ...acc,
-          [cur.value]: cur.tableColumns,
+          [cur.value]: cur.table,
         }),
         {},
       ),
@@ -148,11 +135,6 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
   ]
     .concat(columnsMap[options.sinkType])
     .concat([
-      {
-        title: i18n.t('basic.Status'),
-        dataIndex: 'status',
-        render: text => genStatusTag(text),
-      },
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',

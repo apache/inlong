@@ -29,7 +29,6 @@ import {
   toChartData,
   toTableData,
   getTableColumns,
-  auditList,
   timeStaticsDimList,
 } from './config';
 
@@ -40,7 +39,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
   const [query, setQuery] = useState({
     inlongStreamId: '',
-    auditIds: auditList.map(item => item.value),
     dt: +new Date(),
     timeStaticsDim: timeStaticsDimList[0].value,
   });
@@ -50,13 +48,12 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       url: '/audit/list',
       params: {
         ...query,
-        auditIds: query.auditIds?.join(','),
         dt: timestampFormat(query.dt, 'yyyy-MM-dd'),
         inlongGroupId,
       },
     },
     {
-      ready: Boolean(query.inlongStreamId && query.auditIds?.length),
+      ready: Boolean(query.inlongStreamId),
     },
   );
 

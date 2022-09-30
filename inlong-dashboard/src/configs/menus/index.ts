@@ -33,7 +33,7 @@ const menus: MenuItemType[] = [
   },
   {
     path: '/consume',
-    name: i18n.t('configs.menus.DataConsumption'),
+    name: i18n.t('configs.menus.Consumes'),
   },
   {
     name: i18n.t('configs.menus.Clusters'),
@@ -49,8 +49,12 @@ const menus: MenuItemType[] = [
     ],
   },
   {
+    path: '/node',
+    name: i18n.t('configs.menus.Nodes'),
+  },
+  {
     path: '/process',
-    name: i18n.t('configs.menus.ApprovalManagement'),
+    name: i18n.t('configs.menus.Process'),
   },
   {
     name: i18n.t('configs.menus.SystemManagement'),
@@ -62,7 +66,7 @@ const menus: MenuItemType[] = [
       },
       {
         path: '/approval',
-        name: i18n.t('configs.menus.ResponsibleManagement'),
+        name: i18n.t('configs.menus.ApprovalManagement'),
       },
     ],
   },

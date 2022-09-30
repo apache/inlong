@@ -20,14 +20,10 @@ package org.apache.inlong.dataproxy.http;
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEP_HASHTAG;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
@@ -40,10 +36,11 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
+import org.apache.inlong.dataproxy.utils.DateTimeUtils;
+import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,9 +48,6 @@ public class SimpleMessageHandler implements MessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleMessageHandler.class);
     private static final ConfigManager configManager = ConfigManager.getInstance();
-    private static final DateTimeFormatter DATE_FORMATTER
-            = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-    private static final ZoneId defZoneId = ZoneId.systemDefault();
 
     private static final String DEFAULT_REMOTE_IDC_VALUE = "0";
     private final MonitorIndex monitorIndex;
@@ -86,94 +80,108 @@ public class SimpleMessageHandler implements MessageHandler {
 
     @Override
     public void processMessage(Context context) throws MessageProcessException {
-        String topicValue = "test";
-        String attr = "m=0";
-        StringBuilder newAttrBuffer = new StringBuilder(attr);
-
+        StringBuilder strBuff = new StringBuilder(512);
+        // get groupId and streamId
         String groupId = (String) context.get(AttributeConstants.GROUP_ID);
         String streamId = (String) context.get(AttributeConstants.STREAM_ID);
-        String dt = (String) context.get(AttributeConstants.DATA_TIME);
-
-        String value = getTopic(groupId, streamId);
-        if (null != value && !"".equals(value)) {
-            topicValue = value.trim();
+        if (StringUtils.isBlank(groupId) || StringUtils.isBlank(streamId)) {
+            throw new MessageProcessException(strBuff.append("Field ")
+                    .append(AttributeConstants.GROUP_ID).append(" or ")
+                    .append(AttributeConstants.STREAM_ID)
+                    .append(" must exist and not blank!").toString());
         }
-
-        String mxValue = configManager.getMxProperties().get(groupId);
-        if (null != mxValue) {
-            newAttrBuffer = new StringBuilder(mxValue.trim());
+        groupId = groupId.trim();
+        streamId = streamId.trim();
+        // get topicName
+        String topicName = "test";
+        String configedTopicName = getTopic(groupId, streamId);
+        if (StringUtils.isNotBlank(configedTopicName)) {
+            topicName = configedTopicName.trim();
         }
-
-        newAttrBuffer.append("&groupId=").append(groupId).append("&streamId=").append(streamId)
-                .append("&dt=").append(dt);
-        HttpServletRequest request =
-                (HttpServletRequest) context.get(AttributeConstants.HTTP_REQUEST);
-        String strRemoteIP = request.getRemoteAddr();
-        newAttrBuffer.append("&NodeIP=").append(strRemoteIP);
-        String msgCount = request.getParameter(AttributeConstants.MESSAGE_COUNT);
-        if (msgCount == null || "".equals(msgCount)) {
-            msgCount = "1";
-        }
-
-        InLongMsg inLongMsg = InLongMsg.newInLongMsg(true);
+        // get message data time
+        final long msgRcvTime = System.currentTimeMillis();
+        String strDataTime = (String) context.get(AttributeConstants.DATA_TIME);
+        long longDataTime = NumberUtils.toLong(strDataTime, msgRcvTime);
+        strDataTime = String.valueOf(longDataTime);
+        // get char set
         String charset = (String) context.get(AttributeConstants.CHARSET);
-        if (charset == null || "".equals(charset)) {
-            charset = "UTF-8";
+        if (StringUtils.isBlank(charset)) {
+            charset = AttributeConstants.CHARSET;
         }
         String body = (String) context.get(AttributeConstants.BODY);
+        if (StringUtils.isEmpty(body)) {
+            throw new MessageProcessException(strBuff.append("Field ")
+                    .append(AttributeConstants.BODY)
+                    .append(" must exist and not empty!").toString());
+        }
+        // get m attribute
+        String mxValue = "m=0";
+        String configedMxAttr = configManager.getMxProperties().get(groupId);
+        if (StringUtils.isNotEmpty(configedMxAttr)) {
+            mxValue = configedMxAttr.trim();
+        }
+        // convert context to http request
+        HttpServletRequest request =
+                (HttpServletRequest) context.get(AttributeConstants.HTTP_REQUEST);
+        // get report node ip
+        String strRemoteIP = request.getRemoteAddr();
+        // get message count
+        String strMsgCount = request.getParameter(AttributeConstants.MESSAGE_COUNT);
+        int intMsgCnt = NumberUtils.toInt(strMsgCount, 1);
+        strMsgCount = String.valueOf(intMsgCnt);
+        // build message attributes
+        InLongMsg inLongMsg = InLongMsg.newInLongMsg(true);
+        strBuff.append(mxValue).append("&groupId=").append(groupId)
+                .append("&streamId=").append(streamId)
+                .append("&dt=").append(strDataTime)
+                .append("&NodeIP=").append(strRemoteIP)
+                .append("&cnt=").append(strMsgCount)
+                .append("&rt=").append(msgRcvTime);
         try {
-            inLongMsg.addMsg(newAttrBuffer.toString(), body.getBytes(charset));
+            inLongMsg.addMsg(strBuff.toString(), body.getBytes(charset));
+            strBuff.delete(0, strBuff.length());
         } catch (UnsupportedEncodingException e) {
             throw new MessageProcessException(e);
         }
-
+        // build flume event
         Map<String, String> headers = new HashMap<>();
-        headers.put(AttributeConstants.DATA_TIME, dt);
-        headers.put(ConfigConstants.TOPIC_KEY, topicValue);
+        headers.put(AttributeConstants.GROUP_ID, groupId);
         headers.put(AttributeConstants.STREAM_ID, streamId);
+        headers.put(ConfigConstants.TOPIC_KEY, topicName);
+        headers.put(AttributeConstants.DATA_TIME, strDataTime);
         headers.put(ConfigConstants.REMOTE_IP_KEY, strRemoteIP);
         headers.put(ConfigConstants.REMOTE_IDC_KEY, DEFAULT_REMOTE_IDC_VALUE);
-        headers.put(ConfigConstants.MSG_COUNTER_KEY, msgCount);
+        headers.put(ConfigConstants.MSG_COUNTER_KEY, strMsgCount);
+        headers.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V0.getName());
         byte[] data = inLongMsg.buildArray();
-        headers.put(ConfigConstants.TOTAL_LEN, String.valueOf(data.length));
-        LocalDateTime localDateTime =
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(inLongMsg.getCreatetime()), defZoneId);
-        String pkgTime = DATE_FORMATTER.format(localDateTime);
-        headers.put(ConfigConstants.PKG_TIME_KEY, pkgTime);
+        headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         Event event = EventBuilder.withBody(data, headers);
         inLongMsg.reset();
-        long dtten;
-        try {
-            dtten = Long.parseLong(dt);
-        } catch (NumberFormatException e1) {
-            throw new MessageProcessException(new Throwable(
-                    "attribute dt=" + dt + " has error," + " detail is: " + newAttrBuffer));
-        }
-        dtten = dtten / 1000 / 60 / 10;
-        dtten = dtten * 1000 * 60 * 10;
-        StringBuilder newBase = new StringBuilder();
-        newBase.append("http").append(SEP_HASHTAG).append(topicValue).append(SEP_HASHTAG)
+        // build metric data item
+        longDataTime = longDataTime / 1000 / 60 / 10;
+        longDataTime = longDataTime * 1000 * 60 * 10;
+        strBuff.append("http").append(SEP_HASHTAG).append(topicName).append(SEP_HASHTAG)
                 .append(streamId).append(SEP_HASHTAG).append(strRemoteIP).append(SEP_HASHTAG)
                 .append(NetworkUtils.getLocalIp()).append(SEP_HASHTAG)
                 .append("non-order").append(SEP_HASHTAG)
-                .append(new SimpleDateFormat("yyyyMMddHHmm").format(dtten)).append(SEP_HASHTAG)
-                .append(pkgTime);
+                .append(DateTimeUtils.ms2yyyyMMddHHmm(longDataTime)).append(SEP_HASHTAG)
+                .append(DateTimeUtils.ms2yyyyMMddHHmm(msgRcvTime));
         long beginTime = System.currentTimeMillis();
         try {
             processor.processEvent(event);
             if (monitorIndex != null) {
-                monitorIndex.addAndGet(new String(newBase),
-                        Integer.parseInt(msgCount), 1, data.length, 0);
+                monitorIndex.addAndGet(strBuff.toString(),
+                        intMsgCnt, 1, data.length, 0);
                 monitorIndexExt.incrementAndGet("EVENT_SUCCESS");
             }
-            addMetric(true, data.length, event);
+            addStatistics(true, data.length, event);
         } catch (ChannelException ex) {
             if (monitorIndex != null) {
-                monitorIndex.addAndGet(new String(newBase),
-                        0, 0, 0, Integer.parseInt(msgCount));
+                monitorIndex.addAndGet(strBuff.toString(),
+                        0, 0, 0, intMsgCnt);
                 monitorIndexExt.incrementAndGet("EVENT_DROPPED");
             }
-            addMetric(false, data.length, event);
+            addStatistics(false, data.length, event);
             logCounter++;
             if (logCounter == 1 || logCounter % 1000 == 0) {
                 LOG.error("Error writing to channel, and will retry after 1s, ex={},"
@@ -214,31 +222,19 @@ public class SimpleMessageHandler implements MessageHandler {
     }
 
     /**
-     * add audit metric
+     * add statistics information
      *
-     * @param result  success or failure
+     * @param isSuccess  success or failure
      * @param size    message size
      * @param event   message event
      */
-    private void addMetric(boolean result, long size, Event event) {
-        Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
-        dimensions.put(DataProxyMetricItem.KEY_SOURCE_ID, this.metricItemSet.getName());
-        dimensions.put(DataProxyMetricItem.KEY_SOURCE_DATA_ID, this.metricItemSet.getName());
-        DataProxyMetricItem.fillInlongId(event, dimensions);
-        DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
-        DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
-        if (result) {
-            metricItem.readSuccessCount.incrementAndGet();
-            metricItem.readSuccessSize.addAndGet(size);
-            try {
-                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
-            } catch (Exception e) {
-                LOG.error("add audit metric has exception e= {}", e);
-            }
-        } else {
-            metricItem.readFailCount.incrementAndGet();
-            metricItem.readFailSize.addAndGet(size);
+    private void addStatistics(boolean isSuccess, long size, Event event) {
+        if (event == null) {
+            return;
+        }
+        metricItemSet.fillSrcMetricItemsByEvent(event, isSuccess, size);
+        if (isSuccess) {
+            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
         }
     }
 }

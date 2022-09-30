@@ -85,44 +85,42 @@ public class AgentMain {
     }
 
     /**
-     * Stopping agent gracefully if get killed.
+     * Stopping agent manager gracefully if it was killed.
      *
-     * @param manager agent manager
+     * @param agentManager agent manager
      */
-    private static void stopManagerIfKilled(AgentManager manager) {
+    private static void stopAgentIfKilled(AgentManager agentManager) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 LOGGER.info("stopping agent gracefully");
-                manager.stop();
+                agentManager.stop();
             } catch (Exception ex) {
-                LOGGER.error("exception while stopping threads", ex);
+                LOGGER.error("stop agent manager error: ", ex);
             }
         }));
     }
 
     /**
      * Main entrance.
-     *
-     * @param args arguments
-     * @throws Exception exceptions
      */
     public static void main(String[] args) throws Exception {
         CommandLine cl = initOptions(args);
         assert cl != null;
         initAgentConf(cl);
         AuditUtils.initAudit();
+
         AgentManager manager = new AgentManager();
         try {
             manager.start();
-            stopManagerIfKilled(manager);
-            //metrics
+            stopAgentIfKilled(manager);
+            // metrics
             MetricObserver.init(AgentConfiguration.getAgentConf().getConfigProperties());
             manager.join();
         } catch (Exception ex) {
-            LOGGER.error("exception caught", ex);
+            LOGGER.error("agent running exception: ", ex);
         } finally {
             manager.stop();
-            AuditUtils.sendReport();
+            AuditUtils.send();
         }
     }
 }

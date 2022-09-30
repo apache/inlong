@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.inlong.sort.base.util.JdbcUrlUtils;
 
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
@@ -59,6 +60,7 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "jdbc-inlong";
+
     public static final ConfigOption<String> DIALECT_IMPL =
             ConfigOptions.key("dialect-impl")
                     .stringType()
@@ -188,7 +190,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         TableSchema physicalSchema =
                 TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
         boolean appendMode = config.get(SINK_APPEND_MODE);
-        String inLongMetric = config.getOptional(INLONG_METRIC).orElse(null);
+        String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = config.getOptional(INLONG_AUDIT).orElse(null);
         return new JdbcDynamicTableSink(
                 jdbcOptions,
@@ -196,7 +198,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 getJdbcDmlOptions(jdbcOptions, physicalSchema),
                 physicalSchema,
                 appendMode,
-                inLongMetric,
+                inlongMetric,
                 auditHostAndPorts);
     }
 
@@ -218,7 +220,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
     }
 
     private JdbcOptions getJdbcOptions(ReadableConfig readableConfig) {
-        final String url = readableConfig.get(URL);
+        String url = JdbcUrlUtils.replaceInvalidUrlProperty(readableConfig.get(URL));
         Optional<String> dialectImplOptional = readableConfig.getOptional(DIALECT_IMPL);
         Optional<JdbcDialect> jdbcDialect;
         if (dialectImplOptional.isPresent()) {

@@ -17,10 +17,10 @@
 
 package org.apache.inlong.audit.db.entities;
 
-import java.sql.Timestamp;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -30,13 +30,14 @@ public class ClickHouseDataPo {
     private String dockerId;
     private String threadId;
     private Timestamp sdkTs;
-    private long packetId;
+    private Long packetId;
     private Timestamp logTs;
     private String inlongGroupId;
     private String inlongStreamId;
     private String auditId;
-    private long count;
-    private long size;
-    private long delay;
+    private Long count;
+    private Long size;
+    private Long delay;
     private Timestamp updateTime;
+
 }

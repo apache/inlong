@@ -23,7 +23,6 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.message.ProxyMessage;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
@@ -104,11 +103,8 @@ public class ProxySink extends AbstractSink {
                                 }
                                 // add message to package proxy
                                 packProxyMessage.addProxyMessage(proxyMessage);
-                                //
                                 return packProxyMessage;
                             });
-                    AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS,
-                            inlongGroupId, inlongStreamId, System.currentTimeMillis());
                     // increment the count of successful sinks
                     sinkMetric.sinkSuccessCount.incrementAndGet();
                 } else {

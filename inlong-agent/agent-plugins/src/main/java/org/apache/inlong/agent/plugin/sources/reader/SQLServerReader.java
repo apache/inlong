@@ -46,29 +46,22 @@ import static java.sql.Types.VARBINARY;
  */
 public class SQLServerReader extends AbstractReader {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SqlReader.class);
-
     public static final String SQLSERVER_READER_TAG_NAME = "AgentSQLServerMetric";
-
     public static final String JOB_DATABASE_USER = "job.sqlserverJob.user";
     public static final String JOB_DATABASE_PASSWORD = "job.sqlserverJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.sqlserverJob.hostname";
     public static final String JOB_DATABASE_PORT = "job.sqlserverJob.port";
     public static final String JOB_DATABASE_DBNAME = "job.sqlserverJob.dbname";
-
     public static final String JOB_DATABASE_BATCH_SIZE = "job.sqlserverJob.batchSize";
     public static final int DEFAULT_JOB_DATABASE_BATCH_SIZE = 1000;
-
     public static final String JOB_DATABASE_DRIVER_CLASS = "job.database.driverClass";
     public static final String DEFAULT_JOB_DATABASE_DRIVER_CLASS = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-
     public static final String STD_FIELD_SEPARATOR_SHORT = "\001";
     public static final String JOB_DATABASE_SEPARATOR = "job.sql.separator";
-
     // pre-set sql lines, commands like "set xxx=xx;"
     public static final String JOB_DATABASE_TYPE = "job.database.type";
     public static final String SQLSERVER = "sqlserver";
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqlReader.class);
     private static final String[] NEW_LINE_CHARS = new String[]{String.valueOf(CharUtils.CR),
             String.valueOf(CharUtils.LF)};
     private static final String[] EMPTY_CHARS = new String[]{StringUtils.EMPTY, StringUtils.EMPTY};
@@ -116,13 +109,16 @@ public class SQLServerReader extends AbstractReader {
                 }
                 lineColumns.add(dataValue);
             }
+            long dataSize = lineColumns.stream().mapToLong(column -> column.length()).sum();
             AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
-                    System.currentTimeMillis());
+                    System.currentTimeMillis(), 1, dataSize);
+            readerMetric.pluginReadSuccessCount.incrementAndGet();
             readerMetric.pluginReadCount.incrementAndGet();
             return generateMessage(lineColumns);
         } catch (Exception ex) {
             LOGGER.error("error while reading data", ex);
             readerMetric.pluginReadFailCount.incrementAndGet();
+            readerMetric.pluginReadCount.incrementAndGet();
             throw new RuntimeException(ex);
         }
     }

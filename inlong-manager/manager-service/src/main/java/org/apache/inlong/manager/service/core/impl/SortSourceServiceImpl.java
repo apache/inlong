@@ -42,8 +42,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -196,7 +198,6 @@ public class SortSourceServiceImpl implements SortSourceService {
         List<SortSourceGroupInfo> groupInfos = inlongGroupEntityMapper.selectAllGroups();
         Map<String, SortSourceGroupInfo> allId2GroupInfos = groupInfos.stream()
                 .filter(dto -> dto.getGroupId() != null)
-                .filter(group -> SUPPORTED_MQ_TYPE.contains(group.getMqType()))
                 .collect(Collectors.toMap(SortSourceGroupInfo::getGroupId, dto -> dto, (g1, g2) -> g1));
 
         // get all clusters. filter by type and check if consumable, then group by cluster tag.
@@ -204,7 +205,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         Map<String, List<SortSourceClusterInfo>> allTag2ClusterInfos = clusterInfos.stream()
                 .filter(dto -> dto.getClusterTags() != null)
                 .filter(SortSourceClusterInfo::isConsumable)
-                .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType()))
+                .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType().toUpperCase(Locale.ROOT)))
                 .collect(Collectors.groupingBy(SortSourceClusterInfo::getClusterTags));
 
         // group clusters by name.
@@ -235,11 +236,11 @@ public class SortSourceServiceImpl implements SortSourceService {
 
             task2Group.forEach((task, groupList) -> {
                 // get topic properties under this cluster and task, group them by group id.
-                Map<String, Map<String, String>> group2topicProp = allStreamInfos.stream()
-                        .filter(stream -> stream.getSortTaskName().equals(task)
-                                && stream.getSortClusterName().equals(clusterName))
-                        .collect(Collectors.toMap(SortSourceStreamInfo::getGroupId,
-                                SortSourceStreamInfo::getExtParamsMap));
+                Map<String, Map<String, String>> group2topicProp = new HashMap<>();
+                allStreamInfos.stream().filter(stream -> stream.getSortTaskName().equals(task)
+                        && stream.getSortClusterName().equals(clusterName)).forEach(
+                        sortSourceStreamInfo -> group2topicProp.put(sortSourceStreamInfo.getGroupId(),
+                                sortSourceStreamInfo.getExtParamsMap()));
 
                 Map<String, CacheZone> cacheZones;
                 try {
@@ -317,9 +318,9 @@ public class SortSourceServiceImpl implements SortSourceService {
         List<String> tags = new ArrayList<>(tag2GroupInfos.keySet());
 
         // Clusters that related to these tags
-        Map<String, List<SortSourceClusterInfo>> tag2ClusterInfos = allTag2ClusterInfos.entrySet().stream()
-                .filter(entry -> tag2GroupInfos.containsKey(entry.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, List<SortSourceClusterInfo>> tag2ClusterInfos = new HashMap<>();
+        allTag2ClusterInfos.entrySet().stream().filter(entry -> tag2GroupInfos.containsKey(entry.getKey()))
+                .forEach(entry -> tag2ClusterInfos.put(entry.getKey(), entry.getValue()));
 
         // get CacheZone list
         return tags.stream()

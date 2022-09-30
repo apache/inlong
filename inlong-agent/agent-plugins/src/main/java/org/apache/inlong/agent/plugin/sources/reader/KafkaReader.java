@@ -112,7 +112,7 @@ public class KafkaReader<K, V> extends AbstractReader {
             byte[] recordValue = (byte[]) record.value();
             if (validateMessage(recordValue)) {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
-                        inlongGroupId, inlongStreamId, System.currentTimeMillis());
+                        inlongGroupId, inlongStreamId, System.currentTimeMillis(), 1, recordValue.length);
                 // header
                 Map<String, String> headerMap = new HashMap<>();
                 headerMap.put("record.offset", String.valueOf(record.offset()));
@@ -121,6 +121,7 @@ public class KafkaReader<K, V> extends AbstractReader {
                         "partition:" + record.partition()
                                 + ", value:" + new String(recordValue) + ", offset:" + record.offset());
                 // control speed
+                readerMetric.pluginReadSuccessCount.incrementAndGet();
                 readerMetric.pluginReadCount.incrementAndGet();
                 // commit succeed,then record current offset
                 snapshot = record.partition() + JOB_KAFKA_PARTITION_OFFSET_DELIMITER + record.offset();

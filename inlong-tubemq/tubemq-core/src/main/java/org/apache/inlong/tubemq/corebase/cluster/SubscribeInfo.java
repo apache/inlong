@@ -85,6 +85,10 @@ public class SubscribeInfo {
         }
     }
 
+    public String getPartitionStr() {
+        return partition.getPartitionFullStr(overTLS);
+    }
+
     public int getBrokerId() {
         return partition.getBrokerId();
     }

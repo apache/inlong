@@ -39,12 +39,16 @@ const Comp: React.FC = () => {
   });
 
   const { data: summary = {} } = useRequest({
-    url: '/consumption/summary',
+    url: '/consume/countStatus',
   });
 
-  const { data, loading, run: getList } = useRequest(
+  const {
+    data,
+    loading,
+    run: getList,
+  } = useRequest(
     {
-      url: '/consumption/list',
+      url: '/consume/list',
       params: options,
     },
     {
@@ -57,7 +61,7 @@ const Comp: React.FC = () => {
       title: t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
-          url: `/consumption/delete/${id}`,
+          url: `/consume/delete/${id}`,
           method: 'DELETE',
         });
         await getList();

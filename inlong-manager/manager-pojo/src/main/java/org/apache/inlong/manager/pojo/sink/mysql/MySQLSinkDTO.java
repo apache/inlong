@@ -19,12 +19,14 @@ package org.apache.inlong.manager.pojo.sink.mysql;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.slf4j.Logger;
@@ -43,8 +45,12 @@ import java.util.Map;
 @AllArgsConstructor
 public class MySQLSinkDTO {
 
+    /**
+     * The sensitive param may lead the attack.
+     */
+    private static final String SENSITIVE_PARAM_TRUE = "autoDeserialize=true";
+    private static final String SENSITIVE_PARAM_FALSE = "autoDeserialize=false";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkDTO.class);
 
     @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
@@ -70,10 +76,12 @@ public class MySQLSinkDTO {
      *
      * @param request MySQLSinkRequest
      * @return {@link MySQLSinkDTO}
+     * @apiNote The config here will be saved to the database, so filter sensitive params before saving.
      */
     public static MySQLSinkDTO getFromRequest(MySQLSinkRequest request) {
+        String url = filterSensitive(request.getJdbcUrl());
         return MySQLSinkDTO.builder()
-                .jdbcUrl(request.getJdbcUrl())
+                .jdbcUrl(url)
                 .username(request.getUsername())
                 .password(request.getPassword())
                 .primaryKey(request.getPrimaryKey())
@@ -118,10 +126,10 @@ public class MySQLSinkDTO {
     /**
      * Get DbName from jdbcUrl
      *
-     * @param jdbcUrl  MySQL JDBC url, such as jdbc:mysql://host:port/database
+     * @param jdbcUrl MySQL JDBC url, such as jdbc:mysql://host:port/database
      * @return database name
      */
-    public static String getDbNameFromUrl(String jdbcUrl) {
+    private static String getDbNameFromUrl(String jdbcUrl) {
         String database = null;
 
         if (Strings.isNullOrEmpty(jdbcUrl)) {
@@ -162,4 +170,26 @@ public class MySQLSinkDTO {
         }
         return database;
     }
+
+    /**
+     * Filter the sensitive params for the given URL.
+     *
+     * @param url str may have some sensitive params
+     * @return str without sensitive param
+     */
+    @VisibleForTesting
+    protected static String filterSensitive(String url) {
+        if (StringUtils.isBlank(url)) {
+            return url;
+        }
+
+        String resultUrl = url;
+        if (StringUtils.containsIgnoreCase(url, SENSITIVE_PARAM_TRUE)) {
+            resultUrl = StringUtils.replaceIgnoreCase(url, SENSITIVE_PARAM_TRUE, SENSITIVE_PARAM_FALSE);
+        }
+
+        LOGGER.debug("the origin url [{}] was replaced to: [{}]", url, resultUrl);
+        return resultUrl;
+    }
+
 }

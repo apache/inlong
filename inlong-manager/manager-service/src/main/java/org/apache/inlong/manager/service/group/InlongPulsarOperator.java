@@ -31,10 +31,14 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Inlong group operator for Pulsar.
@@ -46,6 +50,8 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private InlongStreamService streamService;
 
     @Override
     public Boolean accept(String mqType) {
@@ -107,13 +113,13 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
     @Override
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
         InlongGroupTopicInfo topicInfo = super.getTopic(groupInfo);
-        // TODO add cache for cluster info
-        // pulsar topic corresponds to the inlong stream one-to-one
-        // topicInfo.setDsTopicList(streamService.getTopicList(groupInfo.getInlongGroupId()));
-        // commonOperateService.getSpecifiedParam(InlongConstants.TUBE_MASTER_URL);
-        // groupInfo.setTenant();
-        // groupInfo.setAdminUrl();
-        // groupInfo.setServiceUrl();
+        // Pulsar topic corresponds to the inlong stream one-to-one
+        List<InlongStreamBriefInfo> streamTopics = streamService.getTopicList(groupInfo.getInlongGroupId());
+        topicInfo.setStreamTopics(streamTopics);
+        // TODO add cache for cluster info, and support extends different MQs
+        // topicInfo.setTenant();
+        // topicInfo.setAdminUrl();
+        // topicInfo.setServiceUrl();
         return topicInfo;
     }
 

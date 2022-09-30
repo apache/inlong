@@ -324,6 +324,7 @@
         sink.status,
         sink.creator,
         sink.sink_name,
+        sink.data_node_name,
         stream.mq_resource,
         stream.data_type,
         stream.data_separator as sourceSeparator,
@@ -370,8 +371,7 @@
         where is_deleted = 0
     </select>
 
-    <update id="updateByPrimaryKeySelective"
-            parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+    <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         update stream_sink
         <set>
             <if test="inlongGroupId != null">
@@ -411,16 +411,11 @@
                 operate_log = #{operateLog,jdbcType=VARCHAR},
             </if>
             <if test="status != null">
+                previous_status = status,
                 status = #{status,jdbcType=INTEGER},
-            </if>
-            <if test="previousStatus != null">
-                previous_status = #{previousStatus,jdbcType=INTEGER},
             </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted,jdbcType=INTEGER},
-            </if>
-            <if test="creator != null">
-                creator = #{creator,jdbcType=VARCHAR},
             </if>
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
@@ -429,29 +424,6 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
         and version = #{version,jdbcType=INTEGER}
-    </update>
-    <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
-        update stream_sink
-        set inlong_group_id        = #{inlongGroupId,jdbcType=VARCHAR},
-            inlong_stream_id       = #{inlongStreamId,jdbcType=VARCHAR},
-            sink_type              = #{sinkType,jdbcType=VARCHAR},
-            sink_name              = #{sinkName,jdbcType=VARCHAR},
-            description            = #{description,jdbcType=VARCHAR},
-            enable_create_resource = #{enableCreateResource,jdbcType=TINYINT},
-            inlong_cluster_name    = #{inlongClusterName,jdbcType=VARCHAR},
-            data_node_name         = #{dataNodeName,jdbcType=VARCHAR},
-            sort_task_name         = #{sortTaskName,jdbcType=VARCHAR},
-            sort_consumer_group    = #{sortConsumerGroup,jdbcType=VARCHAR},
-            ext_params             = #{extParams,jdbcType=VARCHAR},
-            operate_log            = #{operateLog,jdbcType=VARCHAR},
-            status                 = #{status,jdbcType=INTEGER},
-            previous_status        = #{previousStatus,jdbcType=INTEGER},
-            is_deleted             = #{isDeleted,jdbcType=INTEGER},
-            creator                = #{creator,jdbcType=VARCHAR},
-            modifier               = #{modifier,jdbcType=VARCHAR},
-            version                = #{version,jdbcType=INTEGER} + 1
-        where id = #{id,jdbcType=INTEGER}
-          and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateStatus" parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         update stream_sink

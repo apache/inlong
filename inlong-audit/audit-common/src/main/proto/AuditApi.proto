@@ -20,17 +20,17 @@ syntax = "proto3";
 package org.apache.inlong.audit.protocol;
 
 message BaseCommand {
-    enum Type {
-        PING          = 0;
-        PONG          = 1;
-        AUDITREQUEST  = 2;
-        AUDITREPLY    = 3;
-    }
-    Type type                            = 1;
-    AuditRequest audit_request  = 2;
-    AuditReply audit_reply      = 3;
-    Ping ping                   = 4;
-    Pong pong                   = 5;
+  enum Type {
+    PING = 0;
+    PONG = 1;
+    AUDIT_REQUEST = 2;
+    AUDIT_REPLY = 3;
+  }
+  Type type = 1;
+  AuditRequest audit_request = 2;
+  AuditReply audit_reply = 3;
+  Ping ping = 4;
+  Pong pong = 5;
 }
 
 message Ping {
@@ -55,8 +55,8 @@ message AuditMessageHeader {
 
 message AuditMessageBody {
   uint64 log_ts = 1;
-  string inlong_group_id= 2;
-  string inlong_stream_id= 3;
+  string inlong_group_id = 2;
+  string inlong_stream_id = 3;
   string audit_id = 4;
   uint64 count = 5;
   uint64 size = 6;
@@ -65,8 +65,8 @@ message AuditMessageBody {
 
 message AuditReply {
   enum RSP_CODE {
-    SUCCESS  = 0;
-    FAILED   = 1;
+    SUCCESS = 0;
+    FAILED = 1;
     DISASTER = 2;
   }
   uint64 request_id = 1;

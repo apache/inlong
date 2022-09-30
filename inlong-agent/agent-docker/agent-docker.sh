@@ -19,27 +19,23 @@
 file_path=$(cd "$(dirname "$0")"/../;pwd)
 local_ip=$(ifconfig $ETH_NETWORK | grep "inet" | grep -v "inet6" | awk '{print $2}')
 # config
-cat <<EOF > ${file_path}/conf/agent.properties
-agent.fetcher.classname=org.apache.inlong.agent.plugin.fetcher.ManagerFetcher
-agent.local.ip=$local_ip
-agent.fetcher.interval=$AGENT_FETCH_INTERVAL
-agent.heartbeat.interval=$AGENT_HEARTBEAT_INTERVAL
-agent.manager.vip.http.host=$MANAGER_OPENAPI_IP
-agent.manager.vip.http.port=$MANAGER_OPENAPI_PORT
-agent.dataproxy.http.host=$DATAPROXY_IP
-agent.dataproxy.http.port=$DATAPROXY_PORT
-agent.http.port=8008
-agent.http.enable=true
-agent.domainListeners=org.apache.inlong.agent.metrics.AgentPrometheusMetricListener
-agent.prometheus.exporter.port=9080
-audit.proxys=$AUDIT_PROXY_URL
-agent.cluster.tag=$CLUSTER_TAG
-agent.cluster.name=$CLUSTER_NAME
-agent.cluster.inCharges=$CLUSTER_IN_CHARGES
-agent.manager.auth.secretId=$MANAGER_OPENAPI_AUTH_ID
-agent.manager.auth.secretKey=$MANAGER_OPENAPI_AUTH_KEY
-agent.custom.fixed.ip=$CUSTOM_FIXED_IP
-EOF
+
+sed -i "s/agent.local.ip=.*$/agent.local.ip=$local_ip/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.fetcher.interval=.*$/agent.fetcher.interval=$AGENT_FETCH_INTERVAL/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.heartbeat.interval=.*$/agent.heartbeat.interval=$AGENT_HEARTBEAT_INTERVAL/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.manager.vip.http.host=.*$/agent.manager.vip.http.host=$MANAGER_OPENAPI_IP/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.manager.vip.http.port=.*$/agent.manager.vip.http.port=$MANAGER_OPENAPI_PORT/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.dataproxy.http.host=.*$/agent.dataproxy.http.host=$DATAPROXY_IP/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.dataproxy.http.port=.*$/agent.dataproxy.http.port=$DATAPROXY_PORT/g" "${file_path}/conf/agent.properties"
+sed -i "s/audit.enable=.*$/audit.enable=$AUDIT_ENABLE/g" "${file_path}/conf/agent.properties"
+sed -i "s/audit.proxys=.*$/audit.proxys=$AUDIT_PROXY_URL/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.cluster.tag=.*$/agent.cluster.tag=$CLUSTER_TAG/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.cluster.name=.*$/agent.cluster.name=$CLUSTER_NAME/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.cluster.inCharges=.*$/agent.cluster.inCharges=$CLUSTER_IN_CHARGES/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.manager.auth.secretId=.*$/agent.manager.auth.secretId=$MANAGER_OPENAPI_AUTH_ID/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.manager.auth.secretKey=.*$/agent.manager.auth.secretKey=$MANAGER_OPENAPI_AUTH_KEY/g" "${file_path}/conf/agent.properties"
+sed -i "s/agent.custom.fixed.ip=.*$/agent.custom.fixed.ip=$CUSTOM_FIXED_IP/g" "${file_path}/conf/agent.properties"
+
 # start
 bash +x ${file_path}/bin/agent.sh start
 sleep 3

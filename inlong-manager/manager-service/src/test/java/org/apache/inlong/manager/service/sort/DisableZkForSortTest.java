@@ -102,7 +102,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         sinkRequest.setFileFormat("TextFile");
         sinkRequest.setDataPath("hdfs://localhost:4007/user/hive/warehouse/default");
         sinkRequest.setFileFormat(StandardCharsets.UTF_8.name());
-        sinkRequest.setDataSeparator("124");
+        sinkRequest.setDataSeparator("|");
         streamSinkService.save(sinkRequest, OPERATOR);
         return sinkRequest;
     }

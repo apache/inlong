@@ -81,6 +81,15 @@ public class KafkaSource extends StreamSource {
     @ApiModelProperty("Primary key, needed when serialization type is csv, json, avro")
     private String primaryKey;
 
+    @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
+    private String dataEncoding;
+
+    @ApiModelProperty(value = "Data separator")
+    private String dataSeparator;
+
+    @ApiModelProperty(value = "Data field escape symbol")
+    private String dataEscapeChar;
+
     public KafkaSource() {
         this.setSourceType(SourceType.KAFKA);
     }

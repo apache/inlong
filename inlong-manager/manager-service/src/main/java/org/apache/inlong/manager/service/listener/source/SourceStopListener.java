@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.listener.source;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
@@ -47,6 +48,11 @@ public class SourceStopListener extends AbstractSourceOperateListener {
 
     @Override
     public void operateStreamSource(SourceRequest sourceRequest, String operator) {
+        // if a source has sub-sources, it is considered a template source.
+        // template sources do not need to be stopped, its sub-sources will be processed in this method later.
+        if (CollectionUtils.isNotEmpty(sourceRequest.getSubSourceList())) {
+            return;
+        }
         streamSourceService.stop(sourceRequest.getId(), operator);
     }
 }

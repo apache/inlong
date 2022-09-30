@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +44,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
 import static org.apache.inlong.agent.constant.MetadataConstants.KUBERNETES;
@@ -61,10 +64,10 @@ public class FileReaderOperator extends AbstractReader {
     public Stream<String> stream;
     public Map<String, String> metadata;
     public JobProfile jobConf;
-    private Iterator<String> iterator;
+    public Iterator<String> iterator;
+    public volatile boolean finished = false;
     private long timeout;
     private long waitTimeout;
-
     private long lastTime = 0;
 
     private List<Validator> validators = new ArrayList<>();
@@ -88,10 +91,14 @@ public class FileReaderOperator extends AbstractReader {
         if (iterator != null && iterator.hasNext()) {
             String message = iterator.next();
             if (validateMessage(message)) {
-                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
-                        inlongGroupId, inlongStreamId, System.currentTimeMillis());
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+                        System.currentTimeMillis(), 1, message.length());
+                readerMetric.pluginReadSuccessCount.incrementAndGet();
                 readerMetric.pluginReadCount.incrementAndGet();
-                return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8));
+                String proxyPartitionKey = jobConf.get(PROXY_SEND_PARTITION_KEY, DigestUtils.md5Hex(inlongGroupId));
+                Map<String, String> header = new HashMap<>();
+                header.put(PROXY_KEY_DATA, proxyPartitionKey);
+                return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8), header);
             }
         }
         AgentUtils.silenceSleepInMs(waitTimeout);
@@ -99,6 +106,9 @@ public class FileReaderOperator extends AbstractReader {
     }
 
     private boolean validateMessage(String message) {
+        if (StringUtils.isBlank(message)) {
+            return false;
+        }
         if (validators.isEmpty()) {
             return true;
         }
@@ -107,6 +117,9 @@ public class FileReaderOperator extends AbstractReader {
 
     @Override
     public boolean isFinished() {
+        if (finished) {
+            return true;
+        }
         if (timeout == NEVER_STOP_SIGN) {
             return false;
         }
@@ -189,9 +202,10 @@ public class FileReaderOperator extends AbstractReader {
         }
     }
 
+    // default value is -1 and never stop task
     private void initReadTimeout(JobProfile jobConf) {
         int waitTime = jobConf.getInt(JOB_FILE_MAX_WAIT,
-                DEFAULT_JOB_FILE_MAX_WAIT);
+                NEVER_STOP_SIGN);
         if (waitTime == NEVER_STOP_SIGN) {
             timeout = NEVER_STOP_SIGN;
         } else {
@@ -201,6 +215,7 @@ public class FileReaderOperator extends AbstractReader {
 
     @Override
     public void destroy() {
+        finished = true;
         if (stream == null) {
             return;
         }

@@ -320,33 +320,23 @@ public class TubeBroker implements Stoppable {
                 .append(TubeServerVersion.SERVER_VERSION).toString();
     }
 
-    private void procConfigFromHeartBeat(StringBuilder sBuilder,
+    private void procConfigFromHeartBeat(StringBuilder strBuff,
                                          HeartResponseM2B response) {
         // process service status
         ServiceStatusHolder
                 .setReadWriteServiceStatus(response.getStopRead(),
                         response.getStopWrite(), "Master");
-        // process flow controller rules
-        FlowCtrlRuleHandler flowCtrlRuleHandler =
+        // update default flow controller rules
+        FlowCtrlRuleHandler defFlowCtrlHandler =
                 metadataManager.getFlowCtrlRuleHandler();
-        long flowCheckId = flowCtrlRuleHandler.getFlowCtrlId();
-        int qryPriorityId = flowCtrlRuleHandler.getQryPriorityId();
-        if (response.hasFlowCheckId()) {
-            qryPriorityId = response.hasQryPriorityId()
-                    ? response.getQryPriorityId() : qryPriorityId;
-            if (response.getFlowCheckId() != flowCheckId) {
-                flowCheckId = response.getFlowCheckId();
-                try {
-                    flowCtrlRuleHandler
-                            .updateFlowCtrlInfo(qryPriorityId,
-                                    flowCheckId, response.getFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn(
-                            "[HeartBeat response] found parse flowCtrl rules failure", e1);
-                }
-            }
-            if (qryPriorityId != flowCtrlRuleHandler.getQryPriorityId()) {
-                flowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
+        if (response.hasFlowCheckId()
+                && response.getFlowCheckId() >= 0
+                && response.getFlowCheckId() != defFlowCtrlHandler.getFlowCtrlId()) {
+            try {
+                defFlowCtrlHandler.updateFlowCtrlInfo(response.getQryPriorityId(),
+                        response.getFlowCheckId(), response.getFlowControlInfo(), strBuff);
+            } catch (Exception e1) {
+                logger.warn("[HeartBeat response] found update flowCtrl rules failure", e1);
             }
         }
         // update configure report requirement
@@ -356,36 +346,37 @@ public class TubeBroker implements Stoppable {
             long configId = response.getClsConfig().getConfigId();
             if (configId != ClusterConfigHolder.getConfigId()) {
                 ClusterConfigHolder.updClusterSetting(response.getClsConfig());
-                logger.info(sBuilder
-                        .append("[HeartBeat response] received cluster configure changed,")
+                logger.info(strBuff
+                        .append("[HeartBeat response] received cluster configure changed")
                         .append(",hasClsConfig=").append(response.hasClsConfig())
                         .append(",curClusterConfigId=").append(ClusterConfigHolder.getConfigId())
                         .append(",curMaxMsgSize=").append(ClusterConfigHolder.getMaxMsgSize())
                         .append(",minMemCacheSize=")
                         .append(ClusterConfigHolder.getMinMemCacheSize())
                         .toString());
-                sBuilder.delete(0, sBuilder.length());
+                strBuff.delete(0, strBuff.length());
             }
         }
         if (response.getTakeConfInfo()) {
-            logger.info(sBuilder
+            logger.info(strBuff
                     .append("[HeartBeat response] received broker metadata info: brokerConfId=")
                     .append(response.getCurBrokerConfId())
                     .append(",stopWrite=").append(response.getStopWrite())
                     .append(",stopRead=").append(response.getStopRead())
                     .append(",configCheckSumId=").append(response.getConfCheckSumId())
                     .append(",hasFlowCtrl=").append(response.hasFlowCheckId())
-                    .append(",curFlowCtrlId=").append(flowCheckId)
-                    .append(",curQryPriorityId=").append(qryPriorityId)
+                    .append(",curFlowCtrlId=").append(defFlowCtrlHandler.getFlowCtrlId())
+                    .append(",curQryPriorityId=").append(defFlowCtrlHandler.getQryPriorityId())
+                    .append(",curMaxMsgSize=").append(ClusterConfigHolder.getMaxMsgSize())
                     .append(",brokerDefaultConfInfo=")
                     .append(response.getBrokerDefaultConfInfo())
                     .append(",brokerTopicSetConfList=")
-                    .append(response.getBrokerTopicSetConfInfoList().toString()).toString());
-            sBuilder.delete(0, sBuilder.length());
+                    .append(response.getBrokerTopicSetConfInfoList()).toString());
+            strBuff.delete(0, strBuff.length());
             metadataManager
                     .updateBrokerTopicConfigMap(response.getCurBrokerConfId(),
                             response.getConfCheckSumId(), response.getBrokerDefaultConfInfo(),
-                            response.getBrokerTopicSetConfInfoList(), false, sBuilder);
+                            response.getBrokerTopicSetConfInfoList(), false, strBuff);
         }
         // update auth info
         if (response.hasBrokerAuthorizedInfo()) {
@@ -395,7 +386,7 @@ public class TubeBroker implements Stoppable {
         boolean needProcess =
                 metadataManager.updateBrokerRemoveTopicMap(
                         response.getTakeRemoveTopicInfo(),
-                        response.getRemoveTopicConfInfoList(), sBuilder);
+                        response.getRemoveTopicConfInfoList(), strBuff);
         if (needProcess) {
             new Thread() {
                 @Override
@@ -440,29 +431,23 @@ public class TubeBroker implements Stoppable {
         }
     }
 
-    private void procConfigFromRegister(StringBuilder sBuilder,
+    private void procConfigFromRegister(StringBuilder strBuff,
                                         final RegisterResponseM2B response) {
         // process service status
         ServiceStatusHolder
                 .setReadWriteServiceStatus(response.getStopRead(),
                         response.getStopWrite(), "Master");
-        // process flow controller rules
-        FlowCtrlRuleHandler flowCtrlRuleHandler =
+        // process default flow controller rules
+        FlowCtrlRuleHandler defFlowCtrlHandler =
                 metadataManager.getFlowCtrlRuleHandler();
-        if (response.hasFlowCheckId()) {
-            int qryPriorityId = response.hasQryPriorityId()
-                    ? response.getQryPriorityId() : flowCtrlRuleHandler.getQryPriorityId();
-            if (response.getFlowCheckId() != flowCtrlRuleHandler.getFlowCtrlId()) {
-                try {
-                    flowCtrlRuleHandler
-                            .updateFlowCtrlInfo(response.getQryPriorityId(),
-                                    response.getFlowCheckId(), response.getFlowControlInfo());
-                } catch (Exception e1) {
-                    logger.warn("[Register response] found parse flowCtrl rules failure", e1);
-                }
-            }
-            if (qryPriorityId != flowCtrlRuleHandler.getQryPriorityId()) {
-                flowCtrlRuleHandler.setQryPriorityId(qryPriorityId);
+        if (response.hasFlowCheckId()
+                && response.getFlowCheckId() >= 0
+                && response.getFlowCheckId() != defFlowCtrlHandler.getFlowCtrlId()) {
+            try {
+                defFlowCtrlHandler.updateFlowCtrlInfo(response.getQryPriorityId(),
+                        response.getFlowCheckId(), response.getFlowControlInfo(), strBuff);
+            } catch (Exception e1) {
+                logger.warn("[Register response] update default flowCtrl rules failure", e1);
             }
         }
         // update auth info
@@ -477,14 +462,14 @@ public class TubeBroker implements Stoppable {
                 ClusterConfigHolder.updClusterSetting(response.getClsConfig());
             }
         }
-        sBuilder.append("[Register response] received broker metadata info: brokerConfId=")
+        strBuff.append("[Register response] received broker metadata info: brokerConfId=")
                 .append(response.getCurBrokerConfId())
                 .append(",stopWrite=").append(response.getStopWrite())
                 .append(",stopRead=").append(response.getStopRead())
                 .append(",configCheckSumId=").append(response.getConfCheckSumId())
                 .append(",hasFlowCtrl=").append(response.hasFlowCheckId())
-                .append(",curFlowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
-                .append(",curQryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
+                .append(",curFlowCtrlId=").append(defFlowCtrlHandler.getFlowCtrlId())
+                .append(",curQryPriorityId=").append(defFlowCtrlHandler.getQryPriorityId())
                 .append(",hasClsConfig=").append(response.hasClsConfig())
                 .append(",curClusterConfigId=").append(ClusterConfigHolder.getConfigId())
                 .append(",curMaxMsgSize=").append(ClusterConfigHolder.getMaxMsgSize())
@@ -501,10 +486,10 @@ public class TubeBroker implements Stoppable {
                 .append(",brokerDefaultConfInfo=").append(response.getBrokerDefaultConfInfo())
                 .append(",brokerTopicSetConfList=")
                 .append(response.getBrokerTopicSetConfInfoList().toString()).toString();
-        sBuilder.delete(0, sBuilder.length());
+        strBuff.delete(0, strBuff.length());
         metadataManager.updateBrokerTopicConfigMap(response.getCurBrokerConfId(),
                 response.getConfCheckSumId(), response.getBrokerDefaultConfInfo(),
-                response.getBrokerTopicSetConfInfoList(), true, sBuilder);
+                response.getBrokerTopicSetConfInfoList(), true, strBuff);
     }
 
     // build cluster configure info

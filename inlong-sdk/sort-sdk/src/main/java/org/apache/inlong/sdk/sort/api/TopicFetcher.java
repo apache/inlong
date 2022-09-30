@@ -41,6 +41,12 @@ public interface TopicFetcher {
     void ack(String msgOffset) throws Exception;
 
     /**
+     * Get the unique fetcher key to specify the fetcher who consume this message.
+     * @return Message key.
+     */
+    String getFetchKey();
+
+    /**
      * Pause the consuming
      */
     void pause();

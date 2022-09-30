@@ -141,10 +141,10 @@ public class InlongClusterClient {
      * @param request query conditions
      * @return cluster list
      */
-    public ClusterInfo list(ClusterPageRequest request) {
-        Response<ClusterInfo> clusterInfoResponse = ClientUtils.executeHttpCall(inlongClusterApi.list(request));
-        ClientUtils.assertRespSuccess(clusterInfoResponse);
-        return clusterInfoResponse.getData();
+    public PageResult<ClusterInfo> list(ClusterPageRequest request) {
+        Response<PageResult<ClusterInfo>> response = ClientUtils.executeHttpCall(inlongClusterApi.list(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
     }
 
     /**
@@ -154,6 +154,8 @@ public class InlongClusterClient {
      * @return whether succeed
      */
     public Boolean update(ClusterRequest request) {
+        Preconditions.checkNotNull(request.getId(), "inlong cluster id cannot be empty");
+
         Response<Boolean> response = ClientUtils.executeHttpCall(inlongClusterApi.update(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();

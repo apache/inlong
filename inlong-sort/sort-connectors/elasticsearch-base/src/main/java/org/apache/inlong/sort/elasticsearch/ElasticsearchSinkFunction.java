@@ -21,6 +21,8 @@ package org.apache.inlong.sort.elasticsearch;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.functions.Function;
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.runtime.state.FunctionInitializationContext;
+import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.elasticsearch.action.ActionRequest;
 
@@ -59,4 +61,16 @@ public interface ElasticsearchSinkFunction<T> extends Serializable, Function {
      * @param indexer request indexer that {@code ActionRequest} should be added to
      */
     void process(T element, RuntimeContext ctx, RequestIndexer indexer);
+
+    default void initializeState(FunctionInitializationContext context) throws Exception {
+        // no initialization needed
+    }
+
+    default void snapshotState(FunctionSnapshotContext context) throws Exception {
+
+    }
+
+    default  void setRuntimeContext(RuntimeContext ctx) {
+
+    }
 }

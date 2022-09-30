@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import com.github.pagehelper.Page;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -74,9 +75,10 @@ public interface StreamSinkOperator {
      * Update the sink info.
      *
      * @param request sink info needs to update
+     * @param nextStatus next status
      * @param operator name of the operator
      */
-    void updateOpt(SinkRequest request, String operator);
+    void updateOpt(SinkRequest request, SinkStatus nextStatus, String operator);
 
     /**
      * Update the sink fields.

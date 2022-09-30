@@ -18,14 +18,12 @@
 package org.apache.inlong.manager.service.listener.sort;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.resource.sort.SortConfigOperator;
@@ -33,7 +31,6 @@ import org.apache.inlong.manager.service.resource.sort.SortConfigOperatorFactory
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,18 +59,15 @@ public class StreamSortConfigListener implements SortOperateListener {
     @Override
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
+        String className = processForm.getClass().getSimpleName();
         String groupId = processForm.getInlongGroupId();
-        if (!(processForm instanceof GroupResourceProcessForm)) {
-            LOGGER.warn("zookeeper enabled was [false] for groupId [{}]", groupId);
+        if (processForm instanceof StreamResourceProcessForm) {
+            LOGGER.info("accept sort config listener as the process is {} for groupId [{}]", className, groupId);
+            return true;
+        } else {
+            LOGGER.info("not accept sort config listener as the process is {} for groupId [{}]", className, groupId);
             return false;
         }
-
-        GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
-        InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-        boolean enable = InlongConstants.ENABLE_ZK.equals(groupInfo.getEnableZookeeper())
-                && !MQType.NONE.equals(groupInfo.getMqType());
-        LOGGER.info("zookeeper enabled was [{}] for groupId [{}]", enable, groupId);
-        return enable;
     }
 
     @Override

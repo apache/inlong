@@ -32,6 +32,7 @@ public class SinkInfo {
     private String inlongStreamId;
     private String sinkType;
     private String sinkName;
+    private String dataNodeName;
     private String description;
     private Integer enableCreateResource;
     private String extParams;

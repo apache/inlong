@@ -29,7 +29,7 @@ import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.pojo.consumption.ConsumptionSummary;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.core.ConsumptionService;
-import org.apache.inlong.manager.service.core.impl.ConsumptionProcessService;
+import org.apache.inlong.manager.service.consume.InlongConsumeProcessService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class ConsumptionController {
     @Autowired
     private ConsumptionService consumptionService;
     @Autowired
-    private ConsumptionProcessService processOperation;
+    private InlongConsumeProcessService processOperation;
 
     @GetMapping("/consumption/summary")
     @ApiOperation(value = "Get data consumption summary")

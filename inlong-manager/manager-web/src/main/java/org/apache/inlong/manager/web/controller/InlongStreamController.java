@@ -84,7 +84,7 @@ public class InlongStreamController {
     }
 
     @RequestMapping(value = "/stream/list", method = RequestMethod.POST)
-    @ApiOperation(value = "Get inlong stream brief info by paginating")
+    @ApiOperation(value = "List inlong stream briefs by paginating")
     public Response<PageResult<InlongStreamBriefInfo>> listByCondition(@RequestBody InlongStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
@@ -92,7 +92,7 @@ public class InlongStreamController {
     }
 
     @RequestMapping(value = "/stream/listAll", method = RequestMethod.POST)
-    @ApiOperation(value = "Get inlong stream with all sources and sinks by paginating")
+    @ApiOperation(value = "List inlong streams with sources and sinks by paginating")
     public Response<PageResult<InlongStreamInfo>> listAllWithGroupId(@RequestBody InlongStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
         request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));

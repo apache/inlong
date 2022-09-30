@@ -18,6 +18,38 @@
 package org.apache.inlong.dataproxy.sink;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.flume.EventDeliveryException;
+import org.apache.flume.FlumeException;
+import org.apache.flume.Transaction;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.sink.AbstractSink;
+import org.apache.flume.source.shaded.guava.RateLimiter;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.util.NetworkUtils;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.dataproxy.sink.common.MsgDedupHandler;
+import org.apache.inlong.dataproxy.sink.common.TubeUtils;
+import org.apache.inlong.dataproxy.utils.Constants;
+import org.apache.inlong.tubemq.client.config.TubeClientConfig;
+import org.apache.inlong.tubemq.client.exception.TubeClientException;
+import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
+import org.apache.inlong.tubemq.client.producer.MessageProducer;
+import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
+import org.apache.inlong.tubemq.client.producer.MessageSentResult;
+import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,37 +62,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.FlumeException;
-import org.apache.flume.Transaction;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.sink.AbstractSink;
-import org.apache.flume.source.shaded.guava.RateLimiter;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
-import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
-import org.apache.inlong.dataproxy.sink.common.MsgDedupHandler;
-import org.apache.inlong.dataproxy.sink.common.TubeUtils;
-import org.apache.inlong.dataproxy.utils.Constants;
-import org.apache.inlong.dataproxy.utils.NetworkUtils;
-import org.apache.inlong.tubemq.client.config.TubeClientConfig;
-import org.apache.inlong.tubemq.client.exception.TubeClientException;
-import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
-import org.apache.inlong.tubemq.client.producer.MessageProducer;
-import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
-import org.apache.inlong.tubemq.client.producer.MessageSentResult;
-import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
-import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SimpleMessageTubeSink extends AbstractSink implements Configurable {
 
@@ -353,8 +354,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                 logger.info("{} agent package {} existed,just discard.",
                         getName(), event.getHeaders().get(ConfigConstants.SEQUENCE_ID));
             } else {
-                producer.sendMessage(TubeUtils.buildMessage(
-                        topic, event, true), new MyCallback(es));
+                producer.sendMessage(TubeUtils.buildMessage(topic, event), new MyCallback(es));
                 flag.set(true);
             }
             illegalTopicMap.remove(topic);
@@ -596,8 +596,8 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                         dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
                     }
                     DataProxyMetricItem metricItem = this.metricItemSet.findMetricItem(dimensions);
-                    metricItem.readFailCount.incrementAndGet();
-                    metricItem.readFailSize.addAndGet(event.getBody().length);
+                    metricItem.readSuccessCount.incrementAndGet();
+                    metricItem.readSuccessSize.addAndGet(event.getBody().length);
                 }
             } else {
 

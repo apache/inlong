@@ -21,6 +21,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
+import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 
 import java.util.List;
@@ -37,7 +38,10 @@ public class DeleteCommand extends AbstractCommand {
 
     public DeleteCommand() {
         super("delete");
-        jcommander.addCommand("group", new DeleteCommand.DeleteGroup());
+        jcommander.addCommand("group", new DeleteGroup());
+        jcommander.addCommand("cluster", new DeleteCluster());
+        jcommander.addCommand("cluster-tag", new DeleteClusterTag());
+        jcommander.addCommand("cluster-node", new DeleteClusterNode());
     }
 
     @Parameters(commandDescription = "Delete group by group id")
@@ -57,9 +61,78 @@ public class DeleteCommand extends AbstractCommand {
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.getGroup(inlongGroupId);
                 group.delete();
-                System.out.println("delete group success");
+                System.out.println("Delete group success!");
             } catch (Exception e) {
                 System.out.format("Delete group failed! message: %s \n", e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Delete cluster by cluster id")
+    private static class DeleteCluster extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster id")
+        private int clusterId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                if (clusterClient.delete(clusterId)) {
+                    System.out.println("Delete cluster success!");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Delete cluster tag by tag id")
+    private static class DeleteClusterTag extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster tag id")
+        private int tagId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                if (clusterClient.deleteTag(tagId)) {
+                    System.out.println("Delete cluster tag success!");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Delete cluster node by node id")
+    private static class DeleteClusterNode extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "cluster node id")
+        private int nodeId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                if (clusterClient.deleteNode(nodeId)) {
+                    System.out.println("Delete cluster node success!");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
         }
     }

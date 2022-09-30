@@ -62,6 +62,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -118,8 +119,8 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
     public ProcessCountResponse countProcess(ProcessCountRequest request) {
         List<CountInfo> result = processEntityMapper.countByQuery(request);
 
-        Map<String, Integer> countByState = result.stream()
-                .collect(Collectors.toMap(CountInfo::getKey, CountInfo::getValue));
+        Map<String, Integer> countByState = new HashMap<>();
+        result.forEach(countInfo -> countByState.put(countInfo.getKey(), countInfo.getValue()));
 
         return ProcessCountResponse.builder()
                 .totalApplyCount(countByState.values().stream().mapToInt(c -> c).sum())

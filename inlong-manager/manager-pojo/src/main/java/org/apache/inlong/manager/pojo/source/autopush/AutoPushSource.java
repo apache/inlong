@@ -45,6 +45,15 @@ public class AutoPushSource extends StreamSource {
     @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
 
+    @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
+    private String dataEncoding;
+
+    @ApiModelProperty(value = "Data separator")
+    private String dataSeparator;
+
+    @ApiModelProperty(value = "Data field escape symbol")
+    private String dataEscapeChar;
+
     public AutoPushSource() {
         this.setSourceType(SourceType.AUTO_PUSH);
     }

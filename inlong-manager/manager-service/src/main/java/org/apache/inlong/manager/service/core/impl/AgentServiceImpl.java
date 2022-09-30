@@ -55,6 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -97,7 +98,7 @@ public class AgentServiceImpl implements AgentService {
 
         // Update task status, other tasks with status 20x will change to 30x in next request
         if (CollectionUtils.isEmpty(request.getCommandInfo())) {
-            LOGGER.warn("task result was empty, just return");
+            LOGGER.info("task result was empty in request: {}, just return", request);
             return;
         }
         for (CommandEntity command : request.getCommandInfo()) {
@@ -211,64 +212,73 @@ public class AgentServiceImpl implements AgentService {
         }
         final String agentIp = taskRequest.getAgentIp();
         final String agentClusterName = taskRequest.getClusterName();
-        final String uuid = taskRequest.getUuid();
         Preconditions.checkTrue(StringUtils.isNotBlank(agentIp) || StringUtils.isNotBlank(agentClusterName),
                 "both agent ip and cluster name are blank when fetching file task");
         List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIpOrCluster(needAddStatusList,
-                Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName,TASK_FETCH_SIZE * 10);
+                Lists.newArrayList(SourceType.FILE), agentIp, agentClusterName);
         List<DataConfig> fileTasks = Lists.newArrayList();
         for (StreamSourceEntity sourceEntity : sourceEntities) {
-            FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(sourceEntity.getExtParams());
-            final String destIp = sourceEntity.getAgentIp();
-            final String destClusterName = sourceEntity.getInlongClusterName();
-
-            // Cluster name is blank
-            if (StringUtils.isNotBlank(destIp) && StringUtils.isBlank(destClusterName)) {
-                if (destIp.equals(agentIp)) {
-                    int op = getOp(sourceEntity.getStatus());
-                    int nextStatus = getNextStatus(sourceEntity.getStatus());
-                    sourceEntity.setUuid(uuid);
-                    sourceEntity.setStatus(nextStatus);
-                    if (sourceMapper.updateByPrimaryKeySelective(sourceEntity) == 1) {
-                        sourceEntity.setVersion(sourceEntity.getVersion() + 1);
-                        fileTasks.add(getDataConfig(sourceEntity, op));
-                    }
-                }
+            DataConfig taskConfig = getFileTaskFromEntity(taskRequest, sourceEntity);
+            if (taskConfig == null) {
                 continue;
             }
-
-            // Cluster name is not blank, split subtask if necessary
-            // The template task's id is assigned to the subtask's template id field
-            if (StringUtils.isNotBlank(destClusterName) && destClusterName.equals(agentClusterName)
-                    && Objects.isNull(sourceEntity.getTemplateId())) {
-
-                // Is the task already fetched by this agent ?
-                List<StreamSourceEntity> subSources = sourceMapper.selectByTemplateId(sourceEntity.getId());
-                if (subSources.stream().anyMatch(subSource -> subSource.getAgentIp().equals(agentIp))) {
-                    continue;
-                }
-
-                // If not, clone a sub task for the new agent
-                // Note that a new source name with random suffix is generated to adhere to the unique constraint
-                StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
-                FileSourceDTO childFileSourceDTO = CommonBeanUtils.copyProperties(fileSourceDTO, FileSourceDTO::new);
-                fileEntity.setExtParams(JsonUtils.toJsonString(childFileSourceDTO));
-                fileEntity.setAgentIp(agentIp);
-                fileEntity.setUuid(uuid);
-                fileEntity.setSourceName(fileEntity.getSourceName() + "-" + RandomStringUtils.randomAlphanumeric(10));
-                fileEntity.setTemplateId(sourceEntity.getId());
-                int op = getOp(fileEntity.getStatus());
-                int nextStatus = getNextStatus(fileEntity.getStatus());
-                fileEntity.setStatus(nextStatus);
-                if (sourceMapper.insert(fileEntity) > 0) {
-                    fileTasks.add(getDataConfig(fileEntity, op));
-                }
-            }
+            fileTasks.add(taskConfig);
             if (fileTasks.size() >= TASK_FETCH_SIZE) {
                 break;
             }
         }
         return fileTasks;
+    }
+
+    private DataConfig getFileTaskFromEntity(TaskRequest taskRequest, StreamSourceEntity sourceEntity) {
+        final String agentIp = taskRequest.getAgentIp();
+        final String uuid = taskRequest.getUuid();
+
+        // fetch task by designated agent ip
+        final String destIp = sourceEntity.getAgentIp();
+        if (StringUtils.isNotBlank(destIp) && destIp.equals(agentIp)) {
+            int op = getOp(sourceEntity.getStatus());
+            int nextStatus = getNextStatus(sourceEntity.getStatus());
+            sourceEntity.setUuid(uuid);
+            sourceEntity.setStatus(nextStatus);
+            if (sourceMapper.updateByPrimaryKeySelective(sourceEntity) == 1) {
+                sourceEntity.setVersion(sourceEntity.getVersion() + 1);
+                return getDataConfig(sourceEntity, op);
+            }
+        }
+
+        // fetch task by cluster name and template source
+        String destClusterName = sourceEntity.getInlongClusterName();
+        boolean isTemplateTask = sourceEntity.getTemplateId() == null
+                && StringUtils.isNotBlank(destClusterName)
+                && destClusterName.equals(taskRequest.getClusterName());
+        if (isTemplateTask) {
+            // is the task already fetched by this agent ?
+            List<StreamSourceEntity> subSources = sourceMapper.selectByTemplateId(sourceEntity.getId());
+            if (subSources.stream().anyMatch(subSource -> subSource.getAgentIp().equals(agentIp))) {
+                return null;
+            }
+
+            // if not, clone a subtask for this Agent.
+            // note: a new source name with random suffix is generated to adhere to the unique constraint
+            StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
+            fileEntity.setExtParams(sourceEntity.getExtParams());
+            fileEntity.setAgentIp(agentIp);
+            fileEntity.setUuid(uuid);
+            fileEntity.setSourceName(fileEntity.getSourceName() + "-"
+                    + RandomStringUtils.randomAlphanumeric(10).toLowerCase(Locale.ROOT));
+            fileEntity.setTemplateId(sourceEntity.getId());
+            int nextStatus = getNextStatus(fileEntity.getStatus());
+            fileEntity.setStatus(nextStatus);
+
+            // create new sub source task
+            sourceMapper.insert(fileEntity);
+
+            // select again to refresh entity version and others.
+            return getDataConfig(sourceMapper.selectById(fileEntity.getId()), getOp(fileEntity.getStatus()));
+        }
+
+        return null;
     }
 
     private List<DataConfig> fetchIssuedTasks(TaskRequest taskRequest) {

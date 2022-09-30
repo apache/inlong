@@ -158,6 +158,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>${plugin.shade.version}</version>
                 <executions>
                     <execution>
                         <id>shade-flink</id>
@@ -173,7 +174,6 @@
                                 </includes>
                                 <excludes>
                                     <!-- These dependencies are not required. -->
-                                    <exclude>com.carrotsearch:hppc</exclude>
                                     <exclude>com.tdunning:t-digest</exclude>
                                     <exclude>joda-time:joda-time</exclude>
                                     <exclude>net.sf.jopt-simple:jopt-simple</exclude>

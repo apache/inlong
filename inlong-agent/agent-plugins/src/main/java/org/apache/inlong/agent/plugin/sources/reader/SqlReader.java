@@ -115,8 +115,10 @@ public class SqlReader extends AbstractReader {
                     }
                     lineColumns.add(dataValue);
                 }
+                long dataSize = lineColumns.stream().mapToLong(column -> column.length()).sum();
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
-                        inlongGroupId, inlongStreamId, System.currentTimeMillis());
+                        inlongGroupId, inlongStreamId, System.currentTimeMillis(), 1, dataSize);
+                readerMetric.pluginReadSuccessCount.incrementAndGet();
                 readerMetric.pluginReadCount.incrementAndGet();
                 return generateMessage(lineColumns);
             } else {
@@ -125,6 +127,7 @@ public class SqlReader extends AbstractReader {
         } catch (Exception ex) {
             LOGGER.error("error while reading data", ex);
             readerMetric.pluginReadFailCount.incrementAndGet();
+            readerMetric.pluginReadCount.incrementAndGet();
             throw new RuntimeException(ex);
         }
         return null;

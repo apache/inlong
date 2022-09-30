@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { CommonInterface } from './common';
 import { getFormContent } from './ConsumeConfig';
@@ -31,12 +31,12 @@ const Comp = (
   const [form] = useForm();
 
   useEffect(() => {
-    const consumptionInfo = defaultData?.processInfo?.formData?.consumptionInfo;
-    const consumptionApproveInfo = defaultData?.currentTask?.formData?.consumptionApproveInfo;
-    if (consumptionInfo || consumptionApproveInfo) {
+    const consumeInfo = defaultData?.processInfo?.formData?.consumeInfo;
+    const consumeApproveInfo = defaultData?.currentTask?.formData?.consumeApproveInfo;
+    if (consumeInfo || consumeApproveInfo) {
       const obj = {
-        ...consumptionInfo,
-        ...consumptionApproveInfo,
+        ...consumeInfo,
+        ...consumeApproveInfo,
       };
       form.setFieldsValue(obj);
     }
@@ -44,11 +44,9 @@ const Comp = (
 
   const onOk = async (useValidate = true) => {
     if (!useValidate) {
-      const values = await form.getFieldsValue();
-      return values;
+      return await form.getFieldsValue();
     }
-    const values = await form.validateFields();
-    return values;
+    return await form.validateFields();
   };
 
   useImperativeHandle(ref, () => ({

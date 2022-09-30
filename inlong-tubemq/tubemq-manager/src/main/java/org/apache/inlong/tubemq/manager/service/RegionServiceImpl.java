@@ -55,7 +55,7 @@ public class RegionServiceImpl implements RegionService {
                                         List<Long> brokerIdList) {
         try {
             Long clusterId = regionEntry.getClusterId();
-            if (!brokerService.checkIfBrokersAllExsit(brokerIdList, clusterId)) {
+            if (!brokerService.checkIfBrokersAllExist(brokerIdList, clusterId)) {
                 return TubeMQResult.errorResult(TubeMQErrorConst.RESOURCE_NOT_EXIST);
             }
             if (existBrokerIdAlreadyInRegion(clusterId, brokerIdList, null)) {

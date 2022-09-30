@@ -51,25 +51,20 @@ const groupDefault: FieldItemType[] = [
     },
   },
   {
-    type: 'text',
-    label: 'MQ Resource',
-    name: 'mqResource',
-  },
-  {
     type: <UserSelect mode="multiple" currentUserClosable={false} />,
-    label: i18n.t('meta.Group.BusinessOwners'),
+    label: i18n.t('meta.Group.InlongGroupOwners'),
     name: 'inCharges',
     rules: [
       {
         required: true,
       },
     ],
-    extra: i18n.t('meta.Group.BusinessOwnersExtra'),
+    extra: i18n.t('meta.Group.InlongGroupOwnersExtra'),
     _renderTable: true,
   },
   {
     type: 'textarea',
-    label: i18n.t('meta.Group.BusinessIntroduction'),
+    label: i18n.t('meta.Group.InlongGroupIntroduction'),
     name: 'description',
     props: {
       showCount: true,
@@ -78,7 +73,7 @@ const groupDefault: FieldItemType[] = [
   },
   {
     type: 'radio',
-    label: i18n.t('meta.Group.MessageMiddleware'),
+    label: i18n.t('meta.Group.MQType'),
     name: 'mqType',
     initialValue: 'TUBEMQ',
     rules: [{ required: true }],
@@ -95,6 +90,11 @@ const groupDefault: FieldItemType[] = [
       ],
     },
     _renderTable: true,
+  },
+  {
+    type: 'text',
+    label: 'MQ Resource',
+    name: 'mqResource',
   },
   {
     type: 'input',
@@ -155,7 +155,7 @@ const groupDefault: FieldItemType[] = [
     label: i18n.t('meta.Group.NumberOfAccess'),
     name: 'dailyRecords',
     rules: [{ required: true }],
-    suffix: i18n.t('meta.Group.thousand/day'),
+    suffix: i18n.t('meta.Group.TenThousand/Day'),
     props: {
       min: 1,
       precision: 0,

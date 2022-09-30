@@ -81,8 +81,7 @@ public class ProxyConfigEntry implements java.io.Serializable {
     @Override
     public String toString() {
         return "ProxyConfigEntry [hostMap=" + hostMap + ", load=" + load + ", size=" + size + ", isInterVisit="
-                + isInterVisit + ", groupId=" + groupId
-                + ", switch=" + switchStat + "]";
+                + isInterVisit + ", groupId=" + groupId + ", switch=" + switchStat + "]";
     }
 
     public int getClusterId() {

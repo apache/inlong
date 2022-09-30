@@ -29,6 +29,6 @@ import lombok.NoArgsConstructor;
 @ApiModel("Inlong group info for TubeMQ")
 public class InlongTubeMQDTO {
 
-    // no field
+    // no fields
 
 }

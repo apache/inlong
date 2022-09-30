@@ -174,7 +174,7 @@ public interface InlongClient {
      * @param request query conditions
      * @return cluster list
      */
-    ClusterInfo list(ClusterPageRequest request);
+    PageResult<ClusterInfo> list(ClusterPageRequest request);
 
     /**
      * Update cluster information.

@@ -19,9 +19,10 @@ package org.apache.inlong.agent.metrics.audit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.audit.AuditImp;
+import org.apache.inlong.audit.AuditOperator;
 import org.apache.inlong.audit.util.AuditConfig;
 
+import java.util.Collections;
 import java.util.HashSet;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_ENABLE;
@@ -44,58 +45,47 @@ public class AuditUtils {
     private static boolean IS_AUDIT = true;
 
     /**
-     * initAudit
+     * Init audit config
      */
     public static void initAudit() {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
-        // IS_AUDIT
         IS_AUDIT = conf.getBoolean(AUDIT_ENABLE, DEFAULT_AUDIT_ENABLE);
         if (IS_AUDIT) {
             // AuditProxy
             String strIpPorts = conf.get(AUDIT_KEY_PROXYS, DEFAULT_AUDIT_PROXYS);
-            HashSet<String> proxys = new HashSet<>();
+            HashSet<String> proxySet = new HashSet<>();
             if (!StringUtils.isBlank(strIpPorts)) {
                 String[] ipPorts = strIpPorts.split("\\s+");
-                for (String ipPort : ipPorts) {
-                    proxys.add(ipPort);
-                }
+                Collections.addAll(proxySet, ipPorts);
             }
-            AuditImp.getInstance().setAuditProxy(proxys);
+            AuditOperator.getInstance().setAuditProxy(proxySet);
+
             // AuditConfig
             String filePath = conf.get(AUDIT_KEY_FILE_PATH, AUDIT_DEFAULT_FILE_PATH);
             int maxCacheRow = conf.getInt(AUDIT_KEY_MAX_CACHE_ROWS, AUDIT_DEFAULT_MAX_CACHE_ROWS);
             AuditConfig auditConfig = new AuditConfig(filePath, maxCacheRow);
-            AuditImp.getInstance().setAuditConfig(auditConfig);
+            AuditOperator.getInstance().setAuditConfig(auditConfig);
         }
     }
 
     /**
-     * add audit metric
+     * Add audit metric
      */
-    public static void add(int auditID, String inlongGroupId, String inlongStreamId, long logTime, int count) {
+    public static void add(int auditID, String inlongGroupId, String inlongStreamId,
+            long logTime, int count, long size) {
         if (!IS_AUDIT) {
             return;
         }
-        AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, count, 0);
+        AuditOperator.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, count, size);
     }
 
     /**
-     * add
+     * Send audit data
      */
-    public static void add(int auditID, String inlongGroupId, String inlongStreamId, long logTime) {
+    public static void send() {
         if (!IS_AUDIT) {
             return;
         }
-        AuditImp.getInstance().add(auditID, inlongGroupId, inlongStreamId, logTime, 1, 0);
-    }
-
-    /**
-     * sendReport
-     */
-    public static void sendReport() {
-        if (!IS_AUDIT) {
-            return;
-        }
-        AuditImp.getInstance().sendReport();
+        AuditOperator.getInstance().send();
     }
 }

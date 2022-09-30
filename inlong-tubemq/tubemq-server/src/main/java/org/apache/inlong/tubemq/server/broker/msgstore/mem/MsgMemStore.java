@@ -138,10 +138,13 @@ public class MsgMemStore implements Closeable {
         this.writeLock.lock();
         try {
             // judge whether can write to memory or not.
-            if ((fullDataSize = (this.cacheDataOffset.get() + dataEntryLength > this.maxDataCacheSize))
-                    || (fullCount = (this.curMessageCount.get() + 1 > maxAllowedMsgCount))
-                    || (fullIndexSize =
-                    (this.cacheIndexOffset.get() + DataStoreUtils.STORE_INDEX_HEAD_LEN > this.maxIndexCacheSize))) {
+            fullDataSize =
+                    (this.cacheDataOffset.get() + dataEntryLength > this.maxDataCacheSize);
+            fullCount =
+                    (this.curMessageCount.get() + 1 > maxAllowedMsgCount);
+            fullIndexSize =
+                    (this.cacheIndexOffset.get() + DataStoreUtils.STORE_INDEX_HEAD_LEN > this.maxIndexCacheSize);
+            if (fullDataSize || fullCount || fullIndexSize) {
                 isAppended = false;
                 return false;
             }
@@ -163,9 +166,7 @@ public class MsgMemStore implements Closeable {
             }
         } finally {
             this.writeLock.unlock();
-            if (isAppended) {
-                memStatsHolder.addCacheMsgSize(dataEntryLength);
-            } else {
+            if (!isAppended) {
                 memStatsHolder.addCacheFullType(fullDataSize, fullIndexSize, fullCount);
             }
         }
@@ -329,7 +330,7 @@ public class MsgMemStore implements Closeable {
         tmpIndexBuffer.flip();
         tmpDataReadBuf.flip();
         long startTime = System.currentTimeMillis();
-        msgFileStore.appendMsg(strBuffer, curMessageCount.get(),
+        msgFileStore.appendMsg(true, startTime, strBuffer, curMessageCount.get(),
             cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(),
                 tmpDataReadBuf, leftAppendTime.get(), rightAppendTime.get());
         BrokerSrvStatsHolder.updDiskSyncDataDlt(System.currentTimeMillis() - startTime);
