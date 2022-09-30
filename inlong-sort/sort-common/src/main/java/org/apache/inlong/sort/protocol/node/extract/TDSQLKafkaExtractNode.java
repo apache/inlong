@@ -30,7 +30,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.Metadata;
-import org.apache.inlong.sort.protocol.constant.TdsqlKafkaConstant;
+import org.apache.inlong.sort.protocol.constant.TDSQLKafkaConstant;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.ProtobufFormat;
@@ -41,11 +41,11 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("tdsqlKafkaExtract")
-public class TdsqlKafkaExtractNode extends KafkaExtractNode implements InlongMetric, Metadata, Serializable {
+public class TDSQLKafkaExtractNode extends KafkaExtractNode implements InlongMetric, Metadata, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public TdsqlKafkaExtractNode(@JsonProperty("id") String id,
+    public TDSQLKafkaExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
@@ -72,20 +72,20 @@ public class TdsqlKafkaExtractNode extends KafkaExtractNode implements InlongMet
         if (getProperties() != null && !getProperties().isEmpty()) {
             options.putAll(getProperties());
         }
-        options.put(TdsqlKafkaConstant.TOPIC, getTopic());
-        options.put(TdsqlKafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS, getBootstrapServers());
+        options.put(TDSQLKafkaConstant.TOPIC, getTopic());
+        options.put(TDSQLKafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS, getBootstrapServers());
         if (getFormat() instanceof ProtobufFormat) {
-            options.put(TdsqlKafkaConstant.CONNECTOR, TdsqlKafkaConstant.TDSQL_SUBSCRIBE);
-            options.put(TdsqlKafkaConstant.SCAN_STARTUP_MODE, getKafkaScanStartupMode().getValue());
+            options.put(TDSQLKafkaConstant.CONNECTOR, TDSQLKafkaConstant.TDSQL_SUBSCRIBE);
+            options.put(TDSQLKafkaConstant.SCAN_STARTUP_MODE, getKafkaScanStartupMode().getValue());
             if (StringUtils.isNotEmpty(getScanSpecificOffsets())) {
-                options.put(TdsqlKafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, getScanSpecificOffsets());
+                options.put(TDSQLKafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, getScanSpecificOffsets());
             }
             options.putAll(getFormat().generateOptions(false));
         } else {
             throw new IllegalArgumentException("kafka extract node format is IllegalArgument");
         }
         if (StringUtils.isNotEmpty(getGroupId())) {
-            options.put(TdsqlKafkaConstant.PROPERTIES_GROUP_ID, getGroupId());
+            options.put(TDSQLKafkaConstant.PROPERTIES_GROUP_ID, getGroupId());
         }
         for (String key : getProperties().keySet()) {
             options.put(key, getProperties().get(key));
