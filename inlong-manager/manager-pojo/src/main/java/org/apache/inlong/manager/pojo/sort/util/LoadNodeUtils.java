@@ -29,6 +29,7 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.pojo.sink.dlciceberg.DLCIcebergSink;
+import org.apache.inlong.manager.pojo.sink.doris.DorisSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.pojo.sink.hbase.HBaseSink;
@@ -55,6 +56,7 @@ import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.DLCIcebergLoadNode;
+import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
 import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
@@ -135,6 +137,8 @@ public class LoadNodeUtils {
                 return createLoadNode((TDSQLPostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.DLCICEBERG:
                 return createLoadNode((DLCIcebergSink) streamSink, fieldInfos, fieldRelations, properties);
+            case SinkType.DORIS:
+                return createLoadNode((DorisSink) streamSink, fieldInfos, fieldRelations, properties);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -492,6 +496,29 @@ public class LoadNodeUtils {
                 dlcIcebergSink.getWarehouse()
         );
     }
+
+    /**
+     * Create load node of DLCIceberg.
+     */
+    public static DorisLoadNode createLoadNode(DorisSink dorisSink, List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        return new DorisLoadNode(
+                dorisSink.getSinkName(),
+                dorisSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                dorisSink.getFeNode(),
+                dorisSink.getUsername(),
+                dorisSink.getPassword(),
+                dorisSink.getTableName(),
+                dorisSink.getPrimaryKey()
+        );
+    }
+
 
     /**
      * Parse information field of data sink.

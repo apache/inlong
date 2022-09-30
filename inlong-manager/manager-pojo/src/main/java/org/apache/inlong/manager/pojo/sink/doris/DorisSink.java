@@ -62,11 +62,8 @@ public class DorisSink extends StreamSink {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
-    @ApiModelProperty("Database mapping rule")
-    private String databaseMappingRule;
-
-    @ApiModelProperty("Table mapping rule")
-    private String tableMappingRule;
+    @ApiModelProperty("Fe Node")
+    private String feNode;
 
     @ApiModelProperty("Properties for doris")
     private Map<String, Object> properties;
