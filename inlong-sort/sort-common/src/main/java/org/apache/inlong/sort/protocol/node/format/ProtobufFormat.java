@@ -48,7 +48,7 @@ public class ProtobufFormat implements Format {
     }
 
     /**
-     * Return avro
+     * Return protobuf
      *
      * @return format
      */
