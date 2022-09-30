@@ -99,11 +99,8 @@ public class ClickHouseService implements InsertData, AutoCloseable {
             return;
         }
         // output
-        PreparedStatement pstat = null;
-        try {
+        try (PreparedStatement pstat = this.conn.prepareStatement(INSERT_SQL)) {
             int counter = 0;
-            // get prepare statement
-            pstat = this.conn.prepareStatement(INSERT_SQL);
             // output data to clickhouse
             ClickHouseDataPo data = this.batchQueue.poll();
             while (data != null) {
@@ -133,31 +130,13 @@ public class ClickHouseService implements InsertData, AutoCloseable {
                 pstat.executeBatch();
                 this.conn.commit();
             }
-        } catch (Throwable e1) {
+        } catch (Exception e1) {
             LOG.error("Execute output to clickhouse failure!", e1);
-            // close prepareStatement object
-            if (pstat != null) {
-                try {
-                    pstat.close();
-                    pstat = null;
-                } catch (SQLException e2) {
-                    LOG.error("Close prepareStatement failure!", e2);
-                }
-            }
             // re-connect clickhouse
             try {
                 this.reconnect();
-            } catch (SQLException e3) {
-                LOG.error("Re-connect clickhouse failure!", e3);
-            }
-        } finally {
-            // close prepareStatement object
-            if (pstat != null) {
-                try {
-                    pstat.close();
-                } catch (SQLException e1) {
-                    LOG.error("Release prepareStatement failure!", e1);
-                }
+            } catch (SQLException e2) {
+                LOG.error("Re-connect clickhouse failure!", e2);
             }
         }
         // recover flag
