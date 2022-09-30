@@ -246,21 +246,36 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
     /**
      * When topic.properties is re-enabled, the producer update is triggered
      */
-    public void diffSetPublish(PulsarClientService pulsarClientService, Set<String> originalSet, Set<String> endSet) {
+    public void diffSetPublish(PulsarClientService pulsarClientService,
+                               Set<String> curTopicSet, Set<String> newTopicSet) {
         boolean changed = false;
-        for (String s : endSet) {
-            if (!originalSet.contains(s)) {
+        // create producers for new topics
+        for (String newTopic : newTopicSet) {
+            if (!curTopicSet.contains(newTopic)) {
                 changed = true;
                 try {
-                    pulsarClientService.initTopicProducer(s);
+                    pulsarClientService.initTopicProducer(newTopic);
                 } catch (Exception e) {
                     logger.error("get producer failed: ", e);
                 }
             }
         }
+        // remove producers for deleted topics
+        for (String oldTopic : curTopicSet) {
+            if (!newTopicSet.contains(oldTopic)) {
+                changed = true;
+                try {
+                    pulsarClientService.destroyProducerByTopic(oldTopic);
+                } catch (Exception e) {
+                    logger.error("remove producer failed: ", e);
+                }
+            }
+        }
         if (changed) {
-            logger.info("topics.properties has changed, trigger diff publish for {}", getName());
             topicProperties = configManager.getTopicProperties();
+            logger.info("topics.properties has changed, trigger diff publish for {},"
+                    + " old topic set = {}, new topic set = {}, current topicProperties = {}",
+                    getName(), curTopicSet, newTopicSet, topicProperties);
         }
     }
 
