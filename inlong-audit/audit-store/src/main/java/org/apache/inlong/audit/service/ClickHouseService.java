@@ -151,6 +151,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
                 LOG.error("Re-connect clickhouse failure!", e3);
             }
         } finally {
+            // close prepareStatement object
             if (pstat != null) {
                 try {
                     pstat.close();
