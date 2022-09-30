@@ -99,10 +99,13 @@ public class ClickHouseService implements InsertData, AutoCloseable {
             return;
         }
         // output
-        try (PreparedStatement pstat = this.conn.prepareStatement(INSERT_SQL)) {
-            // insert data
-            ClickHouseDataPo data = this.batchQueue.poll();
+        PreparedStatement pstat = null;
+        try {
             int counter = 0;
+            // get prepare statement
+            pstat = this.conn.prepareStatement(INSERT_SQL);
+            // output data to clickhouse
+            ClickHouseDataPo data = this.batchQueue.poll();
             while (data != null) {
                 pstat.setString(1, data.getIp());
                 pstat.setString(2, data.getDockerId());
@@ -124,20 +127,39 @@ public class ClickHouseService implements InsertData, AutoCloseable {
                     this.conn.commit();
                     counter = 0;
                 }
+                data = this.batchQueue.poll();
             }
-            this.batchCounter.set(0);
-            pstat.executeBatch();
-            this.conn.commit();
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
+            if (counter > 0) {
+                pstat.executeBatch();
+                this.conn.commit();
+            }
+        } catch (Throwable e1) {
+            LOG.error("Execute output to clickhouse failure!", e1);
+            // close prepareStatement object
+            if (pstat != null) {
+                try {
+                    pstat.close();
+                    pstat = null;
+                } catch (SQLException e2) {
+                    LOG.error("Close prepareStatement failure!", e2);
+                }
+            }
+            // re-connect clickhouse
             try {
                 this.reconnect();
-            } catch (SQLException e1) {
-                LOG.error(e1.getMessage(), e1);
+            } catch (SQLException e3) {
+                LOG.error("Re-connect clickhouse failure!", e3);
+            }
+        } finally {
+            if (pstat != null) {
+                try {
+                    pstat.close();
+                } catch (SQLException e1) {
+                    LOG.error("Release prepareStatement failure!", e1);
+                }
             }
         }
-
-        // recover
+        // recover flag
         this.needBatchOutput.compareAndSet(true, false);
     }
 
