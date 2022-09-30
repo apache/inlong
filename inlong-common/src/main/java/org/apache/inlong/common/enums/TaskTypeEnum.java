@@ -34,7 +34,9 @@ public enum TaskTypeEnum {
     CKAFKA(12),
     MYSQL(13),
     TDSQL_KAFKA(14),
-    DORIS(15)
+    DORIS(15),
+
+
     ;
 
     private final int type;
