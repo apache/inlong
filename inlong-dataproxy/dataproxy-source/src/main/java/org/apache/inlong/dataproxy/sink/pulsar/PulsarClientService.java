@@ -329,11 +329,10 @@ public class PulsarClientService {
             return true;
         }
         for (TopicProducerInfo producerInfo : producerInfoList) {
-            if (producerInfo == null) {
-                continue;
+            if (producerInfo != null) {
+                producerInfo.close();
+                logger.info("destroy producer for topic={}", topic);
             }
-            producerInfo.close();
-            logger.info("Destroy producer by topic = {}", topic);
         }
         return true;
     }
