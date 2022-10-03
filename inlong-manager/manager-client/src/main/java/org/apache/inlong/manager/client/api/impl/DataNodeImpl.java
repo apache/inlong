@@ -24,8 +24,8 @@ import org.apache.inlong.manager.client.api.inner.client.DataNodeClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 
 public class DataNodeImpl implements DataNode {
 
@@ -45,13 +45,13 @@ public class DataNodeImpl implements DataNode {
     }
 
     @Override
-    public DataNodeResponse get(Integer id) {
+    public DataNodeInfo get(Integer id) {
         Preconditions.checkNotNull(id, "data node id cannot be null");
         return dataNodeClient.get(id);
     }
 
     @Override
-    public PageResult<DataNodeResponse> list(DataNodeRequest request) {
+    public PageResult<DataNodeInfo> list(DataNodeRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");
         return dataNodeClient.list(request);
     }
