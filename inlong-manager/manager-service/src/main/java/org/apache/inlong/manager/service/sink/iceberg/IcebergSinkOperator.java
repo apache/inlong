@@ -18,10 +18,12 @@
 package org.apache.inlong.manager.service.sink.iceberg;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.pojo.node.iceberg.IcebergDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -47,6 +49,8 @@ import java.util.List;
 public class IcebergSinkOperator extends AbstractSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IcebergSinkOperator.class);
+
+    private static final String CATALOG_TYPE_HIVE = "HIVE";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -83,6 +87,15 @@ public class IcebergSinkOperator extends AbstractSinkOperator {
         }
 
         IcebergSinkDTO dto = IcebergSinkDTO.getFromJson(entity.getExtParams());
+        if (StringUtils.isBlank(dto.getCatalogUri()) && CATALOG_TYPE_HIVE.equals(dto.getCatalogType())) {
+            Preconditions.checkNotEmpty(entity.getDataNodeName(),
+                    "iceberg catalog uri unspecified and data node is empty");
+            IcebergDataNodeInfo dataNodeInfo = (IcebergDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    entity.getDataNodeName(), entity.getSinkType());
+            CommonBeanUtils.copyProperties(dataNodeInfo, dto, true);
+            dto.setCatalogUri(dataNodeInfo.getUrl());
+        }
+
         CommonBeanUtils.copyProperties(entity, sink, true);
         CommonBeanUtils.copyProperties(dto, sink, true);
         List<SinkField> sinkFields = super.getSinkFields(entity.getId());

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.node.hive;
+package org.apache.inlong.manager.pojo.node.iceberg;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,36 +23,32 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
-import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 
 /**
- * Hive data node request
+ * Iceberg data node info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = DataNodeType.HIVE)
-@ApiModel("Hive data node request")
-public class HiveDataNodeRequest extends DataNodeRequest {
+@JsonTypeDefine(value = DataNodeType.ICEBERG)
+@ApiModel("Iceberg data node info")
+public class IcebergDataNodeInfo extends DataNodeInfo {
 
-    @ApiModelProperty("Version for Hive, such as: 3.2.1")
-    private String hiveVersion;
+    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
+    private String catalogType = "HIVE";
 
-    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
-    private String hiveConfDir;
-
-    @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
-    private String hdfsPath;
-
-    @ApiModelProperty("Hive warehouse path, such as: /user/hive/warehouse/")
+    @ApiModelProperty("Iceberg data warehouse dir")
     private String warehouse;
 
-    @ApiModelProperty("User and group information for writing data to HDFS")
-    private String hdfsUgi;
-
-    public HiveDataNodeRequest() {
-        this.setType(DataNodeType.HIVE);
+    public IcebergDataNodeInfo() {
+        this.setType(DataNodeType.ICEBERG);
     }
 
+    @Override
+    public IcebergDataNodeRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, IcebergDataNodeRequest::new);
+    }
 }

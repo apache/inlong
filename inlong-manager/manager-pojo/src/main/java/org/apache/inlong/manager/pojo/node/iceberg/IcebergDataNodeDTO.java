@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.node.hive;
+package org.apache.inlong.manager.pojo.node.iceberg;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,56 +33,45 @@ import org.slf4j.LoggerFactory;
 import javax.validation.constraints.NotNull;
 
 /**
- * Hive data node info
+ * Iceberg data node info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Hive data node info")
-public class HiveDataNodeDTO {
+@ApiModel("Iceberg data node info")
+public class IcebergDataNodeDTO {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HiveDataNodeDTO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IcebergDataNodeDTO.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty("Version for Hive, such as: 3.2.1")
-    private String hiveVersion;
+    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
+    @Builder.Default
+    private String catalogType = "HIVE";
 
-    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
-    private String hiveConfDir;
-
-    @ApiModelProperty("HDFS default FS, such as: hdfs://127.0.0.1:9000")
-    private String hdfsPath;
-
-    @ApiModelProperty("Hive warehouse path, such as: /user/hive/warehouse/")
+    @ApiModelProperty("Iceberg data warehouse dir")
     private String warehouse;
-
-    @ApiModelProperty("User and group information for writing data to HDFS")
-    private String hdfsUgi;
 
     /**
      * Get the dto instance from the request
      */
-    public static HiveDataNodeDTO getFromRequest(HiveDataNodeRequest request) throws Exception {
-        return HiveDataNodeDTO.builder()
-                .hiveVersion(request.getHiveVersion())
-                .hiveConfDir(request.getHiveConfDir())
-                .hdfsPath(request.getHdfsPath())
+    public static IcebergDataNodeDTO getFromRequest(IcebergDataNodeRequest request) throws Exception {
+        return IcebergDataNodeDTO.builder()
+                .catalogType(request.getCatalogType())
                 .warehouse(request.getWarehouse())
-                .hdfsUgi(request.getHdfsUgi())
                 .build();
     }
 
     /**
      * Get the dto instance from the JSON string.
      */
-    public static HiveDataNodeDTO getFromJson(@NotNull String extParams) {
+    public static IcebergDataNodeDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, HiveDataNodeDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, IcebergDataNodeDTO.class);
         } catch (Exception e) {
-            LOGGER.error("Failed to extract additional parameters for hive data node: ", e);
+            LOGGER.error("Failed to extract additional parameters for iceberg data node: ", e);
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
         }
     }
