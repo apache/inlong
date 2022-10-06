@@ -41,7 +41,7 @@ import java.util.Map;
 @Data
 public class BaseExample {
 
-    // Manager web url
+    // Service url of the inlong manager
     private String serviceUrl = "127.0.0.1:8083";
     // Inlong user && passwd
     private DefaultAuthentication inlongAuth = new DefaultAuthentication("admin", "inlong");
