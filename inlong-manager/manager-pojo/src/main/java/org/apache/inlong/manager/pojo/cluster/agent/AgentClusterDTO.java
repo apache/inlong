@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.cluster.agent;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -27,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -39,9 +38,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @ApiModel("Agent cluster info")
 public class AgentClusterDTO {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @ApiModelProperty(value = "Version number of the server list collected by the cluster")
     private Integer serverVersion;
@@ -60,7 +56,7 @@ public class AgentClusterDTO {
      */
     public static AgentClusterDTO getFromJson(@NotNull String extParams) {
         try {
-            return OBJECT_MAPPER.readValue(extParams, AgentClusterDTO.class);
+            return JsonUtils.parseObject(extParams, AgentClusterDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

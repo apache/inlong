@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.pojo.node.ck;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
+
 import javax.validation.constraints.NotNull;
 
 /**
@@ -33,8 +33,6 @@ import javax.validation.constraints.NotNull;
 @Builder
 @ApiModel("ClickHouse data node info")
 public class ClickHouseDataNodeDTO {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
     /**
      * Get the dto instance from the request
@@ -48,8 +46,7 @@ public class ClickHouseDataNodeDTO {
      */
     public static ClickHouseDataNodeDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, ClickHouseDataNodeDTO.class);
+            return JsonUtils.parseObject(extParams, ClickHouseDataNodeDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
         }

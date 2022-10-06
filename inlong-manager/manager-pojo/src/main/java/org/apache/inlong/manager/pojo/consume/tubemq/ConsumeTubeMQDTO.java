@@ -17,14 +17,13 @@
 
 package org.apache.inlong.manager.pojo.consume.tubemq;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -36,9 +35,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @ApiModel("Inlong group info of TubeMQ")
 public class ConsumeTubeMQDTO {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     // no fields
 
@@ -54,7 +50,7 @@ public class ConsumeTubeMQDTO {
      */
     public static ConsumeTubeMQDTO getFromJson(@NotNull String extParams) {
         try {
-            return OBJECT_MAPPER.readValue(extParams, ConsumeTubeMQDTO.class);
+            return JsonUtils.parseObject(extParams, ConsumeTubeMQDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CONSUMER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

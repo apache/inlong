@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.node.mysql;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -27,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +42,6 @@ import javax.validation.constraints.NotNull;
 public class MySQLDataNodeDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLDataNodeDTO.class);
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @ApiModelProperty("URL of backup DB server")
     private String backupUrl;
@@ -64,7 +60,7 @@ public class MySQLDataNodeDTO {
      */
     public static MySQLDataNodeDTO getFromJson(@NotNull String extParams) {
         try {
-            return OBJECT_MAPPER.readValue(extParams, MySQLDataNodeDTO.class);
+            return JsonUtils.parseObject(extParams, MySQLDataNodeDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

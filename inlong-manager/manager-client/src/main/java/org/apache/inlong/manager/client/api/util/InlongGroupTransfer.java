@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.auth.Authentication;
@@ -25,6 +24,7 @@ import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.auth.TokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -40,8 +40,6 @@ import java.util.List;
  * The transfer util for Inlong Group
  */
 public class InlongGroupTransfer {
-
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Create inlong group info from group config.
@@ -130,7 +128,7 @@ public class InlongGroupTransfer {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
             flinkProperties.setKeyName(InlongConstants.SORT_PROPERTIES);
             try {
-                flinkProperties.setKeyValue(OBJECT_MAPPER.writeValueAsString(flinkSortConf.getProperties()));
+                flinkProperties.setKeyValue(JsonUtils.toJsonString(flinkSortConf.getProperties()));
             } catch (Exception e) {
                 throw new RuntimeException("get json for sort properties error: " + e.getMessage());
             }
@@ -156,7 +154,7 @@ public class InlongGroupTransfer {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
             flinkProperties.setKeyName(InlongConstants.SORT_PROPERTIES);
             try {
-                flinkProperties.setKeyValue(OBJECT_MAPPER.writeValueAsString(userDefinedSortConf.getProperties()));
+                flinkProperties.setKeyValue(JsonUtils.toJsonString(userDefinedSortConf.getProperties()));
             } catch (Exception e) {
                 throw new RuntimeException("get json for sort properties error: " + e.getMessage());
             }
