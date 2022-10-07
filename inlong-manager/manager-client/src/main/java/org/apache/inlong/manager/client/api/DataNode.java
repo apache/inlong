@@ -43,7 +43,7 @@ public interface DataNode {
      * Paging query nodes according to conditions.
      *
      * @param request page request conditions
-     * @return node info list
+     * @return node list
      */
     PageResult<DataNodeInfo> list(DataNodeRequest request);
 
