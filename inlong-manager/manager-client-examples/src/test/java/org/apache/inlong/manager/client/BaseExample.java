@@ -17,12 +17,11 @@
 
 package org.apache.inlong.manager.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -42,9 +41,7 @@ import java.util.Map;
 @Data
 public class BaseExample {
 
-    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    // Manager web url
+    // Service url of the inlong manager
     private String serviceUrl = "127.0.0.1:8083";
     // Inlong user && passwd
     private DefaultAuthentication inlongAuth = new DefaultAuthentication("admin", "inlong");

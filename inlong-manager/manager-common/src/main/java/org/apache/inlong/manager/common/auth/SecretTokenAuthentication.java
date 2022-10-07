@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
@@ -57,7 +58,7 @@ public class SecretTokenAuthentication extends SecretAuthentication {
     @SneakyThrows
     @Override
     public String toString() {
-        ObjectNode objectNode = OBJECT_MAPPER.createObjectNode();
+        ObjectNode objectNode = JsonUtils.OBJECT_MAPPER.createObjectNode();
         objectNode.put(SECRET_ID, this.getSecretId());
         objectNode.put(SECRET_KEY, this.getSecretKey());
         objectNode.put(SECRET_TOKEN, this.getSToken());

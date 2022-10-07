@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.consume.pulsar;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -27,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -39,9 +38,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @ApiModel("Inlong group dto of Pulsar")
 public class ConsumePulsarDTO {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @ApiModelProperty("Whether to configure the dead letter queue, 0: not configure, 1: configure")
     private Integer isDlq;
@@ -72,7 +68,7 @@ public class ConsumePulsarDTO {
      */
     public static ConsumePulsarDTO getFromJson(@NotNull String extParams) {
         try {
-            return OBJECT_MAPPER.readValue(extParams, ConsumePulsarDTO.class);
+            return JsonUtils.parseObject(extParams, ConsumePulsarDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CONSUMER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

@@ -64,6 +64,14 @@ public class JsonUtils {
     }
 
     /**
+     * Transform Java object to pretty JSON string
+     */
+    @SneakyThrows
+    public static String toPrettyJsonString(Object object) {
+        return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+    }
+
+    /**
      * Transform Java object to JSON byte
      */
     @SneakyThrows

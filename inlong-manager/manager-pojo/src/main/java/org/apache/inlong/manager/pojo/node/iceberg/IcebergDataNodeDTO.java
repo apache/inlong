@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.node.iceberg;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -27,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +42,6 @@ import javax.validation.constraints.NotNull;
 public class IcebergDataNodeDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IcebergDataNodeDTO.class);
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
     @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
     @Builder.Default
@@ -68,8 +65,7 @@ public class IcebergDataNodeDTO {
      */
     public static IcebergDataNodeDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, IcebergDataNodeDTO.class);
+            return JsonUtils.parseObject(extParams, IcebergDataNodeDTO.class);
         } catch (Exception e) {
             LOGGER.error("Failed to extract additional parameters for iceberg data node: ", e);
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());

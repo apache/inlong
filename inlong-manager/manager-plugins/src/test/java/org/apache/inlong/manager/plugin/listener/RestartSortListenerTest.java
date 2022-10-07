@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.plugin.listener;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -36,7 +36,7 @@ import java.util.Map;
 public class RestartSortListenerTest {
 
     @Test
-    public void testListener() throws Exception {
+    public void testListener() {
         WorkflowContext context = new WorkflowContext();
         GroupResourceProcessForm groupResourceProcessForm = new GroupResourceProcessForm();
         context.setProcessForm(groupResourceProcessForm);
@@ -52,9 +52,8 @@ public class RestartSortListenerTest {
 
         InlongGroupExtInfo inlongGroupExtInfo2 = new InlongGroupExtInfo();
         inlongGroupExtInfo2.setKeyName(InlongConstants.SORT_PROPERTIES);
-        ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> sortProperties = new HashMap<>(16);
-        String sortStr = objectMapper.writeValueAsString(sortProperties);
+        String sortStr = JsonUtils.toJsonString(sortProperties);
         inlongGroupExtInfo2.setKeyValue(sortStr);
         inlongGroupExtInfoList.add(inlongGroupExtInfo2);
 

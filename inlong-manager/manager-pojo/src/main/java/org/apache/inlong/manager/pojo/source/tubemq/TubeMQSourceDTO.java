@@ -18,8 +18,6 @@
 
 package org.apache.inlong.manager.pojo.source.tubemq;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
@@ -40,8 +39,6 @@ import java.util.TreeSet;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TubeMQSourceDTO {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @ApiModelProperty("Master RPC of the TubeMQ,127.0.0.1:8715")
     private String masterRpc;
@@ -87,8 +84,7 @@ public class TubeMQSourceDTO {
      */
     public static TubeMQSourceDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, TubeMQSourceDTO.class);
+            return JsonUtils.parseObject(extParams, TubeMQSourceDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

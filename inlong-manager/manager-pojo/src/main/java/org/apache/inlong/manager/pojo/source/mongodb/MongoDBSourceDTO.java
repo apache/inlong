@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.source.mongodb;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
@@ -38,8 +37,6 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MongoDBSourceDTO {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @ApiModelProperty("Hosts of the MongoDB server")
     private String hosts;
@@ -82,8 +79,7 @@ public class MongoDBSourceDTO {
      */
     public static MongoDBSourceDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, MongoDBSourceDTO.class);
+            return JsonUtils.parseObject(extParams, MongoDBSourceDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

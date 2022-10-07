@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.group.kafka;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -39,8 +38,6 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Inlong group info for Kafka")
 public class InlongKafkaDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
     // partition number
     private Integer numPartitions;
     // replicationFactor number
@@ -67,7 +64,7 @@ public class InlongKafkaDTO {
      */
     public static InlongKafkaDTO getFromJson(@NotNull String extParams) {
         try {
-            return OBJECT_MAPPER.readValue(extParams, InlongKafkaDTO.class);
+            return JsonUtils.parseObject(extParams, InlongKafkaDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
