@@ -74,16 +74,16 @@ public class TDSQLKafkaExtractNode extends KafkaExtractNode implements InlongMet
         }
         options.put(TDSQLKafkaConstant.TOPIC, getTopic());
         options.put(TDSQLKafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS, getBootstrapServers());
-        if (getFormat() instanceof ProtobufFormat) {
-            options.put(TDSQLKafkaConstant.CONNECTOR, TDSQLKafkaConstant.TDSQL_SUBSCRIBE);
-            options.put(TDSQLKafkaConstant.SCAN_STARTUP_MODE, getKafkaScanStartupMode().getValue());
-            if (StringUtils.isNotEmpty(getScanSpecificOffsets())) {
-                options.put(TDSQLKafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, getScanSpecificOffsets());
-            }
-            options.putAll(getFormat().generateOptions(false));
-        } else {
+        if (!(getFormat() instanceof ProtobufFormat)) {
             throw new IllegalArgumentException("tdsql kafka extract node format is IllegalArgument");
         }
+
+        options.put(TDSQLKafkaConstant.CONNECTOR, TDSQLKafkaConstant.TDSQL_SUBSCRIBE);
+        options.put(TDSQLKafkaConstant.SCAN_STARTUP_MODE, getKafkaScanStartupMode().getValue());
+        if (StringUtils.isNotEmpty(getScanSpecificOffsets())) {
+            options.put(TDSQLKafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, getScanSpecificOffsets());
+        }
+        options.putAll(getFormat().generateOptions(false));
         if (StringUtils.isNotEmpty(getGroupId())) {
             options.put(TDSQLKafkaConstant.PROPERTIES_GROUP_ID, getGroupId());
         }
