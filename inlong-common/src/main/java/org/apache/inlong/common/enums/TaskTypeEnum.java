@@ -32,7 +32,6 @@ public enum TaskTypeEnum {
     TUBEMQ(10),
     REDIS(11),
     CKAFKA(12),
-    MYSQL(13),
     TDSQL_KAFKA(14),
     DORIS(15),
 
@@ -71,8 +70,6 @@ public enum TaskTypeEnum {
                 return TUBEMQ;
             case 12:
                 return CKAFKA;
-            case 13:
-                return MYSQL;
             case 14:
                 return TDSQL_KAFKA;
             case 15:
