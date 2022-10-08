@@ -18,6 +18,8 @@
 .idea/
 *.iml
 *.iws
+!/.idea/icon.png
+!/.idea/vcs.xml
 
 # NetBeans
 nb-configuration.xml
