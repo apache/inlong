@@ -37,7 +37,7 @@ import org.apache.inlong.sort.protocol.node.format.ProtobufFormat;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 /**
- * Kafka extract node for extract data from kafka
+ * TDSQL Kafka extract node info
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("tdsqlKafkaExtract")
