@@ -427,6 +427,40 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
+    public Boolean deleteByRelatedId(String name, String type, String operator) {
+        Preconditions.checkNotNull(name, "cluster name should not be empty or null");
+        Preconditions.checkNotNull(name, "cluster type should not be empty or null");
+        InlongClusterEntity entity = clusterMapper.selectByNameAndType(name, type);
+        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
+            LOGGER.error("inlong cluster not found by clusterName={}, type={} or was already deleted",
+                    name, type);
+            return false;
+        }
+        UserEntity userEntity = userMapper.selectByName(operator);
+        boolean isInCharge = Preconditions.inSeparatedString(operator, entity.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+                "Current user does not have permission to delete cluster info");
+
+        List<InlongClusterNodeEntity> nodeEntities = clusterNodeMapper.selectByParentId(entity.getId());
+        if (CollectionUtils.isNotEmpty(nodeEntities)) {
+            String errMsg = String.format("there are undeleted nodes under the cluster [%s], "
+                    + "please delete the node first", entity.getName());
+            throw new BusinessException(errMsg);
+        }
+
+        entity.setIsDeleted(entity.getId());
+        entity.setModifier(operator);
+        if (InlongConstants.AFFECTED_ONE_ROW != clusterMapper.updateById(entity)) {
+            LOGGER.error("cluster has already updated with name={}, type={}, curVersion={}", entity.getName(),
+                    entity.getType(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
+        LOGGER.info("success to delete inlong cluster for clusterName={}, type={} by user={}",
+                name, type, operator);
+        return true;
+    }
+
+    @Override
     public Boolean delete(Integer id, String operator) {
         Preconditions.checkNotNull(id, "cluster id cannot be empty");
         InlongClusterEntity entity = clusterMapper.selectById(id);

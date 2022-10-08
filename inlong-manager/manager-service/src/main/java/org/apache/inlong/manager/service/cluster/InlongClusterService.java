@@ -146,6 +146,16 @@ public interface InlongClusterService {
     Boolean delete(Integer id, String operator);
 
     /**
+     * Delete cluster by cluster name and type
+     *
+     * @param name cluster name to be deleted
+     * @param type cluster type to be deleted
+     * @param operator current operator
+     * @return whether succeed
+     */
+    Boolean deleteByRelatedId(String name, String type, String operator);
+
+    /**
      * Save cluster node info.
      *
      * @param request inlong cluster info

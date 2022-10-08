@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
@@ -147,6 +148,20 @@ public class InlongClusterController {
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @DeleteMapping(value = "/cluster/deleteByRelatedId/{name}/{type}")
+    @ApiOperation(value = "Delete cluster by cluster name and type")
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "Cluster name",
+                    dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "Cluster type", dataTypeClass = String.class, required = true),
+    })
+    @RequiresRoles(value = UserRoleCode.ADMIN)
+    public Response<Boolean> deleteByRelatedId(@PathVariable String name, @PathVariable String type) {
+        return Response.success(clusterService.deleteByRelatedId(name, type,
+                LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/cluster/node/save")

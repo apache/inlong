@@ -187,6 +187,21 @@ public class InlongClusterClient {
     }
 
     /**
+     * Delete cluster by name and type
+     *
+     * @param name cluster name
+     * @param type cluster type
+     * @return wheter succeed
+     */
+    public Boolean deleteByRelatedId(String name, String type) {
+        Preconditions.checkNotNull(name, "cluster name should not be empty");
+        Preconditions.checkNotNull(type, "cluster type should not be empty");
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongClusterApi.deleteByRelatedId(name, type));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * Save cluster node info.
      *
      * @param request cluster info

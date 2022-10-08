@@ -70,6 +70,9 @@ public interface InlongClusterApi {
     @DELETE("cluster/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);
 
+    @DELETE("cluster/deleteByRelatedId/{name}/{type}")
+    Call<Response<Boolean>> deleteByRelatedId(@Path("name") String name, @Path("type") String type);
+
     @POST("cluster/node/save")
     Call<Response<Integer>> saveNode(@Body ClusterNodeRequest request);
 
