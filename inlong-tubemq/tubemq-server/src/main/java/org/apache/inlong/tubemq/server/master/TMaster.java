@@ -817,7 +817,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             strBuffer.delete(0, strBuffer.length());
             try {
                 consumeGroupInfo.settAllocated();
-                consumerEventManager.removeFirst(clientId);
+                consumerEventManager.removeFirst(clientId, strBuffer);
             } catch (Throwable e) {
                 logger.warn("Unknown exception for remove first event:", e);
             }
