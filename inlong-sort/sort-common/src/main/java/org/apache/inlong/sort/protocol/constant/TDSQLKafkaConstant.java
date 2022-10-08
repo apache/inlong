@@ -18,7 +18,7 @@
 package org.apache.inlong.sort.protocol.constant;
 
 /**
- * tdsql kafka option constant
+ * TDSQL Kafka option constant
  *
  * @see <a href="https://cloud.tencent.com/document/product/849/71448"></a>
  */
