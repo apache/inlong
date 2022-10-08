@@ -63,7 +63,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeResponse;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
@@ -111,10 +112,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 class ClientFactoryTest {
 
     private static final int SERVICE_PORT = 8085;
-    private static WireMockServer wireMockServer;
-
     static ClientFactory clientFactory;
-
+    private static WireMockServer wireMockServer;
     private static InlongGroupClient groupClient;
     private static InlongStreamClient streamClient;
     private static StreamSourceClient sourceClient;
@@ -979,7 +978,7 @@ class ClientFactoryTest {
 
     @Test
     void testGetDataNode() {
-        DataNodeResponse response = DataNodeResponse.builder()
+        HiveDataNodeInfo dataNodeInfo = HiveDataNodeInfo.builder()
                 .id(1)
                 .name("test_node")
                 .type(DataNodeType.HIVE)
@@ -988,17 +987,17 @@ class ClientFactoryTest {
                 get(urlMatching("/inlong/manager/api/node/get/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(response))
+                                        Response.success(dataNodeInfo))
                                 ))
         );
-        DataNodeResponse nodeInfo = dataNodeClient.get(1);
+        DataNodeInfo nodeInfo = dataNodeClient.get(1);
         Assertions.assertEquals(1, nodeInfo.getId());
     }
 
     @Test
     void testListDataNode() {
-        List<DataNodeResponse> nodeResponses = Lists.newArrayList(
-                DataNodeResponse.builder()
+        List<DataNodeInfo> nodeResponses = Lists.newArrayList(
+                HiveDataNodeInfo.builder()
                         .id(1)
                         .name("test_node")
                         .type(DataNodeType.HIVE)
@@ -1014,8 +1013,8 @@ class ClientFactoryTest {
 
         HiveDataNodeRequest request = new HiveDataNodeRequest();
         request.setName("test_hive_node");
-        PageResult<DataNodeResponse> nodePageInfo = dataNodeClient.list(request);
-        Assertions.assertEquals(JsonUtils.toJsonString(nodePageInfo.getList()), JsonUtils.toJsonString(nodeResponses));
+        PageResult<DataNodeInfo> pageInfo = dataNodeClient.list(request);
+        Assertions.assertEquals(JsonUtils.toJsonString(pageInfo.getList()), JsonUtils.toJsonString(nodeResponses));
     }
 
     @Test
