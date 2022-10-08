@@ -19,7 +19,6 @@ package org.apache.inlong.manager.pojo.source.kafka;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.nio.charset.StandardCharsets;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,6 +26,8 @@ import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * Kafka source request
@@ -59,6 +60,9 @@ public class KafkaSourceRequest extends SourceRequest {
             notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
                     + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
     private String partitionOffsets;
+
+    @ApiModelProperty(value = "timestamp is millis")
+    private String timestampMillis;
 
     @ApiModelProperty(value = "The strategy of auto offset reset",
             notes = "including earliest, latest (the default), none")

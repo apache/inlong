@@ -60,6 +60,9 @@ public class KafkaSourceDTO {
                     + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
     private String partitionOffsets;
 
+    @ApiModelProperty(value = "timestamp is millis")
+    private String timestampMillis;
+
     /**
      * The strategy of auto offset reset.
      *
@@ -110,6 +113,7 @@ public class KafkaSourceDTO {
                 .recordSpeedLimit(request.getRecordSpeedLimit())
                 .byteSpeedLimit(request.getByteSpeedLimit())
                 .partitionOffsets(request.getPartitionOffsets())
+                .timestampMillis(request.getTimestampMillis())
                 .autoOffsetReset(request.getAutoOffsetReset())
                 .serializationType(request.getSerializationType())
                 .databasePattern(request.getDatabasePattern())

@@ -29,6 +29,7 @@ public enum KafkaOffset {
     EARLIEST("earliest"),
     LATEST("latest"),
     SPECIFIC("specific"),
+    TIMESTAMP_MILLIS("timestamp_millis"),
     NONE("none");
 
 
