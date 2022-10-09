@@ -42,6 +42,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         // register query method
         registerQueryWebMethod("admin_query_group_csmctrl_info",
                 "adminQueryGroupConsumeCtrlInfo");
+        registerQueryWebMethod("admin_query_booked_csmctrl_groups",
+                "adminQueryBookedConsumeCtrlGroups");
+
         // register modify method
         registerModifyWebMethod("admin_add_group_csmctrl_info",
                 "adminAddGroupConsumeCtrlInfo");
@@ -58,82 +61,31 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     }
 
     /**
+     * query booked consume-control group set
+     *
+     * @param req       Http Servlet Request
+     * @param strBuff   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminQueryBookedConsumeCtrlGroups(HttpServletRequest req,
+                                                           StringBuilder strBuff,
+                                                           ProcessResult result) {
+        return innQueryGroupConsumeCtrlInfo(req, strBuff, result, true);
+    }
+
+    /**
      * query group consume control info
      *
      * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
+     * @param strBuff   string buffer
      * @param result    process result
      * @return    process result
      */
     public StringBuilder adminQueryGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
+                                                        StringBuilder strBuff,
                                                         ProcessResult result) {
-        // build query entity
-        GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
-        // get queried operation info, for createUser, modifyUser, dataVersionId
-        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return sBuffer;
-        }
-        // get group list
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return sBuffer;
-        }
-        final Set<String> groupSet = (Set<String>) result.getRetData();
-        // check and get topicName field
-        if (!WebParameterUtils.getStringParamValue(req,
-                WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return sBuffer;
-        }
-        final Set<String> topicNameSet = (Set<String>) result.getRetData();
-        // get consumeEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.CONSUMEENABLE, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return sBuffer;
-        }
-        final Boolean consumeEnable = (Boolean) result.getRetData();
-        // get filterEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
-                WebFieldDef.FILTERENABLE, false, null, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return sBuffer;
-        }
-        Boolean filterEnable = (Boolean) result.getRetData();
-        // get filterConds info
-        if (!WebParameterUtils.getFilterCondSet(req, false, true, sBuffer, result)) {
-            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
-            return sBuffer;
-        }
-        Set<String> filterCondSet = (Set<String>) result.getRetData();
-        qryEntity.updModifyInfo(qryEntity.getDataVerId(),
-                consumeEnable, null, filterEnable, null);
-        Map<String, List<GroupConsumeCtrlEntity>> qryResultMap =
-                defMetaDataService.getGroupConsumeCtrlConf(groupSet, topicNameSet, qryEntity);
-        // build return result
-        int totalCnt = 0;
-        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
-        for (List<GroupConsumeCtrlEntity> consumeCtrlEntityList : qryResultMap.values()) {
-            if (consumeCtrlEntityList == null || consumeCtrlEntityList.isEmpty()) {
-                continue;
-            }
-            for (GroupConsumeCtrlEntity entity : consumeCtrlEntityList) {
-                if (entity == null
-                        || !WebParameterUtils.isFilterSetFullIncluded(
-                                filterCondSet, entity.getFilterCondStr())) {
-                    continue;
-                }
-                if (totalCnt++ > 0) {
-                    sBuffer.append(",");
-                }
-                entity.toWebJsonStr(sBuffer, true, true);
-            }
-        }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
-        return sBuffer;
+        return innQueryGroupConsumeCtrlInfo(req, strBuff, result, false);
     }
 
     /**
@@ -293,6 +245,100 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         }
         buildRetInfo(retInfo, sBuffer);
         return sBuffer;
+    }
+
+    /**
+     * query group consume control info
+     *
+     * @param req       Http Servlet Request
+     * @param strBuff   string buffer
+     * @param result    process result
+     * @param onlyRetGroup  only return group name
+     * @return    process result
+     */
+    private StringBuilder innQueryGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                       StringBuilder strBuff,
+                                                       ProcessResult result,
+                                                       boolean onlyRetGroup) {
+        // build query entity
+        GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
+        // get queried operation info, for createUser, modifyUser, dataVersionId
+        if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, strBuff, result)) {
+            WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
+            return strBuff;
+        }
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null, strBuff, result)) {
+            WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
+            return strBuff;
+        }
+        final Set<String> groupSet = (Set<String>) result.getRetData();
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, strBuff, result)) {
+            WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
+            return strBuff;
+        }
+        final Set<String> topicNameSet = (Set<String>) result.getRetData();
+        // get consumeEnable info
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.CONSUMEENABLE, false, null, strBuff, result)) {
+            WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
+            return strBuff;
+        }
+        final Boolean consumeEnable = (Boolean) result.getRetData();
+        // get filterEnable info
+        if (!WebParameterUtils.getBooleanParamValue(req,
+                WebFieldDef.FILTERENABLE, false, null, strBuff, result)) {
+            WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
+            return strBuff;
+        }
+        Boolean filterEnable = (Boolean) result.getRetData();
+        // get filterConds info
+        if (!WebParameterUtils.getFilterCondSet(req, false, true, strBuff, result)) {
+            WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
+            return strBuff;
+        }
+        Set<String> filterCondSet = (Set<String>) result.getRetData();
+        // query matched records
+        qryEntity.updModifyInfo(qryEntity.getDataVerId(),
+                consumeEnable, null, filterEnable, null);
+        Map<String, List<GroupConsumeCtrlEntity>> qryResultMap =
+                defMetaDataService.getGroupConsumeCtrlConf(groupSet, topicNameSet, qryEntity);
+        // build return result
+        int totalCnt = 0;
+        WebParameterUtils.buildSuccessWithDataRetBegin(strBuff);
+        if (onlyRetGroup) {
+            for (String groupName : qryResultMap.keySet()) {
+                if (groupName == null) {
+                    continue;
+                }
+                if (totalCnt++ > 0) {
+                    strBuff.append(",");
+                }
+                strBuff.append("\"").append(groupName).append("\"");
+            }
+        } else {
+            for (List<GroupConsumeCtrlEntity> consumeCtrlEntityList : qryResultMap.values()) {
+                if (consumeCtrlEntityList == null || consumeCtrlEntityList.isEmpty()) {
+                    continue;
+                }
+                for (GroupConsumeCtrlEntity entity : consumeCtrlEntityList) {
+                    if (entity == null
+                            || !WebParameterUtils.isFilterSetFullIncluded(
+                            filterCondSet, entity.getFilterCondStr())) {
+                        continue;
+                    }
+                    if (totalCnt++ > 0) {
+                        strBuff.append(",");
+                    }
+                    entity.toWebJsonStr(strBuff, true, true);
+                }
+            }
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(strBuff, totalCnt);
+        return strBuff;
     }
 
     private StringBuilder innAddOrUpdGroupConsumeCtrlInfo(HttpServletRequest req,
