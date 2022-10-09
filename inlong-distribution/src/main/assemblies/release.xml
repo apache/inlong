@@ -101,7 +101,7 @@
             <directory>../inlong-sort-standalone/sort-standalone-dist/target/apache-inlong-sort-standalone-${project.version}-bin</directory>
             <outputDirectory>inlong-sort-standalone</outputDirectory>
         </fileSet>
-        <!-- module's 3td-licenses, notices-->
+        <!-- module's 3rd-licenses, notices -->
         <fileSet>
             <directory>../licenses/inlong-sort-standalone</directory>
             <includes>
