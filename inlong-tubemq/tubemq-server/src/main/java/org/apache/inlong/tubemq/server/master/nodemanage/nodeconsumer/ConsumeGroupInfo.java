@@ -96,7 +96,7 @@ public class ConsumeGroupInfo {
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
     /**
-     *  Initial a Consume group node information.
+     *  Initial a consumer group node information.
      *
      * @param consumer   the consumer of consume group.
      */
@@ -298,7 +298,7 @@ public class ConsumeGroupInfo {
             return;
         }
         String newConfig;
-        String curCOnfig;
+        String curConfig;
         boolean isChanged = false;
         Set<String> newTopics = newMetaInfoMap.keySet();
         Set<String> curTopics = topicMetaInfoMap.keySet();
@@ -308,11 +308,11 @@ public class ConsumeGroupInfo {
         } else {
             for (String topicKey : newTopics) {
                 newConfig = newMetaInfoMap.get(topicKey);
-                curCOnfig = topicMetaInfoMap.get(topicKey);
+                curConfig = topicMetaInfoMap.get(topicKey);
                 if (newConfig == null) {
                     continue;
                 }
-                if (!newConfig.equals(curCOnfig)) {
+                if (!newConfig.equals(curConfig)) {
                     isChanged = true;
                     break;
                 }
@@ -724,7 +724,8 @@ public class ConsumeGroupInfo {
                     logger.warn(sBuffer.toString());
                     return false;
                 }
-                boolean foundEqual = false;
+                boolean foundOccupied = false;
+                int occupiedNodeId = -1;
                 String occupiedConsumerId = null;
                 for (ConsumerInfo consumerInfo : consumerInfoMap.values()) {
                     if (consumerInfo == null) {
@@ -732,16 +733,18 @@ public class ConsumeGroupInfo {
                     }
                     if (consumerInfo.getNodeId() == inConsumer.getNodeId()
                             && !consumerInfo.getConsumerId().equals(inConsumer.getConsumerId())) {
-                        foundEqual = true;
+                        foundOccupied = true;
+                        occupiedNodeId = consumerInfo.getNodeId();
                         occupiedConsumerId = consumerInfo.getConsumerId();
                         break;
                     }
                 }
-                if (foundEqual) {
+                if (foundOccupied) {
                     sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
                             .append("'s nodeId value(").append(inConsumer.getNodeId())
                             .append(") is occupied by ").append(occupiedConsumerId)
-                            .append(" in the group!");
+                            .append("'s nodeId value(").append(occupiedNodeId)
+                            .append(") in the group!");
                     result.setCheckResult(false,
                             TErrCodeConstants.CLIENT_DUPLICATE_INDEXID, sBuffer.toString());
                     logger.warn(sBuffer.toString());
