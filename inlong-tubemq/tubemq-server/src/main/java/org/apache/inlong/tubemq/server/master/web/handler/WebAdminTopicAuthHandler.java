@@ -26,8 +26,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
+import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
@@ -91,6 +93,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
                     .append("\",\"isEnable\":").append(entity.isAuthCtrlEnable())
                     .append(",\"createUser\":\"").append(entity.getCreateUser())
                     .append("\",\"createDate\":\"").append(entity.getCreateDateStr())
+                    .append("\",\"modifyUser\":\"").append(entity.getModifyUser())
+                    .append("\",\"modifyDate\":\"").append(entity.getModifyDateStr())
                     .append("\",\"authConsumeGroup\":[");
             List<GroupConsumeCtrlEntity> groupEntity =
                     defMetaDataService.getConsumeCtrlByTopic(entity.getTopicName());
@@ -101,12 +105,11 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
                         sBuffer.append(",");
                     }
                     sBuffer.append("{\"topicName\":\"").append(itemEntity.getTopicName())
-                            .append("\",\"groupName\":\"")
-                            .append(itemEntity.getGroupName())
-                            .append("\",\"createUser\":\"")
-                            .append(itemEntity.getCreateUser())
-                            .append("\",\"createDate\":\"")
-                            .append(itemEntity.getCreateDateStr())
+                            .append("\",\"groupName\":\"").append(itemEntity.getGroupName())
+                            .append("\",\"createUser\":\"").append(itemEntity.getCreateUser())
+                            .append("\",\"createDate\":\"").append(itemEntity.getCreateDateStr())
+                            .append("\",\"modifyUser\":\"").append(itemEntity.getModifyUser())
+                            .append("\",\"modifyDate\":\"").append(itemEntity.getModifyDateStr())
                             .append("\"}");
                 }
             }
@@ -129,6 +132,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
                 }
                 sBuffer.append(",\"createUser\":\"").append(condEntity.getCreateUser())
                         .append("\",\"createDate\":\"").append(condEntity.getCreateDateStr())
+                        .append("\",\"modifyUser\":\"").append(condEntity.getModifyUser())
+                        .append("\",\"modifyDate\":\"").append(condEntity.getModifyDateStr())
                         .append("\"}");
             }
             sBuffer.append("],\"filterCount\":").append(y).append("}");
@@ -233,10 +238,18 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // delete records
+        TopicCtrlEntity ctrlEntity;
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (String topicName : topicNameSet) {
-            retInfo.add(defMetaDataService.insertTopicCtrlConf(opEntity,
-                    topicName, Boolean.FALSE, sBuffer, result));
+            ctrlEntity = defMetaDataService.getTopicCtrlByTopicName(topicName);
+            if (ctrlEntity != null
+                    && ctrlEntity.getAuthCtrlStatus() != EnableStatus.STATUS_DISABLE) {
+                retInfo.add(defMetaDataService.insertTopicCtrlConf(opEntity,
+                        topicName, Boolean.FALSE, sBuffer, result));
+            } else {
+                result.setFullInfo(true, DataOpErrCode.DERR_SUCCESS.getCode(), "Ok");
+                retInfo.add(new TopicProcessResult(0, topicName, result));
+            }
         }
         return buildRetInfo(retInfo, sBuffer);
     }
