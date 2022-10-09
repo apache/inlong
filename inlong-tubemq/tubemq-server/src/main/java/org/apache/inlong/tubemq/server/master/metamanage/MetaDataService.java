@@ -404,7 +404,7 @@ public interface MetaDataService extends Server {
      *
      * @param isAddOp        whether add operation
      * @param opEntity       operator information
-     * @param topicName      topic name
+     * @param topicNameSet   topic name set
      * @param topicNameId    the topic name id
      * @param enableTopicAuth  whether enable topic authentication
      * @param maxMsgSizeInMB   the max message size in MB
@@ -412,22 +412,23 @@ public interface MetaDataService extends Server {
      * @param result           the process result return
      * @return true if success otherwise false
      */
-    TopicProcessResult addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                             String topicName, int topicNameId,
-                                             Boolean enableTopicAuth, int maxMsgSizeInMB,
-                                             StringBuilder strBuff, ProcessResult result);
+    List<TopicProcessResult> addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
+                                                   Set<String> topicNameSet, int topicNameId,
+                                                   Boolean enableTopicAuth, int maxMsgSizeInMB,
+                                                   StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add or Update topic control configure info
      *
-     * @param isAddOp  whether add operation
-     * @param entity   the topic control info entity will be add
-     * @param strBuff  the print info string buffer
-     * @param result   the process result return
+     * @param isAddOp    whether add operation
+     * @param entityMap  the topic control entity map which will be add
+     * @param strBuff    the print info string buffer
+     * @param result     the process result return
      * @return true if success otherwise false
      */
-    TopicProcessResult addOrUpdTopicCtrlConf(boolean isAddOp, TopicCtrlEntity entity,
-                                             StringBuilder strBuff, ProcessResult result);
+    List<TopicProcessResult> addOrUpdTopicCtrlConf(boolean isAddOp,
+                                                   Map<String, TopicCtrlEntity> entityMap,
+                                                   StringBuilder strBuff, ProcessResult result);
 
     /**
      * Insert topic control configure info

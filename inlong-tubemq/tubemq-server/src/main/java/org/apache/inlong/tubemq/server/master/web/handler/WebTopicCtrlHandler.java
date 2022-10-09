@@ -206,7 +206,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        final BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, true, null, sBuffer, result)) {
@@ -242,17 +242,15 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
                 WebFieldDef.MAXMSGSIZEINMB, false,
                 (isAddOp ? maxMsgSizeMB : TBaseConstants.META_VALUE_UNDEFINED),
                 TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                maxMsgSizeMB, sBuffer, result)) {
+                TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         maxMsgSizeMB = (int) result.getRetData();
         // add or update records
-        List<TopicProcessResult> retInfo = new ArrayList<>();
-        for (String topicName : topicNameSet) {
-            retInfo.add(defMetaDataService.addOrUpdTopicCtrlConf(isAddOp, opEntity,
-                    topicName, topicNameId, enableTopicAuth, maxMsgSizeMB, sBuffer, result));
-        }
+        List<TopicProcessResult> retInfo =
+                defMetaDataService.addOrUpdTopicCtrlConf(isAddOp, opEntity,
+                        topicNameSet, topicNameId, enableTopicAuth, maxMsgSizeMB, sBuffer, result);
         return buildRetInfo(retInfo, sBuffer);
     }
 
@@ -273,11 +271,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         }
         Map<String, TopicCtrlEntity> addRecordMap =
                 (Map<String, TopicCtrlEntity>) result.getRetData();
-        List<TopicProcessResult> retInfo = new ArrayList<>();
-        for (TopicCtrlEntity topicCtrlInfo : addRecordMap.values()) {
-            retInfo.add(defMetaDataService.addOrUpdTopicCtrlConf(
-                    isAddOp, topicCtrlInfo, sBuffer, result));
-        }
+        List<TopicProcessResult> retInfo =
+                defMetaDataService.addOrUpdTopicCtrlConf(isAddOp, addRecordMap, sBuffer, result);
         return buildRetInfo(retInfo, sBuffer);
     }
 
@@ -315,7 +310,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
                     WebFieldDef.MAXMSGSIZEINMB, false,
                     (isAddOp ? defMaxMsgSizeMB : TBaseConstants.META_VALUE_UNDEFINED),
                     TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB,
-                    defMaxMsgSizeMB, sBuffer, result)) {
+                    TBaseConstants.META_MAX_ALLOWED_MESSAGE_SIZE_MB, sBuffer, result)) {
                 return result.isSuccess();
             }
             final int itemMaxMsgSizeMB = (int) result.getRetData();
@@ -370,5 +365,4 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
         return sBuffer;
     }
-
 }

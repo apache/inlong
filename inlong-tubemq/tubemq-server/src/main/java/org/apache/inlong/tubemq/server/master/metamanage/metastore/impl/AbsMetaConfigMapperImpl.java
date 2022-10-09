@@ -869,6 +869,11 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     }
 
     @Override
+    public Set<Integer> getDeployedBrokerIdByTopic(Set<String> topicNameSet) {
+        return topicDeployMapper.getDeployedBrokerIdByTopic(topicNameSet);
+    }
+
+    @Override
     public Set<String> getDeployedTopicSet() {
         return topicDeployMapper.getDeployedTopicSet();
     }
