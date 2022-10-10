@@ -279,7 +279,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             return clusterGroupVO;
         }
         // translate replication group info to ClusterGroupVO structure
-        Tuple2<Boolean, List<ClusterNodeVO>>  transResult =
+        Tuple2<Boolean, List<ClusterNodeVO>> transResult =
                 transReplicateNodes(replicationGroup);
         clusterGroupVO.setNodeData(transResult.getF1());
         clusterGroupVO.setPrimaryNodeActive(isPrimaryNodeActive());

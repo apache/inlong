@@ -834,10 +834,9 @@ public class DefaultMetaDataService implements MetaDataService {
             int maxMsgSize = defMsgSizeInB;
             TopicCtrlEntity topicCtrlEntity =
                     metaConfigMapper.getTopicCtrlByTopicName(topicEntity.getTopicName());
-            if (topicCtrlEntity != null) {
-                if (topicCtrlEntity.getMaxMsgSizeInB() != TBaseConstants.META_VALUE_UNDEFINED) {
-                    maxMsgSize = topicCtrlEntity.getMaxMsgSizeInB();
-                }
+            if (topicCtrlEntity != null
+                    && topicCtrlEntity.getMaxMsgSizeInB() != TBaseConstants.META_VALUE_UNDEFINED) {
+                maxMsgSize = topicCtrlEntity.getMaxMsgSizeInB();
             }
             if (maxMsgSize == defMsgSizeInB) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
@@ -948,7 +947,8 @@ public class DefaultMetaDataService implements MetaDataService {
         ClusterSettingEntity clusterSettingEntity = metaConfigMapper.getClusterDefSetting(false);
         int maxMsgSizeInMB = clusterSettingEntity.getMaxMsgSizeInMB();
         TopicCtrlEntity topicCtrlEntity = metaConfigMapper.getTopicCtrlByTopicName(topicName);
-        if (topicCtrlEntity != null) {
+        if (topicCtrlEntity != null
+                && topicCtrlEntity.getMaxMsgSizeInMB() != TBaseConstants.META_VALUE_UNDEFINED) {
             maxMsgSizeInMB = topicCtrlEntity.getMaxMsgSizeInMB();
         }
         return maxMsgSizeInMB;
@@ -960,6 +960,11 @@ public class DefaultMetaDataService implements MetaDataService {
         return metaConfigMapper.getTopicCtrlConf(topicNameSet, qryEntity);
     }
 
+    @Override
+    public Map<String, Integer> getMaxMsgSizeInBByTopics(int defMaxMsgSizeInB,
+                                                         Set<String> topicNameSet) {
+        return metaConfigMapper.getMaxMsgSizeInBByTopics(defMaxMsgSizeInB, topicNameSet);
+    }
     // //////////////////////////////////////////////////////////////////////////////
 
     @Override
