@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.cluster.SubscribeInfo;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.utils.DataConverterUtil;
+import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.junit.Test;
 
 public class DataConverterUtilTest {
@@ -65,8 +66,9 @@ public class DataConverterUtilTest {
         strInfoList.clear();
         // topic#brokerId:partitionNum:topicStoreNum
         strInfoList.add("tube#0:10:5");
-        List<TopicInfo> topicList = DataConverterUtil.convertTopicInfo(brokerMap, strInfoList);
-        assertEquals("topic should be equal", topic, topicList.get(0));
+        Tuple2<Map<String, Integer>, List<TopicInfo>> topicConfTuple =
+                DataConverterUtil.convertTopicInfo(brokerMap, strInfoList);
+        assertEquals("topic should be equal", topic, topicConfTuple.getF1().get(0));
 
     }
 

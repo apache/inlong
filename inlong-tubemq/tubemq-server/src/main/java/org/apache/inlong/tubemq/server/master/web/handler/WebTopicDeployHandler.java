@@ -28,8 +28,8 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
-import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStsChgType;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
@@ -607,16 +607,19 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                                               Map<String, List<TopicDeployEntity>> topicDeployInfoMap) {
         // build query result
         int totalCnt = 0;
+        int itemCount = 0;
+        int condStatusId = 1;
         int maxMsgSizeInMB = 0;
         int totalCfgNumPartCount = 0;
         int totalRunNumPartCount = 0;
         boolean enableAuthCtrl;
         boolean isSrvAcceptPublish = false;
         boolean isSrvAcceptSubscribe = false;
-        boolean isAcceptPublish = false;
-        boolean isAcceptSubscribe = false;
-        ManageStatus manageStatus;
-        Tuple2<Boolean, Boolean> pubSubStatus;
+        String strManageStatus;
+        TopicCtrlEntity ctrlEntity;
+        BrokerConfEntity brokerConfEntity;
+        List<GroupConsumeCtrlEntity> groupCtrlInfoLst;
+        Tuple3<Boolean, Boolean, TopicInfo> topicInfoTuple = new Tuple3<>();
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         ClusterSettingEntity defSetting = defMetaDataService.getClusterDefSetting(false);
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -625,11 +628,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             totalRunNumPartCount = 0;
             isSrvAcceptPublish = false;
             isSrvAcceptSubscribe = false;
-            isAcceptPublish = false;
-            isAcceptSubscribe = false;
-            enableAuthCtrl = false;
-            TopicCtrlEntity ctrlEntity =
-                    defMetaDataService.getTopicCtrlByTopicName(entry.getKey());
+            ctrlEntity = defMetaDataService.getTopicCtrlByTopicName(entry.getKey());
             if (ctrlEntity == null) {
                 continue;
             }
@@ -644,54 +643,55 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             sBuffer.append("{\"topicName\":\"").append(entry.getKey())
                     .append("\",\"maxMsgSizeInMB\":").append(maxMsgSizeInMB)
                     .append(",\"topicInfo\":[");
-            int brokerCount = 0;
+            itemCount = 0;
             for (TopicDeployEntity entity : entry.getValue()) {
-                if (brokerCount++ > 0) {
+                if (itemCount++ > 0) {
                     sBuffer.append(",");
                 }
                 totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
                 entity.toWebJsonStr(sBuffer, true, false);
                 sBuffer.append(",\"runInfo\":{");
-                BrokerConfEntity brokerConfEntity =
+                strManageStatus = "-";
+                brokerConfEntity =
                         defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
-                String strManageStatus = "-";
                 if (brokerConfEntity != null) {
-                    manageStatus = brokerConfEntity.getManageStatus();
-                    strManageStatus = manageStatus.getDescription();
-                    pubSubStatus = manageStatus.getPubSubStatus();
-                    isAcceptPublish = pubSubStatus.getF0();
-                    isAcceptSubscribe = pubSubStatus.getF1();
+                    strManageStatus = brokerConfEntity.getManageStatus().getDescription();
                 }
-                TopicInfo topicInfo =
-                        brokerRunManager.getPubBrokerTopicInfo(entity.getBrokerId(), entity.getTopicName());
-                if (topicInfo == null) {
+                brokerRunManager.getPubBrokerTopicInfo(
+                        entity.getBrokerId(), entity.getTopicName(), topicInfoTuple);
+                if (topicInfoTuple.getF2() == null) {
                     sBuffer.append("\"acceptPublish\":\"-\"").append(",\"acceptSubscribe\":\"-\"")
                             .append(",\"numPartitions\":\"-\"").append(",\"brokerManageStatus\":\"-\"");
                 } else {
-                    if (isAcceptPublish) {
-                        sBuffer.append("\"acceptPublish\":").append(topicInfo.isAcceptPublish());
-                        if (topicInfo.isAcceptPublish()) {
+                    if (topicInfoTuple.getF0()) {
+                        sBuffer.append("\"acceptPublish\":")
+                                .append(topicInfoTuple.getF2().isAcceptPublish());
+                        if (topicInfoTuple.getF2().isAcceptPublish()) {
                             isSrvAcceptPublish = true;
                         }
                     } else {
                         sBuffer.append("\"acceptPublish\":false");
                     }
-                    if (isAcceptSubscribe) {
-                        sBuffer.append(",\"acceptSubscribe\":").append(topicInfo.isAcceptSubscribe());
-                        if (topicInfo.isAcceptSubscribe()) {
+                    if (topicInfoTuple.getF1()) {
+                        sBuffer.append(",\"acceptSubscribe\":")
+                                .append(topicInfoTuple.getF2().isAcceptSubscribe());
+                        if (topicInfoTuple.getF2().isAcceptSubscribe()) {
                             isSrvAcceptSubscribe = true;
                         }
                     } else {
                         sBuffer.append(",\"acceptSubscribe\":false");
                     }
-                    totalRunNumPartCount += topicInfo.getPartitionNum() * topicInfo.getTopicStoreNum();
-                    sBuffer.append(",\"numPartitions\":").append(topicInfo.getPartitionNum())
-                            .append(",\"numTopicStores\":").append(topicInfo.getTopicStoreNum())
+                    totalRunNumPartCount +=
+                            topicInfoTuple.getF2().getPartitionNum() * topicInfoTuple.getF2().getTopicStoreNum();
+                    sBuffer.append(",\"numPartitions\":")
+                            .append(topicInfoTuple.getF2().getPartitionNum())
+                            .append(",\"numTopicStores\":")
+                            .append(topicInfoTuple.getF2().getTopicStoreNum())
                             .append(",\"brokerManageStatus\":\"").append(strManageStatus).append("\"");
                 }
                 sBuffer.append("}}");
             }
-            sBuffer.append("],\"infoCount\":").append(brokerCount)
+            sBuffer.append("],\"infoCount\":").append(itemCount)
                     .append(",\"totalCfgNumPart\":").append(totalCfgNumPartCount)
                     .append(",\"isSrvAcceptPublish\":").append(isSrvAcceptPublish)
                     .append(",\"isSrvAcceptSubscribe\":").append(isSrvAcceptSubscribe)
@@ -702,9 +702,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                         .append(",\"createUser\":\"").append(ctrlEntity.getModifyUser())
                         .append("\",\"createDate\":\"").append(ctrlEntity.getModifyDateStr())
                         .append("\",\"authConsumeGroup\":[");
-                List<GroupConsumeCtrlEntity> groupCtrlInfoLst =
-                        defMetaDataService.getConsumeCtrlByTopic(entry.getKey());
-                int itemCount = 0;
+                itemCount = 0;
+                groupCtrlInfoLst = defMetaDataService.getConsumeCtrlByTopic(entry.getKey());
                 for (GroupConsumeCtrlEntity groupEntity : groupCtrlInfoLst) {
                     if (itemCount++ > 0) {
                         sBuffer.append(",");
@@ -718,7 +717,6 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 }
                 sBuffer.append("],\"groupCount\":").append(itemCount).append(",\"authFilterCondSet\":[");
                 itemCount = 0;
-                int condStatusId = 1;
                 for (GroupConsumeCtrlEntity groupEntity : groupCtrlInfoLst) {
                     if (itemCount++ > 0) {
                         sBuffer.append(",");
@@ -753,14 +751,16 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                                               Map<String, List<TopicDeployEntity>> topicDeployMap) {
         // build query result
         int totalCnt = 0;
+        int itemCount = 0;
         int totalCfgNumPartCount = 0;
         int totalRunNumPartCount = 0;
         boolean isSrvAcceptPublish = false;
         boolean isSrvAcceptSubscribe = false;
-        boolean isAcceptPublish = false;
-        boolean isAcceptSubscribe = false;
-        ManageStatus manageStatus;
-        Tuple2<Boolean, Boolean> pubSubStatus;
+        String strManageStatus;
+        TopicCtrlEntity ctrlEntity;
+        BrokerConfEntity brokerConfEntity;
+        List<GroupConsumeCtrlEntity> groupCtrlInfoLst;
+        Tuple3<Boolean, Boolean, TopicInfo> topicInfoTuple = new Tuple3<>();
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (Map.Entry<String, List<TopicDeployEntity>> entry : topicDeployMap.entrySet()) {
@@ -768,9 +768,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             totalRunNumPartCount = 0;
             isSrvAcceptPublish = false;
             isSrvAcceptSubscribe = false;
-            isAcceptPublish = false;
-            isAcceptSubscribe = false;
-            TopicCtrlEntity ctrlEntity =
+            ctrlEntity =
                     defMetaDataService.getTopicCtrlByTopicName(entry.getKey());
             if (ctrlEntity == null) {
                 continue;
@@ -780,71 +778,71 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             }
             ctrlEntity.toWebJsonStr(sBuffer, true, false);
             sBuffer.append(",\"deployInfo\":[");
-            int brokerCount = 0;
+            itemCount = 0;
             for (TopicDeployEntity entity : entry.getValue()) {
-                if (brokerCount++ > 0) {
+                if (itemCount++ > 0) {
                     sBuffer.append(",");
                 }
                 totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
                 entity.toWebJsonStr(sBuffer, true, false);
                 sBuffer.append(",\"runInfo\":{");
-                BrokerConfEntity brokerConfEntity =
+                brokerConfEntity =
                         defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
-
-                String strManageStatus = "-";
+                strManageStatus = "-";
                 if (brokerConfEntity != null) {
-                    manageStatus = brokerConfEntity.getManageStatus();
-                    strManageStatus = manageStatus.getDescription();
-                    pubSubStatus = manageStatus.getPubSubStatus();
-                    isAcceptPublish = pubSubStatus.getF0();
-                    isAcceptSubscribe = pubSubStatus.getF1();
+                    strManageStatus = brokerConfEntity.getManageStatus().getDescription();
                 }
-                TopicInfo topicInfo =
-                        brokerRunManager.getPubBrokerTopicInfo(entity.getBrokerId(), entity.getTopicName());
-                if (topicInfo == null) {
+                brokerRunManager.getPubBrokerTopicInfo(
+                        entity.getBrokerId(), entity.getTopicName(), topicInfoTuple);
+                if (topicInfoTuple.getF2() == null) {
                     sBuffer.append("\"acceptPublish\":\"-\"").append(",\"acceptSubscribe\":\"-\"")
                             .append(",\"numPartitions\":\"-\"").append(",\"brokerManageStatus\":\"-\"");
                 } else {
-                    if (isAcceptPublish) {
-                        sBuffer.append("\"acceptPublish\":").append(topicInfo.isAcceptPublish());
-                        if (topicInfo.isAcceptPublish()) {
+                    if (topicInfoTuple.getF0()) {
+                        sBuffer.append("\"acceptPublish\":")
+                                .append(topicInfoTuple.getF2().isAcceptPublish());
+                        if (topicInfoTuple.getF2().isAcceptPublish()) {
                             isSrvAcceptPublish = true;
                         }
                     } else {
                         sBuffer.append("\"acceptPublish\":false");
                     }
-                    if (isAcceptSubscribe) {
-                        sBuffer.append(",\"acceptSubscribe\":").append(topicInfo.isAcceptSubscribe());
-                        if (topicInfo.isAcceptSubscribe()) {
+                    if (topicInfoTuple.getF1()) {
+                        sBuffer.append(",\"acceptSubscribe\":")
+                                .append(topicInfoTuple.getF2().isAcceptSubscribe());
+                        if (topicInfoTuple.getF2().isAcceptSubscribe()) {
                             isSrvAcceptSubscribe = true;
                         }
                     } else {
                         sBuffer.append(",\"acceptSubscribe\":false");
                     }
-                    totalRunNumPartCount += topicInfo.getPartitionNum() * topicInfo.getTopicStoreNum();
-                    sBuffer.append(",\"numPartitions\":").append(topicInfo.getPartitionNum())
-                            .append(",\"numTopicStores\":").append(topicInfo.getTopicStoreNum())
+                    totalRunNumPartCount +=
+                            topicInfoTuple.getF2().getPartitionNum() * topicInfoTuple.getF2().getTopicStoreNum();
+                    sBuffer.append(",\"numPartitions\":")
+                            .append(topicInfoTuple.getF2().getPartitionNum())
+                            .append(",\"numTopicStores\":")
+                            .append(topicInfoTuple.getF2().getTopicStoreNum())
                             .append(",\"brokerManageStatus\":\"").append(strManageStatus).append("\"");
                 }
                 sBuffer.append("}}");
             }
-            sBuffer.append("],\"infoCount\":").append(brokerCount)
+            sBuffer.append("],\"infoCount\":").append(itemCount)
                     .append(",\"totalCfgNumPart\":").append(totalCfgNumPartCount)
                     .append(",\"isSrvAcceptPublish\":").append(isSrvAcceptPublish)
                     .append(",\"isSrvAcceptSubscribe\":").append(isSrvAcceptSubscribe)
                     .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount);
             if (withAuthInfo) {
                 sBuffer.append(",\"groupAuthInfo\":[");
-                List<GroupConsumeCtrlEntity> groupCtrlInfoLst =
+                groupCtrlInfoLst =
                         defMetaDataService.getConsumeCtrlByTopic(entry.getKey());
-                int countJ = 0;
+                itemCount = 0;
                 for (GroupConsumeCtrlEntity groupEntity : groupCtrlInfoLst) {
-                    if (countJ++ > 0) {
+                    if (itemCount++ > 0) {
                         sBuffer.append(",");
                     }
                     groupEntity.toWebJsonStr(sBuffer, true, true);
                 }
-                sBuffer.append("],\"groupAuthCount\":").append(countJ);
+                sBuffer.append("],\"groupAuthCount\":").append(itemCount);
             }
             sBuffer.append("}");
         }
@@ -1073,5 +1071,4 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         }
         return buildRetInfo(retInfo, sBuffer);
     }
-
 }

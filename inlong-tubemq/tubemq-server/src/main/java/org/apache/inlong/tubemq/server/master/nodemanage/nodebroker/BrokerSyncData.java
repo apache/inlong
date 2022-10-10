@@ -338,5 +338,4 @@ public class BrokerSyncData {
         }
         return CheckSum.crc32(buffer.array());
     }
-
 }

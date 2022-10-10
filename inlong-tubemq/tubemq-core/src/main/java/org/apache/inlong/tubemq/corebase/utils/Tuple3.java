@@ -56,6 +56,15 @@ public class Tuple3<T0, T1, T2> {
         return f2;
     }
 
+    public void setF0AndF1(T0 value0, T1 value1) {
+        this.f0 = value0;
+        this.f1 = value1;
+    }
+
+    public void setF2(T2 value2) {
+        this.f2 = value2;
+    }
+
     public void setFieldsValue(T0 value0, T1 value1, T2 value2) {
         this.f0 = value0;
         this.f1 = value1;

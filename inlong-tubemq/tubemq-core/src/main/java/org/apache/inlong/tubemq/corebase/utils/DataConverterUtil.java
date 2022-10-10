@@ -96,31 +96,46 @@ public class DataConverterUtil {
     /**
      * convert string info with a brokerInfo list to @link TopicInfo
      *
-     * @param brokerInfoMap
+     * @param brokerInfoMap  broker configure map
      * @param strTopicInfos return a list of TopicInfo
      */
-    public static List<TopicInfo> convertTopicInfo(Map<Integer, BrokerInfo> brokerInfoMap,
-                                                   List<String> strTopicInfos) {
+    public static Tuple2<Map<String, Integer>, List<TopicInfo>> convertTopicInfo(
+            Map<Integer, BrokerInfo> brokerInfoMap, List<String> strTopicInfos) {
         List<TopicInfo> topicList = new ArrayList<>();
-        if (strTopicInfos != null) {
-            for (String info : strTopicInfos) {
-                if (info != null) {
-                    info = info.trim();
-                    String[] strInfo = info.split(TokenConstants.SEGMENT_SEP);
-                    String[] strTopicInfoSet = strInfo[1].split(TokenConstants.ARRAY_SEP);
-                    for (String s : strTopicInfoSet) {
-                        String[] strTopicInfo = s.split(TokenConstants.ATTR_SEP);
-                        BrokerInfo brokerInfo = brokerInfoMap.get(Integer.parseInt(strTopicInfo[0]));
-                        if (brokerInfo != null) {
-                            topicList.add(new TopicInfo(brokerInfo,
-                                    strInfo[0], Integer.parseInt(strTopicInfo[1]),
-                                    Integer.parseInt(strTopicInfo[2]), true, true));
-                        }
-                    }
+        Map<String, Integer> topicMaxSizeInBMap = new ConcurrentHashMap<>();
+        if (strTopicInfos == null || strTopicInfos.isEmpty()) {
+            return new Tuple2<>(topicMaxSizeInBMap, topicList);
+        }
+        String[] strInfo;
+        String[] strTopicInfoSet;
+        String[] strTopicInfo;
+        BrokerInfo brokerInfo;
+        for (String info : strTopicInfos) {
+            if (info == null || info.isEmpty()) {
+                continue;
+            }
+            info = info.trim();
+            strInfo = info.split(TokenConstants.SEGMENT_SEP, -1);
+            strTopicInfoSet = strInfo[1].split(TokenConstants.ARRAY_SEP);
+            for (String s : strTopicInfoSet) {
+                strTopicInfo = s.split(TokenConstants.ATTR_SEP);
+                brokerInfo = brokerInfoMap.get(Integer.parseInt(strTopicInfo[0]));
+                if (brokerInfo != null) {
+                    topicList.add(new TopicInfo(brokerInfo,
+                            strInfo[0], Integer.parseInt(strTopicInfo[1]),
+                            Integer.parseInt(strTopicInfo[2]), true, true));
                 }
             }
+            if (strInfo.length == 2 || TStringUtils.isEmpty(strInfo[2])) {
+                continue;
+            }
+            try {
+                topicMaxSizeInBMap.put(strInfo[0], Integer.parseInt(strInfo[2]));
+            } catch (Throwable e) {
+                //
+            }
         }
-        return topicList;
+        return new Tuple2<>(topicMaxSizeInBMap, topicList);
     }
 
     /**
@@ -166,11 +181,8 @@ public class DataConverterUtil {
             }
             String topicName = strInfo[0].trim();
             String[] strCondInfo = strInfo[1].split(TokenConstants.ARRAY_SEP);
-            TreeSet<String> conditionSet = topicConditions.get(topicName);
-            if (conditionSet == null) {
-                conditionSet = new TreeSet<>();
-                topicConditions.put(topicName, conditionSet);
-            }
+            TreeSet<String> conditionSet =
+                    topicConditions.computeIfAbsent(topicName, k -> new TreeSet<>());
             for (String cond : strCondInfo) {
                 if (TStringUtils.isNotBlank(cond)) {
                     conditionSet.add(cond.trim());

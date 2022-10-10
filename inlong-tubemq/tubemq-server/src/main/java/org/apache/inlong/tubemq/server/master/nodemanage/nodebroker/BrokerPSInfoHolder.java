@@ -167,12 +167,25 @@ public class BrokerPSInfoHolder {
     }
 
     /**
+     * Get the subscribed TopicInfo information of topic in broker
+     *
+     * @param brokerId need query broker
+     * @param topic    need query topic
+     * @param result   query result(broker accept subscribe, null or topicInfo configure)
+     */
+    public void getBrokerSubPushedTopicInfo(int brokerId, String topic,
+                                            Tuple2<Boolean, TopicInfo> result) {
+        result.setF0AndF1(enableSubBrokerIdSet.contains(brokerId),
+                subTopicInfoView.getBrokerPushedTopicInfo(brokerId, topic));
+    }
+
+    /**
      * Gets the string map of topic partitions whose publish status is enabled
      *
-     * @param topicSet need query topic set
+     * @param topicSizeMap need query topic set and topic's max message size
      */
-    public Map<String, String> getAcceptPubPartInfo(Set<String> topicSet) {
-        return pubTopicInfoView.getAcceptPubPartInfo(topicSet, enablePubBrokerIdSet);
+    public Map<String, String> getAcceptPubPartInfo(Map<String, Integer> topicSizeMap) {
+        return pubTopicInfoView.getAcceptPubPartInfo(topicSizeMap, enablePubBrokerIdSet);
     }
 
     /**
@@ -180,11 +193,14 @@ public class BrokerPSInfoHolder {
      *
      * @param brokerId need query broker
      * @param topic    need query topic
-     *
-     * @return null or topicInfo configure
+     * @param result   query result(broker accept publish,
+     *                       broker accept subscribe, null or topicInfo configure)
      */
-    public TopicInfo getBrokerPubPushedTopicInfo(int brokerId, String topic) {
-        return pubTopicInfoView.getBrokerPushedTopicInfo(brokerId, topic);
+    public void getBrokerPubPushedTopicInfo(int brokerId, String topic,
+                                            Tuple3<Boolean, Boolean, TopicInfo> result) {
+        result.setFieldsValue(enablePubBrokerIdSet.contains(brokerId),
+                enableSubBrokerIdSet.contains(brokerId),
+                pubTopicInfoView.getBrokerPushedTopicInfo(brokerId, topic));
     }
 
     /**

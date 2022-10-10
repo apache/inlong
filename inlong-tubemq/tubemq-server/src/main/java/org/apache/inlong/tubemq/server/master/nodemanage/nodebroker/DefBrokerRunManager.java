@@ -509,8 +509,8 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
-    public Map<String, String> getPubBrokerAcceptPubPartInfo(Set<String> topicSet) {
-        return brokerPubSubInfo.getAcceptPubPartInfo(topicSet);
+    public Map<String, String> getPubBrokerAcceptPubPartInfo(Map<String, Integer> topicSizeMap) {
+        return brokerPubSubInfo.getAcceptPubPartInfo(topicSizeMap);
     }
 
     @Override
@@ -529,8 +529,15 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
-    public TopicInfo getPubBrokerTopicInfo(int brokerId, String topic) {
-        return brokerPubSubInfo.getBrokerPubPushedTopicInfo(brokerId, topic);
+    public void getSubBrokerTopicInfo(int brokerId, String topic,
+                                      Tuple2<Boolean, TopicInfo> result) {
+        brokerPubSubInfo.getBrokerSubPushedTopicInfo(brokerId, topic, result);
+    }
+
+    @Override
+    public void getPubBrokerTopicInfo(int brokerId, String topic,
+                                      Tuple3<Boolean, Boolean, TopicInfo> result) {
+        brokerPubSubInfo.getBrokerPubPushedTopicInfo(brokerId, topic, result);
     }
 
     @Override
