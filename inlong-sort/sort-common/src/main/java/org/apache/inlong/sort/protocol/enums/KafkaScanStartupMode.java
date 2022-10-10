@@ -26,7 +26,8 @@ import java.util.Locale;
 public enum KafkaScanStartupMode {
     EARLIEST_OFFSET("earliest-offset"),
     LATEST_OFFSET("latest-offset"),
-    SPECIFIC_OFFSETS("specific-offsets");
+    SPECIFIC_OFFSETS("specific-offsets"),
+    TIMESTAMP_MILLIS("timestamp");
 
     KafkaScanStartupMode(String value) {
         this.value = value;

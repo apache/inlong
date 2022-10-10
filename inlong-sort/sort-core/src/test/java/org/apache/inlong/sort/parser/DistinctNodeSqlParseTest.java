@@ -69,7 +69,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
         return new KafkaExtractNode("1", "kafka_input", fields, null,
                 null, "topic_input", "localhost:9092",
                 new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
-                null, "groupId", null);
+                null, "groupId", null, null);
     }
 
     private KafkaExtractNode buildKafkaExtractNode2() {
@@ -85,7 +85,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
         return new KafkaExtractNode("1", "kafka_input", fields, wk,
                 null, "topic_input", "localhost:9092",
                 new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
-                null, "groupId", null);
+                null, "groupId", null, null);
     }
 
     private KafkaExtractNode buildKafkaExtractNode3() {
@@ -96,7 +96,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         return new KafkaExtractNode("1", "kafka_input", fields, null,
                 null, "topic_input", "localhost:9092",
-                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null, "groupId", null);
+                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null, "groupId", null, null);
     }
 
     private KafkaLoadNode buildKafkaLoadNode() {

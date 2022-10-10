@@ -62,6 +62,9 @@ public class KafkaSource extends StreamSource {
                     + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
     private String partitionOffsets;
 
+    @ApiModelProperty(value = "timestamp is millis")
+    private String timestampMillis;
+
     @ApiModelProperty(value = "The strategy of auto offset reset",
             notes = "including earliest, specific, latest (the default), none")
     private String autoOffsetReset;

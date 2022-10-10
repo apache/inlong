@@ -39,6 +39,7 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nonnull;
@@ -82,6 +83,9 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
     @JsonProperty("scanSpecificOffsets")
     private String scanSpecificOffsets;
 
+    @JsonProperty("scanTimestampMillis")
+    private String scanTimestampMillis;
+
     public KafkaExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
@@ -94,7 +98,7 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
             @JsonProperty("primaryKey") String primaryKey,
             @JsonProperty("groupId") String groupId) {
         this(id, name, fields, watermarkField, properties, topic, bootstrapServers, format, kafkaScanStartupMode,
-                primaryKey, groupId, null);
+                primaryKey, groupId, null, null);
     }
 
     @JsonCreator
@@ -109,7 +113,8 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
             @JsonProperty("scanStartupMode") KafkaScanStartupMode kafkaScanStartupMode,
             @JsonProperty("primaryKey") String primaryKey,
             @JsonProperty("groupId") String groupId,
-            @JsonProperty("scanSpecificOffsets") String scanSpecificOffsets) {
+            @JsonProperty("scanSpecificOffsets") String scanSpecificOffsets,
+            @JsonProperty("scanTimestampMillis") String scanTimestampMillis) {
         super(id, name, fields, watermarkField, properties);
         this.topic = Preconditions.checkNotNull(topic, "kafka topic is empty");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "kafka bootstrapServers is empty");
@@ -120,6 +125,10 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
         if (kafkaScanStartupMode == KafkaScanStartupMode.SPECIFIC_OFFSETS) {
             Preconditions.checkArgument(StringUtils.isNotEmpty(scanSpecificOffsets), "scanSpecificOffsets is empty");
             this.scanSpecificOffsets = scanSpecificOffsets;
+        }
+        if (KafkaScanStartupMode.TIMESTAMP_MILLIS == kafkaScanStartupMode) {
+            Preconditions.checkArgument(StringUtils.isNotBlank(scanTimestampMillis), "scanTimestampMillis is empty");
+            this.scanTimestampMillis = scanTimestampMillis;
         }
     }
 
@@ -140,16 +149,23 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
                 if (StringUtils.isNotEmpty(scanSpecificOffsets)) {
                     options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
                 }
+                if (StringUtils.isNotBlank(scanTimestampMillis)) {
+                    options.put(KafkaConstant.SCAN_STARTUP_TIMESTAMP_MILLIS, scanTimestampMillis);
+                }
                 options.putAll(format.generateOptions(false));
             } else {
                 options.put(KafkaConstant.CONNECTOR, KafkaConstant.UPSERT_KAFKA);
                 options.putAll(format.generateOptions(true));
             }
-        } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
+        } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat
+                || format instanceof RawFormat) {
             options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
             options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
             if (StringUtils.isNotEmpty(scanSpecificOffsets)) {
                 options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
+            }
+            if (StringUtils.isNotBlank(scanTimestampMillis)) {
+                options.put(KafkaConstant.SCAN_STARTUP_TIMESTAMP_MILLIS, scanTimestampMillis);
             }
             options.putAll(format.generateOptions(false));
         } else {
