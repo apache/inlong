@@ -20,6 +20,7 @@ package org.apache.inlong.agent.metrics;
 import io.prometheus.client.Collector;
 import io.prometheus.client.CounterMetricFamily;
 import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.DefaultExports;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.common.metric.MetricItemValue;
 import org.apache.inlong.common.metric.MetricListener;
@@ -64,8 +65,8 @@ import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
  */
 public class AgentPrometheusMetricListener extends Collector implements MetricListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentPrometheusMetricListener.class);
     public static final String DEFAULT_DIMENSION_LABEL = "dimension";
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentPrometheusMetricListener.class);
     protected HTTPServer httpServer;
     private AgentMetricItem metricItem;
     private Map<String, AtomicLong> metricValueMap = new ConcurrentHashMap<>();
@@ -114,16 +115,14 @@ public class AgentPrometheusMetricListener extends Collector implements MetricLi
         } catch (IOException e) {
             LOGGER.error("exception while register agent prometheus http server,error:{}", e.getMessage());
         }
-        this.dimensionKeys.add(DEFAULT_DIMENSION_LABEL);
-
     }
 
     @Override
     public List<MetricFamilySamples> collect() {
+        DefaultExports.initialize();
         // total
-        CounterMetricFamily totalCounter = new CounterMetricFamily("group=total",
-                "The metrics of agent node.",
-                Arrays.asList("dimension"));
+        CounterMetricFamily totalCounter = new CounterMetricFamily("total", "metrics_of_agent_node_total",
+                Arrays.asList(DEFAULT_DIMENSION_LABEL));
         totalCounter.addMetric(Arrays.asList(M_JOB_RUNNING_COUNT), metricItem.jobRunningCount.get());
         totalCounter.addMetric(Arrays.asList(M_JOB_FATAL_COUNT), metricItem.jobFatalCount.get());
         totalCounter.addMetric(Arrays.asList(M_TASK_RUNNING_COUNT), metricItem.taskRunningCount.get());
@@ -143,8 +142,10 @@ public class AgentPrometheusMetricListener extends Collector implements MetricLi
         mfs.add(totalCounter);
 
         // id dimension
-        CounterMetricFamily idCounter = new CounterMetricFamily("group=id",
-                "The metrics of agent dimensions.", this.dimensionKeys);
+        List<String> dimensionIdKeys = new ArrayList<>();
+        dimensionIdKeys.add(DEFAULT_DIMENSION_LABEL);
+        dimensionIdKeys.addAll(this.dimensionKeys);
+        CounterMetricFamily idCounter = new CounterMetricFamily("id", "metrics_of_agent_dimensions", dimensionIdKeys);
         for (Entry<String, MetricItemValue> entry : this.dimensionMetricValueMap.entrySet()) {
             MetricItemValue itemValue = entry.getValue();
 
