@@ -173,8 +173,8 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
-    public Tuple2<Boolean, Boolean> getBrokerPublishStatus(int brokerId) {
-        return brokerPubSubInfo.getBrokerPubStatus(brokerId);
+    public void getBrokerPublishStatus(int brokerId, Tuple2<Boolean, Boolean> result) {
+        brokerPubSubInfo.getBrokerPubStatus(brokerId, result);
     }
 
     @Override
@@ -490,6 +490,12 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
+    public void iniBrokerConfInfo(int brokerId, ManageStatus mngStatus,
+                                  Map<String, TopicInfo> topicInfoMap) {
+        brokerPubSubInfo.iniBrokerConfigInfo(brokerId, mngStatus, topicInfoMap);
+    }
+
+    @Override
     public boolean updBrokerCsmConfInfo(int brokerId, ManageStatus mngStatus,
                                         Map<String, TopicInfo> topicInfoMap) {
         brokerPubSubInfo.updBrokerMangeStatus(brokerId, mngStatus);
@@ -528,8 +534,8 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
-    public List<TopicInfo> getPubBrokerPushedTopicInfo(int brokerId) {
-        return brokerPubSubInfo.getPubBrokerPushedTopicInfo(brokerId);
+    public void getPubBrokerPushedTopicInfo(int brokerId,
+                                            Tuple3<Boolean, Boolean, List<TopicInfo>> result) {
+        brokerPubSubInfo.getPubBrokerPushedTopicInfo(brokerId, result);
     }
-
 }

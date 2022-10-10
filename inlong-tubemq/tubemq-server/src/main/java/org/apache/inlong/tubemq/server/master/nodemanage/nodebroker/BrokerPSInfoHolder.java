@@ -24,6 +24,7 @@ import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 
 /*
@@ -59,27 +60,48 @@ public class BrokerPSInfoHolder {
     }
 
     /**
+     * initial broker configure info
+     *
+     * @param brokerId broker id index
+     * @param mngStatus broker's manage status
+     * @param topicInfoMap broker's topic configure info,
+     *                     if topicInfoMap is null, reserve current configure;
+     *                     if topicInfoMap is empty, clear current configure.
+     */
+    public void iniBrokerConfigInfo(int brokerId, ManageStatus mngStatus,
+                                    Map<String, TopicInfo> topicInfoMap) {
+        // initial broker manage status
+        updBrokerMangeStatus(brokerId, mngStatus);
+        if (topicInfoMap == null) {
+            return;
+        }
+        // initial broker subscribe info
+        subTopicInfoView.updBrokerTopicConfInfo(brokerId, topicInfoMap);
+        // initial broker publish info
+        pubTopicInfoView.updBrokerTopicConfInfo(brokerId, topicInfoMap);
+    }
+
+    /**
      * update broker manage status
      *
      * @param brokerId broker id index
      * @param mngStatus broker's manage status
      */
     public void updBrokerMangeStatus(int brokerId, ManageStatus mngStatus) {
-        Tuple2<Boolean, Boolean> pubSubStatus = mngStatus.getPubSubStatus();
-        if (pubSubStatus.getF0()) {
+        if (mngStatus.isAcceptPublish()) {
             enablePubBrokerIdSet.add(brokerId);
         } else {
             enablePubBrokerIdSet.remove(brokerId);
         }
-        if (pubSubStatus.getF1()) {
+        if (mngStatus.isAcceptSubscribe()) {
             enableSubBrokerIdSet.add(brokerId);
         } else {
             enableSubBrokerIdSet.remove(brokerId);
         }
     }
 
-    public Tuple2<Boolean, Boolean> getBrokerPubStatus(int brokerId) {
-        return new Tuple2<>(enablePubBrokerIdSet.contains(brokerId),
+    public void getBrokerPubStatus(int brokerId, Tuple2<Boolean, Boolean> result) {
+        result.setF0AndF1(enablePubBrokerIdSet.contains(brokerId),
                 enableSubBrokerIdSet.contains(brokerId));
     }
 
@@ -123,7 +145,7 @@ public class BrokerPSInfoHolder {
      * @param topicSet need query topic set
      */
     public int getTopicMaxSubBrokerCnt(Set<String> topicSet) {
-        return subTopicInfoView.getMaxTopicBrokerCnt(topicSet);
+        return subTopicInfoView.getMaxTopicBrokerCnt(topicSet, enableSubBrokerIdSet);
     }
 
     /**
@@ -169,9 +191,14 @@ public class BrokerPSInfoHolder {
      * Get all published TopicInfo information of broker
      *
      * @param brokerId need query broker
+     * @param result   query result(broker accept publish,
+     *                       broker accept subscribe, null or topicInfo configure)
      */
-    public List<TopicInfo> getPubBrokerPushedTopicInfo(int brokerId) {
-        return pubTopicInfoView.getBrokerPushedTopicInfo(brokerId);
+    public void getPubBrokerPushedTopicInfo(int brokerId,
+                                            Tuple3<Boolean, Boolean, List<TopicInfo>> result) {
+        result.setFieldsValue(enablePubBrokerIdSet.contains(brokerId),
+                enableSubBrokerIdSet.contains(brokerId),
+                pubTopicInfoView.getBrokerPushedTopicInfo(brokerId));
     }
 
 }

@@ -236,7 +236,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     /**
-     * Query broker topic config info
+     * Query broker's topic configure view
      *
      * @param req       Http Servlet Request
      * @param sBuffer   string buffer
@@ -262,9 +262,21 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         Map<Integer, List<TopicDeployEntity>> queryResult =
                 defMetaDataService.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
         // build query result
-        int dataCount = 0;
-        int totalStoreNum = 0;
-        int totalNumPartCount = 0;
+        int recordCount = 0;
+        int topicTotalCfgCnt = 0;
+        int storeTotalCfgCnt = 0;
+        int partTotalCfgCnt = 0;
+        int topicAccPubTotalCnt = 0;
+        int topicAccSubTotalCnt = 0;
+        int storeAccPubTotalCnt = 0;
+        int storeAccSubTotalCnt = 0;
+        int partAccPubTotalCnt = 0;
+        int partAccSubTotalCnt = 0;
+        int tmpPartTtlCount = 0;
+        String strManageStatus;
+        BrokerRunStatusInfo runStatusInfo;
+        List<TopicDeployEntity> topicDeployInfo;
+        Tuple2<Boolean, Boolean> publishTuple = new Tuple2<>();
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (Map.Entry<Integer, List<TopicDeployEntity>> entry : queryResult.entrySet()) {
@@ -277,60 +289,72 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 continue;
             }
             // build return info item
-            if (dataCount++ > 0) {
+            if (recordCount++ > 0) {
                 sBuffer.append(",");
             }
-            totalStoreNum = 0;
-            totalNumPartCount = 0;
+            // reset data items
+            topicTotalCfgCnt = 0;
+            storeTotalCfgCnt = 0;
+            partTotalCfgCnt = 0;
+            topicAccPubTotalCnt = 0;
+            topicAccSubTotalCnt = 0;
+            storeAccPubTotalCnt = 0;
+            storeAccSubTotalCnt = 0;
+            partAccPubTotalCnt = 0;
+            partAccSubTotalCnt = 0;
+            // query detail information
+            topicDeployInfo = entry.getValue();
+            strManageStatus = brokerConf.getManageStatus().getDescription();
+            runStatusInfo = brokerRunManager.getBrokerRunStatusInfo(entry.getKey());
+            brokerRunManager.getBrokerPublishStatus(entry.getKey(), publishTuple);
+            // accumulate data items
+            for (TopicDeployEntity topicEntity : topicDeployInfo) {
+                if (topicEntity == null) {
+                    continue;
+                }
+                topicTotalCfgCnt++;
+                storeTotalCfgCnt += topicEntity.getNumTopicStores();
+                tmpPartTtlCount = topicEntity.getNumTopicStores() * topicEntity.getNumPartitions();
+                partTotalCfgCnt += tmpPartTtlCount;
+                if (runStatusInfo == null) {
+                    continue;
+                }
+                if (publishTuple.getF0() && topicEntity.isAcceptPublish()) {
+                    topicAccPubTotalCnt++;
+                    storeAccPubTotalCnt += topicEntity.getNumTopicStores();
+                    partAccPubTotalCnt += tmpPartTtlCount;
+                }
+                if (publishTuple.getF1() && topicEntity.isAcceptSubscribe()) {
+                    topicAccSubTotalCnt++;
+                    storeAccSubTotalCnt += topicEntity.getNumTopicStores();
+                    partAccSubTotalCnt += tmpPartTtlCount;
+                }
+            }
+            // build query record by broker
             sBuffer.append("{\"brokerId\":").append(brokerConf.getBrokerId())
                     .append(",\"brokerIp\":\"").append(brokerConf.getBrokerIp())
                     .append("\",\"brokerPort\":").append(brokerConf.getBrokerPort())
-                    .append(",\"runInfo\":{");
-            String strManageStatus =
-                    brokerConf.getManageStatus().getDescription();
-            Tuple2<Boolean, Boolean> pubSubStatus =
-                    brokerConf.getManageStatus().getPubSubStatus();
-            BrokerRunStatusInfo runStatusInfo =
-                    brokerRunManager.getBrokerRunStatusInfo(entry.getKey());
+                    .append(",\"manageStatus\":\"").append(strManageStatus)
+                    .append("\",\"acceptPublish\":").append(publishTuple.getF0())
+                    .append(",\"acceptSubscribe\":").append(publishTuple.getF1());
             if (runStatusInfo == null) {
-                sBuffer.append("\"acceptPublish\":\"-\"")
-                        .append(",\"acceptSubscribe\":\"-\"")
-                        .append(",\"totalPartitionNum\":\"-\"")
-                        .append(",\"totalTopicStoreNum\":\"-\"")
-                        .append(",\"brokerManageStatus\":\"-\"");
+                sBuffer.append(",\"nodeRunInfo\":\"-\"");
+
             } else {
-                Tuple2<Boolean, Boolean> publishTuple =
-                        brokerRunManager.getBrokerPublishStatus(entry.getKey());
-                if (pubSubStatus.getF0()) {
-                    sBuffer.append("\"acceptPublish\":")
-                            .append(publishTuple.getF0());
-                } else {
-                    sBuffer.append("\"acceptPublish\":false");
-                }
-                if (pubSubStatus.getF1()) {
-                    sBuffer.append(",\"acceptSubscribe\":")
-                            .append(publishTuple.getF1());
-                } else {
-                    sBuffer.append(",\"acceptSubscribe\":false");
-                }
-                List<TopicDeployEntity> topicDeployInfo = entry.getValue();
-                for (TopicDeployEntity topicEntity : topicDeployInfo) {
-                    if (topicEntity == null) {
-                        continue;
-                    }
-                    totalStoreNum +=
-                            topicEntity.getNumTopicStores();
-                    totalNumPartCount +=
-                            topicEntity.getNumTopicStores() * topicEntity.getNumPartitions();
-                }
-                sBuffer.append(",\"totalPartitionNum\":").append(totalNumPartCount)
-                        .append(",\"totalTopicStoreNum\":").append(totalStoreNum)
-                        .append(",\"brokerManageStatus\":\"")
-                        .append(strManageStatus).append("\"");
+                sBuffer.append(",\"nodeRunInfo\":\"running\"");
             }
-            sBuffer.append("}}");
+            sBuffer.append(",\"topicTotalCfgCnt\":").append(topicTotalCfgCnt)
+                    .append(",\"storeTotalCfgCnt\":").append(storeTotalCfgCnt)
+                    .append(",\"partTotalCfgCnt\":").append(partTotalCfgCnt)
+                    .append(",\"topicAccPubTotalCnt\":").append(topicAccPubTotalCnt)
+                    .append(",\"topicAccSubTotalCnt\":").append(topicAccSubTotalCnt)
+                    .append(",\"storeAccPubTotalCnt\":").append(storeAccPubTotalCnt)
+                    .append(",\"storeAccSubTotalCnt\":").append(storeAccSubTotalCnt)
+                    .append(",\"partAccPubTotalCnt\":").append(partAccPubTotalCnt)
+                    .append(",\"partAccSubTotalCnt\":").append(partAccSubTotalCnt)
+                    .append("}");
         }
-        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, dataCount);
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, recordCount);
         return sBuffer;
     }
 
