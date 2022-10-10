@@ -104,12 +104,7 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    record.value().toString();
-                    Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(FieldName.TIMESTAMP);
-                    sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
-                    return TimestampData.fromEpochMillis(
-                            (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
+                    return null;
                 }
 
                 @Override
@@ -136,7 +131,7 @@ public enum MySqlReadableMetadata {
                             .data(dataList).database(databaseName)
                             .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
                             .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
-                            .type(getOpType(record)).build();
+                            .type(getOpType(record)).sqlType(getSqlType(tableSchema)).build();
 
                     try {
                         ObjectMapper objectMapper = new ObjectMapper();
@@ -432,7 +427,27 @@ public enum MySqlReadableMetadata {
         return mysqlType;
     }
 
-    private static String getMetaData(SourceRecord record, String tableNameKey) {
+    /**
+     * get sql type from table schema, represents the jdbc data type
+     * @param tableSchema
+     */
+    public static Map<String, Integer> getSqlType(@Nullable TableChanges.TableChange tableSchema) {
+        if (tableSchema == null) {
+            return null;
+        }
+        Map<String, Integer> sqlType = new HashMap<>();
+        final Table table = tableSchema.getTable();
+        table.columns()
+            .forEach(
+                column -> {
+                    sqlType.put(
+                        column.name(),
+                        column.jdbcType());
+                });
+        return sqlType;
+    }
+
+    public static String getMetaData(SourceRecord record, String tableNameKey) {
         Struct messageStruct = (Struct) record.value();
         Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
         return sourceStruct.getString(tableNameKey);

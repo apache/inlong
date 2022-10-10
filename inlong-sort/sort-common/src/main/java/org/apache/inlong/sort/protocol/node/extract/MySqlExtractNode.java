@@ -268,6 +268,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
                 metadataKey = "meta.op_type";
                 break;
             case DATA:
+            case DATA_BYTES:
                 metadataKey = "meta.data";
                 break;
             case IS_DDL:
@@ -305,8 +306,9 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATA, MetaField.DATABASE_NAME,
-                MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL, MetaField.TS, MetaField.SQL_TYPE,
-                MetaField.MYSQL_TYPE, MetaField.PK_NAMES, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE);
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATA,
+            MetaField.DATABASE_NAME, MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL,
+            MetaField.TS, MetaField.SQL_TYPE, MetaField.MYSQL_TYPE, MetaField.PK_NAMES,
+            MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA_BYTES);
     }
 }

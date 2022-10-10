@@ -139,6 +139,6 @@ public class SqlServerExtractNode extends ExtractNode implements InlongMetric, M
     @Override
     public Set<MetaField> supportedMetaFields() {
         return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
-                MetaField.SCHEMA_NAME, MetaField.OP_TS);
+                MetaField.SCHEMA_NAME, MetaField.OP_TS, MetaField.DATA_BYTES);
     }
 }
