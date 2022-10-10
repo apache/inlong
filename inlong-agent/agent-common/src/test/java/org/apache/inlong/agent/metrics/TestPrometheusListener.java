@@ -60,7 +60,6 @@ import static org.apache.inlong.agent.metrics.AgentMetricItem.M_TASK_RUNNING_COU
  */
 public class TestPrometheusListener {
 
-    //metric
     protected static final AtomicLong METRIC_INDEX = new AtomicLong(0);
     private static final Logger LOGGER = LoggerFactory.getLogger(TestPrometheusListener.class);
     private static final Map<String, AtomicLong> metricValueMap = new ConcurrentHashMap<>();
@@ -109,7 +108,7 @@ public class TestPrometheusListener {
         metricItem = metricItemSet.findMetricItem(dimensions);
         metricItem.pluginReadFailCount.incrementAndGet();
         metricItem.pluginReadSuccessCount.incrementAndGet();
-        //report
+        // report
         MetricListener listener = new MetricListener() {
             @Override
             public void snapshot(String domain, List<MetricItemValue> itemValues) {
@@ -117,7 +116,7 @@ public class TestPrometheusListener {
                     String key = itemValue.getKey();
                     LOGGER.info("KEY : " + key);
                     Map<String, MetricValue> metricMap = itemValue.getMetrics();
-                    //total
+                    // total
                     for (Entry<String, MetricValue> entry : itemValue.getMetrics().entrySet()) {
                         String fieldName = entry.getValue().name;
                         AtomicLong metricValue = metricValueMap.get(fieldName);
@@ -127,7 +126,7 @@ public class TestPrometheusListener {
                             metricValue.addAndGet(100);
                         }
                     }
-                    //dimension
+                    // dimension
                     String dimensionKey = itemValue.getKey();
                     MetricItemValue dimensionMetricValue = dimensionMetricValueMap.get(dimensionKey);
                     if (dimensionMetricValue == null) {
@@ -170,20 +169,20 @@ public class TestPrometheusListener {
         Assert.assertTrue(dimensionKeys.contains("inlongGroupId"));
         for (Entry<String, MetricItemValue> entry : this.dimensionMetricValueMap.entrySet()) {
             MetricItemValue itemValue = entry.getValue();
-            //JOB
+            // JOB
             addMetric(M_JOB_RUNNING_COUNT, itemValue);
             addMetric(M_JOB_FATAL_COUNT, itemValue);
-            //TASK
+            // TASK
             addMetric(M_TASK_RUNNING_COUNT, itemValue);
             addMetric(M_TASK_RETRYING_COUNT, itemValue);
             addMetric(M_TASK_FATAL_COUNT, itemValue);
-            //SINK
+            // SINK
             addMetric(M_SINK_SUCCESS_COUNT, itemValue);
             addMetric(M_SINK_FAIL_COUNT, itemValue);
-            //SOURCE
+            // SOURCE
             addMetric(M_SOURCE_SUCCESS_COUNT, itemValue);
             addMetric(M_SOURCE_FAIL_COUNT, itemValue);
-            //PLUGIN
+            // PLUGIN
             addMetric(M_PLUGIN_READ_COUNT, itemValue);
             addMetric(M_PLUGIN_SEND_COUNT, itemValue);
             addMetric(M_PLUGIN_READ_FAIL_COUNT, itemValue);

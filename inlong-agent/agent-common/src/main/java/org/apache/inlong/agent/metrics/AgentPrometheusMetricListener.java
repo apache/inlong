@@ -121,9 +121,8 @@ public class AgentPrometheusMetricListener extends Collector implements MetricLi
     public List<MetricFamilySamples> collect() {
         DefaultExports.initialize();
         // total
-        CounterMetricFamily totalCounter = new CounterMetricFamily("total",
-                "metrics_of_agent_node_total",
-                Arrays.asList("dimension"));
+        CounterMetricFamily totalCounter = new CounterMetricFamily("total", "metrics_of_agent_node_total",
+                Arrays.asList(DEFAULT_DIMENSION_LABEL));
         totalCounter.addMetric(Arrays.asList(M_JOB_RUNNING_COUNT), metricItem.jobRunningCount.get());
         totalCounter.addMetric(Arrays.asList(M_JOB_FATAL_COUNT), metricItem.jobFatalCount.get());
         totalCounter.addMetric(Arrays.asList(M_TASK_RUNNING_COUNT), metricItem.taskRunningCount.get());
@@ -146,8 +145,7 @@ public class AgentPrometheusMetricListener extends Collector implements MetricLi
         List<String> dimensionIdKeys = new ArrayList<>();
         dimensionIdKeys.add(DEFAULT_DIMENSION_LABEL);
         dimensionIdKeys.addAll(this.dimensionKeys);
-        CounterMetricFamily idCounter = new CounterMetricFamily("id",
-                "metrics_of_agent_dimensions", dimensionIdKeys);
+        CounterMetricFamily idCounter = new CounterMetricFamily("id", "metrics_of_agent_dimensions", dimensionIdKeys);
         for (Entry<String, MetricItemValue> entry : this.dimensionMetricValueMap.entrySet()) {
             MetricItemValue itemValue = entry.getValue();
 
