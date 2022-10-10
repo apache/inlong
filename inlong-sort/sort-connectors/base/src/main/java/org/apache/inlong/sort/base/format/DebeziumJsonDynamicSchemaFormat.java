@@ -39,7 +39,11 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
 
     @Override
     protected JsonNode getPhysicalData(JsonNode root) {
-        return root.get("after");
+        JsonNode physicalData = root.get("after");
+        if (physicalData == null) {
+            physicalData = root.get("before");
+        }
+        return physicalData;
     }
 
     /**

@@ -30,6 +30,8 @@ import org.apache.flink.util.Preconditions;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -38,10 +40,11 @@ import java.io.Serializable;
 /**
  * A specific {@link KafkaSerializationSchema} for {@link KafkaDynamicSink}.
  */
-class DynamicKafkaSerializationSchema
-        implements KafkaSerializationSchema<RowData>, KafkaContextAware<RowData> {
+class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowData>, KafkaContextAware<RowData> {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicKafkaSerializationSchema.class);
 
     private final @Nullable
     FlinkKafkaPartitioner<RowData> partitioner;
@@ -186,7 +189,7 @@ class DynamicKafkaSerializationSchema
 
     @Override
     public String getTargetTopic(RowData element) {
-        // Only support dymic topic when the dymicTopic is true
+        // Only support dynamic topic when the topicPattern is specified
         //      and the valueSerialization is RawFormatSerializationSchema
         if (valueSerialization instanceof RawFormatSerializationSchema && StringUtils.isNotBlank(topicPattern)) {
             try {
@@ -194,7 +197,7 @@ class DynamicKafkaSerializationSchema
                         .parse(element.getBinary(0), topicPattern);
             } catch (IOException e) {
                 // Ignore the parse error and it will return the default topic final.
-                e.printStackTrace();
+                LOG.warn("parse dynamic topic error", e);
             }
         }
         return topic;

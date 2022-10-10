@@ -45,7 +45,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     /**
      * Extract value by key from the raw data
      *
-     * @param message The btye array of raw data
+     * @param message The byte array of raw data
      * @param keys The key list that will used to extract
      * @return The value list maps the keys
      * @throws IOException The exceptions may throws when extract
@@ -100,7 +100,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     /**
      * Deserialize from byte array and return a ${@link JsonNode}
      *
-     * @param message The btye array of raw data
+     * @param message The byte array of raw data
      * @return The JsonNode
      * @throws IOException The exceptions may throws when deserialize
      */
