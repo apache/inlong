@@ -41,13 +41,16 @@ public class FileJob {
 
     private String envList;
 
-    private List<Map<String, String>> metaFields;
+    // json sting, List<Map<String,string>>
+    private String metaFields;
 
     private String dataSeparator;
 
-    private Map<String, String> filterMetaByLabels;
+    // json string, Map<String,string>
+    private String filterMetaByLabels;
 
-    private Map<String, Object> properties;
+    // json string, Map<String,Object>
+    private String properties;
 
     // Monitor interval for file
     private Long monitorInterval;

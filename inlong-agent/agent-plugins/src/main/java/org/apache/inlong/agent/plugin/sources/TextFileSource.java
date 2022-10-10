@@ -22,6 +22,7 @@ import org.apache.inlong.agent.constant.DataCollectType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.file.FileReaderOperator;
+import org.apache.inlong.agent.plugin.utils.FileDataUtils;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,7 @@ public class TextFileSource extends AbstractSource {
     public List<Reader> split(JobProfile jobConf) {
         super.init(jobConf);
         Collection<File> allFiles = PluginUtils.findSuitFiles(jobConf);
+        allFiles = FileDataUtils.filterFile(allFiles, jobConf);
         List<Reader> result = new ArrayList<>();
         String filterPattern = jobConf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
         LOGGER.info("file splits size: {}", allFiles.size());
