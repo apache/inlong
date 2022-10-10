@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is use to process CLI Broker Admin process for script #{bin/tubemq-broker-admin.sh}.
  *
- *
  */
 public class CliBrokerAdmin extends CliAbstractBase {
 

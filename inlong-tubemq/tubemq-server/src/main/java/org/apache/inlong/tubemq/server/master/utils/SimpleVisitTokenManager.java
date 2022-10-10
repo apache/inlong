@@ -57,7 +57,7 @@ public class SimpleVisitTokenManager extends AbstractDaemonService {
     protected void loopProcess(StringBuilder strBuff) {
         try {
             buildVisitTokens(false, strBuff);
-        }  catch (Throwable t) {
+        } catch (Throwable t) {
             logger.error("[VisitToken Manager] Daemon generator thread throw error ", t);
         }
     }
@@ -80,5 +80,4 @@ public class SimpleVisitTokenManager extends AbstractDaemonService {
                 .append(TokenConstants.ARRAY_SEP).append(freshVisitAuthorized.get()).toString();
         strBuff.delete(0, strBuff.length());
     }
-
 }
