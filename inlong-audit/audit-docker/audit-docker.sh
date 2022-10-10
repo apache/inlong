@@ -41,30 +41,16 @@ fi
 if [ -n "${STORE_MODE}" ]; then
   sed -i "s/audit.config.store.mode=.*$/audit.config.store.mode=${STORE_MODE}/g" "${store_conf_file}"
 fi
-if [ -n "${STORE_CK_URL}" ]; then
-  sed -i "s/clickhouse.url=.*$/clickhouse.url=${STORE_CK_URL}/g" "${store_conf_file}"
-fi
-if [ -n "${STORE_CK_USERNAME}" ]; then
-  sed -i "s/clickhouse.username=.*$/clickhouse.username=${STORE_CK_USERNAME}/g" "${store_conf_file}"
-fi
-if [ -n "${STORE_CK_PASSWD}" ]; then
-  sed -i "s/clickhouse.password=.*$/clickhouse.password=${STORE_CK_PASSWD}/g" "${store_conf_file}"
-fi
-if [ -n "${STORE_ES_HOST}" ]; then
-  sed -i "s/elasticsearch.host=.*$/elasticsearch.host=${STORE_ES_HOST}/g" "${store_conf_file}"
-fi
-if [ -n "${STORE_ES_PORT}" ]; then
-  sed -i "s/elasticsearch.port=.*$/elasticsearch.port=${STORE_ES_PORT}/g" "${store_conf_file}"
-fi
-if [ -n "${STORE_ES_AUTHENABLE}" ]; then
-  sed -i "s/elasticsearch.authEnable=.*$/elasticsearch.authEnable=${STORE_ES_AUTHENABLE}/g" "${store_conf_file}"
-fi
-if [ -n "${STORE_ES_USERNAME}" ]; then
-  sed -i "s/elasticsearch.username=.*$/elasticsearch.username=${STORE_ES_USERNAME}/g" "${store_conf_file}"
-fi
-if [ -n "${STORE_ES_PASSWD}" ]; then
-  sed -i "s/elasticsearch.password=.*$/elasticsearch.password=${STORE_ES_PASSWD}/g" "${store_conf_file}"
-fi
+
+sed -i "s/clickhouse.url=.*$/clickhouse.url=${STORE_CK_URL}/g" "${store_conf_file}"
+sed -i "s/clickhouse.username=.*$/clickhouse.username=${STORE_CK_USERNAME}/g" "${store_conf_file}"
+sed -i "s/clickhouse.password=.*$/clickhouse.password=${STORE_CK_PASSWD}/g" "${store_conf_file}"
+
+sed -i "s/elasticsearch.host=.*$/elasticsearch.host=${STORE_ES_HOST}/g" "${store_conf_file}"
+sed -i "s/elasticsearch.port=.*$/elasticsearch.port=${STORE_ES_PORT}/g" "${store_conf_file}"
+sed -i "s/elasticsearch.authEnable=.*$/elasticsearch.authEnable=${STORE_ES_AUTHENABLE}/g" "${store_conf_file}"
+sed -i "s/elasticsearch.username=.*$/elasticsearch.username=${STORE_ES_USERNAME}/g" "${store_conf_file}"
+sed -i "s/elasticsearch.password=.*$/elasticsearch.password=${STORE_ES_PASSWD}/g" "${store_conf_file}"
 
 # Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
 if [[ "${JDBC_URL}" =~ (.+):([0-9]+) ]]; then
