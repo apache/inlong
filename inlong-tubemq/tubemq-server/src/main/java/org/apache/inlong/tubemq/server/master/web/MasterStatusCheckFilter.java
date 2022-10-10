@@ -40,7 +40,6 @@ public class MasterStatusCheckFilter implements Filter {
         this.master = master;
         this.defMetaDataService =
                 this.master.getMetaDataService();
-
     }
 
     @Override
@@ -49,8 +48,8 @@ public class MasterStatusCheckFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request,
-            ServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
+                         ServletResponse response,
+                         FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         if (!defMetaDataService.isSelfMaster()) {

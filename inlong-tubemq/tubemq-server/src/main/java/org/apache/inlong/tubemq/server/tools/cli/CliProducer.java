@@ -46,8 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is use to process CLI Producer process for script #{bin/tubemq-producer-test.sh}.
- *
+ * This class is used to process CLI Producer process for script #{bin/tubemq-producer-test.sh}.
  *
  */
 public class CliProducer extends CliAbstractBase {
