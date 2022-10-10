@@ -495,6 +495,15 @@ public interface MetaDataService extends Server {
     Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
                                                   TopicCtrlEntity qryEntity);
 
+    /**
+     * get topic max message size configure info from store
+     *
+     * @param defMaxMsgSizeInB  the default max message size in B
+     * @param topicNameSet  need matched topic name set
+     * @return result, only read
+     */
+    Map<String, Integer> getMaxMsgSizeInBByTopics(int defMaxMsgSizeInB, Set<String> topicNameSet);
+
     // //////////////////////////////////////////////////////////////////////////////
 
     /**

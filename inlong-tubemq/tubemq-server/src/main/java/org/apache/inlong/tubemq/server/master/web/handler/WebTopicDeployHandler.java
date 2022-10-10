@@ -379,15 +379,16 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 defMetaDataService.getBrokerTopicConfigInfo(brokerIds);
         // build query result
         int dataCount = 0;
+        int topicCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (Map.Entry<Integer, Set<String>> entry : brokerTopicConfigMap.entrySet()) {
             if (dataCount++ > 0) {
                 sBuffer.append(",");
             }
-            sBuffer.append("{\"brokerId\":").append(entry.getKey()).append(",\"topicName\":[");
-            int topicCnt = 0;
-            Set<String> topicSet = entry.getValue();
-            for (String topic : topicSet) {
+            topicCnt = 0;
+            sBuffer.append("{\"brokerId\":").append(entry.getKey())
+                    .append(",\"topicName\":[");
+            for (String topic : entry.getValue()) {
                 if (topicCnt++ > 0) {
                     sBuffer.append(",");
                 }

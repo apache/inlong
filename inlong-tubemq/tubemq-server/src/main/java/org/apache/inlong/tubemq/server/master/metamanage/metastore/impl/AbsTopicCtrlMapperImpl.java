@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
@@ -145,6 +146,32 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
             retEntityMap.put(topicName, entity);
         }
         return retEntityMap;
+    }
+
+    @Override
+    public Map<String, Integer> getMaxMsgSizeInBByTopics(int defMaxMsgSizeInB,
+                                                         Set<String> topicNameSet) {
+        Map<String, Integer> resultMap = new HashMap<>();
+        if (topicNameSet == null || topicNameSet.isEmpty()) {
+            return resultMap;
+        }
+        TopicCtrlEntity ctrlEntity;
+        for (String topic : topicNameSet) {
+            if (topic == null) {
+                continue;
+            }
+            ctrlEntity = topicCtrlCache.get(topic);
+            if (ctrlEntity == null) {
+                continue;
+            }
+            if (ctrlEntity.getMaxMsgSizeInB() == TBaseConstants.META_VALUE_UNDEFINED
+                    || ctrlEntity.getMaxMsgSizeInB() == defMaxMsgSizeInB) {
+                resultMap.put(topic, null);
+            } else {
+                resultMap.put(topic, ctrlEntity.getMaxMsgSizeInB());
+            }
+        }
+        return resultMap;
     }
 
     /**
