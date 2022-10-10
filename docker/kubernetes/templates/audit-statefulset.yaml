@@ -133,6 +133,13 @@ spec:
           ports:
             - name: {{ .Values.audit.component }}-port
               containerPort: 10081
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.audit.component }}-port
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 10
+            timeoutSeconds: 5
           volumeMounts:
             - name: data
               mountPath: /data/collect-data

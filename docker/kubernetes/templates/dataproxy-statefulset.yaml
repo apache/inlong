@@ -100,6 +100,13 @@ spec:
           ports:
             - name: {{ .Values.dataproxy.component }}-port
               containerPort: 46801
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.dataproxy.component }}-port
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 10
+            timeoutSeconds: 5
           volumeMounts:
           - name: {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}-{{ .Values.dataproxy.volumes.name }}
             mountPath: /opt/inlong-dataproxy/data
