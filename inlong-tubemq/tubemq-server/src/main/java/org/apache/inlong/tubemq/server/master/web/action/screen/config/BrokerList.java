@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.server.common.TubeServerVersion;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
@@ -81,22 +82,22 @@ public class BrokerList implements Action {
             int fromIndex = pageSize * (pageNum - 1);
             int toIndex =
                     Math.min(fromIndex + pageSize, brokerInfoList.size());
+            Tuple3<Boolean, Boolean, List<TopicInfo>> topicInfoTuple = new Tuple3<>();
             List<BrokerInfo> firstPageList = brokerInfoList.subList(fromIndex, toIndex);
             brokerVOList = new ArrayList<>(brokerInfoList.size());
             for (BrokerInfo brokerInfo : firstPageList) {
                 BrokerVO brokerVO = new BrokerVO();
                 brokerVO.setId(brokerInfo.getBrokerId());
                 brokerVO.setIp(brokerInfo.getHost());
-                List<TopicInfo> topicInfoList =
-                        brokerRunManager.getPubBrokerPushedTopicInfo(brokerInfo.getBrokerId());
-                brokerVO.setTopicCount(topicInfoList.size());
+                brokerRunManager.getPubBrokerPushedTopicInfo(brokerInfo.getBrokerId(), topicInfoTuple);
+                brokerVO.setTopicCount(topicInfoTuple.getF2().size());
                 int totalPartitionNum = 0;
-                for (TopicInfo topicInfo : topicInfoList) {
+                for (TopicInfo topicInfo : topicInfoTuple.getF2()) {
                     totalPartitionNum += topicInfo.getPartitionNum();
                 }
                 brokerVO.setPartitionCount(totalPartitionNum);
-                brokerVO.setReadable(true);
-                brokerVO.setWritable(true);
+                brokerVO.setReadable(topicInfoTuple.getF1());
+                brokerVO.setWritable(topicInfoTuple.getF0());
                 brokerVO.setVersion(TubeServerVersion.SERVER_VERSION);
                 brokerVO.setStatus(1);
                 brokerVO.setLastOpTime(new Date());
