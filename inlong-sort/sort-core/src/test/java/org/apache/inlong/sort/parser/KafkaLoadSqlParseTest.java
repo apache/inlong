@@ -23,14 +23,19 @@ import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
+import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
+import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
@@ -73,10 +78,28 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
                 null, null, null);
     }
 
+    private KafkaExtractNode buildKafkaExtractNode() {
+        List<FieldInfo> fields = Collections.singletonList(new FieldInfo("raw", new VarBinaryFormatInfo()));
+        return new KafkaExtractNode("1", "kafka_input", fields,
+                null, null, "kafka_raw", "localhost:9092",
+                new RawFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null,
+                "test_group", null, null);
+    }
+
+    private KafkaLoadNode buildKafkaLoadNodeWithDynamicTopic() {
+        List<FieldInfo> fields = Collections.singletonList(new FieldInfo("raw", new VarBinaryFormatInfo()));
+        List<FieldRelation> relations = Collections
+                .singletonList(new FieldRelation(new FieldInfo("raw", new VarBinaryFormatInfo()),
+                        new FieldInfo("raw", new VarBinaryFormatInfo())));
+        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
+                "topic_output", "localhost:9092", new RawFormat(), null,
+                null, null, new CanalJsonFormat(), "${database}_${table}");
+    }
+
     /**
      * build node relation
      *
-     * @param inputs  extract node
+     * @param inputs extract node
      * @param outputs load node
      * @return node relation
      */
@@ -105,6 +128,35 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildMysqlExtractNode();
         Node outputNode = buildKafkaLoadNode();
+        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
+                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
+                        Collections.singletonList(outputNode))));
+        GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
+        ParseResult result = parser.parse();
+        Assert.assertTrue(result.tryExecute());
+    }
+
+
+    /**
+     * Test kafka to kafka with dynamic topic
+     *
+     * @throws Exception The exception may be thrown when executing
+     */
+    @Test
+    public void testKafkaDynamicTopicParse() throws Exception {
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        env.disableOperatorChaining();
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        Node inputNode = buildKafkaExtractNode();
+        Node outputNode = buildKafkaLoadNodeWithDynamicTopic();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));

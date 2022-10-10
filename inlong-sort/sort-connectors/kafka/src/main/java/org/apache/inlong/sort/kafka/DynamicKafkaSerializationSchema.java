@@ -17,18 +17,22 @@
 
 package org.apache.inlong.sort.kafka;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.connectors.kafka.KafkaContextAware;
 import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.formats.raw.RawFormatSerializationSchema;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -39,11 +43,13 @@ class DynamicKafkaSerializationSchema
 
     private static final long serialVersionUID = 1L;
 
-    private final @Nullable FlinkKafkaPartitioner<RowData> partitioner;
+    private final @Nullable
+    FlinkKafkaPartitioner<RowData> partitioner;
 
     private final String topic;
 
-    private final @Nullable SerializationSchema<RowData> keySerialization;
+    private final @Nullable
+    SerializationSchema<RowData> keySerialization;
 
     private final SerializationSchema<RowData> valueSerialization;
 
@@ -55,12 +61,13 @@ class DynamicKafkaSerializationSchema
 
     private final boolean upsertMode;
 
+    private final String topicPattern;
     /**
      * Contains the position for each value of {@link WritableMetadata} in the
      * consumed row or -1 if this metadata key is not used.
      */
     private final int[] metadataPositions;
-
+    private final String innerValueDecodingFormat;
     private int[] partitions;
 
     private int parallelInstanceId;
@@ -76,7 +83,9 @@ class DynamicKafkaSerializationSchema
             RowData.FieldGetter[] valueFieldGetters,
             boolean hasMetadata,
             int[] metadataPositions,
-            boolean upsertMode) {
+            boolean upsertMode,
+            @Nullable String innerValueDecodingFormat,
+            @Nullable String topicPattern) {
         if (upsertMode) {
             Preconditions.checkArgument(
                     keySerialization != null && keyFieldGetters.length > 0,
@@ -91,6 +100,8 @@ class DynamicKafkaSerializationSchema
         this.hasMetadata = hasMetadata;
         this.metadataPositions = metadataPositions;
         this.upsertMode = upsertMode;
+        this.innerValueDecodingFormat = innerValueDecodingFormat;
+        this.topicPattern = topicPattern;
     }
 
     static RowData createProjectedRow(
@@ -120,12 +131,11 @@ class DynamicKafkaSerializationSchema
         if (keySerialization == null && !hasMetadata) {
             final byte[] valueSerialized = valueSerialization.serialize(consumedRow);
             return new ProducerRecord<>(
-                    topic,
+                    getTargetTopic(consumedRow),
                     extractPartition(consumedRow, null, valueSerialized),
                     null,
                     valueSerialized);
         }
-
         final byte[] keySerialized;
         if (keySerialization == null) {
             keySerialized = null;
@@ -151,7 +161,7 @@ class DynamicKafkaSerializationSchema
         }
 
         return new ProducerRecord<>(
-                topic,
+                getTargetTopic(consumedRow),
                 extractPartition(consumedRow, keySerialized, valueSerialized),
                 readMetadata(consumedRow, KafkaDynamicSink.WritableMetadata.TIMESTAMP),
                 keySerialized,
@@ -176,6 +186,17 @@ class DynamicKafkaSerializationSchema
 
     @Override
     public String getTargetTopic(RowData element) {
+        // Only support dymic topic when the dymicTopic is true
+        //      and the valueSerialization is RawFormatSerializationSchema
+        if (valueSerialization instanceof RawFormatSerializationSchema && StringUtils.isNotBlank(topicPattern)) {
+            try {
+                return DynamicSchemaFormatFactory.getFormat(innerValueDecodingFormat)
+                        .parse(element.getBinary(0), topicPattern);
+            } catch (IOException e) {
+                // Ignore the parse error and it will return the default topic final.
+                e.printStackTrace();
+            }
+        }
         return topic;
     }
 
@@ -200,6 +221,7 @@ class DynamicKafkaSerializationSchema
     // --------------------------------------------------------------------------------------------
 
     interface MetadataConverter extends Serializable {
+
         Object read(RowData consumedRow, int pos);
     }
 }

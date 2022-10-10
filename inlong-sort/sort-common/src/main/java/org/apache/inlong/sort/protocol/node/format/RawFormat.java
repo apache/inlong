@@ -17,14 +17,15 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The Raw format
@@ -38,6 +39,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 public class RawFormat implements Format {
 
     private static final long serialVersionUID = 1L;
+
+    private static final String IDENTIFIER = "raw";
 
     @JsonProperty(value = "rawCharset", defaultValue = "UTF-8")
     private String rawCharset;
@@ -64,7 +67,12 @@ public class RawFormat implements Format {
     @JsonIgnore
     @Override
     public String getFormat() {
-        return "raw";
+        return IDENTIFIER;
+    }
+
+    @Override
+    public String identifier() {
+        return IDENTIFIER;
     }
 
     /**
@@ -72,6 +80,7 @@ public class RawFormat implements Format {
      *
      * @return options
      */
+    @Override
     public Map<String, String> generateOptions() {
         Map<String, String> options = new HashMap<>(16);
         options.put("format", getFormat());

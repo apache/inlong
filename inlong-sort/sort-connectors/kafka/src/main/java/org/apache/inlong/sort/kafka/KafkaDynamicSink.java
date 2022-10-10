@@ -53,7 +53,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
@@ -82,7 +81,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     /**
      * Optional format for encoding keys to Kafka.
      */
-    protected final @Nullable EncodingFormat<SerializationSchema<RowData>> keyEncodingFormat;
+    protected final @Nullable
+    EncodingFormat<SerializationSchema<RowData>> keyEncodingFormat;
     /**
      * Format for encoding values to Kafka.
      */
@@ -98,11 +98,13 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     /**
      * Prefix that needs to be removed from fields when constructing the physical data type.
      */
-    protected final @Nullable String keyPrefix;
+    protected final @Nullable
+    String keyPrefix;
     /**
      * The Kafka topic to write to.
      */
     protected final String topic;
+    protected final String topicPattern;
     /**
      * Properties for the Kafka producer.
      */
@@ -110,7 +112,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     /**
      * Partitioner to select Kafka partition for each item.
      */
-    protected final @Nullable FlinkKafkaPartitioner<RowData> partitioner;
+    protected final @Nullable
+    FlinkKafkaPartitioner<RowData> partitioner;
 
     // --------------------------------------------------------------------------------------------
     // Kafka-specific attributes
@@ -131,7 +134,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     /**
      * Parallelism of the physical Kafka producer. *
      */
-    protected final @Nullable Integer parallelism;
+    protected final @Nullable
+    Integer parallelism;
     /**
      * CatalogTable for KAFKA_IGNORE_ALL_CHANGELOG
      */
@@ -144,6 +148,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      * audit host and ports
      */
     private final String auditHostAndPorts;
+    @Nullable
+    private final String innerValueDecodingFormat;
     /**
      * Metadata that is appended at the end of a physical sink row.
      */
@@ -173,7 +179,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             SinkBufferFlushMode flushMode,
             @Nullable Integer parallelism,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            @Nullable String innerValueDecodingFormat,
+            @Nullable String topicPattern) {
         // Format attributes
         this.consumedDataType =
                 checkNotNull(consumedDataType, "Consumed data type must not be null.");
@@ -202,6 +210,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
         this.parallelism = parallelism;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.innerValueDecodingFormat = innerValueDecodingFormat;
+        this.topicPattern = topicPattern;
     }
 
     @Override
@@ -224,7 +234,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 createSerialization(context, valueEncodingFormat, valueProjection, null);
 
         final FlinkKafkaProducer<RowData> kafkaProducer =
-                createKafkaProducer(keySerialization, valueSerialization);
+                createKafkaProducer(keySerialization, valueSerialization, innerValueDecodingFormat);
 
         if (flushMode.isEnabled() && upsertMode) {
             BufferedUpsertSinkFunction buffedSinkFunction =
@@ -303,7 +313,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         flushMode,
                         parallelism,
                         inlongMetric,
-                        auditHostAndPorts);
+                        auditHostAndPorts,
+                        innerValueDecodingFormat,
+                        topicPattern);
         copy.metadataKeys = metadataKeys;
         return copy;
     }
@@ -360,14 +372,18 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 flushMode,
                 parallelism,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                innerValueDecodingFormat,
+                topicPattern);
     }
 
     // --------------------------------------------------------------------------------------------
 
     protected FlinkKafkaProducer<RowData> createKafkaProducer(
             SerializationSchema<RowData> keySerialization,
-            SerializationSchema<RowData> valueSerialization) {
+            SerializationSchema<RowData> valueSerialization,
+            String innerValueDecodingFormat
+    ) {
         final List<LogicalType> physicalChildren = physicalDataType.getLogicalType().getChildren();
 
         final RowData.FieldGetter[] keyFieldGetters =
@@ -412,7 +428,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         valueFieldGetters,
                         hasMetadata,
                         metadataPositions,
-                        upsertMode);
+                        upsertMode,
+                        innerValueDecodingFormat,
+                        topicPattern);
 
         return new FlinkKafkaProducer<>(
                 topic,
@@ -424,7 +442,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 auditHostAndPorts);
     }
 
-    private @Nullable SerializationSchema<RowData> createSerialization(
+    private @Nullable
+    SerializationSchema<RowData> createSerialization(
             Context context,
             @Nullable EncodingFormat<SerializationSchema<RowData>> format,
             int[] projection,

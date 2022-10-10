@@ -86,18 +86,18 @@ public final class Constants {
     public static final String INLONG_METRIC_STATE_NAME = "inlong-metric-states";
 
     public static final ConfigOption<String> INLONG_METRIC =
-        ConfigOptions.key("inlong.metric.labels")
-            .stringType()
-            .noDefaultValue()
-            .withDescription("INLONG metric labels, format is 'key1=value1&key2=value2',"
-                    + "default is 'groupId=xxx&streamId=xxx&nodeId=xxx'");
+            ConfigOptions.key("inlong.metric.labels")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("INLONG metric labels, format is 'key1=value1&key2=value2',"
+                            + "default is 'groupId=xxx&streamId=xxx&nodeId=xxx'");
 
     public static final ConfigOption<String> INLONG_AUDIT =
-        ConfigOptions.key("metrics.audit.proxy.hosts")
-            .stringType()
-            .noDefaultValue()
-            .withDescription("Audit proxy host address for reporting audit metrics. \n"
-                    + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
+            ConfigOptions.key("metrics.audit.proxy.hosts")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("Audit proxy host address for reporting audit metrics. \n"
+                            + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
 
     public static final ConfigOption<Boolean> IGNORE_ALL_CHANGELOG =
             ConfigOptions.key("sink.ignore.changelog")
@@ -105,6 +105,11 @@ public final class Constants {
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
 
+    public static final ConfigOption<String> INNER_FORMAT =
+            ConfigOptions.key("inner.format")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("Inner format of row such the realy format of Raw format.");
 
     /**
      * It is used for jdbc url filter for avoiding url attack

@@ -55,7 +55,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FORMAT;
@@ -278,7 +277,9 @@ public class UpsertKafkaDynamicTableFactory
                 flushMode,
                 parallelism,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                null,
+                null);
     }
 
     private Tuple2<int[], int[]> createKeyValueProjections(CatalogTable catalogTable) {
