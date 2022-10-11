@@ -76,9 +76,9 @@ public interface Metadata {
         String metadataType;
         switch (metaField) {
             case TABLE_NAME:
-            case DATA:
             case DATABASE_NAME:
             case OP_TYPE:
+            case DATA:
             case COLLECTION_NAME:
             case SCHEMA_NAME:
                 metadataType = "STRING";
@@ -104,6 +104,9 @@ public interface Metadata {
                 break;
             case UPDATE_BEFORE:
                 metadataType = "ARRAY<MAP<STRING, STRING>>";
+                break;
+            case DATA_BYTES:
+                metadataType = "BYTES";
                 break;
             default:
                 throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
