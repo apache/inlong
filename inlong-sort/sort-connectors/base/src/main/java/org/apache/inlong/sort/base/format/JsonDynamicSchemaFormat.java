@@ -46,7 +46,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
      * Extract value by key from the raw data
      *
      * @param message The byte array of raw data
-     * @param keys The key list that will used to extract
+     * @param keys The key list that will be used to extract
      * @return The value list maps the keys
      * @throws IOException The exceptions may throws when extract
      */
@@ -78,7 +78,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
      * Extract value by key from ${@link JsonNode}
      *
      * @param jsonNode The json node
-     * @param key The key that will used to extract
+     * @param key The key that will be used to extract
      * @return The value maps the key in the json node
      */
     @Override

@@ -43,7 +43,7 @@ public abstract class AbstractDynamicSchemaFormat<T> {
      * Extract value by key from the raw data
      *
      * @param message The byte array of raw data
-     * @param keys The key list that will used to extract
+     * @param keys The key list that will be used to extract
      * @return The value list maps the keys
      * @throws IOException The exceptions may throws when extract
      */
@@ -63,7 +63,7 @@ public abstract class AbstractDynamicSchemaFormat<T> {
      * Extract value by key from the raw data
      *
      * @param data The raw data
-     * @param key The key that will used to extract
+     * @param key The key that will be used to extract
      * @return The value maps the key in the raw data
      */
     public abstract String extract(T data, String key);
@@ -78,13 +78,13 @@ public abstract class AbstractDynamicSchemaFormat<T> {
     public abstract T deserialize(byte[] message) throws IOException;
 
     /**
-     * Parse msg and replace the value by key from meta data and physical.
+     * Parse msg and replace the value by key from meta data and physical data.
      * See details {@link AbstractDynamicSchemaFormat#parse(T, String)}
      *
      * @param message The source of data rows format by bytes
      * @param pattern The pattern value
      * @return The result of parsed
-     * @throws IOException The exception will throws
+     * @throws IOException The exception that will throws
      */
     public String parse(byte[] message, String pattern) throws IOException {
         return parse(deserialize(message), pattern);

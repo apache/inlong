@@ -39,7 +39,7 @@ public class DynamicSchemaFormatFactory {
             };
 
     /**
-     * Get format from the format name, only supports [canal-json|debezium-json] for now
+     * Get format from the format name, it only supports [canal-json|debezium-json] for now
      *
      * @param identifier The identifier of this format
      * @return The dynamic format

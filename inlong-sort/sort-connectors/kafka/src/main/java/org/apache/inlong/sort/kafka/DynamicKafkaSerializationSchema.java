@@ -193,6 +193,8 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         //      and the valueSerialization is RawFormatSerializationSchema
         if (valueSerialization instanceof RawFormatSerializationSchema && StringUtils.isNotBlank(topicPattern)) {
             try {
+                //  Extract the index '0' as the raw data is determined by the Raw format:
+                //  The Raw format allows to read and write raw (byte based) values as a single column
                 return DynamicSchemaFormatFactory.getFormat(innerValueDecodingFormat)
                         .parse(element.getBinary(0), topicPattern);
             } catch (IOException e) {
