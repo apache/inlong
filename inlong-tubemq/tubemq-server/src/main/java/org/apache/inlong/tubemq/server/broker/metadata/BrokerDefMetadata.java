@@ -65,7 +65,8 @@ public class BrokerDefMetadata {
         if (TStringUtils.isBlank(brokerDefMetaConfInfo)) {
             return;
         }
-        String[] brokerDefaultConfInfoArr = brokerDefMetaConfInfo.split(TokenConstants.ATTR_SEP);
+        String[] brokerDefaultConfInfoArr =
+                brokerDefMetaConfInfo.split(TokenConstants.ATTR_SEP, -1);
         this.numPartitions = Integer.parseInt(brokerDefaultConfInfoArr[0]);
         this.acceptPublish = Boolean.parseBoolean(brokerDefaultConfInfoArr[1]);
         this.acceptSubscribe = Boolean.parseBoolean(brokerDefaultConfInfoArr[2]);
