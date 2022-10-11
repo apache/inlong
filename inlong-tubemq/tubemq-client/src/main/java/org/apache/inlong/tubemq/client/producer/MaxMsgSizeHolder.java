@@ -17,6 +17,8 @@
 
 package org.apache.inlong.tubemq.client.producer;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
@@ -24,16 +26,17 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
 
 /**
- * The class class caches the dynamic settings
+ * The class caches the max msg size settings
  *  returned from the server.
  */
-public class AllowedSetting {
-    private AtomicLong configId =
+public class MaxMsgSizeHolder {
+    private final AtomicLong configId =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private AtomicInteger maxMsgSize =
+    private final AtomicInteger defMaxMsgSize =
             new AtomicInteger(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE);
+    private Map<String, Integer> topicMaxSizeInBMap = new ConcurrentHashMap<>();
 
-    public AllowedSetting() {
+    public MaxMsgSizeHolder() {
 
     }
 
@@ -44,18 +47,23 @@ public class AllowedSetting {
                 configId.set(allowedConfig.getConfigId());
             }
             if (allowedConfig.hasMaxMsgSize()
-                    && allowedConfig.getMaxMsgSize() != maxMsgSize.get()) {
-                maxMsgSize.set(SettingValidUtils.validAndGetMaxMsgSizeInB(
+                    && allowedConfig.getMaxMsgSize() != defMaxMsgSize.get()) {
+                defMaxMsgSize.set(SettingValidUtils.validAndGetMaxMsgSizeInB(
                         allowedConfig.getMaxMsgSize()));
             }
         }
+    }
+
+    public void updTopicMaxSizeInB(Map<String, Integer> topicMaxSizeInBMap) {
+        this.topicMaxSizeInBMap = topicMaxSizeInBMap;
     }
 
     public long getConfigId() {
         return configId.get();
     }
 
-    public int getMaxMsgSize() {
-        return maxMsgSize.get();
+    public int getDefMaxMsgSize(String topicName) {
+        Integer maxMsgSizeInB = topicMaxSizeInBMap.get(topicName);
+        return maxMsgSizeInB == null ? defMaxMsgSize.get() : maxMsgSizeInB;
     }
 }

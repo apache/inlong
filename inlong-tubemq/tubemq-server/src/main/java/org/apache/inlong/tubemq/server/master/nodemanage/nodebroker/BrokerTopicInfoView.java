@@ -195,23 +195,23 @@ public class BrokerTopicInfoView {
     /**
      * Gets the string map of topic partitions whose publish status is enabled
      *
-     * @param topicSet need query topic set
+     * @param topicSizeMap need query topic and maxsize map
      * @param enablePubBrokerIdSet  need filtered broker id set
      * @return  query result
      */
-    public Map<String, String> getAcceptPubPartInfo(Set<String> topicSet,
+    public Map<String, String> getAcceptPubPartInfo(Map<String, Integer> topicSizeMap,
                                                     Set<Integer> enablePubBrokerIdSet) {
         TopicInfo topicInfo;
         ConcurrentHashMap<Integer, TopicInfo> topicInfoView;
         Map<String, String> topicPartStrMap = new HashMap<>();
         Map<String, StringBuilder> topicPartBufferMap = new HashMap<>();
-        if (topicSet == null || topicSet.isEmpty()) {
+        if (topicSizeMap == null || topicSizeMap.isEmpty()) {
             return topicPartStrMap;
         }
-        for (String topic : topicSet) {
-            if (topic == null) {
-                continue;
-            }
+        // build topic-partition information
+        StringBuilder tmpValue;
+        StringBuilder confValue;
+        for (String topic : topicSizeMap.keySet()) {
             topicInfoView = topicConfInfoMap.get(topic);
             if (topicInfoView == null
                     || topicInfoView.isEmpty()) {
@@ -225,23 +225,33 @@ public class BrokerTopicInfoView {
                 }
                 topicInfo = entry.getValue();
                 if (topicInfo.isAcceptPublish()) {
-                    StringBuilder tmpValue = topicPartBufferMap.get(topic);
-                    if (tmpValue == null) {
-                        StringBuilder strBuffer =
-                                new StringBuilder(512).append(topic)
-                                        .append(TokenConstants.SEGMENT_SEP)
-                                        .append(topicInfo.getSimpleValue());
-                        topicPartBufferMap.put(topic, strBuffer);
+                    confValue = topicPartBufferMap.get(topic);
+                    if (confValue == null) {
+                        tmpValue = new StringBuilder(512).append(topic)
+                                .append(TokenConstants.SEGMENT_SEP)
+                                .append(topicInfo.getSimpleValue());
+                        topicPartBufferMap.put(topic, tmpValue);
                     } else {
-                        tmpValue.append(TokenConstants.ARRAY_SEP)
+                        confValue.append(TokenConstants.ARRAY_SEP)
                                 .append(topicInfo.getSimpleValue());
                     }
                 }
             }
         }
+        // append max message size information
+        Integer maxMsgSize;
         for (Map.Entry<String, StringBuilder> entry : topicPartBufferMap.entrySet()) {
-            if (entry.getValue() != null) {
-                topicPartStrMap.put(entry.getKey(), entry.getValue().toString());
+            if (entry.getValue() == null) {
+                continue;
+            }
+            confValue = topicPartBufferMap.get(entry.getKey());
+            maxMsgSize = topicSizeMap.get(entry.getKey());
+            if (maxMsgSize == null) {
+                topicPartStrMap.put(entry.getKey(),
+                        confValue.append(TokenConstants.SEGMENT_SEP).toString());
+            } else {
+                topicPartStrMap.put(entry.getKey(),
+                        confValue.append(TokenConstants.SEGMENT_SEP).append(maxMsgSize).toString());
             }
         }
         topicPartBufferMap.clear();
