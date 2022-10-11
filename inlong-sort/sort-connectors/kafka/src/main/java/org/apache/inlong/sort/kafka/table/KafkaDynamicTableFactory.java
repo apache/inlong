@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
@@ -45,8 +46,12 @@ import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.FactoryUtil.TableFactoryHelper;
 import org.apache.flink.table.factories.SerializationFormatFactory;
+import org.apache.flink.table.formats.raw.RawFormatSerializationSchema;
 import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
 
 import javax.annotation.Nullable;
@@ -59,6 +64,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FORMAT;
@@ -91,7 +97,7 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.val
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.base.Constants.INNER_FORMAT;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
 import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
@@ -169,9 +175,9 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                                         SerializationFormatFactory.class, VALUE_FORMAT));
     }
 
-    private static String getInnerDecodingFormat(
+    private static String getSinkMultipleFormat(
             TableFactoryHelper helper) {
-        return helper.getOptions().getOptional(INNER_FORMAT).orElse(null);
+        return helper.getOptions().getOptional(SINK_MULTIPLE_FORMAT).orElse(null);
     }
 
     // --------------------------------------------------------------------------------------------
@@ -256,7 +262,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         options.add(KAFKA_IGNORE_ALL_CHANGELOG);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
-        options.add(INNER_FORMAT);
+        options.add(SINK_MULTIPLE_FORMAT);
         return options;
     }
 
@@ -336,7 +342,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         final EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat =
                 getValueEncodingFormat(helper);
 
-        final String innerValueDecodingFormat = getInnerDecodingFormat(helper);
+        final String sinkMultipleFormat = getSinkMultipleFormat(helper);
         helper.validateExcept(PROPERTIES_PREFIX);
 
         validateSinkPartitioner(tableOptions);
@@ -347,6 +353,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
 
         final DataType physicalDataType =
                 context.getCatalogTable().getSchema().toPhysicalRowDataType();
+
+        validateSinkMultipleFormatAndPhysicalDataType(physicalDataType, valueEncodingFormat, sinkMultipleFormat);
 
         final int[] keyProjection = createKeyFormatProjection(tableOptions, physicalDataType);
 
@@ -375,8 +383,29 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 parallelism,
                 inlongMetric,
                 auditHostAndPorts,
-                innerValueDecodingFormat,
+                sinkMultipleFormat,
                 tableOptions.getOptional(TOPIC_PATTERN).orElse(null));
+    }
+
+    private void validateSinkMultipleFormatAndPhysicalDataType(DataType physicalDataType,
+            EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat, String sinkMultipleFormat) {
+        if (valueEncodingFormat instanceof RawFormatSerializationSchema
+                && StringUtils.isNotBlank(sinkMultipleFormat)) {
+            DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
+            List<String> supportFormats = DynamicSchemaFormatFactory.SUPPORT_FORMATS.stream().map(
+                    AbstractDynamicSchemaFormat::identifier).collect(Collectors.toList());
+            if (!supportFormats.contains(sinkMultipleFormat)) {
+                throw new ValidationException(String.format(
+                        "Unsupported value '%s' for '%s'. "
+                                + "Supported values are %s.",
+                        sinkMultipleFormat, SINK_MULTIPLE_FORMAT.key(), supportFormats));
+            }
+            if (physicalDataType.getLogicalType() instanceof VarBinaryType) {
+                throw new ValidationException(
+                        "Only supports 'BYTES' or 'VARBINARY(n)' of PhysicalDataType "
+                                + "when the option 'format' is 'raw' and option 'sink.multiple.format' is specified.");
+            }
+        }
     }
 
     // --------------------------------------------------------------------------------------------
@@ -429,7 +458,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
             Integer parallelism,
             String inlongMetric,
             String auditHostAndPorts,
-            @Nullable String innerValueDecodingFormat,
+            @Nullable String sinkMultipleFormat,
             @Nullable String topicPattern) {
         return new KafkaDynamicSink(
                 physicalDataType,
@@ -449,7 +478,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                 parallelism,
                 inlongMetric,
                 auditHostAndPorts,
-                innerValueDecodingFormat,
+                sinkMultipleFormat,
                 topicPattern);
     }
 }

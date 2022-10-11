@@ -105,11 +105,12 @@ public final class Constants {
                     .defaultValue(false)
                     .withDescription("Regard upsert delete as insert kind.");
 
-    public static final ConfigOption<String> INNER_FORMAT =
-            ConfigOptions.key("inner.format")
+    public static final ConfigOption<String> SINK_MULTIPLE_FORMAT =
+            ConfigOptions.key("sink.multiple.format")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("Inner format of row such the realy format of Raw format.");
+                    .withDescription(
+                            "The format of multiple sink, it represents the real format of the raw binary data");
 
     /**
      * It is used for jdbc url filter for avoiding url attack

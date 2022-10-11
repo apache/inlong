@@ -79,8 +79,8 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
     @JsonProperty("topicPattern")
     private String topicPattern;
     @Nullable
-    @JsonProperty("innerFormat")
-    private Format innerFormat;
+    @JsonProperty("sinkMultipleFormat")
+    private Format sinkMultipleFormat;
 
     public KafkaLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -111,14 +111,14 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("primaryKey") String primaryKey,
-            @Nullable @JsonProperty("innerFormat") Format innerFormat,
+            @Nullable @JsonProperty("sinkMultipleFormat") Format sinkMultipleFormat,
             @Nullable @JsonProperty("topicPattern") String topicPattern) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.topic = Preconditions.checkNotNull(topic, "topic is null");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "bootstrapServers is null");
         this.format = Preconditions.checkNotNull(format, "format is null");
         this.primaryKey = primaryKey;
-        this.innerFormat = innerFormat;
+        this.sinkMultipleFormat = sinkMultipleFormat;
         this.topicPattern = topicPattern;
     }
 
@@ -151,8 +151,8 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
                 options.putAll(format.generateOptions(true));
             }
             if (format instanceof RawFormat) {
-                if (innerFormat != null) {
-                    options.put("inner.format", innerFormat.identifier());
+                if (sinkMultipleFormat != null) {
+                    options.put("sink.multiple.format", sinkMultipleFormat.identifier());
                 }
                 if (StringUtils.isNotBlank(topicPattern)) {
                     options.put("topic-pattern", topicPattern);

@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class DynamicSchemaFormatFactory {
 
-    private static final List<AbstractDynamicSchemaFormat<?>> SUPPORT_FORMATS =
+    public static final List<AbstractDynamicSchemaFormat<?>> SUPPORT_FORMATS =
             new ArrayList<AbstractDynamicSchemaFormat<?>>() {
 
                 private static final long serialVersionUID = 1L;

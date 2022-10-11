@@ -70,7 +70,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
      * consumed row or -1 if this metadata key is not used.
      */
     private final int[] metadataPositions;
-    private final String innerValueDecodingFormat;
+    private final String sinkMultipleFormat;
     private int[] partitions;
 
     private int parallelInstanceId;
@@ -87,7 +87,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             boolean hasMetadata,
             int[] metadataPositions,
             boolean upsertMode,
-            @Nullable String innerValueDecodingFormat,
+            @Nullable String sinkMultipleFormat,
             @Nullable String topicPattern) {
         if (upsertMode) {
             Preconditions.checkArgument(
@@ -103,7 +103,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         this.hasMetadata = hasMetadata;
         this.metadataPositions = metadataPositions;
         this.upsertMode = upsertMode;
-        this.innerValueDecodingFormat = innerValueDecodingFormat;
+        this.sinkMultipleFormat = sinkMultipleFormat;
         this.topicPattern = topicPattern;
     }
 
@@ -195,7 +195,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             try {
                 //  Extract the index '0' as the raw data is determined by the Raw format:
                 //  The Raw format allows to read and write raw (byte based) values as a single column
-                return DynamicSchemaFormatFactory.getFormat(innerValueDecodingFormat)
+                return DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat)
                         .parse(element.getBinary(0), topicPattern);
             } catch (IOException e) {
                 // Ignore the parse error and it will return the default topic final.
