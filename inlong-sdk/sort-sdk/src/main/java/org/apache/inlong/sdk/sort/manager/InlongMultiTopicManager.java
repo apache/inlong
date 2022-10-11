@@ -129,13 +129,13 @@ public class InlongMultiTopicManager extends TopicManager {
                     try {
                         succ = topicFetcher.close();
                     } catch (Exception e) {
-                        LOGGER.error(e.getMessage(), e);
+                        LOGGER.error("got exception when close fetcher={}", topicFetcher.getTopics(), e);
                     }
                 }
-                LOGGER.info("close fetcher{} {}", fetchKey, succ);
+                LOGGER.info("close fetcher={} {}", fetchKey, succ);
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("got exception when offline topics and partitions, ", e);
         } finally {
             allFetchers.clear();
             kafkaFetchers.clear();
@@ -159,8 +159,8 @@ public class InlongMultiTopicManager extends TopicManager {
             return;
         }
         this.allTopics = assignedTopics.stream()
-                        .map(InLongTopic::getTopic)
-                        .collect(Collectors.toSet());
+                .map(InLongTopic::getTopic)
+                .collect(Collectors.toSet());
 
         assignedTopics.stream()
                 .filter(topic -> InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(topic.getTopicType()))
@@ -185,7 +185,7 @@ public class InlongMultiTopicManager extends TopicManager {
             return;
         }
         String bootstraps = topics.stream().findFirst().get().getInLongCluster().getBootstraps();
-        TopicFetcherBuilder builder =  TopicFetcherBuilder.newKafkaBuilder()
+        TopicFetcherBuilder builder = TopicFetcherBuilder.newKafkaBuilder()
                 .bootstrapServers(bootstraps)
                 .topic(topics)
                 .context(context);
@@ -217,14 +217,14 @@ public class InlongMultiTopicManager extends TopicManager {
                         .context(context)
                         .subscribe();
                 fetchers.add(fetcher);
+                allFetchers.put(fetcher.getFetchKey(), fetcher);
             } catch (PulsarClientException e) {
                 LOGGER.error("failed to create pulsar client for {}\n", topic.getInLongCluster().getBootstraps(), e);
             }
         }
-        fetchers.forEach(topicFetcher -> allFetchers.put(topicFetcher.getFetchKey(), topicFetcher));
     }
 
-    private void updateTubeFetcher(String  clusterId, List<InLongTopic> topics) {
+    private void updateTubeFetcher(String clusterId, List<InLongTopic> topics) {
         List<TopicFetcher> fetchers = tubeFetchers.computeIfAbsent(clusterId, k -> new ArrayList<>());
         if (CollectionUtils.isNotEmpty(fetchers)) {
             fetchers.forEach(fetcher -> fetcher.updateTopics(topics));
@@ -267,7 +267,7 @@ public class InlongMultiTopicManager extends TopicManager {
                 logger.warn("assign is stopped");
                 return;
             }
-            //get sortTask conf from manager
+            // get sortTask conf from manager
             if (queryConsumeConfig != null) {
                 long start = System.currentTimeMillis();
                 context.getDefaultStateCounter().addRequestManagerTimes(1);
