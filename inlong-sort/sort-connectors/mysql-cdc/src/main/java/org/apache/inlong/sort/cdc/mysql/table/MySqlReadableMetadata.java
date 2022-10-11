@@ -429,7 +429,8 @@ public enum MySqlReadableMetadata {
 
     /**
      * get sql type from table schema, represents the jdbc data type
-     * @param tableSchema
+     *
+     * @param tableSchema table schema
      */
     public static Map<String, Integer> getSqlType(@Nullable TableChanges.TableChange tableSchema) {
         if (tableSchema == null) {
@@ -437,13 +438,9 @@ public enum MySqlReadableMetadata {
         }
         Map<String, Integer> sqlType = new HashMap<>();
         final Table table = tableSchema.getTable();
-        table.columns()
-            .forEach(
-                column -> {
-                    sqlType.put(
-                        column.name(),
-                        column.jdbcType());
-                });
+        table.columns().forEach(
+                column -> sqlType.put(column.name(), column.jdbcType())
+        );
         return sqlType;
     }
 
