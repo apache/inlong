@@ -127,9 +127,13 @@ public class FileDataUtils {
         }
         Pod pod = podResource.get();
         Map<String, String> podLabels = pod.getMetadata().getLabels();
-        boolean filterLabelStatus = true;
+        boolean filterLabelStatus = false;
         for (String key : labelsMap.keySet()) {
-            if (!podLabels.containsKey(key) || !labelsMap.get(key).contains(podLabels.get(key))) {
+            if (podLabels.containsKey(key) && labelsMap.get(key).contains(podLabels.get(key))) {
+                filterLabelStatus = true;
+                continue;
+            }
+            if (podLabels.containsKey(key) && !labelsMap.get(key).contains(podLabels.get(key))) {
                 filterLabelStatus = false;
                 break;
             }
