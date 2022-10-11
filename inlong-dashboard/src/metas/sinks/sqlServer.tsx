@@ -21,10 +21,10 @@ import EditableTable from '@/components/EditableTable';
 import { sourceFields } from './common/sourceFields';
 
 const fieldTypesConf = {
-  CHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1-8000'),
-  VARCHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1-8000'),
-  NCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1-4000'),
-  NVARCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1-4000'),
+  CHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1<=M<=8000'),
+  VARCHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1<=M<=8000'),
+  NCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1<=M<=4000'),
+  NVARCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1<=M<=4000'),
   TEXT: () => '',
   NTEXT: () => '',
   XML: () => '',
@@ -33,7 +33,7 @@ const fieldTypesConf = {
   DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1<=M<=38,0<=D<M'),
   MONEY: (m, d) => (1 <= m && m <= 15 && 1 <= d && d <= 4 ? '' : '1<=M<=15,1<=D<=4'),
   SMALLMONEY: (m, d) => (1 <= m && m <= 7 && 1 <= d && d <= 4 ? '' : '1<=M<=7,1<=D<=4'),
-  NUMERIC: (m, d) => (1 <= m && m <= 38 && 1 <= d && d <= 4 ? '' : '1<=M<=38,-<=D<=4'),
+  NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1<=M<=38,0<=D<=M'),
   FLOAT: (m, d) => (1 <= m && m <= 24 ? '' : '1<=M<=24'),
   REAL: (m, d) => (1 <= m && m <= 24 ? '' : '1<=M<=24'),
   BIT: (m, d) => (1 <= m && m <= 64 ? '' : '1<=M<=64'),
