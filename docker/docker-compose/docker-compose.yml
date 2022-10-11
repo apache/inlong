@@ -46,8 +46,7 @@ services:
     image: inlong/manager
     container_name: manager
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     ports:
       - "8083:8083"
     environment:
@@ -103,8 +102,7 @@ services:
     image: inlong/audit:latest
     container_name: audit
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     environment:
       - JDBC_URL=mysql:3306
       - USERNAME=root
