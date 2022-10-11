@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.inlong.agent.constant.KubernetesConstants.NAMESPACE;
 import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
@@ -107,30 +106,35 @@ public class FileDataUtils {
         Iterator<File> iterator = allFiles.iterator();
         KubernetesClient client = PluginUtils.getKubernetesClient();
         while (iterator.hasNext()) {
-            File file = iterator.next();
-            Map<String, String> logInfo = MetaDataUtils.getLogInfo(file.getName());
-            if (logInfo.isEmpty()) {
-                continue;
-            }
-            PodResource podResource = client.pods().inNamespace(logInfo.get(NAMESPACE))
-                    .withName(logInfo.get(POD_NAME));
-            if (Objects.isNull(podResource)) {
-                continue;
-            }
-            Pod pod = podResource.get();
-            Map<String, String> podLabels = pod.getMetadata().getLabels();
-            AtomicBoolean filterLabelStatus = new AtomicBoolean(true);
-            labelsMap.keySet().forEach(key -> {
-                if (podLabels.containsKey(key) && labelsMap.get(key).contains(podLabels.get(key))) {
-                    filterLabelStatus.set(false);
-                }
-            });
-            if (filterLabelStatus.get()) {
+            File file = getFile(labelsMap, iterator.next(), client);
+            if (file == null) {
                 continue;
             }
             standardK8sLogFiles.add(file);
         }
         return standardK8sLogFiles;
+    }
+
+    private static File getFile(Map<String, String> labelsMap, File file, KubernetesClient client) {
+        Map<String, String> logInfo = MetaDataUtils.getLogInfo(file.getName());
+        if (logInfo.isEmpty()) {
+            return null;
+        }
+        PodResource podResource = client.pods().inNamespace(logInfo.get(NAMESPACE))
+                .withName(logInfo.get(POD_NAME));
+        if (Objects.isNull(podResource)) {
+            return null;
+        }
+        Pod pod = podResource.get();
+        Map<String, String> podLabels = pod.getMetadata().getLabels();
+        boolean filterLabelStatus = true;
+        for (String key : labelsMap.keySet()) {
+            if (!podLabels.containsKey(key) || !labelsMap.get(key).contains(podLabels.get(key))) {
+                filterLabelStatus = false;
+                break;
+            }
+        }
+        return filterLabelStatus ? file : null;
     }
 
 }
