@@ -69,4 +69,4 @@ fi
 sh "${file_path}"/bin/startup.sh "${JAVA_OPTS}"
 sleep 3
 # keep alive
-tail -F "${file_path}"/logs/manager-web.log
+tail -F "${file_path}"/logs/manager-all.log
