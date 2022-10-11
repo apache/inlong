@@ -41,13 +41,16 @@ public class FileJob {
 
     private String envList;
 
-    private List<Map<String, String>> metaFields;
+    // JSON string, the content format is List<Map<String, String>>
+    private String metaFields;
 
     private String dataSeparator;
 
-    private Map<String, String> filterMetaByLabels;
+    // JSON string, the content format is Map<String,string>
+    private String filterMetaByLabels;
 
-    private Map<String, Object> properties;
+    // JSON string, the content format is Map<String,Object>
+    private String properties;
 
     // Monitor interval for file
     private Long monitorInterval;
@@ -125,7 +128,7 @@ public class FileJob {
 
         // Monitor switch, 1 true and 0 false
         private Integer monitorStatus;
-        
+
         // Monitor expire time and the time in milliseconds
         private Long monitorExpire;
 

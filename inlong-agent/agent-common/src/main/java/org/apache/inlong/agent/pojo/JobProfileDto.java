@@ -111,7 +111,7 @@ public class JobProfileDto {
         fileJob.setCollectType(fileJobTaskConfig.getCollectType());
         fileJob.setContentCollectType(fileJobTaskConfig.getContentCollectType());
         fileJob.setDataSeparator(fileJobTaskConfig.getDataSeparator());
-        fileJob.setProperties(fileJobTaskConfig.getProperties());
+        fileJob.setProperties(GSON.toJson(fileJobTaskConfig.getProperties()));
         if (fileJobTaskConfig.getTimeOffset() != null) {
             fileJob.setTimeOffset(fileJobTaskConfig.getTimeOffset());
         }
@@ -131,11 +131,11 @@ public class JobProfileDto {
         }
 
         if (null != fileJobTaskConfig.getMetaFields()) {
-            fileJob.setMetaFields(fileJob.getMetaFields());
+            fileJob.setMetaFields(GSON.toJson(fileJobTaskConfig.getMetaFields()));
         }
 
         if (null != fileJobTaskConfig.getFilterMetaByLabels()) {
-            fileJob.setFilterMetaByLabels(fileJobTaskConfig.getFilterMetaByLabels());
+            fileJob.setFilterMetaByLabels(GSON.toJson(fileJobTaskConfig.getFilterMetaByLabels()));
         }
 
         if (null != fileJobTaskConfig.getMonitorInterval()) {
