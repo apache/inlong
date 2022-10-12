@@ -15,33 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.dataproxy;
-
-import lombok.Data;
+package org.apache.inlong.manager.common.consts;
 
 /**
- * Data proxy node info.
+ * Constants of protocol type.
  */
-@Data
-public class DataProxyNodeInfo {
+public class ProtocolType {
 
-    /**
-     * DataProxy node id
-     */
-    private Integer id;
+    public static final String TCP = "TCP";
+    public static final String UDP = "UDP";
 
-    /**
-     * Node IP
-     */
-    private String ip;
+    public static final String HTTP = "HTTP";
+    public static final String HTTPS = "HTTPS";
 
-    /**
-     * Node port
-     */
-    private Integer port;
-
-    /**
-     * Node protocol type
-     */
-    private String protocolType;
 }

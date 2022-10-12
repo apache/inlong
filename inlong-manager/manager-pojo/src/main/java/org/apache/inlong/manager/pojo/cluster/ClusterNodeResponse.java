@@ -52,7 +52,7 @@ public class ClusterNodeResponse {
     @ApiModelProperty(value = "Cluster port")
     private Integer port;
 
-    @ApiModelProperty(value = "Cluster protocolType")
+    @ApiModelProperty(value = "Cluster protocol type")
     private String protocolType;
 
     @ApiModelProperty(value = "Extended params")

@@ -53,7 +53,7 @@ public class ClusterNodeRequest {
     private Integer port;
 
     @NotBlank(message = "protocolType cannot be blank")
-    @ApiModelProperty(value = "Cluster protocolType")
+    @ApiModelProperty(value = "Cluster protocol type")
     private String protocolType;
 
     @ApiModelProperty(value = "Extended params")

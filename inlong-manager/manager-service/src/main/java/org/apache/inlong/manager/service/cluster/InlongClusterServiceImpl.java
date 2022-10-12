@@ -439,7 +439,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to delete cluster info");
 
-        List<InlongClusterNodeEntity> nodeEntities = clusterNodeMapper.selectByParentId(id);
+        List<InlongClusterNodeEntity> nodeEntities = clusterNodeMapper.selectByParentId(id, null);
         if (CollectionUtils.isNotEmpty(nodeEntities)) {
             String errMsg = String.format("there are undeleted nodes under the cluster [%s], "
                     + "please delete the node first", entity.getName());
@@ -532,7 +532,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 request.getType());
         List<InlongClusterNodeEntity> allNodeList = new ArrayList<>();
         for (InlongClusterEntity cluster : clusterList) {
-            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(cluster.getId());
+            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(cluster.getId(), null);
             allNodeList.addAll(nodeList);
         }
         return CommonBeanUtils.copyListProperties(allNodeList, ClusterNodeResponse::new);
@@ -567,8 +567,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // check cluster node if exist
         InlongClusterNodeEntity exist = clusterNodeMapper.selectByUniqueKey(request);
         if (exist != null && !Objects.equals(id, exist.getId())) {
-            String errMsg = String.format("inlong cluster node already exist for type=%s ip=%s port=%s protocolType=%s",
-                    request.getType(), request.getIp(), request.getPort(), request.getProtocolType());
+            String errMsg = "inlong cluster node already exist for " + request;
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
@@ -578,10 +577,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error("cluster node not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        String errMsg = String.format("cluster node has already updated with parentId=%s, type=%s, ip=%s, port=%s"
-                        + " protocolType=%s",
-                request.getParentId(), request.getType(), request.getIp(), request.getPort(),
-                request.getProtocolType());
+        String errMsg = "cluster node has already updated for " + request;
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
             LOGGER.warn(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
@@ -627,58 +623,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public DataProxyNodeResponse getDataProxyNodes(String inlongGroupId) {
-        LOGGER.debug("begin to get data proxy nodes for inlongGroupId={}", inlongGroupId);
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(inlongGroupId);
-        if (groupEntity == null) {
-            String msg = "inlong group not exists for inlongGroupId=" + inlongGroupId;
-            LOGGER.debug(msg);
-            throw new BusinessException(msg);
-        }
-
-        String clusterTag = groupEntity.getInlongClusterTag();
-        if (StringUtils.isBlank(clusterTag)) {
-            String msg = "not found any cluster tag for inlongGroupId=" + inlongGroupId;
-            LOGGER.debug(msg);
-            throw new BusinessException(msg);
-        }
-
-        List<InlongClusterEntity> clusterList = clusterMapper.selectByKey(clusterTag, null, ClusterType.DATAPROXY);
-        if (CollectionUtils.isEmpty(clusterList)) {
-            String msg = "not found any data proxy cluster for inlongGroupId=" + inlongGroupId
-                    + " and clusterTag=" + clusterTag;
-            LOGGER.debug(msg);
-            throw new BusinessException(msg);
-        }
-
-        // if more than one data proxy cluster, currently takes first
-        // TODO consider the data proxy load and re-balance
-        List<DataProxyNodeInfo> nodeInfos = new ArrayList<>();
-        for (InlongClusterEntity entity : clusterList) {
-            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(entity.getId());
-            for (InlongClusterNodeEntity nodeEntity : nodeList) {
-                DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
-                nodeInfo.setId(nodeEntity.getId());
-                nodeInfo.setIp(nodeEntity.getIp());
-                nodeInfo.setPort(nodeEntity.getPort());
-                nodeInfo.setProtocolType(nodeEntity.getProtocolType());
-                nodeInfos.add(nodeInfo);
-            }
-        }
-
-        DataProxyNodeResponse response = new DataProxyNodeResponse();
-        response.setClusterId(clusterList.get(0).getId());
-        response.setNodeList(nodeInfos);
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to get data proxy nodes for inlongGroupId={}, result={}", inlongGroupId, response);
-        }
-        return response;
-    }
-
-    @Override
     public DataProxyNodeResponse getDataProxyNodes(String inlongGroupId, String protocolType) {
-        LOGGER.debug("begin to get data proxy nodes for inlongGroupId={}", inlongGroupId);
+        LOGGER.debug("begin to get data proxy nodes for groupId={}, protocol={}", inlongGroupId, protocolType);
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(inlongGroupId);
         if (groupEntity == null) {
             String msg = "inlong group not exists for inlongGroupId=" + inlongGroupId;
@@ -705,11 +651,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // TODO consider the data proxy load and re-balance
         List<DataProxyNodeInfo> nodeInfos = new ArrayList<>();
         for (InlongClusterEntity entity : clusterList) {
-            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(entity.getId());
+            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(entity.getId(), protocolType);
             for (InlongClusterNodeEntity nodeEntity : nodeList) {
-                if (!protocolType.equalsIgnoreCase(nodeEntity.getProtocolType())) {
-                    continue;
-                }
                 DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
                 nodeInfo.setId(nodeEntity.getId());
                 nodeInfo.setIp(nodeEntity.getIp());
@@ -724,7 +667,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         response.setNodeList(nodeInfos);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to get data proxy nodes for inlongGroupId={}, result={}", inlongGroupId, response);
+            LOGGER.debug("success to get data proxy nodes for groupId={}, protocol={} result={}",
+                    inlongGroupId, protocolType, response);
         }
         return response;
     }

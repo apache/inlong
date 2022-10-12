@@ -45,26 +45,28 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         insert into inlong_cluster_node (id, parent_id, type,
-                                         ip, port, protocol_type, ext_params,
-                                         description, status,
+                                         ip, port, protocol_type,
+                                         ext_params, description, status,
                                          creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR},
-                #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{protocolType,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
-                #{description, jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{protocolType,jdbcType=VARCHAR},
+                #{extParams,jdbcType=LONGVARCHAR}, #{description, jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
 
     <insert id="insertOnDuplicateKeyUpdate" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         insert into inlong_cluster_node (id, parent_id, type,
-                                         ip, port, protocol_type, ext_params,
-                                         status, creator, modifier)
+                                         ip, port, protocol_type,
+                                         ext_params, status, creator,
+                                         modifier)
         values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR},
-                #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{protocolType,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
-                #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
-            ON DUPLICATE KEY UPDATE ext_params = VALUES(ext_params),
-            status     = VALUES(status),
-                                 modifier   = VALUES(modifier)
+                #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{protocolType,jdbcType=VARCHAR},
+                #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR})
+        ON DUPLICATE KEY UPDATE ext_params = VALUES(ext_params),
+                                status     = VALUES(status),
+                                modifier   = VALUES(modifier)
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -113,23 +115,29 @@
         select
         <include refid="Base_Column_List"/>
         from inlong_cluster_node
-        where is_deleted = 0
         and parent_id = #{parentId, jdbcType=INTEGER}
+        <where>
+            is_deleted = 0
+            and parent_id = #{parentId, jdbcType=INTEGER}
+            <if test="protocolType != null and protocolType != ''">
+                and protocol_type = #{protocolType, jdbcType=VARCHAR}
+            </if>
+        </where>
     </select>
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         update inlong_cluster_node
-        set parent_id   = #{parentId,jdbcType=INTEGER},
-            type        = #{type,jdbcType=VARCHAR},
-            ip          = #{ip,jdbcType=VARCHAR},
-            port        = #{port,jdbcType=INTEGER},
+        set parent_id     = #{parentId,jdbcType=INTEGER},
+            type          = #{type,jdbcType=VARCHAR},
+            ip            = #{ip,jdbcType=VARCHAR},
+            port          = #{port,jdbcType=INTEGER},
             protocol_type = #{protocolType,jdbcType=VARCHAR},
-            ext_params  = #{extParams,jdbcType=LONGVARCHAR},
-            description = #{description,jdbcType=VARCHAR},
-            status      = #{status,jdbcType=INTEGER},
-            is_deleted  = #{isDeleted,jdbcType=INTEGER},
-            modifier    = #{modifier,jdbcType=VARCHAR},
-            version     = #{version,jdbcType=INTEGER} + 1
+            ext_params    = #{extParams,jdbcType=LONGVARCHAR},
+            description   = #{description,jdbcType=VARCHAR},
+            status        = #{status,jdbcType=INTEGER},
+            is_deleted    = #{isDeleted,jdbcType=INTEGER},
+            modifier      = #{modifier,jdbcType=VARCHAR},
+            version       = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
           and version = #{version,jdbcType=INTEGER}
     </update>
