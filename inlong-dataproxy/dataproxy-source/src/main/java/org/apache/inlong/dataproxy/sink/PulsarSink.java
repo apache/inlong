@@ -498,7 +498,7 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
         }
         addStatistics(eventStat, false, 0);
         eventStat.incRetryCnt();
-        if (!eventStat.isOrderMessage() && needRetry) {
+        if (needRetry) {
             processResendEvent(eventStat);
         }
     }
