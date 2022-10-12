@@ -60,6 +60,7 @@ public class MySqlExtractNodeTest extends SerializeBaseTest<MySqlExtractNode> {
         formatMap.put(MetaField.PK_NAMES, "ARRAY<STRING> METADATA FROM 'meta.pk_names' VIRTUAL");
         formatMap.put(MetaField.BATCH_ID, "BIGINT METADATA FROM 'meta.batch_id' VIRTUAL");
         formatMap.put(MetaField.UPDATE_BEFORE, "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL");
+        formatMap.put(MetaField.DATA_BYTES, "BYTES METADATA FROM 'meta.data' VIRTUAL");
         MySqlExtractNode node = getTestObject();
         boolean formatEquals = true;
         for (MetaField metaField : node.supportedMetaFields()) {

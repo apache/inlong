@@ -38,6 +38,8 @@ public class AvroFormat implements Format {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String IDENTIFIER = "avro";
+
     @JsonProperty(value = "codec")
     private String codec;
 
@@ -58,7 +60,12 @@ public class AvroFormat implements Format {
     @JsonIgnore
     @Override
     public String getFormat() {
-        return "avro";
+        return IDENTIFIER;
+    }
+
+    @Override
+    public String identifier() {
+        return IDENTIFIER;
     }
 
     /**

@@ -58,7 +58,7 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
     private final FlinkJsonTableChangeSerializer tableChangesSerializer =
             new FlinkJsonTableChangeSerializer();
 
-    private ConcurrentMap<TableId, SchemaRecord> latestTables;
+    public static ConcurrentMap<TableId, SchemaRecord> latestTables;
     private String instanceName;
     private DatabaseHistoryListener listener;
     private boolean storeOnlyMonitoredTablesDdl;

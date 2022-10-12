@@ -38,6 +38,8 @@ public class InLongMsgFormat implements Format {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String IDENTIFIER = "inlong-msg";
+
     @JsonProperty(value = "innerFormat")
     private Format innerFormat;
 
@@ -58,7 +60,12 @@ public class InLongMsgFormat implements Format {
     @JsonIgnore
     @Override
     public String getFormat() {
-        return "inlong-msg";
+        return IDENTIFIER;
+    }
+
+    @Override
+    public String identifier() {
+        return IDENTIFIER;
     }
 
     /**

@@ -23,6 +23,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.enums.MetaField;
@@ -37,6 +39,7 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
@@ -53,6 +56,7 @@ import java.util.Set;
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("kafkaLoad")
+@JsonInclude(Include.NON_NULL)
 @Data
 @NoArgsConstructor
 public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, Serializable {
@@ -69,9 +73,30 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
     @Nonnull
     @JsonProperty("format")
     private Format format;
-
     @JsonProperty("primaryKey")
     private String primaryKey;
+    @Nullable
+    @JsonProperty("topicPattern")
+    private String topicPattern;
+    @Nullable
+    @JsonProperty("sinkMultipleFormat")
+    private Format sinkMultipleFormat;
+
+    public KafkaLoadNode(@JsonProperty("id") String id,
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
+            @JsonProperty("filters") List<FilterFunction> filters,
+            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
+            @Nonnull @JsonProperty("topic") String topic,
+            @Nonnull @JsonProperty("bootstrapServers") String bootstrapServers,
+            @Nonnull @JsonProperty("format") Format format,
+            @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
+            @JsonProperty("properties") Map<String, String> properties,
+            @JsonProperty("primaryKey") String primaryKey) {
+        this(id, name, fields, fieldRelations, filters, filterStrategy, topic, bootstrapServers, format,
+                sinkParallelism, properties, primaryKey, null, null);
+    }
 
     @JsonCreator
     public KafkaLoadNode(@JsonProperty("id") String id,
@@ -85,12 +110,16 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
             @Nonnull @JsonProperty("format") Format format,
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
-            @JsonProperty("primaryKey") String primaryKey) {
+            @JsonProperty("primaryKey") String primaryKey,
+            @Nullable @JsonProperty("sinkMultipleFormat") Format sinkMultipleFormat,
+            @Nullable @JsonProperty("topicPattern") String topicPattern) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.topic = Preconditions.checkNotNull(topic, "topic is null");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "bootstrapServers is null");
         this.format = Preconditions.checkNotNull(format, "format is null");
         this.primaryKey = primaryKey;
+        this.sinkMultipleFormat = sinkMultipleFormat;
+        this.topicPattern = topicPattern;
     }
 
     @Override
@@ -111,7 +140,8 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
         if (getSinkParallelism() != null) {
             options.put("sink.parallelism", getSinkParallelism().toString());
         }
-        if (format instanceof JsonFormat || format instanceof AvroFormat || format instanceof CsvFormat) {
+        if (format instanceof JsonFormat || format instanceof AvroFormat
+                || format instanceof CsvFormat || format instanceof RawFormat) {
             if (StringUtils.isEmpty(this.primaryKey)) {
                 options.put("connector", "kafka-inlong");
                 options.put("sink.ignore.changelog", "true");
@@ -119,6 +149,14 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
             } else {
                 options.put("connector", "upsert-kafka-inlong");
                 options.putAll(format.generateOptions(true));
+            }
+            if (format instanceof RawFormat) {
+                if (sinkMultipleFormat != null) {
+                    options.put("sink.multiple.format", sinkMultipleFormat.identifier());
+                }
+                if (StringUtils.isNotBlank(topicPattern)) {
+                    options.put("topic-pattern", topicPattern);
+                }
             }
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
             options.put("connector", "kafka-inlong");
