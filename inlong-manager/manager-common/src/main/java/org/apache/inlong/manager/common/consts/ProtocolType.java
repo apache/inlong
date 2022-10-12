@@ -15,41 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.heartbeat;
-
-import lombok.Data;
+package org.apache.inlong.manager.common.consts;
 
 /**
- * Component heartbeat info
+ * Constants of protocol type.
  */
-@Data
-public class ComponentHeartbeat {
+public class ProtocolType {
 
-    private String clusterTag;
+    public static final String TCP = "TCP";
+    public static final String UDP = "UDP";
 
-    private String clusterName;
+    public static final String HTTP = "HTTP";
+    public static final String HTTPS = "HTTPS";
 
-    private String componentType;
-
-    private String ip;
-
-    private int port;
-
-    private String protocolType;
-
-    private String inCharges;
-
-    public ComponentHeartbeat() {
-    }
-
-    public ComponentHeartbeat(String clusterTag, String clusterName, String componentType, String ip, int port,
-            String inCharges, String protocolType) {
-        this.clusterTag = clusterTag;
-        this.clusterName = clusterName;
-        this.componentType = componentType;
-        this.ip = ip;
-        this.port = port;
-        this.protocolType = protocolType;
-        this.inCharges = inCharges;
-    }
 }

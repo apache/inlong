@@ -38,7 +38,8 @@ public interface InlongClusterNodeEntityMapper {
 
     List<InlongClusterNodeEntity> selectByCondition(ClusterPageRequest request);
 
-    List<InlongClusterNodeEntity> selectByParentId(@Param("parentId") Integer parentId);
+    List<InlongClusterNodeEntity> selectByParentId(@Param("parentId") Integer parentId,
+            @Param("protocolType") String protocolType);
 
     int updateById(InlongClusterNodeEntity record);
 

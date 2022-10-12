@@ -44,6 +44,11 @@ public class HeartbeatMsg {
     private int port;
 
     /**
+     * ProtocolType of component
+     */
+    private String protocolType;
+
+    /**
      * Type of component
      */
     private String componentType;
@@ -79,6 +84,6 @@ public class HeartbeatMsg {
     private List<StreamHeartbeat> streamHeartbeats;
 
     public ComponentHeartbeat componentHeartbeat() {
-        return new ComponentHeartbeat(clusterTag, clusterName, componentType, ip, port, inCharges);
+        return new ComponentHeartbeat(clusterTag, clusterName, componentType, ip, port, inCharges, protocolType);
     }
 }
