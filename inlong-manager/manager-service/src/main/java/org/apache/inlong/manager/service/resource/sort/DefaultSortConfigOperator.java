@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.resource.sort;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 public class DefaultSortConfigOperator implements SortConfigOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSortConfigOperator.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Autowired
     private StreamSourceService sourceService;
@@ -82,7 +83,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         }
 
         GroupInfo configInfo = this.getGroupInfo(groupInfo, streamInfos);
-        String dataflow = JsonUtils.toJsonString(configInfo);
+        String dataflow = OBJECT_MAPPER.writeValueAsString(configInfo);
         if (isStream) {
             this.addToStreamExt(streamInfos, dataflow);
         } else {
