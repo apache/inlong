@@ -24,7 +24,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 
 /**
- * Clickhouse config information, including host, port, etc.
+ * Clickhouse config information, including url, user, etc.
  */
 @Component
 public class ClickhouseConfig {
