@@ -107,7 +107,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         },
       },
       {
-        type: 'input',
+        type: 'select',
         label: i18n.t('pages.Clusters.Node.ProtocolType'),
         name: 'protocolType',
         initialValue: 'HTTP',
