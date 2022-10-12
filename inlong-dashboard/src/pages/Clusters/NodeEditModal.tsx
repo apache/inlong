@@ -110,6 +110,20 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
         type: 'input',
         label: i18n.t('pages.Clusters.Node.ProtocolType'),
         name: 'protocolType',
+        initialValue: 'HTTP',
+        rules: [{ required: true }],
+        props: {
+          options: [
+            {
+              label: 'HTTP',
+              value: 'HTTP',
+            },
+            {
+              label: 'TCP',
+              value: 'TCP',
+            },
+          ],
+        },
       },
       {
         type: 'textarea',
