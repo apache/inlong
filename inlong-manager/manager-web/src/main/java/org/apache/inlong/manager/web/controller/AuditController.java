@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -45,7 +44,7 @@ public class AuditController {
 
     @GetMapping(value = "/audit/list")
     @ApiOperation(value = "Query audit list according to conditions")
-    public Response<List<AuditVO>> listByCondition(@Valid AuditRequest request) throws IOException {
+    public Response<List<AuditVO>> listByCondition(@Valid AuditRequest request) throws Exception {
         return Response.success(auditService.listByCondition(request));
     }
 
