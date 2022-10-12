@@ -25,6 +25,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
+import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeRequest;
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -86,7 +87,7 @@ class DataNodeControllerTest extends WebBaseTest {
     }
 
     @Test
-    void testSaveAndGetAndDeleteByNameAndType() throws Exception {
+    void testSaveAndGetAndDeleteByUniqueKey() throws Exception {
         HiveDataNodeRequest request = getHiveDataNodeRequest();
         // save
         MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", request);
@@ -102,7 +103,7 @@ class DataNodeControllerTest extends WebBaseTest {
         Assertions.assertEquals(getHiveDataNodeRequest().getName(), dataNode.getName());
 
         // delete
-        MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/deleteByNameAndType/{name}/{type}",
+        MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/deleteByUniqueKey/{name}/{type}",
                 request.getName(), request.getType());
 
         Boolean success = getResBodyObj(deleteResult, Boolean.class);
@@ -139,6 +140,35 @@ class DataNodeControllerTest extends WebBaseTest {
 
         DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectById(request.getId());
         Assertions.assertEquals(request.getName(), dataNodeEntity.getName());
+    }
+
+    @Test
+    void testUpdateByUniqueKey() throws Exception {
+        // insert the test data
+        DataNodeEntity nodeEntity = new DataNodeEntity();
+        nodeEntity.setName("hiveNode1");
+        nodeEntity.setType(DataNodeType.HIVE);
+        nodeEntity.setIsDeleted(0);
+        nodeEntity.setModifier("test");
+        nodeEntity.setCreator("test");
+        nodeEntity.setUrl("old url");
+        nodeEntity.setCreateTime(new Date());
+        nodeEntity.setModifyTime(new Date());
+        nodeEntity.setInCharges("test");
+        nodeEntity.setVersion(InlongConstants.INITIAL_VERSION);
+
+        dataNodeEntityMapper.insert(nodeEntity);
+
+        DataNodeRequest request = getHiveDataNodeRequest();
+        //request.setId(nodeEntity.getId());
+        request.setVersion(nodeEntity.getVersion());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/updateByUniqueKey", request);
+
+        Boolean success = getResBodyObj(mvcResult, Boolean.class);
+        Assertions.assertTrue(success);
+
+        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByNameAndType(request.getName(), request.getType());
+        Assertions.assertEquals(request.getUrl(), dataNodeEntity.getUrl());
     }
 
     @Test
