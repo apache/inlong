@@ -20,30 +20,36 @@ import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from './common/sourceFields';
 
-const oracleFieldTypes = [
-  'BINARY_FLOAT',
-  'BINARY_DOUBLE',
-  'SMALLINT',
-  'FLOAT',
-  'FLOAT4',
-  'FLOAT8',
-  'DOUBLE',
-  'REAL',
-  'NUMBER',
-  'NUMERIC',
-  'DATE',
-  'DECIMAL',
-  'BOOLEAN',
-  'TIMESTAMP',
-  'CHAR',
-  'VARCHAR',
-  'CLOB',
-  'RAW',
-  'BLOB',
-].map(item => ({
-  label: item,
-  value: item,
-}));
+const fieldTypesConf = {
+  BINARY_FLOAT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  BINARY_DOUBLE: (m, d) => (1 <= m && m <= 10 ? '' : '1 <= M <= 10'),
+  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  FLOAT: (m, d) => (1 <= m && m <= 126 ? '' : '1 <= M <= 126'),
+  FLOAT4: () => '',
+  FLOAT8: () => '',
+  DOUBLE: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  REAL: () => '',
+  NUMBER: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  DATE: () => '',
+  DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  BOOLEAN: () => '',
+  TIMESTAMP: () => '',
+  CHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  VARCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  CLOB: () => '',
+  RAW: (m, d) => (1 <= m && m <= 2000 ? '' : ' 1 <= M <= 2000'),
+  BLOB: () => '',
+};
+
+const oracleFieldTypes = Object.keys(fieldTypesConf).reduce(
+  (acc, key) =>
+    acc.concat({
+      label: key,
+      value: key,
+    }),
+  [],
+);
 
 export const oracle: FieldItemType[] = [
   {
@@ -149,12 +155,29 @@ const getFieldListColumns = sinkValues => {
       title: `ORACLE${i18n.t('meta.Sinks.Oracle.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: oracleFieldTypes[0].value,
-      type: 'select',
+      type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: oracleFieldTypes,
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
-      rules: [{ required: true }],
+      rules: [
+        { required: true },
+        () => ({
+          validator(_, val) {
+            if (val) {
+              const [, type = val, typeLength = ''] = val.match(/^(.+)\((.+)\)$/) || [];
+              if (fieldTypesConf.hasOwnProperty(type)) {
+                const [m = -1, d = -1] = typeLength.split(',');
+                const errMsg = fieldTypesConf[type]?.(m, d);
+                if (typeLength && errMsg) return Promise.reject(new Error(errMsg));
+              } else {
+                return Promise.reject(new Error('FieldType error'));
+              }
+            }
+            return Promise.resolve();
+          },
+        }),
+      ],
     },
     {
       title: i18n.t('meta.Sinks.Oracle.IsMetaField'),

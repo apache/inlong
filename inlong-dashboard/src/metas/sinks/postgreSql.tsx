@@ -20,34 +20,40 @@ import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from './common/sourceFields';
 
-const postgreSqlFieldTypes = [
-  'SMALLINT',
-  'INT2',
-  'SMALLSERIAL',
-  'SERIAL2',
-  'INTEGER',
-  'SERIAL',
-  'BIGINT',
-  'BIGSERIAL',
-  'REAL',
-  'FLOAT4',
-  'FLOAT8',
-  'DOUBLE',
-  'NUMERIC',
-  'DECIMAL',
-  'BOOLEAN',
-  'DATE',
-  'TIME',
-  'TIMESTAMP',
-  'CHAR',
-  'CHARACTER',
-  'VARCHAR',
-  'TEXT',
-  'BYTEA',
-].map(item => ({
-  label: item,
-  value: item,
-}));
+const fieldTypesConf = {
+  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  INT2: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  SMALLSERIAL: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  SERIAL2: () => '',
+  INTEGER: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  SERIAL: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  BIGSERIAL: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  REAL: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
+  FLOAT4: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
+  FLOAT8: (m, d) => (24 < m && m <= 53 ? '' : '24 < M <= 53'),
+  DOUBLE: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  BOOLEAN: () => '',
+  DATE: () => '',
+  TIME: () => '',
+  TIMESTAMP: () => '',
+  CHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  CHARACTER: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  VARCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  TEXT: () => '',
+  BYTEA: () => '',
+};
+
+const postgreSqlFieldTypes = Object.keys(fieldTypesConf).reduce(
+  (acc, key) =>
+    acc.concat({
+      label: key,
+      value: key,
+    }),
+  [],
+);
 
 export const postgreSql: FieldItemType[] = [
   {
@@ -162,12 +168,29 @@ const getFieldListColumns = sinkValues => {
       title: `POSTGRESQL${i18n.t('meta.Sinks.PostgreSQL.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: postgreSqlFieldTypes[0].value,
-      type: 'select',
+      type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: postgreSqlFieldTypes,
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
-      rules: [{ required: true }],
+      rules: [
+        { required: true },
+        () => ({
+          validator(_, val) {
+            if (val) {
+              const [, type = val, typeLength = ''] = val.match(/^(.+)\((.+)\)$/) || [];
+              if (fieldTypesConf.hasOwnProperty(type)) {
+                const [m = -1, d = -1] = typeLength.split(',');
+                const errMsg = fieldTypesConf[type]?.(m, d);
+                if (typeLength && errMsg) return Promise.reject(new Error(errMsg));
+              } else {
+                return Promise.reject(new Error('FieldType error'));
+              }
+            }
+            return Promise.resolve();
+          },
+        }),
+      ],
     },
     {
       title: i18n.t('meta.Sinks.PostgreSQL.IsMetaField'),
