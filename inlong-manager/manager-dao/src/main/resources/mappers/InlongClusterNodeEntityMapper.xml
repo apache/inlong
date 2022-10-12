@@ -115,7 +115,6 @@
         select
         <include refid="Base_Column_List"/>
         from inlong_cluster_node
-        and parent_id = #{parentId, jdbcType=INTEGER}
         <where>
             is_deleted = 0
             and parent_id = #{parentId, jdbcType=INTEGER}

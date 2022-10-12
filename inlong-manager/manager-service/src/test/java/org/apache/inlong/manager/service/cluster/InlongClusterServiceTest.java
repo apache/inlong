@@ -270,8 +270,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(port1, nodeInfoList.get(0).getPort());
         Assertions.assertEquals(port2, nodeInfoList.get(1).getPort());
 
-        for (DataProxyNodeInfo dataProxyNodeInfo : nodeInfoList) {
-            this.deleteClusterNode(dataProxyNodeInfo.getId());
+        // delete all cluster nodes
+        // TODO should query by cluster parent id
+        nodeResponse = clusterService.getDataProxyNodes(inlongGroupId, null);
+        for (DataProxyNodeInfo nodeInfo : nodeResponse.getNodeList()) {
+            this.deleteClusterNode(nodeInfo.getId());
         }
 
         this.deleteCluster(id);
