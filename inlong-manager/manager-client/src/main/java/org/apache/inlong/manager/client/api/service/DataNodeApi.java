@@ -42,10 +42,13 @@ public interface DataNodeApi {
     @POST("node/update")
     Call<Response<Boolean>> update(@Body DataNodeRequest request);
 
+    @POST("node/updateByUniqueKey")
+    Call<Response<Boolean>> updateByUniqueKey(@Body DataNodeRequest request);
+
     @DELETE("node/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);
 
-    @DELETE("node/deleteByNameAndType/{name}/{type}")
-    Call<Response<Boolean>> deleteByNameAndType(@Path("name") String name, @Path("type") String type);
+    @DELETE("node/deleteByUniqueKey/{name}/{type}")
+    Call<Response<Boolean>> deleteByUniqueKey(@Path("name") String name, @Path("type") String type);
 
 }

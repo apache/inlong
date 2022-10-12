@@ -62,6 +62,15 @@ public interface DataNodeService {
     Boolean update(DataNodeRequest request, String operator);
 
     /**
+     * Update data node by unique key.
+     *
+     * @param request node info to be modified
+     * @param operator current operator
+     * @return whether succeed
+     */
+    Boolean updateByUniqueKey(DataNodeRequest request, String operator);
+
+    /**
      * Delete data node.
      *
      * @param id node id to be deleted
@@ -71,14 +80,14 @@ public interface DataNodeService {
     Boolean delete(Integer id, String operator);
 
     /**
-     * Delete data node by name and type.
+     * Delete data node by unique key.
      *
      * @param name node name to be deleted
      * @param type node type to be deleted
      * @param operator current operator
      * @return whether succeed
      */
-    Boolean deleteByNameAndType(String name, String type, String operator);
+    Boolean deleteByUniqueKey(String name, String type, String operator);
 
     /**
      * Test whether the connection can be successfully established.

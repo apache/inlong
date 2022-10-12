@@ -84,6 +84,14 @@ public class DataNodeController {
         return Response.success(dataNodeService.update(request, username));
     }
 
+    @PostMapping(value = "/node/updateByUniqueKey")
+    @OperationLog(operation = OperationType.UPDATE)
+    @ApiOperation(value = "Update data node by unique key")
+    public Response<Boolean> updateByUniqueKey(@RequestBody DataNodeRequest request) {
+        String username = LoginUserUtils.getLoginUser().getName();
+        return Response.success(dataNodeService.updateByUniqueKey(request, username));
+    }
+
     @DeleteMapping(value = "/node/delete/{id}")
     @ApiOperation(value = "Delete data node by id")
     @OperationLog(operation = OperationType.DELETE)
@@ -93,18 +101,18 @@ public class DataNodeController {
         return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
 
-    @DeleteMapping(value = "/node/deleteByNameAndType/{name}/{type}")
-    @ApiOperation(value = "Delete data node by name and type")
+    @DeleteMapping(value = "/node/deleteByUniqueKey/{name}/{type}")
+    @ApiOperation(value = "Delete data node by unique key")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "name", value = "Data node name", dataTypeClass = String.class, readOnly = true),
-            @ApiImplicitParam(name = "type", value = "Data node type", dataTypeClass = String.class, readOnly = true)
+            @ApiImplicitParam(name = "name", value = "Data node name", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "Data node type", dataTypeClass = String.class, required = true)
     })
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Boolean> deleteByNameAndType(
+    public Response<Boolean> deleteByUniqueKey(
             @PathVariable String name,
             @PathVariable String type) {
-        return Response.success(dataNodeService.deleteByNameAndType(name, type,
+        return Response.success(dataNodeService.deleteByUniqueKey(name, type,
                 LoginUserUtils.getLoginUser().getName()));
     }
 

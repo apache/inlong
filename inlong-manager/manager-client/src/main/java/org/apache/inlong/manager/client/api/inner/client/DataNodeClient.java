@@ -95,6 +95,21 @@ public class DataNodeClient {
     }
 
     /**
+     * Update data node by unique key.
+     *
+     * @param request node info to be modified
+     * @return whether succeed
+     */
+    public Boolean updateByUniqueKey(DataNodeRequest request) {
+        Preconditions.checkNotNull(request, "request cannot be null");
+        Preconditions.checkNotEmpty(request.getName(), "data node name cannot be empty");
+        Preconditions.checkNotEmpty(request.getType(), "data node type cannot be empty");
+        Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.updateByUniqueKey(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * Delete data node.
      *
      * @param id node id to be deleted
@@ -117,7 +132,7 @@ public class DataNodeClient {
     public Boolean delete(String name, String type) {
         Preconditions.checkNotEmpty(name, "data node name cannot be empty or null");
         Preconditions.checkNotEmpty(type, "data node type cannot be empty or null");
-        Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.deleteByNameAndType(name, type));
+        Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.deleteByUniqueKey(name, type));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
