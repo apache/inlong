@@ -123,18 +123,22 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             List<StreamSource> sources = sourceMap.get(streamId);
             List<StreamSink> sinks = sinkMap.get(streamId);
             List<NodeRelation> relations;
-            if (CollectionUtils.isEmpty(transformResponses)) {
-                relations = NodeRelationUtils.createNodeRelations(sources, sinks);
-            } else {
-                relations = NodeRelationUtils.createNodeRelations(inlongStream);
-                // in standard mode, replace upstream source node and transform input fields node to mq node
-                if (InlongConstants.STANDARD_MODE.equals(groupInfo.getLightweight())) {
+
+            if (InlongConstants.STANDARD_MODE.equals(groupInfo.getLightweight())) {
+                if (CollectionUtils.isNotEmpty(transformResponses)) {
+                    relations = NodeRelationUtils.createNodeRelations(inlongStream);
+
+                    // in standard mode, replace upstream source node and transform input fields node to mq node
                     // mq node name, which is inlong stream id
                     String mqNodeName = sources.get(0).getSourceName();
                     Set<String> nodeNameSet = getInputNodeNames(sources, transformResponses);
                     adjustTransformField(transformResponses, nodeNameSet, mqNodeName);
                     adjustNodeRelations(relations, nodeNameSet, mqNodeName);
+                } else {
+                    relations = NodeRelationUtils.createNodeRelations(sources, sinks);
                 }
+            } else {
+                relations = NodeRelationUtils.createNodeRelations(inlongStream);
             }
 
             // create extract-transform-load nodes
