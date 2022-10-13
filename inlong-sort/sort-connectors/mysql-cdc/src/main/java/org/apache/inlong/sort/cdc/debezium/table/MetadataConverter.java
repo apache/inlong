@@ -40,6 +40,6 @@ public interface MetadataConverter extends Serializable {
     }
 
     default Object read(SourceRecord record, @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
-        return read(record);
+        return read(record, tableSchema);
     }
 }
