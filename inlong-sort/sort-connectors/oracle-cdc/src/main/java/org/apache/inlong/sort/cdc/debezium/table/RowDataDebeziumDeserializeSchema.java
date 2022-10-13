@@ -23,6 +23,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 import io.debezium.data.Envelope;
 import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
+import io.debezium.relational.Column;
 import io.debezium.relational.history.TableChanges.TableChange;
 import io.debezium.time.Date;
 import io.debezium.time.MicroTime;
@@ -40,6 +41,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,9 +52,19 @@ import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
+import org.apache.flink.table.types.logical.BigIntType;
+import org.apache.flink.table.types.logical.BinaryType;
+import org.apache.flink.table.types.logical.BooleanType;
 import org.apache.flink.table.types.logical.DecimalType;
+import org.apache.flink.table.types.logical.DoubleType;
+import org.apache.flink.table.types.logical.FloatType;
+import org.apache.flink.table.types.logical.IntType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.types.logical.SmallIntType;
+import org.apache.flink.table.types.logical.TimestampType;
+import org.apache.flink.table.types.logical.TinyIntType;
+import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
@@ -161,6 +173,11 @@ public final class RowDataDebeziumDeserializeSchema
                     return Boolean.parseBoolean(dbzObj.toString());
                 }
             }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj, schema);
+            }
         };
     }
 
@@ -178,6 +195,11 @@ public final class RowDataDebeziumDeserializeSchema
                 } else {
                     return Integer.parseInt(dbzObj.toString());
                 }
+            }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj, schema);
             }
         };
     }
@@ -197,6 +219,11 @@ public final class RowDataDebeziumDeserializeSchema
                     return Long.parseLong(dbzObj.toString());
                 }
             }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj, schema);
+            }
         };
     }
 
@@ -214,6 +241,11 @@ public final class RowDataDebeziumDeserializeSchema
                 } else {
                     return Double.parseDouble(dbzObj.toString());
                 }
+            }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj, schema);
             }
         };
     }
@@ -233,6 +265,11 @@ public final class RowDataDebeziumDeserializeSchema
                     return Float.parseFloat(dbzObj.toString());
                 }
             }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj, schema);
+            }
         };
     }
 
@@ -244,6 +281,11 @@ public final class RowDataDebeziumDeserializeSchema
             @Override
             public Object convert(Object dbzObj, Schema schema) {
                 return (int) TemporalConversions.toLocalDate(dbzObj).toEpochDay();
+            }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj, schema);
             }
         };
     }
@@ -269,6 +311,11 @@ public final class RowDataDebeziumDeserializeSchema
                 }
                 // get number of milliseconds of the day
                 return TemporalConversions.toLocalTime(dbzObj).toSecondOfDay() * 1000;
+            }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj, schema);
             }
         };
     }
@@ -304,6 +351,11 @@ public final class RowDataDebeziumDeserializeSchema
                         TemporalConversions.toLocalDateTime(dbzObj, serverTimeZone);
                 return TimestampData.fromLocalDateTime(localDateTime);
             }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj,schema);
+            }
         };
     }
 
@@ -332,6 +384,11 @@ public final class RowDataDebeziumDeserializeSchema
                                 + "' of type "
                                 + dbzObj.getClass().getName());
             }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj,schema);
+            }
         };
     }
 
@@ -349,6 +406,11 @@ public final class RowDataDebeziumDeserializeSchema
             @Override
             public Object convert(Object dbzObj, Schema schema) {
                 return StringData.fromString(dbzObj.toString());
+            }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj,schema);
             }
         };
     }
@@ -371,6 +433,11 @@ public final class RowDataDebeziumDeserializeSchema
                     throw new UnsupportedOperationException(
                             "Unsupported BYTES value type: " + dbzObj.getClass().getSimpleName());
                 }
+            }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj,schema);
             }
         };
     }
@@ -406,6 +473,11 @@ public final class RowDataDebeziumDeserializeSchema
                 }
                 return DecimalData.fromBigDecimal(bigDecimal, precision, scale);
             }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                return convert(dbzObj,schema);
+            }
         };
     }
 
@@ -431,6 +503,14 @@ public final class RowDataDebeziumDeserializeSchema
                     return null;
                 }
                 return converter.convert(dbzObj, schema);
+            }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                if (dbzObj == null) {
+                    return null;
+                }
+                return converter.convert(dbzObj, schema, tableSchema);
             }
         };
     }
@@ -471,6 +551,11 @@ public final class RowDataDebeziumDeserializeSchema
                     public Object convert(Object dbzObj, Schema schema) {
                         return null;
                     }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj,schema);
+                    }
                 };
             case BOOLEAN:
                 return convertToBoolean();
@@ -483,6 +568,11 @@ public final class RowDataDebeziumDeserializeSchema
                     public Object convert(Object dbzObj, Schema schema) {
                         return Byte.parseByte(dbzObj.toString());
                     }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj,schema);
+                    }
                 };
             case SMALLINT:
                 return new DeserializationRuntimeConverter() {
@@ -492,6 +582,11 @@ public final class RowDataDebeziumDeserializeSchema
                     @Override
                     public Object convert(Object dbzObj, Schema schema) {
                         return Short.parseShort(dbzObj.toString());
+                    }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj, schema);
                     }
                 };
             case INTEGER:
@@ -573,20 +668,25 @@ public final class RowDataDebeziumDeserializeSchema
                     }
                     return row;
                 }
+
+                @Override
+                public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                    return convert(dbzObj, schema);
+                }
             };
         } else {
-            return getAllMigrationConverter();
+            return getAllMigrationConverter(serverTimeZone, userDefinedConverterFactory);
         }
     }
 
-    private DeserializationRuntimeConverter getAllMigrationConverter() {
+    private DeserializationRuntimeConverter getAllMigrationConverter(
+            ZoneId serverTimeZone, DeserializationRuntimeConverterFactory userDefinedConverterFactory) {
         return new DeserializationRuntimeConverter() {
 
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Object convert(Object dbzObj, Schema schema) {
-
+            public Object convert(Object dbzObj, Schema schema) throws Exception {
                 ConnectSchema connectSchema = (ConnectSchema) schema;
                 List<Field> fields = connectSchema.fields();
 
@@ -611,7 +711,99 @@ public final class RowDataDebeziumDeserializeSchema
 
                 return row;
             }
+
+            @Override
+            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                ConnectSchema connectSchema = (ConnectSchema) schema;
+                List<Field> fields = connectSchema.fields();
+
+                Map<String, Object> data = new HashMap<>();
+                Struct struct = (Struct) dbzObj;
+
+                for (Field field : fields) {
+                    String fieldName = field.name();
+                    Object fieldValue = struct.getWithoutDefault(fieldName);
+                    Schema fieldSchema = schema.field(fieldName).schema();
+                    String schemaName = fieldSchema.name();
+                    if (schemaName != null) {
+                        // normal type doesn't have schema name
+                        // schema names are time schemas
+                        fieldValue = getTimeValue(fieldValue, schemaName);
+                    }
+                    // struct --> normal type
+                    if (fieldValue instanceof Struct) {
+                        Column column = tableSchema.getTable().columnWithName(fieldName);
+                        LogicalType logicType = convertLogicType(column);
+                        DeserializationRuntimeConverter fieldConverter = createConverter(
+                                logicType,
+                                serverTimeZone,
+                                userDefinedConverterFactory);
+                        fieldValue =
+                                convertField(fieldConverter, fieldValue, fieldSchema);
+                    }
+                    data.put(fieldName, fieldValue);
+                }
+
+                GenericRowData row = new GenericRowData(1);
+                row.setField(0, data);
+
+                return row;
+            }
         };
+    }
+
+    public static LogicalType convertLogicType(Column column) {
+        String typeName = column.typeName();
+        Integer p = column.length();
+        Integer s = column.scale().orElse(0);
+        if ("NUMBER".equals(typeName)) {
+            if (p == 1) {
+                return new BooleanType();
+            }
+            if (s <= 0 && p - s < 3) {
+                return new TinyIntType();
+            }
+            if (s <= 0 && p - s < 5) {
+                return new SmallIntType();
+            }
+            if (s <= 0 && p - s < 10) {
+                return new IntType();
+            }
+            if (s <= 0 && p - s < 19) {
+                return new BigIntType();
+            }
+            if (s <= 0 && p - s >= 10 && p - s <= 38) {
+                return new DecimalType(p - s, 0);
+            }
+            if (s > 0) {
+                return new DecimalType(p, s);
+            }
+            if (s <= 0 && p - s > 38) {
+                return new VarCharType(Integer.MAX_VALUE);
+            }
+        }
+        if ("FLOAT".equals(typeName) || "BINARY_FLOAT".equals(typeName)) {
+            return new FloatType();
+        }
+        if ("DOUBLE PRECISION".equals(typeName) || "BINARY_DOUBLE".equals(typeName)) {
+            return new DoubleType();
+        }
+        if ("DATE".equals(typeName) || "TIMESTAMP".equals(typeName)
+                || "WITH LOCAL TIME ZONE".equals(typeName) || "TIMESTAMP WITH TIME ZONE".equals(typeName)) {
+            return new TimestampType(p);
+        }
+        List<String> stringTypeList =
+                Arrays.asList("CHAR", "NCHAR", "NVARCHAR2", "NVCHAER", "VARCHAR", "VARCHAR2", "CLOB", "NCLOB", "XMLType");
+        if (stringTypeList.contains(typeName)) {
+            return new VarCharType(Integer.MAX_VALUE);
+        }
+        if ("BLOB".equals(typeName) || "ROWID".equals(typeName)) {
+            return new BinaryType();
+        }
+        if ("INTERVAL DAY TO SECOND".equals(typeName) || "INTERVAL YEAR TO MONTH".equals(typeName)) {
+            return new BigIntType();
+        }
+        return null;
     }
 
     /**
@@ -659,40 +851,42 @@ public final class RowDataDebeziumDeserializeSchema
         Struct value = (Struct) record.value();
         Schema valueSchema = record.valueSchema();
         if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
-            GenericRowData insert = extractAfterRow(value, valueSchema);
+            GenericRowData insert = extractAfterRow(value, valueSchema, tableSchema);
             validator.validate(insert, RowKind.INSERT);
             insert.setRowKind(RowKind.INSERT);
             emit(record, insert, tableSchema, out);
         } else if (op == Envelope.Operation.DELETE) {
-            GenericRowData delete = extractBeforeRow(value, valueSchema);
+            GenericRowData delete = extractBeforeRow(value, valueSchema, tableSchema);
             validator.validate(delete, RowKind.DELETE);
             delete.setRowKind(RowKind.DELETE);
             emit(record, delete, tableSchema, out);
         } else {
             if (!appendSource) {
-                GenericRowData before = extractBeforeRow(value, valueSchema);
+                GenericRowData before = extractBeforeRow(value, valueSchema, tableSchema);
                 validator.validate(before, RowKind.UPDATE_BEFORE);
                 before.setRowKind(RowKind.UPDATE_BEFORE);
                 emit(record, before, tableSchema, out);
             }
 
-            GenericRowData after = extractAfterRow(value, valueSchema);
+            GenericRowData after = extractAfterRow(value, valueSchema, tableSchema);
             validator.validate(after, RowKind.UPDATE_AFTER);
             after.setRowKind(RowKind.UPDATE_AFTER);
             emit(record, after, tableSchema, out);
         }
     }
 
-    private GenericRowData extractAfterRow(Struct value, Schema valueSchema) throws Exception {
+    private GenericRowData extractAfterRow(Struct value, Schema valueSchema,
+            TableChange tableSchema) throws Exception {
         Schema afterSchema = valueSchema.field(Envelope.FieldName.AFTER).schema();
         Struct after = value.getStruct(Envelope.FieldName.AFTER);
-        return (GenericRowData) physicalConverter.convert(after, afterSchema);
+        return (GenericRowData) physicalConverter.convert(after, afterSchema, tableSchema);
     }
 
-    private GenericRowData extractBeforeRow(Struct value, Schema valueSchema) throws Exception {
+    private GenericRowData extractBeforeRow(Struct value, Schema valueSchema,
+            TableChange tableSchema) throws Exception {
         Schema beforeSchema = valueSchema.field(Envelope.FieldName.BEFORE).schema();
         Struct before = value.getStruct(Envelope.FieldName.BEFORE);
-        return (GenericRowData) physicalConverter.convert(before, beforeSchema);
+        return (GenericRowData) physicalConverter.convert(before, beforeSchema, tableSchema);
     }
 
     private void emit(SourceRecord inRecord, RowData physicalRow,

@@ -23,7 +23,6 @@ import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,8 +38,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
-import org.apache.flink.types.RowKind;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.kafka.connect.data.Struct;
@@ -115,19 +112,12 @@ public enum OracleReadableMetaData {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    record.value().toString();
-                    Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(FieldName.TIMESTAMP);
-                    sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
-                    return TimestampData.fromEpochMillis(
-                            (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
+                    return null;
                 }
 
                 @Override
                 public Object read(SourceRecord record,
                         @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
-                    log.info("record is [{}], tablesSchema is [{}], rowData is [{}]",
-                            GsonUtil.toJson(record), GsonUtil.toJson(tableSchema), GsonUtil.toJson(rowData));
                     // construct canal json
                     Struct messageStruct = (Struct) record.value();
                     Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
@@ -135,6 +125,8 @@ public enum OracleReadableMetaData {
                     String tableName = getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY);
                     // databaseName
                     String databaseName = getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY);
+                    // schemaName
+                    String schemaName = getMetaData(record, AbstractSourceInfo.SCHEMA_NAME_KEY);
                     // opTs
                     long opTs = (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
                     // ts
@@ -146,11 +138,11 @@ public enum OracleReadableMetaData {
                     dataList.add(field);
 
                     CanalJson canalJson = CanalJson.builder()
-                            .data(dataList).database(databaseName)
+                            .data(dataList).database(databaseName).schema(schemaName)
                             .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
-                            .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
-                            .type(getOpType(record)).build();
-                    log.info("canal json is [{}]", GsonUtil.toJson(canalJson));
+                            .oracleType(getOracleType(tableSchema))
+                            .table(tableName).ts(ts)
+                            .type(getOpType(record)).sqlType(getSqlType(tableSchema)).build();
                     try {
                         ObjectMapper objectMapper = new ObjectMapper();
                         return StringData.fromString(objectMapper.writeValueAsString(canalJson));
@@ -429,21 +421,37 @@ public enum OracleReadableMetaData {
         return tableSchema.getTable().primaryKeyColumnNames();
     }
 
-    public static Map<String, String> getMysqlType(@Nullable TableChanges.TableChange tableSchema) {
+    public static Map<String, String> getOracleType(@Nullable TableChanges.TableChange tableSchema) {
         if (tableSchema == null) {
             return null;
         }
-        Map<String, String> mysqlType = new HashMap<>();
+        Map<String, String> oracleType = new HashMap<>();
+        final Table table = tableSchema.getTable();
+        table.columns()
+                .forEach(
+                        column -> {
+                            oracleType.put(
+                                    column.name(),
+                                    String.format(
+                                            "%s(%d)",
+                                            column.typeName(),
+                                            column.length()));
+                        });
+        return oracleType;
+    }
+
+    public static Map<String, Integer> getSqlType(@Nullable TableChanges.TableChange tableSchema) {
+        if (tableSchema == null) {
+            return null;
+        }
+        Map<String, Integer> mysqlType = new HashMap<>();
         final Table table = tableSchema.getTable();
         table.columns()
                 .forEach(
                         column -> {
                             mysqlType.put(
                                     column.name(),
-                                    String.format(
-                                            "%s(%d)",
-                                            column.typeName(),
-                                            column.length()));
+                                    column.jdbcType());
                         });
         return mysqlType;
     }

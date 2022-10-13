@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sort.cdc.debezium.table;
 
+import io.debezium.relational.history.TableChanges.TableChange;
 import java.io.Serializable;
 import org.apache.kafka.connect.data.Schema;
 
@@ -25,7 +26,7 @@ import org.apache.kafka.connect.data.Schema;
  * Runtime converter that converts objects of Debezium into objects of Flink Table & SQL internal
  * data structures.
  */
-@FunctionalInterface
 public interface DeserializationRuntimeConverter extends Serializable {
     Object convert(Object dbzObj, Schema schema) throws Exception;
+    Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception;
 }

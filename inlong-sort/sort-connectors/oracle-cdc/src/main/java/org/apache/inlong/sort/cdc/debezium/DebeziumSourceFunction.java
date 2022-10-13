@@ -30,6 +30,7 @@ import io.debezium.embedded.Connect;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.spi.OffsetCommitPolicy;
 import io.debezium.heartbeat.Heartbeat;
+import io.debezium.relational.history.TableChanges.TableChange;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -484,10 +485,19 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         new DebeziumDeserializationSchema<T>() {
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                deserializer.deserialize(record, out);
                                 if (sourceMetricData != null) {
                                     sourceMetricData.outputMetricsWithEstimate(record.value());
                                 }
+                                deserializer.deserialize(record, out);
+                            }
+
+                            @Override
+                            public void deserialize(SourceRecord record, Collector<T> out,
+                                    TableChange tableSchema) throws Exception {
+                                if (sourceMetricData != null) {
+                                    sourceMetricData.outputMetricsWithEstimate(record.value());
+                                }
+                                deserializer.deserialize(record, out, tableSchema);
                             }
 
                             @Override

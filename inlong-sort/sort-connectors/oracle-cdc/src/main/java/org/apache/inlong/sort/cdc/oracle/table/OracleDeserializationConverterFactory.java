@@ -18,6 +18,7 @@ package org.apache.inlong.sort.cdc.oracle.table;
 
 import io.debezium.data.SpecialValueDecimal;
 import io.debezium.data.VariableScaleDecimal;
+import io.debezium.relational.history.TableChanges.TableChange;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.util.Optional;
@@ -85,6 +86,12 @@ public class OracleDeserializationConverterFactory {
                                 }
                                 return converter.convert(dbzObj, schema);
                             }
+
+                            @Override
+                            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema)
+                                    throws Exception {
+                                return convert(dbzObj, schema);
+                            }
                         });
     }
 
@@ -108,6 +115,11 @@ public class OracleDeserializationConverterFactory {
                             return Boolean.parseBoolean(dbzObj.toString());
                         }
                     }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj, schema);
+                    }
                 });
     }
 
@@ -126,6 +138,11 @@ public class OracleDeserializationConverterFactory {
                         } else {
                             return Byte.parseByte(dbzObj.toString());
                         }
+                    }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj, schema);
                     }
                 });
     }
@@ -148,6 +165,11 @@ public class OracleDeserializationConverterFactory {
                             return Short.parseShort(dbzObj.toString());
                         }
                     }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj, schema);
+                    }
                 });
     }
 
@@ -168,6 +190,11 @@ public class OracleDeserializationConverterFactory {
                         } else {
                             return Integer.parseInt(dbzObj.toString());
                         }
+                    }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj, schema);
                     }
                 });
     }
@@ -190,6 +217,11 @@ public class OracleDeserializationConverterFactory {
                             return Long.parseLong(dbzObj.toString());
                         }
                     }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj, schema);
+                    }
                 });
     }
 
@@ -211,6 +243,11 @@ public class OracleDeserializationConverterFactory {
                             return Float.parseFloat(dbzObj.toString());
                         }
                     }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj, schema);
+                    }
                 });
     }
 
@@ -231,6 +268,11 @@ public class OracleDeserializationConverterFactory {
                         } else {
                             return Double.parseDouble(dbzObj.toString());
                         }
+                    }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj, schema);
                     }
                 });
     }

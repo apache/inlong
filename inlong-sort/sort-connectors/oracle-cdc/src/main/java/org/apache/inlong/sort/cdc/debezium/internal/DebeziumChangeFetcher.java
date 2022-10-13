@@ -22,6 +22,7 @@ import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
+import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,8 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.debezium.utils.RecordUtils;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -229,7 +232,7 @@ public class DebeziumChangeFetcher<T> {
                 continue;
             }
 
-            deserialization.deserialize(record, debeziumCollector);
+            deserialization.deserialize(record, debeziumCollector, getTableChange(record));
 
             if (!isSnapshotRecord(record)) {
                 LOG.debug("Snapshot phase finishes.");
@@ -240,6 +243,13 @@ public class DebeziumChangeFetcher<T> {
             emitRecordsUnderCheckpointLock(
                     debeziumCollector.records, record.sourcePartition(), record.sourceOffset());
         }
+    }
+
+    private TableChange getTableChange(SourceRecord record) {
+        SchemaRecord schemaRecord = FlinkDatabaseSchemaHistory.latestTables.get(RecordUtils.getTableId(
+                record));
+        return FlinkJsonTableChangeSerializer.fromDocument(
+                schemaRecord.toDocument(), true);
     }
 
     private void emitRecordsUnderCheckpointLock(
