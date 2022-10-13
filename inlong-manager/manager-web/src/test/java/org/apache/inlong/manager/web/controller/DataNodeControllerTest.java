@@ -25,7 +25,6 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
-import org.apache.inlong.manager.pojo.node.mysql.MySQLDataNodeRequest;
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
