@@ -33,6 +33,10 @@ sed -i "s/spring.profiles.active=.*$/spring.profiles.active=${ACTIVE_PROFILE}/g"
 sed -i "s/127.0.0.1:3306/${JDBC_URL}/g" "${conf_file}"
 sed -i "s/datasource.druid.username=.*$/datasource.druid.username=${USERNAME}/g" "${conf_file}"
 sed -i "s/datasource.druid.password=.*$/datasource.druid.password=${PASSWORD}/g" "${conf_file}"
+# for audit data
+sed -i "s/audit.ck.jdbcUrl=.*$/audit.ck.jdbcUrl=${AUDIT_CK_URL}/g" "${conf_file}"
+sed -i "s/audit.ck.username=.*$/audit.ck.username=${AUDIT_CK_USERNAME}/g" "${conf_file}"
+sed -i "s/audit.ck.password=.*$/audit.ck.password=${AUDIT_CK_PASSWD}/g" "${conf_file}"
 # flink-sort-plugin.properties
 sed -i "s/flink.rest.address=.*$/flink.rest.address=${FLINK_HOST}/g" "${flink_conf_file}"
 sed -i "s/flink.rest.port=.*$/flink.rest.port=${FLINK_PORT}/g" "${flink_conf_file}"
