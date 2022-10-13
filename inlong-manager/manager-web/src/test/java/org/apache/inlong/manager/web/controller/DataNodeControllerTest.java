@@ -98,7 +98,7 @@ class DataNodeControllerTest extends WebBaseTest {
         // get
         MvcResult getResult = getForSuccessMvcResult("/api/node/get/{id}", dataNodeId);
 
-        DataNodeInfo dataNode = getResBodyObj(getResult, DataNodeResponse.class);
+        DataNodeInfo dataNode = getResBodyObj(getResult, DataNodeInfo.class);
         Assertions.assertNotNull(dataNode);
         Assertions.assertEquals(getHiveDataNodeRequest().getName(), dataNode.getName());
 
