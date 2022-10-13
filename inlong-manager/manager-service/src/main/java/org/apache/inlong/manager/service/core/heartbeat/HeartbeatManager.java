@@ -63,6 +63,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
 
+    private static final int UPDATE_DEFAULT_NUM = 1; // default update one field
+    private static final int UPDATE_FAILED_NUM = 0; // no field update
+
     @PostConstruct
     public void init() {
         long expireTime = heartbeatInterval() * 2L;
@@ -93,17 +96,20 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             return;
         }
         HeartbeatMsg lastHeartbeat = heartbeatCache.getIfPresent(componentHeartbeat);
+        int updateNum = UPDATE_DEFAULT_NUM;
         if (lastHeartbeat == null) {
             InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeat);
             if (clusterNode == null) {
-                insertClusterNode(clusterInfo, heartbeat, clusterInfo.getCreator());
-                log.info("insert node success");
+                updateNum = insertClusterNode(clusterInfo, heartbeat, clusterInfo.getCreator());
+                log.info("insert node ret:{}", updateNum);
             } else {
-                updateClusterNode(clusterNode);
-                log.info("update node success");
+                updateNum = updateClusterNode(clusterNode);
+                log.info("update node ret:{}", updateNum);
             }
         }
-        heartbeatCache.put(componentHeartbeat, heartbeat);
+        if (updateNum != UPDATE_FAILED_NUM) {
+            heartbeatCache.put(componentHeartbeat, heartbeat);
+        }
     }
 
     private void evictClusterNode(HeartbeatMsg heartbeat) {
@@ -135,7 +141,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         return clusterNodeMapper.selectByUniqueKey(nodeRequest);
     }
 
-    private void insertClusterNode(ClusterInfo clusterInfo, HeartbeatMsg heartbeat, String creator) {
+    private int insertClusterNode(ClusterInfo clusterInfo, HeartbeatMsg heartbeat, String creator) {
         InlongClusterNodeEntity clusterNode = new InlongClusterNodeEntity();
         clusterNode.setParentId(clusterInfo.getId());
         clusterNode.setType(heartbeat.getComponentType());
@@ -146,12 +152,12 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setCreator(creator);
         clusterNode.setModifier(creator);
         clusterNode.setDescription(AUTO_REGISTERED);
-        clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
+        return clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
     }
 
-    private void updateClusterNode(InlongClusterNodeEntity clusterNode) {
+    private int updateClusterNode(InlongClusterNodeEntity clusterNode) {
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
-        clusterNodeMapper.updateById(clusterNode);
+        return clusterNodeMapper.updateById(clusterNode);
     }
 
     private ClusterInfo fetchCluster(ComponentHeartbeat componentHeartbeat) {
