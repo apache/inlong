@@ -117,6 +117,9 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
         if (v.suffix?.name) {
           const suffixNp = Array.isArray(v.suffix.name) ? v.suffix.name : v.suffix.name.split('.');
           v.suffix.name = suffixNp && suffixNp.length > 1 ? suffixNp : v.suffix.name;
+          if (typeof v.suffix?.props === 'function') {
+            v.suffix.props = v.suffix.props(realTimeValues);
+          }
         }
 
         return {
@@ -179,7 +182,7 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
         return type !== 'input' && type !== 'inputsearch';
       });
       const newRealTimeValues = trim(allValues) as any;
-      setRealTimeValues(newRealTimeValues);
+      setRealTimeValues(prev => ({ ...prev, ...newRealTimeValues }));
       if (noPrevent && props.onFilter) {
         props.onFilter(newRealTimeValues);
       }
