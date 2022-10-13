@@ -46,11 +46,13 @@ import javax.annotation.PostConstruct;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-@Component
 @Slf4j
+@Component
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
     private static final String AUTO_REGISTERED = "auto registered";
+    private static final int UPDATED_ONE_ROW = 1; // updated one row
+    private static final int UPDATE_ZERO_ROW = 0; // no field updated
 
     @Getter
     private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeatCache;
@@ -92,18 +94,27 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     componentHeartbeat.getComponentType());
             return;
         }
+
+        // if the heartbeat was not in the cache, insert or update the node by the heartbeat info
         HeartbeatMsg lastHeartbeat = heartbeatCache.getIfPresent(componentHeartbeat);
+        boolean exist = true;
+        int updateNum = UPDATE_ZERO_ROW;
         if (lastHeartbeat == null) {
+            exist = false;
             InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeat);
             if (clusterNode == null) {
-                insertClusterNode(clusterInfo, heartbeat, clusterInfo.getCreator());
-                log.info("insert node success");
+                updateNum = insertClusterNode(clusterInfo, heartbeat, clusterInfo.getCreator());
+                log.info("insert node result: {}", updateNum);
             } else {
-                updateClusterNode(clusterNode);
-                log.info("update node success");
+                updateNum = updateClusterNode(clusterNode);
+                log.info("update node result: {}", updateNum);
             }
         }
-        heartbeatCache.put(componentHeartbeat, heartbeat);
+
+        // if the heartbeat already exists, or does not exist but insert/update success, then put it into the cache
+        if (exist || updateNum == UPDATED_ONE_ROW) {
+            heartbeatCache.put(componentHeartbeat, heartbeat);
+        }
     }
 
     private void evictClusterNode(HeartbeatMsg heartbeat) {
@@ -135,7 +146,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         return clusterNodeMapper.selectByUniqueKey(nodeRequest);
     }
 
-    private void insertClusterNode(ClusterInfo clusterInfo, HeartbeatMsg heartbeat, String creator) {
+    private int insertClusterNode(ClusterInfo clusterInfo, HeartbeatMsg heartbeat, String creator) {
         InlongClusterNodeEntity clusterNode = new InlongClusterNodeEntity();
         clusterNode.setParentId(clusterInfo.getId());
         clusterNode.setType(heartbeat.getComponentType());
@@ -146,12 +157,12 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setCreator(creator);
         clusterNode.setModifier(creator);
         clusterNode.setDescription(AUTO_REGISTERED);
-        clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
+        return clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
     }
 
-    private void updateClusterNode(InlongClusterNodeEntity clusterNode) {
+    private int updateClusterNode(InlongClusterNodeEntity clusterNode) {
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
-        clusterNodeMapper.updateById(clusterNode);
+        return clusterNodeMapper.updateById(clusterNode);
     }
 
     private ClusterInfo fetchCluster(ComponentHeartbeat componentHeartbeat) {
