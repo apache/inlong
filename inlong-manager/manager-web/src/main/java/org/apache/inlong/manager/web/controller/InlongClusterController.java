@@ -34,6 +34,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
@@ -133,6 +134,14 @@ public class InlongClusterController {
         return Response.success(clusterService.update(request, username));
     }
 
+    @PostMapping(value = "/cluster/updateByUniqueKey")
+    @OperationLog(operation = OperationType.UPDATE)
+    @ApiOperation(value = "Update cluster by unique key")
+    public Response<UpdateResult> updateByUniqueKey(@RequestBody ClusterRequest request) {
+        String username = LoginUserUtils.getLoginUser().getName();
+        return Response.success(clusterService.updateByUniqueKey(request, username));
+    }
+
     @PostMapping(value = "/cluster/bindTag")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Bind or unbind cluster tag")
@@ -150,7 +159,7 @@ public class InlongClusterController {
         return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
 
-    @DeleteMapping(value = "/cluster/deleteByRelatedId/{name}/{type}")
+    @DeleteMapping(value = "/cluster/deleteByUniqueKey/{name}/{type}")
     @ApiOperation(value = "Delete cluster by cluster name and type")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParams({
@@ -159,8 +168,8 @@ public class InlongClusterController {
             @ApiImplicitParam(name = "type", value = "Cluster type", dataTypeClass = String.class, required = true),
     })
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Boolean> deleteByRelatedId(@PathVariable String name, @PathVariable String type) {
-        return Response.success(clusterService.deleteByRelatedId(name, type,
+    public Response<Boolean> deleteByUniqueKey(@PathVariable String name, @PathVariable String type) {
+        return Response.success(clusterService.deleteByUniqueKey(name, type,
                 LoginUserUtils.getLoginUser().getName()));
     }
 

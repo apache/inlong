@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.service;
 
+import com.oracle.deploy.update.UpdateCheck;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
@@ -28,6 +29,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -64,14 +66,17 @@ public interface InlongClusterApi {
     @POST("cluster/update")
     Call<Response<Boolean>> update(@Body ClusterRequest request);
 
+    @POST("cluster/updateByUniqueKey")
+    Call<Response<UpdateResult>> updateByUniqueKey(@Body ClusterRequest request);
+
     @POST("cluster/bindTag")
     Call<Response<Boolean>> bindTag(@Body BindTagRequest request);
 
     @DELETE("cluster/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);
 
-    @DELETE("cluster/deleteByRelatedId/{name}/{type}")
-    Call<Response<Boolean>> deleteByRelatedId(@Path("name") String name, @Path("type") String type);
+    @DELETE("cluster/deleteByUniqueKey/{name}/{type}")
+    Call<Response<Boolean>> deleteByUniqueKey(@Path("name") String name, @Path("type") String type);
 
     @POST("cluster/node/save")
     Call<Response<Integer>> saveNode(@Body ClusterNodeRequest request);
