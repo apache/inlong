@@ -33,7 +33,7 @@
         <property name="error_fileName">${basePath}/error.log</property>
         <property name="error_filePattern">${basePath}/error-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="error_max">10</property>
-        <property name="last_modify_time">10d</property>
+        <property name="last_modify_time">15d</property>
     </properties>
 
     <conversionRule conversionWord="clr"

@@ -44,7 +44,7 @@
         <property name="monitors_max">10</property>
         <property name="monitors_fileName">${basePath}/monitors.log</property>
         <property name="monitors_filePattern">${basePath}/monitors-%d{yyyy-MM-dd}-%i.log.gz</property>
-        <property name="last_modify_time">10d</property>
+        <property name="last_modify_time">15d</property>
     </Properties>
 
     <appenders>
