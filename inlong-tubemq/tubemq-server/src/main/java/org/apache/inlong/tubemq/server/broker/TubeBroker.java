@@ -61,6 +61,7 @@ import org.apache.inlong.tubemq.server.broker.web.WebServer;
 import org.apache.inlong.tubemq.server.common.TubeServerVersion;
 import org.apache.inlong.tubemq.server.common.aaaserver.SimpleCertificateBrokerHandler;
 import org.apache.log4j.LogManager;
+import org.apache.zookeeper.client.ZKClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,6 +117,11 @@ public class TubeBroker implements Stoppable {
     public TubeBroker(final BrokerConfig tubeConfig) throws Exception {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
+        if (tubeConfig.getZkConfig() != null
+                && tubeConfig.getZkConfig().getZkRequestTimeoutMs() > 0) {
+            System.setProperty(ZKClientConfig.ZOOKEEPER_REQUEST_TIMEOUT,
+                    Integer.toString(tubeConfig.getZkConfig().getZkRequestTimeoutMs()));
+        }
         this.tubeConfig = tubeConfig;
         this.brokerId = generateBrokerClientId();
         BrokerJMXHolder.registerMXBean();
