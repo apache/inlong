@@ -23,8 +23,6 @@ import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
-import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
@@ -48,7 +46,6 @@ import java.util.Map;
 /**
  * Defines the supported metadata columns for {@link MySqlTableSource}.
  */
-@Slf4j
 public enum MySqlReadableMetadata {
     /**
      * Name of the table that contain the row.
@@ -118,9 +115,6 @@ public enum MySqlReadableMetadata {
                 @Override
                 public Object read(SourceRecord record,
                                    @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
-                    log.info("record is [{}], tablesSchema is [{}], rowData is [{}]",
-                            record.toString(), Objects.nonNull(tableSchema) ? tableSchema.toString() : "",
-                            rowData.toString());
                     // construct canal json
                     Struct messageStruct = (Struct) record.value();
                     Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
@@ -143,7 +137,7 @@ public enum MySqlReadableMetadata {
                             .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
                             .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
                             .type(getOpType(record)).build();
-                    log.info("canal json is [{}]", canalJson.toString());
+
                     try {
                         ObjectMapper objectMapper = new ObjectMapper();
                         return StringData.fromString(objectMapper.writeValueAsString(canalJson));
