@@ -33,6 +33,9 @@ export const file: FieldItemType[] = [
         required: true,
       },
     ],
+    props: values => ({
+      disabled: values?.status === 101,
+    }),
     _renderTable: true,
   },
   {
@@ -41,6 +44,9 @@ export const file: FieldItemType[] = [
     name: 'pattern',
     tooltip: i18n.t('meta.Sources.File.FilePathHelp'),
     rules: [{ required: true }],
+    props: values => ({
+      disabled: values?.status === 101,
+    }),
     _renderTable: true,
   },
   {
@@ -48,5 +54,8 @@ export const file: FieldItemType[] = [
     label: i18n.t('meta.Sources.File.TimeOffset'),
     name: 'timeOffset',
     tooltip: i18n.t('meta.Sources.File.TimeOffsetHelp'),
+    props: values => ({
+      disabled: values?.status === 101,
+    }),
   },
 ];
