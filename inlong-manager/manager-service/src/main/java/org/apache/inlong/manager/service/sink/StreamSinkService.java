@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
@@ -105,6 +106,15 @@ public interface StreamSinkService {
     Boolean update(SinkRequest sinkRequest, String operator);
 
     /**
+     * Modify data sink information by unique key.
+     *
+     * @param sinkRequest Information that needs to be modified.
+     * @param operator Operator's name.
+     * @return Update result.
+     */
+    UpdateResult updateByUniqueKey(SinkRequest sinkRequest, String operator);
+
+    /**
      * Modify sink data status.
      *
      * @param id Sink id.
@@ -121,6 +131,15 @@ public interface StreamSinkService {
      * @return Whether succeed
      */
     Boolean delete(Integer id, String operator);
+
+    /**
+     * Delete the stream sink by given group id, stream id, and sink name.
+     * @param groupId The group id of sink
+     * @param streamId The stream id of sink
+     * @param name The name of sink
+     * @return Whether succeed
+     */
+    Boolean deleteByUniqueKey(String groupId, String streamId, String name, String operator);
 
     /**
      * Logically delete stream sink with the given conditions.
