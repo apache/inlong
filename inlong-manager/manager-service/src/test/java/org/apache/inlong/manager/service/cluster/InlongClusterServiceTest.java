@@ -24,6 +24,7 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.consts.ProtocolType;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
@@ -32,6 +33,7 @@ import org.apache.inlong.manager.pojo.cluster.dataproxy.DataProxyClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.heartbeat.HeartbeatManager;
@@ -107,10 +109,34 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     }
 
     /**
+     * Update cluster by unique key.
+     */
+    public UpdateResult updatePulsarClusterByUniqueKey(
+            String name,
+            String clusterTag,
+            String adminUrl,
+            Integer version) {
+        PulsarClusterRequest request = new PulsarClusterRequest();
+        request.setName(name);
+        request.setClusterTags(clusterTag);
+        request.setAdminUrl(adminUrl);
+        request.setInCharges(GLOBAL_OPERATOR);
+        request.setVersion(version);
+        return clusterService.updateByUniqueKey(request, GLOBAL_OPERATOR);
+    }
+
+    /**
      * Delete cluster info by id.
      */
     public Boolean deleteCluster(Integer id) {
         return clusterService.delete(id, GLOBAL_OPERATOR);
+    }
+
+    /**
+     * Delete cluster info by name and type.
+     */
+    public Boolean deleteClusterByUniqueKey(String name, String type) {
+        return clusterService.deleteByUniqueKey(name, type, GLOBAL_OPERATOR);
     }
 
     /**
@@ -154,7 +180,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(ip);
         heartbeatMsg.setPort(port);
-        heartbeatMsg.setProtocolType(ProtocolType.HTTP);
         heartbeatMsg.setComponentType(type);
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         heartbeatMsg.setClusterName(clusterName);
@@ -220,6 +245,64 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // delete cluster
         Boolean success = this.deleteCluster(id);
         Assertions.assertTrue(success);
+    }
+
+    @Test
+    public void testPulsarClusterByUnqieKey() {
+        // save cluster
+        String clusterName = "default_pulsar";
+        String clusterTag = "default_cluster";
+        String adminUrl = "http://127.0.0.1:8080";
+        Integer id = this.savePulsarCluster(clusterTag, clusterName, adminUrl);
+        Assertions.assertNotNull(id);
+
+        // list cluster
+        PageResult<ClusterInfo> listCluster = this.listCluster(ClusterType.PULSAR, clusterTag);
+        Assertions.assertTrue(listCluster.getList().size() > 0);
+        ClusterInfo clusterInfo = listCluster.getList().get(0);
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+        Assertions.assertEquals(adminUrl, pulsarCluster.getAdminUrl());
+
+        // update cluster by unique key
+        String clusterTagUpdate = "default_cluster_2";
+        String adminUrlUpdate = "http://127.0.0.1:8088";
+        UpdateResult updateResult = this.updatePulsarClusterByUniqueKey(clusterName, clusterTagUpdate, adminUrlUpdate,
+                pulsarCluster.getVersion());
+        Assertions.assertTrue(updateResult.getSuccess());
+        Assertions.assertEquals(pulsarCluster.getVersion() + 1, updateResult.getVersion());
+        ClusterInfo afterUpdate = clusterService.getOne(clusterTagUpdate, clusterName, ClusterType.PULSAR);
+        Assertions.assertNotNull(afterUpdate);
+        PulsarClusterInfo pulsarClusterAfterUpdate = (PulsarClusterInfo) afterUpdate;
+        Assertions.assertEquals(pulsarClusterAfterUpdate.getAdminUrl(), adminUrlUpdate);
+
+        // save cluster node
+        Integer parentId = id;
+        String ip = "127.0.0.1";
+        Integer port = 8080;
+        Integer nodeId = this.saveClusterNode(parentId, ClusterType.PULSAR, ip, port);
+        Assertions.assertNotNull(nodeId);
+
+        // list cluster node
+        PageResult<ClusterNodeResponse> listNode = this.listClusterNode(ClusterType.PULSAR, ip, id);
+        Assertions.assertEquals(listNode.getTotal(), 1);
+
+        // update cluster node
+        String ipUpdate = "localhost";
+        Integer portUpdate = 8083;
+        Integer version = listNode.getList().get(0).getVersion();
+        Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate, version);
+        Assertions.assertTrue(updateNodeSuccess);
+
+        // delete cluster node
+        Boolean deleteNodeSuccess = this.deleteClusterNode(nodeId);
+        Assertions.assertTrue(deleteNodeSuccess);
+
+        // delete cluster by unique key
+        Boolean success = this.deleteClusterByUniqueKey(clusterName, ClusterType.PULSAR);
+        Assertions.assertTrue(success);
+        Assertions.assertThrows(BusinessException.class,
+                () -> clusterService.getOne(clusterTagUpdate, clusterName, ClusterType.PULSAR));
+
     }
 
     @Test
