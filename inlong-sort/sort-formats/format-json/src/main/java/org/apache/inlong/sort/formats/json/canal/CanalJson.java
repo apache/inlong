@@ -29,14 +29,14 @@ public class CanalJson {
     private String table;
     private String type;
     private String database;
-    private String schema;
     private long ts;
     private String sql;
     private Map<String, String> mysqlType;
-    private Map<String, String> oracleType;
     private Map<String, Integer> sqlType;
     private boolean isDdl;
     private List<String> pkNames;
+    private String schema;
+    private Map<String, String> oracleType;
 
     public List<Map<String, Object>> getData() {
         return data;
@@ -102,14 +102,6 @@ public class CanalJson {
         this.mysqlType = mysqlType;
     }
 
-    public Map<String, String> getOracleType() {
-        return oracleType;
-    }
-
-    public void setOracleType(Map<String, String> oracleType) {
-        this.oracleType = oracleType;
-    }
-
     public void setDdl(boolean ddl) {
         isDdl = ddl;
     }
@@ -132,6 +124,14 @@ public class CanalJson {
 
     public boolean isDdl() {
         return isDdl;
+    }
+
+    public Map<String, String> getOracleType() {
+        return oracleType;
+    }
+
+    public void setOracleType(Map<String, String> oracleType) {
+        this.oracleType = oracleType;
     }
 
     public String getSchema() {
