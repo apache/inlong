@@ -29,6 +29,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
+import org.apache.inlong.sort.protocol.enums.ExtractMode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -53,12 +54,14 @@ public class AllMigrateTest {
         Map<String, String> option = new HashMap<>();
         option.put("append-mode", "true");
         option.put("migrate-all", "true");
+
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, option, null,
             Collections.singletonList("test"), "localhost", "root", "inlong",
-                "test", null, null, false, null);
+                "test", null, null, false, null,
+            ExtractMode.CDC, null,"");
     }
-    
+
     private MySqlExtractNode buildAllMigrateExtractNodeWithBytesFormat() {
         List<FieldInfo> fields = Collections.singletonList(
             new MetaFieldInfo("data", MetaField.DATA_BYTES));
@@ -68,9 +71,9 @@ public class AllMigrateTest {
         return new MySqlExtractNode("1", "mysql_input", fields,
             null, option, null,
             Collections.singletonList("test"), "localhost", "root", "inlong",
-            "test", null, null, false, null);
+            "test", null, null, false, "UTC-8", ExtractMode.CDC, null, "");
     }
-    
+
     private KafkaLoadNode buildAllMigrateKafkaNodeWithBytesFormat() {
         List<FieldInfo> fields = Collections.singletonList(
             new FieldInfo("data", new VarBinaryFormatInfo()));
@@ -84,7 +87,7 @@ public class AllMigrateTest {
                 csvFormat, null,
                 null, null);
     }
-    
+
     private KafkaLoadNode buildAllMigrateKafkaNode() {
         List<FieldInfo> fields = Collections.singletonList(
             new FieldInfo("data", new StringFormatInfo()));

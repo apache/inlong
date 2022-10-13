@@ -79,6 +79,8 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     private ExtractMode extractMode;
     @JsonProperty("url")
     private String url;
+    @JsonProperty("rowKindsFiltered")
+    private String rowKindsFiltered;
 
     /**
      * Constructor only used for {@link ExtractMode#CDC}
@@ -116,7 +118,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             @Nullable @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
             @Nullable @JsonProperty("serverTimeZone") String serverTimeZone) {
         this(id, name, fields, watermarkField, properties, primaryKey, tableNames, hostname, username, password,
-                database, port, serverId, incrementalSnapshotEnabled, serverTimeZone, ExtractMode.CDC, null);
+                database, port, serverId, incrementalSnapshotEnabled, serverTimeZone, ExtractMode.CDC, null, "");
     }
 
     /**
@@ -143,7 +145,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             @Nullable @JsonProperty("url") String url) {
         this(id, name, fields, null, properties, primaryKey, tableNames, null, username,
                 password, null, null, null, null, null,
-                ExtractMode.SCAN, url);
+                ExtractMode.SCAN, url, "");
     }
 
     /**
@@ -185,7 +187,8 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             @Nullable @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
             @Nullable @JsonProperty("serverTimeZone") String serverTimeZone,
             @Nonnull @JsonProperty("extractMode") ExtractMode extractMode,
-            @Nullable @JsonProperty("url") String url) {
+            @Nullable @JsonProperty("url") String url,
+            @Nullable @JsonProperty("rowKindsFiltered") String rowKindsFiltered) {
         super(id, name, fields, watermarkField, properties);
         this.tableNames = Preconditions.checkNotNull(tableNames, "tableNames is null");
         Preconditions.checkState(!tableNames.isEmpty(), "tableNames is empty");
@@ -206,6 +209,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
         this.incrementalSnapshotEnabled = incrementalSnapshotEnabled;
         this.serverTimeZone = serverTimeZone;
         this.extractMode = extractMode;
+        this.rowKindsFiltered = rowKindsFiltered;
     }
 
     @Override
@@ -243,6 +247,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             Preconditions.checkState(tableNames.size() == 1,
                     "Only support one table for scan extract mode");
         }
+        options.put("row-kinds-filtered", rowKindsFiltered);
         options.put("username", username);
         options.put("password", password);
         String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
