@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.service;
 
-import com.oracle.deploy.update.UpdateCheck;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
