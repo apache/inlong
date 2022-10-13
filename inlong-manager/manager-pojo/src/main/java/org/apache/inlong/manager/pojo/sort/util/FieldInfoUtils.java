@@ -240,7 +240,7 @@ public class FieldInfoUtils {
                 break;
             case BINARY:
             case FIXED:
-                formatInfo = new ArrayFormatInfo(new ByteFormatInfo());
+                formatInfo = new ArrayFormatInfo(ByteTypeInfo::new);
                 break;
             case ARRAY:
                 formatInfo = createArrayFormatInfo(format);

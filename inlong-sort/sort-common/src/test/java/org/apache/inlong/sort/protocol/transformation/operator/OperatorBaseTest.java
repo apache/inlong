@@ -18,7 +18,6 @@
 package org.apache.inlong.sort.protocol.transformation.operator;
 
 import com.google.common.base.Preconditions;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.protocol.transformation.Operator;
 import org.junit.Assert;
@@ -44,7 +43,7 @@ public abstract class OperatorBaseTest extends SerializeBaseTest<Operator> {
      * Test format
      */
     @Test
-    public void testFormat() throws JsonProcessingException {
+    public void testFormat() {
         Assert.assertEquals(expectFormat, getTestObject().format());
     }
 }

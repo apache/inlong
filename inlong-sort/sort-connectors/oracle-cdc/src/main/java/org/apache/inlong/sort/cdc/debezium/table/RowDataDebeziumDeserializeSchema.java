@@ -792,8 +792,8 @@ public final class RowDataDebeziumDeserializeSchema
                 || "WITH LOCAL TIME ZONE".equals(typeName) || "TIMESTAMP WITH TIME ZONE".equals(typeName)) {
             return new TimestampType(p);
         }
-        List<String> stringTypeList =
-                Arrays.asList("CHAR", "NCHAR", "NVARCHAR2", "NVCHAER", "VARCHAR", "VARCHAR2", "CLOB", "NCLOB", "XMLType");
+        List<String> stringTypeList = Arrays
+                .asList("CHAR", "NCHAR", "NVARCHAR2", "NVCHAER", "VARCHAR", "VARCHAR2", "CLOB", "NCLOB", "XMLType");
         if (stringTypeList.contains(typeName)) {
             return new VarCharType(Integer.MAX_VALUE);
         }

@@ -16,8 +16,6 @@
 
 package org.apache.inlong.sort.cdc.oracle.table;
 
-import com.tencent.cloud.wedata.common.util.GsonUtil;
-import com.ververica.cdc.connectors.oracle.table.OracleTableSource;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
@@ -28,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
@@ -44,7 +41,6 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
 /** Defines the supported metadata columns for {@link OracleTableSource}. */
-@Slf4j
 public enum OracleReadableMetaData {
 
     /** Name of the table that contain the row. */

@@ -154,7 +154,6 @@ public class RecordUtils {
                 .collect(Collectors.toList());
     }
 
-
     /**
      * Return the timestamp when the change event is produced in MySQL.
      *

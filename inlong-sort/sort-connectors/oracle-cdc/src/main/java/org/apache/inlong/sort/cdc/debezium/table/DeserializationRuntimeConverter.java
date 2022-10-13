@@ -28,5 +28,6 @@ import org.apache.kafka.connect.data.Schema;
  */
 public interface DeserializationRuntimeConverter extends Serializable {
     Object convert(Object dbzObj, Schema schema) throws Exception;
+
     Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception;
 }
