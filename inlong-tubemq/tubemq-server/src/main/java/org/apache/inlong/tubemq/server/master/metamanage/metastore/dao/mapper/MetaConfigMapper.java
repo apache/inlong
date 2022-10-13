@@ -238,6 +238,16 @@ public interface MetaConfigMapper extends KeepAliveService {
     Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
                                                   TopicCtrlEntity qryEntity);
 
+    /**
+     * get topic max message size configure info from store
+     *
+     * @param defMaxMsgSizeInB  the default max message size in B
+     * @param topicNameSet  need matched topic name set
+     * @return result, only read
+     */
+    Map<String, Integer> getMaxMsgSizeInBByTopics(int defMaxMsgSizeInB,
+                                                  Set<String> topicNameSet);
+
     // ////////////////////////////////////////////////////////////
 
     /**
@@ -355,6 +365,14 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return  the topic - (broker id, broker ip)  map
      */
     Map<String, Map<Integer, String>> getTopicBrokerInfo(Set<String> topicNameSet);
+
+    /**
+     * Get deployed broker id for the special topic name set
+     *
+     * @param topicNameSet   the topic name set need to query
+     * @return  the broker id set
+     */
+    Set<Integer> getDeployedBrokerIdByTopic(Set<String> topicNameSet);
 
     /**
      * Get deployed topic set

@@ -924,17 +924,17 @@ Dialog.prototype.confirmBroker2Topic = function (type, topicName, formData) {
                         + ':' + full.brokerPort;
                 }
             }, {
-                "data": "runInfo.totalTopicStoreNum"
+                "data": "storeTotalCfgCnt"
             }, {
-                "data": "runInfo.brokerManageStatus"
+                "data": "manageStatus"
             }, {
-                "data": "runInfo.acceptPublish",
+                "data": "acceptPublish",
                 "orderable": false,
                 "render": function (data, type, full, meta) {
                     return translation2Boolean[data];
                 }
             }, {
-                "data": "runInfo.acceptSubscribe",
+                "data": "acceptSubscribe",
                 "orderable": false,
                 "render": function (data, type, full, meta) {
                     return translation2Boolean[data];

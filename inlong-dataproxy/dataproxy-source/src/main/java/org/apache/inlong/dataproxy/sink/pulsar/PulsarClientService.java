@@ -19,6 +19,7 @@ package org.apache.inlong.dataproxy.sink.pulsar;
 
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -139,9 +140,9 @@ public class PulsarClientService {
         boolean result;
         final String pkgVersion =
                 event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER);
-        final String inlongStreamId =
-                event.getHeaders().get(AttributeConstants.GROUP_ID);
         final String inlongGroupId =
+                event.getHeaders().get(AttributeConstants.GROUP_ID);
+        final String inlongStreamId =
                 event.getHeaders().get(AttributeConstants.STREAM_ID);
         try {
             producerInfo = getProducerInfo(poolIndex, topic, inlongGroupId, inlongStreamId);
@@ -322,6 +323,20 @@ public class PulsarClientService {
         return initTopicProducer(topic, null, null);
     }
 
+    public boolean destroyProducerByTopic(String topic) {
+        List<TopicProducerInfo> producerInfoList = producerInfoMap.remove(topic);
+        if (producerInfoList == null || producerInfoList.isEmpty()) {
+            return true;
+        }
+        for (TopicProducerInfo producerInfo : producerInfoList) {
+            if (producerInfo != null) {
+                producerInfo.close();
+                logger.info("destroy producer for topic={}", topic);
+            }
+        }
+        return true;
+    }
+
     private TopicProducerInfo getProducerInfo(int poolIndex, String topic, String inlongGroupId,
             String inlongStreamId) {
         List<TopicProducerInfo> producerList = initTopicProducer(topic, inlongGroupId, inlongStreamId);
@@ -363,10 +378,15 @@ public class PulsarClientService {
 
     private void removeProducers(PulsarClient pulsarClient) {
         for (List<TopicProducerInfo> producers : producerInfoMap.values()) {
-            for (TopicProducerInfo topicProducer : producers) {
-                if (topicProducer.getPulsarClient().equals(pulsarClient)) {
-                    topicProducer.close();
-                    producers.remove(topicProducer);
+            if (producers == null || producers.isEmpty()) {
+                continue;
+            }
+            Iterator<TopicProducerInfo> it = producers.iterator();
+            while (it.hasNext()) {
+                TopicProducerInfo entry = it.next();
+                if (entry.getPulsarClient().equals(pulsarClient)) {
+                    entry.close();
+                    it.remove();
                 }
             }
         }
@@ -412,10 +432,17 @@ public class PulsarClientService {
                             topic);
                     info.initProducer();
                     if (info.isCanUseToSendMessage()) {
-                        producerInfoMap.computeIfAbsent(topic, k -> new ArrayList<>()).add(info);
+                        List<TopicProducerInfo> producerInfos = producerInfoMap.get(topic);
+                        if (producerInfos == null) {
+                            List<TopicProducerInfo> tmpProdInfos = new ArrayList<>();
+                            producerInfos = producerInfoMap.putIfAbsent(topic, tmpProdInfos);
+                            if (producerInfos == null) {
+                                producerInfos = tmpProdInfos;
+                            }
+                        }
+                        producerInfos.add(info);
                     }
                 }
-
             } catch (PulsarClientException e) {
                 callBack.handleCreateClientException(url);
                 logger.error("create connection error in pulsar sink, "

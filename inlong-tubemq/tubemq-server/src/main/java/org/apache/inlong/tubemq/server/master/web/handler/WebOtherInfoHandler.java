@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
+import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerStatsType;
 import org.apache.inlong.tubemq.server.common.TubeServerVersion;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
@@ -271,6 +272,17 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                         .append(",\"reqSourceCount\":").append(reqSourceCount)
                         .append(",\"curSourceCount\":").append(curSourceCount)
                         .append(",\"rebalanceCheckTime\":").append(rebalanceCheckTime);
+            } else if (consumeType == ConsumeType.CONSUME_CLIENT_REB) {
+                Tuple2<Long, List<String>> metaInfoTuple = consumeGroupInfo.getTopicMetaInfo();
+                sBuffer.append(",\"topicMetaId\":").append(metaInfoTuple.getF0())
+                        .append(",\"metaDetails\":[");
+                for (String itemInfo : metaInfoTuple.getF1()) {
+                    if (itemCnt++ > 0) {
+                        sBuffer.append(",");
+                    }
+                    sBuffer.append("\"").append(itemInfo).append("\"");
+                }
+                sBuffer.append("]");
             }
             sBuffer.append(",\"rebInfo\":{");
             if (balanceStatus == -2) {
@@ -515,6 +527,9 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                         }
                         strBuffer.append("]");
                     }
+                } else if (consumeType == ConsumeType.CONSUME_CLIENT_REB) {
+                    strBuffer.append(",\"sourceCount\":").append(consumer.getSourceCount())
+                            .append(",\"nodeId\":").append(consumer.getNodeId());
                 }
                 Map<String, Map<String, Partition>> topicSubMap =
                         currentSubInfoMap.get(consumer.getConsumerId());

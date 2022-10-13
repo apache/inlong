@@ -49,7 +49,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
     private ClickHouseConfig chConfig;
     // ClickHouseService
     private ClickHouseService ckService;
-    
+
     /**
      * Initializing bean
      */
@@ -69,7 +69,6 @@ public class AuditMsgConsumerServer implements InitializingBean {
             esService.startTimerRoutine();
         }
         if (storeConfig.isClickHouseStore()) {
-            ckService = new ClickHouseService(chConfig);
             ckService.start();
         }
         mqConsume.start();
@@ -88,6 +87,8 @@ public class AuditMsgConsumerServer implements InitializingBean {
             insertServiceList.add(esService);
         }
         if (storeConfig.isClickHouseStore()) {
+            // create ck object
+            ckService = new ClickHouseService(chConfig);
             insertServiceList.add(ckService);
         }
         return insertServiceList;

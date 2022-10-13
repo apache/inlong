@@ -17,20 +17,11 @@
 
 package org.apache.inlong.manager.client.cli;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.manager.common.util.JsonUtils;
-
 /**
  * The runner of command.
  * of command for creat connect by config file.
  */
 public abstract class AbstractCommandRunner {
-
-    protected final ObjectMapper objectMapper = new ObjectMapper();
-
-    AbstractCommandRunner() {
-        JsonUtils.initJsonTypeDefine(objectMapper);
-    }
 
     /**
      * Execute the specified command.

@@ -115,5 +115,12 @@ spec:
           ports:
             - name: {{ .Values.manager.component }}-port
               containerPort: 8083
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.manager.component }}-port
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 10
+            timeoutSeconds: 5
       restartPolicy: Always
 {{- end }}

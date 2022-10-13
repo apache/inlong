@@ -50,10 +50,12 @@ public class DataProxyController {
     @Autowired
     private DataProxyConfigRepository dataProxyConfigRepository;
 
+    // TODO protocol type must be provided by the DataProxy
     @PostMapping(value = "/dataproxy/getIpList/{inlongGroupId}")
     @ApiOperation(value = "Get data proxy IP list by InlongGroupId")
-    public Response<DataProxyNodeResponse> getIpList(@PathVariable String inlongGroupId) {
-        return Response.success(clusterService.getDataProxyNodes(inlongGroupId));
+    public Response<DataProxyNodeResponse> getIpList(@PathVariable String inlongGroupId,
+            @RequestParam(required = false) String protocolType) {
+        return Response.success(clusterService.getDataProxyNodes(inlongGroupId, protocolType));
     }
 
     @PostMapping("/dataproxy/getConfig")

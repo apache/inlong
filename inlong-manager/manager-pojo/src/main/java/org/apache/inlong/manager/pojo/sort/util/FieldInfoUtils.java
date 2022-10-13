@@ -23,16 +23,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
+import org.apache.inlong.manager.pojo.fieldformat.BinaryFormat;
 import org.apache.inlong.manager.pojo.fieldformat.DecimalFormat;
 import org.apache.inlong.manager.pojo.fieldformat.MapFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat.Element;
+import org.apache.inlong.manager.pojo.fieldformat.VarBinaryFormat;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
+import org.apache.inlong.sort.formats.common.BinaryFormatInfo;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.ByteFormatInfo;
-import org.apache.inlong.sort.formats.common.ByteTypeInfo;
 import org.apache.inlong.sort.formats.common.DateFormatInfo;
 import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
 import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
@@ -47,6 +49,7 @@ import org.apache.inlong.sort.formats.common.ShortFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
+import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 
@@ -240,7 +243,20 @@ public class FieldInfoUtils {
                 break;
             case BINARY:
             case FIXED:
-                formatInfo = new ArrayFormatInfo(ByteTypeInfo::new);
+                if (StringUtils.isNotBlank(format)) {
+                    BinaryFormat binaryFormat = FieldFormatUtils.parseBinaryFormat(format);
+                    formatInfo = new BinaryFormatInfo(binaryFormat.getLength());
+                } else {
+                    formatInfo = new BinaryFormatInfo();
+                }
+                break;
+            case VARBINARY:
+                if (StringUtils.isNotBlank(format)) {
+                    VarBinaryFormat varBinaryFormat = FieldFormatUtils.parseVarBinaryFormat(format);
+                    formatInfo = new VarBinaryFormatInfo(varBinaryFormat.getLength());
+                } else {
+                    formatInfo = new VarBinaryFormatInfo();
+                }
                 break;
             case ARRAY:
                 formatInfo = createArrayFormatInfo(format);

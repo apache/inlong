@@ -19,7 +19,6 @@ package org.apache.inlong.manager.plugin.flink;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,7 +58,6 @@ import static org.apache.flink.api.common.JobStatus.RUNNING;
 @Slf4j
 public class FlinkOperation {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String CONFIG_FILE = "application.properties";
     private static final String CONNECTOR_DIR_KEY = "sort.connector.dir";
     private static final String JOB_TERMINATED_MSG = "the job not found by id %s, "
@@ -185,18 +183,20 @@ public class FlinkOperation {
                 .get(0).get(InlongConstants.RELATIONS);
         List<Pair<List<String>, List<String>>> nodeIdsPairList = new ArrayList<>();
         for (int i = 0; i < relations.size(); i++) {
-            List<String> inputIds = OBJECT_MAPPER.convertValue(relations.get(i).get(InlongConstants.INPUTS),
-                    new TypeReference<List<String>>() {
-                    }).stream().collect(Collectors.toList());
+            List<String> inputIds = new ArrayList<>(
+                    JsonUtils.OBJECT_MAPPER.convertValue(relations.get(i).get(InlongConstants.INPUTS),
+                            new TypeReference<List<String>>() {
+                            }));
             if (CollectionUtils.isEmpty(inputIds)) {
                 String message = String.format("input nodeId %s cannot be empty", inputIds);
                 log.error(message);
                 throw new Exception(message);
             }
 
-            List<String> outputIds = OBJECT_MAPPER.convertValue(relations.get(i).get(InlongConstants.OUTPUTS),
-                    new TypeReference<List<String>>() {
-                    }).stream().collect(Collectors.toList());
+            List<String> outputIds = new ArrayList<>(
+                    JsonUtils.OBJECT_MAPPER.convertValue(relations.get(i).get(InlongConstants.OUTPUTS),
+                            new TypeReference<List<String>>() {
+                            }));
             if (CollectionUtils.isEmpty(outputIds)) {
                 String message = String.format("output nodeId %s cannot be empty", outputIds);
                 log.error(message);
@@ -257,7 +257,7 @@ public class FlinkOperation {
             checkNodeIds(dataflow);
             JsonNode nodes = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS)
                     .get(0).get(InlongConstants.NODES);
-            List<String> types = OBJECT_MAPPER.convertValue(nodes,
+            List<String> types = JsonUtils.OBJECT_MAPPER.convertValue(nodes,
                     new TypeReference<List<Map<String, Object>>>() {
                     }).stream().map(s -> s.get(InlongConstants.NODE_TYPE).toString()).collect(Collectors.toList());
             nodeTypes.addAll(types);

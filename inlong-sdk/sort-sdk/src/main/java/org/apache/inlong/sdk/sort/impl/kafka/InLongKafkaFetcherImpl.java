@@ -77,7 +77,7 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
                 this.seeker = SeekerFactory.createKafkaSeeker(consumer, inLongTopic);
                 consumer.subscribe(Collections.singletonList(inLongTopic.getTopic()),
                         new AckOffsetOnRebalance(this.inLongTopic.getInLongCluster().getClusterId(), seeker,
-                                commitOffsetMap));
+                                commitOffsetMap, consumer));
             } else {
                 logger.info("consumer is null");
                 return false;

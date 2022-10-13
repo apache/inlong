@@ -199,12 +199,13 @@ public interface InlongClusterService {
     Boolean deleteNode(Integer id, String operator);
 
     /**
-     * Query data proxy nodes by the given inlong group id.
+     * Query data proxy nodes by the given inlong group id and protocol type
      *
      * @param inlongGroupId inlong group id
+     * @param protocolType protocol type
      * @return data proxy node response
      */
-    DataProxyNodeResponse getDataProxyNodes(String inlongGroupId);
+    DataProxyNodeResponse getDataProxyNodes(String inlongGroupId, String protocolType);
 
     /**
      * Get the configuration of DataProxy through the cluster name to which DataProxy belongs.

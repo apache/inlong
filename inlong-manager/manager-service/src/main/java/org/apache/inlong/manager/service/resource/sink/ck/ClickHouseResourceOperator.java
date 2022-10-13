@@ -18,16 +18,21 @@
 package org.apache.inlong.manager.service.resource.sink.ck;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.node.ck.ClickHouseDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseColumnInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSinkDTO;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
+import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -51,6 +56,8 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
     private StreamSinkService sinkService;
     @Autowired
     private StreamSinkFieldEntityMapper clickHouseFieldMapper;
+    @Autowired
+    private DataNodeOperateHelper dataNodeHelper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -75,6 +82,22 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
         this.createTable(sinkInfo);
     }
 
+    private ClickHouseSinkDTO getClickHouseInfo(SinkInfo sinkInfo) {
+        ClickHouseSinkDTO ckInfo = ClickHouseSinkDTO.getFromJson(sinkInfo.getExtParams());
+
+        // read from data node if not supplied by user
+        if (StringUtils.isBlank(ckInfo.getJdbcUrl())) {
+            String dataNodeName = sinkInfo.getDataNodeName();
+            Preconditions.checkNotEmpty(dataNodeName, "clickhouse jdbc url not specified and data node is empty");
+            ClickHouseDataNodeInfo dataNodeInfo = (ClickHouseDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    dataNodeName, sinkInfo.getSinkType());
+            CommonBeanUtils.copyProperties(dataNodeInfo, ckInfo);
+            ckInfo.setJdbcUrl(dataNodeInfo.getUrl());
+            ckInfo.setPassword(dataNodeInfo.getToken());
+        }
+        return ckInfo;
+    }
+
     private void createTable(SinkInfo sinkInfo) {
         LOGGER.info("begin to create clickhouse table for sinkId={}", sinkInfo.getId());
 
@@ -94,7 +117,7 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
         }
 
         try {
-            ClickHouseSinkDTO ckInfo = ClickHouseSinkDTO.getFromJson(sinkInfo.getExtParams());
+            ClickHouseSinkDTO ckInfo = getClickHouseInfo(sinkInfo);
             ClickHouseTableInfo tableInfo = ClickHouseSinkDTO.getClickHouseTableInfo(ckInfo, columnList);
             String url = ckInfo.getJdbcUrl();
             String user = ckInfo.getUsername();

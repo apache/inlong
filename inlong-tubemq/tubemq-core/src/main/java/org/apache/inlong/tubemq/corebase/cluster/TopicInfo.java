@@ -49,6 +49,10 @@ public class TopicInfo implements Serializable {
         return broker;
     }
 
+    public int getBrokerId() {
+        return broker.getBrokerId();
+    }
+
     public String getTopic() {
         return topic;
     }
@@ -74,7 +78,8 @@ public class TopicInfo implements Serializable {
     }
 
     // return result <isChanged, isScaleOut>
-    public Tuple2<Boolean, Boolean> updAndJudgeTopicInfo(TopicInfo newTopicInfo) {
+    public void updAndJudgeTopicInfo(TopicInfo newTopicInfo,
+                                     Tuple2<Boolean, Boolean> result) {
         boolean isChanged = false;
         if (this.acceptPublish != newTopicInfo.acceptPublish) {
             isChanged = true;
@@ -84,7 +89,7 @@ public class TopicInfo implements Serializable {
             isChanged = true;
             this.acceptSubscribe = newTopicInfo.acceptSubscribe;
         }
-        return new Tuple2<>(isChanged, (this.partitionNum != newTopicInfo.partitionNum
+        result.setF0AndF1(isChanged, (this.partitionNum != newTopicInfo.partitionNum
                 || this.topicStoreNum != newTopicInfo.topicStoreNum));
     }
 
@@ -96,12 +101,23 @@ public class TopicInfo implements Serializable {
         return this.simpleValue;
     }
 
-    public StringBuilder toStrBuilderString(final StringBuilder sBuilder) {
+    public StringBuilder toStrBuilderString(StringBuilder sBuilder) {
         return sBuilder.append(broker.toString()).append(TokenConstants.SEGMENT_SEP)
                 .append(this.topic).append(TokenConstants.ATTR_SEP)
                 .append(this.partitionNum).append(TokenConstants.ATTR_SEP)
                 .append(this.acceptPublish).append(TokenConstants.ATTR_SEP)
                 .append(this.acceptSubscribe).append(TokenConstants.ATTR_SEP)
+                .append(this.topicStoreNum);
+    }
+
+    public StringBuilder toStrBuilderString(boolean acceptPub,
+                                            boolean acceptSub,
+                                            StringBuilder sBuilder) {
+        return sBuilder.append(broker.toString()).append(TokenConstants.SEGMENT_SEP)
+                .append(this.topic).append(TokenConstants.ATTR_SEP)
+                .append(this.partitionNum).append(TokenConstants.ATTR_SEP)
+                .append((acceptPub && this.acceptPublish)).append(TokenConstants.ATTR_SEP)
+                .append((acceptSub && this.acceptSubscribe)).append(TokenConstants.ATTR_SEP)
                 .append(this.topicStoreNum);
     }
 

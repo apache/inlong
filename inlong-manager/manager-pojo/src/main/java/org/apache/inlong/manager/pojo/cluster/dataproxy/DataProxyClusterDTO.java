@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.cluster.dataproxy;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -27,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -39,8 +38,6 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @ApiModel("DataProxy cluster info")
 public class DataProxyClusterDTO {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
     @ApiModelProperty("Is the DataProxy cluster an intranet? 0: no, 1: yes")
     private Integer isIntranet = 1;
@@ -67,8 +64,7 @@ public class DataProxyClusterDTO {
      */
     public static DataProxyClusterDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, DataProxyClusterDTO.class);
+            return JsonUtils.parseObject(extParams, DataProxyClusterDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

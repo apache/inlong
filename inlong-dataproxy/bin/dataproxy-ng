@@ -235,7 +235,7 @@ else
 fi
 
 # Garbage collection options
-DATA_PROXY_GC=${DATA_PROXY_GC:-"-XX:+UseG1GC -XX:MaxGCPauseMillis=10 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=32 -XX:ConcGCThreads=32 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC"}
+DATA_PROXY_GC=${DATA_PROXY_GC:-"-XX:+UseG1GC -XX:MaxGCPauseMillis=10 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=32 -XX:ConcGCThreads=32 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow"}
 
 # Garbage collection log.
 IS_JAVA_8=`java -version 2>&1 |grep version|grep '"1\.8'`

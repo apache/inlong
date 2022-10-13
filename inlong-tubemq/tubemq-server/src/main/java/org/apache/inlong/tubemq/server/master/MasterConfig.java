@@ -62,7 +62,7 @@ public class MasterConfig extends AbstractFileConfig {
     private long stepChgWaitPeriodMs = 12 * 1000;
     private String confModAuthToken = "ASDFGHJKL";
     private String webResourcePath = "../resources";
-    private int maxGroupBrokerConsumeRate = 50;
+    private int maxGroupBrokerConsumeRate = 1000;
     private int maxGroupRebalanceWaitPeriod = 2;
     private int maxAutoForbiddenCnt = 5;
     private long socketSendBuffer = -1;

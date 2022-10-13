@@ -27,7 +27,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
-import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
@@ -68,6 +68,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         // register modify method
         registerModifyWebMethod("admin_transfer_current_master",
                 "transferCurrentMaster");
+        // register modify method
         registerModifyWebMethod("admin_set_cluster_default_setting",
                 "adminSetClusterDefSetting");
         registerModifyWebMethod("admin_update_cluster_default_setting",
@@ -274,9 +275,11 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         int totalRunTopicStoreCount = 0;
         boolean isSrvAcceptPublish = false;
         boolean isSrvAcceptSubscribe = false;
-        boolean isAcceptPublish = false;
-        boolean isAcceptSubscribe = false;
         boolean enableAuthControl = false;
+        TopicPropGroup topicProps;
+        TopicCtrlEntity authEntity;
+        BrokerConfEntity brokerConfEntity;
+        Tuple3<Boolean, Boolean, TopicInfo> topicInfoTuple = new Tuple3<>();
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (Map.Entry<String, List<TopicDeployEntity>> entry : topicConfMap.entrySet()) {
             if (totalCount++ > 0) {
@@ -290,40 +293,32 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             isSrvAcceptPublish = false;
             isSrvAcceptSubscribe = false;
             enableAuthControl = false;
-            isAcceptPublish = false;
-            isAcceptSubscribe = false;
             for (TopicDeployEntity entity : entry.getValue()) {
-                BrokerConfEntity brokerConfEntity =
+                brokerConfEntity =
                         defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
                 if (brokerConfEntity == null) {
                     continue;
                 }
                 brokerCount++;
-                Tuple2<Boolean, Boolean> pubSubStatus =
-                        WebParameterUtils.getPubSubStatusByManageStatus(
-                                brokerConfEntity.getManageStatus().getCode());
-                isAcceptPublish = pubSubStatus.getF0();
-                isAcceptSubscribe = pubSubStatus.getF1();
-                TopicPropGroup topicProps = entity.getTopicProps();
+                topicProps = entity.getTopicProps();
                 totalCfgTopicStoreCount += topicProps.getNumTopicStores();
                 totalCfgNumPartCount +=
                         topicProps.getNumPartitions() * topicProps.getNumTopicStores();
-                TopicInfo topicInfo =
-                        brokerRunManager.getPubBrokerTopicInfo(entity.getBrokerId(), entity.getTopicName());
-                if (topicInfo != null) {
-                    if (isAcceptPublish && topicInfo.isAcceptPublish()) {
+                brokerRunManager.getPubBrokerTopicInfo(
+                        entity.getBrokerId(), entity.getTopicName(), topicInfoTuple);
+                if (topicInfoTuple.getF2() != null) {
+                    if (topicInfoTuple.getF0() && topicInfoTuple.getF2().isAcceptPublish()) {
                         isSrvAcceptPublish = true;
                     }
-                    if (isAcceptSubscribe && topicInfo.isAcceptSubscribe()) {
+                    if (topicInfoTuple.getF1() && topicInfoTuple.getF2().isAcceptSubscribe()) {
                         isSrvAcceptSubscribe = true;
                     }
-                    totalRunTopicStoreCount += topicInfo.getTopicStoreNum();
+                    totalRunTopicStoreCount += topicInfoTuple.getF2().getTopicStoreNum();
                     totalRunNumPartCount +=
-                            topicInfo.getPartitionNum() * topicInfo.getTopicStoreNum();
+                            topicInfoTuple.getF2().getPartitionNum() * topicInfoTuple.getF2().getTopicStoreNum();
                 }
             }
-            TopicCtrlEntity authEntity =
-                    defMetaDataService.getTopicCtrlByTopicName(entry.getKey());
+            authEntity = defMetaDataService.getTopicCtrlByTopicName(entry.getKey());
             if (authEntity != null) {
                 enableAuthControl = authEntity.isAuthCtrlEnable();
             }

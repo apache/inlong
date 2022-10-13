@@ -51,6 +51,13 @@ public interface Format extends Serializable {
     String getFormat();
 
     /**
+     * Return the identifier of this format
+     *
+     * @return The identifier of this format such as [json/avro/debezium-json/canal-json]
+     */
+    String identifier();
+
+    /**
      * generate options for connector
      *
      * @param includePrefix true will need append key and value when format is json avro csv

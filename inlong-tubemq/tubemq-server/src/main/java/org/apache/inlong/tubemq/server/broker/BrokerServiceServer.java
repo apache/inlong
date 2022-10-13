@@ -940,8 +940,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             int reqQryPriorityId = request.hasQryPriorityId()
                     ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
             consumerNodeInfo =
-                    new ConsumerNodeInfo(storeManager, reqQryPriorityId, clientId,
-                            filterCondSet, reqSessionKey, reqSessionTime,
+                    new ConsumerNodeInfo(storeManager, reqQryPriorityId, groupName,
+                            clientId, filterCondSet, reqSessionKey, reqSessionTime,
                             true, partStr, msgRcvFrom);
             if (consumerRegisterMap.put(partStr, consumerNodeInfo) == null) {
                 BrokerSrvStatsHolder.incConsumeOnlineCnt();

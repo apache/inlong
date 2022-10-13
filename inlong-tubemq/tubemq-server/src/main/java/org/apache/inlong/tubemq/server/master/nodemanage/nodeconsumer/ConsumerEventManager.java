@@ -119,9 +119,8 @@ public class ConsumerEventManager {
      * disconnect event have priority over connect event
      *
      * @param consumerId    the consumer id that need removed
-     * @return              the first consumer removed from the event map
      */
-    public ConsumerEvent removeFirst(String consumerId) {
+    public void removeFirst(String consumerId, StringBuilder strBuffer) {
         ConsumerEvent event = null;
         String group = consumerHolder.getGroupName(consumerId);
         boolean selDisConnMap = hasDisconnectEvent(group);
@@ -144,12 +143,11 @@ public class ConsumerEventManager {
             }
         }
         if (event != null) {
-            logger.info(new StringBuilder(512)
-                    .append("[Event Removed] rebalanceId=")
+            logger.info(strBuffer.append("[Event Removed] rebalanceId=")
                     .append(event.getRebalanceId()).append(",clientId=")
                     .append(consumerId).toString());
+            strBuffer.delete(0, strBuffer.length());
         }
-        return event;
     }
 
     public int getUnfinishedCount(String groupName) {

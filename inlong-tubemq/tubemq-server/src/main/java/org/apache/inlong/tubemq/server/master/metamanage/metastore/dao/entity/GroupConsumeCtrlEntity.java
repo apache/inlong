@@ -217,6 +217,21 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     /**
+     * fill empty fields with default value
+     *
+     * @return  object
+     */
+    public GroupConsumeCtrlEntity fillEmptyValues() {
+        if (this.filterEnable == EnableStatus.STATUS_UNDEFINE) {
+            this.filterEnable = EnableStatus.STATUS_DISABLE;
+        }
+        if (this.consumeEnable == EnableStatus.STATUS_UNDEFINE) {
+            this.consumeEnable = EnableStatus.STATUS_ENABLE;
+        }
+        return this;
+    }
+
+    /**
      * Check whether the specified query item value matches
      * Allowed query items:
      *   topicName, groupName, filterConsumeStatus

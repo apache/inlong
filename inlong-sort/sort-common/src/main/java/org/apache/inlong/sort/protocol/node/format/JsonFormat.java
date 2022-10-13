@@ -41,6 +41,8 @@ public class JsonFormat implements Format {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String IDENTIFIER = "json";
+
     @JsonProperty(value = "failOnMissingField", defaultValue = "false")
     private Boolean failOnMissingField;
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")
@@ -83,7 +85,12 @@ public class JsonFormat implements Format {
     @JsonIgnore
     @Override
     public String getFormat() {
-        return "json";
+        return IDENTIFIER;
+    }
+
+    @Override
+    public String identifier() {
+        return IDENTIFIER;
     }
 
     /**
@@ -91,6 +98,7 @@ public class JsonFormat implements Format {
      *
      * @return options
      */
+    @Override
     public Map<String, String> generateOptions() {
         Map<String, String> options = new HashMap<>(16);
         options.put("format", getFormat());

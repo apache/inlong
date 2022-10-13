@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.common.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -724,6 +725,12 @@ public class WebParameterUtils {
             paramValue = req.getParameter(fieldDef.name);
             if (paramValue == null) {
                 paramValue = req.getParameter(fieldDef.shortName);
+            }
+        } else if (paramCntr instanceof JsonObject) {
+            JsonObject jsonObject = (JsonObject) paramCntr;
+            paramValue = jsonObject.get(fieldDef.name).getAsString();
+            if (paramValue == null) {
+                paramValue = jsonObject.get(fieldDef.shortName).getAsString();
             }
         } else {
             throw new IllegalArgumentException("Unknown parameter type!");
@@ -1560,6 +1567,22 @@ public class WebParameterUtils {
             strManageStatus = "only-write";
         }
         return strManageStatus;
+    }
+
+    public static int getBrokerManageStatusId(String strManageStatus) {
+        int manageStatus = TStatusConstants.STATUS_MANAGE_NOT_DEFINED;
+        if (strManageStatus.equals("draft")) {
+            manageStatus = TStatusConstants.STATUS_MANAGE_APPLY;
+        } else if (strManageStatus.equals("online")) {
+            manageStatus = TStatusConstants.STATUS_MANAGE_ONLINE;
+        } else if (strManageStatus.equals("offline")) {
+            manageStatus = TStatusConstants.STATUS_MANAGE_OFFLINE;
+        } else if (strManageStatus.equals("only-read")) {
+            manageStatus = TStatusConstants.STATUS_MANAGE_ONLINE_NOT_WRITE;
+        } else if (strManageStatus.equals("only-write")) {
+            manageStatus = TStatusConstants.STATUS_MANAGE_ONLINE_NOT_READ;
+        }
+        return manageStatus;
     }
 
     /**

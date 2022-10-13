@@ -162,10 +162,16 @@ public class BrokerRunStatusInfo {
                                      boolean isTackData, String repBrokerConfInfo,
                                      List<String> repTopicConfs,
                                      StringBuilder sBuffer) {
+        this.isOnline = isOnline;
         boolean isSynchronized =
                 brokerSyncData.bookBrokerReportInfo(brokerInfo, repConfigId,
                         repCheckSumId, isTackData, repBrokerConfInfo, repTopicConfs);
-        this.isOnline = isOnline;
+        if (isRegister && isOnline && isTackData) {
+            Tuple2<ManageStatus, Map<String, TopicInfo>> syncData =
+                    brokerSyncData.getBrokerPublishInfo();
+            brokerRunManager.iniBrokerConfInfo(brokerInfo.getBrokerId(),
+                    syncData.getF0(), syncData.getF1());
+        }
         goNextStatus(isRegister, isSynchronized, sBuffer);
     }
 
@@ -352,7 +358,7 @@ public class BrokerRunStatusInfo {
 
     private boolean execSyncDataToSub() {
         if (isDoneDataSub) {
-            return true;
+            return (System.currentTimeMillis() > nextStepOpTimeInMills);
         }
         Tuple2<ManageStatus, Map<String, TopicInfo>> syncData =
                 brokerSyncData.getBrokerPublishInfo();
@@ -403,5 +409,4 @@ public class BrokerRunStatusInfo {
         return System.currentTimeMillis() - this.lastBrokerSyncTime
                 > TServerConstants.CFG_REPORT_DEFAULT_SYNC_DURATION;
     }
-
 }

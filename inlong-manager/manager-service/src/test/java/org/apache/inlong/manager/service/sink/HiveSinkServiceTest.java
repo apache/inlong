@@ -38,6 +38,7 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
     private final String globalStreamId = "stream1";
     private final String globalOperator = "admin";
     private final String sinkName = "default";
+    private final String jdbcUrl = "127.0.0.1:8080";
 
     @Autowired
     private StreamSinkService sinkService;
@@ -56,6 +57,7 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setSinkType(SinkType.HIVE);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         sinkInfo.setSinkName(sinkName);
+        sinkInfo.setJdbcUrl(jdbcUrl);
         return sinkService.save(sinkInfo, globalOperator);
     }
 

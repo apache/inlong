@@ -53,7 +53,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
@@ -103,6 +102,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      * The Kafka topic to write to.
      */
     protected final String topic;
+    protected final String topicPattern;
     /**
      * Properties for the Kafka producer.
      */
@@ -144,6 +144,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      * audit host and ports
      */
     private final String auditHostAndPorts;
+    private @Nullable final String sinkMultipleFormat;
     /**
      * Metadata that is appended at the end of a physical sink row.
      */
@@ -173,7 +174,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             SinkBufferFlushMode flushMode,
             @Nullable Integer parallelism,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            @Nullable String sinkMultipleFormat,
+            @Nullable String topicPattern) {
         // Format attributes
         this.consumedDataType =
                 checkNotNull(consumedDataType, "Consumed data type must not be null.");
@@ -202,6 +205,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
         this.parallelism = parallelism;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.sinkMultipleFormat = sinkMultipleFormat;
+        this.topicPattern = topicPattern;
     }
 
     @Override
@@ -224,7 +229,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 createSerialization(context, valueEncodingFormat, valueProjection, null);
 
         final FlinkKafkaProducer<RowData> kafkaProducer =
-                createKafkaProducer(keySerialization, valueSerialization);
+                createKafkaProducer(keySerialization, valueSerialization, sinkMultipleFormat);
 
         if (flushMode.isEnabled() && upsertMode) {
             BufferedUpsertSinkFunction buffedSinkFunction =
@@ -303,7 +308,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         flushMode,
                         parallelism,
                         inlongMetric,
-                        auditHostAndPorts);
+                        auditHostAndPorts,
+                        sinkMultipleFormat,
+                        topicPattern);
         copy.metadataKeys = metadataKeys;
         return copy;
     }
@@ -360,14 +367,18 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 flushMode,
                 parallelism,
                 inlongMetric,
-                auditHostAndPorts);
+                auditHostAndPorts,
+                sinkMultipleFormat,
+                topicPattern);
     }
 
     // --------------------------------------------------------------------------------------------
 
     protected FlinkKafkaProducer<RowData> createKafkaProducer(
             SerializationSchema<RowData> keySerialization,
-            SerializationSchema<RowData> valueSerialization) {
+            SerializationSchema<RowData> valueSerialization,
+            String sinkMultipleFormat
+    ) {
         final List<LogicalType> physicalChildren = physicalDataType.getLogicalType().getChildren();
 
         final RowData.FieldGetter[] keyFieldGetters =
@@ -412,7 +423,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         valueFieldGetters,
                         hasMetadata,
                         metadataPositions,
-                        upsertMode);
+                        upsertMode,
+                        sinkMultipleFormat,
+                        topicPattern);
 
         return new FlinkKafkaProducer<>(
                 topic,
@@ -424,7 +437,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 auditHostAndPorts);
     }
 
-    private @Nullable SerializationSchema<RowData> createSerialization(
+    private @Nullable
+    SerializationSchema<RowData> createSerialization(
             Context context,
             @Nullable EncodingFormat<SerializationSchema<RowData>> format,
             int[] projection,

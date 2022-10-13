@@ -32,6 +32,7 @@ import org.apache.inlong.dataproxy.sink.EventStat;
 import org.apache.inlong.dataproxy.sink.PulsarSink;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.api.PulsarClientException.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,6 +154,12 @@ public class SinkTask extends Thread {
                     logger.warn("Event is null!");
                     continue;
                 }
+                // check whether discard or send event
+                if (eventStat.getRetryCnt() > maxRetrySendCnt) {
+                    logger.warn("Message will be discard! send times reach to max retry cnt."
+                            + " topic = {}, max retry cnt = {}", topic, maxRetrySendCnt);
+                    continue;
+                }
                 // get topic
                 topic = event.getHeaders().get(ConfigConstants.TOPIC_KEY);
                 if (StringUtils.isEmpty(topic)) {
@@ -162,20 +169,12 @@ public class SinkTask extends Thread {
                 }
                 if (topic == null || topic.equals("")) {
                     pulsarSink.handleMessageSendException(topic, eventStat,
-                            new Exception(ConfigConstants.TOPIC_KEY + " info is null"));
-                    processToReTrySend(eventStat);
-                    logger.warn("no topic specified, so will retry send!");
+                            new NotFoundException(ConfigConstants.TOPIC_KEY + " info is null"));
                     continue;
                 }
                 // check whether order-type message
                 if (eventStat.isOrderMessage()) {
                     sleep(1000);
-                }
-                // check whether discard or send event
-                if (eventStat.getRetryCnt() > maxRetrySendCnt) {
-                    logger.warn("Message will be discard! send times reach to max retry cnt."
-                            + " topic = {}, max retry cnt = {}", topic, maxRetrySendCnt);
-                    continue;
                 }
                 // check whether duplicated event
                 String clientSeqId = event.getHeaders().get(ConfigConstants.SEQUENCE_ID);

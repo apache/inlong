@@ -155,7 +155,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
         return new KafkaExtractNode("3", "kafka_input", fields,
                 null, null, "topic1", "localhost:9092",
                 new CanalJsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
-                null, "groupId", null);
+                null, "groupId", null, null);
     }
 
     private Node buildKafkaLoadNode2() {

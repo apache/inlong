@@ -20,14 +20,32 @@ package org.apache.inlong.manager.pojo.sort.util;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
+import org.apache.inlong.manager.pojo.fieldformat.BinaryFormat;
 import org.apache.inlong.manager.pojo.fieldformat.DecimalFormat;
 import org.apache.inlong.manager.pojo.fieldformat.MapFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat.Element;
+import org.apache.inlong.manager.pojo.fieldformat.VarBinaryFormat;
 
 import java.util.List;
 
 public class FieldFormatUtils {
+
+    public static String createBinaryFormat(int length) {
+        return JsonUtils.toJsonString(new BinaryFormat(length));
+    }
+
+    public static BinaryFormat parseBinaryFormat(String formatJson) {
+        return JsonUtils.parseObject(formatJson, BinaryFormat.class);
+    }
+
+    public static String createVarBinaryFormat(int length) {
+        return JsonUtils.toJsonString(new VarBinaryFormat(length));
+    }
+
+    public static VarBinaryFormat parseVarBinaryFormat(String formatJson) {
+        return JsonUtils.parseObject(formatJson, VarBinaryFormat.class);
+    }
 
     public static String createDecimalFormat(int precision, int scale) {
         return JsonUtils.toJsonString(new DecimalFormat(precision, scale));

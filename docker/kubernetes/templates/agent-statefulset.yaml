@@ -122,6 +122,13 @@ spec:
           ports:
             - name: {{ .Values.agent.component }}-port
               containerPort: 8008
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.agent.component }}-port
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 10
+            timeoutSeconds: 5
           volumeMounts:
             - name: data
               mountPath: /data/collect-data

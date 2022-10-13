@@ -20,36 +20,41 @@ import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from './common/sourceFields';
 
-const sqlserverFieldTypes = [
-  'char',
-  'varchar',
-  'nchar',
-  'nvarchar',
-  'text',
-  'ntext',
-  'xml',
-  'BIGINT',
-  'BIGSERIAL',
-  'decimal',
-  'money',
-  'smallmoney',
-  'numeric',
-  'float',
-  'real',
-  'bit',
-  'int',
-  'tinyint',
-  'smallint',
-  'bigint',
-  'time',
-  'datetime',
-  'datetime2',
-  'smalldatetime',
-  'datetimeoffset',
-].map(item => ({
-  label: item,
-  value: item,
-}));
+const fieldTypesConf = {
+  CHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1 <= M <= 8000'),
+  VARCHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1 <= M<= 8000'),
+  NCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  NVARCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
+  TEXT: () => '',
+  NTEXT: () => '',
+  XML: () => '',
+  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  BIGSERIAL: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  MONEY: (m, d) => (1 <= m && m <= 15 && 1 <= d && d <= 4 ? '' : '1 <= M <= 15, 1 <= D <= 4'),
+  SMALLMONEY: (m, d) => (1 <= m && m <= 7 && 1 <= d && d <= 4 ? '' : '1 <= M <= 7, 1 <= D <= 4'),
+  NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D <= M'),
+  FLOAT: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
+  REAL: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
+  BIT: (m, d) => (1 <= m && m <= 64 ? '' : '1 <= M <= 64'),
+  INT: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  TINYINT: (m, d) => (1 <= m && m <= 4 ? '' : '1 <= M <= 4'),
+  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  TIME: () => '',
+  DATETIME: () => '',
+  DATETIME2: () => '',
+  SMALLDATETIME: () => '',
+  DATETIMEOFFSET: () => '',
+};
+
+const sqlserverFieldTypes = Object.keys(fieldTypesConf).reduce(
+  (acc, key) =>
+    acc.concat({
+      label: key,
+      value: key,
+    }),
+  [],
+);
 
 export const sqlServer: FieldItemType[] = [
   {
@@ -195,12 +200,29 @@ const getFieldListColumns = sinkValues => {
       title: `SQLSERVER${i18n.t('meta.Sinks.SQLServer.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: sqlserverFieldTypes[0].value,
-      type: 'select',
+      type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: sqlserverFieldTypes,
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
-      rules: [{ required: true }],
+      rules: [
+        { required: true },
+        () => ({
+          validator(_, val) {
+            if (val) {
+              const [, type = val, typeLength = ''] = val.match(/^(.+)\((.+)\)$/) || [];
+              if (fieldTypesConf.hasOwnProperty(type)) {
+                const [m = -1, d = -1] = typeLength.split(',');
+                const errMsg = fieldTypesConf[type]?.(m, d);
+                if (typeLength && errMsg) return Promise.reject(new Error(errMsg));
+              } else {
+                return Promise.reject(new Error('FieldType error'));
+              }
+            }
+            return Promise.resolve();
+          },
+        }),
+      ],
     },
     {
       title: i18n.t('meta.Sinks.SQLServer.IsMetaField'),

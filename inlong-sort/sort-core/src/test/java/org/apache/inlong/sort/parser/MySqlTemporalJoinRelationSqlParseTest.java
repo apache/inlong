@@ -76,7 +76,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 new WatermarkField(new FieldInfo("order_time", new TimestampFormatInfo(3))),
                 null, "orders", "localhost:9092",
                 new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null,
-                "groupId", null);
+                "groupId", null, null);
     }
 
     private MySqlExtractNode buildMySQLExtractNode() {

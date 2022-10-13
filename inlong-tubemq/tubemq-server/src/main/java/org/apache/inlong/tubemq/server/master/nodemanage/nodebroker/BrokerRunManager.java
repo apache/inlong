@@ -65,7 +65,7 @@ public interface BrokerRunManager {
 
     BrokerRunStatusInfo getBrokerRunStatusInfo(int brokerId);
 
-    Tuple2<Boolean, Boolean> getBrokerPublishStatus(int brokerId);
+    void getBrokerPublishStatus(int brokerId, Tuple2<Boolean, Boolean> result);
 
     Tuple3<ManageStatus, String, Map<String, String>> getBrokerMetaConfigInfo(int brokerId);
 
@@ -79,6 +79,9 @@ public interface BrokerRunManager {
 
     Map<Integer, BrokerInfo> getBrokerInfoMap(List<Integer> brokerIds);
 
+    void iniBrokerConfInfo(int brokerId, ManageStatus mngStatus,
+                           Map<String, TopicInfo> topicInfoMap);
+
     boolean updBrokerCsmConfInfo(int brokerId,
                                  ManageStatus mngStatus,
                                  Map<String, TopicInfo> topicInfoMap);
@@ -89,7 +92,7 @@ public interface BrokerRunManager {
 
     BrokerAbnHolder getBrokerAbnHolder();
 
-    Map<String, String> getPubBrokerAcceptPubPartInfo(Set<String> topicSet);
+    Map<String, String> getPubBrokerAcceptPubPartInfo(Map<String, Integer> topicSizeMap);
 
     int getSubTopicMaxBrokerCount(Set<String> topicSet);
 
@@ -97,8 +100,11 @@ public interface BrokerRunManager {
 
     List<Partition> getSubBrokerAcceptSubParts(String topic);
 
-    TopicInfo getPubBrokerTopicInfo(int brokerId, String topic);
+    void getSubBrokerTopicInfo(int brokerId, String topic, Tuple2<Boolean, TopicInfo> result);
 
-    List<TopicInfo> getPubBrokerPushedTopicInfo(int brokerId);
+    void getPubBrokerTopicInfo(int brokerId, String topic,
+                               Tuple3<Boolean, Boolean, TopicInfo> result);
 
+    void getPubBrokerPushedTopicInfo(int brokerId,
+                                     Tuple3<Boolean, Boolean, List<TopicInfo>> result);
 }

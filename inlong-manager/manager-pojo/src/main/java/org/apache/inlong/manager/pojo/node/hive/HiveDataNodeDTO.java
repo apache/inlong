@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.node.hive;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -27,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +42,6 @@ import javax.validation.constraints.NotNull;
 public class HiveDataNodeDTO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveDataNodeDTO.class);
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
-
-    @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
-    private String jdbcUrl;
 
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
@@ -69,7 +63,6 @@ public class HiveDataNodeDTO {
      */
     public static HiveDataNodeDTO getFromRequest(HiveDataNodeRequest request) throws Exception {
         return HiveDataNodeDTO.builder()
-                .jdbcUrl(request.getJdbcUrl())
                 .hiveVersion(request.getHiveVersion())
                 .hiveConfDir(request.getHiveConfDir())
                 .hdfsPath(request.getHdfsPath())
@@ -83,8 +76,7 @@ public class HiveDataNodeDTO {
      */
     public static HiveDataNodeDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, HiveDataNodeDTO.class);
+            return JsonUtils.parseObject(extParams, HiveDataNodeDTO.class);
         } catch (Exception e) {
             LOGGER.error("Failed to extract additional parameters for hive data node: ", e);
             throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());

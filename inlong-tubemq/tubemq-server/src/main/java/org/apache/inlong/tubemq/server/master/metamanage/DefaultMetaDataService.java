@@ -233,7 +233,7 @@ public class DefaultMetaDataService implements MetaDataService {
         if (!disableCsmTopicSet.isEmpty()) {
             result.setFailResult(TErrCodeConstants.CONSUME_GROUP_FORBIDDEN,
                     strBuff.append("[unAuthorized Group] ").append(consumerId)
-                            .append("'s consumerGroup not authorized by administrator, unAuthorizedTopics : ")
+                            .append("'s consumerGroup not authorized by administrator, unAuthorizedTopics: ")
                             .append(disableCsmTopicSet).toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
@@ -432,8 +432,9 @@ public class DefaultMetaDataService implements MetaDataService {
         // query the operated object
         BrokerConfEntity curEntry = metaConfigMapper.getBrokerConfByBrokerId(brokerId);
         if (curEntry == null) {
-            result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
-                    "The broker configure not exist!");
+            result.setFullInfo(true,
+                    DataOpErrCode.DERR_SUCCESS.getCode(),
+                    DataOpErrCode.DERR_SUCCESS.getDescription());
             return new BrokerProcessResult(brokerId, "", result);
         }
         // check broker's manage status
@@ -501,8 +502,48 @@ public class DefaultMetaDataService implements MetaDataService {
             return result.isSuccess();
         }
         runStatusInfo.notifyDataChanged();
-        strBuff.append("[Meta data] triggered broker syncStatus info is ");
-        logger.info(runStatusInfo.toJsonString(strBuff).toString());
+        logger.info(strBuff.append("[Meta data] trigger broker syncStatus info, brokerId is ")
+                .append(brokerId).toString());
+        strBuff.delete(0, strBuff.length());
+        result.setSuccResult(null);
+        return result.isSuccess();
+    }
+
+    /**
+     * Reload topic's deploy config info
+     *
+     * @param topicNameSet  the topic name set
+     * @param strBuff       the string buffer
+     * @param result        the process return result
+     * @return true if success otherwise false
+     */
+    private boolean triggerBrokerConfDataSync(Set<String> topicNameSet,
+                                              StringBuilder strBuff,
+                                              ProcessResult result) {
+        if (!metaConfigMapper.checkStoreStatus(true, result)) {
+            return result.isSuccess();
+        }
+        Set<Integer> brokerIdSet =
+                metaConfigMapper.getDeployedBrokerIdByTopic(topicNameSet);
+        if (brokerIdSet.isEmpty()) {
+            result.setSuccResult();
+            return result.isSuccess();
+        }
+        BrokerRunStatusInfo runStatusInfo;
+        BrokerRunManager brokerRunManager = this.tMaster.getBrokerRunManager();
+        for (Integer brokerId : brokerIdSet) {
+            if (brokerId == null) {
+                continue;
+            }
+            runStatusInfo = brokerRunManager.getBrokerRunStatusInfo(brokerId);
+            if (runStatusInfo == null) {
+                continue;
+            }
+            runStatusInfo.notifyDataChanged();
+        }
+        logger.info(strBuff.append("[Meta data] trigger broker syncStatus info for")
+                .append(" maxMsgSize modify, brokerId set is ").append(brokerIdSet)
+                .toString());
         strBuff.delete(0, strBuff.length());
         result.setSuccResult(null);
         return result.isSuccess();
@@ -793,10 +834,9 @@ public class DefaultMetaDataService implements MetaDataService {
             int maxMsgSize = defMsgSizeInB;
             TopicCtrlEntity topicCtrlEntity =
                     metaConfigMapper.getTopicCtrlByTopicName(topicEntity.getTopicName());
-            if (topicCtrlEntity != null) {
-                if (topicCtrlEntity.getMaxMsgSizeInB() != TBaseConstants.META_VALUE_UNDEFINED) {
-                    maxMsgSize = topicCtrlEntity.getMaxMsgSizeInB();
-                }
+            if (topicCtrlEntity != null
+                    && topicCtrlEntity.getMaxMsgSizeInB() != TBaseConstants.META_VALUE_UNDEFINED) {
+                maxMsgSize = topicCtrlEntity.getMaxMsgSizeInB();
             }
             if (maxMsgSize == defMsgSizeInB) {
                 strBuff.append(TokenConstants.ATTR_SEP).append(" ");
@@ -810,26 +850,56 @@ public class DefaultMetaDataService implements MetaDataService {
     }
 
     @Override
-    public TopicProcessResult addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                                    String topicName, int topicNameId,
-                                                    Boolean enableTopicAuth, int maxMsgSizeInMB,
-                                                    StringBuilder strBuff, ProcessResult result) {
-        TopicCtrlEntity entity =
-                new TopicCtrlEntity(opEntity, topicName);
-        entity.updModifyInfo(opEntity.getDataVerId(),
-                topicNameId, maxMsgSizeInMB, enableTopicAuth);
-        return addOrUpdTopicCtrlConf(isAddOp, entity, strBuff, result);
+    public List<TopicProcessResult> addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
+                                                          Set<String> topicNameSet, int topicNameId,
+                                                          Boolean enableTopicAuth, int maxMsgSizeInMB,
+                                                          StringBuilder strBuff, ProcessResult result) {
+        TopicCtrlEntity entity;
+        Map<String, TopicCtrlEntity> topicCtrlEntityMap = new HashMap<>();
+        for (String topicName : topicNameSet) {
+            entity = new TopicCtrlEntity(opEntity, topicName);
+            entity.updModifyInfo(opEntity.getDataVerId(),
+                    topicNameId, maxMsgSizeInMB, enableTopicAuth);
+            topicCtrlEntityMap.put(topicName, entity);
+        }
+        return addOrUpdTopicCtrlConf(isAddOp, topicCtrlEntityMap, strBuff, result);
     }
 
     @Override
-    public TopicProcessResult addOrUpdTopicCtrlConf(boolean isAddOp, TopicCtrlEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result) {
+    public List<TopicProcessResult> addOrUpdTopicCtrlConf(boolean isAddOp,
+                                                          Map<String, TopicCtrlEntity> entityMap,
+                                                          StringBuilder strBuff, ProcessResult result) {
+        List<TopicProcessResult> retInfo = new ArrayList<>();
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
-            return new TopicProcessResult(0, entity.getTopicName(), result);
+            for (String topicName : entityMap.keySet()) {
+                retInfo.add(new TopicProcessResult(0, topicName, result));
+            }
+            return retInfo;
         }
-        metaConfigMapper.addOrUpdTopicCtrlConf(isAddOp, entity, strBuff, result);
-        return new TopicProcessResult(0, entity.getTopicName(), result);
+        if (isAddOp) {
+            for (TopicCtrlEntity entity : entityMap.values()) {
+                metaConfigMapper.addOrUpdTopicCtrlConf(isAddOp, entity, strBuff, result);
+                retInfo.add(new TopicProcessResult(0, entity.getTopicName(), result));
+            }
+        } else {
+            TopicCtrlEntity curEntity;
+            Set<String> changedTopicSet = new HashSet<>();
+            for (TopicCtrlEntity entity : entityMap.values()) {
+                curEntity = metaConfigMapper.getTopicCtrlByTopicName(entity.getTopicName());
+                if (curEntity != null) {
+                    if (curEntity.getMaxMsgSizeInB() != entity.getMaxMsgSizeInB()) {
+                        changedTopicSet.add(entity.getTopicName());
+                    }
+                }
+                metaConfigMapper.addOrUpdTopicCtrlConf(isAddOp, entity, strBuff, result);
+                retInfo.add(new TopicProcessResult(0, entity.getTopicName(), result));
+            }
+            if (!changedTopicSet.isEmpty()) {
+                triggerBrokerConfDataSync(changedTopicSet, strBuff, result);
+            }
+        }
+        return retInfo;
     }
 
     @Override
@@ -877,7 +947,8 @@ public class DefaultMetaDataService implements MetaDataService {
         ClusterSettingEntity clusterSettingEntity = metaConfigMapper.getClusterDefSetting(false);
         int maxMsgSizeInMB = clusterSettingEntity.getMaxMsgSizeInMB();
         TopicCtrlEntity topicCtrlEntity = metaConfigMapper.getTopicCtrlByTopicName(topicName);
-        if (topicCtrlEntity != null) {
+        if (topicCtrlEntity != null
+                && topicCtrlEntity.getMaxMsgSizeInMB() != TBaseConstants.META_VALUE_UNDEFINED) {
             maxMsgSizeInMB = topicCtrlEntity.getMaxMsgSizeInMB();
         }
         return maxMsgSizeInMB;
@@ -889,6 +960,11 @@ public class DefaultMetaDataService implements MetaDataService {
         return metaConfigMapper.getTopicCtrlConf(topicNameSet, qryEntity);
     }
 
+    @Override
+    public Map<String, Integer> getMaxMsgSizeInBByTopics(int defMaxMsgSizeInB,
+                                                         Set<String> topicNameSet) {
+        return metaConfigMapper.getMaxMsgSizeInBByTopics(defMaxMsgSizeInB, topicNameSet);
+    }
     // //////////////////////////////////////////////////////////////////////////////
 
     @Override

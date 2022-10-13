@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.formats.common;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.nio.charset.StandardCharsets;
 
 public class BinaryFormatInfo implements BasicFormatInfo<byte[]> {
@@ -25,6 +28,30 @@ public class BinaryFormatInfo implements BasicFormatInfo<byte[]> {
     private static final long serialVersionUID = 8379022656220694709L;
 
     public static final BinaryFormatInfo INSTANCE = new BinaryFormatInfo();
+
+    public static final int MIN_LENGTH = 1;
+
+    public static final int MAX_LENGTH = Integer.MAX_VALUE;
+
+    public static final int DEFAULT_LENGTH = 1;
+
+    @JsonProperty("length")
+    private int length;
+
+    public BinaryFormatInfo() {
+        this(DEFAULT_LENGTH);
+    }
+
+    @JsonCreator
+    public BinaryFormatInfo(@JsonProperty("length") int length) {
+        if (length < MIN_LENGTH) {
+            throw new IllegalArgumentException(
+                    String.format(
+                            "Binary string length must be between %d and %d (both inclusive).",
+                            MIN_LENGTH, MAX_LENGTH));
+        }
+        this.length = length;
+    }
 
     @Override
     public String serialize(byte[] record) throws Exception {
@@ -60,4 +87,11 @@ public class BinaryFormatInfo implements BasicFormatInfo<byte[]> {
         return "BinaryFormatInfo";
     }
 
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
 }

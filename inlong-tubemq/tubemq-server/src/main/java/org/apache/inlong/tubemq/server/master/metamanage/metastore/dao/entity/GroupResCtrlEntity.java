@@ -107,6 +107,28 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         return this;
     }
 
+    /**
+     * fill empty fields with default value
+     *
+     * @return object
+     */
+    public GroupResCtrlEntity fillEmptyValues() {
+        if (TStringUtils.isBlank(this.flowCtrlInfo)) {
+            setFlowCtrlRule(0, TServerConstants.BLANK_FLOWCTRL_RULES);
+        }
+        if (this.resCheckStatus == EnableStatus.STATUS_UNDEFINE) {
+            this.resCheckStatus = EnableStatus.STATUS_DISABLE;
+            this.allowedBrokerClientRate = 0;
+        }
+        if (this.flowCtrlStatus == EnableStatus.STATUS_UNDEFINE) {
+            this.flowCtrlStatus = EnableStatus.STATUS_DISABLE;
+        }
+        if (this.qryPriorityId == TBaseConstants.META_VALUE_UNDEFINED) {
+            this.qryPriorityId = TServerConstants.QRY_PRIORITY_DEF_VALUE;
+        }
+        return this;
+    }
+
     public GroupResCtrlEntity setGroupName(String groupName) {
         this.groupName = groupName;
         return this;
