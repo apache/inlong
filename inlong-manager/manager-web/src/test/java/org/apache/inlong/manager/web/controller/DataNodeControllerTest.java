@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
@@ -97,7 +98,7 @@ class DataNodeControllerTest extends WebBaseTest {
         // get
         MvcResult getResult = getForSuccessMvcResult("/api/node/get/{id}", dataNodeId);
 
-        DataNodeResponse dataNode = getResBodyObj(getResult, DataNodeResponse.class);
+        DataNodeInfo dataNode = getResBodyObj(getResult, DataNodeResponse.class);
         Assertions.assertNotNull(dataNode);
         Assertions.assertEquals(getHiveDataNodeRequest().getName(), dataNode.getName());
 
@@ -163,8 +164,9 @@ class DataNodeControllerTest extends WebBaseTest {
         request.setVersion(nodeEntity.getVersion());
         MvcResult mvcResult = postForSuccessMvcResult("/api/node/updateByUniqueKey", request);
 
-        Boolean success = getResBodyObj(mvcResult, Boolean.class);
-        Assertions.assertTrue(success);
+        UpdateResult result = getResBodyObj(mvcResult, UpdateResult.class);
+        Assertions.assertTrue(result.getSuccess());
+        Assertions.assertEquals(request.getVersion() + 1, result.getVersion());
 
         DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByNameAndType(request.getName(), request.getType());
         Assertions.assertEquals(request.getUrl(), dataNodeEntity.getUrl());

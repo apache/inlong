@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
 /**
@@ -100,11 +101,11 @@ public class DataNodeClient {
      * @param request node info to be modified
      * @return whether succeed
      */
-    public Boolean updateByUniqueKey(DataNodeRequest request) {
+    public UpdateResult updateByUniqueKey(DataNodeRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");
         Preconditions.checkNotEmpty(request.getName(), "data node name cannot be empty");
         Preconditions.checkNotEmpty(request.getType(), "data node type cannot be empty");
-        Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.updateByUniqueKey(request));
+        Response<UpdateResult> response = ClientUtils.executeHttpCall(dataNodeApi.updateByUniqueKey(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -129,7 +130,7 @@ public class DataNodeClient {
      * @param type node type to be deleted
      * @return whether succeed
      */
-    public Boolean delete(String name, String type) {
+    public Boolean deleteByUniqueKey(String name, String type) {
         Preconditions.checkNotEmpty(name, "data node name cannot be empty or null");
         Preconditions.checkNotEmpty(type, "data node type cannot be empty or null");
         Response<Boolean> response = ClientUtils.executeHttpCall(dataNodeApi.deleteByUniqueKey(name, type));

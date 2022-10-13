@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -87,7 +88,7 @@ public class DataNodeController {
     @PostMapping(value = "/node/updateByUniqueKey")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data node by unique key")
-    public Response<Boolean> updateByUniqueKey(@RequestBody DataNodeRequest request) {
+    public Response<UpdateResult> updateByUniqueKey(@RequestBody DataNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(dataNodeService.updateByUniqueKey(request, username));
     }

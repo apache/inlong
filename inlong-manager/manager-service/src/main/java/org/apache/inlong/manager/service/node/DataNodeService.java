@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.node;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -66,9 +67,9 @@ public interface DataNodeService {
      *
      * @param request node info to be modified
      * @param operator current operator
-     * @return whether succeed
+     * @return Update result
      */
-    Boolean updateByUniqueKey(DataNodeRequest request, String operator);
+    UpdateResult updateByUniqueKey(DataNodeRequest request, String operator);
 
     /**
      * Delete data node.

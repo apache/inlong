@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.service;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -43,7 +44,7 @@ public interface DataNodeApi {
     Call<Response<Boolean>> update(@Body DataNodeRequest request);
 
     @POST("node/updateByUniqueKey")
-    Call<Response<Boolean>> updateByUniqueKey(@Body DataNodeRequest request);
+    Call<Response<UpdateResult>> updateByUniqueKey(@Body DataNodeRequest request);
 
     @DELETE("node/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);

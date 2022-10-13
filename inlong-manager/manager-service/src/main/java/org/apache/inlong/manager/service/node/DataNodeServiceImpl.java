@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -123,13 +124,10 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException(String.format("data node not found by id=%s", id));
         }
-        return update(request, entity, operator);
-    }
 
-    private Boolean update(DataNodeRequest request, DataNodeEntity oldEntity, String operator) {
         String errMsg = String.format("data node has already updated with name=%s, type=%s, curVersion=%s",
-                oldEntity.getName(), oldEntity.getType(), request.getVersion());
-        if (!Objects.equals(oldEntity.getVersion(), request.getVersion())) {
+                entity.getName(), entity.getType(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
@@ -140,7 +138,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     }
 
     @Override
-    public Boolean updateByUniqueKey(DataNodeRequest request, String operator) {
+    public UpdateResult updateByUniqueKey(DataNodeRequest request, String operator) {
         String name = request.getName();
         String type = request.getType();
         if (StringUtils.isEmpty(name) || StringUtils.isEmpty(type)) {
@@ -151,8 +149,18 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by name={}, type={}", name, type);
             throw new BusinessException(String.format("data node not found by name=%s, type=%s", name, type));
         }
+
         request.setId(entity.getId());
-        return update(request, entity, operator);
+        String errMsg = String.format("data node has already updated with name=%s, type=%s, curVersion=%s",
+                entity.getName(), entity.getType(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
+        DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
+        dataNodeOperator.updateOpt(request, operator);
+        LOGGER.info("success to update data node={}", request);
+        return new UpdateResult(true, request.getVersion() + 1);
     }
 
     @Override
