@@ -46,11 +46,13 @@ import javax.annotation.PostConstruct;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-@Component
 @Slf4j
+@Component
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
     private static final String AUTO_REGISTERED = "auto registered";
+    private static final int UPDATED_ONE_ROW = 1; // updated one row
+    private static final int UPDATE_ZERO_ROW = 0; // no field updated
 
     @Getter
     private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeatCache;
@@ -62,9 +64,6 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
-
-    private static final int UPDATE_DEFAULT_NUM = 1; // default update one field
-    private static final int UPDATE_FAILED_NUM = 0; // no field update
 
     @PostConstruct
     public void init() {
@@ -95,19 +94,25 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     componentHeartbeat.getComponentType());
             return;
         }
+
+        // if the heartbeat was not in the cache, insert or update the node by the heartbeat info
         HeartbeatMsg lastHeartbeat = heartbeatCache.getIfPresent(componentHeartbeat);
-        int updateNum = UPDATE_DEFAULT_NUM;
+        boolean exist = true;
+        int updateNum = UPDATE_ZERO_ROW;
         if (lastHeartbeat == null) {
+            exist = false;
             InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeat);
             if (clusterNode == null) {
                 updateNum = insertClusterNode(clusterInfo, heartbeat, clusterInfo.getCreator());
-                log.info("insert node ret:{}", updateNum);
+                log.info("insert node result: {}", updateNum);
             } else {
                 updateNum = updateClusterNode(clusterNode);
-                log.info("update node ret:{}", updateNum);
+                log.info("update node result: {}", updateNum);
             }
         }
-        if (updateNum != UPDATE_FAILED_NUM) {
+
+        // if the heartbeat already exists, or does not exist but insert/update success, then put it into the cache
+        if (exist || updateNum == UPDATED_ONE_ROW) {
             heartbeatCache.put(componentHeartbeat, heartbeat);
         }
     }
