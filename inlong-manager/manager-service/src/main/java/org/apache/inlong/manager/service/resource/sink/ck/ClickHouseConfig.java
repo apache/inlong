@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.resource.sink.ck;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +28,6 @@ import java.util.Properties;
 /**
  * Clickhouse config information, including url, user, etc.
  */
-@Data
 @Component
 public class ClickHouseConfig {
 

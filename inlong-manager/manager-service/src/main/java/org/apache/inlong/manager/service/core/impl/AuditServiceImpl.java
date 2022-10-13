@@ -161,10 +161,10 @@ public class AuditServiceImpl implements AuditService {
                     }
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
-                Connection ckConnection = ClickHouseConfig.getCkConnection();
-                Statement ckStatement = ckConnection.createStatement();
-                try (ResultSet resultSet = ckStatement.executeQuery(
-                        toAuditCkSql(groupId, streamId, auditId, request.getDt()))) {
+                try (Connection connection = ClickHouseConfig.getCkConnection();
+                        Statement statement = connection.createStatement();
+                        ResultSet resultSet = statement.executeQuery(
+                                toAuditCkSql(groupId, streamId, auditId, request.getDt()))) {
                     List<AuditInfo> auditSet = new ArrayList<>();
                     while (resultSet.next()) {
                         AuditInfo vo = new AuditInfo();
@@ -175,8 +175,6 @@ public class AuditServiceImpl implements AuditService {
                     result.add(new AuditVO(auditId, auditSet,
                             auditId.equals(AuditConstants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
                 }
-                ckConnection.close();
-                ckStatement.close();
             }
         }
         LOGGER.info("success to query audit list for request={}", request);
@@ -245,14 +243,14 @@ public class AuditServiceImpl implements AuditService {
     private String toAuditCkSql(String groupId, String streamId, String auditId, String dt) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern(DAY_FORMAT);
         DateTime date = formatter.parseDateTime(dt);
-        String sDate = date.toString(SECOND_FORMAT);
-        String eDate = date.plusDays(1).toString(SECOND_FORMAT);
+        String startDate = date.toString(SECOND_FORMAT);
+        String endDate = date.plusDays(1).toString(SECOND_FORMAT);
         return new SQL()
                 .SELECT("log_ts", "sum(count) as total")
                 .FROM("audit_data")
                 .WHERE("inlong_group_id = '" + groupId + "'", "inlong_stream_id = '" + streamId + "'",
                         "audit_id = '" + auditId + "'")
-                .WHERE("log_ts >= '" + sDate + "'", "log_ts < '" + eDate + "'")
+                .WHERE("log_ts >= '" + startDate + "'", "log_ts < '" + endDate + "'")
                 .GROUP_BY("log_ts")
                 .ORDER_BY("log_ts")
                 .toString();
