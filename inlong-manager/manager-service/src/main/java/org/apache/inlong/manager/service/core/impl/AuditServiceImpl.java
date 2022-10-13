@@ -34,7 +34,7 @@ import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.core.AuditService;
-import org.apache.inlong.manager.service.resource.sink.ck.ClickhouseConfig;
+import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.elasticsearch.action.search.SearchRequest;
@@ -57,6 +57,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
@@ -78,7 +79,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 public class AuditServiceImpl implements AuditService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditServiceImpl.class);
-    private static final String SECOND_FORMAT = "yyy-MM-dd HH:mm:ss";
+    private static final String SECOND_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String HOUR_FORMAT = "yyyy-MM-dd HH";
     private static final String DAY_FORMAT = "yyyy-MM-dd";
 
@@ -99,8 +100,6 @@ public class AuditServiceImpl implements AuditService {
     private StreamSinkEntityMapper sinkEntityMapper;
     @Autowired
     private StreamSourceEntityMapper sourceEntityMapper;
-    @Autowired
-    private ClickhouseConfig clickhouseConfig;
 
     @Override
     public List<AuditVO> listByCondition(AuditRequest request) throws Exception {
@@ -162,7 +161,8 @@ public class AuditServiceImpl implements AuditService {
                     }
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
-                Statement ckStatement = clickhouseConfig.getCkStatement();
+                Connection ckConnection = ClickHouseConfig.getCkConnection();
+                Statement ckStatement = ckConnection.createStatement();
                 try (ResultSet resultSet = ckStatement.executeQuery(
                         toAuditCkSql(groupId, streamId, auditId, request.getDt()))) {
                     List<AuditInfo> auditSet = new ArrayList<>();
@@ -175,6 +175,8 @@ public class AuditServiceImpl implements AuditService {
                     result.add(new AuditVO(auditId, auditSet,
                             auditId.equals(AuditConstants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
                 }
+                ckConnection.close();
+                ckStatement.close();
             }
         }
         LOGGER.info("success to query audit list for request={}", request);
@@ -247,7 +249,7 @@ public class AuditServiceImpl implements AuditService {
         String eDate = date.plusDays(1).toString(SECOND_FORMAT);
         return new SQL()
                 .SELECT("log_ts", "sum(count) as total")
-                .FROM("apache_inlong_audit.audit_data")
+                .FROM("audit_data")
                 .WHERE("inlong_group_id = '" + groupId + "'", "inlong_stream_id = '" + streamId + "'",
                         "audit_id = '" + auditId + "'")
                 .WHERE("log_ts >= '" + sDate + "'", "log_ts < '" + eDate + "'")

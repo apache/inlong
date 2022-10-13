@@ -30,7 +30,7 @@ public enum AuditQuerySource {
      */
     ELASTICSEARCH,
     /**
-     * ELASTICSEARCH source of query
+     * CLICKHOUSE source of query
      */
     CLICKHOUSE;
 }
