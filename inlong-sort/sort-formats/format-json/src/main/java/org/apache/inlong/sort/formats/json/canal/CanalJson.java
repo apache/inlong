@@ -33,6 +33,7 @@ public class CanalJson {
     private String sql;
     private Map<String, String> mysqlType;
     private Map<String, Integer> sqlType;
+
     private boolean isDdl;
     private List<String> pkNames;
     private String schema;
@@ -141,5 +142,6 @@ public class CanalJson {
     public void setSchema(String schema) {
         this.schema = schema;
     }
+
 }
 
