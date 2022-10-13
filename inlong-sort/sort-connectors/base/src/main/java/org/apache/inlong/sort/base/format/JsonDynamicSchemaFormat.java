@@ -43,19 +43,17 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * Extract value by key from the raw data
+     * Extract values by keys from the raw data
      *
-     * @param message The byte array of raw data
+     * @param root The raw data
      * @param keys The key list that will be used to extract
      * @return The value list maps the keys
-     * @throws IOException The exceptions may throws when extract
      */
     @Override
-    public List<String> extract(byte[] message, String... keys) throws IOException {
+    public List<String> extractValues(JsonNode root, String... keys) {
         if (keys == null || keys.length == 0) {
             return new ArrayList<>();
         }
-        final JsonNode root = deserialize(message);
         JsonNode physicalNode = getPhysicalData(root);
         List<String> values = new ArrayList<>(keys.length);
         if (physicalNode == null) {

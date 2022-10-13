@@ -40,18 +40,31 @@ public abstract class AbstractDynamicSchemaFormat<T> {
     public static final Pattern PATTERN = Pattern.compile("\\$\\{\\s*([\\w.-]+)\\s*}", Pattern.CASE_INSENSITIVE);
 
     /**
-     * Extract value by key from the raw data
+     * Extract values by key from the raw data
      *
      * @param message The byte array of raw data
      * @param keys The key list that will be used to extract
      * @return The value list maps the keys
      * @throws IOException The exceptions may throws when extract
      */
-    public List<String> extract(byte[] message, String... keys) throws IOException {
+    public List<String> extractValues(byte[] message, String... keys) throws IOException {
         if (keys == null || keys.length == 0) {
             return new ArrayList<>();
         }
-        final T data = deserialize(message);
+        return extractValues(deserialize(message), keys);
+    }
+
+    /**
+     * Extract values by key from the raw data
+     *
+     * @param data The raw data
+     * @param keys The key list that will be used to extract
+     * @return The value list maps the keys
+     */
+    public List<String> extractValues(T data, String... keys) {
+        if (keys == null || keys.length == 0) {
+            return new ArrayList<>();
+        }
         List<String> values = new ArrayList<>(keys.length);
         for (String key : keys) {
             values.add(extract(data, key));
@@ -67,6 +80,39 @@ public abstract class AbstractDynamicSchemaFormat<T> {
      * @return The value maps the key in the raw data
      */
     public abstract String extract(T data, String key);
+
+    /**
+     * Extract primary key names
+     *
+     * @param data The raw data
+     * @return The primary key name list
+     */
+    public abstract List<String> extractPrimaryKeyNames(T data);
+
+    /**
+     * Extract primary key values
+     *
+     * @param message The byte array of raw data
+     * @return The values of primary key
+     * @throws IOException The exception may be thrown when executing
+     */
+    public List<String> extractPrimaryKeyValues(byte[] message) throws IOException {
+        return extractPrimaryKeyValues(deserialize(message));
+    }
+
+    /**
+     * Extract primary key values
+     *
+     * @param data The raw data
+     * @return The values of primary key
+     */
+    public List<String> extractPrimaryKeyValues(T data) {
+        List<String> pkNames = extractPrimaryKeyNames(data);
+        if (pkNames == null || pkNames.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return extractValues(data, pkNames.toArray(new String[]{}));
+    }
 
     /**
      * Deserialize from byte array

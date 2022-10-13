@@ -19,6 +19,9 @@ package org.apache.inlong.sort.base.format;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Debezium json dynamic format
  */
@@ -44,6 +47,22 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
             physicalData = root.get("before");
         }
         return physicalData;
+    }
+
+    @Override
+    public List<String> extractPrimaryKeyNames(JsonNode data) {
+        List<String> pkNames = new ArrayList<>();
+        JsonNode sourceNode = data.get("source");
+        if (sourceNode == null) {
+            return pkNames;
+        }
+        JsonNode pkNamesNode = sourceNode.get("pkNames");
+        if (pkNamesNode != null && pkNamesNode.isArray()) {
+            for (int i = 0; i < pkNamesNode.size(); i++) {
+                pkNames.add(pkNamesNode.get(i).asText());
+            }
+        }
+        return pkNames;
     }
 
     /**

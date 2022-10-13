@@ -81,6 +81,12 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
     @Nullable
     @JsonProperty("sinkMultipleFormat")
     private Format sinkMultipleFormat;
+    @Nullable
+    @JsonProperty("sinkPartitioner")
+    private String sinkPartitioner;
+    @Nullable
+    @JsonProperty("partitionPattern")
+    private String partitionPattern;
 
     public KafkaLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -95,7 +101,8 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("primaryKey") String primaryKey) {
         this(id, name, fields, fieldRelations, filters, filterStrategy, topic, bootstrapServers, format,
-                sinkParallelism, properties, primaryKey, null, null);
+                sinkParallelism, properties, primaryKey, null, null,
+                null, null);
     }
 
     @JsonCreator
@@ -112,7 +119,9 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("primaryKey") String primaryKey,
             @Nullable @JsonProperty("sinkMultipleFormat") Format sinkMultipleFormat,
-            @Nullable @JsonProperty("topicPattern") String topicPattern) {
+            @Nullable @JsonProperty("topicPattern") String topicPattern,
+            @Nullable @JsonProperty("sinkPartitioner") String sinkPartitioner,
+            @Nullable @JsonProperty("partitionPattern") String partitionPattern) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.topic = Preconditions.checkNotNull(topic, "topic is null");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "bootstrapServers is null");
@@ -120,6 +129,13 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
         this.primaryKey = primaryKey;
         this.sinkMultipleFormat = sinkMultipleFormat;
         this.topicPattern = topicPattern;
+        this.sinkPartitioner = sinkPartitioner;
+        if ("raw-hash".equals(sinkPartitioner)) {
+            this.partitionPattern = Preconditions.checkNotNull(partitionPattern,
+                    "partitionPattern is null when the sinkPartitioner is 'raw-hash'");
+        } else {
+            this.partitionPattern = partitionPattern;
+        }
     }
 
     @Override
@@ -156,6 +172,12 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
                 }
                 if (StringUtils.isNotBlank(topicPattern)) {
                     options.put("topic-pattern", topicPattern);
+                }
+                if (StringUtils.isNotBlank(sinkPartitioner)) {
+                    options.put("sink.partitioner", sinkPartitioner);
+                }
+                if (StringUtils.isNotBlank(partitionPattern)) {
+                    options.put("sink.multiple.partition-pattern", partitionPattern);
                 }
             }
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {

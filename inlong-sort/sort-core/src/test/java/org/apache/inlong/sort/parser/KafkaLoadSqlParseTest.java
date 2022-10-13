@@ -50,7 +50,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Test for kafka load sql parse
+ * Test for {@link KafkaLoadNode} sql parse
+ * and raw hash partitioner {@link org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner}
  */
 public class KafkaLoadSqlParseTest extends AbstractTestBase {
 
@@ -93,8 +94,21 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
                         new FieldInfo("raw", new VarBinaryFormatInfo())));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
                 "topic_output", "localhost:9092", new RawFormat(), null,
-                null, null, new CanalJsonFormat(), "${database}_${table}");
+                null, null, new CanalJsonFormat(), "${database}_${table}",
+                null, null);
     }
+
+    private KafkaLoadNode buildKafkaLoadNodeWithDynamicPartition(String pattern) {
+        List<FieldInfo> fields = Collections.singletonList(new FieldInfo("raw", new VarBinaryFormatInfo()));
+        List<FieldRelation> relations = Collections
+                .singletonList(new FieldRelation(new FieldInfo("raw", new VarBinaryFormatInfo()),
+                        new FieldInfo("raw", new VarBinaryFormatInfo())));
+        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
+                "topic_output", "localhost:9092", new RawFormat(), null,
+                null, null, new CanalJsonFormat(), null,
+                "raw-hash", pattern);
+    }
+
 
     /**
      * build node relation
@@ -157,6 +171,62 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildKafkaExtractNode();
         Node outputNode = buildKafkaLoadNodeWithDynamicTopic();
+        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
+                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
+                        Collections.singletonList(outputNode))));
+        GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
+        ParseResult result = parser.parse();
+        Assert.assertTrue(result.tryExecute());
+    }
+
+    /**
+     * Test kafka to kafka with dynamic partition
+     *
+     * @throws Exception The exception may be thrown when executing
+     */
+    @Test
+    public void testKafkaDynamicPartitionParse() throws Exception {
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        env.disableOperatorChaining();
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        Node inputNode = buildKafkaExtractNode();
+        Node outputNode = buildKafkaLoadNodeWithDynamicPartition("${database}_${table}");
+        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
+                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
+                        Collections.singletonList(outputNode))));
+        GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
+        ParseResult result = parser.parse();
+        Assert.assertTrue(result.tryExecute());
+    }
+
+    /**
+     * Test kafka to kafka with dynamic partition based on hash of primary key
+     *
+     * @throws Exception The exception may be thrown when executing
+     */
+    @Test
+    public void testKafkaDynamicPartitionWithPrimaryKey() throws Exception {
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        env.disableOperatorChaining();
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        Node inputNode = buildKafkaExtractNode();
+        Node outputNode = buildKafkaLoadNodeWithDynamicPartition("PRIMARY_KEY");
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));

@@ -19,6 +19,9 @@ package org.apache.inlong.sort.base.format;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Canal json dynamic format
  */
@@ -44,6 +47,18 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
             return root.get("data").get(0);
         }
         return null;
+    }
+
+    @Override
+    public List<String> extractPrimaryKeyNames(JsonNode data) {
+        JsonNode pkNamesNode = data.get("pkNames");
+        List<String> pkNames = new ArrayList<>();
+        if (pkNamesNode != null && pkNamesNode.isArray()) {
+            for (int i = 0; i < pkNamesNode.size(); i++) {
+                pkNames.add(pkNamesNode.get(i).asText());
+            }
+        }
+        return pkNames;
     }
 
     /**
