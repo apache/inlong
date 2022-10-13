@@ -130,8 +130,13 @@ public interface StreamSourceEntityMapper {
     int updateSnapshot(StreamSourceEntity entity);
 
     /**
-     * Physical delete stream sources.
+     * Physical delete stream sources by group id and stream id
      */
     int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
+    /**
+     * Physical delete stream sources by group id list
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
 }

@@ -144,4 +144,6 @@ public interface StreamSinkEntityMapper {
 
     int deleteByPrimaryKey(Integer id);
 
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
+
 }

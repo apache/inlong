@@ -66,4 +66,11 @@ public interface InlongGroupExtEntityMapper {
      */
     int logicDeleteAllByGroupId(String groupId);
 
+    /**
+     * Physically delete all extended fields based on inlong group ids
+     *
+     * @return rows updated
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
+
 }

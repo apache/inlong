@@ -304,4 +304,12 @@
         from stream_transform_field
         where transform_id = #{transformId,jdbcType=INTEGER}
     </delete>
+    <delete id="deleteByInlongGroupIds">
+        delete
+        from stream_transform_field
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

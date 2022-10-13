@@ -68,4 +68,12 @@ public interface StreamTransformFieldEntityMapper {
      * @return
      */
     int deleteAll(@Param("transformId") Integer transformId);
+
+    /**
+     * Delete all field list by groupIdList
+     *
+     * @param groupIdList
+     * @return
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 }

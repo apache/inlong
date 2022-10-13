@@ -59,4 +59,11 @@ public interface StreamSourceFieldEntityMapper {
      */
     int deleteAll(@Param("sourceId") Integer sourceId);
 
+    /**
+     * Delete all field list by group id list
+     *
+     * @param groupIdList group ids
+     * @return number of records deleted
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 }

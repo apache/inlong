@@ -58,4 +58,12 @@ public interface StreamSinkFieldEntityMapper {
      */
     int deleteAll(@Param("sinkId") Integer sinkId);
 
+    /**
+     * According to the group id list, physically delete the corresponding field information
+     *
+     * @param groupIdList group ids.
+     * @return rows deleted.
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
+
 }

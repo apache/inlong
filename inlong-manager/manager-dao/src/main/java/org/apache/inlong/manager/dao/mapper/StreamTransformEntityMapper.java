@@ -41,4 +41,5 @@ public interface StreamTransformEntityMapper {
 
     int deleteById(Integer id);
 
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 }

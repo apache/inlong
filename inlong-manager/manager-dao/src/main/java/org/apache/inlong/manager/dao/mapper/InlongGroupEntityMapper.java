@@ -24,6 +24,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,14 @@ public interface InlongGroupEntityMapper {
      */
     List<SortSourceGroupInfo> selectAllGroups();
 
+    /**
+     * Select all groups which are logical deleted before some last modify time
+     * @param lastModifyTime
+     * @return
+     */
+    List<String> selectLogicalDeletedGroupIdsBefore(@Param("lastModifyTime") Date lastModifyTime,
+            @Param("limit") Integer limit);
+
     int updateByPrimaryKey(InlongGroupEntity record);
 
     int updateByIdentifierSelective(InlongGroupEntity record);
@@ -61,5 +70,7 @@ public interface InlongGroupEntityMapper {
             @Param("modifier") String modifier);
 
     int deleteByPrimaryKey(Integer id);
+
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
 }

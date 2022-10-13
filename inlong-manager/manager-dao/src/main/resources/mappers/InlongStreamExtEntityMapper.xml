@@ -114,4 +114,13 @@
         </if>
     </delete>
 
+    <delete id="deleteByInlongGroupIds">
+        delete
+        from inlong_stream_ext
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
 </mapper>

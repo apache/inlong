@@ -62,4 +62,11 @@ public interface InlongStreamExtEntityMapper {
      */
     int deleteAllByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
+    /**
+     * Physically delete all extension fields based on group id list
+     *
+     * @return rows deleted
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
+
 }

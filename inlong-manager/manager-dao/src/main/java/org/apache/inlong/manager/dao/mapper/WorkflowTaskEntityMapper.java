@@ -48,4 +48,6 @@ public interface WorkflowTaskEntityMapper {
 
     int update(WorkflowTaskEntity workflowTaskEntity);
 
+    int deleteByProcessIds(@Param("processIdList") List<Integer> processIdList);
+
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
 import org.springframework.stereotype.Repository;
@@ -37,4 +38,5 @@ public interface WorkflowEventLogEntityMapper {
 
     int update(WorkflowEventLogEntity record);
 
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 }

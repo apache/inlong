@@ -69,6 +69,13 @@ public interface InlongStreamEntityMapper {
      *
      * @return rows deleted
      */
-    int deleteAllByGroupId(@Param("groupId") String groupId);
+    int deleteAllByInlongGroupId(@Param("groupId") String groupId);
+
+    /**
+     * Physically delete all inlong streams of the specified inlong group id list
+     *
+     * @return rows deleted
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
 }

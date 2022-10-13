@@ -444,4 +444,12 @@
         from stream_sink
         where id = #{id,jdbcType=INTEGER}
     </delete>
+    <delete id="deleteByInlongGroupIds">
+        delete
+        from stream_sink
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

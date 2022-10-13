@@ -47,4 +47,9 @@ public interface InlongStreamFieldEntityMapper {
      */
     int deleteAllByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
+    /**
+     * Physically delete all fields based on group id list
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
+
 }
