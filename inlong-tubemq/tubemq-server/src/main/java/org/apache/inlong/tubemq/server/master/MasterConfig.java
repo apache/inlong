@@ -619,6 +619,9 @@ public class MasterConfig extends AbstractFileConfig {
         if (TStringUtils.isNotBlank(zkeeperSect.get("zkMasterCheckPeriodMs"))) {
             zkMetaConfig.setZkMasterCheckPeriodMs(getInt(zkeeperSect, "zkMasterCheckPeriodMs"));
         }
+        if (TStringUtils.isNotBlank(zkeeperSect.get("zkRequestTimeoutMs"))) {
+            zkMetaConfig.setZkRequestTimeoutMs(getInt(zkeeperSect, "zkRequestTimeoutMs"));
+        }
         return zkMetaConfig;
     }
 

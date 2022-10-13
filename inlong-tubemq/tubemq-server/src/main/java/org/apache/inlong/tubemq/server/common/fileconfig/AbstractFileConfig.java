@@ -279,6 +279,9 @@ public abstract class AbstractFileConfig {
         if (TStringUtils.isNotBlank(zkeeperSect.get("zkCommitFailRetries"))) {
             zkConfig.setZkCommitFailRetries(getInt(zkeeperSect, "zkCommitFailRetries"));
         }
+        if (TStringUtils.isNotBlank(zkeeperSect.get("zkRequestTimeoutMs"))) {
+            zkConfig.setZkRequestTimeoutMs(getInt(zkeeperSect, "zkRequestTimeoutMs"));
+        }
         return zkConfig;
     }
 

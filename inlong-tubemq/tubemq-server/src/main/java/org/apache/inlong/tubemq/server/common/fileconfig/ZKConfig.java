@@ -29,6 +29,9 @@ public class ZKConfig {
     private long zkCommitPeriodMs = 5000L;
     private int zkCommitFailRetries = TServerConstants.CFG_ZK_COMMIT_DEFAULT_RETRIES;
     private long zkMasterCheckPeriodMs = 5000L;
+    private int zkOpMaxRetries = 3;
+    private long zkOpRetryInvlMs = 1000;
+    private int zkRequestTimeoutMs = 18000;
 
     public ZKConfig() {
 
@@ -98,6 +101,30 @@ public class ZKConfig {
         this.zkMasterCheckPeriodMs = zkMasterCheckPeriodMs;
     }
 
+    public int getZkOpMaxRetries() {
+        return zkOpMaxRetries;
+    }
+
+    public void setZkOpMaxRetries(int zkOpMaxRetries) {
+        this.zkOpMaxRetries = zkOpMaxRetries;
+    }
+
+    public long getZkOpRetryInvlMs() {
+        return zkOpRetryInvlMs;
+    }
+
+    public void setZkOpRetryInvlMs(long zkOpRetryInvlMs) {
+        this.zkOpRetryInvlMs = zkOpRetryInvlMs;
+    }
+
+    public int getZkRequestTimeoutMs() {
+        return zkRequestTimeoutMs;
+    }
+
+    public void setZkRequestTimeoutMs(int zkRequestTimeoutMs) {
+        this.zkRequestTimeoutMs = zkRequestTimeoutMs;
+    }
+
     @Override
     public String toString() {
         return new StringBuilder(512)
@@ -109,6 +136,9 @@ public class ZKConfig {
                 .append(",\"zkCommitPeriodMs\":").append(zkCommitPeriodMs)
                 .append(",\"zkCommitFailRetries\":").append(zkCommitFailRetries)
                 .append(",\"zkMasterCheckPeriodMs\":").append(zkMasterCheckPeriodMs)
+                .append(",\"zkOpMaxRetries\":").append(zkOpMaxRetries)
+                .append(",\"zkOpRetryInvlMs\":").append(zkOpRetryInvlMs)
+                .append(",\"zkRequestTimeoutMs\"").append(zkRequestTimeoutMs)
                 .append("}").toString();
     }
 }

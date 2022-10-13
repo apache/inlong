@@ -126,6 +126,7 @@ import org.apache.inlong.tubemq.server.master.stats.prometheus.MasterPromMetricS
 import org.apache.inlong.tubemq.server.master.utils.Chore;
 import org.apache.inlong.tubemq.server.master.utils.SimpleVisitTokenManager;
 import org.apache.inlong.tubemq.server.master.web.WebServer;
+import org.apache.zookeeper.client.ZKClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,6 +175,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * @throws Exception
      */
     public TMaster(MasterConfig masterConfig) throws Exception {
+        if (!masterConfig.isUseBdbStoreMetaData()
+                && masterConfig.getZkMetaConfig() != null
+                && masterConfig.getZkMetaConfig().getZkRequestTimeoutMs() > 0) {
+            System.setProperty(ZKClientConfig.ZOOKEEPER_REQUEST_TIMEOUT,
+                    Integer.toString(masterConfig.getZkMetaConfig().getZkRequestTimeoutMs()));
+        }
         this.masterConfig = masterConfig;
         this.masterRowLock =
                 new RowLock("Master-RowLock", this.masterConfig.getRowLockWaitDurMs());
