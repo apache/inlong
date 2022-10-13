@@ -109,7 +109,6 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
                 "raw-hash", pattern);
     }
 
-
     /**
      * build node relation
      *
@@ -150,7 +149,6 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
         ParseResult result = parser.parse();
         Assert.assertTrue(result.tryExecute());
     }
-
 
     /**
      * Test kafka to kafka with dynamic topic
