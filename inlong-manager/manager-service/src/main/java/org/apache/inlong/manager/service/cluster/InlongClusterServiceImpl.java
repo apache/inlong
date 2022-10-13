@@ -474,7 +474,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to delete cluster info");
 
-        List<InlongClusterNodeEntity> nodeEntities = clusterNodeMapper.selectByParentId(entity.getId());
+        List<InlongClusterNodeEntity> nodeEntities = clusterNodeMapper.selectByParentId(entity.getId(), null);
         if (CollectionUtils.isNotEmpty(nodeEntities)) {
             String errMsg = String.format("there are undeleted nodes under the cluster [%s], "
                     + "please delete the node first", entity.getName());
