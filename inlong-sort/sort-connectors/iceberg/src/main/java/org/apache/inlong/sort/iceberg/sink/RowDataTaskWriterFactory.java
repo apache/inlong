@@ -36,6 +36,8 @@ import org.apache.iceberg.io.PartitionedFanoutWriter;
 import org.apache.iceberg.io.TaskWriter;
 import org.apache.iceberg.io.UnpartitionedWriter;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
+import org.apache.iceberg.relocated.com.google.common.collect.Sets;
+import org.apache.iceberg.types.TypeUtil;
 import org.apache.iceberg.util.ArrayUtil;
 
 import java.util.List;
@@ -79,8 +81,14 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
 
         if (equalityFieldIds == null || equalityFieldIds.isEmpty() || appendMode) {
             this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec);
+        } else if (upsert) {
+            // In upsert mode, only the new row is emitted using INSERT row kind. Therefore, any column of the inserted
+            // row may differ from the deleted row other than the primary key fields, and the delete file must contain
+            // values that are correct for the deleted row. Therefore, only write the equality delete fields.
+            this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec,
+                    ArrayUtil.toIntArray(equalityFieldIds),
+                    TypeUtil.select(schema, Sets.newHashSet(equalityFieldIds)), null);
         } else {
-            // TODO provide the ability to customize the equality-delete row schema.
             this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec,
                     ArrayUtil.toIntArray(equalityFieldIds), schema, null);
         }

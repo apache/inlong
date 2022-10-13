@@ -451,10 +451,9 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
         ClusterSettingEntity clusterSettingEntity = getClusterDefSetting(false);
         int maxMsgSizeInMB = clusterSettingEntity.getMaxMsgSizeInMB();
         TopicCtrlEntity topicCtrlEntity = topicCtrlMapper.getTopicCtrlConf(topicName);
-        if (topicCtrlEntity != null) {
-            if (topicCtrlEntity.getMaxMsgSizeInMB() != TBaseConstants.META_VALUE_UNDEFINED) {
-                maxMsgSizeInMB = topicCtrlEntity.getMaxMsgSizeInMB();
-            }
+        if (topicCtrlEntity != null
+                && topicCtrlEntity.getMaxMsgSizeInMB() != TBaseConstants.META_VALUE_UNDEFINED) {
+            maxMsgSizeInMB = topicCtrlEntity.getMaxMsgSizeInMB();
         }
         return maxMsgSizeInMB;
     }
@@ -470,6 +469,12 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
         return topicCtrlMapper.getTopicCtrlConf(topicNameSet, qryEntity);
     }
 
+    @Override
+    public Map<String, Integer> getMaxMsgSizeInBByTopics(int defMaxMsgSizeInB,
+                                                         Set<String> topicNameSet) {
+        return topicCtrlMapper.getMaxMsgSizeInBByTopics(defMaxMsgSizeInB, topicNameSet);
+    }
+
     /**
      * Add if absent topic control configure info
      *
@@ -481,13 +486,8 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
      */
     private boolean addTopicCtrlConfIfAbsent(BaseEntity opEntity, String topicName,
                                              StringBuilder strBuff, ProcessResult result) {
-        int maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
-        ClusterSettingEntity defSetting = getClusterDefSetting(false);
-        if (defSetting != null) {
-            maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
-        }
         TopicCtrlEntity entity = new TopicCtrlEntity(opEntity, topicName,
-                TBaseConstants.META_VALUE_UNDEFINED, maxMsgSizeInMB);
+                TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED);
         return innAddOrUpdTopicCtrlConf(false, true, entity, strBuff, result);
     }
 
@@ -524,26 +524,8 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
                     strBuff.delete(0, strBuff.length());
                     return result.isSuccess();
                 }
-                if (entity.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED
-                        || entity.getMaxMsgSizeInMB() == TBaseConstants.META_VALUE_UNDEFINED) {
-                    int topicId = entity.getTopicId();
-                    int maxMsgSizeInMB = entity.getMaxMsgSizeInMB();
-                    if (topicId == TBaseConstants.META_VALUE_UNDEFINED) {
-                        topicId = TServerConstants.TOPIC_ID_DEF;
-                    }
-                    if (maxMsgSizeInMB == TBaseConstants.META_VALUE_UNDEFINED) {
-                        maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
-                        ClusterSettingEntity defSetting = getClusterDefSetting(false);
-                        if (defSetting != null) {
-                            maxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
-                        }
-                    }
-                    newEntity = new TopicCtrlEntity(entity, entity.getTopicName(), topicId, maxMsgSizeInMB);
-                    topicCtrlMapper.addTopicCtrlConf(newEntity, strBuff, result);
-
-                } else {
-                    topicCtrlMapper.addTopicCtrlConf(entity, strBuff, result);
-                }
+                entity.fillEmptyValues(getClusterDefSetting(false));
+                topicCtrlMapper.addTopicCtrlConf(entity, strBuff, result);
             } else {
                 if (isAddOpOrOnlyAdd) {
                     if (chkConsistent) {
@@ -609,7 +591,8 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
         Integer topicLockId = null;
         Integer brokerLockId = null;
         // add topic control configure
-        addTopicCtrlConfIfAbsent(entity, entity.getTopicName(), strBuff, result);
+        BaseEntity opEntity = new BaseEntity("systemSelf", new Date());
+        addTopicCtrlConfIfAbsent(opEntity, entity.getTopicName(), strBuff, result);
         // execute add or update operation
         try {
             // lock topicName meta-lock
@@ -653,11 +636,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
                     newProps.updModifyInfo(brokerEntity.getTopicProps());
                     newEntity = new TopicDeployEntity(entity,
                             entity.getBrokerId(), entity.getTopicName(), newProps);
-                    int topicId = entity.getTopicId();
-                    if (entity.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED) {
-                        topicId = TServerConstants.TOPIC_ID_DEF;
-                    }
-                    newEntity.updModifyInfo(entity.getDataVerId(), topicId,
+                    newEntity.updModifyInfo(entity.getDataVerId(), entity.getTopicId(),
                             brokerEntity.getBrokerPort(), brokerEntity.getBrokerIp(),
                             entity.getTopicStatus(), entity.getTopicProps());
                     topicDeployMapper.addTopicDeployConf(newEntity, strBuff, result);
@@ -869,6 +848,11 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     }
 
     @Override
+    public Set<Integer> getDeployedBrokerIdByTopic(Set<String> topicNameSet) {
+        return topicDeployMapper.getDeployedBrokerIdByTopic(topicNameSet);
+    }
+
+    @Override
     public Set<String> getDeployedTopicSet() {
         return topicDeployMapper.getDeployedTopicSet();
     }
@@ -968,6 +952,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
                     strBuff.delete(0, strBuff.length());
                     return result.isSuccess();
                 }
+                entity.fillEmptyValues();
                 groupResCtrlMapper.addGroupResCtrlConf(entity, strBuff, result);
             } else {
                 if (isAddOpOrOnlyAdd) {
@@ -1111,9 +1096,10 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
         GroupConsumeCtrlEntity newEntity;
         String printPrefix = "[addConsumeCtrlConf], ";
         // append topic control configure
-        addTopicCtrlConfIfAbsent(entity, entity.getTopicName(), strBuff, result);
+        BaseEntity opEntity = new BaseEntity("systemSelf", new Date());
+        addTopicCtrlConfIfAbsent(opEntity, entity.getTopicName(), strBuff, result);
         // append group control configure
-        addGroupCtrlConfIfAbsent(entity, entity.getGroupName(), strBuff, result);
+        addGroupCtrlConfIfAbsent(opEntity, entity.getGroupName(), strBuff, result);
         // execute add or update operation
         try {
             // lock topicName meta-lock
@@ -1133,6 +1119,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
                         strBuff.delete(0, strBuff.length());
                         return result.isSuccess();
                     }
+                    entity.fillEmptyValues();
                     consumeCtrlMapper.addGroupConsumeCtrlConf(entity, strBuff, result);
                 } else {
                     if (isAddOpOrOnlyAdd) {

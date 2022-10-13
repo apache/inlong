@@ -20,30 +20,22 @@ package org.apache.inlong.agent.plugin.sources.reader.file;
 import com.google.gson.Gson;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.PodResource;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
+import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_ID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_NAME;
-import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
-import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_HOST;
-import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_PORT;
 import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_CONTAINER_ID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_CONTAINER_NAME;
 import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_NAMESPACE;
@@ -72,28 +64,11 @@ public final class KubernetesFileReader extends AbstractFileReader {
             return;
         }
         try {
-            client = getKubernetesClient();
+            client = PluginUtils.getKubernetesClient();
         } catch (IOException e) {
             log.error("get k8s client error: ", e);
         }
         fileReaderOperator.metadata = getK8sMetadata(fileReaderOperator.jobConf);
-    }
-
-    // TODO only support default config in the POD
-    private KubernetesClient getKubernetesClient() throws IOException {
-        String ip = System.getenv(KUBERNETES_SERVICE_HOST);
-        String port = System.getenv(KUBERNETES_SERVICE_PORT);
-        if (Objects.isNull(ip) && Objects.isNull(port)) {
-            throw new RuntimeException("get k8s client error,k8s env ip and port is null");
-        }
-        String maserUrl = HTTPS.concat(ip).concat(CommonConstants.AGENT_COLON).concat(port);
-        Config config = new ConfigBuilder()
-                .withMasterUrl(maserUrl)
-                .withCaCertFile(Config.KUBERNETES_SERVICE_ACCOUNT_CA_CRT_PATH)
-                .withOauthToken(new String(
-                        Files.readAllBytes((new File(Config.KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH)).toPath())))
-                .build();
-        return new KubernetesClientBuilder().withConfig(config).build();
     }
 
     /**
@@ -132,8 +107,7 @@ public final class KubernetesFileReader extends AbstractFileReader {
             return metadata;
         }
         Pod pod = podResource.get();
-        PodList podList = client.pods().inNamespace(k8sInfo.get(NAMESPACE))
-                .withLabels(MetaDataUtils.getPodLabels(jobConf)).list();
+        PodList podList = client.pods().inNamespace(k8sInfo.get(NAMESPACE)).list();
         podList.getItems().forEach(data -> {
             if (data.equals(pod)) {
                 metadata.put(METADATA_POD_UID, pod.getMetadata().getUid());

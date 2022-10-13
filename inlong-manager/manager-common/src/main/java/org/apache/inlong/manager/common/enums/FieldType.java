@@ -34,6 +34,7 @@ public enum FieldType {
     FIXED,
     BYTE,
     BINARY,
+    VARBINARY,
     BOOLEAN,
     DATE,
     TIME,

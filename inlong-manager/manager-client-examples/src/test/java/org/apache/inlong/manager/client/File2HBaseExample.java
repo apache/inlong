@@ -25,6 +25,7 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.hbase.HBaseColumnFamilyInfo;
@@ -109,9 +110,9 @@ public class File2HBaseExample extends BaseExample {
     }
 
     /**
-     * Create iceberg sink
+     * Create HBase sink
      */
-    public HBaseSink createHBaseSink() throws Exception {
+    public HBaseSink createHBaseSink() {
         HBaseSink sink = new HBaseSink();
 
         sink.setSinkName("{sink.name}");
@@ -130,15 +131,15 @@ public class File2HBaseExample extends BaseExample {
         // field ext param
         HBaseColumnFamilyInfo info1 = new HBaseColumnFamilyInfo();
         info1.setCfName("cf_1");
-        field1.setExtParams(OBJECT_MAPPER.writeValueAsString(info1));
+        field1.setExtParams(JsonUtils.toJsonString(info1));
 
         HBaseColumnFamilyInfo info2 = new HBaseColumnFamilyInfo();
         info2.setCfName("cf_2");
-        field2.setExtParams(OBJECT_MAPPER.writeValueAsString(info2));
+        field2.setExtParams(JsonUtils.toJsonString(info2));
 
         HBaseColumnFamilyInfo info3 = new HBaseColumnFamilyInfo();
         info3.setCfName("cf_3");
-        field3.setExtParams(OBJECT_MAPPER.writeValueAsString(info3));
+        field3.setExtParams(JsonUtils.toJsonString(info3));
 
         List<SinkField> fields = new ArrayList<>();
         fields.add(field1);

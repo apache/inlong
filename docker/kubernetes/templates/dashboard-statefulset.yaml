@@ -92,5 +92,12 @@ spec:
           ports:
             - name: {{ .Values.dashboard.component }}-port
               containerPort: 80
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.dashboard.component }}-port
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 10
+            timeoutSeconds: 5
       restartPolicy: Always
 {{- end }}

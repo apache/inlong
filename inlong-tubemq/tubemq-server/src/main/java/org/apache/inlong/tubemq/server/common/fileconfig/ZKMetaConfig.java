@@ -44,6 +44,7 @@ public class ZKMetaConfig extends ZKConfig {
                 .append(",\"zkCommitPeriodMs\":").append(getZkCommitPeriodMs())
                 .append(",\"zkCommitFailRetries\":").append(getZkCommitFailRetries())
                 .append(",\"zkMasterCheckPeriodMs\":").append(zkMasterCheckPeriodMs)
+                .append(",\"zkRequestTimeoutMs\":").append(getZkRequestTimeoutMs())
                 .append("}").toString();
     }
 }

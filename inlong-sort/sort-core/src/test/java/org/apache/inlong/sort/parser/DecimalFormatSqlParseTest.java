@@ -54,7 +54,7 @@ public class DecimalFormatSqlParseTest extends AbstractTestBase {
         return new KafkaExtractNode("1", "kafka_input", fields, null,
                 null, "kafka_input", "localhost:9092",
                 new CanalJsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
-                null, "groupId_1", null);
+                null, "groupId_1", null, null);
     }
 
     private KafkaLoadNode buildKafkaLoadNode() {

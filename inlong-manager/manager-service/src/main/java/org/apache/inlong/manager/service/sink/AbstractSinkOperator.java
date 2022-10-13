@@ -35,6 +35,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     protected StreamSinkEntityMapper sinkMapper;
     @Autowired
     protected StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired
+    protected DataNodeOperateHelper dataNodeHelper;
 
     /**
      * Setting the parameters of the latest entity.

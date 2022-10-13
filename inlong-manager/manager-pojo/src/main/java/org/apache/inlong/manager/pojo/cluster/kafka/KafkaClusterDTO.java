@@ -17,14 +17,13 @@
 
 package org.apache.inlong.manager.pojo.cluster.kafka;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 
@@ -36,9 +35,6 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @ApiModel("Kafka cluster info")
 public class KafkaClusterDTO {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false); // thread safe
 
     /**
      * Get the dto instance from the request
@@ -53,7 +49,7 @@ public class KafkaClusterDTO {
      */
     public static KafkaClusterDTO getFromJson(@NotNull String extParams) {
         try {
-            return OBJECT_MAPPER.readValue(extParams, KafkaClusterDTO.class);
+            return JsonUtils.parseObject(extParams, KafkaClusterDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

@@ -60,9 +60,14 @@ public enum MetaField {
     OP_TYPE,
 
     /**
-     * MySQL binlog data Row. Currently, it is used for MySQL database.
+     * Represents a canal json of a record in database (in string format)
      */
     DATA,
+
+    /**
+     * Represents a canal json of a record in database (in bytes format)
+     */
+    DATA_BYTES,
 
     /**
      * The value of the field before update. Currently, it is used for MySQL database.

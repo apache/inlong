@@ -22,9 +22,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
@@ -98,6 +101,10 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                 "adminDeleteConsumeGroupSetting");
         registerModifyWebMethod("admin_rebalance_group_allocate",
                 "adminRebalanceGroupAllocateInfo");
+        registerModifyWebMethod("admin_set_client_balance_group_consume_from_max",
+                "adminSetBalanceGroupConsumeFromMax");
+        registerQueryWebMethod("admin_query_client_balance_group_set",
+                "adminQueryClientBalanceGroupSet");
     }
 
     /**
@@ -619,12 +626,11 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
             for (String topicName : topicNameSet) {
                 ctrlEntity = defMetaDataService.getConsumeCtrlByGroupAndTopic(
                         groupName, topicName);
-                if (ctrlEntity != null) {
-                    if (ctrlEntity.getConsumeEnable() == EnableStatus.STATUS_ENABLE) {
-                        result.setFailResult(DataOpErrCode.DERR_SUCCESS.getCode(), "Ok!");
-                        retInfoList.add(new GroupProcessResult(groupName, topicName, result));
-                        continue;
-                    }
+                if (ctrlEntity != null
+                        && ctrlEntity.getConsumeEnable() == EnableStatus.STATUS_ENABLE) {
+                    result.setFailResult(DataOpErrCode.DERR_SUCCESS.getCode(), "Ok!");
+                    retInfoList.add(new GroupProcessResult(groupName, topicName, result));
+                    continue;
                 }
                 retInfoList.add(defMetaDataService.insertConsumeCtrlInfo(opEntity, groupName,
                         topicName, Boolean.TRUE, "Old API add, enable consume",
@@ -665,13 +671,12 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         for (GroupConsumeCtrlEntity entry : addRecordMap.values()) {
             ctrlEntity = defMetaDataService.getConsumeCtrlByGroupAndTopic(
                     entry.getGroupName(), entry.getTopicName());
-            if (ctrlEntity != null) {
-                if (ctrlEntity.getConsumeEnable() == EnableStatus.STATUS_ENABLE) {
-                    result.setFailResult(DataOpErrCode.DERR_SUCCESS.getCode(), "Ok!");
-                    retInfoList.add(new GroupProcessResult(entry.getGroupName(),
-                            entry.getTopicName(), result));
-                    continue;
-                }
+            if (ctrlEntity != null
+                    && ctrlEntity.getConsumeEnable() == EnableStatus.STATUS_ENABLE) {
+                result.setFailResult(DataOpErrCode.DERR_SUCCESS.getCode(), "Ok!");
+                retInfoList.add(new GroupProcessResult(entry.getGroupName(),
+                        entry.getTopicName(), result));
+                continue;
             }
             retInfoList.add(defMetaDataService.insertConsumeCtrlInfo(entry, sBuffer, result));
         }
@@ -1153,8 +1158,16 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         }
         int allowedBClientRate = (int) result.getRetData();
         // add or update group control record
+        GroupResCtrlEntity grpResCtrl;
         List<GroupProcessResult> retInfoList = new ArrayList<>();
         for (String groupName : groupNameSet) {
+            grpResCtrl = defMetaDataService.getGroupCtrlConf(groupName);
+            if (!isAddOp && grpResCtrl == null) {
+                result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                        DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                retInfoList.add(new GroupProcessResult(groupName, "", result));
+                continue;
+            }
             retInfoList.add(defMetaDataService.insertGroupCtrlConf(opEntity,
                     groupName, resChkEnable, allowedBClientRate, sBuffer, result));
         }
@@ -1214,9 +1227,15 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                 ctrlEntity =
                         defMetaDataService.getConsumeCtrlByGroupAndTopic(groupName, topicName);
                 if (ctrlEntity == null) {
-                    retInfoList.add(defMetaDataService.insertConsumeCtrlInfo(opEntity, groupName,
-                            topicName, Boolean.TRUE, "Old API set filter conditions",
-                            filterEnable, filterCondStr, sBuffer, result));
+                    if (isAddOp) {
+                        retInfoList.add(defMetaDataService.insertConsumeCtrlInfo(opEntity, groupName,
+                                topicName, Boolean.TRUE, "Old API set filter conditions",
+                                filterEnable, filterCondStr, sBuffer, result));
+                    } else {
+                        result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                                DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                        retInfoList.add(new GroupProcessResult(groupName, "", result));
+                    }
                 } else {
                     retInfoList.add(defMetaDataService.insertConsumeCtrlInfo(opEntity, groupName,
                             topicName, null, "Old API set filter conditions",
@@ -1260,7 +1279,15 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
             curEntity = defMetaDataService.getConsumeCtrlByGroupAndTopic(
                     entry.getGroupName(), entry.getTopicName());
             if (curEntity == null) {
-                entry.setConsumeEnable(true);
+                if (isAddOp) {
+                    entry.setConsumeEnable(true);
+                } else {
+                    result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                            DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                    retInfoList.add(new GroupProcessResult(entry.getGroupName(),
+                            entry.getTopicName(), result));
+                    continue;
+                }
             }
             retInfoList.add(defMetaDataService.insertConsumeCtrlInfo(entry, sBuffer, result));
         }
@@ -1475,4 +1502,91 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         return result.isSuccess();
     }
 
+    /**
+     * Query client balance group set
+     *
+     * @param req      request
+     * @param sBuffer  string buffer
+     * @param result   process result
+     *
+     * @return   process result
+     */
+    public StringBuilder adminQueryClientBalanceGroupSet(HttpServletRequest req,
+                                                         StringBuilder sBuffer,
+                                                         ProcessResult result) {
+        try {
+            ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
+            List<String> clientGroups = consumerHolder.getAllClientBalanceGroups();
+            int j = 0;
+            WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+            for (String groupName : clientGroups) {
+                if (TStringUtils.isEmpty(groupName)) {
+                    continue;
+                }
+                if (j++ > 0) {
+                    sBuffer.append(",");
+                }
+                sBuffer.append("\"").append(groupName).append("\"");
+            }
+            WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, j);
+        } catch (Exception e) {
+            sBuffer.delete(0, sBuffer.length());
+            WebParameterUtils.buildFailResult(sBuffer, e.getMessage());
+        }
+        return sBuffer;
+    }
+
+    /**
+     * Set online client-balance group consume from max offset
+     *
+     * @param req     the request object
+     * @param sBuffer  string buffer
+     * @param result   the result object
+     * @return  the return result
+     */
+    public StringBuilder adminSetBalanceGroupConsumeFromMax(HttpServletRequest req,
+                                                            StringBuilder sBuffer,
+                                                            ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // get group list
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, true, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        final Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // process offset setting
+        ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
+        List<String> clientGroups = consumerHolder.getAllClientBalanceGroups();
+        Set<String> filtedGroupSet = new TreeSet<>();
+        for (String groupName : groupNameSet) {
+            if (clientGroups.contains(groupName)) {
+                filtedGroupSet.add(groupName);
+            }
+        }
+        if (filtedGroupSet.isEmpty()) {
+            WebParameterUtils.buildFailResult(sBuffer,
+                    "all consumer groups are not client balance groups");
+        } else {
+            ConsumeGroupInfo groupInfo;
+            for (String groupName : filtedGroupSet) {
+                groupInfo = consumerHolder.getConsumeGroupInfo(groupName);
+                if (groupInfo == null) {
+                    continue;
+                }
+                groupInfo.updCsmFromMaxCtrlId();
+            }
+            logger.info(sBuffer.append("[Admin reset] ").append(opEntity.getModifyUser())
+                    .append(" set client-balance group consume from max offset, group set = ")
+                    .append(filtedGroupSet.toString()).toString());
+            sBuffer.delete(0, sBuffer.length());
+            WebParameterUtils.buildSuccessResult(sBuffer);
+        }
+        return sBuffer;
+    }
 }

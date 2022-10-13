@@ -20,35 +20,40 @@ import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from './common/sourceFields';
 
-const greenplumFieldTypes = [
-  'SMALLINT',
-  'INT2',
-  'SMALLSERIAL',
-  'SERIAL',
-  'SERIAL2',
-  'INTEGER',
-  'BIGINT',
-  'BIGSERIAL',
-  'REAL',
-  'FLOAT4',
-  'FLOAT8',
-  'DOUBLE',
-  'NUMERIC',
-  'DECIMAL',
-  'BOOLEAN',
-  'DATE',
-  'TIME',
-  'TIMESTAMP',
-  'CHAR',
-  'CHARACTER',
-  'VARCHAR',
-  'TEXT',
-  'BYTEA',
-  // 'interval',
-].map(item => ({
-  label: item,
-  value: item,
-}));
+const fieldTypesConf = {
+  SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  INT2: () => '',
+  SMALLSERIAL: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  SERIAL: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  SERIAL2: () => '',
+  INTEGER: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
+  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  BIGSERIAL: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
+  REAL: () => '',
+  FLOAT4: () => '',
+  FLOAT8: () => '',
+  DOUBLE: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  BOOLEAN: () => '',
+  DATE: () => '',
+  TIME: () => '',
+  TIMESTAMP: () => '',
+  CHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1 <= M <= 255'),
+  CHARACTER: (m, d) => (1 <= m && m <= 255 ? '' : '1 <= M <= 255'),
+  VARCHAR: (m, d) => (1 <= m && m <= 255 ? '' : '1 <= M <= 255'),
+  TEXT: () => '',
+  BYTEA: () => '',
+};
+
+const greenplumFieldTypes = Object.keys(fieldTypesConf).reduce(
+  (acc, key) =>
+    acc.concat({
+      label: key,
+      value: key,
+    }),
+  [],
+);
 
 export const greenplum: FieldItemType[] = [
   {
@@ -154,12 +159,29 @@ const getFieldListColumns = sinkValues => {
       title: `GREENPLUM${i18n.t('meta.Sinks.Greenplum.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: greenplumFieldTypes[0].value,
-      type: 'select',
+      type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: greenplumFieldTypes,
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
-      rules: [{ required: true }],
+      rules: [
+        { required: true },
+        () => ({
+          validator(_, val) {
+            if (val) {
+              const [, type = val, typeLength = ''] = val.match(/^(.+)\((.+)\)$/) || [];
+              if (fieldTypesConf.hasOwnProperty(type)) {
+                const [m = -1, d = -1] = typeLength.split(',');
+                const errMsg = fieldTypesConf[type]?.(m, d);
+                if (typeLength && errMsg) return Promise.reject(new Error(errMsg));
+              } else {
+                return Promise.reject(new Error('FieldType error'));
+              }
+            }
+            return Promise.resolve();
+          },
+        }),
+      ],
     },
     {
       title: i18n.t('meta.Sinks.Greenplum.IsMetaField'),

@@ -82,6 +82,7 @@ import org.apache.inlong.tubemq.corebase.utils.OpsSyncInfo;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.corerpc.RpcConfig;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
 import org.apache.inlong.tubemq.corerpc.RpcServiceFactory;
@@ -125,6 +126,7 @@ import org.apache.inlong.tubemq.server.master.stats.prometheus.MasterPromMetricS
 import org.apache.inlong.tubemq.server.master.utils.Chore;
 import org.apache.inlong.tubemq.server.master.utils.SimpleVisitTokenManager;
 import org.apache.inlong.tubemq.server.master.web.WebServer;
+import org.apache.zookeeper.client.ZKClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,6 +175,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * @throws Exception
      */
     public TMaster(MasterConfig masterConfig) throws Exception {
+        if (!masterConfig.isUseBdbStoreMetaData()
+                && masterConfig.getZkMetaConfig() != null
+                && masterConfig.getZkMetaConfig().getZkRequestTimeoutMs() > 0) {
+            System.setProperty(ZKClientConfig.ZOOKEEPER_REQUEST_TIMEOUT,
+                    Integer.toString(masterConfig.getZkMetaConfig().getZkRequestTimeoutMs()));
+        }
         this.masterConfig = masterConfig;
         this.masterRowLock =
                 new RowLock("Master-RowLock", this.masterConfig.getRowLockWaitDurMs());
@@ -352,13 +360,17 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         heartbeatManager.regProducerNode(producerId);
         producerHolder.setProducerInfo(producerId,
                 new HashSet<>(transTopicSet), hostName, overtls);
+        // get current configure information
         Tuple2<Long, Map<Integer, String>> brokerStaticInfo =
                 brokerRunManager.getBrokerStaticInfo(overtls);
+        Tuple3<Long, Integer, Map<String, String>> prodTopicConfigTuple =
+                getTopicConfigureInfos(producerId, true);
         builder.setBrokerCheckSum(brokerStaticInfo.getF0());
         builder.addAllBrokerInfos(brokerStaticInfo.getF1().values());
-        builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
+        builder.setAuthorizedInfo(genAuthorizedInfo(
+                certResult.authorizedToken, false).build());
         ClientMaster.ApprovedClientConfig.Builder clientConfigBuilder =
-                buildApprovedClientConfig(request.getAppdConfig());
+                buildApprovedClientConfig(request.getAppdConfig(), prodTopicConfigTuple);
         if (clientConfigBuilder != null) {
             builder.setAppdConfig(clientConfigBuilder);
         }
@@ -443,24 +455,30 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         topicPSInfoManager.addProducerTopicPubInfo(producerId, transTopicSet);
         producerHolder.updateProducerInfo(producerId,
                 transTopicSet, hostName, overtls);
-        Map<String, String> availTopicPartitions = getProducerTopicPartitionInfo(producerId);
-        builder.addAllTopicInfos(availTopicPartitions.values());
-        builder.setAuthorizedInfo(genAuthorizedInfo(certResult.authorizedToken, false).build());
+        // get current configure information and set
         Tuple2<Long, Map<Integer, String>> brokerStaticInfo =
                 brokerRunManager.getBrokerStaticInfo(overtls);
+        final Tuple3<Long, Integer, Map<String, String>> prodTopicConfigTuple =
+                getTopicConfigureInfos(producerId, false);
+        builder.setAuthorizedInfo(genAuthorizedInfo(
+                certResult.authorizedToken, false).build());
         builder.setBrokerCheckSum(brokerStaticInfo.getF0());
         if (brokerStaticInfo.getF0() != inBrokerCheckSum) {
             builder.addAllBrokerInfos(brokerStaticInfo.getF1().values());
         }
+        if (prodTopicConfigTuple.getF2() != null) {
+            builder.addAllTopicInfos(prodTopicConfigTuple.getF2().values());
+        }
         ClientMaster.ApprovedClientConfig.Builder clientConfigBuilder =
-                buildApprovedClientConfig(request.getAppdConfig());
+                buildApprovedClientConfig(request.getAppdConfig(), prodTopicConfigTuple);
         if (clientConfigBuilder != null) {
             builder.setAppdConfig(clientConfigBuilder);
         }
         if (logger.isDebugEnabled()) {
             logger.debug(strBuffer.append("[Push Producer's available topic count:]")
                     .append(producerId).append(TokenConstants.LOG_SEG_SEP)
-                    .append(availTopicPartitions.size()).toString());
+                    .append((prodTopicConfigTuple.getF2() == null)
+                            ? 0 : prodTopicConfigTuple.getF2().size()).toString());
         }
         builder.setSuccess(true);
         builder.setErrCode(TErrCodeConstants.SUCCESS);
@@ -564,6 +582,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         final Set<String> reqTopicSet = (Set<String>) result.getRetData();
+        final Map<String, TreeSet<String>> reqTopicConditions =
+                DataConverterUtil.convertTopicConditions(request.getTopicConditionList());
         String requiredParts = request.hasRequiredPartition() ? request.getRequiredPartition() : "";
         ConsumeType csmType = (request.hasRequireBound() && request.getRequireBound())
                 ? ConsumeType.CONSUME_BAND : ConsumeType.CONSUME_NORMAL;
@@ -576,8 +596,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         Map<String, Long> requiredPartMap = (Map<String, Long>) paramCheckResult.checkData;
-        Map<String, TreeSet<String>> reqTopicConditions =
-                DataConverterUtil.convertTopicConditions(request.getTopicConditionList());
         String sessionKey = request.hasSessionKey() ? request.getSessionKey() : "";
         long sessionTime = request.hasSessionTime()
                 ? request.getSessionTime() : System.currentTimeMillis();
@@ -642,20 +660,24 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             consumeGroupInfo = (ConsumeGroupInfo) paramCheckResult.checkData;
             topicPSInfoManager.addGroupSubTopicInfo(groupName, reqTopicSet);
             if (CollectionUtils.isNotEmpty(subscribeList)) {
-                Map<String, Map<String, Partition>> topicPartSubMap =
-                        new HashMap<>();
+                int reportCnt = 0;
+                Map<String, Partition> partMap;
+                Map<String, Map<String, Partition>> topicPartSubMap = new HashMap<>();
                 currentSubInfo.put(consumerId, topicPartSubMap);
+                strBuffer.append("[SubInfo Report] client=").append(consumerId)
+                        .append(", subscribed partitions=[");
                 for (SubscribeInfo info : subscribeList) {
-                    Map<String, Partition> partMap = topicPartSubMap.get(info.getTopic());
-                    if (partMap == null) {
-                        partMap = new HashMap<>();
-                        topicPartSubMap.put(info.getTopic(), partMap);
-                    }
+                    partMap = topicPartSubMap.computeIfAbsent(
+                            info.getTopic(), k -> new HashMap<>());
                     partMap.put(info.getPartition().getPartitionKey(), info.getPartition());
-                    logger.info(strBuffer.append("[SubInfo Report]")
-                            .append(info.toString()).toString());
-                    strBuffer.delete(0, strBuffer.length());
+                    if (reportCnt++ > 0) {
+                        strBuffer.append(",");
+                    }
+                    strBuffer.append(info.getPartitionStr());
                 }
+                strBuffer.append("]");
+                logger.info(strBuffer.toString());
+                strBuffer.delete(0, strBuffer.length());
             }
             heartbeatManager.regConsumerNode(getConsumerKey(groupName, consumerId));
         } catch (IOException e) {
@@ -817,7 +839,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             strBuffer.delete(0, strBuffer.length());
             try {
                 consumeGroupInfo.settAllocated();
-                consumerEventManager.removeFirst(clientId);
+                consumerEventManager.removeFirst(clientId, strBuffer);
             } catch (Throwable e) {
                 logger.warn("Unknown exception for remove first event:", e);
             }
@@ -1601,19 +1623,29 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * @param producerId
      * @return
      */
-    private Map<String, String> getProducerTopicPartitionInfo(String producerId) {
-        ProducerInfo producerInfo =
-                producerHolder.getProducerInfo(producerId);
+    private Tuple3<Long, Integer, Map<String, String>> getTopicConfigureInfos(String producerId,
+                                                                              boolean onlyMsgSize) {
+        Tuple3<Long, Integer, Map<String, String>> result = new Tuple3<>();
+        ClusterSettingEntity clusterEntity =
+                defMetaDataService.getClusterDefSetting(false);
+        result.setF0AndF1(clusterEntity.getSerialId(),
+                clusterEntity.getMaxMsgSizeInB());
+        if (onlyMsgSize) {
+            return result;
+        }
+        ProducerInfo producerInfo = producerHolder.getProducerInfo(producerId);
         if (producerInfo == null) {
-            return new HashMap<>();
+            return result;
         }
-        Set<String> producerInfoTopicSet =
-                producerInfo.getTopicSet();
-        if ((producerInfoTopicSet == null)
-                || (producerInfoTopicSet.isEmpty())) {
-            return new HashMap<>();
+        Set<String> publishedTopicSet = producerInfo.getTopicSet();
+        if ((publishedTopicSet == null)
+                || (publishedTopicSet.isEmpty())) {
+            return result;
         }
-        return brokerRunManager.getPubBrokerAcceptPubPartInfo(producerInfoTopicSet);
+        Map<String, Integer> topicAndSizeMap =
+                defMetaDataService.getMaxMsgSizeInBByTopics(result.getF1(), publishedTopicSet);
+        result.setF2(brokerRunManager.getPubBrokerAcceptPubPartInfo(topicAndSizeMap));
+        return result;
     }
 
     @Override
@@ -1642,12 +1674,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         final StringBuilder strBuffer = new StringBuilder(512);
         final long balanceId = idGenerator.incrementAndGet();
         if (defMetaDataService != null) {
-            logger.info(strBuffer.append("[Balance Start] ").append(balanceId)
+            logger.info(strBuffer.append("[Balance Status] ").append(balanceId)
                     .append(", isMaster=").append(defMetaDataService.isSelfMaster())
                     .append(", isPrimaryNodeActive=")
                     .append(defMetaDataService.isPrimaryNodeActive()).toString());
         } else {
-            logger.info(strBuffer.append("[Balance Start] ").append(balanceId)
+            logger.info(strBuffer.append("[Balance Status] ").append(balanceId)
                     .append(", BDB service is null isMaster= false, isPrimaryNodeActive=false").toString());
         }
         strBuffer.delete(0, strBuffer.length());
@@ -1655,7 +1687,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         processClientBalanceMetaInfo(balanceId, strBuffer);
         // process server-balance
         processServerBalance(tMaster, balanceId, strBuffer);
-        logger.info(strBuffer.append("[Balance End] ").append(balanceId).toString());
     }
 
     private void processServerBalance(TMaster tMaster,
@@ -1663,7 +1694,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                                       StringBuilder sBuffer) {
         int curDoingTasks = this.curSvrBalanceParal.get();
         if (curDoingTasks > 0) {
-            logger.info(sBuffer.append("[Svr-Balance End] ").append(balanceId)
+            logger.info(sBuffer.append("[Svr-Balance Status] ").append(balanceId)
                     .append(" the Server-Balance has ").append(curDoingTasks)
                     .append(" task(s) in progress!").toString());
             sBuffer.delete(0, sBuffer.length());
@@ -1704,13 +1735,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                             if (subGroups.isEmpty()) {
                                 return;
                             }
+                            final StringBuilder strBuffer = new StringBuilder(512);
                             // first process reset rebalance task;
                             try {
                                 tMaster.processResetbalance(balanceId,
-                                        isStartBalance, subGroups);
+                                        isStartBalance, subGroups, strBuffer);
                             } catch (Throwable e) {
                                 logger.warn(new StringBuilder(1024)
-                                        .append("[Svr-Balance processor] Error during reset-reb,")
+                                        .append("[Svr-Balance Status] Error during reset-reb,")
                                         .append("the groups that may be affected are ")
                                         .append(subGroups).append(",error is ")
                                         .append(e).toString());
@@ -1721,16 +1753,16 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                             // second process normal balance task;
                             try {
                                 tMaster.processRebalance(balanceId,
-                                        isStartBalance, subGroups);
+                                        isStartBalance, subGroups, strBuffer);
                             } catch (Throwable e) {
                                 logger.warn(new StringBuilder(1024)
-                                        .append("[Svr-Balance processor] Error during normal-reb,")
+                                        .append("[Svr-Balance Status] Error during normal-reb,")
                                         .append("the groups that may be affected are ")
                                         .append(subGroups).append(",error is ")
                                         .append(e).toString());
                             }
                         } catch (Throwable e) {
-                            logger.warn("[Svr-Balance processor] Error during process", e);
+                            logger.warn("[Svr-Balance Status] Error during process", e);
                         } finally {
                             if (curSvrBalanceParal.decrementAndGet() == 0) {
                                 MasterSrvStatsHolder.updSvrBalanceDurations(
@@ -1742,14 +1774,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             }
         }
         startupBalance = false;
-        logger.info(sBuffer.append("[Svr-Balance End] ").append(balanceId).toString());
-        sBuffer.delete(0, sBuffer.length());
     }
 
     private void processClientBalanceMetaInfo(long balanceId, StringBuilder sBuffer) {
         int curDoingTasks = this.curCltBalanceParal.get();
         if (curDoingTasks > 0) {
-            logger.info(sBuffer.append("[Clt-Balance End] ").append(balanceId)
+            logger.info(sBuffer.append("[Clt-Balance Status] ").append(balanceId)
                     .append(" the Client-Balance has ").append(curDoingTasks)
                     .append(" task(s) in progress!").toString());
             sBuffer.delete(0, sBuffer.length());
@@ -1794,7 +1824,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                                 freshTopicMetaInfo(consumeGroupInfo, sBuffer2);
                             }
                         } catch (Throwable e) {
-                            logger.warn("[Clt-Balance processor] Error during process", e);
+                            logger.warn("[Clt-Balance Status] Error during process", e);
                         } finally {
                             curCltBalanceParal.decrementAndGet();
                         }
@@ -1802,8 +1832,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 });
             }
         }
-        logger.info(sBuffer.append("[Clt-Balance End] ").append(balanceId).toString());
-        sBuffer.delete(0, sBuffer.length());
     }
 
     public void freshTopicMetaInfo(ConsumeGroupInfo consumeGroupInfo, StringBuilder sBuffer) {
@@ -1826,7 +1854,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         }
         int count = 0;
         int statusId = 0;
-        TopicInfo topicInfo;
+        Tuple2<Boolean, TopicInfo> topicSubInfo = new Tuple2<>();
         Set<String> fbdTopicSet =
                 defMetaDataService.getDisableTopicByGroupName(groupInfo.getGroupName());
         for (Map.Entry<String, List<TopicDeployEntity>> entry : topicDeployInfoMap.entrySet()) {
@@ -1834,14 +1862,14 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 continue;
             }
             count = 0;
-            statusId = 0;
             for (TopicDeployEntity deployInfo : entry.getValue()) {
-                topicInfo =
-                        brokerRunManager.getPubBrokerTopicInfo(
-                                deployInfo.getBrokerId(), deployInfo.getTopicName());
-                if (topicInfo != null
-                        && topicInfo.isAcceptSubscribe()
-                        && !fbdTopicSet.contains(topicInfo.getTopic())) {
+                statusId = 0;
+                brokerRunManager.getSubBrokerTopicInfo(deployInfo.getBrokerId(),
+                        deployInfo.getTopicName(), topicSubInfo);
+                if (topicSubInfo.getF0()
+                        && topicSubInfo.getF1() != null
+                        && topicSubInfo.getF1().isAcceptSubscribe()
+                        && !fbdTopicSet.contains(deployInfo.getTopicName())) {
                     statusId = 1;
                 }
                 if (count++ == 0) {
@@ -1868,11 +1896,12 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * @param rebalanceId   the re-balance id
      * @param isFirstReb    whether is first re-balance
      * @param groups        the need re-balance group set
+     * @param strBuffer     string buffer
      */
-    public void processRebalance(long rebalanceId, boolean isFirstReb, List<String> groups) {
+    public void processRebalance(long rebalanceId, boolean isFirstReb,
+                                 List<String> groups, StringBuilder strBuffer) {
         // #lizard forgives
-        Map<String, Map<String, List<Partition>>> finalSubInfoMap = null;
-        final StringBuilder strBuffer = new StringBuilder(512);
+        Map<String, Map<String, List<Partition>>> finalSubInfoMap;
         // choose different load balance strategy
         if (isFirstReb) {
             finalSubInfoMap = this.loadBalancer.bukAssign(consumerHolder,
@@ -1881,122 +1910,91 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             finalSubInfoMap = this.loadBalancer.balanceCluster(currentSubInfo,
                     consumerHolder, brokerRunManager, groups, defMetaDataService, strBuffer);
         }
+        boolean included;
+        String consumerId;
+        boolean isDelEmpty;
+        boolean isAddEmtpy;
+        ConsumerInfo consumerInfo;
+        Set<String> blackTopicSet;
+        List<SubscribeInfo> deletedSubInfoList;
+        List<SubscribeInfo> addedSubInfoList;
+        Map<String, Partition> currentPartMap;
+        Map<String, Map<String, Partition>> curTopicSubInfoMap;
         // allocate partitions to consumers
         for (Map.Entry<String, Map<String, List<Partition>>> entry : finalSubInfoMap.entrySet()) {
             if (entry == null) {
                 continue;
             }
-            String consumerId = entry.getKey();
+            consumerId = entry.getKey();
             if (consumerId == null) {
                 continue;
             }
-            ConsumerInfo consumerInfo =
-                    consumerHolder.getConsumerInfo(consumerId);
+            consumerInfo = consumerHolder.getConsumerInfo(consumerId);
             if (consumerInfo == null) {
                 continue;
             }
-            Set<String> blackTopicSet =
+            addedSubInfoList = new ArrayList<>();
+            deletedSubInfoList = new ArrayList<>();
+            blackTopicSet =
                     defMetaDataService.getDisableTopicByGroupName(consumerInfo.getGroupName());
-            Map<String, List<Partition>> topicSubPartMap = entry.getValue();
-            List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
-            List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
-            for (Map.Entry<String, List<Partition>> topicEntry : topicSubPartMap.entrySet()) {
+            for (Map.Entry<String, List<Partition>> topicEntry : entry.getValue().entrySet()) {
                 if (topicEntry == null) {
                     continue;
                 }
-                String topic = topicEntry.getKey();
-                List<Partition> finalPartList = topicEntry.getValue();
-                Map<String, Partition> currentPartMap = null;
-                Map<String, Map<String, Partition>> curTopicSubInfoMap =
-                        currentSubInfo.get(consumerId);
-                if (curTopicSubInfoMap == null || curTopicSubInfoMap.get(topic) == null) {
+                curTopicSubInfoMap = currentSubInfo.get(consumerId);
+                if (curTopicSubInfoMap == null
+                        || curTopicSubInfoMap.get(topicEntry.getKey()) == null) {
                     currentPartMap = new HashMap<>();
                 } else {
-                    currentPartMap = curTopicSubInfoMap.get(topic);
+                    currentPartMap = curTopicSubInfoMap.get(topicEntry.getKey());
                     if (currentPartMap == null) {
                         currentPartMap = new HashMap<>();
                     }
                 }
-                if (consumerInfo.isOverTLS()) {
-                    for (Partition currentPart : currentPartMap.values()) {
-                        if (!blackTopicSet.contains(currentPart.getTopic())) {
-                            boolean found = false;
-                            for (Partition newPart : finalPartList) {
-                                if (newPart.getPartitionFullStr(true)
-                                        .equals(currentPart.getPartitionFullStr(true))) {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (found) {
+                for (Partition currentPart : currentPartMap.values()) {
+                    included = false;
+                    if (!blackTopicSet.contains(currentPart.getTopic())) {
+                        for (Partition newPart : topicEntry.getValue()) {
+                            if (newPart == null) {
                                 continue;
                             }
-                        }
-                        deletedSubInfoList
-                                .add(new SubscribeInfo(consumerId, consumerInfo.getGroupName(),
-                                        consumerInfo.isOverTLS(), currentPart));
-                    }
-                    for (Partition finalPart : finalPartList) {
-                        if (!blackTopicSet.contains(finalPart.getTopic())) {
-                            boolean found = false;
-                            for (Partition curPart : currentPartMap.values()) {
-                                if (finalPart.getPartitionFullStr(true)
-                                        .equals(curPart.getPartitionFullStr(true))) {
-                                    found = true;
-                                    break;
-                                }
+                            if (newPart.getPartitionKey().equals(
+                                    currentPart.getPartitionKey())) {
+                                included = true;
+                                break;
                             }
-                            if (found) {
-                                continue;
-                            }
-                            addedSubInfoList.add(new SubscribeInfo(consumerId,
-                                    consumerInfo.getGroupName(), true, finalPart));
                         }
                     }
-                } else {
-                    for (Partition currentPart : currentPartMap.values()) {
-                        if ((blackTopicSet.contains(currentPart.getTopic()))
-                                || (!finalPartList.contains(currentPart))) {
-                            deletedSubInfoList.add(new SubscribeInfo(consumerId,
-                                    consumerInfo.getGroupName(), false, currentPart));
-                        }
+                    if (!included) {
+                        deletedSubInfoList.add(new SubscribeInfo(consumerId,
+                                consumerInfo.getGroupName(), consumerInfo.isOverTLS(), currentPart));
                     }
-                    for (Partition finalPart : finalPartList) {
-                        if ((currentPartMap.get(finalPart.getPartitionKey()) == null)
-                                && (!blackTopicSet.contains(finalPart.getTopic()))) {
-                            addedSubInfoList.add(new SubscribeInfo(consumerId,
-                                    consumerInfo.getGroupName(), false, finalPart));
-                        }
+                }
+                for (Partition finalPart : topicEntry.getValue()) {
+                    if ((currentPartMap.get(finalPart.getPartitionKey()) == null)
+                            && (!blackTopicSet.contains(finalPart.getTopic()))) {
+                        addedSubInfoList.add(new SubscribeInfo(consumerId,
+                                consumerInfo.getGroupName(), consumerInfo.isOverTLS(), finalPart));
                     }
                 }
             }
-            boolean isDelEmpty = deletedSubInfoList.isEmpty();
-            boolean isAddEmtpy = addedSubInfoList.isEmpty();
+            isDelEmpty = deletedSubInfoList.isEmpty();
+            isAddEmtpy = addedSubInfoList.isEmpty();
             if (!isDelEmpty) {
-                EventType opType =
-                        (!isAddEmtpy) ? EventType.DISCONNECT : EventType.ONLY_DISCONNECT;
-                consumerEventManager
-                        .addDisconnectEvent(consumerId,
-                                new ConsumerEvent(rebalanceId, opType,
-                                        deletedSubInfoList, EventStatus.TODO));
-                for (SubscribeInfo info : deletedSubInfoList) {
-                    logger.info(strBuffer.append("[Disconnect]")
-                            .append(info.toString()).toString());
-                    strBuffer.delete(0, strBuffer.length());
-                }
+                consumerEventManager.addDisconnectEvent(consumerId,
+                        new ConsumerEvent(rebalanceId,
+                                (!isAddEmtpy) ? EventType.DISCONNECT : EventType.ONLY_DISCONNECT,
+                                deletedSubInfoList, EventStatus.TODO));
+                printTODOContent(rebalanceId, consumerId,
+                        "Disconnect", deletedSubInfoList, strBuffer);
             }
             if (!isAddEmtpy) {
-                EventType opType =
-                        (!isDelEmpty) ? EventType.CONNECT : EventType.ONLY_CONNECT;
-                consumerEventManager
-                        .addConnectEvent(consumerId,
-                                new ConsumerEvent(rebalanceId, opType,
-                                        addedSubInfoList, EventStatus.TODO));
-                for (SubscribeInfo info : addedSubInfoList) {
-                    logger.info(strBuffer.append("[Connect]")
-                            .append(info.toString()).toString());
-                    strBuffer.delete(0, strBuffer.length());
-                }
+                consumerEventManager.addConnectEvent(consumerId,
+                        new ConsumerEvent(rebalanceId,
+                                (!isDelEmpty) ? EventType.CONNECT : EventType.ONLY_CONNECT,
+                                addedSubInfoList, EventStatus.TODO));
+                printTODOContent(rebalanceId, consumerId,
+                        "Connect", addedSubInfoList, strBuffer);
             }
         }
     }
@@ -2004,10 +2002,10 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
     /**
      * process Reset balance
      */
-    public void processResetbalance(long rebalanceId, boolean isFirstReb, List<String> groups) {
+    public void processResetbalance(long rebalanceId, boolean isFirstReb,
+                                    List<String> groups, StringBuilder strBuffer) {
         // #lizard forgives
-        final StringBuilder strBuffer = new StringBuilder(512);
-        Map<String, Map<String, Map<String, Partition>>> finalSubInfoMap = null;
+        Map<String, Map<String, Map<String, Partition>>> finalSubInfoMap;
         // choose different load balance strategy
         if (isFirstReb) {
             finalSubInfoMap =  this.loadBalancer.resetBukAssign(consumerHolder,
@@ -2016,46 +2014,51 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             finalSubInfoMap = this.loadBalancer.resetBalanceCluster(currentSubInfo,
                     consumerHolder, brokerRunManager, groups, this.defMetaDataService, strBuffer);
         }
+        String consumerId;
+        boolean isAddEmtpy;
+        boolean isDelEmpty;
+        ConsumerInfo consumerInfo;
+        Set<String> blackTopicSet;
+        List<SubscribeInfo> addedSubInfoList;
+        List<SubscribeInfo> deletedSubInfoList;
+        Map<String, Partition> finalPartMap;
+        Map<String, Partition> currentPartMap;
+        Map<String, Map<String, Partition>> curTopicSubInfoMap;
         // filter
         for (Map.Entry<String, Map<String, Map<String, Partition>>> entry
                 : finalSubInfoMap.entrySet()) {
             if (entry == null) {
                 continue;
             }
-            String consumerId = entry.getKey();
+            consumerId = entry.getKey();
             if (consumerId == null) {
                 continue;
             }
-            ConsumerInfo consumerInfo =
-                    consumerHolder.getConsumerInfo(consumerId);
+            consumerInfo = consumerHolder.getConsumerInfo(consumerId);
             if (consumerInfo == null) {
                 continue;
             }
             // allocate partitions to consumers
-            Set<String> blackTopicSet =
+            addedSubInfoList = new ArrayList<>();
+            deletedSubInfoList = new ArrayList<>();
+            blackTopicSet =
                     defMetaDataService.getDisableTopicByGroupName(consumerInfo.getGroupName());
-            Map<String, Map<String, Partition>> topicSubPartMap = entry.getValue();
-            List<SubscribeInfo> deletedSubInfoList = new ArrayList<>();
-            List<SubscribeInfo> addedSubInfoList = new ArrayList<>();
-            for (Map.Entry<String, Map<String, Partition>> topicEntry : topicSubPartMap.entrySet()) {
+            for (Map.Entry<String, Map<String, Partition>> topicEntry : entry.getValue().entrySet()) {
                 if (topicEntry == null) {
                     continue;
                 }
-                String topic = topicEntry.getKey();
-                Map<String, Partition> finalPartMap = topicEntry.getValue();
-                Map<String, Partition> currentPartMap = null;
-                Map<String, Map<String, Partition>> curTopicSubInfoMap =
-                        currentSubInfo.get(consumerId);
+                curTopicSubInfoMap = currentSubInfo.get(consumerId);
                 if (curTopicSubInfoMap == null
-                        || curTopicSubInfoMap.get(topic) == null) {
+                        || curTopicSubInfoMap.get(topicEntry.getKey()) == null) {
                     currentPartMap = new HashMap<>();
                 } else {
-                    currentPartMap = curTopicSubInfoMap.get(topic);
+                    currentPartMap = curTopicSubInfoMap.get(topicEntry.getKey());
                     if (currentPartMap == null) {
                         currentPartMap = new HashMap<>();
                     }
                 }
                 // filter
+                finalPartMap = topicEntry.getValue();
                 for (Partition currentPart : currentPartMap.values()) {
                     if ((blackTopicSet.contains(currentPart.getTopic()))
                             || (finalPartMap.get(currentPart.getPartitionKey()) == null)) {
@@ -2073,33 +2076,53 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 }
             }
             // generate consumer event
-            boolean isDelEmpty = deletedSubInfoList.isEmpty();
-            boolean isAddEmtpy = addedSubInfoList.isEmpty();
+            isDelEmpty = deletedSubInfoList.isEmpty();
+            isAddEmtpy = addedSubInfoList.isEmpty();
             if (!isDelEmpty) {
-                EventType opType =
-                        (!isAddEmtpy) ? EventType.DISCONNECT : EventType.ONLY_DISCONNECT;
                 consumerEventManager.addDisconnectEvent(consumerId,
-                        new ConsumerEvent(rebalanceId, opType,
+                        new ConsumerEvent(rebalanceId,
+                                (!isAddEmtpy) ? EventType.DISCONNECT : EventType.ONLY_DISCONNECT,
                                 deletedSubInfoList, EventStatus.TODO));
-                for (SubscribeInfo info : deletedSubInfoList) {
-                    logger.info(strBuffer.append("[ResetDisconnect]")
-                            .append(info.toString()).toString());
-                    strBuffer.delete(0, strBuffer.length());
-                }
+                printTODOContent(rebalanceId, consumerId,
+                        "ResetDisconnect", deletedSubInfoList, strBuffer);
             }
             if (!isAddEmtpy) {
-                EventType opType =
-                        (!isDelEmpty) ? EventType.CONNECT : EventType.ONLY_CONNECT;
                 consumerEventManager.addConnectEvent(consumerId,
-                        new ConsumerEvent(rebalanceId, opType,
+                        new ConsumerEvent(rebalanceId,
+                                (!isDelEmpty) ? EventType.CONNECT : EventType.ONLY_CONNECT,
                                 addedSubInfoList, EventStatus.TODO));
-                for (SubscribeInfo info : addedSubInfoList) {
-                    logger.info(strBuffer.append("[ResetConnect]")
-                            .append(info.toString()).toString());
-                    strBuffer.delete(0, strBuffer.length());
-                }
+                printTODOContent(rebalanceId, consumerId,
+                        "ResetConnect", addedSubInfoList, strBuffer);
             }
         }
+    }
+
+    /**
+     * Print the TODO subscribe info
+     *
+     * @param rebalanceId    the rebalance id
+     * @param consumerId     the consumer id
+     * @param opType         the operation type
+     * @param subInfoList    the subscribe set
+     * @param strBuffer      the string buffer
+     */
+    private void printTODOContent(long rebalanceId, String consumerId, String opType,
+                                  List<SubscribeInfo> subInfoList, StringBuilder strBuffer) {
+        int recordCnt = 0;
+        strBuffer.append("[").append(opType).append("] TODO, rebalanceId=").append(rebalanceId)
+                .append(", client=").append(consumerId).append(", partitions=[");
+        for (SubscribeInfo info : subInfoList) {
+            if (info == null) {
+                continue;
+            }
+            if (recordCnt++ > 0) {
+                strBuffer.append(",");
+            }
+            strBuffer.append(info.getPartitionStr());
+        }
+        strBuffer.append("]");
+        logger.info(strBuffer.toString());
+        strBuffer.delete(0, strBuffer.length());
     }
 
     /**
@@ -2177,6 +2200,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         List<String> groupsNeedToBalance = new ArrayList<>();
         Set<String> groupHasUnfinishedEvent = new HashSet<>();
         if (consumerEventManager.hasEvent()) {
+            String group;
             Set<String> consumerIdSet =
                     consumerEventManager.getUnProcessedIdSet();
             Map<String, TimeoutInfo> heartbeatMap =
@@ -2185,7 +2209,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                 if (consumerId == null) {
                     continue;
                 }
-                String group = consumerHolder.getGroupName(consumerId);
+                group = consumerHolder.getGroupName(consumerId);
                 if (group == null) {
                     continue;
                 }
@@ -2238,23 +2262,20 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      * build approved client configure
      *
      * @param inClientConfig client reported Configure info
+     * @param prodConfigTuple     published max topic size tuple
      * @return ApprovedClientConfig
      */
     private ClientMaster.ApprovedClientConfig.Builder buildApprovedClientConfig(
-            ClientMaster.ApprovedClientConfig inClientConfig) {
+            ClientMaster.ApprovedClientConfig inClientConfig,
+            Tuple3<Long, Integer, Map<String, String>> prodConfigTuple) {
         ClientMaster.ApprovedClientConfig.Builder outClientConfig = null;
-        if (inClientConfig != null) {
-            outClientConfig = ClientMaster.ApprovedClientConfig.newBuilder();
-            ClusterSettingEntity settingEntity =
-                    this.defMetaDataService.getClusterDefSetting(false);
-            if (settingEntity == null) {
-                outClientConfig.setConfigId(TBaseConstants.META_VALUE_UNDEFINED);
-            } else {
-                outClientConfig.setConfigId(settingEntity.getSerialId());
-                if (settingEntity.getSerialId() != inClientConfig.getConfigId()) {
-                    outClientConfig.setMaxMsgSize(settingEntity.getMaxMsgSizeInB());
-                }
-            }
+        if (inClientConfig == null) {
+            return outClientConfig;
+        }
+        outClientConfig = ClientMaster.ApprovedClientConfig.newBuilder();
+        outClientConfig.setConfigId(prodConfigTuple.getF0());
+        if (inClientConfig.getConfigId() != prodConfigTuple.getF0()) {
+            outClientConfig.setMaxMsgSize(prodConfigTuple.getF1());
         }
         return outClientConfig;
     }
@@ -2407,7 +2428,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
                     .append(consumerId).append(" report the info: [");
             printHeader = false;
         }
-        sBuffer.append(type).append(info.toString()).append(", ");
+        sBuffer.append(type).append(info).append(", ");
         return printHeader;
     }
 

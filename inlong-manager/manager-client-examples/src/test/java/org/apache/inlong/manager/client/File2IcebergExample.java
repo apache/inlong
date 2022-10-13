@@ -25,6 +25,7 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergColumnInfo;
@@ -111,9 +112,9 @@ public class File2IcebergExample extends BaseExample {
     }
 
     /**
-     * Create iceberg sink
+     * Create Iceberg sink
      */
-    public IcebergSink createIcebergSink() throws Exception {
+    public IcebergSink createIcebergSink() {
         IcebergSink sink = new IcebergSink();
 
         sink.setSinkName("{sink.name}");
@@ -136,18 +137,18 @@ public class File2IcebergExample extends BaseExample {
         info1.setRequired(true);
         info1.setPartitionStrategy(IcebergPartition.BUCKET.toString());
         info1.setBucketNum(10);
-        field1.setExtParams(OBJECT_MAPPER.writeValueAsString(info1));
+        field1.setExtParams(JsonUtils.toJsonString(info1));
 
         // field3: decimal column example
         IcebergColumnInfo info3 = new IcebergColumnInfo();
         info3.setScale(5);
-        info3.setPrecision(10);  //NOTE: scale must be less than or equal to precision
-        field3.setExtParams(OBJECT_MAPPER.writeValueAsString(info3));
+        info3.setPrecision(10);  // scale must be less than or equal to precision
+        field3.setExtParams(JsonUtils.toJsonString(info3));
 
-        // field4: hour parititon example
+        // field4: hour partition example
         IcebergColumnInfo info4 = new IcebergColumnInfo();
         info4.setPartitionStrategy(IcebergPartition.HOUR.toString());
-        field4.setExtParams(OBJECT_MAPPER.writeValueAsString(info4));
+        field4.setExtParams(JsonUtils.toJsonString(info4));
 
         List<SinkField> fields = new ArrayList<>();
         fields.add(field1);

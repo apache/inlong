@@ -22,8 +22,8 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.jupiter.api.Assertions;
@@ -71,7 +71,7 @@ class DataNodeControllerTest extends WebBaseTest {
         // get
         MvcResult getResult = getForSuccessMvcResult("/api/node/get/{id}", dataNodeId);
 
-        DataNodeResponse dataNode = getResBodyObj(getResult, DataNodeResponse.class);
+        DataNodeInfo dataNode = getResBodyObj(getResult, DataNodeInfo.class);
         Assertions.assertNotNull(dataNode);
         Assertions.assertEquals(getHiveDataNodeRequest().getName(), dataNode.getName());
 

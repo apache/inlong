@@ -97,7 +97,7 @@ public final class TServerConstants {
     public static final int OFFSET_HISTORY_NUMSTORES = 1;
     public static final int OFFSET_HISTORY_NUMPARTS = 10;
     public static final long CFG_DEFAULT_GROUP_OFFSET_SCAN_DUR = 60000L;
-    public static final long CFG_MIN_GROUP_OFFSET_SCAN_DUR = 30000L;
+    public static final long CFG_MIN_GROUP_OFFSET_SCAN_DUR = 20000L;
     public static final long CFG_MAX_GROUP_OFFSET_SCAN_DUR = 480000L;
 
     public static final long CFG_OFFSET_RESET_MIN_ALARM_CHECK =

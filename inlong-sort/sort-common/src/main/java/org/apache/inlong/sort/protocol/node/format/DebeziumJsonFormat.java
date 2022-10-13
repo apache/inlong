@@ -38,6 +38,8 @@ public class DebeziumJsonFormat implements Format {
 
     private static final long serialVersionUID = 1L;
 
+    private static final String IDENTIFIER = "debezium-json";
+
     @JsonProperty(value = "schemaInclude", defaultValue = "false")
     private Boolean schemaInclude;
     @JsonProperty(value = "ignoreParseErrors", defaultValue = "true")
@@ -80,7 +82,12 @@ public class DebeziumJsonFormat implements Format {
     @JsonIgnore
     @Override
     public String getFormat() {
-        return "debezium-json";
+        return IDENTIFIER;
+    }
+
+    @Override
+    public String identifier() {
+        return IDENTIFIER;
     }
 
     /**

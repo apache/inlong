@@ -77,6 +77,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         innRegisterWebMethod("admin_snapshot_message",
                 "adminQuerySnapshotMessageSet", false);
         // query broker's all consumer info
+        innRegisterWebMethod("admin_get_group_detail_info",
+                "adminQueryBrokerAllConsumerInfo", false);
+        // Replaced by admin_get_group_detail_info
         innRegisterWebMethod("admin_query_broker_all_consumer_info",
                 "adminQueryBrokerAllConsumerInfo", false);
         // get memory store status info
@@ -86,6 +89,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         innRegisterWebMethod("admin_query_broker_all_store_info",
                 "adminQueryBrokerAllMessageStoreInfo", false);
         // query consumer register info
+        innRegisterWebMethod("admin_get_partition_reginfo",
+                "adminQueryConsumerRegisterInfo", false);
+        // Replaced by admin_get_partition_reginfo
         innRegisterWebMethod("admin_query_consumer_regmap",
                 "adminQueryConsumerRegisterInfo", false);
         // manual set offset
@@ -98,6 +104,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         innRegisterWebMethod("admin_query_pubinfo",
                 "adminQueryPubInfo", false);
         // Query all consumer groups booked on the Broker.
+        innRegisterWebMethod("admin_get_booked_groupname",
+                "adminQueryBookedGroup", false);
+        // Replaced by admin_get_booked_groupname
         innRegisterWebMethod("admin_query_group",
                 "adminQueryBookedGroup", false);
         // query consumer group's offset
@@ -550,27 +559,39 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      * Query the consumed partition information of online consumer.
      *
      * @param req      request
-     * @param sBuffer  process result
+     * @param strBuff  process result
      */
     public void adminQueryConsumerRegisterInfo(HttpServletRequest req,
-                                               StringBuilder sBuffer) {
+                                               StringBuilder strBuff) {
+        ProcessResult result = new ProcessResult();
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSGROUPNAME, false, null, strBuff, result)) {
+            WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
+            return;
+        }
+        Set<String> groupNameSet = (Set<String>) result.getRetData();
+        // get online partition-client map
+        int totalCnt = 0;
         Map<String, ConsumerNodeInfo> map =
                 broker.getBrokerServiceServer().getConsumerRegisterMap();
-        int totalCnt = 0;
-        sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
+        strBuff.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
         for (Entry<String, ConsumerNodeInfo> entry : map.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
-            if (totalCnt++ > 0) {
-                sBuffer.append(",");
+            if (!groupNameSet.isEmpty()
+                    && !groupNameSet.contains(entry.getValue().getGroupName())) {
+                continue;
             }
-            sBuffer.append("{\"Partition\":\"").append(entry.getKey())
+            if (totalCnt++ > 0) {
+                strBuff.append(",");
+            }
+            strBuff.append("{\"Partition\":\"").append(entry.getKey())
                     .append("\",\"Consumer\":\"")
                     .append(entry.getValue().getConsumerId())
                     .append("\",\"index\":").append(totalCnt).append("}");
         }
-        sBuffer.append("],\"totalCnt\":").append(totalCnt).append("}");
+        strBuff.append("],\"totalCnt\":").append(totalCnt).append("}");
     }
 
     /**
@@ -854,7 +875,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         filterCodes.add(groupName);
         // build consumer node information
         ConsumerNodeInfo consumerNodeInfo = new ConsumerNodeInfo(broker.getStoreManager(),
-                "offsetConsumer", filterCodes, "", System.currentTimeMillis(), "", "");
+                groupName, "offsetConsumer", filterCodes, "", System.currentTimeMillis(), "", "");
         // query records from storage
         int qryRetryCount = 0;
         long itemInitOffset = requestOffset;

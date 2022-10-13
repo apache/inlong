@@ -79,7 +79,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 new WatermarkField(new FieldInfo("order_time", new TimestampFormatInfo(3))),
                 null, "orders", "localhost:9092",
                 new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null,
-                "groupId_1", null);
+                "groupId_1", null, null);
     }
 
     private KafkaExtractNode buildIntervalJoinRightStream() {
@@ -93,7 +93,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 new WatermarkField(new FieldInfo("update_time", new TimestampFormatInfo(3))),
                 null, "currency_rates", "localhost:9092",
                 new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null,
-                "groupId_2", null);
+                "groupId_2", null, null);
     }
 
     private KafkaLoadNode buildKafkaLoadNode() {

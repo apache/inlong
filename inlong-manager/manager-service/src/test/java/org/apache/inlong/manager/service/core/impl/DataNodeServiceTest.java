@@ -48,7 +48,6 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         request.setToken(password);
         request.setDescription("test cluster");
         request.setInCharges(GLOBAL_OPERATOR);
-        request.setJdbcUrl("127.0.0.1");
         request.setToken("123456");
         return dataNodeService.save(request, GLOBAL_OPERATOR);
     }

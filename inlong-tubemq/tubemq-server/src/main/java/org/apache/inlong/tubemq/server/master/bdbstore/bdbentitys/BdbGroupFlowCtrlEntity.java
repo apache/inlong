@@ -262,14 +262,21 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
     }
 
     public String getCreateUser() {
-        return TStringUtils.getAttrValFrmAttributes(
+        String tmpCreateUser = TStringUtils.getAttrValFrmAttributes(
                 this.attributes, TStoreConstants.TOKEN_CREATE_USER);
+        if (TStringUtils.isEmpty(tmpCreateUser)) {
+            tmpCreateUser = this.createUser;
+        }
+        return tmpCreateUser;
     }
 
     public Date getCreateDate() {
         String dateStr = TStringUtils.getAttrValFrmAttributes(
                 this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
-        return DateTimeConvertUtils.yyyyMMddHHmmss2date(dateStr);
+        if (TStringUtils.isNotEmpty(dateStr)) {
+            return DateTimeConvertUtils.yyyyMMddHHmmss2date(dateStr);
+        }
+        return this.createDate;
     }
 
     public String getStrModifyDate() {
@@ -277,8 +284,12 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
     }
 
     public String getStrCreateDate() {
-        return TStringUtils.getAttrValFrmAttributes(
+        String dateStr = TStringUtils.getAttrValFrmAttributes(
                 this.attributes, TStoreConstants.TOKEN_CREATE_DATE);
+        if (TStringUtils.isEmpty(dateStr)) {
+            dateStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate);
+        }
+        return dateStr;
     }
 
     @Override
@@ -294,7 +305,7 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
                 .append("attributes", attributes)
                 .append("createUser", getCreateUser())
                 .append("createDate", getCreateUser())
-                .append("modifyUser", createUser)
+                .append("modifyUser", getModifyUser())
                 .append("modifyDate", getStrModifyDate())
                 .toString();
     }
@@ -318,7 +329,7 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
                 .append(", \"attributes\":\"").append(attributes)
                 .append(",\"createUser\":\"").append(getCreateUser())
                 .append("\",\"createDate\":\"").append(getStrCreateDate())
-                .append("\",\"modifyUser\":\"").append(createUser)
+                .append("\",\"modifyUser\":\"").append(getModifyUser())
                 .append("\",\"modifyDate\":\"").append(getStrModifyDate())
                 .append("\"}");
     }

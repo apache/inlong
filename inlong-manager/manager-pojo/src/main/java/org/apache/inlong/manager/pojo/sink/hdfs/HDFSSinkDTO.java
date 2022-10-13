@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sink.hdfs;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -39,8 +38,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HDFSSinkDTO {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
     private String fileFormat;
@@ -83,8 +80,7 @@ public class HDFSSinkDTO {
      */
     public static HDFSSinkDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, HDFSSinkDTO.class);
+            return JsonUtils.parseObject(extParams, HDFSSinkDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

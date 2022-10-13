@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sink.iceberg;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +24,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -39,8 +38,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class IcebergSinkDTO {
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
     @Builder.Default
@@ -92,8 +89,7 @@ public class IcebergSinkDTO {
 
     public static IcebergSinkDTO getFromJson(@NotNull String extParams) {
         try {
-            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, IcebergSinkDTO.class);
+            return JsonUtils.parseObject(extParams, IcebergSinkDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }

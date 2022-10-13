@@ -102,7 +102,7 @@
                 'false': '否',
                 '-': '-'
             };
-            var url = G_CONFIG.HOST + "?type=op_query&method=admin_query_cluster_topic_view&" + $.param(
+            var url = G_CONFIG.HOST + "?type=op_query&method=admin_query_topic_broker_config_info&" + $.param(
                     opts);
 
             if (!this.$topicListDataTable) {
@@ -126,13 +126,13 @@
                             return html;
                         }
                     }, {
-                        "data": "totalCfgBrokerCnt"
+                        "data": "brokerTotalCfgCnt"
                     }, {
-                        "data": "totalCfgNumPart"
+                        "data": "partTotalCfgCnt"
                     }, {
-                        "data": "totalRunNumPartCount"
+                        "data": "partTotalRunCnt"
                     }, {
-                        "data": "isSrvAcceptPublish",
+                        "data": "topicSrvAccPubStatus",
                         "orderable": false,
                         "render": function (data,
                                             type,
@@ -149,7 +149,7 @@
                                 + '"><input type="checkbox" checked></span>';
                         }
                     }, {
-                        "data": "isSrvAcceptSubscribe",
+                        "data": "topicSrvAccSubStatus",
                         "orderable": false,
                         "render": function (data,
                                             type,

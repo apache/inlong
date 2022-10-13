@@ -26,6 +26,7 @@ import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
@@ -74,7 +75,8 @@ public class CreateCommand extends AbstractCommand {
                     content = ClientUtils.readFile(file);
                 }
                 // first extract group config from the file passed in
-                CreateGroupConf groupConf = objectMapper.readValue(content, CreateGroupConf.class);
+                CreateGroupConf groupConf = JsonUtils.parseObject(content, CreateGroupConf.class);
+                assert groupConf != null;
                 // get the corresponding inlong group, aka the task to execute
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
@@ -107,9 +109,10 @@ public class CreateCommand extends AbstractCommand {
         void run() {
             try {
                 String content = ClientUtils.readFile(file);
-                ClusterRequest request = objectMapper.readValue(content, ClusterRequest.class);
+                ClusterRequest request = JsonUtils.parseObject(content, ClusterRequest.class);
                 ClientUtils.initClientFactory();
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
+                assert request != null;
                 Integer clusterId = clusterClient.saveCluster(request);
                 if (clusterId != null) {
                     System.out.println("Create cluster success! ID: " + clusterId);
@@ -133,7 +136,7 @@ public class CreateCommand extends AbstractCommand {
         void run() {
             try {
                 String content = ClientUtils.readFile(file);
-                ClusterTagRequest request = objectMapper.readValue(content, ClusterTagRequest.class);
+                ClusterTagRequest request = JsonUtils.parseObject(content, ClusterTagRequest.class);
                 ClientUtils.initClientFactory();
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 Integer tagId = clusterClient.saveTag(request);
@@ -159,7 +162,7 @@ public class CreateCommand extends AbstractCommand {
         void run() {
             try {
                 String content = ClientUtils.readFile(file);
-                ClusterNodeRequest request = objectMapper.readValue(content, ClusterNodeRequest.class);
+                ClusterNodeRequest request = JsonUtils.parseObject(content, ClusterNodeRequest.class);
                 ClientUtils.initClientFactory();
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 Integer nodeId = clusterClient.saveNode(request);

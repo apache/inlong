@@ -173,8 +173,8 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
-    public Tuple2<Boolean, Boolean> getBrokerPublishStatus(int brokerId) {
-        return brokerPubSubInfo.getBrokerPubStatus(brokerId);
+    public void getBrokerPublishStatus(int brokerId, Tuple2<Boolean, Boolean> result) {
+        brokerPubSubInfo.getBrokerPubStatus(brokerId, result);
     }
 
     @Override
@@ -490,6 +490,12 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
+    public void iniBrokerConfInfo(int brokerId, ManageStatus mngStatus,
+                                  Map<String, TopicInfo> topicInfoMap) {
+        brokerPubSubInfo.iniBrokerConfigInfo(brokerId, mngStatus, topicInfoMap);
+    }
+
+    @Override
     public boolean updBrokerCsmConfInfo(int brokerId, ManageStatus mngStatus,
                                         Map<String, TopicInfo> topicInfoMap) {
         brokerPubSubInfo.updBrokerMangeStatus(brokerId, mngStatus);
@@ -503,8 +509,8 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
-    public Map<String, String> getPubBrokerAcceptPubPartInfo(Set<String> topicSet) {
-        return brokerPubSubInfo.getAcceptPubPartInfo(topicSet);
+    public Map<String, String> getPubBrokerAcceptPubPartInfo(Map<String, Integer> topicSizeMap) {
+        return brokerPubSubInfo.getAcceptPubPartInfo(topicSizeMap);
     }
 
     @Override
@@ -523,13 +529,20 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     }
 
     @Override
-    public TopicInfo getPubBrokerTopicInfo(int brokerId, String topic) {
-        return brokerPubSubInfo.getBrokerPubPushedTopicInfo(brokerId, topic);
+    public void getSubBrokerTopicInfo(int brokerId, String topic,
+                                      Tuple2<Boolean, TopicInfo> result) {
+        brokerPubSubInfo.getBrokerSubPushedTopicInfo(brokerId, topic, result);
     }
 
     @Override
-    public List<TopicInfo> getPubBrokerPushedTopicInfo(int brokerId) {
-        return brokerPubSubInfo.getPubBrokerPushedTopicInfo(brokerId);
+    public void getPubBrokerTopicInfo(int brokerId, String topic,
+                                      Tuple3<Boolean, Boolean, TopicInfo> result) {
+        brokerPubSubInfo.getBrokerPubPushedTopicInfo(brokerId, topic, result);
     }
 
+    @Override
+    public void getPubBrokerPushedTopicInfo(int brokerId,
+                                            Tuple3<Boolean, Boolean, List<TopicInfo>> result) {
+        brokerPubSubInfo.getPubBrokerPushedTopicInfo(brokerId, result);
+    }
 }

@@ -19,6 +19,7 @@
 package org.apache.inlong.sdk.sort.api;
 
 import org.apache.inlong.sdk.sort.api.SortClientConfig.TopicType;
+import org.apache.inlong.sdk.sort.manager.InlongMultiTopicManager;
 import org.apache.inlong.sdk.sort.manager.InlongSingleTopicManager;
 
 /**
@@ -47,6 +48,6 @@ public class InlongTopicManagerFactory {
     public static TopicManager createMultiTopicManager(
             ClientContext context,
             QueryConsumeConfig queryConsumeConfig) {
-        return null;
+        return new InlongMultiTopicManager(context, queryConsumeConfig);
     }
 }

@@ -54,9 +54,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         this.topicName = topicName;
         this.topicNameId = topicNameId;
         this.authCtrlStatus = EnableStatus.STATUS_DISABLE;
-        this.maxMsgSizeInB =
-                SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(maxMsgSizeInMB);
-        this.maxMsgSizeInMB = maxMsgSizeInMB;
+        fillMaxMsgSizeInMB(maxMsgSizeInMB);
     }
 
     /**
@@ -165,14 +163,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set modified field
         if (newMaxMsgSizeMB != TBaseConstants.META_VALUE_UNDEFINED) {
-            int tmpMaxMsgSizeInMB =
-                    SettingValidUtils.validAndGetMsgSizeInMB(newMaxMsgSizeMB);
-            if (this.maxMsgSizeInMB != tmpMaxMsgSizeInMB) {
-                changed = true;
-                this.maxMsgSizeInMB = tmpMaxMsgSizeInMB;
-                this.maxMsgSizeInB =
-                        SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
-            }
+            changed = fillMaxMsgSizeInMB(newMaxMsgSizeMB);
         }
         // check and set authCtrlStatus info
         if (enableTopicAuth != null
@@ -185,6 +176,27 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
             updSerialId();
         }
         return changed;
+    }
+
+    /**
+     * fill empty fields with default value
+     *
+     * @param defSetting  current system default setting
+     *
+     * @return  object
+     */
+    public TopicCtrlEntity fillEmptyValues(ClusterSettingEntity defSetting) {
+        if (this.maxMsgSizeInMB == TBaseConstants.META_VALUE_UNDEFINED) {
+            int tmpMaxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
+            if (defSetting != null) {
+                tmpMaxMsgSizeInMB = defSetting.getMaxMsgSizeInMB();
+            }
+            fillMaxMsgSizeInMB(tmpMaxMsgSizeInMB);
+        }
+        if (this.authCtrlStatus == EnableStatus.STATUS_UNDEFINE) {
+            this.authCtrlStatus = EnableStatus.STATUS_DISABLE;
+        }
+        return this;
     }
 
     /**
@@ -242,14 +254,30 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         return sBuilder;
     }
 
-    private void fillMaxMsgSizeInB(int maxMsgSizeInB) {
-        int tmpMaxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
-        if (maxMsgSizeInB > TBaseConstants.META_MB_UNIT_SIZE) {
-            tmpMaxMsgSizeInMB = SettingValidUtils.validAndGetMsgSizeBtoMB(maxMsgSizeInB);
+    private boolean fillMaxMsgSizeInB(int maxMsgSizeInB) {
+        boolean changed = false;
+        int tmpMaxMsgSizeInMB =
+                SettingValidUtils.validAndGetMsgSizeBtoMB(maxMsgSizeInB);
+        if (this.maxMsgSizeInMB != tmpMaxMsgSizeInMB) {
+            changed = true;
+            this.maxMsgSizeInMB = tmpMaxMsgSizeInMB;
+            this.maxMsgSizeInB =
+                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
         }
-        this.maxMsgSizeInMB = tmpMaxMsgSizeInMB;
-        this.maxMsgSizeInB =
-                SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(this.maxMsgSizeInMB);
+        return changed;
+    }
+
+    private boolean fillMaxMsgSizeInMB(int maxMsgSizeInMB) {
+        boolean changed = false;
+        int tmpMaxMsgSizeInMB =
+                SettingValidUtils.validAndGetMsgSizeInMB(maxMsgSizeInMB);
+        if (this.maxMsgSizeInMB != tmpMaxMsgSizeInMB) {
+            changed = true;
+            this.maxMsgSizeInMB = tmpMaxMsgSizeInMB;
+            this.maxMsgSizeInB =
+                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
+        }
+        return changed;
     }
 
     /**

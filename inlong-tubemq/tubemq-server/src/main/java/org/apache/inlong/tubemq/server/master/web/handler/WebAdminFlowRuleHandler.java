@@ -28,8 +28,10 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
+import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 
@@ -172,11 +174,19 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
         }
         Set<String> groupNameSet = (Set<String>) result.getRetData();
         // add or modify records
+        GroupResCtrlEntity ctrlEntity;
         List<GroupProcessResult> retInfoList = new ArrayList<>();
         for (String groupName : groupNameSet) {
-            retInfoList.add(defMetaDataService.insertGroupCtrlConf(opEntity, groupName,
-                    TServerConstants.QRY_PRIORITY_DEF_VALUE, Boolean.FALSE,
-                    0, TServerConstants.BLANK_FLOWCTRL_RULES, sBuffer, result));
+            ctrlEntity = defMetaDataService.getGroupCtrlConf(groupName);
+            if (ctrlEntity != null
+                    && ctrlEntity.getFlowCtrlStatus() != EnableStatus.STATUS_DISABLE) {
+                retInfoList.add(defMetaDataService.insertGroupCtrlConf(opEntity, groupName,
+                        TServerConstants.QRY_PRIORITY_DEF_VALUE, Boolean.FALSE,
+                        0, TServerConstants.BLANK_FLOWCTRL_RULES, sBuffer, result));
+            } else {
+                result.setFullInfo(true, DataOpErrCode.DERR_SUCCESS.getCode(), "Ok");
+                retInfoList.add(new GroupProcessResult(groupName, "", result));
+            }
         }
         return buildRetInfo(retInfoList, sBuffer);
     }
@@ -230,10 +240,23 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
         }
         String flowCtrlInfo = (String) result.getRetData();
         // add or modify records
+        GroupResCtrlEntity ctrlEntity;
         List<GroupProcessResult> retInfoList = new ArrayList<>();
         for (String groupName : groupNameSet) {
-            retInfoList.add(defMetaDataService.insertGroupCtrlConf(opEntity, groupName,
-                    qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuffer, result));
+            ctrlEntity = defMetaDataService.getGroupCtrlConf(groupName);
+            if (ctrlEntity == null) {
+                if (isAddOp) {
+                    retInfoList.add(defMetaDataService.insertGroupCtrlConf(opEntity, groupName,
+                            qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuffer, result));
+                } else {
+                    result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
+                            DataOpErrCode.DERR_NOT_EXIST.getDescription());
+                    retInfoList.add(new GroupProcessResult(groupName, "", result));
+                }
+            } else {
+                retInfoList.add(defMetaDataService.insertGroupCtrlConf(opEntity, groupName,
+                        qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo, sBuffer, result));
+            }
         }
         return buildRetInfo(retInfoList, sBuffer);
     }

@@ -62,7 +62,7 @@ public class MasterConfig extends AbstractFileConfig {
     private long stepChgWaitPeriodMs = 12 * 1000;
     private String confModAuthToken = "ASDFGHJKL";
     private String webResourcePath = "../resources";
-    private int maxGroupBrokerConsumeRate = 50;
+    private int maxGroupBrokerConsumeRate = 1000;
     private int maxGroupRebalanceWaitPeriod = 2;
     private int maxAutoForbiddenCnt = 5;
     private long socketSendBuffer = -1;
@@ -618,6 +618,9 @@ public class MasterConfig extends AbstractFileConfig {
         }
         if (TStringUtils.isNotBlank(zkeeperSect.get("zkMasterCheckPeriodMs"))) {
             zkMetaConfig.setZkMasterCheckPeriodMs(getInt(zkeeperSect, "zkMasterCheckPeriodMs"));
+        }
+        if (TStringUtils.isNotBlank(zkeeperSect.get("zkRequestTimeoutMs"))) {
+            zkMetaConfig.setZkRequestTimeoutMs(getInt(zkeeperSect, "zkRequestTimeoutMs"));
         }
         return zkMetaConfig;
     }

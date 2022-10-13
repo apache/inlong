@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -24,6 +26,7 @@ import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
+import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,10 +35,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Test for {@link KafkaExtractNode}
  */
 public class KafkaExtractNodeTest extends SerializeBaseTest<KafkaExtractNode> {
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public KafkaExtractNode getTestObject() {
@@ -43,7 +50,34 @@ public class KafkaExtractNodeTest extends SerializeBaseTest<KafkaExtractNode> {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()));
         return new KafkaExtractNode("1", "kafka_input", fields, null, null, "workerCsv",
-                "localhost:9092", new CsvFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null, "groupId", null);
+                "localhost:9092", new CsvFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null, "groupId", null, null);
+    }
+
+    @Test
+    public void testKafkaExtractNodeForScanSpecificOffsets() throws JsonProcessingException {
+        List<FieldInfo> fields = Arrays.asList(
+                new FieldInfo("name", new StringFormatInfo()),
+                new FieldInfo("age", new IntFormatInfo()));
+        KafkaExtractNode kafkaExtractNode = new KafkaExtractNode("1", "kafka_input", fields, null, null, "workerCsv",
+                "localhost:9092", new CsvFormat(), KafkaScanStartupMode.SPECIFIC_OFFSETS, null, "groupId",
+                "partition:0,offset:42;partition:1,offset:300",
+                null);
+        KafkaExtractNode expected = objectMapper.readValue(objectMapper.writeValueAsString(kafkaExtractNode),
+                KafkaExtractNode.class);
+        assertEquals(expected, kafkaExtractNode);
+    }
+
+    @Test
+    public void testKafkaExtractNodeForScanTimestampMillis() throws JsonProcessingException {
+        List<FieldInfo> fields = Arrays.asList(
+                new FieldInfo("name", new StringFormatInfo()),
+                new FieldInfo("age", new IntFormatInfo()));
+        KafkaExtractNode kafkaExtractNode = new KafkaExtractNode("1", "kafka_input", fields, null, null, "workerCsv",
+                "localhost:9092", new RawFormat(), KafkaScanStartupMode.TIMESTAMP_MILLIS, null, "groupId", null,
+                "1665198979108");
+        KafkaExtractNode expected = objectMapper.readValue(objectMapper.writeValueAsString(kafkaExtractNode),
+                KafkaExtractNode.class);
+        assertEquals(expected, kafkaExtractNode);
     }
 
     @Test

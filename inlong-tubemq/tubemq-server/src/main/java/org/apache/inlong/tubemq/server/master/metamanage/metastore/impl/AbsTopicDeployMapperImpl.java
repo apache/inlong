@@ -447,6 +447,30 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     }
 
     @Override
+    public Set<Integer> getDeployedBrokerIdByTopic(Set<String> topicNameSet) {
+        ConcurrentHashSet<String> keySet;
+        Set<Integer> retSet = new HashSet<>();
+        if (topicNameSet == null || topicNameSet.isEmpty()) {
+            return retSet;
+        }
+        for (String topicName : topicNameSet) {
+            if (topicName == null) {
+                continue;
+            }
+            keySet = topicName2RecordCache.get(topicName);
+            if (keySet != null) {
+                for (String key : keySet) {
+                    TopicDeployEntity entry = topicDeployCache.get(key);
+                    if (entry != null) {
+                        retSet.add(entry.getBrokerId());
+                    }
+                }
+            }
+        }
+        return retSet;
+    }
+
+    @Override
     public Set<String> getDeployedTopicSet() {
         return new HashSet<>(topicName2RecordCache.keySet());
     }

@@ -27,6 +27,7 @@ import java.util.concurrent.TimeoutException;
  * A Future implementation for RPCs.
  */
 public class CallFuture<T> implements Future<T>, Callback<T> {
+    private static final String errMsgInfo = "Wait response message timeout!";
     private final CountDownLatch latch = new CountDownLatch(1);
     private final Callback<T> chainedCallback;
     private T result = null;
@@ -131,7 +132,7 @@ public class CallFuture<T> implements Future<T>, Callback<T> {
             }
             return result;
         } else {
-            throw new TimeoutException();
+            throw new TimeoutException(errMsgInfo);
         }
     }
 
@@ -155,7 +156,7 @@ public class CallFuture<T> implements Future<T>, Callback<T> {
     public void await(long timeout, TimeUnit unit)
             throws InterruptedException, TimeoutException {
         if (!latch.await(timeout, unit)) {
-            throw new TimeoutException();
+            throw new TimeoutException(errMsgInfo);
         }
     }
 

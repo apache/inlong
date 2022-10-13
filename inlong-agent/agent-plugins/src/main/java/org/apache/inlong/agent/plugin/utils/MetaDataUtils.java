@@ -93,7 +93,7 @@ public class MetaDataUtils {
             return new HashMap<>();
         }
         String labels = jobProfile.get(JOB_FILE_META_FILTER_BY_LABELS);
-        Type type = new TypeToken<HashMap<Integer, String>>() {
+        Type type = new TypeToken<HashMap<String, String>>() {
         }.getType();
         return GSON.fromJson(labels, type);
     }

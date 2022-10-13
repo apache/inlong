@@ -63,7 +63,7 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
         return new KafkaExtractNode("1", "kafka_input", fields, null,
                 null, "topic_input", "localhost:9092",
                 new CanalJsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
-                null, "group_1", null);
+                null, "group_1", null, null);
     }
 
     /**

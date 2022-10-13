@@ -18,12 +18,12 @@
 package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
@@ -49,8 +49,6 @@ import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStack
  */
 @Slf4j
 public class RestartStreamListener implements SortOperateListener {
-
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public TaskEvent event() {
@@ -88,13 +86,14 @@ public class RestartStreamListener implements SortOperateListener {
         InlongStreamInfo streamInfo = streamResourceProcessForm.getStreamInfo();
         List<InlongStreamExtInfo> streamExtList = streamInfo.getExtList();
         log.info("inlong stream :{} ext info: {}", streamInfo.getInlongStreamId(), streamExtList);
-        final String groupId = streamInfo.getInlongGroupId();
-        final String streamId = streamInfo.getInlongStreamId();
+
         Map<String, String> kvConf = new HashMap<>();
         groupExtList.forEach(groupExtInfo -> kvConf.put(groupExtInfo.getKeyName(), groupExtInfo.getKeyValue()));
-        streamExtList.stream().forEach(extInfo -> {
+        streamExtList.forEach(extInfo -> {
             kvConf.put(extInfo.getKeyName(), extInfo.getKeyValue());
         });
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
         String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
             String message = String.format(
@@ -104,8 +103,8 @@ public class RestartStreamListener implements SortOperateListener {
             return ListenerResult.fail(message);
         }
 
-        Map<String, String> result = OBJECT_MAPPER.convertValue(OBJECT_MAPPER.readTree(sortExt),
-                new TypeReference<Map<String, String>>() {
+        Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(
+                JsonUtils.OBJECT_MAPPER.readTree(sortExt), new TypeReference<Map<String, String>>() {
                 });
         kvConf.putAll(result);
         String jobId = kvConf.get(InlongConstants.SORT_JOB_ID);

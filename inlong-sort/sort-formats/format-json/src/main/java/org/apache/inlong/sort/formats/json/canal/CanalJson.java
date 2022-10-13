@@ -32,6 +32,8 @@ public class CanalJson {
     private long ts;
     private String sql;
     private Map<String, String> mysqlType;
+    private Map<String, Integer> sqlType;
+
     private boolean isDdl;
     private List<String> pkNames;
 
@@ -111,5 +113,16 @@ public class CanalJson {
         this.pkNames = pkNames;
     }
 
+    public Map<String, Integer> getSqlType() {
+        return sqlType;
+    }
+
+    public void setSqlType(Map<String, Integer> sqlType) {
+        this.sqlType = sqlType;
+    }
+
+    public boolean isDdl() {
+        return isDdl;
+    }
 }
 

@@ -20,10 +20,12 @@ package org.apache.inlong.manager.pojo.sort.util;
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
+import org.apache.inlong.manager.pojo.fieldformat.BinaryFormat;
 import org.apache.inlong.manager.pojo.fieldformat.DecimalFormat;
 import org.apache.inlong.manager.pojo.fieldformat.MapFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat.Element;
+import org.apache.inlong.manager.pojo.fieldformat.VarBinaryFormat;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -79,5 +81,19 @@ public class FieldFormatUtilsTest {
         Assertions.assertTrue(format.getElements().size() == 2);
         Assertions.assertTrue(format.getElements().get(0).getFieldName().equals("id"));
         Assertions.assertTrue(format.getElements().get(0).getFieldType() == FieldType.INT);
+    }
+
+    @Test
+    public void testBinaryFormat() {
+        String formatJson = FieldFormatUtils.createBinaryFormat(5);
+        BinaryFormat format = FieldFormatUtils.parseBinaryFormat(formatJson);
+        Assertions.assertEquals(5, (int) format.getLength());
+    }
+
+    @Test
+    public void testVarBinaryFormat() {
+        String formatJson = FieldFormatUtils.createVarBinaryFormat(5);
+        VarBinaryFormat format = FieldFormatUtils.parseVarBinaryFormat(formatJson);
+        Assertions.assertEquals(5, (int) format.getLength());
     }
 }

@@ -19,8 +19,8 @@ package org.apache.inlong.manager.client.api.service;
 
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -34,10 +34,10 @@ public interface DataNodeApi {
     Call<Response<Integer>> save(@Body DataNodeRequest request);
 
     @GET("node/get/{id}")
-    Call<Response<DataNodeResponse>> get(@Path("id") Integer id);
+    Call<Response<DataNodeInfo>> get(@Path("id") Integer id);
 
     @POST("node/list")
-    Call<Response<PageResult<DataNodeResponse>>> list(@Body DataNodeRequest request);
+    Call<Response<PageResult<DataNodeInfo>>> list(@Body DataNodeRequest request);
 
     @POST("node/update")
     Call<Response<Boolean>> update(@Body DataNodeRequest request);

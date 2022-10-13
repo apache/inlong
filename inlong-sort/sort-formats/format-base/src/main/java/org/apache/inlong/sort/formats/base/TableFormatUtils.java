@@ -47,6 +47,7 @@ import org.apache.flink.table.types.logical.SmallIntType;
 import org.apache.flink.table.types.logical.TimeType;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.TinyIntType;
+import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
@@ -88,6 +89,7 @@ import org.apache.inlong.sort.formats.common.TimeTypeInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
+import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
 import org.apache.inlong.sort.formats.common.VarCharFormatInfo;
 
 import java.util.Arrays;
@@ -313,6 +315,8 @@ public class TableFormatUtils {
             return new RowFormatInfo(fieldNames, fieldFormatInfos);
         } else if (logicalType instanceof BinaryType) {
             return BinaryFormatInfo.INSTANCE;
+        } else if (logicalType instanceof VarBinaryType) {
+            return VarBinaryFormatInfo.INSTANCE;
         } else if (logicalType instanceof NullType) {
             return NullFormatInfo.INSTANCE;
         } else {
@@ -373,7 +377,11 @@ public class TableFormatUtils {
             }
             return RowType.of(logicalTypes, rowFormatInfo.getFieldNames());
         } else if (formatInfo instanceof BinaryFormatInfo) {
-            return new BinaryType();
+            BinaryFormatInfo binaryFormatInfo = (BinaryFormatInfo) formatInfo;
+            return new BinaryType(binaryFormatInfo.getLength());
+        } else if (formatInfo instanceof VarBinaryFormatInfo) {
+            VarBinaryFormatInfo varBinaryFormatInfo = (VarBinaryFormatInfo) formatInfo;
+            return new VarBinaryType(varBinaryFormatInfo.getLength());
         } else if (formatInfo instanceof NullFormatInfo) {
             return new NullType();
         } else {

@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.client.api.inner.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +46,6 @@ import java.util.Map;
 public class WorkflowClient {
 
     private final WorkflowApi workflowApi;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public WorkflowClient(ClientConfiguration configuration) {
         workflowApi = ClientUtils.createRetrofit(configuration).create(WorkflowApi.class);
@@ -61,11 +59,11 @@ public class WorkflowClient {
      * @return workflow result info
      */
     public WorkflowResult startInlongGroup(int taskId, ApplyGroupProcessForm groupProcessForm) {
-        ObjectNode workflowTaskOperation = objectMapper.createObjectNode();
+        ObjectNode workflowTaskOperation = JsonUtils.OBJECT_MAPPER.createObjectNode();
         workflowTaskOperation.putPOJO("transferTo", Lists.newArrayList());
         workflowTaskOperation.put("remark", "approved by system");
 
-        ObjectNode groupApproveForm = objectMapper.createObjectNode();
+        ObjectNode groupApproveForm = JsonUtils.OBJECT_MAPPER.createObjectNode();
         groupApproveForm.putPOJO("groupApproveInfo", groupProcessForm.getGroupInfo());
         groupApproveForm.putPOJO("streamApproveInfoList", groupProcessForm.getStreamInfoList());
         groupApproveForm.put("formName", "InlongGroupApproveForm");

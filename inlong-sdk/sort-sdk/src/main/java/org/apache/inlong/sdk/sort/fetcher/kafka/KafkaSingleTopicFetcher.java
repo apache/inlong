@@ -79,7 +79,7 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
                 this.seeker = SeekerFactory.createKafkaSeeker(consumer, topic);
                 consumer.subscribe(Collections.singletonList(topic.getTopic()),
                         new AckOffsetOnRebalance(this.topic.getInLongCluster().getClusterId(), seeker,
-                                commitOffsetMap));
+                                commitOffsetMap, consumer));
             } else {
                 LOGGER.info("consumer is null");
                 return false;

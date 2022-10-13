@@ -17,9 +17,14 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.trigger.PathPattern;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -31,10 +36,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_COLON;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NIX_OS;
@@ -45,6 +52,9 @@ import static org.apache.inlong.agent.constant.CommonConstants.FILE_MAX_NUM;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
+import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
+import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_HOST;
+import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_PORT;
 
 /**
  * Utils for plugin package.
@@ -148,6 +158,23 @@ public class PluginUtils {
                 allIps.add(ia.getHostAddress());
             }
         }
+    }
+
+    // TODO only support default config in the POD
+    public static KubernetesClient getKubernetesClient() throws IOException {
+        String ip = System.getenv(KUBERNETES_SERVICE_HOST);
+        String port = System.getenv(KUBERNETES_SERVICE_PORT);
+        if (Objects.isNull(ip) && Objects.isNull(port)) {
+            throw new RuntimeException("get k8s client error,k8s env ip and port is null");
+        }
+        String maserUrl = HTTPS.concat(ip).concat(CommonConstants.AGENT_COLON).concat(port);
+        Config config = new ConfigBuilder()
+                .withMasterUrl(maserUrl)
+                .withCaCertFile(Config.KUBERNETES_SERVICE_ACCOUNT_CA_CRT_PATH)
+                .withOauthToken(new String(
+                        Files.readAllBytes((new File(Config.KUBERNETES_SERVICE_ACCOUNT_TOKEN_PATH)).toPath())))
+                .build();
+        return new KubernetesClientBuilder().withConfig(config).build();
     }
 
 }

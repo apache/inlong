@@ -25,6 +25,7 @@ import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
@@ -75,7 +76,7 @@ public class UpdateCommand extends AbstractCommand {
                     return;
                 }
                 // first extract group config from the file passed in
-                BaseSortConf sortConf = objectMapper.readValue(fileContent, BaseSortConf.class);
+                BaseSortConf sortConf = JsonUtils.parseObject(fileContent, BaseSortConf.class);
                 group.update(sortConf);
                 System.out.println("Update group success!");
             } catch (Exception e) {
@@ -97,7 +98,8 @@ public class UpdateCommand extends AbstractCommand {
         void run() {
             try {
                 String content = ClientUtils.readFile(file);
-                ClusterRequest request = objectMapper.readValue(content, ClusterRequest.class);
+                ClusterRequest request = JsonUtils.parseObject(content, ClusterRequest.class);
+                assert request != null;
                 ClientUtils.initClientFactory();
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 if (clusterClient.update(request)) {
@@ -122,7 +124,7 @@ public class UpdateCommand extends AbstractCommand {
         void run() {
             try {
                 String content = ClientUtils.readFile(file);
-                ClusterTagRequest request = objectMapper.readValue(content, ClusterTagRequest.class);
+                ClusterTagRequest request = JsonUtils.parseObject(content, ClusterTagRequest.class);
                 ClientUtils.initClientFactory();
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 if (clusterClient.updateTag(request)) {
@@ -147,7 +149,7 @@ public class UpdateCommand extends AbstractCommand {
         void run() {
             try {
                 String content = ClientUtils.readFile(file);
-                ClusterNodeRequest request = objectMapper.readValue(content, ClusterNodeRequest.class);
+                ClusterNodeRequest request = JsonUtils.parseObject(content, ClusterNodeRequest.class);
                 ClientUtils.initClientFactory();
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 if (clusterClient.updateNode(request)) {

@@ -165,8 +165,8 @@ public class BrokerAbnHolder {
         if (brokerFbdInfo == null) {
             return retTuple;
         }
-        retTuple.setF0AndF1(brokerFbdInfo.newStatus.isAcceptPublish(),
-                brokerFbdInfo.newStatus.isAcceptSubscribe());
+        retTuple.setF0AndF1(!brokerFbdInfo.newStatus.isAcceptPublish(),
+                !brokerFbdInfo.newStatus.isAcceptSubscribe());
         return retTuple;
     }
 
@@ -191,7 +191,6 @@ public class BrokerAbnHolder {
         brokerForbiddenCount.set(0);
         brokerAbnormalMap.clear();
         brokerForbiddenMap.clear();
-
     }
 
     public int getCurrentBrokerCount() {
@@ -355,5 +354,4 @@ public class BrokerAbnHolder {
                 .toString();
         }
     }
-
 }
