@@ -41,7 +41,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,22 +51,13 @@ import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
-import org.apache.flink.table.types.logical.BigIntType;
-import org.apache.flink.table.types.logical.BinaryType;
-import org.apache.flink.table.types.logical.BooleanType;
 import org.apache.flink.table.types.logical.DecimalType;
-import org.apache.flink.table.types.logical.DoubleType;
-import org.apache.flink.table.types.logical.FloatType;
-import org.apache.flink.table.types.logical.IntType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.table.types.logical.SmallIntType;
-import org.apache.flink.table.types.logical.TimestampType;
-import org.apache.flink.table.types.logical.TinyIntType;
-import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.debezium.utils.RecordUtils;
 import org.apache.inlong.sort.cdc.debezium.utils.TemporalConversions;
 import org.apache.kafka.connect.data.ConnectSchema;
 import org.apache.kafka.connect.data.Decimal;
@@ -724,16 +714,11 @@ public final class RowDataDebeziumDeserializeSchema
                     String fieldName = field.name();
                     Object fieldValue = struct.getWithoutDefault(fieldName);
                     Schema fieldSchema = schema.field(fieldName).schema();
-                    String schemaName = fieldSchema.name();
-                    if (schemaName != null) {
-                        // normal type doesn't have schema name
-                        // schema names are time schemas
-                        fieldValue = getTimeValue(fieldValue, schemaName);
-                    }
-                    // struct --> normal type
+
+                    // struct type convert normal type
                     if (fieldValue instanceof Struct) {
                         Column column = tableSchema.getTable().columnWithName(fieldName);
-                        LogicalType logicType = convertLogicType(column);
+                        LogicalType logicType = RecordUtils.convertLogicType(column);
                         DeserializationRuntimeConverter fieldConverter = createConverter(
                                 logicType,
                                 serverTimeZone,
@@ -741,6 +726,7 @@ public final class RowDataDebeziumDeserializeSchema
                         fieldValue =
                                 convertField(fieldConverter, fieldValue, fieldSchema);
                     }
+
                     data.put(fieldName, fieldValue);
                 }
 
@@ -750,60 +736,6 @@ public final class RowDataDebeziumDeserializeSchema
                 return row;
             }
         };
-    }
-
-    public static LogicalType convertLogicType(Column column) {
-        String typeName = column.typeName();
-        Integer p = column.length();
-        Integer s = column.scale().orElse(0);
-        if ("NUMBER".equals(typeName)) {
-            if (p == 1) {
-                return new BooleanType();
-            }
-            if (s <= 0 && p - s < 3) {
-                return new TinyIntType();
-            }
-            if (s <= 0 && p - s < 5) {
-                return new SmallIntType();
-            }
-            if (s <= 0 && p - s < 10) {
-                return new IntType();
-            }
-            if (s <= 0 && p - s < 19) {
-                return new BigIntType();
-            }
-            if (s <= 0 && p - s >= 10 && p - s <= 38) {
-                return new DecimalType(p - s, 0);
-            }
-            if (s > 0) {
-                return new DecimalType(p, s);
-            }
-            if (s <= 0 && p - s > 38) {
-                return new VarCharType(Integer.MAX_VALUE);
-            }
-        }
-        if ("FLOAT".equals(typeName) || "BINARY_FLOAT".equals(typeName)) {
-            return new FloatType();
-        }
-        if ("DOUBLE PRECISION".equals(typeName) || "BINARY_DOUBLE".equals(typeName)) {
-            return new DoubleType();
-        }
-        if ("DATE".equals(typeName) || "TIMESTAMP".equals(typeName)
-                || "WITH LOCAL TIME ZONE".equals(typeName) || "TIMESTAMP WITH TIME ZONE".equals(typeName)) {
-            return new TimestampType(p);
-        }
-        List<String> stringTypeList = Arrays
-                .asList("CHAR", "NCHAR", "NVARCHAR2", "NVCHAER", "VARCHAR", "VARCHAR2", "CLOB", "NCLOB", "XMLType");
-        if (stringTypeList.contains(typeName)) {
-            return new VarCharType(Integer.MAX_VALUE);
-        }
-        if ("BLOB".equals(typeName) || "ROWID".equals(typeName)) {
-            return new BinaryType();
-        }
-        if ("INTERVAL DAY TO SECOND".equals(typeName) || "INTERVAL YEAR TO MONTH".equals(typeName)) {
-            return new BigIntType();
-        }
-        return null;
     }
 
     /**
