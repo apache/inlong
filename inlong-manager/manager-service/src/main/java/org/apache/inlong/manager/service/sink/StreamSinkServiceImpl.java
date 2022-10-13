@@ -296,8 +296,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
 
         if (sinkList.size() != 1) {
-            String errMsg = String.format("find %d stream sink with group=%s, stream=%s, sinkName=%s, " +
-                    "but only except 1", sinkList.size(), groupId, streamId, sinkName);
+            String errMsg = String.format("find %d stream sink with group=%s, stream=%s, sinkName=%s, "
+                    + "but only except 1", sinkList.size(), groupId, streamId, sinkName);
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
@@ -368,8 +368,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
 
         if (sinkList.size() != 1) {
-            String errMsg = String.format("find %d stream sink with group=%s, stream=%s, sinkName=%s, " +
-                    "but only except 1", sinkList.size(), groupId, streamId, sinkName);
+            String errMsg = String.format("find %d stream sink with group=%s, stream=%s, sinkName=%s, "
+                    + "but only except 1", sinkList.size(), groupId, streamId, sinkName);
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
