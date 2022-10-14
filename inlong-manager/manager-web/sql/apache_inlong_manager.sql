@@ -638,8 +638,7 @@ CREATE TABLE IF NOT EXISTS `workflow_approver`
     `is_deleted`   int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
     `version`      int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    KEY `process_name_task_name_index` (`process_name`, `task_name`),
-    KEY `approver_index` (`approvers`)
+    KEY `process_name_task_name_index` (`process_name`, `task_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow approver table';
 
