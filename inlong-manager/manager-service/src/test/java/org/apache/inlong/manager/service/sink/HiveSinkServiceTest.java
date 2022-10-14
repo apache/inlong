@@ -76,7 +76,7 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
         Integer id = this.saveSink();
         Assertions.assertNotNull(id);
 
-        boolean result = sinkService.deleteByUniqueKey(globalGroupId, globalStreamId, sinkName, globalOperator);
+        boolean result = sinkService.deleteByKey(globalGroupId, globalStreamId, sinkName, globalOperator);
         Assertions.assertTrue(result);
     }
 
@@ -114,7 +114,7 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
         HiveSink sink = (HiveSink) streamSink;
         sink.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         HiveSinkRequest request = CommonBeanUtils.copyProperties(sink, HiveSinkRequest::new);
-        UpdateResult result = sinkService.updateByUniqueKey(request, globalOperator);
+        UpdateResult result = sinkService.updateByKey(request, globalOperator);
         Assertions.assertTrue(result.getSuccess());
         Assertions.assertEquals(request.getVersion() + 1, result.getVersion().intValue());
 

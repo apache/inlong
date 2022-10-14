@@ -273,7 +273,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public UpdateResult updateByUniqueKey(SinkRequest request, String operator) {
+    public UpdateResult updateByKey(SinkRequest request, String operator) {
         LOGGER.info("begin to update sink info: {}", request);
         this.checkParams(request);
         // Check if it can be modified
@@ -352,7 +352,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public Boolean deleteByUniqueKey(String groupId, String streamId, String sinkName, String operator) {
+    public Boolean deleteByKey(String groupId, String streamId, String sinkName, String operator) {
         LOGGER.info("begin to delete sink by group id={}, stream id={}, name={}", groupId, streamId, sinkName);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());

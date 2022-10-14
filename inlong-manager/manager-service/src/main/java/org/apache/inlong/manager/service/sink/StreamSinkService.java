@@ -106,13 +106,13 @@ public interface StreamSinkService {
     Boolean update(SinkRequest sinkRequest, String operator);
 
     /**
-     * Modify data sink information by unique key.
+     * Modify data sink information by key.
      *
      * @param sinkRequest Information that needs to be modified.
      * @param operator Operator's name.
      * @return Update result.
      */
-    UpdateResult updateByUniqueKey(SinkRequest sinkRequest, String operator);
+    UpdateResult updateByKey(SinkRequest sinkRequest, String operator);
 
     /**
      * Modify sink data status.
@@ -139,7 +139,7 @@ public interface StreamSinkService {
      * @param name The name of sink
      * @return Whether succeed
      */
-    Boolean deleteByUniqueKey(String groupId, String streamId, String name, String operator);
+    Boolean deleteByKey(String groupId, String streamId, String name, String operator);
 
     /**
      * Logically delete stream sink with the given conditions.

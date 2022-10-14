@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -78,11 +79,11 @@ public class StreamSinkController {
         return Response.success(sinkService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
-    @RequestMapping(value = "/sink/updateByUniqueKey", method = RequestMethod.POST)
+    @RequestMapping(value = "/sink/updateByKey", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Update stream sink by unique key")
-    public Response<UpdateResult> updateByUniqueKey(@RequestBody SinkRequest request) {
-        return Response.success(sinkService.updateByUniqueKey(request, LoginUserUtils.getLoginUser().getName()));
+    @ApiOperation(value = "Update stream sink by key")
+    public Response<UpdateResult> updateByKey(@RequestBody SinkRequest request) {
+        return Response.success(sinkService.updateByKey(request, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/delete/{id}", method = RequestMethod.DELETE)
@@ -94,19 +95,19 @@ public class StreamSinkController {
         return Response.success(result);
     }
 
-    @RequestMapping(value = "/sink/deleteByUniqueKey/{groupId}/{streamId}/{name}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/sink/deleteByKey", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
-    @ApiOperation(value = "Delete stream sink by unique key")
+    @ApiOperation(value = "Delete stream sink by key")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
     })
-    public Response<Boolean> deleteByUniqueKey(
-            @PathVariable String groupId,
-            @PathVariable String streamId,
-            @PathVariable String name) {
-        boolean result = sinkService.deleteByUniqueKey(groupId, streamId, name,
+    public Response<Boolean> deleteByKey(
+            @RequestParam String groupId,
+            @RequestParam String streamId,
+            @RequestParam String name) {
+        boolean result = sinkService.deleteByKey(groupId, streamId, name,
                 LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
