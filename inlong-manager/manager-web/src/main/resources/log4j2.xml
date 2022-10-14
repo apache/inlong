@@ -21,6 +21,7 @@
     <properties>
         <property name="basePath">logs</property>
         <property name="log_pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} -%5p [%5.30t] %-30.30C{1.}:%L - %mask %n</property>
+        <property name="every_file_date">1</property>
         <property name="every_file_size">1G</property>
         <property name="rolling_max">50</property>
         <property name="all_fileName">${basePath}/manager-all.log</property>
@@ -32,6 +33,7 @@
         <property name="error_fileName">${basePath}/error.log</property>
         <property name="error_filePattern">${basePath}/error-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="error_max">10</property>
+        <property name="last_modify_time">15d</property>
     </properties>
 
     <conversionRule conversionWord="clr"
@@ -49,8 +51,16 @@
 
         <RollingFile name="AllFile" fileName="${all_fileName}" filePattern="${all_filePattern}">
             <PatternLayout pattern="${log_pattern}"/>
-            <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            <DefaultRolloverStrategy max="${all_max}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="${every_file_date}"/>
+                <SizeBasedTriggeringPolicy size="${every_file_size}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${all_max}">
+                <Delete basePath="${basePath}" maxDepth="1">
+                    <IfFileName glob="info*.log.gz"/>
+                    <IfLastModified age="${last_modify_time}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
             <Filters>
                 <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
@@ -58,8 +68,16 @@
 
         <RollingFile name="WarnFile" fileName="${warn_fileName}" filePattern="${warn_filePattern}">
             <PatternLayout pattern="${log_pattern}"/>
-            <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            <DefaultRolloverStrategy max="${warn_max}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="${every_file_date}"/>
+                <SizeBasedTriggeringPolicy size="${every_file_size}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${warn_max}">
+                <Delete basePath="${basePath}" maxDepth="1">
+                    <IfFileName glob="warn*.log.gz"/>
+                    <IfLastModified age="${last_modify_time}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
             <Filters>
                 <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
                 <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
@@ -68,8 +86,16 @@
 
         <RollingFile name="ErrorFile" fileName="${error_fileName}" filePattern="${error_filePattern}">
             <PatternLayout pattern="${log_pattern}"/>
-            <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            <DefaultRolloverStrategy max="${error_max}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="${every_file_date}"/>
+                <SizeBasedTriggeringPolicy size="${every_file_size}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${error_max}">
+                <Delete basePath="${basePath}" maxDepth="1">
+                    <IfFileName glob="error*.log.gz"/>
+                    <IfLastModified age="${last_modify_time}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
             <Filters>
                 <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
