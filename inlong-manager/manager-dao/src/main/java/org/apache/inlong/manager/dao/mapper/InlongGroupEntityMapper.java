@@ -59,7 +59,7 @@ public interface InlongGroupEntityMapper {
      * @param lastModifyTime
      * @return
      */
-    List<String> selectLogicalDeletedGroupIdsBefore(@Param("lastModifyTime") Date lastModifyTime,
+    List<String> selectLogicalDeletedGroupIds(@Param("lastModifyTime") Date lastModifyTime,
             @Param("limit") Integer limit);
 
     int updateByPrimaryKey(InlongGroupEntity record);

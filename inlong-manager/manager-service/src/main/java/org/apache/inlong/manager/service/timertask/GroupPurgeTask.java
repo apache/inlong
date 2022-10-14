@@ -102,7 +102,7 @@ public class GroupPurgeTask extends TimerTask implements InitializingBean {
     public void run() {
         try {
             Date lastModifyTime = new Date(System.currentTimeMillis() - lastModifyGap * 1000L);
-            List<String> groupIdsToPurge = groupEntityMapper.selectLogicalDeletedGroupIdsBefore(lastModifyTime, limit);
+            List<String> groupIdsToPurge = groupEntityMapper.selectLogicalDeletedGroupIds(lastModifyTime, limit);
             log.info("group ids to purge: {}", groupIdsToPurge);
             if (CollectionUtils.isEmpty(groupIdsToPurge)) {
                 return;
