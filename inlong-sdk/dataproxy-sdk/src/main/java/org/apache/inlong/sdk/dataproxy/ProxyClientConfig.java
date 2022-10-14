@@ -128,7 +128,7 @@ public class ProxyClientConfig {
         this.proxyHttpUpdateIntervalMinutes = ConfigConstants.PROXY_HTTP_UPDATE_INTERVAL_MINUTES;
         this.proxyUpdateMaxRetry = ConfigConstants.PROXY_UPDATE_MAX_RETRY;
         this.connectTimeoutMillis = ConfigConstants.DEFAULT_CONNECT_TIMEOUT_MILLIS;
-        this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
+        this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_REQUEST_TIMEOUT_MILLIS);
         this.authSecretId = authSecretId;
         this.authSecretKey = authSecretKey;
         this.loadBalance = loadBalance;
