@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
@@ -86,6 +87,33 @@ class DataNodeControllerTest extends WebBaseTest {
     }
 
     @Test
+    void testSaveAndGetAndDeleteByKey() throws Exception {
+        HiveDataNodeRequest request = getHiveDataNodeRequest();
+        // save
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", request);
+
+        Integer dataNodeId = getResBodyObj(mvcResult, Integer.class);
+        Assertions.assertNotNull(dataNodeId);
+
+        // get
+        MvcResult getResult = getForSuccessMvcResult("/api/node/get/{id}", dataNodeId);
+
+        DataNodeInfo dataNode = getResBodyObj(getResult, DataNodeInfo.class);
+        Assertions.assertNotNull(dataNode);
+        Assertions.assertEquals(getHiveDataNodeRequest().getName(), dataNode.getName());
+
+        // delete
+        MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/deleteByKey?name=" + request.getName()
+                + "&type=" + request.getType());
+
+        Boolean success = getResBodyObj(deleteResult, Boolean.class);
+        Assertions.assertTrue(success);
+
+        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectById(dataNodeId);
+        Assertions.assertEquals(dataNodeEntity.getId(), dataNodeEntity.getIsDeleted());
+    }
+
+    @Test
     void testUpdate() throws Exception {
         // insert the test data
         DataNodeEntity nodeEntity = new DataNodeEntity();
@@ -112,6 +140,35 @@ class DataNodeControllerTest extends WebBaseTest {
 
         DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectById(request.getId());
         Assertions.assertEquals(request.getName(), dataNodeEntity.getName());
+    }
+
+    @Test
+    void testUpdateByKey() throws Exception {
+        // insert the test data
+        DataNodeEntity nodeEntity = new DataNodeEntity();
+        nodeEntity.setName("hiveNode1");
+        nodeEntity.setType(DataNodeType.HIVE);
+        nodeEntity.setIsDeleted(0);
+        nodeEntity.setModifier("test");
+        nodeEntity.setCreator("test");
+        nodeEntity.setUrl("old url");
+        nodeEntity.setCreateTime(new Date());
+        nodeEntity.setModifyTime(new Date());
+        nodeEntity.setInCharges("test");
+        nodeEntity.setVersion(InlongConstants.INITIAL_VERSION);
+
+        dataNodeEntityMapper.insert(nodeEntity);
+
+        DataNodeRequest request = getHiveDataNodeRequest();
+        request.setVersion(nodeEntity.getVersion());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/updateByKey", request);
+
+        UpdateResult result = getResBodyObj(mvcResult, UpdateResult.class);
+        Assertions.assertTrue(result.getSuccess());
+        Assertions.assertEquals(request.getVersion() + 1, result.getVersion());
+
+        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByNameAndType(request.getName(), request.getType());
+        Assertions.assertEquals(request.getUrl(), dataNodeEntity.getUrl());
     }
 
     @Test

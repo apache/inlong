@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.node;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -27,6 +28,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -122,6 +124,7 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException(String.format("data node not found by id=%s", id));
         }
+
         String errMsg = String.format("data node has already updated with name=%s, type=%s, curVersion=%s",
                 entity.getName(), entity.getType(), request.getVersion());
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
@@ -135,6 +138,32 @@ public class DataNodeServiceImpl implements DataNodeService {
     }
 
     @Override
+    public UpdateResult updateByKey(DataNodeRequest request, String operator) {
+        String name = request.getName();
+        String type = request.getType();
+        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(type)) {
+            throw new BusinessException("data node name or type should not be empty or null");
+        }
+        DataNodeEntity entity = dataNodeMapper.selectByNameAndType(name, type);
+        if (entity == null) {
+            LOGGER.error("data node not found by name={}, type={}", name, type);
+            throw new BusinessException(String.format("data node not found by name=%s, type=%s", name, type));
+        }
+
+        request.setId(entity.getId());
+        String errMsg = String.format("data node has already updated with name=%s, type=%s, curVersion=%s",
+                entity.getName(), entity.getType(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
+        DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
+        dataNodeOperator.updateOpt(request, operator);
+        LOGGER.info("success to update data node={}", request);
+        return new UpdateResult(entity.getId(), true, request.getVersion() + 1);
+    }
+
+    @Override
     public Boolean delete(Integer id, String operator) {
         DataNodeEntity entity = dataNodeMapper.selectById(id);
         if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
@@ -142,6 +171,10 @@ public class DataNodeServiceImpl implements DataNodeService {
             return false;
         }
 
+        return delete(entity, operator);
+    }
+
+    private Boolean delete(DataNodeEntity entity, String operator) {
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
         int rowCount = dataNodeMapper.updateById(entity);
@@ -150,8 +183,18 @@ public class DataNodeServiceImpl implements DataNodeService {
                     entity.getName(), entity.getType(), entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
-        LOGGER.info("success to delete data node by id={}", id);
+        LOGGER.info("success to delete data node by id={}, name={}", entity.getId(), entity.getName());
         return true;
+    }
+
+    @Override
+    public Boolean deleteByKey(String name, String type, String operator) {
+        DataNodeEntity entity = dataNodeMapper.selectByNameAndType(name, type);
+        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
+            LOGGER.error("data node not found or was already deleted for name={}", name);
+            return false;
+        }
+        return delete(entity, operator);
     }
 
     @Override
