@@ -169,7 +169,7 @@ public class InlongClusterClient {
      * @param request cluster to be modified
      * @return whether succeed
      */
-    public UpdateResult updateByUniqueKey(ClusterRequest request) {
+    public UpdateResult updateByKey(ClusterRequest request) {
         Preconditions.checkNotNull(request.getName(), "cluster name should not be null");
         Preconditions.checkNotNull(request.getType(), "cluster type should not be null");
         Response<UpdateResult> response = ClientUtils.executeHttpCall(inlongClusterApi.updateByKey(request));
