@@ -390,7 +390,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public UpdateResult updateByUniqueKey(ClusterRequest request, String operator) {
+    public UpdateResult updateByKey(ClusterRequest request, String operator) {
         LOGGER.debug("begin to update inlong cluster: {}", request);
         Preconditions.checkNotNull(request, "inlong cluster info cannot be null");
         String name = request.getName();
@@ -460,7 +460,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public Boolean deleteByUniqueKey(String name, String type, String operator) {
+    public Boolean deleteByKey(String name, String type, String operator) {
         Preconditions.checkNotNull(name, "cluster name should not be empty or null");
         Preconditions.checkNotNull(name, "cluster type should not be empty or null");
         InlongClusterEntity entity = clusterMapper.selectByNameAndType(name, type);

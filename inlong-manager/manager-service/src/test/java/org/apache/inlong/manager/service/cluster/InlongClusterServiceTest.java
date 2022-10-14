@@ -111,7 +111,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Update cluster by unique key.
      */
-    public UpdateResult updatePulsarClusterByUniqueKey(
+    public UpdateResult updatePulsarClusterByKey(
             String name,
             String clusterTag,
             String adminUrl,
@@ -122,7 +122,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);
         request.setVersion(version);
-        return clusterService.updateByUniqueKey(request, GLOBAL_OPERATOR);
+        return clusterService.updateByKey(request, GLOBAL_OPERATOR);
     }
 
     /**
@@ -135,8 +135,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Delete cluster info by name and type.
      */
-    public Boolean deleteClusterByUniqueKey(String name, String type) {
-        return clusterService.deleteByUniqueKey(name, type, GLOBAL_OPERATOR);
+    public Boolean deleteClusterByKey(String name, String type) {
+        return clusterService.deleteByKey(name, type, GLOBAL_OPERATOR);
     }
 
     /**
@@ -249,7 +249,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     }
 
     @Test
-    public void testPulsarClusterByUnqieKey() {
+    public void testPulsarClusterByKey() {
         // save cluster
         String clusterName = "default_pulsar";
         String clusterTag = "default_cluster";
@@ -267,7 +267,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // update cluster by unique key
         String clusterTagUpdate = "default_cluster_2";
         String adminUrlUpdate = "http://127.0.0.1:8088";
-        UpdateResult updateResult = this.updatePulsarClusterByUniqueKey(clusterName, clusterTagUpdate, adminUrlUpdate,
+        UpdateResult updateResult = this.updatePulsarClusterByKey(clusterName, clusterTagUpdate, adminUrlUpdate,
                 pulsarCluster.getVersion());
         Assertions.assertTrue(updateResult.getSuccess());
         Assertions.assertEquals(pulsarCluster.getVersion() + 1, updateResult.getVersion());
@@ -299,7 +299,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertTrue(deleteNodeSuccess);
 
         // delete cluster by unique key
-        Boolean success = this.deleteClusterByUniqueKey(clusterName, ClusterType.PULSAR);
+        Boolean success = this.deleteClusterByKey(clusterName, ClusterType.PULSAR);
         Assertions.assertTrue(success);
         Assertions.assertThrows(BusinessException.class,
                 () -> clusterService.getOne(clusterTagUpdate, clusterName, ClusterType.PULSAR));

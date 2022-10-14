@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -134,12 +135,12 @@ public class InlongClusterController {
         return Response.success(clusterService.update(request, username));
     }
 
-    @PostMapping(value = "/cluster/updateByUniqueKey")
+    @PostMapping(value = "/cluster/updateByKey")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Update cluster by unique key")
-    public Response<UpdateResult> updateByUniqueKey(@RequestBody ClusterRequest request) {
+    @ApiOperation(value = "Update cluster by key")
+    public Response<UpdateResult> updateByKey(@RequestBody ClusterRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
-        return Response.success(clusterService.updateByUniqueKey(request, username));
+        return Response.success(clusterService.updateByKey(request, username));
     }
 
     @PostMapping(value = "/cluster/bindTag")
@@ -159,17 +160,16 @@ public class InlongClusterController {
         return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
 
-    @DeleteMapping(value = "/cluster/deleteByUniqueKey/{name}/{type}")
+    @DeleteMapping(value = "/cluster/deleteByKey")
     @ApiOperation(value = "Delete cluster by cluster name and type")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "name", value = "Cluster name",
-                    dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "name", value = "Cluster name", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "type", value = "Cluster type", dataTypeClass = String.class, required = true),
     })
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Boolean> deleteByUniqueKey(@PathVariable String name, @PathVariable String type) {
-        return Response.success(clusterService.deleteByUniqueKey(name, type,
+    public Response<Boolean> deleteByKey(@RequestParam String name, @RequestParam String type) {
+        return Response.success(clusterService.deleteByKey(name, type,
                 LoginUserUtils.getLoginUser().getName()));
     }
 

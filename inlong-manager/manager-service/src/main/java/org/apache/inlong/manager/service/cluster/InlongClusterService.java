@@ -135,7 +135,7 @@ public interface InlongClusterService {
      * @param operator current operator
      * @return Update Result
      */
-    UpdateResult updateByUniqueKey(ClusterRequest request, String operator);
+    UpdateResult updateByKey(ClusterRequest request, String operator);
 
     /**
      * Bind or unbind cluster tag for clusters.
@@ -163,7 +163,7 @@ public interface InlongClusterService {
      * @param operator current operator
      * @return whether succeed
      */
-    Boolean deleteByUniqueKey(String name, String type, String operator);
+    Boolean deleteByKey(String name, String type, String operator);
 
     /**
      * Save cluster node info.

@@ -172,7 +172,7 @@ public class InlongClusterClient {
     public UpdateResult updateByUniqueKey(ClusterRequest request) {
         Preconditions.checkNotNull(request.getName(), "cluster name should not be null");
         Preconditions.checkNotNull(request.getType(), "cluster type should not be null");
-        Response<UpdateResult> response = ClientUtils.executeHttpCall(inlongClusterApi.updateByUniqueKey(request));
+        Response<UpdateResult> response = ClientUtils.executeHttpCall(inlongClusterApi.updateByKey(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -209,10 +209,10 @@ public class InlongClusterClient {
      * @param type cluster type
      * @return wheter succeed
      */
-    public Boolean deleteByUniqueKey(String name, String type) {
+    public Boolean deleteByKey(String name, String type) {
         Preconditions.checkNotNull(name, "cluster name should not be empty");
         Preconditions.checkNotNull(type, "cluster type should not be empty");
-        Response<Boolean> response = ClientUtils.executeHttpCall(inlongClusterApi.deleteByUniqueKey(name, type));
+        Response<Boolean> response = ClientUtils.executeHttpCall(inlongClusterApi.deleteByKey(name, type));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
