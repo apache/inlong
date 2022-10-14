@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -85,12 +86,12 @@ public class DataNodeController {
         return Response.success(dataNodeService.update(request, username));
     }
 
-    @PostMapping(value = "/node/updateByUniqueKey")
+    @PostMapping(value = "/node/updateByKey")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data node by unique key")
-    public Response<UpdateResult> updateByUniqueKey(@RequestBody DataNodeRequest request) {
+    public Response<UpdateResult> updateByKey(@RequestBody DataNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
-        return Response.success(dataNodeService.updateByUniqueKey(request, username));
+        return Response.success(dataNodeService.updateByKey(request, username));
     }
 
     @DeleteMapping(value = "/node/delete/{id}")
@@ -102,18 +103,18 @@ public class DataNodeController {
         return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
 
-    @DeleteMapping(value = "/node/deleteByUniqueKey/{name}/{type}")
-    @ApiOperation(value = "Delete data node by unique key")
+    @DeleteMapping(value = "/node/deleteByKey")
+    @ApiOperation(value = "Delete data node by key")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "name", value = "Data node name", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "type", value = "Data node type", dataTypeClass = String.class, required = true)
     })
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Boolean> deleteByUniqueKey(
-            @PathVariable String name,
-            @PathVariable String type) {
-        return Response.success(dataNodeService.deleteByUniqueKey(name, type,
+    public Response<Boolean> deleteByKey(
+            @RequestParam String name,
+            @RequestParam String type) {
+        return Response.success(dataNodeService.deleteByKey(name, type,
                 LoginUserUtils.getLoginUser().getName()));
     }
 

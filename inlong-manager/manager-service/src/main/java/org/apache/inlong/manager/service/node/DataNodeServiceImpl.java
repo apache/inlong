@@ -138,7 +138,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     }
 
     @Override
-    public UpdateResult updateByUniqueKey(DataNodeRequest request, String operator) {
+    public UpdateResult updateByKey(DataNodeRequest request, String operator) {
         String name = request.getName();
         String type = request.getType();
         if (StringUtils.isEmpty(name) || StringUtils.isEmpty(type)) {
@@ -188,7 +188,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     }
 
     @Override
-    public Boolean deleteByUniqueKey(String name, String type, String operator) {
+    public Boolean deleteByKey(String name, String type, String operator) {
         DataNodeEntity entity = dataNodeMapper.selectByNameAndType(name, type);
         if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
             LOGGER.error("data node not found or was already deleted for name={}", name);

@@ -28,6 +28,7 @@ import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface DataNodeApi {
 
@@ -43,13 +44,13 @@ public interface DataNodeApi {
     @POST("node/update")
     Call<Response<Boolean>> update(@Body DataNodeRequest request);
 
-    @POST("node/updateByUniqueKey")
-    Call<Response<UpdateResult>> updateByUniqueKey(@Body DataNodeRequest request);
+    @POST("node/updateByKey")
+    Call<Response<UpdateResult>> updateByKey(@Body DataNodeRequest request);
 
     @DELETE("node/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);
 
-    @DELETE("node/deleteByUniqueKey/{name}/{type}")
-    Call<Response<Boolean>> deleteByUniqueKey(@Path("name") String name, @Path("type") String type);
+    @DELETE("node/deleteByKey")
+    Call<Response<Boolean>> deleteByKey(@Query("name") String name, @Query("type") String type);
 
 }

@@ -103,8 +103,8 @@ class DataNodeControllerTest extends WebBaseTest {
         Assertions.assertEquals(getHiveDataNodeRequest().getName(), dataNode.getName());
 
         // delete
-        MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/deleteByUniqueKey/{name}/{type}",
-                request.getName(), request.getType());
+        MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/deleteByKey?name=" + request.getName()
+                + "&type=" + request.getType());
 
         Boolean success = getResBodyObj(deleteResult, Boolean.class);
         Assertions.assertTrue(success);
@@ -162,7 +162,7 @@ class DataNodeControllerTest extends WebBaseTest {
         DataNodeRequest request = getHiveDataNodeRequest();
         //request.setId(nodeEntity.getId());
         request.setVersion(nodeEntity.getVersion());
-        MvcResult mvcResult = postForSuccessMvcResult("/api/node/updateByUniqueKey", request);
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/updateByKey", request);
 
         UpdateResult result = getResBodyObj(mvcResult, UpdateResult.class);
         Assertions.assertTrue(result.getSuccess());
