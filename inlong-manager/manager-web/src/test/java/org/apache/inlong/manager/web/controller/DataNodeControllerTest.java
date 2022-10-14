@@ -87,7 +87,7 @@ class DataNodeControllerTest extends WebBaseTest {
     }
 
     @Test
-    void testSaveAndGetAndDeleteByUniqueKey() throws Exception {
+    void testSaveAndGetAndDeleteByKey() throws Exception {
         HiveDataNodeRequest request = getHiveDataNodeRequest();
         // save
         MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", request);
@@ -143,7 +143,7 @@ class DataNodeControllerTest extends WebBaseTest {
     }
 
     @Test
-    void testUpdateByUniqueKey() throws Exception {
+    void testUpdateByKey() throws Exception {
         // insert the test data
         DataNodeEntity nodeEntity = new DataNodeEntity();
         nodeEntity.setName("hiveNode1");
@@ -160,7 +160,6 @@ class DataNodeControllerTest extends WebBaseTest {
         dataNodeEntityMapper.insert(nodeEntity);
 
         DataNodeRequest request = getHiveDataNodeRequest();
-        //request.setId(nodeEntity.getId());
         request.setVersion(nodeEntity.getVersion());
         MvcResult mvcResult = postForSuccessMvcResult("/api/node/updateByKey", request);
 

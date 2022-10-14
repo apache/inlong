@@ -88,7 +88,7 @@ public class DataNodeController {
 
     @PostMapping(value = "/node/updateByKey")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Update data node by unique key")
+    @ApiOperation(value = "Update data node by key")
     public Response<UpdateResult> updateByKey(@RequestBody DataNodeRequest request) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(dataNodeService.updateByKey(request, username));
@@ -111,9 +111,7 @@ public class DataNodeController {
             @ApiImplicitParam(name = "type", value = "Data node type", dataTypeClass = String.class, required = true)
     })
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Boolean> deleteByKey(
-            @RequestParam String name,
-            @RequestParam String type) {
+    public Response<Boolean> deleteByKey(@RequestParam String name, @RequestParam String type) {
         return Response.success(dataNodeService.deleteByKey(name, type,
                 LoginUserUtils.getLoginUser().getName()));
     }

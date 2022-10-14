@@ -19,16 +19,28 @@ package org.apache.inlong.manager.pojo.common;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Update result info
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@ApiModel("Paginated update results")
+@ApiModel("Update result info")
 public class UpdateResult {
-    Boolean success;
-    Integer version;
+
+    @ApiModelProperty(value = "ID of the current record")
+    private Integer id;
+
+    @ApiModelProperty(value = "Update result, true or false")
+    private Boolean success;
+
+    @ApiModelProperty(value = "Version of the current record after updating")
+    private Integer version;
+
 }

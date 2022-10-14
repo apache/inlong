@@ -160,7 +160,7 @@ public class DataNodeServiceImpl implements DataNodeService {
         DataNodeOperator dataNodeOperator = operatorFactory.getInstance(request.getType());
         dataNodeOperator.updateOpt(request, operator);
         LOGGER.info("success to update data node={}", request);
-        return new UpdateResult(true, request.getVersion() + 1);
+        return new UpdateResult(entity.getId(), true, request.getVersion() + 1);
     }
 
     @Override
@@ -183,7 +183,7 @@ public class DataNodeServiceImpl implements DataNodeService {
                     entity.getName(), entity.getType(), entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
-        LOGGER.info("success to delete data node by name={}", entity.getName());
+        LOGGER.info("success to delete data node by id={}, name={}", entity.getId(), entity.getName());
         return true;
     }
 
