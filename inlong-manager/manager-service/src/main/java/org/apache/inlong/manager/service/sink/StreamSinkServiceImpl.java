@@ -322,7 +322,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             streamProcessOperation.startProcess(groupId, streamId, operator, false);
         }
         LOGGER.info("success to update sink info: {}", request);
-        return new UpdateResult(true, request.getVersion() + 1);
+        return new UpdateResult(entity.getId(), true, request.getVersion() + 1);
     }
 
     @Override
