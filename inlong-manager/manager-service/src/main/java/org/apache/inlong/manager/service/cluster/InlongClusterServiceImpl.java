@@ -418,7 +418,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterOperator instance = clusterOperatorFactory.getInstance(request.getType());
         instance.updateOpt(request, operator);
         LOGGER.info("success to update inlong cluster: {} by {}", request, operator);
-        return new UpdateResult(true, request.getVersion() + 1);
+        return new UpdateResult(entity.getId(), true, request.getVersion() + 1);
     }
 
     @Override
