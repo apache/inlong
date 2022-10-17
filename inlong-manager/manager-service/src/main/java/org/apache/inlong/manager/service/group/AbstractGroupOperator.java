@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.group;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -24,6 +25,7 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupSwitchDTO;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -34,6 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 /**
  * Default operator of inlong group.
  */
@@ -43,6 +47,9 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
 
     @Autowired
     protected InlongGroupEntityMapper groupMapper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -55,6 +62,7 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
         }
         // set the ext params
         setTargetEntity(request, entity);
+        setSwitchInfo(request, entity);
 
         // after saving, the status is set to [GROUP_WAIT_SUBMIT]
         entity.setStatus(GroupStatus.TO_BE_SUBMIT.getCode());
@@ -73,6 +81,19 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
      */
     protected abstract void setTargetEntity(InlongGroupRequest request, InlongGroupEntity targetEntity);
 
+    private void setSwitchInfo(InlongGroupRequest request, InlongGroupEntity targetEntity) {
+        InlongGroupSwitchDTO switchDTO = InlongGroupSwitchDTO.getFromRequest(request);
+        try {
+            Map extParams = objectMapper.convertValue(targetEntity.getExtParams(), Map.class);
+            Map switchParams = objectMapper.convertValue(switchDTO, Map.class);
+            extParams.putAll(switchParams);
+            targetEntity.setExtParams(objectMapper.writeValueAsString(extParams));
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+        }
+        LOGGER.info("success set switch info for inlong group");
+    }
+
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void updateOpt(InlongGroupRequest request, String operator) {
@@ -80,6 +101,7 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
 
         // set the ext params
         setTargetEntity(request, entity);
+        setSwitchInfo(request, entity);
 
         entity.setModifier(operator);
         int rowCount = groupMapper.updateByIdentifierSelective(entity);

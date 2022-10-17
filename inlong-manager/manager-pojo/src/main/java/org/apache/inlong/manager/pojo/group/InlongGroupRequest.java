@@ -104,4 +104,10 @@ public abstract class InlongGroupRequest {
     @ApiModelProperty(value = "Version number")
     private Integer version;
 
+    @ApiModelProperty(value = "Backup cluster tag")
+    private String backupClusterTag;
+
+    @ApiModelProperty(value = "Backup mq resource")
+    private String backupMqResource;
+
 }

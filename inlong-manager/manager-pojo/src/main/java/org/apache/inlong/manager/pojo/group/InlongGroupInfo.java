@@ -116,6 +116,12 @@ public abstract class InlongGroupInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
+    @ApiModelProperty(value = "Backup cluster tag")
+    private String backupClusterTag;
+
+    @ApiModelProperty(value = "Backup mq resource")
+    private String backupMqResource;
+
     @ApiModelProperty(value = "Inlong group Extension properties")
     private List<InlongGroupExtInfo> extList;
 

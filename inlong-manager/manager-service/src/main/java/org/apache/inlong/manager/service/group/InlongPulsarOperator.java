@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupSwitchDTO;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
@@ -39,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Inlong group operator for Pulsar.
@@ -74,7 +76,9 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
 
         if (StringUtils.isNotBlank(entity.getExtParams())) {
             InlongPulsarDTO dto = InlongPulsarDTO.getFromJson(entity.getExtParams());
+            InlongGroupSwitchDTO switchDTO = InlongGroupSwitchDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, groupInfo);
+            CommonBeanUtils.copyProperties(switchDTO, groupInfo);
         }
 
         // TODO get the cluster from inlong_cluster by entity.getInlongClusterTag()
