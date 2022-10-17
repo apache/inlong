@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.service.core.heartbeat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.Scheduler;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
@@ -51,8 +53,7 @@ import java.util.concurrent.TimeUnit;
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
     private static final String AUTO_REGISTERED = "auto registered";
-    private static final int UPDATED_ONE_ROW = 1; // updated one row
-    private static final int UPDATE_ZERO_ROW = 0; // no field updated
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Getter
     private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeatCache;
@@ -85,6 +86,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 .build(this::fetchCluster);
     }
 
+    @SneakyThrows
     @Override
     public void reportHeartbeat(HeartbeatMsg heartbeat) {
         ComponentHeartbeat componentHeartbeat = heartbeat.componentHeartbeat();
@@ -97,26 +99,35 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
         // if the heartbeat was not in the cache, insert or update the node by the heartbeat info
         HeartbeatMsg lastHeartbeat = heartbeatCache.getIfPresent(componentHeartbeat);
-        boolean exist = true;
-        int updateNum = UPDATE_ZERO_ROW;
-        if (lastHeartbeat == null) {
-            exist = false;
-            InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeat);
-            if (clusterNode == null) {
-                updateNum = insertClusterNode(clusterInfo, heartbeat, clusterInfo.getCreator());
-                log.info("insert node result: {}", updateNum);
-            } else {
-                updateNum = updateClusterNode(clusterNode);
-                log.info("update node result: {}", updateNum);
+        String[] ports = heartbeat.getPort().split(InlongConstants.COMMA);
+        String protocolType = heartbeat.getProtocolType();
+        String[] protocolTypes = StringUtils.isNoneBlank(protocolType) && ports.length > 1
+                ? heartbeat.getProtocolType().split(InlongConstants.COMMA) : null;
+        for (int i = 0; i < ports.length; i++) {
+            HeartbeatMsg heartbeatMsg = OBJECT_MAPPER.readValue(
+                    OBJECT_MAPPER.writeValueAsBytes(heartbeat), HeartbeatMsg.class);
+            heartbeatMsg.setPort(ports[i].trim());
+            heartbeatMsg.setProtocolType(protocolType);
+            if (protocolTypes != null) {
+                heartbeatMsg.setProtocolType(protocolTypes[i]);
+            }
+            if (lastHeartbeat == null) {
+                InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
+                if (clusterNode == null) {
+                    insertClusterNode(clusterInfo, heartbeatMsg, clusterInfo.getCreator());
+                } else {
+                    updateClusterNode(clusterNode);
+                }
             }
         }
 
         // if the heartbeat already exists, or does not exist but insert/update success, then put it into the cache
-        if (exist || updateNum == UPDATED_ONE_ROW) {
+        if (lastHeartbeat == null) {
             heartbeatCache.put(componentHeartbeat, heartbeat);
         }
     }
 
+    @SneakyThrows
     private void evictClusterNode(HeartbeatMsg heartbeat) {
         log.debug("evict cluster node");
         ComponentHeartbeat componentHeartbeat = heartbeat.componentHeartbeat();
@@ -126,14 +137,27 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     componentHeartbeat.getComponentType());
             return;
         }
-        InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeat);
-        if (clusterNode == null) {
-            log.error("not found any cluster node by type={}, ip={}, port={}",
-                    heartbeat.getComponentType(), heartbeat.getIp(), heartbeat.getPort());
-            return;
+        String[] ports = heartbeat.getPort().split(InlongConstants.COMMA);
+        String protocolType = heartbeat.getProtocolType();
+        String[] protocolTypes = StringUtils.isNoneBlank(protocolType) && ports.length > 1
+                ? heartbeat.getProtocolType().split(InlongConstants.COMMA) : null;
+        for (int i = 0; i < ports.length; i++) {
+            HeartbeatMsg heartbeatMsg = OBJECT_MAPPER.readValue(
+                    OBJECT_MAPPER.writeValueAsBytes(heartbeat), HeartbeatMsg.class);
+            heartbeatMsg.setPort(ports[i].trim());
+            heartbeatMsg.setProtocolType(protocolType);
+            if (protocolTypes != null) {
+                heartbeatMsg.setProtocolType(protocolTypes[i]);
+            }
+            InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
+            if (clusterNode == null) {
+                log.error("not found any cluster node by type={}, ip={}, port={}",
+                        heartbeat.getComponentType(), heartbeat.getIp(), heartbeat.getPort());
+                return;
+            }
+            clusterNode.setStatus(NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
+            clusterNodeMapper.updateById(clusterNode);
         }
-        clusterNode.setStatus(NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
-        clusterNodeMapper.updateById(clusterNode);
     }
 
     private InlongClusterNodeEntity getClusterNode(ClusterInfo clusterInfo, HeartbeatMsg heartbeat) {
@@ -141,7 +165,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         nodeRequest.setParentId(clusterInfo.getId());
         nodeRequest.setType(heartbeat.getComponentType());
         nodeRequest.setIp(heartbeat.getIp());
-        nodeRequest.setPort(heartbeat.getPort());
+        nodeRequest.setPort(Integer.valueOf(heartbeat.getPort()));
         nodeRequest.setProtocolType(heartbeat.getProtocolType());
         return clusterNodeMapper.selectByUniqueKey(nodeRequest);
     }
@@ -151,7 +175,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setParentId(clusterInfo.getId());
         clusterNode.setType(heartbeat.getComponentType());
         clusterNode.setIp(heartbeat.getIp());
-        clusterNode.setPort(heartbeat.getPort());
+        clusterNode.setPort(Integer.valueOf(heartbeat.getPort()));
         clusterNode.setProtocolType(heartbeat.getProtocolType());
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setCreator(creator);

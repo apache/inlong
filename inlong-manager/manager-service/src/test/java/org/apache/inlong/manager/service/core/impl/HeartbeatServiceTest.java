@@ -51,8 +51,9 @@ public class HeartbeatServiceTest extends ServiceBaseTest {
     @Test
     public void testReportHeartbeat() {
         HeartbeatReportRequest request = new HeartbeatReportRequest();
-        request.setComponentType(ComponentTypeEnum.Agent.getName());
+        request.setComponentType(ComponentTypeEnum.DataProxy.getName());
         request.setIp("127.0.0.1");
+        request.setPort("56802");
         request.setReportTime(Instant.now().toEpochMilli());
         request.setProtocolType(ProtocolType.HTTP);
 
@@ -78,7 +79,7 @@ public class HeartbeatServiceTest extends ServiceBaseTest {
     @Test
     public void testGetStreamHeartbeat() {
         HeartbeatQueryRequest request = new HeartbeatQueryRequest();
-        request.setComponent(ComponentTypeEnum.Agent.getName());
+        request.setComponent(ComponentTypeEnum.DataProxy.getName());
         request.setInstance("127.0.0.1");
         request.setInlongGroupId("group1");
         request.setInlongStreamId("stream1");

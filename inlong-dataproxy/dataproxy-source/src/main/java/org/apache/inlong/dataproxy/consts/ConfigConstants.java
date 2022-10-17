@@ -101,6 +101,7 @@ public class ConfigConstants {
     public static final String PROXY_CLUSTER_INCHARGES = "proxy.cluster.inCharges";
     public static final String PROXY_REPORT_IP = "proxy.report.ip";
     public static final String PROXY_REPORT_PORT = "proxy.report.port";
+    public static final String PROXY_REPORT_PROTOCOL_TYPE = "proxy.report.protocol.type";
     public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
 
     public static final String DECODER_BODY = "body";

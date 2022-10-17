@@ -62,6 +62,7 @@ public class SenderManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(SenderManager.class);
     private static final SequentialID SEQUENTIAL_ID = SequentialID.getInstance();
     private static final AtomicInteger SENDER_INDEX = new AtomicInteger(0);
+    private static final String DEFAULT_PROTOCOL_TYPE = "TCP";
     // cache for group and sender list, share the map cross agent lifecycle.
     private static final ConcurrentHashMap<String, List<DefaultMessageSender>> SENDER_MAP =
             new ConcurrentHashMap<>();
@@ -188,6 +189,7 @@ public class SenderManager {
 
         proxyClientConfig.setIoThreadNum(ioThreadNum);
         proxyClientConfig.setEnableBusyWait(enableBusyWait);
+        proxyClientConfig.setProtocolType(DEFAULT_PROTOCOL_TYPE);
 
         DefaultMessageSender sender = new DefaultMessageSender(proxyClientConfig, SHARED_FACTORY);
         sender.setMsgtype(msgType);
