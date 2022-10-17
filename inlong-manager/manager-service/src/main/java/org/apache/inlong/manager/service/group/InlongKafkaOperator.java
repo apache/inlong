@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupSwitchDTO;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaDTO;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
@@ -68,6 +69,8 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
         if (StringUtils.isNotBlank(entity.getExtParams())) {
             InlongKafkaDTO dto = InlongKafkaDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, kafkaInfo);
+            InlongGroupSwitchDTO switchDTO = InlongGroupSwitchDTO.getFromJson(entity.getExtParams());
+            CommonBeanUtils.copyProperties(switchDTO, kafkaInfo);
         }
 
         return kafkaInfo;
