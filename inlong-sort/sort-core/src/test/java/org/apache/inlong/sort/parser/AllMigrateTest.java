@@ -17,9 +17,11 @@
 
 package org.apache.inlong.sort.parser;
 
+import java.util.ArrayList;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.hadoop.hbase.util.Threads;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
@@ -54,11 +56,12 @@ public class AllMigrateTest {
         Map<String, String> option = new HashMap<>();
         option.put("append-mode", "true");
         option.put("migrate-all", "true");
-
+        List<String> a = new ArrayList(10);
+        a.add(".*.test");
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, option, null,
-            Collections.singletonList("test"), "localhost", "root", "inlong",
-                "test", null, null, false, null,
+            a, "localhost", "root", "Eminem@123456",
+                ".*", null, null, false, null,
             ExtractMode.CDC, null,"");
     }
 
@@ -131,8 +134,8 @@ public class AllMigrateTest {
                         Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
-        ParseResult result = parser.parse();
-        Assert.assertTrue(result.tryExecute());
+        parser.parse().execute();
+        Threads.sleep(100000);
     }
 
     /**
