@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium.internal;
+package org.apache.inlong.sort.cdc.oracle.debezium.internal;
 
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.removeHistory;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
+import static org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil.registerHistory;
+import static org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil.removeHistory;
+import static org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
 import io.debezium.config.Configuration;
 import io.debezium.relational.history.AbstractDatabaseHistory;

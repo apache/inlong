@@ -16,12 +16,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium.internal;
+package org.apache.inlong.sort.cdc.oracle.debezium.internal;
 
 import static io.debezium.relational.history.TableChanges.TableChange;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.removeHistory;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
 import io.debezium.config.Configuration;
 import io.debezium.relational.TableId;
@@ -38,7 +35,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import org.apache.inlong.sort.cdc.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.oracle.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil;
 
 /**
  * The {@link FlinkDatabaseSchemaHistory} only stores the latest schema of the monitored tables.
@@ -93,7 +91,7 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
 
         // recover
         this.latestTables = new ConcurrentHashMap<>();
-        for (SchemaRecord schemaRecord : retrieveHistory(instanceName)) {
+        for (SchemaRecord schemaRecord : DatabaseHistoryUtil.retrieveHistory(instanceName)) {
             // validate here
             TableChange tableChange =
                     FlinkJsonTableChangeSerializer.fromDocument(
@@ -101,7 +99,7 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
             latestTables.put(tableChange.getId(), schemaRecord);
         }
         // register
-        registerHistory(instanceName, latestTables.values());
+        DatabaseHistoryUtil.registerHistory(instanceName, latestTables.values());
     }
 
     @Override
@@ -167,7 +165,7 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
     @Override
     public void stop() {
         if (instanceName != null) {
-            removeHistory(instanceName);
+            DatabaseHistoryUtil.removeHistory(instanceName);
         }
         listener.stopped();
     }

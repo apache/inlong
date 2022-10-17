@@ -21,9 +21,9 @@ package org.apache.inlong.sort.cdc.oracle;
 import io.debezium.connector.oracle.OracleConnector;
 
 import java.util.Properties;
-import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumSourceFunction;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumOffset;
 import org.apache.inlong.sort.cdc.oracle.table.StartupOptions;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;

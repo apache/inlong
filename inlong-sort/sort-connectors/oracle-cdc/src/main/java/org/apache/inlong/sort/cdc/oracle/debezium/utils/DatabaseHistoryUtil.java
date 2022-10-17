@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium.utils;
+package org.apache.inlong.sort.cdc.oracle.debezium.utils;
 
 import io.debezium.relational.history.DatabaseHistory;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.inlong.sort.cdc.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.SchemaRecord;
 
 /**
  * Util to safely visit schema history between {@link DatabaseHistory} and {@link DebeziumSourceFunction}.

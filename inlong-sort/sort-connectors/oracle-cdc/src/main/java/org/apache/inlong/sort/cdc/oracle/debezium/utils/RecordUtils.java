@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium.utils;
+package org.apache.inlong.sort.cdc.oracle.debezium.utils;
 
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;

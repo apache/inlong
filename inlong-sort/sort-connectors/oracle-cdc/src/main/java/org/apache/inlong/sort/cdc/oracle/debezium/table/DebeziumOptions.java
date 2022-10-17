@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium.table;
+package org.apache.inlong.sort.cdc.oracle.debezium.table;
 
 import java.util.Map;
 import java.util.Properties;

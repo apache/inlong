@@ -16,18 +16,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium;
+package org.apache.inlong.sort.cdc.oracle.debezium.table;
 
+import io.debezium.relational.history.TableChanges.TableChange;
 import java.io.Serializable;
+import org.apache.kafka.connect.data.Schema;
 
-/** Validator to validate the connected database satisfies the cdc connector's requirements. */
-public interface Validator extends Serializable {
+/**
+ * Runtime converter that converts objects of Debezium into objects of Flink Table & SQL internal
+ * data structures.
+ */
+public interface DeserializationRuntimeConverter extends Serializable {
+    Object convert(Object dbzObj, Schema schema) throws Exception;
 
-    void validate();
-
-    static Validator getDefaultValidator() {
-        return () -> {
-            // do nothing;
-        };
-    }
+    Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception;
 }

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium.internal;
+package org.apache.inlong.sort.cdc.oracle.debezium.internal;
 
 import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
@@ -31,9 +31,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.debezium.utils.RecordUtils;
+import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.oracle.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.oracle.debezium.utils.RecordUtils;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;

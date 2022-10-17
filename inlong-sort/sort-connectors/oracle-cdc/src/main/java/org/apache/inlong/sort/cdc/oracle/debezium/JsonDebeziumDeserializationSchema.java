@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium;
+package org.apache.inlong.sort.cdc.oracle.debezium;
 
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.HashMap;

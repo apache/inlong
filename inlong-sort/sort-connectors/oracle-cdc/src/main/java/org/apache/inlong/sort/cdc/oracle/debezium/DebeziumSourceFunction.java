@@ -16,13 +16,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium;
+package org.apache.inlong.sort.cdc.oracle.debezium;
 
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
-import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
 import io.debezium.document.DocumentReader;
 import io.debezium.document.DocumentWriter;
@@ -71,15 +69,16 @@ import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.cdc.debezium.internal.DebeziumChangeConsumer;
-import org.apache.inlong.sort.cdc.debezium.internal.DebeziumChangeFetcher;
-import org.apache.inlong.sort.cdc.debezium.internal.DebeziumOffset;
-import org.apache.inlong.sort.cdc.debezium.internal.DebeziumOffsetSerializer;
-import org.apache.inlong.sort.cdc.debezium.internal.FlinkDatabaseHistory;
-import org.apache.inlong.sort.cdc.debezium.internal.FlinkDatabaseSchemaHistory;
-import org.apache.inlong.sort.cdc.debezium.internal.FlinkOffsetBackingStore;
-import org.apache.inlong.sort.cdc.debezium.internal.Handover;
-import org.apache.inlong.sort.cdc.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeFetcher;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeConsumer;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumOffsetSerializer;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkDatabaseSchemaHistory;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkOffsetBackingStore;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.Handover;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -345,7 +344,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             }
         }
         if (engineInstanceName != null) {
-            registerHistory(engineInstanceName, historyRecords);
+            DatabaseHistoryUtil.registerHistory(engineInstanceName, historyRecords);
         }
         LOG.info(
                 "Consumer subtask {} restored history records state: {} with {} records.",
@@ -411,7 +410,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
         if (engineInstanceName != null) {
             schemaRecordsState.add(engineInstanceName);
-            Collection<SchemaRecord> records = retrieveHistory(engineInstanceName);
+            Collection<SchemaRecord> records = DatabaseHistoryUtil.retrieveHistory(engineInstanceName);
             DocumentWriter writer = DocumentWriter.defaultWriter();
             for (SchemaRecord record : records) {
                 schemaRecordsState.add(writer.write(record.toDocument()));
@@ -640,7 +639,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private Class<?> determineDatabase() {
         boolean isCompatibleWithLegacy =
-                FlinkDatabaseHistory.isCompatible(retrieveHistory(engineInstanceName));
+                FlinkDatabaseHistory.isCompatible(DatabaseHistoryUtil.retrieveHistory(engineInstanceName));
         if (LEGACY_IMPLEMENTATION_VALUE.equals(properties.get(LEGACY_IMPLEMENTATION_KEY))) {
             // specifies the legacy implementation but the state may be incompatible
             if (isCompatibleWithLegacy) {
@@ -651,7 +650,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                                 + "but the state of source is incompatible with this implementation, "
                                 + "you should remove the the option.");
             }
-        } else if (FlinkDatabaseSchemaHistory.isCompatible(retrieveHistory(engineInstanceName))) {
+        } else if (FlinkDatabaseSchemaHistory.isCompatible(DatabaseHistoryUtil.retrieveHistory(engineInstanceName))) {
             // tries the non-legacy first
             return FlinkDatabaseSchemaHistory.class;
         } else if (isCompatibleWithLegacy) {

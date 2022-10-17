@@ -24,15 +24,12 @@ import java.sql.SQLException;
 import java.util.Properties;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.api.ValidationException;
-import org.apache.inlong.sort.cdc.debezium.Validator;
+import org.apache.inlong.sort.cdc.oracle.debezium.Validator;
 import org.apache.inlong.sort.cdc.oracle.util.OracleJdbcUrlUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** Validates the version of the database connecting to. */
 public class OracleValidator implements Validator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OracleValidator.class);
     private static final long serialVersionUID = 1L;
 
     private final Properties properties;

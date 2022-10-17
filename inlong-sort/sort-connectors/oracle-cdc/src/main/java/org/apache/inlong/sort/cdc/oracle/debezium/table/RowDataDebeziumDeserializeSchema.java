@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.debezium.table;
+package org.apache.inlong.sort.cdc.oracle.debezium.table;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
@@ -56,9 +56,9 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.debezium.utils.RecordUtils;
-import org.apache.inlong.sort.cdc.debezium.utils.TemporalConversions;
+import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.oracle.debezium.utils.RecordUtils;
+import org.apache.inlong.sort.cdc.oracle.debezium.utils.TemporalConversions;
 import org.apache.kafka.connect.data.ConnectSchema;
 import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Field;

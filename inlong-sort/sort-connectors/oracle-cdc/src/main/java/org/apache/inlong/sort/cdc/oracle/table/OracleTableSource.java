@@ -38,10 +38,10 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
+import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumSourceFunction;
+import org.apache.inlong.sort.cdc.oracle.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.oracle.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.cdc.oracle.OracleSource;
 
 /**
