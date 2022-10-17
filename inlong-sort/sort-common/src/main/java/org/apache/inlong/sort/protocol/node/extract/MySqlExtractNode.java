@@ -229,6 +229,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             options.put("connector", "mysql-cdc-inlong");
             options.put("hostname", hostname);
             options.put("database-name", database);
+            options.put("row-kinds-filtered", rowKindsFiltered);
             if (port != null) {
                 options.put("port", port.toString());
             }
@@ -247,7 +248,6 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             Preconditions.checkState(tableNames.size() == 1,
                     "Only support one table for scan extract mode");
         }
-        options.put("row-kinds-filtered", rowKindsFiltered);
         options.put("username", username);
         options.put("password", password);
         String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
