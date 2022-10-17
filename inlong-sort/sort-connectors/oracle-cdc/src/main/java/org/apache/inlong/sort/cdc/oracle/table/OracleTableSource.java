@@ -136,7 +136,7 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                         .hostname(hostname)
                         .port(port)
                         .database(database)
-                        .tableList(schemaName + "." + tableName)
+                        .tableList(tableName)
                         .schemaList(schemaName)
                         .username(username)
                         .password(password)
