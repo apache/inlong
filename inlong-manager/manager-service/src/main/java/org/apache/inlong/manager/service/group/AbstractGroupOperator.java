@@ -84,7 +84,7 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
     private void setSwitchInfo(InlongGroupRequest request, InlongGroupEntity targetEntity) {
         InlongGroupSwitchDTO switchDTO = InlongGroupSwitchDTO.getFromRequest(request);
         try {
-            Map extParams = objectMapper.convertValue(targetEntity.getExtParams(), Map.class);
+            Map extParams = objectMapper.readValue(targetEntity.getExtParams(), Map.class);
             Map switchParams = objectMapper.convertValue(switchDTO, Map.class);
             extParams.putAll(switchParams);
             targetEntity.setExtParams(objectMapper.writeValueAsString(extParams));
