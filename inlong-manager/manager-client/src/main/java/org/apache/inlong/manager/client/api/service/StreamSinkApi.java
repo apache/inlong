@@ -33,28 +33,26 @@ import retrofit2.http.Query;
 public interface StreamSinkApi {
 
     @POST("sink/save")
-    Call<Response<Integer>> createSink(@Body SinkRequest request);
+    Call<Response<Integer>> save(@Body SinkRequest request);
 
     @POST("sink/update")
-    Call<Response<Boolean>> updateSink(@Body SinkRequest request);
+    Call<Response<Boolean>> updateById(@Body SinkRequest request);
 
     @POST("sink/updateByKey")
-    Call<Response<UpdateResult>> updateSinkByKey(@Body SinkRequest request);
+    Call<Response<UpdateResult>> updateByKey(@Body SinkRequest request);
 
     @DELETE("sink/delete/{id}")
-    Call<Response<Boolean>> deleteSink(@Path("id") Integer id);
+    Call<Response<Boolean>> deleteById(@Path("id") Integer id);
 
     @DELETE("sink/deleteByKey")
-    Call<Response<Boolean>> deleteSink(
-            @Query("groupId") String groupId,
-            @Query("streamId") String streamId,
+    Call<Response<Boolean>> deleteByKey(@Query("groupId") String groupId, @Query("streamId") String streamId,
             @Query("name") String name);
 
-    @GET("sink/list")
-    Call<Response<PageResult<StreamSink>>> listSinks(@Query("inlongGroupId") String groupId,
-            @Query("inlongStreamId") String streamId, @Query("sinkType") String sinkType);
-
     @GET("sink/get/{id}")
-    Call<Response<StreamSink>> getSinkInfo(@Path("id") Integer sinkId);
+    Call<Response<StreamSink>> get(@Path("id") Integer sinkId);
+
+    @GET("sink/list")
+    Call<Response<PageResult<StreamSink>>> list(@Query("inlongGroupId") String groupId,
+            @Query("inlongStreamId") String streamId, @Query("sinkType") String sinkType);
 
 }

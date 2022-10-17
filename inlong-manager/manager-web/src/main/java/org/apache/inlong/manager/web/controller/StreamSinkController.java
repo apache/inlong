@@ -91,8 +91,7 @@ public class StreamSinkController {
     @ApiOperation(value = "Delete stream sink")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        boolean result = sinkService.delete(id, LoginUserUtils.getLoginUser().getName());
-        return Response.success(result);
+        return Response.success(sinkService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/deleteByKey", method = RequestMethod.DELETE)
@@ -103,12 +102,9 @@ public class StreamSinkController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
     })
-    public Response<Boolean> deleteByKey(
-            @RequestParam String groupId,
-            @RequestParam String streamId,
+    public Response<Boolean> deleteByKey(@RequestParam String groupId, @RequestParam String streamId,
             @RequestParam String name) {
-        boolean result = sinkService.deleteByKey(groupId, streamId, name,
-                LoginUserUtils.getLoginUser().getName());
+        boolean result = sinkService.deleteByKey(groupId, streamId, name, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
 

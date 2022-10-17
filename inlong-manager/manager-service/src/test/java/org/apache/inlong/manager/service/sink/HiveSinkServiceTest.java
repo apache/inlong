@@ -19,11 +19,11 @@ package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.junit.jupiter.api.Assertions;
@@ -72,7 +72,7 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
     }
 
     @Test
-    public void testSaveAndDeleteByUniqueKey() {
+    public void testSaveAndDeleteByKey() {
         Integer id = this.saveSink();
         Assertions.assertNotNull(id);
 
@@ -106,10 +106,10 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
     }
 
     @Test
-    public void testGetAndUpdateByUniqueKey() {
+    public void testGetAndUpdateByKey() {
         Integer sinkId = this.saveSink();
         StreamSink streamSink = sinkService.get(sinkId);
-         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
         HiveSink sink = (HiveSink) streamSink;
         sink.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
