@@ -40,6 +40,9 @@ public interface UserApi {
     @GET("user/get/{id}")
     Call<Response<UserInfo>> getById(@Path("id") Integer id);
 
+    @GET("user/getByName/{name}")
+    Call<Response<UserInfo>> getByName(@Path("name") String name);
+
     @POST("user/listAll")
     Call<Response<PageResult<UserInfo>>> list(@Body UserRequest request);
 

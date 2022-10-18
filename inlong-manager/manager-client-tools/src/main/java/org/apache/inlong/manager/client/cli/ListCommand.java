@@ -278,7 +278,7 @@ public class ListCommand extends AbstractCommand {
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"-u","--username"}, description = "username")
+        @Parameter(names = {"-u", "--username"}, description = "username")
         private String username;
 
         @Parameter(names = {"--type"}, description = "user type", validateWith = UserTypeValidator.class)

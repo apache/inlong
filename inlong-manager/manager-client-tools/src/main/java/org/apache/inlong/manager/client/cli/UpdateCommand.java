@@ -175,6 +175,9 @@ public class UpdateCommand extends AbstractCommand {
         @Parameter(names = {"-u", "--username"}, description = "username to be modify")
         private String username;
 
+        @Parameter(names = {"-p", "--password"}, description = "new password")
+        private String password;
+
         @Parameter(names = {"-d", "--days"}, description = "new valid days")
         private Integer validDays;
 
@@ -185,14 +188,15 @@ public class UpdateCommand extends AbstractCommand {
                 request.setName(username);
                 ClientUtils.initClientFactory();
                 UserClient userClient = ClientUtils.clientFactory.getUserClient();
-                List<UserInfo> userInfo = userClient.list(request).getList();
+                UserInfo userInfo = userClient.getByName(username);
                 if (userInfo == null) {
                     throw new BusinessException(username + " not exist, please check.");
                 }
-                request.setId(userInfo.get(0).getId());
-                request.setAccountType(userInfo.get(0).getAccountType());
+                request.setId(userInfo.getId());
+                request.setNewPassword(password);
+                request.setAccountType(userInfo.getAccountType());
                 request.setValidDays(validDays);
-                request.setVersion(userInfo.get(0).getVersion());
+                request.setVersion(userInfo.getVersion());
                 if (userClient.update(request) != null) {
                     System.out.println("Update user success!");
                 }
