@@ -22,12 +22,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.DorisConstant;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
+import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
@@ -36,12 +39,18 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_DATABASE_PATTERN;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIPLE_TABLE_PATTERN;
 
 /**
  * doris load node using doris flink-doris-connector-1.13.5_2.11
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("dorisLoadNode")
+@JsonInclude(Include.NON_NULL)
 @Data
 @NoArgsConstructor
 public class DorisLoadNode extends LoadNode implements Serializable {
@@ -61,13 +70,28 @@ public class DorisLoadNode extends LoadNode implements Serializable {
     private String password;
 
     @JsonProperty("tableIdentifier")
-    @Nonnull
+    @Nullable
     private String tableIdentifier;
 
     @JsonProperty("primaryKey")
     private String primaryKey;
 
-    @JsonCreator
+    @Nullable
+    @JsonProperty("sinkMultipleEnable")
+    private Boolean sinkMultipleEnable = false;
+
+    @Nullable
+    @JsonProperty("sinkMultipleFormat")
+    private Format sinkMultipleFormat;
+
+    @Nullable
+    @JsonProperty("databasePattern")
+    private String databasePattern;
+
+    @Nullable
+    @JsonProperty("tablePattern")
+    private String tablePattern;
+
     public DorisLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
@@ -81,22 +105,61 @@ public class DorisLoadNode extends LoadNode implements Serializable {
             @Nonnull @JsonProperty("password") String password,
             @Nonnull @JsonProperty("tableIdentifier") String tableIdentifier,
             @JsonProperty("primaryKey") String primaryKey) {
+        this(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties, feNodes, userName,
+                password, tableIdentifier, primaryKey, null, null,
+                null, null);
+    }
+
+    @JsonCreator
+    public DorisLoadNode(@JsonProperty("id") String id,
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
+            @JsonProperty("filters") List<FilterFunction> filters,
+            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
+            @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
+            @JsonProperty("properties") Map<String, String> properties,
+            @Nonnull @JsonProperty("feNodes") String feNodes,
+            @Nonnull @JsonProperty("username") String userName,
+            @Nonnull @JsonProperty("password") String password,
+            @Nullable @JsonProperty("tableIdentifier") String tableIdentifier,
+            @JsonProperty("primaryKey") String primaryKey,
+            @Nullable @JsonProperty(value = "sinkMultipleEnable", defaultValue = "false") Boolean sinkMultipleEnable,
+            @Nullable @JsonProperty("sinkMultipleFormat") Format sinkMultipleFormat,
+            @Nullable @JsonProperty("databasePattern") String databasePattern,
+            @Nullable @JsonProperty("tablePattern") String tablePattern) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.feNodes = Preconditions.checkNotNull(feNodes, "feNodes is null");
         this.userName = Preconditions.checkNotNull(userName, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
-        this.tableIdentifier = Preconditions.checkNotNull(tableIdentifier, "tableIdentifier is null");
         this.primaryKey = primaryKey;
+        this.sinkMultipleEnable = sinkMultipleEnable;
+        if (sinkMultipleEnable == null || !sinkMultipleEnable) {
+            this.tableIdentifier = Preconditions.checkNotNull(tableIdentifier, "tableIdentifier is null");
+        } else {
+            this.databasePattern = Preconditions.checkNotNull(databasePattern, "databasePattern is null");
+            this.tablePattern = Preconditions.checkNotNull(tablePattern, "tablePattern is null");
+            this.sinkMultipleFormat = Preconditions.checkNotNull(sinkMultipleFormat,
+                    "sinkMultipleFormat is null");
+        }
     }
 
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put(DorisConstant.CONNECTOR, "doris");
+        options.put(DorisConstant.CONNECTOR, "doris-inlong");
         options.put(DorisConstant.FE_NODES, feNodes);
         options.put(DorisConstant.USERNAME, userName);
         options.put(DorisConstant.PASSWORD, password);
-        options.put(DorisConstant.TABLE_IDENTIFIER, tableIdentifier);
+        if (sinkMultipleEnable != null && sinkMultipleEnable) {
+            options.put(SINK_MULTIPLE_ENABLE, sinkMultipleEnable.toString());
+            options.put(SINK_MULTIPLE_FORMAT, Objects.requireNonNull(sinkMultipleFormat).identifier());
+            options.put(SINK_MULTIPLE_DATABASE_PATTERN, databasePattern);
+            options.put(SINK_MULTIPLE_TABLE_PATTERN, tablePattern);
+        } else {
+            options.put(SINK_MULTIPLE_ENABLE, "false");
+            options.put(DorisConstant.TABLE_IDENTIFIER, tableIdentifier);
+        }
         return options;
     }
 
