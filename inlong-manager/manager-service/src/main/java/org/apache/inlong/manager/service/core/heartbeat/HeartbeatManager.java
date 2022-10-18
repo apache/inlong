@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
+import org.apache.inlong.common.heartbeat.DbSyncHeartbeatMsg;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
@@ -115,6 +116,11 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         if (exist || updateNum == UPDATED_ONE_ROW) {
             heartbeatCache.put(componentHeartbeat, heartbeat);
         }
+    }
+
+    @Override
+    public void reportDbSyncHeartbeat(DbSyncHeartbeatMsg heartbeatMsg) {
+
     }
 
     private void evictClusterNode(HeartbeatMsg heartbeat) {
