@@ -168,7 +168,7 @@ public class LoadNodeUtils {
                 format = new CanalJsonFormat();
                 break;
             case DEBEZIUM_JSON:
-                format = new DebeziumJsonFormat();
+                format =  new DebeziumJsonFormat();
                 break;
             case RAW:
                 format = new RawFormat();
@@ -188,6 +188,8 @@ public class LoadNodeUtils {
                 case CANAL:
                     innerFormat = new CanalJsonFormat();
                     break;
+                default:
+                    throw new IllegalArgumentException(String.format("Unsupported innerFormat=%s for Kafka", innerDataType));
             }
             sinkPartitioner = kafkaSink.getPartitionStrategy() == null ? null : RAW_HASH;
         }
