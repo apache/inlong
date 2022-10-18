@@ -32,7 +32,7 @@ public interface DataNodeEntityMapper {
 
     DataNodeEntity selectById(Integer id);
 
-    DataNodeEntity selectByNameAndType(@Param("name") String name, @Param("type") String type);
+    DataNodeEntity selectByUniqueKey(@Param("name") String name, @Param("type") String type);
 
     List<DataNodeEntity> selectByCondition(DataNodePageRequest request);
 

@@ -39,8 +39,6 @@ import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.heartbeat.HeartbeatManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;
@@ -51,7 +49,6 @@ import java.util.List;
  */
 public class InlongClusterServiceTest extends ServiceBaseTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceTest.class);
     @Autowired
     private InlongClusterService clusterService;
     @Autowired
@@ -111,11 +108,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Update cluster by unique key.
      */
-    public UpdateResult updatePulsarClusterByKey(
-            String name,
-            String clusterTag,
-            String adminUrl,
-            Integer version) {
+    public UpdateResult updatePulsarClusterByKey(String name, String clusterTag, String adminUrl, Integer version) {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setName(name);
         request.setClusterTags(clusterTag);
@@ -307,7 +300,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     }
 
     @Test
-    public void testGetDataProxyIp() {
+    public void testDataProxyCluster() {
         String clusterTag = "default_cluster";
         String clusterName = "test_data_proxy";
         String extTag = "ext_1";
