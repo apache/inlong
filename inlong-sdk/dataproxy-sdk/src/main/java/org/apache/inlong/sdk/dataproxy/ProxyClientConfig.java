@@ -52,6 +52,7 @@ public class ProxyClientConfig {
     private int maxTimeoutCnt = ConfigConstants.MAX_TIMEOUT_CNT;
     private String authSecretId;
     private String authSecretKey;
+    private String protocolType;
 
     private boolean enableSaveManagerVIps = true;
 
@@ -102,8 +103,8 @@ public class ProxyClientConfig {
 
     /*pay attention to the last url parameter ip*/
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
-                             int managerPort, String groupId, String netTag, String authSecretId, String authSecretKey,
-                             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
+            int managerPort, String groupId, String netTag, String authSecretId, String authSecretKey,
+            LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
         }
@@ -128,7 +129,7 @@ public class ProxyClientConfig {
         this.proxyHttpUpdateIntervalMinutes = ConfigConstants.PROXY_HTTP_UPDATE_INTERVAL_MINUTES;
         this.proxyUpdateMaxRetry = ConfigConstants.PROXY_UPDATE_MAX_RETRY;
         this.connectTimeoutMillis = ConfigConstants.DEFAULT_CONNECT_TIMEOUT_MILLIS;
-        this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
+        this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_REQUEST_TIMEOUT_MILLIS);
         this.authSecretId = authSecretId;
         this.authSecretKey = authSecretKey;
         this.loadBalance = loadBalance;
@@ -137,7 +138,7 @@ public class ProxyClientConfig {
     }
 
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort, String groupId,
-                             String netTag, String authSecretId, String authSecretKey) throws ProxysdkException {
+            String netTag, String authSecretId, String authSecretKey) throws ProxysdkException {
         this(localHost, isLocalVisit, managerIp, managerPort, groupId, netTag, authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
                 ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);
@@ -304,7 +305,7 @@ public class ProxyClientConfig {
     }
 
     public void setAuthenticationInfo(boolean needAuthentication, boolean needDataEncry,
-                                      final String userName, final String secretKey) {
+            final String userName, final String secretKey) {
         this.needAuthentication = needAuthentication;
         this.isNeedDataEncry = needDataEncry;
         if (this.needAuthentication || this.isNeedDataEncry) {

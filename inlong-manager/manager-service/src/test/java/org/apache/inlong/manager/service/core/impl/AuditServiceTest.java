@@ -64,7 +64,7 @@ class AuditServiceTest extends ServiceBaseTest {
      * @throws IOException The exception may throws
      */
 //    @Test
-    public void testQueryFromElasticsearch() throws IOException {
+    public void testQueryFromElasticsearch() throws Exception {
         AuditRequest request = new AuditRequest();
         request.setAuditIds(Arrays.asList("3", "4"));
         request.setInlongGroupId("g1");

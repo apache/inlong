@@ -41,7 +41,7 @@ public class StreamSinkClient {
     }
 
     public Integer createSink(SinkRequest sinkRequest) {
-        Response<Integer> response = ClientUtils.executeHttpCall(streamSinkApi.createSink(sinkRequest));
+        Response<Integer> response = ClientUtils.executeHttpCall(streamSinkApi.save(sinkRequest));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -51,7 +51,7 @@ public class StreamSinkClient {
      */
     public boolean deleteSink(int id) {
         Preconditions.checkTrue(id > 0, "sinkId is illegal");
-        Response<Boolean> response = ClientUtils.executeHttpCall(streamSinkApi.deleteSink(id));
+        Response<Boolean> response = ClientUtils.executeHttpCall(streamSinkApi.deleteById(id));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
@@ -68,7 +68,7 @@ public class StreamSinkClient {
      */
     public List<StreamSink> listSinks(String groupId, String streamId, String sinkType) {
         Response<PageResult<StreamSink>> response = ClientUtils.executeHttpCall(
-                streamSinkApi.listSinks(groupId, streamId, sinkType));
+                streamSinkApi.list(groupId, streamId, sinkType));
         ClientUtils.assertRespSuccess(response);
         return response.getData().getList();
     }
@@ -77,7 +77,7 @@ public class StreamSinkClient {
      * Update the stream sink info.
      */
     public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
-        Response<Boolean> responseBody = ClientUtils.executeHttpCall(streamSinkApi.updateSink(sinkRequest));
+        Response<Boolean> responseBody = ClientUtils.executeHttpCall(streamSinkApi.updateById(sinkRequest));
         ClientUtils.assertRespSuccess(responseBody);
 
         if (responseBody.getData() != null) {
@@ -91,7 +91,7 @@ public class StreamSinkClient {
      * Get detail information of data sink.
      */
     public StreamSink getSinkInfo(Integer sinkId) {
-        Response<StreamSink> response = ClientUtils.executeHttpCall(streamSinkApi.getSinkInfo(sinkId));
+        Response<StreamSink> response = ClientUtils.executeHttpCall(streamSinkApi.get(sinkId));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

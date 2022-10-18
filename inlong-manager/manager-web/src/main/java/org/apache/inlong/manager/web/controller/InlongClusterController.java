@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
@@ -33,6 +34,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
@@ -47,6 +49,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -132,6 +135,14 @@ public class InlongClusterController {
         return Response.success(clusterService.update(request, username));
     }
 
+    @PostMapping(value = "/cluster/updateByKey")
+    @OperationLog(operation = OperationType.UPDATE)
+    @ApiOperation(value = "Update cluster by key")
+    public Response<UpdateResult> updateByKey(@RequestBody ClusterRequest request) {
+        String username = LoginUserUtils.getLoginUser().getName();
+        return Response.success(clusterService.updateByKey(request, username));
+    }
+
     @PostMapping(value = "/cluster/bindTag")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Bind or unbind cluster tag")
@@ -147,6 +158,19 @@ public class InlongClusterController {
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @DeleteMapping(value = "/cluster/deleteByKey")
+    @ApiOperation(value = "Delete cluster by cluster name and type")
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "Cluster name", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "Cluster type", dataTypeClass = String.class, required = true),
+    })
+    @RequiresRoles(value = UserRoleCode.ADMIN)
+    public Response<Boolean> deleteByKey(@RequestParam String name, @RequestParam String type) {
+        return Response.success(clusterService.deleteByKey(name, type,
+                LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping(value = "/cluster/node/save")

@@ -15,41 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.pojo.common;
 
-import lombok.Getter;
-
-import java.util.Locale;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * Enum of data format.
+ * Update result info
  */
-public enum DataFormat {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+@ApiModel("Update result info")
+public class UpdateResult {
 
-    CSV("csv"),
-    AVRO("avro"),
-    CANAL("canal"),
-    JSON("json"),
-    DEBEZIUM_JSON("debezium_json"),
-    RAW("raw"),
-    NONE("none");
+    @ApiModelProperty(value = "ID of the current record")
+    private Integer id;
 
-    @Getter
-    private final String name;
+    @ApiModelProperty(value = "Update result, true or false")
+    private Boolean success;
 
-    DataFormat(String name) {
-        this.name = name;
-    }
+    @ApiModelProperty(value = "Version of the current record after updating")
+    private Integer version;
 
-    /**
-     * Get data format by name.
-     */
-    public static DataFormat forName(String name) {
-        for (DataFormat dataFormat : values()) {
-            if (dataFormat.getName().equals(name.toLowerCase(Locale.ROOT))) {
-                return dataFormat;
-            }
-        }
-        throw new IllegalArgumentException(String.format("Unsupported data format for %s", name));
-    }
 }

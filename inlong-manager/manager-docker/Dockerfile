@@ -45,6 +45,10 @@ ADD target/sort-dist-${VERSION}.jar /opt/inlong-sort/
 ADD target/sort-connector-pulsar-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-jdbc-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-hive-${VERSION}.jar /opt/inlong-sort/connectors/
+# audit clickhouse
+ENV AUDIT_CK_URL=127.0.0.1:8123
+ENV AUDIT_CK_USERNAME=default
+ENV AUDIT_CK_PASSWD=default
 # add mysql connector
 RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
 ADD manager-docker.sh bin/

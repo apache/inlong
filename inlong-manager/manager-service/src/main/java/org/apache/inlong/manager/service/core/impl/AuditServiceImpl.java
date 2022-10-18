@@ -18,21 +18,23 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.ibatis.jdbc.SQL;
 import org.apache.inlong.manager.common.consts.AuditConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.core.AuditService;
+import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.elasticsearch.action.search.SearchRequest;
@@ -54,8 +56,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -75,6 +79,7 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 public class AuditServiceImpl implements AuditService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditServiceImpl.class);
+    private static final String SECOND_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String HOUR_FORMAT = "yyyy-MM-dd HH";
     private static final String DAY_FORMAT = "yyyy-MM-dd";
 
@@ -97,7 +102,7 @@ public class AuditServiceImpl implements AuditService {
     private StreamSourceEntityMapper sourceEntityMapper;
 
     @Override
-    public List<AuditVO> listByCondition(AuditRequest request) throws IOException {
+    public List<AuditVO> listByCondition(AuditRequest request) throws Exception {
         LOGGER.info("begin query audit list request={}", request);
         Preconditions.checkNotNull(request, "request is null");
 
@@ -109,7 +114,7 @@ public class AuditServiceImpl implements AuditService {
 
         // for now, we use the first sink type only.
         // this is temporary behavior before multiple sinks in one stream is fully supported.
-        List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId, null);
+        List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId);
         String sinkNodeType = null;
         if (CollectionUtils.isNotEmpty(sinkEntityList)) {
             sinkNodeType = sinkEntityList.get(0).getSinkType();
@@ -154,6 +159,21 @@ public class AuditServiceImpl implements AuditService {
                         result.add(new AuditVO(auditId, auditSet,
                                 auditId.equals(AuditConstants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
                     }
+                }
+            } else if (AuditQuerySource.CLICKHOUSE == querySource) {
+                try (Connection connection = ClickHouseConfig.getCkConnection();
+                        Statement statement = connection.createStatement();
+                        ResultSet resultSet = statement.executeQuery(
+                                toAuditCkSql(groupId, streamId, auditId, request.getDt()))) {
+                    List<AuditInfo> auditSet = new ArrayList<>();
+                    while (resultSet.next()) {
+                        AuditInfo vo = new AuditInfo();
+                        vo.setLogTs(resultSet.getString("log_ts"));
+                        vo.setCount(resultSet.getLong("total"));
+                        auditSet.add(vo);
+                    }
+                    result.add(new AuditVO(auditId, auditSet,
+                            auditId.equals(AuditConstants.AUDIT_ID_SORT_OUTPUT) ? sinkNodeType : null));
                 }
             }
         }
@@ -209,6 +229,31 @@ public class AuditServiceImpl implements AuditService {
         sourceBuilder.size(0);
         sourceBuilder.sort("log_ts", SortOrder.ASC);
         return new SearchRequest(new String[]{index}, sourceBuilder);
+    }
+
+    /**
+     * Convert to clickhouse search sql
+     *
+     * @param groupId The groupId of inlong
+     * @param streamId The streamId of inlong
+     * @param auditId The auditId of request
+     * @param dt The datetime of request
+     * @return clickhouse sql
+     */
+    private String toAuditCkSql(String groupId, String streamId, String auditId, String dt) {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(DAY_FORMAT);
+        DateTime date = formatter.parseDateTime(dt);
+        String startDate = date.toString(SECOND_FORMAT);
+        String endDate = date.plusDays(1).toString(SECOND_FORMAT);
+        return new SQL()
+                .SELECT("log_ts", "sum(count) as total")
+                .FROM("audit_data")
+                .WHERE("inlong_group_id = '" + groupId + "'", "inlong_stream_id = '" + streamId + "'",
+                        "audit_id = '" + auditId + "'")
+                .WHERE("log_ts >= '" + startDate + "'", "log_ts < '" + endDate + "'")
+                .GROUP_BY("log_ts")
+                .ORDER_BY("log_ts")
+                .toString();
     }
 
     /**

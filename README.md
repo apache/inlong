@@ -73,11 +73,11 @@ You can use InLong in the following ways：
 |              | File              | None                         | Standard              |
 |              | Kafka             | 2.x                          | Lightweight, Standard |
 |              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
-|              | MongoDB           | >= 3.6                       | Lightweight           |
+|              | MongoDB           | >= 3.6                       | Lightweight, Standard |
 |              | Oracle            | 11,12,19                     | Lightweight           |
-|              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight           |
+|              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight, Standard |
 |              | Pulsar            | 2.8.x                        | Lightweight           |
-|              | SQLServer         | 2012, 2014, 2016, 2017, 2019 | Lightweight           |
+|              | SQLServer         | 2012, 2014, 2016, 2017, 2019 | Lightweight, Standard |
 | Load Node    | Auto Consumption  | None                         | Standard              |
 |              | Hive              | 1.x, 2.x, 3.x                | Lightweight, Standard |
 |              | Iceberg           | 0.12.x                       | Lightweight, Standard |

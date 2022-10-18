@@ -19,11 +19,13 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
@@ -40,6 +42,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -83,6 +86,14 @@ public class DataNodeController {
         return Response.success(dataNodeService.update(request, username));
     }
 
+    @PostMapping(value = "/node/updateByKey")
+    @OperationLog(operation = OperationType.UPDATE)
+    @ApiOperation(value = "Update data node by key")
+    public Response<UpdateResult> updateByKey(@RequestBody DataNodeRequest request) {
+        String username = LoginUserUtils.getLoginUser().getName();
+        return Response.success(dataNodeService.updateByKey(request, username));
+    }
+
     @DeleteMapping(value = "/node/delete/{id}")
     @ApiOperation(value = "Delete data node by id")
     @OperationLog(operation = OperationType.DELETE)
@@ -90,6 +101,19 @@ public class DataNodeController {
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @DeleteMapping(value = "/node/deleteByKey")
+    @ApiOperation(value = "Delete data node by key")
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "Data node name", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "Data node type", dataTypeClass = String.class, required = true)
+    })
+    @RequiresRoles(value = UserRoleCode.ADMIN)
+    public Response<Boolean> deleteByKey(@RequestParam String name, @RequestParam String type) {
+        return Response.success(dataNodeService.deleteByKey(name, type,
+                LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping("/node/testConnection")
