@@ -42,8 +42,12 @@ import org.apache.iceberg.types.Type;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.types.Types.NestedField;
 import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
+import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -93,15 +97,23 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
 
     private final CatalogLoader catalogLoader;
     private final JsonToRowDataConverters rowDataConverters;
+    private final MultipleSinkOption multipleSinkOption;
 
     private transient Catalog catalog;
-    private transient Map<TableIdentifier, Queue<RecordWithSchema>> recordQueues;  // record在本地暂存的记录,schema有了才会继续消费
-    private transient Map<TableIdentifier, Schema> schemaCache;  // schema在本地的缓存
+    private transient AbstractDynamicSchemaFormat<JsonNode> dynamicSchemaFormat;
+
+    // record cache, wait schema to consume record
+    private transient Map<TableIdentifier, Queue<RecordWithSchema>> recordQueues;
+
+    // schema cache
+    private transient Map<TableIdentifier, Schema> schemaCache;
 
     public WholeDatabaseMigrationOperator(CatalogLoader catalogLoader,
-            JsonToRowDataConverters rowDataConverters) {
+            JsonToRowDataConverters rowDataConverters,
+            MultipleSinkOption multipleSinkOption) {
         this.catalogLoader = catalogLoader;
         this.rowDataConverters = rowDataConverters;
+        this.multipleSinkOption = multipleSinkOption;
     }
 
     @Override
@@ -110,6 +122,7 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
         this.catalog = catalogLoader.loadCatalog();
         this.recordQueues = new HashMap<>();
         this.schemaCache = new HashMap<>();
+        this.dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat(multipleSinkOption.getFormat());
     }
 
     @Override
@@ -137,7 +150,7 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     private void execDDL(JsonNode jsonNode) {
     }
 
-    private void execDML(JsonNode jsonNode) {
+    private void execDML(JsonNode jsonNode) throws IOException {
         RecordWithSchema record = parseRecord(jsonNode);
         Schema schema = schemaCache.get(record.getTableId());
         Schema dataSchema = record.getSchema();
@@ -225,20 +238,13 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     }
 
     // 从数据中解析schema信息并转换成为flink内置的schema,对不同的格式（canal-json、ogg）以插件接口的方式提供这个转换方式
-    private RecordWithSchema parseRecord(JsonNode data) {
-        String databaseStr = data.get("database").asText();
-        String tableStr = data.get("table").asText();
+    private RecordWithSchema parseRecord(JsonNode data) throws IOException {
+        String databaseStr = dynamicSchemaFormat.parse(data, multipleSinkOption.getDatabasePattern());
+        String tableStr = dynamicSchemaFormat.parse(data, multipleSinkOption.getTablePattern());
         String op = data.get("type").asText();
         JsonNode schemaStr = data.get("sqlType");
         JsonNode dataStr = data.get("data");
-        List<String> pkListStr = Stream.of(data.get("pkNames")).flatMap(node -> {  // todo:pkNames的判空处理
-            List<String> pks = new ArrayList<>();
-            for (JsonNode pk : node) {
-                pks.add(pk.asText());
-            }
-            return pks.stream();
-        }).collect(Collectors.toList());
-        // todo:判空处理
+        List<String> pkListStr = dynamicSchemaFormat.extractPrimaryKeyNames(data);
 
         // parse schema, primary key
         List<Integer> pks = new ArrayList<>();

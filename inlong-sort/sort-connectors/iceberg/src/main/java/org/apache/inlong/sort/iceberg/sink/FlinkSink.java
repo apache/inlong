@@ -53,6 +53,7 @@ import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.types.TypeUtil;
 import org.apache.iceberg.util.PropertyUtil;
+import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleFilesCommiter;
 import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleStreamWriter;
 import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessOperator;
@@ -159,6 +160,7 @@ public class FlinkSink {
         private String auditHostAndPorts = null;
         private CatalogLoader catalogLoader = null;
         private boolean multipleSink = false;
+        private MultipleSinkOption multipleSinkOption = null;
 
         private Builder() {
         }
@@ -209,6 +211,7 @@ public class FlinkSink {
             return this;
         }
 
+        // todo:排版和注释增加
         public Builder catalogLoader(CatalogLoader catalogLoader) {
             this.catalogLoader = catalogLoader;
             return this;
@@ -216,6 +219,11 @@ public class FlinkSink {
 
         public Builder multipleSink(boolean multipleSink) {
             this.multipleSink = multipleSink;
+            return this;
+        }
+
+        public Builder multipleSinkOption(MultipleSinkOption multipleSinkOption) {
+            this.multipleSinkOption = multipleSinkOption;
             return this;
         }
 
@@ -505,7 +513,8 @@ public class FlinkSink {
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             WholeDatabaseMigrationOperator routeOperator = new WholeDatabaseMigrationOperator(
                     catalogLoader,
-                    new JsonToRowDataConverters(true, false, TimestampFormat.SQL));
+                    new JsonToRowDataConverters(true, false, TimestampFormat.SQL),
+                    multipleSinkOption);
             SingleOutputStreamOperator<RecordWithSchema> routeStream = input
                     .transform(operatorName(ICEBERG_WHOLE_DATABASE_MIGRATION_NAME),
                             TypeInformation.of(RecordWithSchema.class),
