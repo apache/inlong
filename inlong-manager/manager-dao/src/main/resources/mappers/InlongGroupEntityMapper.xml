@@ -208,7 +208,7 @@
         from inlong_group
         where is_deleted = 0
     </select>
-    <select id="selectLogicalDeletedGroupIds" resultType="java.lang.String">
+    <select id="selectDeletedGroupIds" resultType="java.lang.String">
         select inlong_group_id
         from inlong_group
         where modify_time &lt;= #{lastModifyTime,jdbcType=TIMESTAMP}

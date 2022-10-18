@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.timertask;
+package org.apache.inlong.manager.service.timer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -47,17 +47,17 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
-public class GroupPurgeTask extends TimerTask implements InitializingBean {
+public class DataCleansingTask extends TimerTask implements InitializingBean {
 
-    @Value("${group.purge.enabled:false}")
+    @Value("${data.cleansing.enabled:false}")
     private Boolean enabled;
-    @Value("${group.purge.delay.in.seconds:10}")
+    @Value("${data.cleansing.delay.in.seconds:10}")
     private Integer delay;
-    @Value("${group.purge.period.in.seconds:300}")
+    @Value("${data.cleansing.period.in.seconds:300}")
     private Integer period;
-    @Value("${group.purge.last.modify.gap.in.seconds:10}")
+    @Value("${data.cleansing.last.modify.gap.in.seconds:10}")
     private Integer lastModifyGap;
-    @Value("${group.purge.limit:2000}")
+    @Value("${data.cleansing.limit:2000}")
     private Integer limit;
 
     @Autowired
@@ -92,7 +92,7 @@ public class GroupPurgeTask extends TimerTask implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         if (enabled) {
-            log.info("start group purge timer task");
+            log.info("start data cleansing timer task");
             ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
             executor.scheduleWithFixedDelay(this, delay, period, TimeUnit.SECONDS);
         }
@@ -102,31 +102,31 @@ public class GroupPurgeTask extends TimerTask implements InitializingBean {
     public void run() {
         try {
             Date lastModifyTime = new Date(System.currentTimeMillis() - lastModifyGap * 1000L);
-            List<String> groupIdsToPurge = groupEntityMapper.selectLogicalDeletedGroupIds(lastModifyTime, limit);
-            log.info("group ids to purge: {}", groupIdsToPurge);
-            if (CollectionUtils.isEmpty(groupIdsToPurge)) {
+            List<String> groupIds = groupEntityMapper.selectDeletedGroupIds(lastModifyTime, limit);
+            log.info("group ids to delete: {}", groupIds);
+            if (CollectionUtils.isEmpty(groupIds)) {
                 return;
             }
 
             // cleanse configuration data
-            groupEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            groupExtEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            streamEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            streamExtEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            streamFieldEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            streamSinkEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            streamSinkFieldEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            streamSourceEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            streamSourceFieldEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            streamTransformEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            streamTransformFieldEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
+            groupEntityMapper.deleteByInlongGroupIds(groupIds);
+            groupExtEntityMapper.deleteByInlongGroupIds(groupIds);
+            streamEntityMapper.deleteByInlongGroupIds(groupIds);
+            streamExtEntityMapper.deleteByInlongGroupIds(groupIds);
+            streamFieldEntityMapper.deleteByInlongGroupIds(groupIds);
+            streamSinkEntityMapper.deleteByInlongGroupIds(groupIds);
+            streamSinkFieldEntityMapper.deleteByInlongGroupIds(groupIds);
+            streamSourceEntityMapper.deleteByInlongGroupIds(groupIds);
+            streamSourceFieldEntityMapper.deleteByInlongGroupIds(groupIds);
+            streamTransformEntityMapper.deleteByInlongGroupIds(groupIds);
+            streamTransformFieldEntityMapper.deleteByInlongGroupIds(groupIds);
 
             // cleanse workflow data
-            List<Integer> processIds = workflowProcessEntityMapper.selectProcessIdsByInlongGroupIds(groupIdsToPurge);
-            workflowEventLogEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
+            List<Integer> processIds = workflowProcessEntityMapper.selectProcessIdsByInlongGroupIds(groupIds);
+            workflowEventLogEntityMapper.deleteByInlongGroupIds(groupIds);
             workflowTaskEntityMapper.deleteByProcessIds(processIds);
-            workflowProcessEntityMapper.deleteByInlongGroupIds(groupIdsToPurge);
-            log.info("deleted {} groups", groupIdsToPurge.size());
+            workflowProcessEntityMapper.deleteByInlongGroupIds(groupIds);
+            log.info("deleted {} groups", groupIds.size());
         } catch (Exception e) {
             log.error("exception while cleansing database ", e);
         }

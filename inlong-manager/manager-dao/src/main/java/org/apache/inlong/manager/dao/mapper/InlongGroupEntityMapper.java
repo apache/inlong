@@ -56,10 +56,11 @@ public interface InlongGroupEntityMapper {
 
     /**
      * Select all groups which are logical deleted before some last modify time
-     * @param lastModifyTime
-     * @return
+     * @param lastModifyTime the latest modify time before which to select
+     * @param limit max item count
+     * @return all matched group ids
      */
-    List<String> selectLogicalDeletedGroupIds(@Param("lastModifyTime") Date lastModifyTime,
+    List<String> selectDeletedGroupIds(@Param("lastModifyTime") Date lastModifyTime,
             @Param("limit") Integer limit);
 
     int updateByPrimaryKey(InlongGroupEntity record);
