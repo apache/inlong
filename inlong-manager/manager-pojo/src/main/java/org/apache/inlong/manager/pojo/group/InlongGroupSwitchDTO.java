@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.pojo.group;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -40,14 +42,16 @@ import javax.validation.constraints.NotNull;
 public class InlongGroupSwitchDTO {
 
     @ApiModelProperty(value = "Backup cluster tag")
-    private String backupClusterTag;
+    @JsonProperty("backup_inlong_cluster_tag")
+    private String backupInlongClusterTag;
 
     @ApiModelProperty(value = "Backup mq resource")
+    @JsonProperty("backup_mq_resource")
     private String backupMqResource;
 
     public static InlongGroupSwitchDTO getFromRequest(InlongGroupRequest request) {
         return InlongGroupSwitchDTO.builder()
-                .backupClusterTag(request.getBackupClusterTag())
+                .backupInlongClusterTag(request.getBackupInlongClusterTag())
                 .backupMqResource(request.getBackupMqResource())
                 .build();
     }
