@@ -22,7 +22,7 @@ import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.consts.MQType;
-import org.apache.inlong.manager.common.consts.ProtocolType;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -176,7 +176,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.updateNode(request, GLOBAL_OPERATOR);
     }
 
-    private HeartbeatMsg createHeartbeatMsg(String clusterName, String ip, int port, String type) {
+    private HeartbeatMsg createHeartbeatMsg(String clusterName, String ip, String port, String type) {
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(ip);
         heartbeatMsg.setPort(port);
@@ -327,9 +327,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(nodeId2);
 
         // report heartbeat
-        HeartbeatMsg msg1 = createHeartbeatMsg(clusterName, ip, port1, ComponentTypeEnum.DataProxy.getName());
+        HeartbeatMsg msg1 = createHeartbeatMsg(clusterName, ip, String.valueOf(port1),
+                ComponentTypeEnum.DataProxy.getName());
         heartbeatManager.reportHeartbeat(msg1);
-        HeartbeatMsg msg2 = createHeartbeatMsg(clusterName, ip, port2, ComponentTypeEnum.DataProxy.getName());
+        HeartbeatMsg msg2 = createHeartbeatMsg(clusterName, ip, String.valueOf(port2),
+                ComponentTypeEnum.DataProxy.getName());
         heartbeatManager.reportHeartbeat(msg2);
 
         // create an inlong group which use the clusterTag
