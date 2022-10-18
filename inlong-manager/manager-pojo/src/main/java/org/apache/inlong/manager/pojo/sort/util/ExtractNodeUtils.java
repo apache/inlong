@@ -412,6 +412,7 @@ public class ExtractNodeUtils {
 
     /**
      * Create Redis extract node
+     *
      * @param source redis source info
      * @return redis extract source info
      */
@@ -420,8 +421,8 @@ public class ExtractNodeUtils {
         Map<String, String> properties = parseProperties(source.getProperties());
         RedisCommand command = RedisCommand.forName(source.getRedisCommand());
         RedisMode mode = RedisMode.forName(source.getRedisMode());
-        LookupOptions lookupOptions = new LookupOptions(source.getLookupCacheMaxRows(),source.getLookupCacheTtl(),
-                source.getLookupMaxRetries(),source.getLookupAsync());
+        LookupOptions lookupOptions = new LookupOptions(source.getLookupCacheMaxRows(), source.getLookupCacheTtl(),
+                source.getLookupMaxRetries(), source.getLookupAsync());
         return new RedisExtractNode(
                 source.getSourceName(),
                 source.getSourceName(),

@@ -168,7 +168,7 @@ public class LoadNodeUtils {
                 format = new CanalJsonFormat();
                 break;
             case DEBEZIUM_JSON:
-                format =  new DebeziumJsonFormat();
+                format = new DebeziumJsonFormat();
                 break;
             case RAW:
                 format = new RawFormat();
@@ -177,7 +177,7 @@ public class LoadNodeUtils {
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for Kafka", dataType));
         }
 
-        DataTypeEnum innerDataType = DataTypeEnum.forName(kafkaSink.getInnerFormat();
+        DataTypeEnum innerDataType = DataTypeEnum.forName(kafkaSink.getInnerFormat());
         Format innerFormat = null;
         String sinkPartitioner = null;
         if (dataType == DataTypeEnum.RAW) {
