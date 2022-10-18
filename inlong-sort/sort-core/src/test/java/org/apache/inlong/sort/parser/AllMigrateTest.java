@@ -37,7 +37,6 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -57,7 +56,7 @@ public class AllMigrateTest {
         List<String> tables = new ArrayList(10);
         tables.add("test.*");
         List<FieldInfo> fields = Collections.singletonList(
-            new MetaFieldInfo("data", MetaField.DATA));
+            new MetaFieldInfo("data", MetaField.DATA_DEBEZIUM));
 
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, option, null,
@@ -68,7 +67,7 @@ public class AllMigrateTest {
 
     private MySqlExtractNode buildAllMigrateExtractNodeWithBytesFormat() {
         List<FieldInfo> fields = Collections.singletonList(
-            new MetaFieldInfo("data", MetaField.DATA_BYTES));
+            new MetaFieldInfo("data", MetaField.DATA_BYTES_DEBEZIUM));
         Map<String, String> option = new HashMap<>();
         option.put("append-mode", "true");
         option.put("migrate-all", "true");

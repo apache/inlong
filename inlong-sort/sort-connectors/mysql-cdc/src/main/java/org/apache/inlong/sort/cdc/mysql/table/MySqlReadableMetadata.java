@@ -35,6 +35,8 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.formats.json.canal.CanalJson;
+import org.apache.inlong.sort.formats.json.debezium.DebeziumJson;
+import org.apache.inlong.sort.formats.json.debezium.DebeziumJson.Source;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
@@ -98,7 +100,7 @@ public enum MySqlReadableMetadata {
             }),
 
     DATA(
-            "meta.data",
+            "meta.data_canal",
             DataTypes.STRING(),
             new MetadataConverter() {
                 private static final long serialVersionUID = 1L;
@@ -142,6 +144,47 @@ public enum MySqlReadableMetadata {
                     }
                 }
             }),
+
+
+    DATA_DEBEZIUM(
+        "meta.data_debezium",
+        DataTypes.STRING(),
+        new MetadataConverter() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Object read(SourceRecord record) {
+                return null;
+            }
+
+            @Override
+            public Object read(SourceRecord record,
+                @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+                // construct debezium json
+                Struct messageStruct = (Struct) record.value();
+                Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
+                GenericRowData data = (GenericRowData) rowData;
+                Map<String, Object> field = (Map<String, Object>) data.getField(0);
+
+                Source source = Source.builder().db(getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY))
+                    .table(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY))
+                    .name(sourceStruct.getString(AbstractSourceInfo.SERVER_NAME_KEY))
+                    .sqlType(getSqlType(tableSchema))
+                    .pkNames(getPkNames(tableSchema))
+                    .mysqlType(getMysqlType(tableSchema))
+                    .build();
+                DebeziumJson debeziumJson = DebeziumJson.builder().after(field).source(source)
+                        .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getOpType(record))
+                    .tableChange(tableSchema).build();
+
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    return StringData.fromString(objectMapper.writeValueAsString(debeziumJson));
+                } catch (Exception e) {
+                    throw new IllegalStateException("exception occurs when get meta data", e);
+                }
+            }
+        }),
 
     /**
      * Name of the table that contain the row. .
