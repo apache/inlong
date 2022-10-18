@@ -196,7 +196,7 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
         env.disableOperatorChaining();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildKafkaExtractNode();
-        Node outputNode = buildKafkaLoadNodeWithDynamicPartition("${database_name_src}_${table_name_src}");
+        Node outputNode = buildKafkaLoadNodeWithDynamicPartition("${database}_${table}");
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));
