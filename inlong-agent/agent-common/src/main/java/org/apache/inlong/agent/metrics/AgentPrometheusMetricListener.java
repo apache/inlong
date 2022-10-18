@@ -67,6 +67,7 @@ import org.slf4j.LoggerFactory;
 public class AgentPrometheusMetricListener extends Collector implements MetricListener {
 
     public static final String DEFAULT_DIMENSION_LABEL = "dimension";
+    public static final String HYPHEN_SYMBOL = "-";
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentPrometheusMetricListener.class);
     protected HTTPServer httpServer;
     private AgentMetricItem metricItem;
@@ -146,15 +147,14 @@ public class AgentPrometheusMetricListener extends Collector implements MetricLi
         for (Entry<String, MetricItemValue> entry : this.dimensionMetricValueMap.entrySet()) {
             MetricItemValue itemValue = entry.getValue();
             Map<String, String> dimensionMap = itemValue.getDimensions();
-            String pluginId = dimensionMap.getOrDefault(KEY_PLUGIN_ID, "-");
-            String componentName = dimensionMap.getOrDefault(KEY_COMPONENT_NAME, "-");
-            String counterName = pluginId.equals("-") ? componentName : pluginId;
+            String pluginId = dimensionMap.getOrDefault(KEY_PLUGIN_ID, HYPHEN_SYMBOL);
+            String componentName = dimensionMap.getOrDefault(KEY_COMPONENT_NAME, HYPHEN_SYMBOL);
+            String counterName = pluginId.equals(HYPHEN_SYMBOL) ? componentName : pluginId;
             List<String> dimensionIdKeys = new ArrayList<>();
             dimensionIdKeys.add(DEFAULT_DIMENSION_LABEL);
             dimensionIdKeys.addAll(dimensionMap.keySet());
             CounterMetricFamily idCounter = new CounterMetricFamily(counterName,
-                    "metrics_of_agent_dimensions_" + counterName,
-                    dimensionIdKeys);
+                    "metrics_of_agent_dimensions_" + counterName, dimensionIdKeys);
 
             addCounterMetricFamily(M_JOB_RUNNING_COUNT, itemValue, idCounter);
             addCounterMetricFamily(M_JOB_FATAL_COUNT, itemValue, idCounter);
@@ -229,7 +229,7 @@ public class AgentPrometheusMetricListener extends Collector implements MetricLi
         List<String> labelValues = new ArrayList<>(dimensionMap.size() + 1);
         labelValues.add(defaultDimension);
         for (String key : dimensionMap.keySet()) {
-            String labelValue = dimensionMap.getOrDefault(key, "-");
+            String labelValue = dimensionMap.getOrDefault(key, HYPHEN_SYMBOL);
             labelValues.add(labelValue);
         }
         long value = 0L;
