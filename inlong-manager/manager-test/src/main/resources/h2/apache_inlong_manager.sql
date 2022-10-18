@@ -50,7 +50,9 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `version`                int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`),
-    INDEX group_status_deleted_index (`status`, `is_deleted`)
+    INDEX `group_status_deleted_index` (`status`, `is_deleted`),
+    INDEX `modifytime_index` (`modify_time`),
+    INDEX `cluster_tag_index` (`inlong_cluster_tag`)
 );
 
 -- ----------------------------
@@ -114,7 +116,8 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`      int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_inlong_cluster` (`name`, `type`, `is_deleted`)
+    UNIQUE KEY `unique_inlong_cluster` (`name`, `type`, `is_deleted`),
+    KEY `type_index` (`type`)
 );
 
 -- ----------------------------
@@ -214,7 +217,8 @@ CREATE TABLE IF NOT EXISTS `consumption`
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `group_id_index` (`inlong_group_id`)
 );
 
 -- ----------------------------
@@ -231,9 +235,9 @@ CREATE TABLE IF NOT EXISTS `consumption_pulsar`
     `is_dlq`             tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure dead letter topic, 0: no configuration, 1: means configuration',
     `dead_letter_topic`  varchar(256) DEFAULT NULL COMMENT 'dead letter topic name',
     `is_deleted`         int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    PRIMARY KEY (`id`)
-) COMMENT ='Pulsar consumption table';
-
+    PRIMARY KEY (`id`),
+    KEY `consumption_id_index` (`consumption_id`)
+);
 -- ----------------------------
 -- Table structure for stream_source_cmd_config
 -- ----------------------------
@@ -282,7 +286,8 @@ CREATE TABLE IF NOT EXISTS `inlong_stream`
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_inlong_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`)
+    UNIQUE KEY `unique_inlong_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`),
+    KEY `group_id_index` (`inlong_group_id`)
 );
 
 -- ----------------------------
@@ -322,7 +327,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream_field`
     `rank_num`            smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`),
-    KEY `field_stream_id_index` (`inlong_stream_id`)
+    KEY `group_field_index` (`inlong_group_id`, `inlong_stream_id`)
 );
 
 -- ----------------------------
@@ -443,8 +448,8 @@ CREATE TABLE IF NOT EXISTS `stream_source_field`
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
     `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Inlong stream id',
-    `source_id`        int(11)      NOT NULL COMMENT 'Sink id',
-    `source_type`      varchar(15)  NOT NULL COMMENT 'Sink type',
+    `source_id`        int(11)      NOT NULL COMMENT 'Source id',
+    `source_type`      varchar(15)  NOT NULL COMMENT 'Source type',
     `field_name`       varchar(120) NOT NULL COMMENT 'field name',
     `field_value`      varchar(128) DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
     `pre_expression`   varchar(256) DEFAULT NULL COMMENT 'Pre-defined field value expression',
@@ -456,7 +461,8 @@ CREATE TABLE IF NOT EXISTS `stream_source_field`
     `rank_num`         smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`       int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`),
-    KEY `source_id_index` (`source_id`)
+    KEY `source_id_index` (`source_id`),
+    KEY group_stream_index (`inlong_group_id`, `inlong_stream_id`)
 );
 
 -- ----------------------------
@@ -483,7 +489,8 @@ CREATE TABLE IF NOT EXISTS `stream_transform_field`
     -- The source node name of the transport field
     `origin_field_name` varchar(50)   DEFAULT '' COMMENT 'Origin field name before transform operation',
     PRIMARY KEY (`id`),
-    KEY `transform_id_index` (`transform_id`)
+    KEY `transform_id_index` (`transform_id`),
+    KEY group_stream_index (`inlong_group_id`, `inlong_stream_id`)
 );
 
 -- ----------------------------
@@ -509,7 +516,9 @@ CREATE TABLE IF NOT EXISTS `stream_sink_field`
     `origin_field_name` varchar(50)   DEFAULT '' COMMENT 'Origin field name before transform operation',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `sink_id_index` (`sink_id`),
+    KEY group_stream_index (`inlong_group_id`, `inlong_stream_id`)
 );
 
 -- ----------------------------
@@ -624,7 +633,8 @@ CREATE TABLE IF NOT EXISTS `workflow_event_log`
     `remark`               text COMMENT 'Execution result remark information',
     `exception`            mediumtext COMMENT 'Exception information',
     PRIMARY KEY (`id`),
-    INDEX event_group_status_index (`inlong_group_id`, `status`)
+    INDEX event_group_status_index (`inlong_group_id`, `status`),
+    INDEX process_task_index (`process_id`, `task_id`)
 );
 
 -- ----------------------------
@@ -701,7 +711,8 @@ CREATE TABLE IF NOT EXISTS `db_collector_detail_task`
     `state`         int(11)      NOT NULL COMMENT 'task state',
     `create_time`   timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
     `modify_time`   timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `state_index` (`state`)
 );
 
 -- ----------------------------
