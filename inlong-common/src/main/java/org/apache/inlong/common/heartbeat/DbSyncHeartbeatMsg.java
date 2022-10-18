@@ -21,8 +21,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.common.dbsync.position.LogPosition;
-
 import java.util.List;
 
 /**

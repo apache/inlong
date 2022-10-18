@@ -67,7 +67,7 @@ public class TaskPositionManager extends AbstractDaemon {
     private final String reportTaskPositionMsgUrl;
     private final ConcurrentHashMap<String, LogPosition> jobSenderPosition;
     private final ConcurrentHashMap<String, LogPosition> jobNewestPosition;
-    private final ConcurrentHashMap<String, LogPosition> SendPosition;
+    private final ConcurrentHashMap<String, LogPosition> sendPosition;
 
     private Random random = new Random();
 
@@ -79,12 +79,12 @@ public class TaskPositionManager extends AbstractDaemon {
         this.isDbSync = isDbSync;
         this.jobSenderPosition = new ConcurrentHashMap<>();
         this.jobNewestPosition = new ConcurrentHashMap<>();
-        this.SendPosition = new ConcurrentHashMap<>();
+        this.sendPosition = new ConcurrentHashMap<>();
         if (isDbSync) {
             this.httpManager = new HttpManager(conf);
             this.reportTaskPositionMsgUrl = buildReportDbSyncTaskPositionMsgUrl(buildBaseUrl());
         } else {
-            this.httpManager =null;
+            this.httpManager = null;
             this.reportTaskPositionMsgUrl = null;
         }
     }
@@ -139,8 +139,9 @@ public class TaskPositionManager extends AbstractDaemon {
                         for (String jobId : jobSenderPosition.keySet()) {
                             JobProfile jobProfile = jobConfDb.getJobById(jobId);
                             if (jobProfile == null) {
-                                LOGGER.warn("jobProfile {} cannot be found in db, "
-                                        + "might be deleted by standalone mode, now delete job position in memory", jobId);
+                                LOGGER.warn("jobProfile {} cannot be found in db, might be deleted by "
+                                                + "standalone mode, now delete job position in memory",
+                                        jobId);
                                 deleteJobPosition(jobId);
                                 continue;
                             }
@@ -154,8 +155,9 @@ public class TaskPositionManager extends AbstractDaemon {
                         for (String jobId : jobTaskPositionMap.keySet()) {
                             JobProfile jobProfile = jobConfDb.getJobById(jobId);
                             if (jobProfile == null) {
-                                LOGGER.warn("jobProfile {} cannot be found in db, "
-                                        + "might be deleted by standalone mode, now delete job position in memory", jobId);
+                                LOGGER.warn("jobProfile {} cannot be found in db, might be deleted by "
+                                                + "standalone mode, now delete job position in memory",
+                                        jobId);
                                 deleteJobPosition(jobId);
                                 continue;
                             }
@@ -275,11 +277,11 @@ public class TaskPositionManager extends AbstractDaemon {
     }
 
     public void updateSendPositionPosition(String jobName, LogPosition jobPosition) {
-        SendPosition.put(jobName, jobPosition);
+        sendPosition.put(jobName, jobPosition);
     }
 
     public LogPosition getSendPositionPosition(String jobName) {
-        return SendPosition.get(jobName);
+        return sendPosition.get(jobName);
     }
 
     public ConcurrentHashMap<String, Long> getTaskPositionMap(String jobId) {

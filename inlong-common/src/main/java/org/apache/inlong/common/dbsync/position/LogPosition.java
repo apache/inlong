@@ -20,7 +20,7 @@ package org.apache.inlong.common.dbsync.position;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.util.JsonUtils.JSONObject;
 
-public class LogPosition extends Position implements Comparable<LogPosition>{
+public class LogPosition extends Position implements Comparable<LogPosition> {
 
     private static final long serialVersionUID = 3875012010277005819L;
     private LogIdentity       identity;
@@ -31,11 +31,11 @@ public class LogPosition extends Position implements Comparable<LogPosition>{
     private long pkgIndex = 0;
     private String parseThreadName = "";
 
-    public LogPosition(){
+    public LogPosition() {
         genTimeStample = System.currentTimeMillis();
     }
 
-    public LogPosition(LogPosition other){
+    public LogPosition(LogPosition other) {
         this.identity = new LogIdentity(other.identity);
         this.position = new EntryPosition(other.position);
         this.sendIndex = other.sendIndex;
@@ -43,7 +43,7 @@ public class LogPosition extends Position implements Comparable<LogPosition>{
         this.parseThreadName = other.parseThreadName;
     }
 
-    public LogPosition(JSONObject obj){
+    public LogPosition(JSONObject obj) {
         this.identity = new LogIdentity(obj.getJSONObject("logIdentity"));
         this.position = new EntryPosition(obj.getJSONObject("entryPosition"));
     }
@@ -64,15 +64,15 @@ public class LogPosition extends Position implements Comparable<LogPosition>{
         this.position = position;
     }
 
-    public void ackePosiiton(){
+    public void ackePosiiton() {
         bAcked = true;
     }
 
-    public boolean bAcked(){
+    public boolean bAcked() {
         return bAcked;
     }
 
-    public long getGenTimeStample(){
+    public long getGenTimeStample() {
         return genTimeStample;
     }
 
@@ -92,7 +92,7 @@ public class LogPosition extends Position implements Comparable<LogPosition>{
         this.pkgIndex = pkgIndex;
     }
 
-    public JSONObject getJsonObj(){
+    public JSONObject getJsonObj() {
         JSONObject obj = new JSONObject();
         obj.put("logIdentity", this.identity.getJsonObj());
         obj.put("entryPosition", this.position.getJsonObj());
@@ -103,7 +103,7 @@ public class LogPosition extends Position implements Comparable<LogPosition>{
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         JSONObject obj = new JSONObject();
         obj.put("logIdentity", this.identity.getJsonObj());
         obj.put("entryPosition", this.position.getJsonObj());
@@ -180,12 +180,11 @@ public class LogPosition extends Position implements Comparable<LogPosition>{
             cmp = pkgIndex - otherPos.getPkgIndex();
         }
         if (cmp == 0 && StringUtils.isNotEmpty(parseThreadName)
-                && StringUtils.isNotEmpty(otherPos.parseThreadName) ) {
+                && StringUtils.isNotEmpty(otherPos.parseThreadName)) {
             cmp = parseThreadName.compareTo(otherPos.parseThreadName);
         }
         return (int) cmp;
     }
-
 
     public String getParseThreadName() {
         return parseThreadName;

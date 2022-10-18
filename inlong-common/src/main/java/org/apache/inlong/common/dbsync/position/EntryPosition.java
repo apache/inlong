@@ -21,7 +21,7 @@ import org.apache.inlong.common.util.JsonUtils.JSONObject;
 
 import java.util.Objects;
 
-public class EntryPosition extends TimePosition implements Comparable<EntryPosition>{
+public class EntryPosition extends TimePosition implements Comparable<EntryPosition> {
 
     public static final int EVENTIDENTITY_SEGMENT = 3;
     public static final char EVENTIDENTITY_SPLIT = (char) 5;
@@ -31,31 +31,31 @@ public class EntryPosition extends TimePosition implements Comparable<EntryPosit
     private Long position;
     private Long serverId;
 
-    public EntryPosition(){
+    public EntryPosition() {
         super(null);
     }
 
-    public EntryPosition(Long timestamp){
+    public EntryPosition(Long timestamp) {
         this(null, null, timestamp);
     }
 
-    public EntryPosition(String journalName, Long position){
+    public EntryPosition(String journalName, Long position) {
         this(journalName, position, null);
     }
 
-    public EntryPosition(String journalName, Long position, Long timestamp){
+    public EntryPosition(String journalName, Long position, Long timestamp) {
         super(timestamp);
         this.journalName = journalName;
         this.position = position;
     }
 
-    public EntryPosition(String journalName, Long position, Long timestamp, Long serverId){
+    public EntryPosition(String journalName, Long position, Long timestamp, Long serverId) {
         this(journalName, position, timestamp);
         this.serverId = serverId;
     }
 
     /*add deep copy*/
-    public EntryPosition(EntryPosition other){
+    public EntryPosition(EntryPosition other) {
         super(other.timestamp);
         this.journalName = other.journalName;
         this.position = other.position;
@@ -70,7 +70,6 @@ public class EntryPosition extends TimePosition implements Comparable<EntryPosit
         this.included = obj.getBoolean("included");
         this.serverId = obj.getLong("serverId");
     }
-
 
     public String getJournalName() {
         return journalName;
@@ -104,7 +103,7 @@ public class EntryPosition extends TimePosition implements Comparable<EntryPosit
         this.serverId = serverId;
     }
 
-    public JSONObject getJsonObj(){
+    public JSONObject getJsonObj() {
         JSONObject obj = new JSONObject();
         obj.put("journalName", this.journalName);
         obj.put("position", this.position);
@@ -166,13 +165,13 @@ public class EntryPosition extends TimePosition implements Comparable<EntryPosit
     public int compareTo(EntryPosition o) {
         if (timestamp != null && o.timestamp != null) {
             if (!Objects.equals(timestamp, o.timestamp)) {
-                return (int)(timestamp - o.timestamp);
+                return (int) (timestamp - o.timestamp);
             }
         }
 
         final int val = journalName.compareTo(o.journalName);
         if (val == 0) {
-            return (int)(position - o.position);
+            return (int) (position - o.position);
         }
         return val;
     }

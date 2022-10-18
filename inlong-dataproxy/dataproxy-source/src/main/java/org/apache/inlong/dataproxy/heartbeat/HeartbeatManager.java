@@ -30,6 +30,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
+import org.apache.inlong.common.heartbeat.DbSyncHeartbeatMsg;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
@@ -101,6 +102,11 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         } catch (Exception ex) {
             log.error("reportHeartbeat failed for url {}", url, ex);
         }
+    }
+
+    @Override
+    public void reportDbSyncHeartbeat(DbSyncHeartbeatMsg heartbeatMsg) {
+
     }
 
     private synchronized CloseableHttpClient constructHttpClient() {

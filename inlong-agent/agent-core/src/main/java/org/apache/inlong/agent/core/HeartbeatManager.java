@@ -259,7 +259,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         return heartbeatMsg;
     }
 
-    private DbSyncHeartbeatMsg buildDbSyncHeartbeatMsg(){
+    private DbSyncHeartbeatMsg buildDbSyncHeartbeatMsg() {
         final String agentIp = AgentUtils.fetchLocalIp();
         final int agentPort = conf.getInt(AGENT_HTTP_PORT, DEFAULT_AGENT_HTTP_PORT);
 
@@ -275,7 +275,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         heartbeatMsg.setDbDumpIndex(null);
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         if (true) { // TODO:  if exits, add this
-            heartbeatMsg.setErrorMsg( null);
+            heartbeatMsg.setErrorMsg(null);
             heartbeatMsg.setBackupDbIp(null);
             heartbeatMsg.setBackupDbPort(null);
         }

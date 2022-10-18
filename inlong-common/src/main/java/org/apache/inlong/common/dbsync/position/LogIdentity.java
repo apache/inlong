@@ -23,27 +23,27 @@ import org.apache.inlong.common.util.JsonUtils.JSONObject;
 
 import java.net.InetSocketAddress;
 
-public class LogIdentity extends Position implements Comparable<LogIdentity>{
+public class LogIdentity extends Position implements Comparable<LogIdentity> {
 
     private static final long serialVersionUID = 5530225131455662581L;
     private InetSocketAddress sourceAddress;
-    private Long              slaveId;
+    private Long slaveId;
 
-    public LogIdentity(){
+    public LogIdentity() {
     }
 
-    public LogIdentity(InetSocketAddress sourceAddress, Long slaveId){
+    public LogIdentity(InetSocketAddress sourceAddress, Long slaveId) {
         this.sourceAddress = sourceAddress;
         this.slaveId = slaveId;
     }
 
     /*add deep copy*/
-    public LogIdentity(LogIdentity other){
+    public LogIdentity(LogIdentity other) {
         this.sourceAddress = other.sourceAddress;
         this.slaveId = other.slaveId;
     }
 
-    public LogIdentity(JSONObject obj){
+    public LogIdentity(JSONObject obj) {
         this.sourceAddress = new InetSocketAddress(obj.getString("sourceIp"), obj.getIntValue("sourcePort"));
         this.slaveId = obj.getLong("slaveId");
     }
@@ -64,7 +64,7 @@ public class LogIdentity extends Position implements Comparable<LogIdentity>{
         this.slaveId = slaveId;
     }
 
-    public JSONObject getJsonObj(){
+    public JSONObject getJsonObj() {
         JSONObject obj = new JSONObject();
         obj.put("sourceIp", sourceAddress.getAddress().getHostAddress());
         obj.put("sourcePort", sourceAddress.getPort());
@@ -88,16 +88,30 @@ public class LogIdentity extends Position implements Comparable<LogIdentity>{
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
         LogIdentity other = (LogIdentity) obj;
         if (slaveId == null) {
-            if (other.slaveId != null) return false;
-        } else if (slaveId.longValue() != (other.slaveId.longValue())) return false;
+            if (other.slaveId != null) {
+                return false;
+            }
+        } else if (slaveId.longValue() != (other.slaveId.longValue())) {
+            return false;
+        }
         if (sourceAddress == null) {
-            if (other.sourceAddress != null) return false;
-        } else if (!sourceAddress.equals(other.sourceAddress)) return false;
+            if (other.sourceAddress != null) {
+                return false;
+            }
+        } else if (!sourceAddress.equals(other.sourceAddress)) {
+            return false;
+        }
         return true;
     }
 
@@ -114,7 +128,7 @@ public class LogIdentity extends Position implements Comparable<LogIdentity>{
         }
         int cmp = currentAddress.compareTo(otherAddress);
         if (cmp == 0) {
-            cmp = (int)(localSlaveId - otherSlaveId);
+            cmp = (int) (localSlaveId - otherSlaveId);
         }
         return cmp;
     }

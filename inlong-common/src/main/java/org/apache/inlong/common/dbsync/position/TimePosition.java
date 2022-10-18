@@ -22,7 +22,7 @@ public class TimePosition extends Position {
     private static final long serialVersionUID = 6185261261064226380L;
     protected Long            timestamp;
 
-    public TimePosition(Long timestamp){
+    public TimePosition(Long timestamp) {
         this.timestamp = timestamp;
     }
 

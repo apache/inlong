@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class JsonUtils {
+
     private static final JsonParser jsonParser = new JsonParser();
 
     public static JsonObject parseObject(String str) {
@@ -39,7 +40,9 @@ public class JsonUtils {
     }
 
     public static class JSONObject {
+
         private JsonObject object;
+
         public JSONObject() {
             this.object = new JsonObject();
         }
@@ -204,7 +207,7 @@ public class JsonUtils {
             try {
                 JSONObject json = ((JSONObject) obj);
                 return Objects.equals(this.object, json.object);
-            } catch (ClassCastException|NullPointerException e) {
+            } catch (ClassCastException | NullPointerException e) {
                 return false;
             }
         }
@@ -230,7 +233,9 @@ public class JsonUtils {
     }
 
     public static class JSONArray implements Iterable<Object> {
+
         private JsonArray array;
+
         public JSONArray() {
             this.array = new JsonArray();
         }
@@ -272,7 +277,7 @@ public class JsonUtils {
         public Iterator<Object> iterator() {
             ArrayList<Object> list = new ArrayList<>();
             Iterator<JsonElement> itr = array.iterator();
-            itr.forEachRemaining( jsonElement -> {
+            itr.forEachRemaining(jsonElement -> {
                 JsonObject object = jsonElement.getAsJsonObject();
                 JSONObject wrapperObj = new JSONObject(object);
                 list.add(wrapperObj);
