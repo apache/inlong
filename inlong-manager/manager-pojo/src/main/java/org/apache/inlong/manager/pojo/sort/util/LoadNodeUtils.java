@@ -154,7 +154,6 @@ public class LoadNodeUtils {
         }
         DataTypeEnum dataType = DataTypeEnum.forName(kafkaSink.getSerializationType());
         Format format;
-        Format innerFormat = null;
         switch (dataType) {
             case CSV:
                 format = new CsvFormat();
@@ -166,19 +165,30 @@ public class LoadNodeUtils {
                 format = new JsonFormat();
                 break;
             case CANAL:
-                format = new RawFormat();
-                innerFormat = new CanalJsonFormat();
+                format = new CanalJsonFormat();
                 break;
             case DEBEZIUM_JSON:
+                format =  new DebeziumJsonFormat();
+                break;
+            case RAW:
                 format = new RawFormat();
-                innerFormat = new DebeziumJsonFormat();
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for Kafka", dataType));
         }
 
+        DataTypeEnum innerDataType = DataTypeEnum.forName(kafkaSink.getInnerFormat();
+        Format innerFormat = null;
         String sinkPartitioner = null;
-        if (dataType == DataTypeEnum.CANAL || dataType == DataTypeEnum.DEBEZIUM_JSON) {
+        if (dataType == DataTypeEnum.RAW) {
+            switch (innerDataType) {
+                case DEBEZIUM_JSON:
+                    innerFormat = new DebeziumJsonFormat();
+                    break;
+                case CANAL:
+                    innerFormat = new CanalJsonFormat();
+                    break;
+            }
             sinkPartitioner = kafkaSink.getPartitionStrategy() == null ? null : RAW_HASH;
         }
 
@@ -206,7 +216,7 @@ public class LoadNodeUtils {
                 fieldRelations,
                 Lists.newArrayList(),
                 null,
-                "mock_topic",
+                "",
                 kafkaSink.getBootstrapServers(),
                 format,
                 sinkParallelism,

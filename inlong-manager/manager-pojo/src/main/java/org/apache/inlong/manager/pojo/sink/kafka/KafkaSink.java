@@ -64,10 +64,7 @@ public class KafkaSink extends StreamSink {
     @ApiModelProperty("the topic mapping rule")
     private String topicPattern;
 
-    @ApiModelProperty(value = "Automatically create kafka topic or not. values: true, false.")
-    private String autoCreateTopics;
-
-    @ApiModelProperty(value = "Partition strategy")
+    @ApiModelProperty("Partition strategy")
     private String partitionStrategy;
 
     @ApiModelProperty("data multiple format,only applicable when outer format is raw")

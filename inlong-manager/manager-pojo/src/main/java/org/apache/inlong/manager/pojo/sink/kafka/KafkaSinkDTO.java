@@ -54,9 +54,6 @@ public class KafkaSinkDTO {
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
-    @ApiModelProperty(value = "Automatically create kafka topic or not. values: true, false.")
-    private String autoCreateTopics;
-
     @ApiModelProperty("data multiple format,only applicable when outer format is raw")
     private String innerFormat;
 
