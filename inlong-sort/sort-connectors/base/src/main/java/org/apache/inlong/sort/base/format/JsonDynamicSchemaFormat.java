@@ -17,12 +17,15 @@
 
 package org.apache.inlong.sort.base.format;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 /**
@@ -162,5 +165,21 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
      * @param root The json root node
      * @return The physical data node
      */
-    protected abstract JsonNode getPhysicalData(JsonNode root);
+    public abstract JsonNode getPhysicalData(JsonNode root);
+
+    /**
+     * Convert physical data to map
+     *
+     * @param root The json root node
+     * @return The map of physicalData
+     * @throws IOException The exception may be thrown when executing
+     */
+    public Map<String, String> physicalDataToMap(JsonNode root) throws IOException {
+        JsonNode physicalData = getPhysicalData(root);
+        if (physicalData == null) {
+            return new HashMap<>();
+        }
+        return objectMapper.convertValue(physicalData, new TypeReference<Map<String, String>>() {
+        });
+    }
 }

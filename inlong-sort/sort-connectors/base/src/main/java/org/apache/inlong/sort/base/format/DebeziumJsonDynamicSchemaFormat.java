@@ -21,6 +21,10 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import static org.apache.inlong.sort.base.Constants.AFTER;
+import static org.apache.inlong.sort.base.Constants.BEFORE;
+import static org.apache.inlong.sort.base.Constants.PK_NAMES;
+import static org.apache.inlong.sort.base.Constants.SOURCE;
 
 /**
  * Debezium json dynamic format
@@ -41,10 +45,10 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     }
 
     @Override
-    protected JsonNode getPhysicalData(JsonNode root) {
-        JsonNode physicalData = root.get("after");
+    public JsonNode getPhysicalData(JsonNode root) {
+        JsonNode physicalData = root.get(AFTER);
         if (physicalData == null) {
-            physicalData = root.get("before");
+            physicalData = root.get(BEFORE);
         }
         return physicalData;
     }
@@ -52,11 +56,11 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     @Override
     public List<String> extractPrimaryKeyNames(JsonNode data) {
         List<String> pkNames = new ArrayList<>();
-        JsonNode sourceNode = data.get("source");
+        JsonNode sourceNode = data.get(SOURCE);
         if (sourceNode == null) {
             return pkNames;
         }
-        JsonNode pkNamesNode = sourceNode.get("pkNames");
+        JsonNode pkNamesNode = sourceNode.get(PK_NAMES);
         if (pkNamesNode != null && pkNamesNode.isArray()) {
             for (int i = 0; i < pkNamesNode.size(); i++) {
                 pkNames.add(pkNamesNode.get(i).asText());
