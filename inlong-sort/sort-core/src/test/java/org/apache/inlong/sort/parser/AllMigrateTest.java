@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.hadoop.hbase.util.Threads;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
