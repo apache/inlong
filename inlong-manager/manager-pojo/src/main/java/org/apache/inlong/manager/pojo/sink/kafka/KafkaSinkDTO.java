@@ -57,7 +57,7 @@ public class KafkaSinkDTO {
     @ApiModelProperty(value = "Automatically create kafka topic or not, a note for users.")
     private String autoCreateTopics;
 
-    @ApiModelProperty("the database-table mapping rule,only applicable when outer format is raw")
+    @ApiModelProperty("data multiple format,only applicable when outer format is raw")
     private String innerFormat;
 
     @ApiModelProperty("Primary key is required when serializationType is json, avro")

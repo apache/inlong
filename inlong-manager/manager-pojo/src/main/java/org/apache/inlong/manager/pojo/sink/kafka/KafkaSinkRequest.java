@@ -65,7 +65,7 @@ public class KafkaSinkRequest extends SinkRequest {
     @ApiModelProperty(value = "the partition strategy for kafka")
     private String partitionStrategy;
 
-    @ApiModelProperty("the database-table mapping rule,only applicable when outer format is raw")
+    @ApiModelProperty("data multiple format,only applicable when outer format is raw")
     private String innerFormat;
 
 }
