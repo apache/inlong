@@ -216,18 +216,19 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
                         throw new ValidationException(
                                 "Currently 'round-robin' partitioner only works "
                                         + "when option 'key.fields' is not specified.");
-                    } else if ((SINK_PARTITIONER_VALUE_RAW_HASH.equals(partitioner)
-                            || "org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner".equals(partitioner))
-                            && (!"raw".equals(tableOptions.getOptional(FORMAT).orElse(null))
-                            || !tableOptions.getOptional(SINK_MULTIPLE_FORMAT).isPresent()
-                            || !tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN).isPresent()
-                            || tableOptions.getOptional(SINK_MULTIPLE_FORMAT).get().isEmpty()
-                            || tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN).get().isEmpty())) {
-                        throw new ValidationException(
-                                "Currently 'raw-hash' partitioner only works "
-                                        + "when option 'format' is 'raw' and option 'sink.multiple.format' "
-                                        + "and 'sink.multiple.partition-pattern' is specified.");
-
+                    } else if (SINK_PARTITIONER_VALUE_RAW_HASH.equals(partitioner)
+                            || "org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner".equals(partitioner)) {
+                        boolean invalid = !"raw".equals(tableOptions.getOptional(FORMAT).orElse(null))
+                                || !tableOptions.getOptional(SINK_MULTIPLE_FORMAT).isPresent()
+                                || !tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN).isPresent()
+                                || tableOptions.getOptional(SINK_MULTIPLE_FORMAT).get().isEmpty()
+                                || tableOptions.getOptional(SINK_MULTIPLE_PARTITION_PATTERN).get().isEmpty();
+                        if (invalid) {
+                            throw new ValidationException(
+                                    "Currently 'raw-hash' partitioner only works "
+                                            + "when option 'format' is 'raw' and option 'sink.multiple.format' "
+                                            + "and 'sink.multiple.partition-pattern' is specified.");
+                        }
                     } else if (partitioner.isEmpty()) {
                         throw new ValidationException(
                                 String.format(

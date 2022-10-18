@@ -50,6 +50,18 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.CONNECTOR;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.KAFKA;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.RAW_HASH;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_IGNORE_CHANGELOG;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_MULTIPLE_PARTITION_PATTERN;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_PARALLELISM;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_PARTITIONER;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.TOPIC;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.TOPIC_PATTERN;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.UPSERT_KAFKA;
 
 /**
  * Kafka load node using kafka connectors provided by flink
@@ -130,7 +142,7 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
         this.sinkMultipleFormat = sinkMultipleFormat;
         this.topicPattern = topicPattern;
         this.sinkPartitioner = sinkPartitioner;
-        if ("raw-hash".equals(sinkPartitioner)) {
+        if (RAW_HASH.equals(sinkPartitioner)) {
             this.partitionPattern = Preconditions.checkNotNull(partitionPattern,
                     "partitionPattern is null when the sinkPartitioner is 'raw-hash'");
         } else {
@@ -151,37 +163,37 @@ public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, S
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("topic", topic);
-        options.put("properties.bootstrap.servers", bootstrapServers);
+        options.put(TOPIC, topic);
+        options.put(PROPERTIES_BOOTSTRAP_SERVERS, bootstrapServers);
         if (getSinkParallelism() != null) {
-            options.put("sink.parallelism", getSinkParallelism().toString());
+            options.put(SINK_PARALLELISM, getSinkParallelism().toString());
         }
         if (format instanceof JsonFormat || format instanceof AvroFormat
                 || format instanceof CsvFormat || format instanceof RawFormat) {
             if (StringUtils.isEmpty(this.primaryKey)) {
-                options.put("connector", "kafka-inlong");
-                options.put("sink.ignore.changelog", "true");
+                options.put(CONNECTOR, KAFKA);
+                options.put(SINK_IGNORE_CHANGELOG, "true");
                 options.putAll(format.generateOptions(false));
             } else {
-                options.put("connector", "upsert-kafka-inlong");
+                options.put(CONNECTOR, UPSERT_KAFKA);
                 options.putAll(format.generateOptions(true));
             }
             if (format instanceof RawFormat) {
                 if (sinkMultipleFormat != null) {
-                    options.put("sink.multiple.format", sinkMultipleFormat.identifier());
+                    options.put(SINK_MULTIPLE_FORMAT, sinkMultipleFormat.identifier());
                 }
                 if (StringUtils.isNotBlank(topicPattern)) {
-                    options.put("topic-pattern", topicPattern);
+                    options.put(TOPIC_PATTERN, topicPattern);
                 }
                 if (StringUtils.isNotBlank(sinkPartitioner)) {
-                    options.put("sink.partitioner", sinkPartitioner);
+                    options.put(SINK_PARTITIONER, sinkPartitioner);
                 }
                 if (StringUtils.isNotBlank(partitionPattern)) {
-                    options.put("sink.multiple.partition-pattern", partitionPattern);
+                    options.put(SINK_MULTIPLE_PARTITION_PATTERN, partitionPattern);
                 }
             }
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
-            options.put("connector", "kafka-inlong");
+            options.put(CONNECTOR, KAFKA);
             options.putAll(format.generateOptions(false));
         } else {
             throw new IllegalArgumentException("kafka load Node format is IllegalArgument");
