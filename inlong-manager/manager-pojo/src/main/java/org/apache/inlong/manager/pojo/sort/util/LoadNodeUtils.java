@@ -204,7 +204,7 @@ public class LoadNodeUtils {
                 fieldRelations,                   //fieldRelations
                 Lists.newArrayList(),             //filters
                 null,                             //filterStrategy
-                kafkaSink.getTopicName(),         //kafkaSink.getTopicName(),null of multiple topic
+                "mock_topic",                     //kafkaSink.getTopicName(), mock a topic for multiple topics
                 kafkaSink.getBootstrapServers(),
                 format,                           //raw or format
                 sinkParallelism,
