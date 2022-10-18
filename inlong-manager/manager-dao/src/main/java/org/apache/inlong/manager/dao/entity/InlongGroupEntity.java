@@ -35,6 +35,7 @@ public class InlongGroupEntity implements Serializable {
     private String description;
     private String mqType;
     private String mqResource;
+    private String backupMqResource;
     private Integer dailyRecords;
     private Integer dailyStorage;
     private Integer peakRecords;
@@ -44,6 +45,7 @@ public class InlongGroupEntity implements Serializable {
     private Integer enableCreateResource;
     private Integer lightweight;
     private String inlongClusterTag;
+    private String backupInlongClusterTag;
 
     private String extParams;
     private String inCharges;

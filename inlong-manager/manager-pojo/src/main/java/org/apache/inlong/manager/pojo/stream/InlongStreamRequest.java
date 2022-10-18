@@ -58,6 +58,9 @@ public class InlongStreamRequest {
     @ApiModelProperty(value = "MQ resource")
     private String mqResource;
 
+    @ApiModelProperty(value = "Back up MQ resource")
+    private String backupMqResource;
+
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
     private String dataType;
 

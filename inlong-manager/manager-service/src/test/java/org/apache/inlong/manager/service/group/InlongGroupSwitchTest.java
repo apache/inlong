@@ -22,6 +22,8 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,7 @@ import org.junit.jupiter.api.Test;
 public class InlongGroupSwitchTest extends ServiceBaseTest {
 
     private final String globalGroupId = "group1";
+    private final String globalStreamId = "stream1";
     private final String globalOperator = "admin";
     private final String backUpTag = "testBackUpTag";
     private final String backUpMqResource = "testBackUpMqResource";
@@ -47,8 +50,23 @@ public class InlongGroupSwitchTest extends ServiceBaseTest {
         String updateGroupId = groupService.update(request, globalOperator);
         Assertions.assertEquals(updateGroupId, groupId);
         InlongGroupInfo updateInfo = groupService.get(updateGroupId);
-        Assertions.assertEquals(updateInfo.getBackupInlongClusterTag(), newBackUpTag);
-        Assertions.assertEquals(updateInfo.getBackupMqResource(), backUpMqResource);
+        Assertions.assertEquals(newBackUpTag, updateInfo.getBackupInlongClusterTag());
+        Assertions.assertEquals(backUpMqResource, updateInfo.getBackupMqResource());
+    }
+
+    @Test
+    public void testSwitchTopic() {
+        this.saveGroup(globalGroupId, globalOperator);
+        int id = this.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
+        InlongStreamInfo info = streamService.get(globalGroupId, globalStreamId);
+        Assertions.assertEquals(backUpMqResource, info.getBackupMqResource());
+        InlongStreamRequest request = info.genRequest();
+        String newBackUpTopic = "new back up topic";
+        request.setBackupMqResource(newBackUpTopic);
+        Boolean updateResult = streamService.update(request, globalOperator);
+        Assertions.assertTrue(updateResult);
+        InlongStreamInfo updateInfo = streamService.get(globalGroupId, globalStreamId);
+        Assertions.assertEquals(newBackUpTopic, updateInfo.getBackupMqResource());
     }
 
     public String saveGroup(String inlongGroupId, String operator) {
@@ -76,5 +94,24 @@ public class InlongGroupSwitchTest extends ServiceBaseTest {
         pulsarInfo.setBackupInlongClusterTag(backUpTag);
         pulsarInfo.setBackupMqResource(backUpMqResource);
         return groupService.save(pulsarInfo.genRequest(), operator);
+    }
+
+    private Integer saveInlongStream(String groupId, String streamId, String operator) {
+        try {
+            InlongStreamInfo response = streamService.get(groupId, streamId);
+            if (response != null) {
+                return response.getId();
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+
+        InlongStreamRequest request = new InlongStreamRequest();
+        request.setInlongGroupId(groupId);
+        request.setInlongStreamId(streamId);
+        request.setDataEncoding("UTF-8");
+        request.setBackupMqResource(backUpMqResource);
+
+        return streamService.save(request, operator);
     }
 }

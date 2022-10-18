@@ -35,6 +35,7 @@ public class InlongStreamEntity implements Serializable {
     private String name;
     private String description;
     private String mqResource;
+    private String backupMqResource;
 
     private String dataType;
     private String dataEncoding;

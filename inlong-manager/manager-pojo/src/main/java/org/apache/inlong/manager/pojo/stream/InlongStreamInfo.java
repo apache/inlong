@@ -61,6 +61,9 @@ public class InlongStreamInfo {
             notes = "in inlong stream, TubeMQ corresponds to filter consumption ID, Pulsar corresponds to Topic")
     private String mqResource;
 
+    @ApiModelProperty(value = "MQ resource for inlong stream. Default: ${inlongStreamId}")
+    private String backupMqResource;
+
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
     private String dataType;
 

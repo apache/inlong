@@ -27,6 +27,7 @@
         <result column="description" jdbcType="VARCHAR" property="description"/>
         <result column="mq_type" jdbcType="VARCHAR" property="mqType"/>
         <result column="mq_resource" jdbcType="VARCHAR" property="mqResource"/>
+        <result column="backup_mq_resource" jdbcType="VARCHAR" property="backupMqResource"/>
         <result column="daily_records" jdbcType="INTEGER" property="dailyRecords"/>
         <result column="daily_storage" jdbcType="INTEGER" property="dailyStorage"/>
         <result column="peak_records" jdbcType="INTEGER" property="peakRecords"/>
@@ -35,6 +36,7 @@
         <result column="enable_create_resource" jdbcType="INTEGER" property="enableCreateResource"/>
         <result column="lightweight" jdbcType="INTEGER" property="lightweight"/>
         <result column="inlong_cluster_tag" jdbcType="VARCHAR" property="inlongClusterTag"/>
+        <result column="backup_inlong_cluster_tag" jdbcType="VARCHAR" property="backupInlongClusterTag"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
 
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
@@ -55,34 +57,35 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, inlong_group_id, name, description, mq_type, mq_resource,
+        id, inlong_group_id, name, description, mq_type, mq_resource, backup_mq_resource,
         daily_records, daily_storage, peak_records, max_length,
-        enable_zookeeper, enable_create_resource, lightweight, inlong_cluster_tag, ext_params,
-        in_charges, followers, status, previous_status, is_deleted, creator, modifier, create_time, modify_time, version
+        enable_zookeeper, enable_create_resource, lightweight, inlong_cluster_tag, backup_inlong_cluster_tag,
+        ext_params, in_charges, followers, status, previous_status, is_deleted, creator, modifier, create_time,
+        modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         insert into inlong_group (id, inlong_group_id,
                                   name, description,
-                                  mq_type, mq_resource,
+                                  mq_type, mq_resource, backup_mq_resource,
                                   daily_records, daily_storage,
                                   peak_records, max_length,
                                   enable_zookeeper, enable_create_resource,
-                                  lightweight, inlong_cluster_tag,
+                                  lightweight, inlong_cluster_tag, backup_inlong_cluster_tag,
                                   ext_params, in_charges,
                                   followers, status,
                                   previous_status, creator,
                                   modifier)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
                 #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
-                #{mqType,jdbcType=VARCHAR}, #{mqResource,jdbcType=VARCHAR},
+                #{mqType,jdbcType=VARCHAR}, #{mqResource,jdbcType=VARCHAR}, #{backupMqResource,jdbcType=VARCHAR},
                 #{dailyRecords,jdbcType=INTEGER}, #{dailyStorage,jdbcType=INTEGER},
                 #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER},
                 #{enableZookeeper,jdbcType=INTEGER}, #{enableCreateResource,jdbcType=INTEGER},
                 #{lightweight,jdbcType=INTEGER}, #{inlongClusterTag,jdbcType=VARCHAR},
-                #{extParams,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR},
-                #{followers,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+                #{backupInlongClusterTag,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
+                #{inCharges,jdbcType=VARCHAR}, #{followers,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
                 #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
                 #{modifier,jdbcType=VARCHAR})
     </insert>
@@ -148,10 +151,15 @@
                 </foreach>
             </if>
             <if test="clusterTagList != null and clusterTagList.size() > 0">
-                and inlong_cluster_tag in
+                and ( inlong_cluster_tag in
                 <foreach collection="clusterTagList" item="tag" index="index" open="(" close=")" separator=",">
                     #{tag}
                 </foreach>
+                or backup_inlong_cluster_tag in
+                <foreach collection="clusterTagList" item="tag" index="index" open="(" close=")" separator=",">
+                    #{tag}
+                </foreach>
+                )
             </if>
         </where>
         <choose>
@@ -196,7 +204,10 @@
         <include refid="Base_Column_List"/>
         from inlong_group
         where is_deleted = 0
-        and inlong_cluster_tag = #{inlongClusterTag, jdbcType=VARCHAR}
+        and (
+            inlong_cluster_tag = #{inlongClusterTag, jdbcType=VARCHAR}
+                or backup_inlong_cluster_tag = #{inlongClusterTag, jdbcType=VARCHAR}
+            )
         limit 10
     </select>
     <select id="selectAllGroups" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo">
@@ -252,6 +263,9 @@
             <if test="mqResource != null">
                 mq_resource = #{mqResource,jdbcType=VARCHAR},
             </if>
+            <if test="backupMqResource != null">
+                backup_mq_resource = #{backupMqResource, jdbcType=VARCHAR},
+            </if>
             <if test="dailyRecords != null">
                 daily_records = #{dailyRecords,jdbcType=INTEGER},
             </if>
@@ -275,6 +289,9 @@
             </if>
             <if test="inlongClusterTag != null">
                 inlong_cluster_tag = #{inlongClusterTag,jdbcType=VARCHAR},
+            </if>
+            <if test="backupInlongClusterTag != null">
+                backup_inlong_cluster_tag = #{backupInlongClusterTag,jdbcType=VARCHAR},
             </if>
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},

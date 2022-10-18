@@ -64,6 +64,9 @@ public abstract class InlongGroupRequest {
             notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
     private String mqResource;
 
+    @ApiModelProperty(value = "Backup mq resource")
+    private String backupMqResource;
+
     @ApiModelProperty(value = "TubeMQ master URL")
     private String tubeMaster;
 
@@ -78,6 +81,9 @@ public abstract class InlongGroupRequest {
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
     private String inlongClusterTag;
+
+    @ApiModelProperty(value = "Backup cluster tag")
+    private String backupInlongClusterTag;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
     private Integer dailyRecords;
@@ -103,11 +109,5 @@ public abstract class InlongGroupRequest {
 
     @ApiModelProperty(value = "Version number")
     private Integer version;
-
-    @ApiModelProperty(value = "Backup cluster tag")
-    private String backupInlongClusterTag;
-
-    @ApiModelProperty(value = "Backup mq resource")
-    private String backupMqResource;
 
 }

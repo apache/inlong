@@ -22,7 +22,6 @@ import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.pojo.group.InlongGroupSwitchDTO;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -62,9 +61,6 @@ public class InlongNoneMqOperator extends AbstractGroupOperator {
 
         InlongNoneMqInfo groupInfo = new InlongNoneMqInfo();
         CommonBeanUtils.copyProperties(entity, groupInfo);
-        InlongGroupSwitchDTO switchDTO = InlongGroupSwitchDTO.getFromJson(entity.getExtParams());
-        CommonBeanUtils.copyProperties(switchDTO, groupInfo);
-
         return groupInfo;
     }
 

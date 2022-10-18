@@ -24,7 +24,6 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.pojo.group.InlongGroupSwitchDTO;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
 import org.slf4j.Logger;
@@ -57,8 +56,6 @@ public class InlongTubeOperator extends AbstractGroupOperator {
 
         InlongTubeMQInfo groupInfo = new InlongTubeMQInfo();
         CommonBeanUtils.copyProperties(entity, groupInfo);
-        InlongGroupSwitchDTO switchDTO = InlongGroupSwitchDTO.getFromJson(entity.getExtParams());
-        CommonBeanUtils.copyProperties(switchDTO, groupInfo);
 
         // TODO get the cluster
         // groupInfo.setTubeMaster();
