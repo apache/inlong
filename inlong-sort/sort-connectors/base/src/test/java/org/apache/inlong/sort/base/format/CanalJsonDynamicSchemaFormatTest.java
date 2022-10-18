@@ -18,8 +18,14 @@
 package org.apache.inlong.sort.base.format;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.junit.Assert;
+import org.junit.Test;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -78,6 +84,16 @@ public class CanalJsonDynamicSchemaFormatTest extends DynamicSchemaFormatBaseTes
         expectedValues.put("${ \t database \t }${ table }", "inventoryproducts");
         expectedValues.put("${database}_${table}_${id}_${name}", "inventory_products_111_scooter");
         return expectedValues;
+    }
+
+    @Test
+    @SuppressWarnings({"unchecked"})
+    public void testExtractPrimaryKey() throws IOException {
+        JsonNode rootNode = (JsonNode) getDynamicSchemaFormat()
+                .deserialize(getSource().getBytes(StandardCharsets.UTF_8));
+        List<String> primaryKeys = getDynamicSchemaFormat().extractPrimaryKeyNames(rootNode);
+        List<String> values = getDynamicSchemaFormat().extractValues(rootNode, primaryKeys.toArray(new String[]{}));
+        Assert.assertEquals(values, Collections.singletonList("111"));
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})

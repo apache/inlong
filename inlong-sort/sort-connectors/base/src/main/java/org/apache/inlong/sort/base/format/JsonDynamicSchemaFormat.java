@@ -17,12 +17,15 @@
 
 package org.apache.inlong.sort.base.format;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 /**
@@ -43,19 +46,17 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * Extract value by key from the raw data
+     * Extract values by keys from the raw data
      *
-     * @param message The byte array of raw data
+     * @param root The raw data
      * @param keys The key list that will be used to extract
      * @return The value list maps the keys
-     * @throws IOException The exceptions may throws when extract
      */
     @Override
-    public List<String> extract(byte[] message, String... keys) throws IOException {
+    public List<String> extractValues(JsonNode root, String... keys) {
         if (keys == null || keys.length == 0) {
             return new ArrayList<>();
         }
-        final JsonNode root = deserialize(message);
         JsonNode physicalNode = getPhysicalData(root);
         List<String> values = new ArrayList<>(keys.length);
         if (physicalNode == null) {
@@ -164,5 +165,21 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
      * @param root The json root node
      * @return The physical data node
      */
-    protected abstract JsonNode getPhysicalData(JsonNode root);
+    public abstract JsonNode getPhysicalData(JsonNode root);
+
+    /**
+     * Convert physical data to map
+     *
+     * @param root The json root node
+     * @return The map of physicalData
+     * @throws IOException The exception may be thrown when executing
+     */
+    public Map<String, String> physicalDataToMap(JsonNode root) throws IOException {
+        JsonNode physicalData = getPhysicalData(root);
+        if (physicalData == null) {
+            return new HashMap<>();
+        }
+        return objectMapper.convertValue(physicalData, new TypeReference<Map<String, String>>() {
+        });
+    }
 }

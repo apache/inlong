@@ -19,6 +19,11 @@ package org.apache.inlong.sort.base.format;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.ArrayList;
+import java.util.List;
+import static org.apache.inlong.sort.base.Constants.DATA;
+import static org.apache.inlong.sort.base.Constants.PK_NAMES;
+
 /**
  * Canal json dynamic format
  */
@@ -38,12 +43,24 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     }
 
     @Override
-    protected JsonNode getPhysicalData(JsonNode root) {
-        JsonNode physicalData = root.get("data");
+    public JsonNode getPhysicalData(JsonNode root) {
+        JsonNode physicalData = root.get(DATA);
         if (physicalData != null) {
-            return root.get("data").get(0);
+            return root.get(DATA).get(0);
         }
         return null;
+    }
+
+    @Override
+    public List<String> extractPrimaryKeyNames(JsonNode data) {
+        JsonNode pkNamesNode = data.get(PK_NAMES);
+        List<String> pkNames = new ArrayList<>();
+        if (pkNamesNode != null && pkNamesNode.isArray()) {
+            for (int i = 0; i < pkNamesNode.size(); i++) {
+                pkNames.add(pkNamesNode.get(i).asText());
+            }
+        }
+        return pkNames;
     }
 
     /**
