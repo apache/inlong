@@ -61,7 +61,7 @@ public class KafkaSink extends StreamSink {
     @ApiModelProperty("Primary key is required when serializationType is json, avro")
     private String primaryKey;
 
-    @ApiModelProperty("the topic mapping rule")
+    @ApiModelProperty("Topic mapping rule")
     private String topicPattern;
 
     @ApiModelProperty("Partition strategy")
