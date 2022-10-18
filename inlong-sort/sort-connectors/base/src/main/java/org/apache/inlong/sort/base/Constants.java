@@ -138,7 +138,7 @@ public final class Constants {
                     .noDefaultValue()
                     .withDescription("The option 'sink.multiple.database-pattern' "
                             + "is used extract database name from the raw binary data, "
-                            + "this is only used in the multi-sink writing scenario.");
+                            + "this is only used in the multiple sink writing scenario.");
 
     public static final ConfigOption<String> SINK_MULTIPLE_TABLE_PATTERN =
             ConfigOptions.key("sink.multiple.table-pattern")
