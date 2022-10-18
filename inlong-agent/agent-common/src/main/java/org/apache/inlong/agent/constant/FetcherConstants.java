@@ -67,4 +67,17 @@ public class FetcherConstants {
 
     public static final String AGENT_MANAGER_AUTH_SECRET_ID = "agent.manager.auth.secretId";
     public static final String AGENT_MANAGER_AUTH_SECRET_KEY = "agent.manager.auth.secretKey";
+
+    // dbsync
+    public static final String DBSYNC_REPORT_HEARTBEAT = "agent.dbsync.report.heartbeat.path";
+    public static final String DEFAULT_DBSYNC_REPORT_HEARTBEAT = "/dbsync/heartbeat";
+
+    public static final String DBSYNC_REPORT_TASK_POSITION = "agent.dbsync.report.task.position.path";
+    public static final String DEFAULT_DBSYNC_REPORT_TASK_POSITION = "/dbsync/taskposition";
+
+    public static final String DBSYNC_HEART_INTERVAL = "agent.dbsync.heart.interval.msec";
+    public static final long DEFAULT_DBSYNC_HEART_INTERVAL = 3 * 60 * 1000L;
+
+    public static final String DBSYNC_TASK_POSITION_INTERVAL = "agent.dbsync.task.position.interval.msec";
+    public static final long DEFAULT_TASK_POSITION_INTERVAL = 3 * 60 * 1000L;
 }

@@ -30,6 +30,9 @@ public class CommonConstants {
     public static final String PROXY_INLONG_GROUP_ID = "proxy.inlongGroupId";
     public static final String DEFAULT_PROXY_INLONG_GROUP_ID = "default_inlong_group_id";
     public static final String POSITION_SUFFIX = ".position";
+    public static final String DUMP_POSITION_SUFFIX = "dump.position";
+    public static final String SEND_POSITION_SUFFIX = "send.position";
+    public static final String MAX_POSITION_SUFFIX = "max.position";
 
     public static final String PROXY_INLONG_STREAM_ID = "proxy.inlongStreamId";
     public static final String DEFAULT_PROXY_INLONG_STREAM_ID = "default_inlong_stream_id";

@@ -31,6 +31,7 @@ import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
+import org.apache.inlong.common.heartbeat.DbSyncHeartbeatMsg;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
@@ -43,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -57,10 +60,14 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_RE
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DBSYNC_HEART_INTERVAL;
+import static org.apache.inlong.agent.constant.FetcherConstants.DBSYNC_REPORT_HEARTBEAT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_HEARTBEAT_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_DBSYNC_HEART_INTERVAL;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_DBSYNC_REPORT_HEARTBEAT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 
@@ -79,18 +86,34 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
     private final String reportSnapshotUrl;
     private final String reportHeartbeatUrl;
     private final Pattern numberPattern = Pattern.compile("^[-+]?[\\d]*$");
+    private final Boolean isDbSync;
+    private long connInterval;
+    private Random random = new Random();
 
     /**
      * Init heartbeat manager.
      */
-    public HeartbeatManager(AgentManager agentManager) {
+    public HeartbeatManager(AgentManager agentManager, Boolean isDbSync) {
         this.conf = AgentConfiguration.getAgentConf();
         this.agentManager = agentManager;
         jobmanager = agentManager.getJobManager();
         httpManager = new HttpManager(conf);
         baseManagerUrl = buildBaseUrl();
         reportSnapshotUrl = buildReportSnapShotUrl(baseManagerUrl);
-        reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
+        if (isDbSync) {
+            reportHeartbeatUrl = buildReportDbSyncHeartbeatUrl(baseManagerUrl);
+        } else {
+            reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
+        }
+        this.isDbSync = isDbSync;
+        connInterval = conf.getLong(DBSYNC_HEART_INTERVAL, DEFAULT_DBSYNC_HEART_INTERVAL);
+    }
+
+    /**
+     * Init heartbeat manager.
+     */
+    public HeartbeatManager(AgentManager agentManager) {
+        this(agentManager, false);
     }
 
     @Override
@@ -121,8 +144,13 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         return () -> {
             while (isRunnable()) {
                 try {
-                    reportHeartbeat(buildHeartbeatMsg());
-                    SECONDS.sleep(heartbeatInterval());
+                    if (isDbSync) {
+                        reportDbSyncHeartbeat(buildDbSyncHeartbeatMsg());
+                        TimeUnit.MILLISECONDS.sleep(dbSyncHeartbeatInterval());
+                    } else {
+                        reportHeartbeat(buildHeartbeatMsg());
+                        SECONDS.sleep(heartbeatInterval());
+                    }
                 } catch (Throwable e) {
                     LOGGER.error("interrupted while report heartbeat", e);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
@@ -138,6 +166,11 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
 
     @Override
     public void reportHeartbeat(HeartbeatMsg heartbeat) {
+        httpManager.doSentPost(reportHeartbeatUrl, heartbeat);
+    }
+
+    @Override
+    public void reportDbSyncHeartbeat(DbSyncHeartbeatMsg heartbeat) {
         httpManager.doSentPost(reportHeartbeatUrl, heartbeat);
     }
 
@@ -226,6 +259,30 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         return heartbeatMsg;
     }
 
+    private DbSyncHeartbeatMsg buildDbSyncHeartbeatMsg(){
+        final String agentIp = AgentUtils.fetchLocalIp();
+        final int agentPort = conf.getInt(AGENT_HTTP_PORT, DEFAULT_AGENT_HTTP_PORT);
+
+        DbSyncHeartbeatMsg heartbeatMsg = new DbSyncHeartbeatMsg();
+        heartbeatMsg.setInstance(agentIp);
+        // TODO: where to get these information
+        heartbeatMsg.setServerId(null);
+        heartbeatMsg.setTaskIds(null);
+        heartbeatMsg.setAgentStatus(null);
+        heartbeatMsg.setCurrentDb(null);
+        heartbeatMsg.setDbIp(null);
+        heartbeatMsg.setDbPort(null);
+        heartbeatMsg.setDbDumpIndex(null);
+        heartbeatMsg.setReportTime(System.currentTimeMillis());
+        if (true) { // TODO:  if exits, add this
+            heartbeatMsg.setErrorMsg( null);
+            heartbeatMsg.setBackupDbIp(null);
+            heartbeatMsg.setBackupDbPort(null);
+        }
+
+        return heartbeatMsg;
+    }
+
     /**
      * build base url for manager according to config
      *
@@ -244,5 +301,18 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
 
     private String buildReportHeartbeatUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_HEARTBEAT_HTTP_PATH, DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH);
+    }
+
+    private String buildReportDbSyncHeartbeatUrl(String baseUrl) {
+        return baseUrl + conf.get(DBSYNC_REPORT_HEARTBEAT, DEFAULT_DBSYNC_REPORT_HEARTBEAT);
+    }
+
+    /**
+     * Default heartbeat interval is  3 * 60 * 1000, unit is MILLISECONDS.
+     *
+     * @return interval in MILLISECONDS
+     */
+    private long dbSyncHeartbeatInterval() {
+        return connInterval + ((long) (random.nextFloat() * connInterval / 2));
     }
 }
