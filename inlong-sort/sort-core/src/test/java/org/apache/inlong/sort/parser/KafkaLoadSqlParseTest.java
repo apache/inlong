@@ -109,25 +109,6 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
                 "raw-hash", pattern);
     }
 
-    new KafkaLoadNode(
-            kafkaSink.getSinkName(),        //id
-            kafkaSink.getSinkName(),        //name
-            fieldInfos,                     //fields
-            fieldRelations,                 //fieldRelations
-            Lists.newArrayList(),           //filters
-            null,                           //filterStrategy
-            kafkaSink.getTopicName(),       //kafkaSink.getTopicName(),null of multiple topic
-            kafkaSink.getBootstrapServers(),
-            format,                         //raw or format
-            sinkParallelism,
-            properties,
-            kafkaSink.getPrimaryKey(),
-            innerFormat,                    //canal|debezium
-            kafkaSink.getTopicPattern(),    //matching string
-            sinkPartitioner,                 //raw hash or null
-            kafkaSink.getPartitionStrategy()  //null if no partitioner
-            );
-
     /**
      * build node relation
      *
@@ -215,7 +196,7 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
         env.disableOperatorChaining();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildKafkaExtractNode();
-        Node outputNode = buildKafkaLoadNodeWithDynamicPartition("${database}_${table}");
+        Node outputNode = buildKafkaLoadNodeWithDynamicPartition("${database_name_src}_${table_name_src}");
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));
