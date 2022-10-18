@@ -54,7 +54,7 @@ public class KafkaSinkDTO {
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
-    @ApiModelProperty(value = "Automatically create kafka topic or not, a note for users.")
+    @ApiModelProperty(value = "Automatically create kafka topic or not. values: true, false.")
     private String autoCreateTopics;
 
     @ApiModelProperty("data multiple format,only applicable when outer format is raw")
@@ -63,10 +63,10 @@ public class KafkaSinkDTO {
     @ApiModelProperty("Primary key is required when serializationType is json, avro")
     private String primaryKey;
 
-    @ApiModelProperty("the database-table mapping rule")
+    @ApiModelProperty("the topic mapping rule")
     private String topicPattern;
 
-    @ApiModelProperty(value = "the partition strategy for kafka")
+    @ApiModelProperty("Partition strategy")
     private String partitionStrategy;
 
     @ApiModelProperty("Properties for kafka")

@@ -79,6 +79,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.RAW_HASH;
+
 /**
  * Util for load node info.
  */
@@ -177,20 +179,20 @@ public class LoadNodeUtils {
 
         String sinkPartitioner = null;
         if (dataType == DataTypeEnum.CANAL || dataType == DataTypeEnum.DEBEZIUM_JSON) {
-            sinkPartitioner = kafkaSink.getPartitionStrategy() == null ? null : "raw_hash";
+            sinkPartitioner = kafkaSink.getPartitionStrategy() == null ? null : RAW_HASH;
         }
 
         if (StringUtils.isNotEmpty(kafkaSink.getTopicName())) {
             return new KafkaLoadNode(
-                    kafkaSink.getSinkName(),          //id
-                    kafkaSink.getSinkName(),          //name
-                    fieldInfos,                       //fields
-                    fieldRelations,                   //fieldRelations
-                    Lists.newArrayList(),             //filters
-                    null,                             //filterStrategy
-                    kafkaSink.getTopicName(),         //kafkaSink.getTopicName(),null of multiple topic
+                    kafkaSink.getSinkName(),
+                    kafkaSink.getSinkName(),
+                    fieldInfos,
+                    fieldRelations,
+                    Lists.newArrayList(),
+                    null,
+                    kafkaSink.getTopicName(),
                     kafkaSink.getBootstrapServers(),
-                    format,                           //raw or format
+                    format,
                     sinkParallelism,
                     properties,
                     kafkaSink.getPrimaryKey()
@@ -198,22 +200,22 @@ public class LoadNodeUtils {
         }
 
         return new KafkaLoadNode(
-                kafkaSink.getSinkName(),          //id
-                kafkaSink.getSinkName(),          //name
-                fieldInfos,                       //fields
-                fieldRelations,                   //fieldRelations
-                Lists.newArrayList(),             //filters
-                null,                             //filterStrategy
-                "mock_topic",                     //kafkaSink.getTopicName(), mock a topic for multiple topics
+                kafkaSink.getSinkName(),
+                kafkaSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                Lists.newArrayList(),
+                null,
+                "mock_topic",
                 kafkaSink.getBootstrapServers(),
-                format,                           //raw or format
+                format,
                 sinkParallelism,
                 properties,
                 kafkaSink.getPrimaryKey(),
-                innerFormat,                      //canal|debezium
-                kafkaSink.getTopicPattern(),      //matching string
-                sinkPartitioner,                  //raw hash or null
-                kafkaSink.getPartitionStrategy()  //null if no partitioner
+                innerFormat,
+                kafkaSink.getTopicPattern(),
+                sinkPartitioner,
+                kafkaSink.getPartitionStrategy()
         );
 
     }
