@@ -103,6 +103,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         String protocolType = heartbeat.getProtocolType();
         String[] protocolTypes = StringUtils.isNoneBlank(protocolType) && ports.length > 1
                 ? heartbeat.getProtocolType().split(InlongConstants.COMMA) : null;
+        int handlerNum = 0;
         for (int i = 0; i < ports.length; i++) {
             HeartbeatMsg heartbeatMsg = OBJECT_MAPPER.readValue(
                     OBJECT_MAPPER.writeValueAsBytes(heartbeat), HeartbeatMsg.class);
@@ -114,15 +115,15 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             if (lastHeartbeat == null) {
                 InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
                 if (clusterNode == null) {
-                    insertClusterNode(clusterInfo, heartbeatMsg, clusterInfo.getCreator());
+                    handlerNum += insertClusterNode(clusterInfo, heartbeatMsg, clusterInfo.getCreator());
                 } else {
-                    updateClusterNode(clusterNode);
+                    handlerNum += updateClusterNode(clusterNode);
                 }
             }
         }
 
         // if the heartbeat already exists, or does not exist but insert/update success, then put it into the cache
-        if (lastHeartbeat == null) {
+        if (lastHeartbeat == null && handlerNum == ports.length) {
             heartbeatCache.put(componentHeartbeat, heartbeat);
         }
     }
