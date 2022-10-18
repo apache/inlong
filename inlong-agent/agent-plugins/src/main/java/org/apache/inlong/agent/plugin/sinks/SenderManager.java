@@ -27,6 +27,7 @@ import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.message.SequentialID;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
@@ -62,7 +63,6 @@ public class SenderManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(SenderManager.class);
     private static final SequentialID SEQUENTIAL_ID = SequentialID.getInstance();
     private static final AtomicInteger SENDER_INDEX = new AtomicInteger(0);
-    private static final String DEFAULT_PROTOCOL_TYPE = "TCP";
     // cache for group and sender list, share the map cross agent lifecycle.
     private static final ConcurrentHashMap<String, List<DefaultMessageSender>> SENDER_MAP =
             new ConcurrentHashMap<>();
@@ -88,7 +88,8 @@ public class SenderManager {
     private final String inlongGroupId;
     private final int maxSenderPerGroup;
     private final String sourcePath;
-    //metric
+
+    // metric
     private AgentMetricItemSet metricItemSet;
     private Map<String, String> dimensions;
     private TaskPositionManager taskPositionManager;
@@ -189,7 +190,7 @@ public class SenderManager {
 
         proxyClientConfig.setIoThreadNum(ioThreadNum);
         proxyClientConfig.setEnableBusyWait(enableBusyWait);
-        proxyClientConfig.setProtocolType(DEFAULT_PROTOCOL_TYPE);
+        proxyClientConfig.setProtocolType(ProtocolType.TCP);
 
         DefaultMessageSender sender = new DefaultMessageSender(proxyClientConfig, SHARED_FACTORY);
         sender.setMsgtype(msgType);

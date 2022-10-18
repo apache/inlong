@@ -33,6 +33,7 @@ import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
 import org.apache.inlong.manager.common.enums.NodeStatus;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
@@ -99,18 +100,28 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
         // if the heartbeat was not in the cache, insert or update the node by the heartbeat info
         HeartbeatMsg lastHeartbeat = heartbeatCache.getIfPresent(componentHeartbeat);
+
+        // protocolType may be null, and the protocolTypes' length may be less than ports' length
         String[] ports = heartbeat.getPort().split(InlongConstants.COMMA);
         String protocolType = heartbeat.getProtocolType();
-        String[] protocolTypes = StringUtils.isNoneBlank(protocolType) && ports.length > 1
-                ? heartbeat.getProtocolType().split(InlongConstants.COMMA) : null;
+        String[] protocolTypes = null;
+        if (StringUtils.isNotBlank(protocolType) && ports.length > 1) {
+            protocolTypes = protocolType.split(InlongConstants.COMMA);
+            if (protocolTypes.length < ports.length) {
+                protocolTypes = null;
+            }
+        }
+
         int handlerNum = 0;
         for (int i = 0; i < ports.length; i++) {
-            HeartbeatMsg heartbeatMsg = OBJECT_MAPPER.readValue(
-                    OBJECT_MAPPER.writeValueAsBytes(heartbeat), HeartbeatMsg.class);
+            // deep clone the heartbeat
+            HeartbeatMsg heartbeatMsg = JsonUtils.parseObject(JsonUtils.toJsonByte(heartbeat), HeartbeatMsg.class);
+            assert heartbeatMsg != null;
             heartbeatMsg.setPort(ports[i].trim());
-            heartbeatMsg.setProtocolType(protocolType);
             if (protocolTypes != null) {
                 heartbeatMsg.setProtocolType(protocolTypes[i]);
+            } else {
+                heartbeatMsg.setProtocolType(protocolType);
             }
             if (lastHeartbeat == null) {
                 InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
@@ -138,17 +149,27 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     componentHeartbeat.getComponentType());
             return;
         }
+
+        // protocolType may be null, and the protocolTypes' length may be less than ports' length
         String[] ports = heartbeat.getPort().split(InlongConstants.COMMA);
         String protocolType = heartbeat.getProtocolType();
-        String[] protocolTypes = StringUtils.isNoneBlank(protocolType) && ports.length > 1
-                ? heartbeat.getProtocolType().split(InlongConstants.COMMA) : null;
+        String[] protocolTypes = null;
+        if (StringUtils.isNotBlank(protocolType) && ports.length > 1) {
+            protocolTypes = protocolType.split(InlongConstants.COMMA);
+            if (protocolTypes.length < ports.length) {
+                protocolTypes = null;
+            }
+        }
+
         for (int i = 0; i < ports.length; i++) {
-            HeartbeatMsg heartbeatMsg = OBJECT_MAPPER.readValue(
-                    OBJECT_MAPPER.writeValueAsBytes(heartbeat), HeartbeatMsg.class);
+            // deep clone the heartbeat
+            HeartbeatMsg heartbeatMsg = JsonUtils.parseObject(JsonUtils.toJsonByte(heartbeat), HeartbeatMsg.class);
+            assert heartbeatMsg != null;
             heartbeatMsg.setPort(ports[i].trim());
-            heartbeatMsg.setProtocolType(protocolType);
             if (protocolTypes != null) {
                 heartbeatMsg.setProtocolType(protocolTypes[i]);
+            } else {
+                heartbeatMsg.setProtocolType(protocolType);
             }
             InlongClusterNodeEntity clusterNode = getClusterNode(clusterInfo, heartbeatMsg);
             if (clusterNode == null) {
