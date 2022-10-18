@@ -56,4 +56,16 @@ public class KafkaSinkRequest extends SinkRequest {
     @ApiModelProperty("Primary key is required when serializationType is json, avro")
     private String primaryKey;
 
+    @ApiModelProperty("the database-table mapping rule")
+    private String topicPattern;
+
+    @ApiModelProperty(value = "Automatically create kafka topic or not, a note for users.")
+    private String autoCreateTopics;
+
+    @ApiModelProperty(value = "the partition strategy for kafka")
+    private String partitionStrategy;
+
+    @ApiModelProperty("the database-table mapping rule,only applicable when outer format is raw")
+    private String innerFormat;
+
 }

@@ -96,6 +96,25 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
                 null, null, new CanalJsonFormat(), "${database}_${table}");
     }
 
+    new KafkaLoadNode(
+            kafkaSink.getSinkName(),        //id
+            kafkaSink.getSinkName(),        //name
+            fieldInfos,                     //fields
+            fieldRelations,                 //fieldRelations
+            Lists.newArrayList(),           //filters
+            null,                           //filterStrategy
+            kafkaSink.getTopicName(),       //kafkaSink.getTopicName(),null of multiple topic
+            kafkaSink.getBootstrapServers(),
+            format,                         //raw or format
+            sinkParallelism,
+            properties,
+            kafkaSink.getPrimaryKey(),
+            innerFormat,                    //canal|debezium
+            kafkaSink.getTopicPattern(),    //matching string
+            sinkPartitioner,                 //raw hash or null
+            kafkaSink.getPartitionStrategy()  //null if no partitioner
+            );
+
     /**
      * build node relation
      *

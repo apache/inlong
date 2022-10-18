@@ -29,6 +29,7 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.pojo.sink.dlciceberg.DLCIcebergSink;
+import org.apache.inlong.manager.pojo.sink.doris.DorisSink;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.pojo.sink.hbase.HBaseSink;
@@ -48,13 +49,13 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
-import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
-import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.DLCIcebergLoadNode;
+import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
 import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
@@ -135,6 +136,8 @@ public class LoadNodeUtils {
                 return createLoadNode((TDSQLPostgreSQLSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.DLCICEBERG:
                 return createLoadNode((DLCIcebergSink) streamSink, fieldInfos, fieldRelations, properties);
+            case SinkType.DORIS:
+                return createLoadNode((DorisSink) streamSink, fieldInfos, fieldRelations, properties);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -151,6 +154,7 @@ public class LoadNodeUtils {
         }
         DataTypeEnum dataType = DataTypeEnum.forName(kafkaSink.getSerializationType());
         Format format;
+        String innerFormat = null;
         switch (dataType) {
             case CSV:
                 format = new CsvFormat();
@@ -162,29 +166,41 @@ public class LoadNodeUtils {
                 format = new JsonFormat();
                 break;
             case CANAL:
-                format = new CanalJsonFormat();
+                format = new RawFormat();
+                innerFormat = "canal";
                 break;
             case DEBEZIUM_JSON:
-                format = new DebeziumJsonFormat();
+                format = new RawFormat();
+                innerFormat = "debezium";
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for Kafka", dataType));
         }
 
+        String sinkPartitioner = null;
+        if(dataType == DataTypeEnum.CANAL || dataType == DataTypeEnum.DEBEZIUM_JSON){
+            sinkPartitioner = kafkaSink.getPartitionStrategy() == null ? null : "raw_hash";
+        }
+
         return new KafkaLoadNode(
-                kafkaSink.getSinkName(),
-                kafkaSink.getSinkName(),
-                fieldInfos,
-                fieldRelations,
-                Lists.newArrayList(),
-                null,
-                kafkaSink.getTopicName(),
+                kafkaSink.getSinkName(),          //id
+                kafkaSink.getSinkName(),          //name
+                fieldInfos,                       //fields
+                fieldRelations,                   //fieldRelations
+                Lists.newArrayList(),             //filters
+                null,                             //filterStrategy
+                kafkaSink.getTopicName(),         //kafkaSink.getTopicName(),null of multiple topic
                 kafkaSink.getBootstrapServers(),
-                format,
+                format,                           //raw or format
                 sinkParallelism,
                 properties,
-                kafkaSink.getPrimaryKey()
+                kafkaSink.getPrimaryKey(),
+                innerFormat,                      //canal|debezium
+                kafkaSink.getTopicPattern(),      //matching string
+                sinkPartitioner,                  //raw hash or null
+                kafkaSink.getPartitionStrategy()  //null if no partitioner
         );
+
     }
 
     /**
@@ -492,6 +508,29 @@ public class LoadNodeUtils {
                 dlcIcebergSink.getWarehouse()
         );
     }
+
+    /**
+     * Create load node of DLCIceberg.
+     */
+    public static DorisLoadNode createLoadNode(DorisSink dorisSink, List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        return new DorisLoadNode(
+                dorisSink.getSinkName(),
+                dorisSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                dorisSink.getFeNode(),
+                dorisSink.getUsername(),
+                dorisSink.getPassword(),
+                dorisSink.getTableName(),
+                dorisSink.getPrimaryKey()
+        );
+    }
+
 
     /**
      * Parse information field of data sink.
