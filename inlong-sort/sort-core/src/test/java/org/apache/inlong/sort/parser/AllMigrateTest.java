@@ -51,16 +51,18 @@ import java.util.stream.Collectors;
 public class AllMigrateTest {
 
     private MySqlExtractNode buildAllMigrateExtractNode() {
-        List<FieldInfo> fields = Collections.singletonList(
-            new MetaFieldInfo("data", MetaField.DATA));
+
         Map<String, String> option = new HashMap<>();
         option.put("append-mode", "true");
         option.put("migrate-all", "true");
-        List<String> a = new ArrayList(10);
-        a.add(".*.test");
+        List<String> tables = new ArrayList(10);
+        tables.add(".*.test");
+        List<FieldInfo> fields = Collections.singletonList(
+            new MetaFieldInfo("data", MetaField.DATA));
+
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, option, null,
-            a, "localhost", "root", "Eminem@123456",
+            tables, "localhost", "root", "inlong",
                 ".*", null, null, false, null,
             ExtractMode.CDC, null,"");
     }
