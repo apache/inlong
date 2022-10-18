@@ -22,6 +22,7 @@ import com.beust.jcommander.Parameters;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
+import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 
 import java.util.List;
@@ -42,6 +43,7 @@ public class DeleteCommand extends AbstractCommand {
         jcommander.addCommand("cluster", new DeleteCluster());
         jcommander.addCommand("cluster-tag", new DeleteClusterTag());
         jcommander.addCommand("cluster-node", new DeleteClusterNode());
+        jcommander.addCommand("user", new DeleteUser());
     }
 
     @Parameters(commandDescription = "Delete group by group id")
@@ -130,6 +132,29 @@ public class DeleteCommand extends AbstractCommand {
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 if (clusterClient.deleteNode(nodeId)) {
                     System.out.println("Delete cluster node success!");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Delete user by user id")
+    private static class DeleteUser extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "user id")
+        private int userId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                UserClient userClient = ClientUtils.clientFactory.getUserClient();
+                if (userClient.delete(userId)) {
+                    System.out.println("Delete user success!");
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());

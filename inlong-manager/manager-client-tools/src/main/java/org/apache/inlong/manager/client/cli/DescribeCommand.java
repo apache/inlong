@@ -24,6 +24,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
+import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
@@ -36,6 +37,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 
 import java.util.List;
 
@@ -58,6 +60,7 @@ public class DescribeCommand extends AbstractCommand {
         jcommander.addCommand("cluster", new DescribeCluster());
         jcommander.addCommand("cluster-tag", new DescribeClusterTag());
         jcommander.addCommand("cluster-node", new DescribeClusterNode());
+        jcommander.addCommand("user", new DescribeUser());
     }
 
     @Parameters(commandDescription = "Get stream details")
@@ -226,6 +229,28 @@ public class DescribeCommand extends AbstractCommand {
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 ClusterNodeResponse nodeInfo = clusterClient.getNode(nodeId);
                 PrintUtils.printJson(nodeInfo);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get user details")
+    private static class DescribeUser extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-id", "--id"}, required = true, description = "user id")
+        private int userId;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                UserClient userClient = ClientUtils.clientFactory.getUserClient();
+                UserInfo userInfo = userClient.getById(userId);
+                PrintUtils.printJson(userInfo);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
