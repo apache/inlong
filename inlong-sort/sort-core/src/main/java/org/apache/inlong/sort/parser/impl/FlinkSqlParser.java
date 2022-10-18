@@ -273,11 +273,6 @@ public class FlinkSqlParser implements Parser {
             if (node instanceof LoadNode) {
                 String createSql = genCreateSql(node);
                 log.info("node id:{}, create table sql:\n{}", node.getId(), createSql);
-                createSql = "CREATE TABLE `node_2_topic`(\n"
-                    + "    `data` STRING)\n"
-                    + "    WITH (\n"
-                    + "    'connector' = 'print'\n"
-                    + ")";
                 registerTableSql(node, createSql);
                 LoadNode loadNode = (LoadNode) node;
                 String insertSql = genLoadNodeInsertSql(loadNode, relation, nodeMap);

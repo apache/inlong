@@ -136,8 +136,8 @@ public class AllMigrateTest {
                         Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
-        parser.parse().execute();
-        Threads.sleep(100000);
+        ParseResult result = parser.parse();
+        Assert.assertTrue(result.tryExecute());
     }
 
     /**
