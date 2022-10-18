@@ -28,6 +28,7 @@ import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -60,11 +61,39 @@ public class AllMigrateOracleTest {
         return node;
     }
 
+    private OracleExtractNode buildAllMigrateExtractNodeWithBytesFormat() {
+        List<FieldInfo> fields = Arrays.asList(
+                new MetaFieldInfo("data", MetaField.DATA_BYTES));
+        Map<String, String> option = new HashMap<>();
+        option.put("migrate-all", "true");
+        OracleExtractNode node = new OracleExtractNode("1", "oracle_input", fields,
+                null, option, null, "localhost", "system",
+                "inlong", "test", "SCHEMA1,SCHEMA2", "SCHEMA1.TB.*, SCHEMA2.TB1", 1521,
+                ScanStartUpMode.INITIAL
+
+        );
+        return node;
+    }
+
     private KafkaLoadNode buildAllMigrateKafkaNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("data", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("data", new StringFormatInfo()),
                         new FieldInfo("data", new StringFormatInfo())));
+        CsvFormat csvFormat = new CsvFormat();
+        csvFormat.setDisableQuoteCharacter(true);
+        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
+                "topic", "localhost:9092",
+                csvFormat, null,
+                null, null);
+    }
+
+    private KafkaLoadNode buildAllMigrateKafkaNodeWithBytesFormat() {
+        List<FieldInfo> fields = Collections.singletonList(
+                new FieldInfo("data", new VarBinaryFormatInfo()));
+        List<FieldRelation> relations = Collections.singletonList(
+                new FieldRelation(new FieldInfo("data", new VarBinaryFormatInfo()),
+                        new FieldInfo("data", new VarBinaryFormatInfo())));
         CsvFormat csvFormat = new CsvFormat();
         csvFormat.setDisableQuoteCharacter(true);
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
@@ -97,6 +126,33 @@ public class AllMigrateOracleTest {
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildAllMigrateExtractNode();
         Node outputNode = buildAllMigrateKafkaNode();
+        StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
+                Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
+                        Collections.singletonList(outputNode))));
+        GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
+        ParseResult result = parser.parse();
+        Assert.assertTrue(result.tryExecute());
+    }
+
+    /**
+     * Test all migrate, the full database data is represented as bytes of canal json
+     *
+     * @throws Exception The exception may throws when execute the case
+     */
+    @Test
+    public void testAllMigrateWithBytesFormat() throws Exception {
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        Node inputNode = buildAllMigrateExtractNodeWithBytesFormat();
+        Node outputNode = buildAllMigrateKafkaNodeWithBytesFormat();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));

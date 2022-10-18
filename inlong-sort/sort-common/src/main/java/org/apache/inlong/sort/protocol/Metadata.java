@@ -55,6 +55,7 @@ public interface Metadata {
                 metadataKey = "op_ts";
                 break;
             case DATA:
+            case DATA_BYTES:
                 metadataKey = "meta.data";
                 break;
 

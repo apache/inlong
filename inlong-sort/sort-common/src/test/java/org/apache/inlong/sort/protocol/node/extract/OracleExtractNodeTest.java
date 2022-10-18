@@ -55,6 +55,7 @@ public class OracleExtractNodeTest extends SerializeBaseTest<OracleExtractNode> 
         formatMap.put(MetaField.OP_TS, "TIMESTAMP_LTZ(3) METADATA FROM 'op_ts' VIRTUAL");
         formatMap.put(MetaField.SCHEMA_NAME, "STRING METADATA FROM 'schema_name' VIRTUAL");
         formatMap.put(MetaField.DATA, "STRING METADATA FROM 'meta.data' VIRTUAL");
+        formatMap.put(MetaField.DATA_BYTES, "BYTES METADATA FROM 'meta.data' VIRTUAL");
         OracleExtractNode node = getTestObject();
         boolean formatEquals = true;
         for (MetaField metaField : node.supportedMetaFields()) {
