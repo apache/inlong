@@ -68,7 +68,7 @@ public class KafkaSink extends StreamSink {
     private String partitionStrategy;
 
     @ApiModelProperty("data multiple format,only applicable when outer format is raw")
-    private String innerFormat;
+    private String sinkMultipleFormat;
 
     public KafkaSink() {
         this.setSinkType(SinkType.KAFKA);

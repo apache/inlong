@@ -63,6 +63,6 @@ public class KafkaSinkRequest extends SinkRequest {
     private String partitionStrategy;
 
     @ApiModelProperty("data multiple format,only applicable when outer format is raw")
-    private String innerFormat;
+    private String sinkMultipleFormat;
 
 }

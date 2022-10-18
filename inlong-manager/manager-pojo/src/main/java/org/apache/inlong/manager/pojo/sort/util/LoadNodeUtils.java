@@ -177,23 +177,6 @@ public class LoadNodeUtils {
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for Kafka", dataType));
         }
 
-        DataTypeEnum innerDataType = DataTypeEnum.forName(kafkaSink.getInnerFormat());
-        Format innerFormat = null;
-        String sinkPartitioner = null;
-        if (dataType == DataTypeEnum.RAW) {
-            switch (innerDataType) {
-                case DEBEZIUM_JSON:
-                    innerFormat = new DebeziumJsonFormat();
-                    break;
-                case CANAL:
-                    innerFormat = new CanalJsonFormat();
-                    break;
-                default:
-                    throw new IllegalArgumentException(String.format("Unsupported innerFormat=%s for Kafka", innerDataType));
-            }
-            sinkPartitioner = kafkaSink.getPartitionStrategy() == null ? null : RAW_HASH;
-        }
-
         if (StringUtils.isNotEmpty(kafkaSink.getTopicName())) {
             return new KafkaLoadNode(
                     kafkaSink.getSinkName(),
@@ -211,6 +194,23 @@ public class LoadNodeUtils {
             );
         }
 
+        DataTypeEnum innerDataType = DataTypeEnum.forName(kafkaSink.getSinkMultipleFormat());
+        Format sinkMultipleFormat = null;
+        String sinkPartitioner = null;
+        if (dataType == DataTypeEnum.RAW) {
+            switch (innerDataType) {
+                case DEBEZIUM_JSON:
+                    sinkMultipleFormat = new DebeziumJsonFormat();
+                    break;
+                case CANAL:
+                    sinkMultipleFormat = new CanalJsonFormat();
+                    break;
+                default:
+                    throw new IllegalArgumentException(String.format("Unsupported sinkMultipleFormat=%s for Kafka", innerDataType));
+            }
+            sinkPartitioner = kafkaSink.getPartitionStrategy() == null ? null : RAW_HASH;
+        }
+
         return new KafkaLoadNode(
                 kafkaSink.getSinkName(),
                 kafkaSink.getSinkName(),
@@ -224,7 +224,7 @@ public class LoadNodeUtils {
                 sinkParallelism,
                 properties,
                 kafkaSink.getPrimaryKey(),
-                innerFormat,
+                sinkMultipleFormat,
                 kafkaSink.getTopicPattern(),
                 sinkPartitioner,
                 kafkaSink.getPartitionStrategy()

@@ -55,7 +55,7 @@ public class KafkaSinkDTO {
     private String autoOffsetReset;
 
     @ApiModelProperty("data multiple format,only applicable when outer format is raw")
-    private String innerFormat;
+    private String sinkMultipleFormat;
 
     @ApiModelProperty("Primary key is required when serializationType is json, avro")
     private String primaryKey;
