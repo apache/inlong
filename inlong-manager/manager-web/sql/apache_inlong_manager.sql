@@ -230,7 +230,7 @@ CREATE TABLE IF NOT EXISTS `consumption`
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    INDEX `group_id_index` (`inlong_group_id`)
+    INDEX `consumption_group_id_index` (`inlong_group_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data consumption configuration table';
 
@@ -303,7 +303,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream`
     `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`),
-    INDEX `group_id_index` (`inlong_group_id`)
+    INDEX `stream_group_id_index` (`inlong_group_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong stream table';
 
@@ -485,7 +485,7 @@ CREATE TABLE IF NOT EXISTS `stream_source_field`
     `is_deleted`       int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`),
     INDEX `source_id_index` (`source_id`),
-    KEY group_stream_index (`inlong_group_id`, `inlong_stream_id`)
+    INDEX `source_group_stream_index` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source field table';
 
@@ -514,7 +514,7 @@ CREATE TABLE IF NOT EXISTS `stream_transform_field`
     `origin_field_name` varchar(50)   DEFAULT '' COMMENT 'Origin field name before transform operation',
     PRIMARY KEY (`id`),
     INDEX `transform_id_index` (`transform_id`),
-    KEY group_stream_index (`inlong_group_id`, `inlong_stream_id`)
+    INDEX `transform_group_stream_index` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream transform field table';
 
@@ -543,7 +543,7 @@ CREATE TABLE IF NOT EXISTS `stream_sink_field`
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`),
     INDEX `sink_id_index` (`sink_id`),
-    KEY group_stream_index (`inlong_group_id`, `inlong_stream_id`)
+    INDEX `sink_group_stream_index` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream sink field table';
 
