@@ -34,7 +34,9 @@ import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.Transaction;
 import org.apache.iceberg.catalog.Catalog;
+import org.apache.iceberg.catalog.SupportsNamespaces;
 import org.apache.iceberg.catalog.TableIdentifier;
+import org.apache.iceberg.exceptions.AlreadyExistsException;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
@@ -100,6 +102,7 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     private final MultipleSinkOption multipleSinkOption;
 
     private transient Catalog catalog;
+    private transient SupportsNamespaces asNamespaceCatalog;
     private transient AbstractDynamicSchemaFormat<JsonNode> dynamicSchemaFormat;
 
     // record cache, wait schema to consume record
@@ -120,6 +123,8 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     public void open() throws Exception {
         super.open();
         this.catalog = catalogLoader.loadCatalog();
+        this.asNamespaceCatalog =
+                catalog instanceof SupportsNamespaces ? (SupportsNamespaces) catalog : null;
         this.recordQueues = new HashMap<>();
         this.schemaCache = new HashMap<>();
         this.dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat(multipleSinkOption.getFormat());
@@ -199,14 +204,30 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     // ================================ 所有的coordinator处理的方法 ==============================================
     private void handleTableCreateEventFromOperator(TableIdentifier tableId, Schema schema) {
         if (!catalog.tableExists(tableId)) {
+            if (asNamespaceCatalog != null && !asNamespaceCatalog.namespaceExists(tableId.namespace())) {
+                try {
+                    asNamespaceCatalog.createNamespace(tableId.namespace());
+                    LOG.info("Auto create Database({}) in Catalog({}).", tableId.namespace(), catalog.name());
+                } catch (AlreadyExistsException e) {
+                    LOG.warn("Database({}) already exist in Catalog({})!", tableId.namespace(), catalog.name());
+                }
+            }
+
             ImmutableMap.Builder<String, String> properties = ImmutableMap.builder();
             properties.put("format-version", "2"); // todo:后续考虑默认参数给哪些，并且将这个默认参数暴露在表参数上
             properties.put("write.upsert.enabled", "true");
-            catalog.createTable(tableId, schema, PartitionSpec.unpartitioned(), properties.build());
-            handleSchemaInfoEvent(tableId, schema);
-        } else {
-            handleSchemaInfoEvent(tableId, catalog.loadTable(tableId).schema());
+
+            try {
+                catalog.createTable(tableId, schema, PartitionSpec.unpartitioned(), properties.build());
+                LOG.info("Auto create Table({}) in Database({}) in Catalog({})!",
+                        tableId.name(), tableId.namespace(), catalog.name());
+            } catch (AlreadyExistsException e) {
+                LOG.warn("Table({}) already exist in Database({}) in Catalog({})!",
+                        tableId.name(), tableId.namespace(), catalog.name());
+            }
         }
+
+        handleSchemaInfoEvent(tableId, catalog.loadTable(tableId).schema());
     }
 
     private void handldAlterSchemaEventFromOperator(TableIdentifier tableId, Schema oldSchema, Schema newSchema) {
