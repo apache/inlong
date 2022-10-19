@@ -47,6 +47,14 @@ public interface User {
     UserInfo getById(Integer id);
 
     /**
+     * Get user info by username
+     *
+     * @param name username
+     * @return user info
+     */
+    UserInfo getByName(String name);
+
+    /**
      * List all users basic info by request condition
      *
      * @param request request

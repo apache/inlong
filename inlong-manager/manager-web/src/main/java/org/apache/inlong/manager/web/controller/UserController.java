@@ -65,10 +65,16 @@ public class UserController {
     }
 
     @GetMapping("/user/get/{id}")
-    @ApiOperation(value = "Get user info")
+    @ApiOperation(value = "Get user info by user id")
     public Response<UserInfo> getById(@PathVariable Integer id) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(userService.getById(id, currentUser));
+    }
+
+    @GetMapping("/user/getByName/{name}")
+    @ApiOperation(value = "Get user info by username")
+    public Response<UserInfo> getByName(@PathVariable String name) {
+        return Response.success(userService.getByName(name));
     }
 
     @PostMapping("/user/listAll")
