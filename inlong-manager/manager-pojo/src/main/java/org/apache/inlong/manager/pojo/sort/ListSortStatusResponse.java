@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group;
+package org.apache.inlong.manager.pojo.sort;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,35 +23,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.enums.SortStatus;
-import org.apache.inlong.manager.pojo.source.StreamSource;
 
-import java.util.List;
+import java.util.Map;
 
 /**
- * Inlong group status info
+ * Sort status response
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Inlong group status info")
-public class InlongGroupStatusInfo {
+@ApiModel("list sort status response")
+public class ListSortStatusResponse {
 
-    @ApiModelProperty(value = "Inlong group id")
-    private String inlongGroupId;
-
-    @ApiModelProperty(value = "Inlong group original status")
-    private Integer originalStatus;
-
-    @ApiModelProperty(value = "Inlong group simple status")
-    private SimpleGroupStatus simpleGroupStatus;
-
-    @ApiModelProperty(value = "Stream sources in the inlong group")
-    private List<StreamSource> streamSources;
-
-    @ApiModelProperty(value = "sort job status of the group")
-    private SortStatus sortStatus;
+    @ApiModelProperty(value = "group id to sort status mapping")
+    private Map<String, SortStatus> statusMap;
 
 }

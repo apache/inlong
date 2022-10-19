@@ -17,36 +17,12 @@
 
 package org.apache.inlong.manager.workflow.plugin;
 
-import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
-import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
-import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
-import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
+import org.apache.inlong.manager.common.enums.SortStatus;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 
 import java.util.List;
+import java.util.Map;
 
-/**
- * Interface of process plugin.
- */
-public interface ProcessPlugin extends Plugin {
-
-    default List<SourceOperateListener> createSourceOperateListeners() {
-        return null;
-    }
-
-    default List<SinkOperateListener> createSinkOperateListeners() {
-        return null;
-    }
-
-    default List<QueueOperateListener> createQueueOperateListeners() {
-        return null;
-    }
-
-    default List<SortOperateListener> createSortOperateListeners() {
-        return null;
-    }
-
-    default SortStatusPoller createSortStatusPoller() {
-        return null;
-    }
-
+public interface SortStatusPoller {
+    Map<String, SortStatus> poll(List<InlongGroupInfo> groupInfo, String credentials);
 }

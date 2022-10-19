@@ -34,6 +34,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
+import org.apache.inlong.manager.common.enums.SortStatus;
 import org.apache.inlong.manager.common.util.HttpUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
@@ -50,6 +51,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
+import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
 import java.util.List;
@@ -122,13 +124,21 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds) {
+    public Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds, String credentials) {
         InlongGroupPageRequest request = new InlongGroupPageRequest();
         request.setGroupIdList(groupIds);
         request.setListSources(true);
 
+        // group info
         PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(request);
         List<InlongGroupBriefInfo> briefInfos = pageInfo.getList();
+
+        // sort status info
+        ListSortStatusRequest sortStatusRequest = new ListSortStatusRequest();
+        sortStatusRequest.setInlongGroupIds(groupIds);
+        sortStatusRequest.setCredentials(credentials);
+        Map<String, SortStatus> sortStatusMap = groupClient.listSortStatus(sortStatusRequest).getStatusMap();
+
         Map<String, InlongGroupStatusInfo> groupStatusMap = Maps.newHashMap();
         if (CollectionUtils.isNotEmpty(briefInfos)) {
             briefInfos.forEach(briefInfo -> {
@@ -140,7 +150,9 @@ public class InlongClientImpl implements InlongClient {
                         .inlongGroupId(briefInfo.getInlongGroupId())
                         .originalStatus(briefInfo.getStatus())
                         .simpleGroupStatus(groupStatus)
-                        .streamSources(sources).build();
+                        .streamSources(sources)
+                        .sortStatus(sortStatusMap.getOrDefault(groupId, SortStatus.UNKNOWN))
+                        .build();
                 groupStatusMap.put(groupId, statusInfo);
             });
         }
