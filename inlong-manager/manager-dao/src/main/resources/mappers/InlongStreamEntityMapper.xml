@@ -413,16 +413,10 @@
           and is_deleted = 0
     </update>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <delete id="deleteById" parameterType="java.lang.Integer">
         delete
         from inlong_stream
         where id = #{id,jdbcType=INTEGER}
-    </delete>
-    <delete id="deleteAllByGroupId">
-        delete
-        from inlong_stream
-        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
-          and is_deleted = 0
     </delete>
     <delete id="deleteByInlongGroupIds">
         delete

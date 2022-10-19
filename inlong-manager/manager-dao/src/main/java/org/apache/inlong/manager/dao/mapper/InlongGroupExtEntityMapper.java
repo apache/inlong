@@ -69,7 +69,7 @@ public interface InlongGroupExtEntityMapper {
     /**
      * Physically delete all extended fields based on inlong group ids
      *
-     * @return rows updated
+     * @return rows deleted
      */
     int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 

@@ -62,17 +62,10 @@ public interface InlongStreamEntityMapper {
      */
     void logicDeleteDlqOrRlq(String groupId, String streamId, String operator);
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteById(Integer id);
 
     /**
-     * Physically delete all inlong streams of the specified inlong group id
-     *
-     * @return rows deleted
-     */
-    int deleteAllByInlongGroupId(@Param("groupId") String groupId);
-
-    /**
-     * Physically delete all inlong streams of the specified inlong group id list
+     * Physically delete all inlong streams based on inlong group ids
      *
      * @return rows deleted
      */

@@ -211,9 +211,8 @@
     <select id="selectDeletedGroupIds" resultType="java.lang.String">
         select inlong_group_id
         from inlong_group
-        where modify_time &lt;= #{lastModifyTime,jdbcType=TIMESTAMP}
-        group by inlong_group_id
-        having min(is_deleted) > 0
+        where is_deleted > 0
+          and modify_time &lt;= #{timeBefore, jdbcType=TIMESTAMP}
         limit #{limit, jdbcType=INTEGER}
     </select>
 
@@ -333,5 +332,4 @@
             #{item}
         </foreach>
     </delete>
-
 </mapper>

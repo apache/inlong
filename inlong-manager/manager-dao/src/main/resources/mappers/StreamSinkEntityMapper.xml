@@ -439,7 +439,7 @@
         where id = #{id,jdbcType=INTEGER}
     </update>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <delete id="deleteById" parameterType="java.lang.Integer">
         delete
         from stream_sink
         where id = #{id,jdbcType=INTEGER}

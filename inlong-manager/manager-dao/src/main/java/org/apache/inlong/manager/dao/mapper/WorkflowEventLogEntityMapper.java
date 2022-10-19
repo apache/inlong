@@ -38,5 +38,11 @@ public interface WorkflowEventLogEntityMapper {
 
     int update(WorkflowEventLogEntity record);
 
-    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
+    /**
+     * Physically delete all event logs based on process ids
+     *
+     * @return rows deleted
+     */
+    int deleteByProcessIds(@Param("processIdList") List<Integer> processIdList);
+
 }

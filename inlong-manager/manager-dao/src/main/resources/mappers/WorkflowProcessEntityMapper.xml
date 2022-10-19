@@ -111,8 +111,7 @@
         </where>
         order by id desc
     </select>
-
-    <select id="selectProcessIdsByInlongGroupIds" resultType="java.lang.Integer">
+    <select id="selectByInlongGroupIds" resultType="java.lang.Integer">
         select id
         from workflow_process
         where inlong_group_id in
@@ -165,11 +164,11 @@
         where id = #{id,jdbcType=INTEGER}
     </update>
 
-    <delete id="deleteByInlongGroupIds">
+    <delete id="deleteByProcessIds">
         delete
         from workflow_process
-        where inlong_group_id in
-        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+        where id in
+        <foreach item="item" index="index" collection="processIdList" open="(" close=")" separator=",">
             #{item}
         </foreach>
     </delete>

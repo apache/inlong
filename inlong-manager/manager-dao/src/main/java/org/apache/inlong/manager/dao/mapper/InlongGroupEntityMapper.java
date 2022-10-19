@@ -55,13 +55,13 @@ public interface InlongGroupEntityMapper {
     List<SortSourceGroupInfo> selectAllGroups();
 
     /**
-     * Select all groups which are logical deleted before some last modify time
-     * @param lastModifyTime the latest modify time before which to select
+     * Select all groups which are logical deleted before the specified last modify time
+     *
+     * @param timeBefore the latest modify time before which to select
      * @param limit max item count
      * @return all matched group ids
      */
-    List<String> selectDeletedGroupIds(@Param("lastModifyTime") Date lastModifyTime,
-            @Param("limit") Integer limit);
+    List<String> selectDeletedGroupIds(@Param("timeBefore") Date timeBefore, @Param("limit") Integer limit);
 
     int updateByPrimaryKey(InlongGroupEntity record);
 
@@ -72,6 +72,11 @@ public interface InlongGroupEntityMapper {
 
     int deleteByPrimaryKey(Integer id);
 
+    /**
+     * Physically delete all inlong groups based on inlong group ids
+     *
+     * @return rows deleted
+     */
     int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
 }

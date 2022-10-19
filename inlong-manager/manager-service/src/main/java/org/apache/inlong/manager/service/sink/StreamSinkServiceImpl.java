@@ -384,7 +384,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId);
         if (CollectionUtils.isNotEmpty(entityList)) {
             entityList.forEach(entity -> {
-                sinkMapper.deleteByPrimaryKey(entity.getId());
+                sinkMapper.deleteById(entity.getId());
                 sinkFieldMapper.deleteAll(entity.getId());
             });
         }

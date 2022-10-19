@@ -135,7 +135,9 @@ public interface StreamSourceEntityMapper {
     int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * Physical delete stream sources by group id list
+     * Physically delete all stream sources based on inlong group ids
+     *
+     * @return rows deleted
      */
     int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 

@@ -57,8 +57,8 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`),
     INDEX `group_status_deleted_index` (`status`, `is_deleted`),
-    INDEX `modifytime_index` (`modify_time`),
-    INDEX `cluster_tag_index` (`inlong_cluster_tag`)
+    INDEX `group_modify_time_index` (`modify_time`),
+    INDEX `group_cluster_tag_index` (`inlong_cluster_tag`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong group table';
 
@@ -74,8 +74,8 @@ CREATE TABLE IF NOT EXISTS `inlong_group_ext`
     `is_deleted`      int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `modify_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    INDEX `group_id_index` (`inlong_group_id`),
-    UNIQUE KEY `unique_inlong_group_key` (`inlong_group_id`, `key_name`)
+    UNIQUE KEY `unique_inlong_group_key` (`inlong_group_id`, `key_name`),
+    INDEX `group_ext_group_index` (`inlong_group_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong group extension table';
 
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `version`      int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_cluster` (`name`, `type`, `is_deleted`),
-    INDEX `type_index` (`type`)
+    INDEX `cluster_type_index` (`type`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong cluster table';
 
@@ -229,8 +229,7 @@ CREATE TABLE IF NOT EXISTS `consumption`
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
-    PRIMARY KEY (`id`),
-    INDEX `consumption_group_id_index` (`inlong_group_id`)
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data consumption configuration table';
 
@@ -248,8 +247,7 @@ CREATE TABLE IF NOT EXISTS `consumption_pulsar`
     `is_dlq`             tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure dead letter topic, 0: no configuration, 1: means configuration',
     `dead_letter_topic`  varchar(256) DEFAULT NULL COMMENT 'dead letter topic name',
     `is_deleted`         int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    PRIMARY KEY (`id`),
-    INDEX `consumption_id_index` (`consumption_id`)
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Pulsar consumption table';
 
@@ -267,7 +265,7 @@ CREATE TABLE IF NOT EXISTS `stream_source_cmd_config`
     `modify_time`         timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `result_info`         varchar(64)      DEFAULT NULL,
     PRIMARY KEY (`id`),
-    INDEX `unique_source_cmd_config` (`task_id`, `bSend`, `specified_data_time`)
+    UNIQUE KEY `unique_source_cmd_config` (`task_id`, `bSend`, `specified_data_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
@@ -345,7 +343,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream_field`
     `rank_num`            smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`),
-    INDEX `group_field_index` (`inlong_group_id`, `inlong_stream_id`)
+    INDEX `stream_field_group_stream_index` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='File/DB data source field table';
 
@@ -404,7 +402,7 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     UNIQUE KEY `unique_source_name` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`),
     INDEX `source_status_index` (`status`, `is_deleted`),
     INDEX `source_agent_ip_index` (`agent_ip`, `is_deleted`),
-    INDEX `template_id_index` (`template_id`)
+    INDEX `source_template_id_index` (`template_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source table';
 
@@ -672,7 +670,7 @@ CREATE TABLE IF NOT EXISTS `workflow_event_log`
     `exception`            mediumtext COMMENT 'Exception information',
     PRIMARY KEY (`id`),
     INDEX event_group_status_index (`inlong_group_id`, `status`),
-    INDEX process_task_index (`process_id`, `task_id`)
+    INDEX event_process_task_index (`process_id`, `task_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow event log table';
 
@@ -752,8 +750,7 @@ CREATE TABLE IF NOT EXISTS `db_collector_detail_task`
     `state`         int(11)      NOT NULL COMMENT 'task state',
     `create_time`   timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
     `modify_time`   timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
-    PRIMARY KEY (`id`),
-    INDEX `state_index` (`state`)
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='db collector detail task table';
 
