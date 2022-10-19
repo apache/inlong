@@ -244,10 +244,10 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public List<ClusterNodeResponse> listDPNode(String groupId, String protocolType) {
+    public List<ClusterNodeResponse> listDataProxyNode(String groupId, String protocolType) {
         Preconditions.checkNotNull(groupId, "DP group id cannot be empty");
         Preconditions.checkNotNull(protocolType, "DP protocol type cannot be empty");
-        return clusterClient.listDPNode(groupId, protocolType);
+        return clusterClient.listDataProxyNode(groupId, protocolType);
     }
 
     @Override

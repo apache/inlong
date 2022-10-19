@@ -199,17 +199,17 @@ public class InlongClusterController {
     }
 
     @GetMapping(value = "/cluster/node/list/dp/{groupId}")
-    @ApiOperation(value = "DP nodes by group id and protocol type")
+    @ApiOperation(value = "DataProxy nodes by group id and protocol type")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupId", value = "group id", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "protocolType", value = "protocol type",
                     dataTypeClass = String.class, required = true),
     })
     @OperationLog(operation = OperationType.GET)
-    public Response<List<ClusterNodeResponse>> listDPByGroupId(@PathVariable String groupId,
+    public Response<List<ClusterNodeResponse>> listDataProxyByGroupId(@PathVariable String groupId,
             @RequestParam String protocolType) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
-        return Response.success(clusterService.getDPByGroupId(groupId, protocolType, currentUser));
+        return Response.success(clusterService.getDataProxyByGroupId(groupId, protocolType, currentUser));
     }
 
     @RequestMapping(value = "/cluster/node/update", method = RequestMethod.POST)

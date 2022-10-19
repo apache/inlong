@@ -200,7 +200,7 @@ public interface InlongClusterService {
      * @param currentUser current operator
      * @return cluster node list
      */
-    List<ClusterNodeResponse> getDPByGroupId(String groupId, String protocolType, String currentUser);
+    List<ClusterNodeResponse> getDataProxyByGroupId(String groupId, String protocolType, String currentUser);
 
     /**
      * Query node IP list by cluster type

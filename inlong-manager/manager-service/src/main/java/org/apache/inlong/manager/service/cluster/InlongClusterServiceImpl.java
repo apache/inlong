@@ -581,7 +581,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public List<ClusterNodeResponse> getDPByGroupId(String groupId, String protocolType, String currentUser) {
+    public List<ClusterNodeResponse> getDataProxyByGroupId(String groupId, String protocolType, String currentUser) {
         Map<Integer, List<InlongClusterNodeEntity>> clusterDP = getDPClusterNodes(groupId, protocolType);
         if (clusterDP.isEmpty()) {
             return new ArrayList<>();
@@ -683,7 +683,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterEntity cluster = clusterMapper.selectById(entity.getParentId());
         String message = "Current user does not have permission to delete cluster node";
         checkUser(cluster, operator, message);
-        
+
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
         if (InlongConstants.AFFECTED_ONE_ROW != clusterNodeMapper.updateById(entity)) {

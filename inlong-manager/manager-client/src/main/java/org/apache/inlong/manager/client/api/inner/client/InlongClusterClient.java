@@ -258,15 +258,15 @@ public class InlongClusterClient {
     }
 
     /**
-     * Get DP node info by groupId and protocol
+     * Get DataProxy node info by groupId and protocol
      *
      * @param groupId inlong group id
      * @param protocolType protocol type, such as: TCP,HTTP
      * @return DP list
      */
-    public List<ClusterNodeResponse> listDPNode(String groupId, String protocolType) {
+    public List<ClusterNodeResponse> listDataProxyNode(String groupId, String protocolType) {
         Response<List<ClusterNodeResponse>> response = ClientUtils.executeHttpCall(
-                inlongClusterApi.listDPNode(groupId, protocolType));
+                inlongClusterApi.listDataProxyNode(groupId, protocolType));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

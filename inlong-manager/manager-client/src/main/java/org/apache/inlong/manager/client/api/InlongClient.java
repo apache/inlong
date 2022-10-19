@@ -225,13 +225,13 @@ public interface InlongClient {
     PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request);
 
     /**
-     * Get DP node info by groupId and protocol
+     * Get DataProxy node info by groupId and protocol
      *
      * @param groupId inlong group id
      * @param protocolType protocol type, such as: TCP,HTTP
      * @return DP list
      */
-    List<ClusterNodeResponse> listDPNode(String groupId, String protocolType);
+    List<ClusterNodeResponse> listDataProxyNode(String groupId, String protocolType);
 
     /**
      * Update cluster node.
