@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.group;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -44,9 +43,6 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
 
     @Autowired
     protected InlongGroupEntityMapper groupMapper;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
