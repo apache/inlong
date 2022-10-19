@@ -133,7 +133,7 @@ public interface InlongClusterService {
      *
      * @param request cluster info to be modified
      * @param operator current operator
-     * @return Update Result
+     * @return update result
      */
     UpdateResult updateByKey(ClusterRequest request, String operator);
 
@@ -158,8 +158,8 @@ public interface InlongClusterService {
     /**
      * Delete cluster by cluster name and type
      *
-     * @param name cluster name to be deleted
-     * @param type cluster type to be deleted
+     * @param name cluster name
+     * @param type cluster type
      * @param operator current operator
      * @return whether succeed
      */

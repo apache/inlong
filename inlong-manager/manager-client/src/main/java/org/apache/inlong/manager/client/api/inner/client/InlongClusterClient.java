@@ -167,7 +167,7 @@ public class InlongClusterClient {
      * Cluster name and type should not be null.
      *
      * @param request cluster to be modified
-     * @return whether succeed
+     * @return update result
      */
     public UpdateResult updateByKey(ClusterRequest request) {
         Preconditions.checkNotNull(request.getName(), "cluster name should not be null");

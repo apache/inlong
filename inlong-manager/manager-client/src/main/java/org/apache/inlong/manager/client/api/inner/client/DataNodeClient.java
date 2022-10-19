@@ -99,7 +99,7 @@ public class DataNodeClient {
      * Update data node by unique key.
      *
      * @param request node info to be modified
-     * @return whether succeed
+     * @return update result
      */
     public UpdateResult updateByKey(DataNodeRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");

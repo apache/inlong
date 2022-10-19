@@ -37,7 +37,7 @@ import java.util.Date;
 class DataNodeControllerTest extends WebBaseTest {
 
     @Resource
-    DataNodeEntityMapper dataNodeEntityMapper;
+    DataNodeEntityMapper dataNodeMapper;
 
     HiveDataNodeRequest getHiveDataNodeRequest() {
         HiveDataNodeRequest hiveDataNodeRequest = new HiveDataNodeRequest();
@@ -82,7 +82,7 @@ class DataNodeControllerTest extends WebBaseTest {
         Boolean success = getResBodyObj(deleteResult, Boolean.class);
         Assertions.assertTrue(success);
 
-        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectById(dataNodeId);
+        DataNodeEntity dataNodeEntity = dataNodeMapper.selectById(dataNodeId);
         Assertions.assertEquals(dataNodeEntity.getId(), dataNodeEntity.getIsDeleted());
     }
 
@@ -109,7 +109,7 @@ class DataNodeControllerTest extends WebBaseTest {
         Boolean success = getResBodyObj(deleteResult, Boolean.class);
         Assertions.assertTrue(success);
 
-        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectById(dataNodeId);
+        DataNodeEntity dataNodeEntity = dataNodeMapper.selectById(dataNodeId);
         Assertions.assertEquals(dataNodeEntity.getId(), dataNodeEntity.getIsDeleted());
     }
 
@@ -127,7 +127,7 @@ class DataNodeControllerTest extends WebBaseTest {
         nodeEntity.setInCharges("test");
         nodeEntity.setVersion(InlongConstants.INITIAL_VERSION);
 
-        dataNodeEntityMapper.insert(nodeEntity);
+        dataNodeMapper.insert(nodeEntity);
 
         DataNodeRequest request = getHiveDataNodeRequest();
         request.setId(nodeEntity.getId());
@@ -138,7 +138,7 @@ class DataNodeControllerTest extends WebBaseTest {
         Boolean success = getResBodyObj(mvcResult, Boolean.class);
         Assertions.assertTrue(success);
 
-        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectById(request.getId());
+        DataNodeEntity dataNodeEntity = dataNodeMapper.selectById(request.getId());
         Assertions.assertEquals(request.getName(), dataNodeEntity.getName());
     }
 
@@ -157,7 +157,7 @@ class DataNodeControllerTest extends WebBaseTest {
         nodeEntity.setInCharges("test");
         nodeEntity.setVersion(InlongConstants.INITIAL_VERSION);
 
-        dataNodeEntityMapper.insert(nodeEntity);
+        dataNodeMapper.insert(nodeEntity);
 
         DataNodeRequest request = getHiveDataNodeRequest();
         request.setVersion(nodeEntity.getVersion());
@@ -167,7 +167,7 @@ class DataNodeControllerTest extends WebBaseTest {
         Assertions.assertTrue(result.getSuccess());
         Assertions.assertEquals(request.getVersion() + 1, result.getVersion());
 
-        DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectByNameAndType(request.getName(), request.getType());
+        DataNodeEntity dataNodeEntity = dataNodeMapper.selectByUniqueKey(request.getName(), request.getType());
         Assertions.assertEquals(request.getUrl(), dataNodeEntity.getUrl());
     }
 
