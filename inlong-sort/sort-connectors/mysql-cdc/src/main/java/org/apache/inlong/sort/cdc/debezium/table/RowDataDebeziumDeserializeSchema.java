@@ -623,6 +623,9 @@ public final class RowDataDebeziumDeserializeSchema
      * @return
      */
     private Object getTimeValue(Object fieldValue, String schemaName) {
+        if (fieldValue == null) {
+            return null;
+        }
         switch (schemaName) {
             case MicroTime.SCHEMA_NAME:
                 Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);

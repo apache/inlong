@@ -55,15 +55,15 @@ public class AllMigrateTest {
         option.put("append-mode", "true");
         option.put("migrate-all", "true");
         List<String> tables = new ArrayList(10);
-        tables.add(".*.test");
+        tables.add("test.*");
         List<FieldInfo> fields = Collections.singletonList(
             new MetaFieldInfo("data", MetaField.DATA));
 
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, option, null,
             tables, "localhost", "root", "inlong",
-                ".*", null, null, false, null,
-            ExtractMode.CDC, null,"");
+                "test", null, null, false, null,
+            ExtractMode.CDC, null,null);
     }
 
     private MySqlExtractNode buildAllMigrateExtractNodeWithBytesFormat() {
@@ -75,7 +75,8 @@ public class AllMigrateTest {
         return new MySqlExtractNode("1", "mysql_input", fields,
             null, option, null,
             Collections.singletonList("test"), "localhost", "root", "inlong",
-            "test", null, null, false, "UTC-8", ExtractMode.CDC, null, "");
+            "test", null, null, false, "UTC-8", ExtractMode.CDC,
+            null, null);
     }
 
     private KafkaLoadNode buildAllMigrateKafkaNodeWithBytesFormat() {
