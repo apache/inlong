@@ -219,10 +219,10 @@ public class SinkContext {
      * createMessageQueueHandler
      */
     public MessageQueueHandler createMessageQueueHandler(CacheClusterConfig config) {
-        String HandlerClass = config.getParams().getOrDefault(KEY_MESSAGE_QUEUE_HANDLER,
+        String strHandlerClass = config.getParams().getOrDefault(KEY_MESSAGE_QUEUE_HANDLER,
                 PulsarHandler.class.getName());
         try {
-            Class<?> handlerClass = ClassUtils.getClass(HandlerClass);
+            Class<?> handlerClass = ClassUtils.getClass(strHandlerClass);
             Object handlerObject = handlerClass.getDeclaredConstructor().newInstance();
             if (handlerObject instanceof MessageQueueHandler) {
                 MessageQueueHandler handler = (MessageQueueHandler) handlerObject;
@@ -230,7 +230,7 @@ public class SinkContext {
             }
         } catch (Throwable t) {
             LOG.error("Fail to init MessageQueueHandler,handlerClass:{},error:{}",
-                    HandlerClass, t.getMessage(), t);
+                    strHandlerClass, t.getMessage(), t);
         }
         return null;
     }
