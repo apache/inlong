@@ -23,6 +23,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.catalog.TableIdentifier;
+import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.types.Type;
 import org.apache.iceberg.types.Type.NestedType;
 import org.apache.iceberg.types.Types.BinaryType;
@@ -54,43 +55,28 @@ import java.util.stream.Collectors;
 public class RecordWithSchema {
 
     public RecordWithSchema(
-            JsonNode dataArray,
-            RowKind rowKind,
+            JsonNode originalData,
             Schema schema,
             TableIdentifier tableId,
-            List<Integer> primaryKeys) {
-        this.dataArray = dataArray;
-        this.rowKind = rowKind;
+            List<String> primaryKeys) {
+        this.originalData = originalData;
         this.schema = schema;
         this.tableId = tableId;
         this.primaryKeys = primaryKeys;
     }
 
-    public RecordWithSchema(
-            RowData data,
-            Schema schema,
-            TableIdentifier tableId,
-            List<Integer> primaryKeys) {
-        this.data = data;
-        this.schema = schema;
-        this.tableId = tableId;
-        this.primaryKeys = primaryKeys;
-    }
+    private transient JsonNode originalData;
 
-    private transient JsonNode dataArray;
-
-    private transient RowKind rowKind;
-
-    private RowData data;
+    private List<RowData> data;
 
     // todo:反序列化存在问题，反序列化后Type都是new出来的，但是比较时却和Type.get出来的实例比较，因为没覆写equals方法所以比较会失败
     private Schema schema;
 
-    private TableIdentifier tableId;
+    private final TableIdentifier tableId;
 
-    private List<Integer> primaryKeys;
+    private final List<String> primaryKeys;
 
-    public RowData getData() {
+    public List<RowData> getData() {
         return data;
     }
 
@@ -102,23 +88,21 @@ public class RecordWithSchema {
         return tableId;
     }
 
-    public List<Integer> getPrimaryKeys() {
+    public List<String> getPrimaryKeys() {
         return primaryKeys;
     }
 
     public RecordWithSchema refreshFieldId(Schema newSchema) {
+        // Solve the problem that there is no fieldId on the schema parsed from the data
+        // So here refresh catalog loaded schema
         schema = newSchema.select(schema.columns().stream().map(NestedField::name).collect(Collectors.toList()));
         return this;
     }
 
-    public List<RecordWithSchema> refreshRowData(BiFunction<JsonNode, Schema, RowData> rowDataExtractor) {
-        List<RecordWithSchema> records = new ArrayList<>();
-        for (JsonNode data : dataArray) {
-            RowData rowData = rowDataExtractor.apply(data, schema);
-            rowData.setRowKind(rowKind);
-            records.add(new RecordWithSchema(rowData, schema, tableId, primaryKeys));
-        }
-        return records;
+    public RecordWithSchema refreshRowData(BiFunction<JsonNode, Schema, List<RowData>> rowDataExtractor) {
+        // Solve the problem of type error during downstream parsing. Here, rowData is set to be compatible with rowType
+        data = rowDataExtractor.apply(originalData, schema);
+        return this;
     }
 
     // todo:bug

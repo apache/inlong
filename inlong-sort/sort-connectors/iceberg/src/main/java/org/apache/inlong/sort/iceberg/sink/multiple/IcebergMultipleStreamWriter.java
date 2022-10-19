@@ -147,7 +147,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             String formatString = tableProperties.getOrDefault(DEFAULT_FILE_FORMAT, DEFAULT_FILE_FORMAT_DEFAULT);
             FileFormat fileFormat = FileFormat.valueOf(formatString.toUpperCase(Locale.ENGLISH));
             List<Integer> equalityFieldIds = recordWithSchema.getPrimaryKeys().stream()
-                    .map(pk -> recordWithSchema.getSchema().columns().get(pk).fieldId())
+                    .map(pk -> recordWithSchema.getSchema().findField(pk).fieldId())
                     .collect(Collectors.toList());
             // if physical primary key not exist, put all field to logical primary key
             if (equalityFieldIds.isEmpty()) {
@@ -183,7 +183,9 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
         }
 
         if (multipleWriters.get(tableId) != null) {
-            multipleWriters.get(tableId).processElement(recordWithSchema.getData());
+            for (RowData data : recordWithSchema.getData()) {
+                multipleWriters.get(tableId).processElement(data);
+            }
         } else {
             LOG.error("Unregistered table schema for {}.", recordWithSchema.getTableId());
         }

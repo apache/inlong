@@ -18,17 +18,13 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
-import org.apache.flink.formats.json.JsonToRowDataConverters;
-import org.apache.flink.formats.json.JsonToRowDataConverters.JsonToRowDataConverter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.operators.AbstractStreamOperator;
 import org.apache.flink.streaming.api.operators.OneInputStreamOperator;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.types.logical.BinaryType;
-import org.apache.flink.table.types.logical.DecimalType;
-import org.apache.flink.types.RowKind;
+import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
@@ -40,65 +36,25 @@ import org.apache.iceberg.exceptions.AlreadyExistsException;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
-import org.apache.iceberg.types.Type;
-import org.apache.iceberg.types.Types;
 import org.apache.iceberg.types.Types.NestedField;
 import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Queue;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<RecordWithSchema>
         implements OneInputStreamOperator<RowData, RecordWithSchema> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // todo:这里是根据SqlType转换成Flink的Type再转换成Iceberg的Type，所以最终解析出来的Schema可能和表中的Schema在精度上有误差
-    private static final Map<Integer, Type> SQL_TYPE_2_ICEBERG_TYPE_MAPPING =
-            ImmutableMap.<Integer, Type>builder()
-                    .put(java.sql.Types.CHAR, Types.StringType.get())
-                    .put(java.sql.Types.VARCHAR, Types.StringType.get())
-                    .put(java.sql.Types.SMALLINT, Types.IntegerType.get())
-                    .put(java.sql.Types.INTEGER, Types.IntegerType.get())
-                    .put(java.sql.Types.BIGINT, Types.LongType.get())
-                    .put(java.sql.Types.REAL, Types.FloatType.get())
-                    .put(java.sql.Types.DOUBLE, Types.DoubleType.get())
-                    .put(java.sql.Types.FLOAT, Types.FloatType.get())
-                    .put(java.sql.Types.DECIMAL,
-                            Types.DecimalType.of(DecimalType.DEFAULT_PRECISION, DecimalType.DEFAULT_SCALE))
-                    .put(java.sql.Types.NUMERIC,
-                            Types.DecimalType.of(DecimalType.DEFAULT_PRECISION, DecimalType.DEFAULT_SCALE))
-                    .put(java.sql.Types.BIT, Types.IntegerType.get())
-                    .put(java.sql.Types.TIME, Types.TimeType.get())
-                    .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, Types.TimestampType.withoutZone())
-                    .put(java.sql.Types.TIMESTAMP, Types.TimestampType.withZone())
-                    .put(java.sql.Types.BINARY, Types.FixedType.ofLength(BinaryType.DEFAULT_LENGTH))
-                    .put(java.sql.Types.VARBINARY, Types.BinaryType.get())
-                    .put(java.sql.Types.BLOB, Types.BinaryType.get())
-                    .put(java.sql.Types.DATE, Types.DateType.get())
-                    .put(java.sql.Types.BOOLEAN, Types.BooleanType.get())
-                    .put(java.sql.Types.OTHER, Types.StringType.get())
-                    .build();
-    private static final String OP_INSERT = "INSERT";
-    private static final String OP_UPDATE = "UPDATE";
-    private static final String OP_DELETE = "DELETE";
-    private static final String OP_CREATE = "CREATE";
-
     private final CatalogLoader catalogLoader;
-    private final JsonToRowDataConverters rowDataConverters;
     private final MultipleSinkOption multipleSinkOption;
 
     private transient Catalog catalog;
@@ -112,10 +68,8 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     private transient Map<TableIdentifier, Schema> schemaCache;
 
     public WholeDatabaseMigrationOperator(CatalogLoader catalogLoader,
-            JsonToRowDataConverters rowDataConverters,
             MultipleSinkOption multipleSinkOption) {
         this.catalogLoader = catalogLoader;
-        this.rowDataConverters = rowDataConverters;
         this.multipleSinkOption = multipleSinkOption;
     }
 
@@ -142,9 +96,8 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     public void processElement(StreamRecord<RowData> element) throws Exception {
         String wholeData = element.getValue().getString(0).toString();
 
-        // 将sql语句切换成DML和DDL语句，对于DML转发给下游，对于DDL用插件的方式提交
         JsonNode jsonNode = objectMapper.readTree(wholeData);
-        boolean isDDL = jsonNode.get("ddl").asBoolean();
+        boolean isDDL = dynamicSchemaFormat.extractDDLFlag(jsonNode);
         if (isDDL) {
             execDDL(jsonNode);
         } else {
@@ -153,6 +106,7 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     }
 
     private void execDDL(JsonNode jsonNode) {
+        // todo:parse ddl sql
     }
 
     private void execDML(JsonNode jsonNode) throws IOException {
@@ -185,16 +139,13 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
             // if compatible, this means that the current schema is the latest schema
             // if not, prove the need to update the current schema
             if (isCompatible(currentSchema, dataSchema)) {
-                // todo:后续这里的解析替换成canalJson解析或者DebeuizmJson解析
                 RecordWithSchema recordWithSchema = queue.poll();
-                recordWithSchema.refreshFieldId(currentSchema);
-                List<RecordWithSchema> records = recordWithSchema.refreshRowData((JsonNode dataStr, Schema schema1) -> {
-                    JsonToRowDataConverter rowDataConverter = rowDataConverters.createConverter(FlinkSchemaUtil.convert(schema1));  // todo:这个地方每次都新建conveter挺耗性能的
-                    return (RowData) rowDataConverter.convert(dataStr);
-                });
-                for (RecordWithSchema record : records) {
-                    output.collect(new StreamRecord<>(record));
-                }
+                output.collect(new StreamRecord<>(
+                        recordWithSchema
+                                .refreshFieldId(currentSchema)
+                                .refreshRowData((jsonNode, schema1) ->
+                                     dynamicSchemaFormat.extractRowData(jsonNode, FlinkSchemaUtil.convert(schema1))
+                                )));
             } else {
                 handldAlterSchemaEventFromOperator(tableId, currentSchema, dataSchema);
             }
@@ -216,6 +167,8 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
             ImmutableMap.Builder<String, String> properties = ImmutableMap.builder();
             properties.put("format-version", "2"); // todo:后续考虑默认参数给哪些，并且将这个默认参数暴露在表参数上
             properties.put("write.upsert.enabled", "true");
+            // 设置了这个属性自动建表后hive才能查询到
+            properties.put("engine.hive.enabled", "true");
 
             try {
                 catalog.createTable(tableId, schema, PartitionSpec.unpartitioned(), properties.build());
@@ -262,52 +215,14 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     private RecordWithSchema parseRecord(JsonNode data) throws IOException {
         String databaseStr = dynamicSchemaFormat.parse(data, multipleSinkOption.getDatabasePattern());
         String tableStr = dynamicSchemaFormat.parse(data, multipleSinkOption.getTablePattern());
-        String op = data.get("type").asText();
-        JsonNode schemaStr = data.get("sqlType");
-        JsonNode dataStr = data.get("data");
         List<String> pkListStr = dynamicSchemaFormat.extractPrimaryKeyNames(data);
+        RowType schema = dynamicSchemaFormat.extractSchema(data, pkListStr);
 
-        // parse schema, primary key
-        List<Integer> pks = new ArrayList<>();
-        List<NestedField> fields = new ArrayList<>();
-        int index = 0;
-        Iterator<Entry<String, JsonNode>> schemaFields = schemaStr.fields();
-        while (schemaFields.hasNext()) {
-            Entry<String, JsonNode> entry = schemaFields.next();
-            String name = entry.getKey();
-            Type type = sqlType2IcebergType(entry.getValue().asInt());
-
-            boolean isOptional = true;
-            if (pkListStr.contains(name)) {
-                pks.add(index);
-                isOptional = false;
-            }
-
-            fields.add(NestedField.of(index++, isOptional, name, type));
-        }
-        Schema schema = new Schema(fields);
         RecordWithSchema record = new RecordWithSchema(
-                dataStr, parseRowKind(op), schema, TableIdentifier.of(databaseStr, tableStr), pks);
+                data,
+                FlinkSchemaUtil.convert(FlinkSchemaUtil.toSchema(schema)),
+                TableIdentifier.of(databaseStr, tableStr),
+                pkListStr);
         return record;
-    }
-
-    private RowKind parseRowKind(String op) {
-        if (OP_INSERT.equals(op)) {
-            return RowKind.INSERT;
-        } else if (OP_UPDATE.equals(op)) {
-            return RowKind.UPDATE_AFTER;
-        } else if (OP_DELETE.equals(op)) {
-            return RowKind.DELETE;
-        } else {
-            throw new IllegalArgumentException("Unsupported op_type: " + op);
-        }
-    }
-
-    private Type sqlType2IcebergType(int jdbcType) {
-        if (SQL_TYPE_2_ICEBERG_TYPE_MAPPING.containsKey(jdbcType)) {
-            return SQL_TYPE_2_ICEBERG_TYPE_MAPPING.get(jdbcType);
-        } else {
-            throw new IllegalArgumentException("Unsupported jdbcType: " + jdbcType);
-        }
     }
 }

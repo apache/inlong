@@ -20,11 +20,8 @@
 package org.apache.inlong.sort.iceberg.sink;
 
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.typeinfo.TypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.formats.common.TimestampFormat;
-import org.apache.flink.formats.json.JsonToRowDataConverters;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -513,7 +510,6 @@ public class FlinkSink {
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
             WholeDatabaseMigrationOperator routeOperator = new WholeDatabaseMigrationOperator(
                     catalogLoader,
-                    new JsonToRowDataConverters(true, false, TimestampFormat.SQL),
                     multipleSinkOption);
             SingleOutputStreamOperator<RecordWithSchema> routeStream = input
                     .transform(operatorName(ICEBERG_WHOLE_DATABASE_MIGRATION_NAME),
