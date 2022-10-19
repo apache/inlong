@@ -56,6 +56,9 @@ public interface InlongGroupEntityMapper {
 
     /**
      * Select all groups which are logical deleted before the specified last modify time
+     * <p/>
+     * Note, ensure that all the group ids found have been deleted,
+     * and the group ids not deleted (is_deleted=0) should not be returned.
      *
      * @param timeBefore the latest modify time before which to select
      * @param limit max item count
