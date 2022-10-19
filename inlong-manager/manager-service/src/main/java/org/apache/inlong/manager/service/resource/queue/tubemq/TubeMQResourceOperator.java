@@ -26,12 +26,18 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.consume.InlongConsumeService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Operator for create TubeMQ Topic and ConsumerGroup
@@ -46,6 +52,10 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
     private InlongConsumeService consumeService;
     @Autowired
     private TubeMQOperator tubeMQOperator;
+    @Autowired
+    private InlongStreamService streamService;
+    @Autowired
+    private StreamSinkService sinkService;
 
     @Override
     public boolean accept(String mqType) {
@@ -66,24 +76,32 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
         }
 
         try {
+            List<InlongStreamBriefInfo> streamInfoList = streamService.getTopicList(groupId);
+            if (streamInfoList == null || streamInfoList.isEmpty()) {
+                log.warn("skip to create tube topic as no streams for groupId={}", groupId);
+                return;
+            }
             // 1. create tubemq topic
             String clusterTag = groupInfo.getInlongClusterTag();
             TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
             String topicName = groupInfo.getMqResource();
             tubeMQOperator.createTopic(tubeCluster, topicName, operator);
             log.info("success to create tubemq topic for groupId={}", groupId);
+            for (InlongStreamBriefInfo stream : streamInfoList) {
+                List<StreamSink> streamSinks = sinkService.listSink(groupId, stream.getInlongStreamId());
+                for (StreamSink sink : streamSinks) {
+                    // 2. create tubemq consumer group
+                    // consumer naming rules: clusterTag_topicName_consumer_group
+                    String consumeGroup = clusterTag + "_" + topicName + "_" + sink.getId() + "_consumer_group";
+                    tubeMQOperator.createConsumerGroup(tubeCluster, topicName, consumeGroup, operator);
+                    log.info("success to create tubemq consumer group for groupId={}", groupId);
 
-            // 2. create tubemq consumer group
-            // consumer naming rules: clusterTag_topicName_consumer_group
-            String consumeGroup = clusterTag + "_" + topicName + "_consumer_group";
-            tubeMQOperator.createConsumerGroup(tubeCluster, topicName, consumeGroup, operator);
-            log.info("success to create tubemq consumer group for groupId={}", groupId);
-
-            // insert the consumer group info
-            Integer id = consumeService.saveBySystem(groupInfo, topicName, consumeGroup);
-            log.info("success to save inlong consume [{}] for consumerGroup={}, groupId={}, topic={}",
-                    id, consumeGroup, groupId, topicName);
-
+                    // insert the consumer group info
+                    Integer id = consumeService.saveBySystem(groupInfo, topicName, consumeGroup);
+                    log.info("success to save inlong consume [{}] for consumerGroup={}, groupId={}, topic={}",
+                            id, consumeGroup, groupId, topicName);
+                }
+            }
             log.info("success to create tubemq resource for groupId={}, cluster={}", groupId, tubeCluster);
         } catch (Exception e) {
             log.error("failed to create tubemq resource for groupId=" + groupId, e);
