@@ -73,6 +73,7 @@ public class KafkaSinkDTO {
      * Get the dto instance from the request
      */
     public static KafkaSinkDTO getFromRequest(KafkaSinkRequest request) {
+
         return KafkaSinkDTO.builder()
                 .bootstrapServers(request.getBootstrapServers())
                 .topicName(request.getTopicName())
@@ -81,6 +82,9 @@ public class KafkaSinkDTO {
                 .autoOffsetReset(request.getAutoOffsetReset())
                 .primaryKey(request.getPrimaryKey())
                 .properties(request.getProperties())
+                .partitionStrategy(request.getPartitionStrategy())
+                .topicPattern(request.getTopicPattern())
+                .sinkMultipleFormat(request.getSinkMultipleFormat())
                 .build();
     }
 
