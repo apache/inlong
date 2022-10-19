@@ -15,33 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group;
+package org.apache.inlong.manager.pojo.cluster;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
- * Inlong group and topic info
+ * Inlong cluster brief info
  */
 @Data
-@ApiModel("Inlong group and topic info")
-public class InlongGroupTopicInfo {
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Inlong cluster brief info")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
+public abstract class ClusterBriefInfo {
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
 
-    @ApiModelProperty(value = "Inlong group id", required = true)
-    private String inlongGroupId;
+    @ApiModelProperty(value = "Cluster name")
+    private String name;
 
-    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
-    private String mqType;
+    @ApiModelProperty(value = "Cluster type, including TUBEMQ, PULSAR, KAFKA, DATAPROXY, etc.")
+    private String type;
 
-    @ApiModelProperty(value = "MQ resource, TubeMQ topic name, or Pulsar namespace name")
-    private String mqResource;
+    @ApiModelProperty(value = "Cluster tags, separated by commas")
+    private String clusterTags;
 
-    @ApiModelProperty(value = "Topic list, TubeMQ corresponds to inlong group, there is only 1 topic, "
-            + "Pulsar corresponds to inlong stream, there are multiple topics")
-    private List<InlongStreamBriefInfo> streamTopics;
-
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 }

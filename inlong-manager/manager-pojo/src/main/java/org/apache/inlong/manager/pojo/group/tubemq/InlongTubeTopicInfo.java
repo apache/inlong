@@ -15,33 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group;
+package org.apache.inlong.manager.pojo.group.tubemq;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterBriefInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
 import java.util.List;
 
-/**
- * Inlong group and topic info
- */
 @Data
-@ApiModel("Inlong group and topic info")
-public class InlongGroupTopicInfo {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ApiModel("Inlong tube group topic info")
+public class InlongTubeTopicInfo extends InlongGroupTopicInfo {
 
-    @ApiModelProperty(value = "Inlong group id", required = true)
-    private String inlongGroupId;
+    @ApiModelProperty(value = "Tube cluster brief info")
+    private List<TubeClusterBriefInfo> clusterInfos;
 
-    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
-    private String mqType;
-
-    @ApiModelProperty(value = "MQ resource, TubeMQ topic name, or Pulsar namespace name")
-    private String mqResource;
-
-    @ApiModelProperty(value = "Topic list, TubeMQ corresponds to inlong group, there is only 1 topic, "
-            + "Pulsar corresponds to inlong stream, there are multiple topics")
-    private List<InlongStreamBriefInfo> streamTopics;
-
+    @ApiModelProperty(value = "tube topic")
+    private String topic;
 }

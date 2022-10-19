@@ -18,10 +18,15 @@
 package org.apache.inlong.manager.service.group;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterBriefInfo;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
@@ -31,7 +36,10 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarTopicInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
+import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
+import org.apache.inlong.manager.service.cluster.PulsarClusterOperator;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Inlong group operator for Pulsar.
@@ -52,6 +61,8 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
     private ObjectMapper objectMapper;
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private PulsarClusterOperator pulsarClusterOperator;
 
     @Override
     public Boolean accept(String mqType) {
@@ -112,14 +123,39 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
 
     @Override
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
-        InlongGroupTopicInfo topicInfo = super.getTopic(groupInfo);
-        // Pulsar topic corresponds to the inlong stream one-to-one
+        InlongPulsarTopicInfo topicInfo = new InlongPulsarTopicInfo();
+        topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
+        topicInfo.setMqType(groupInfo.getMqType());
+        topicInfo.setMqResource(groupInfo.getMqResource());
+
+        List<InlongClusterEntity> clusterEntities = clusterMapper.selectByClusterTag(groupInfo.getInlongClusterTag());
+        if (CollectionUtils.isEmpty(clusterEntities)) {
+            throw new BusinessException("can not find pulsar cluster tag: " + groupInfo.getInlongClusterTag());
+        }
+        List<PulsarClusterBriefInfo> briefInfos = clusterEntities.stream()
+                        .map(entity -> {
+                            PulsarClusterBriefInfo briefInfo = new PulsarClusterBriefInfo();
+                            CommonBeanUtils.copyProperties(entity, briefInfo);
+                            PulsarClusterDTO dto = PulsarClusterDTO.getFromJson(entity.getExtParams());
+                            briefInfo.setNamespace(groupInfo.getMqResource());
+                            briefInfo.setPulsarAdminUrl(dto.getAdminUrl());
+                            briefInfo.setTenant(dto.getTenant());
+                            briefInfo.setPulsarServiceUrl(entity.getUrl());
+                            return briefInfo;
+                        })
+                .collect(Collectors.toList());
+        topicInfo.setClusterInfos(briefInfos);
+
         List<InlongStreamBriefInfo> streamTopics = streamService.getTopicList(groupInfo.getInlongGroupId());
+        if (CollectionUtils.isEmpty(streamTopics)) {
+            throw new BusinessException("can not find stream for group: " + groupInfo.getInlongGroupId());
+        }
         topicInfo.setStreamTopics(streamTopics);
-        // TODO add cache for cluster info, and support extends different MQs
-        // topicInfo.setTenant();
-        // topicInfo.setAdminUrl();
-        // topicInfo.setServiceUrl();
+
+        List<String> topics = streamTopics.stream()
+                .map(InlongStreamBriefInfo::getMqResource)
+                .collect(Collectors.toList());
+        topicInfo.setTopics(topics);
         return topicInfo;
     }
 

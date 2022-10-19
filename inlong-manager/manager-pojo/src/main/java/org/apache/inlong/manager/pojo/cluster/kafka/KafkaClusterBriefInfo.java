@@ -15,33 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group;
+package org.apache.inlong.manager.pojo.cluster.kafka;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.pojo.cluster.ClusterBriefInfo;
 
-import java.util.List;
-
-/**
- * Inlong group and topic info
- */
 @Data
-@ApiModel("Inlong group and topic info")
-public class InlongGroupTopicInfo {
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Inlong kafka cluster brief info")
+public class KafkaClusterBriefInfo extends ClusterBriefInfo {
 
-    @ApiModelProperty(value = "Inlong group id", required = true)
-    private String inlongGroupId;
-
-    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
-    private String mqType;
-
-    @ApiModelProperty(value = "MQ resource, TubeMQ topic name, or Pulsar namespace name")
-    private String mqResource;
-
-    @ApiModelProperty(value = "Topic list, TubeMQ corresponds to inlong group, there is only 1 topic, "
-            + "Pulsar corresponds to inlong stream, there are multiple topics")
-    private List<InlongStreamBriefInfo> streamTopics;
+    @ApiModelProperty(value = "Kafka boot strap servers")
+    private String kafkaBootstrapServers;
 
 }

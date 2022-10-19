@@ -17,18 +17,25 @@
 
 package org.apache.inlong.manager.service.group;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
+import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeTopicInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Inlong group operator for TubeMQ.
@@ -69,9 +76,26 @@ public class InlongTubeOperator extends AbstractGroupOperator {
 
     @Override
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
-        // TODO add cache for cluster info
-        // topicInfo.setTubeMasterUrl(groupInfo.getMqType());
-        return super.getTopic(groupInfo);
+        InlongTubeTopicInfo topicInfo = new InlongTubeTopicInfo();
+        topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
+        topicInfo.setMqType(groupInfo.getMqType());
+        topicInfo.setMqResource(groupInfo.getMqResource());
+        topicInfo.setTopic(groupInfo.getMqResource());
+
+        List<InlongClusterEntity> clusterEntities = clusterMapper.selectByClusterTag(groupInfo.getInlongClusterTag());
+        if (CollectionUtils.isEmpty(clusterEntities)) {
+            throw new BusinessException("can not find kafka cluster tag: " + groupInfo.getInlongClusterTag());
+        }
+        List<TubeClusterBriefInfo> briefInfos = clusterEntities.stream()
+                .map(entity -> {
+                    TubeClusterBriefInfo briefInfo = new TubeClusterBriefInfo();
+                    CommonBeanUtils.copyProperties(entity, briefInfo);
+                    briefInfo.setTubeMasterUrl(entity.getUrl());
+                    return briefInfo;
+                })
+                .collect(Collectors.toList());
+        topicInfo.setClusterInfos(briefInfos);
+        return topicInfo;
     }
 
 }
