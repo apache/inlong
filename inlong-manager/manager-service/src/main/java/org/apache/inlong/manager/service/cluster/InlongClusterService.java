@@ -193,6 +193,16 @@ public interface InlongClusterService {
     PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser);
 
     /**
+     * Get DataProxy node info by groupId and protocol
+     *
+     * @param groupId group id
+     * @param protocolType protocol type
+     * @param currentUser current operator
+     * @return cluster node list
+     */
+    List<ClusterNodeResponse> getDPByGroupId(String groupId, String protocolType, String currentUser);
+
+    /**
      * Query node IP list by cluster type
      *
      * @param type cluster type

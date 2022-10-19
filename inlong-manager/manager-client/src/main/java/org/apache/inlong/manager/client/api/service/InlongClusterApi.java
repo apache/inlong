@@ -37,6 +37,8 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
+import java.util.List;
+
 public interface InlongClusterApi {
 
     @POST("cluster/tag/save")
@@ -86,6 +88,10 @@ public interface InlongClusterApi {
 
     @POST("cluster/node/list")
     Call<Response<PageResult<ClusterNodeResponse>>> listNode(@Body ClusterPageRequest request);
+
+    @GET("cluster/node/list/dp/{groupId}")
+    Call<Response<List<ClusterNodeResponse>>> listDPNode(@Path("groupId") String groupId,
+            @Query("protocolType") String protocolType);
 
     @POST("cluster/node/update")
     Call<Response<Boolean>> updateNode(@Body ClusterNodeRequest request);

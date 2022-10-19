@@ -225,6 +225,15 @@ public interface InlongClient {
     PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request);
 
     /**
+     * Get DP node info by groupId and protocol
+     *
+     * @param groupId inlong group id
+     * @param protocolType protocol type, such as: TCP,HTTP
+     * @return DP list
+     */
+    List<ClusterNodeResponse> listDPNode(String groupId, String protocolType);
+
+    /**
      * Update cluster node.
      *
      * @param request cluster node to be modified

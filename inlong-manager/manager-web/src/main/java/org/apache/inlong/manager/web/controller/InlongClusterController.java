@@ -52,6 +52,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * Inlong cluster controller
  */
@@ -194,6 +196,20 @@ public class InlongClusterController {
     public Response<PageResult<ClusterNodeResponse>> listNode(@RequestBody ClusterPageRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.listNode(request, currentUser));
+    }
+
+    @GetMapping(value = "/cluster/node/list/dp/{groupId}")
+    @ApiOperation(value = "DP nodes by group id and protocol type")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", value = "group id", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "protocolType", value = "protocol type",
+                    dataTypeClass = String.class, required = true),
+    })
+    @OperationLog(operation = OperationType.GET)
+    public Response<List<ClusterNodeResponse>> listDPByGroupId(@PathVariable String groupId,
+            @RequestParam String protocolType) {
+        String currentUser = LoginUserUtils.getLoginUser().getName();
+        return Response.success(clusterService.getDPByGroupId(groupId, protocolType, currentUser));
     }
 
     @RequestMapping(value = "/cluster/node/update", method = RequestMethod.POST)

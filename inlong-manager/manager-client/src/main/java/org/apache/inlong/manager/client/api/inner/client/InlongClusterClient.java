@@ -34,6 +34,8 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 
+import java.util.List;
+
 /**
  * Client for {@link InlongClusterApi}.
  */
@@ -251,6 +253,20 @@ public class InlongClusterClient {
     public PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request) {
         Response<PageResult<ClusterNodeResponse>> response = ClientUtils.executeHttpCall(
                 inlongClusterApi.listNode(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * Get DP node info by groupId and protocol
+     *
+     * @param groupId inlong group id
+     * @param protocolType protocol type, such as: TCP,HTTP
+     * @return DP list
+     */
+    public List<ClusterNodeResponse> listDPNode(String groupId, String protocolType) {
+        Response<List<ClusterNodeResponse>> response = ClientUtils.executeHttpCall(
+                inlongClusterApi.listDPNode(groupId, protocolType));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
