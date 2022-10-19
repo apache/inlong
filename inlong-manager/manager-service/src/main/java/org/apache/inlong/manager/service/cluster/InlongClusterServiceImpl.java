@@ -582,16 +582,16 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public List<ClusterNodeResponse> getDataProxyByGroupId(String groupId, String protocolType, String currentUser) {
-        Map<Integer, List<InlongClusterNodeEntity>> clusterDP = getDPClusterNodes(groupId, protocolType);
-        if (clusterDP.isEmpty()) {
+        Map<Integer, List<InlongClusterNodeEntity>> clusterDataProxy = getDataProxyClusterNodes(groupId, protocolType);
+        if (clusterDataProxy.isEmpty()) {
             return new ArrayList<>();
         }
-        Integer clusterId = clusterDP.keySet().iterator().next();
+        Integer clusterId = clusterDataProxy.keySet().iterator().next();
         InlongClusterEntity cluster = clusterMapper.selectById(clusterId);
         String message = "Current user does not have permission to get cluster node list";
         checkUser(cluster, currentUser, message);
         return CommonBeanUtils
-                .copyListProperties(clusterDP.get(clusterId), ClusterNodeResponse::new);
+                .copyListProperties(clusterDataProxy.get(clusterId), ClusterNodeResponse::new);
     }
 
     private void checkUser(InlongClusterEntity cluster, String currentUser, String errMsg) {
@@ -697,17 +697,18 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public DataProxyNodeResponse getDataProxyNodes(String inlongGroupId, String protocolType) {
-        Map<Integer, List<InlongClusterNodeEntity>> clusterDP = getDPClusterNodes(inlongGroupId, protocolType);
+        Map<Integer, List<InlongClusterNodeEntity>> clusterDataProxy = getDataProxyClusterNodes(inlongGroupId,
+                protocolType);
         DataProxyNodeResponse response = new DataProxyNodeResponse();
-        if (clusterDP.isEmpty()) {
+        if (clusterDataProxy.isEmpty()) {
             return response;
         }
-        Integer clusterId = clusterDP.keySet().iterator().next();
+        Integer clusterId = clusterDataProxy.keySet().iterator().next();
         response.setClusterId(clusterId);
         // if more than one data proxy cluster, currently takes first
         // TODO consider the data proxy load and re-balance
         List<DataProxyNodeInfo> nodeInfos = new ArrayList<>();
-        for (InlongClusterNodeEntity nodeEntity : clusterDP.get(clusterId)) {
+        for (InlongClusterNodeEntity nodeEntity : clusterDataProxy.get(clusterId)) {
             DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
             nodeInfo.setId(nodeEntity.getId());
             nodeInfo.setIp(nodeEntity.getIp());
@@ -723,7 +724,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         return response;
     }
 
-    private Map<Integer, List<InlongClusterNodeEntity>> getDPClusterNodes(String inlongGroupId, String protocolType) {
+    private Map<Integer, List<InlongClusterNodeEntity>> getDataProxyClusterNodes(String inlongGroupId,
+            String protocolType) {
         LOGGER.debug("begin to get data proxy nodes for groupId={}, protocol={}", inlongGroupId, protocolType);
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(inlongGroupId);
         if (groupEntity == null) {

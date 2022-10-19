@@ -89,7 +89,7 @@ public interface InlongClusterApi {
     @POST("cluster/node/list")
     Call<Response<PageResult<ClusterNodeResponse>>> listNode(@Body ClusterPageRequest request);
 
-    @GET("cluster/node/list/dp/{groupId}")
+    @GET("cluster/node/list/dataproxy/{groupId}")
     Call<Response<List<ClusterNodeResponse>>> listDataProxyNode(@Path("groupId") String groupId,
             @Query("protocolType") String protocolType);
 

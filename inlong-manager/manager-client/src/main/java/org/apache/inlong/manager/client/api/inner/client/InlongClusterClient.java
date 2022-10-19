@@ -262,7 +262,7 @@ public class InlongClusterClient {
      *
      * @param groupId inlong group id
      * @param protocolType protocol type, such as: TCP,HTTP
-     * @return DP list
+     * @return DataProxy list
      */
     public List<ClusterNodeResponse> listDataProxyNode(String groupId, String protocolType) {
         Response<List<ClusterNodeResponse>> response = ClientUtils.executeHttpCall(

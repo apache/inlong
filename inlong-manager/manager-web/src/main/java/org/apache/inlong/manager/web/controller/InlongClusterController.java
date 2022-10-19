@@ -198,7 +198,7 @@ public class InlongClusterController {
         return Response.success(clusterService.listNode(request, currentUser));
     }
 
-    @GetMapping(value = "/cluster/node/list/dp/{groupId}")
+    @GetMapping(value = "/cluster/node/list/dataproxy/{groupId}")
     @ApiOperation(value = "DataProxy nodes by group id and protocol type")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "groupId", value = "group id", dataTypeClass = String.class, required = true),

@@ -947,7 +947,7 @@ class ClientFactoryTest {
         List<ClusterNodeResponse> responses = new ArrayList<>();
         responses.add(response);
         stubFor(
-                get(urlMatching("/inlong/manager/api/cluster/node/list/dp/1.*"))
+                get(urlMatching("/inlong/manager/api/cluster/node/list/dataproxy/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(responses))
