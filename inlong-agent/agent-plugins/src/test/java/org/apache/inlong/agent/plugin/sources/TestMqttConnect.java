@@ -41,14 +41,14 @@ public class TestMqttConnect {
      * Just using in local test.
      */
     @Ignore
-    public void testMqttReader() throws Exception{
+    public void testMqttReader() throws Exception {
         JobProfile jobProfile = JobProfile.parseJsonStr("{}");
         jobProfile.set(MqttReader.JOB_MQTT_SERVER_URI, "tcp://broker.hivemq.com:1883");
         jobProfile.set(MqttReader.JOB_MQTT_CLIENT_ID_PREFIX, "mqtt_client");
         jobProfile.set(MqttReader.JOB_MQTT_USERNAME, "test");
         jobProfile.set(MqttReader.JOB_MQTT_PASSWORD, "test");
         jobProfile.set(MqttSource.JOB_MQTTJOB_TOPICS, "testtopic/mqtt/p1/ebr/delivered,testtopic/NARTU2");
-        jobProfile.set(MqttReader.JOB_MQTT_QOS,"0");
+        jobProfile.set(MqttReader.JOB_MQTT_QOS, "0");
         jobProfile.set("job.instance.id", "_1");
         final MqttSource source = new MqttSource();
         List<Reader> readers = source.split(jobProfile);
@@ -62,7 +62,7 @@ public class TestMqttConnect {
                         Message message = reader.read();
                         if (Objects.nonNull(message)) {
                             assertNotNull(message.getBody());
-                            LOGGER.info("the mqtt reader header: {}, message: {}", message.getHeader(),message);
+                            LOGGER.info("the mqtt reader header: {}, message: {}", message.getHeader(), message);
                         }
                     }
                 }

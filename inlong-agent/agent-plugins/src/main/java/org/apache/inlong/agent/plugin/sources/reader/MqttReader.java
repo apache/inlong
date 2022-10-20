@@ -54,8 +54,8 @@ public class MqttReader extends AbstractReader {
     public static final String JOB_MQTT_VERSION = "job.mqttJob.mqttVersion";
 
     private boolean finished = false;
-    private boolean destroyed = false;
 
+    private boolean destroyed = false;
 
     private MqttClient client;
 
@@ -90,7 +90,7 @@ public class MqttReader extends AbstractReader {
         userName = jobConf.get(JOB_MQTT_USERNAME);
         password = jobConf.get(JOB_MQTT_PASSWORD);
         serverURI = jobConf.get(JOB_MQTT_SERVER_URI);
-        clientId = jobConf.get(JOB_MQTT_CLIENT_ID_PREFIX,"mqtt_client")+"_"+ UUID.randomUUID();
+        clientId = jobConf.get(JOB_MQTT_CLIENT_ID_PREFIX, "mqtt_client") + "_" + UUID.randomUUID();
         cleanSession = jobConf.getBoolean(JOB_MQTT_CLEAN_SESSION, false);
         automaticReconnect = jobConf.getBoolean(JOB_MQTT_AUTOMATIC_RECONNECT, true);
         qos = jobConf.getInt(JOB_MQTT_QOS, 1);
@@ -106,7 +106,7 @@ public class MqttReader extends AbstractReader {
         options.setMqttVersion(mqttVersion);
 
         try {
-            synchronized(MqttReader.class) {
+            synchronized (MqttReader.class) {
                 client = new MqttClient(serverURI, clientId, new MemoryPersistence());
                 client.setCallback(new MqttCallback() {
                     @Override
@@ -136,7 +136,7 @@ public class MqttReader extends AbstractReader {
                 });
                 client.connect(options);
                 client.subscribe(topic, 1);
-            };
+            }
             LOGGER.info("the mqtt subscribe topic is [{}], qos is [{}]", topic, qos);
         } catch (Exception e) {
             e.printStackTrace();
@@ -168,7 +168,6 @@ public class MqttReader extends AbstractReader {
     private DefaultMessage getMqttMessage() {
         return mqttMessagesQueue.poll();
     }
-
 
     @Override
     public boolean isFinished() {
