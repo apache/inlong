@@ -377,7 +377,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.httpcomponents:httpcore:4.4.14 - Apache HttpCore (https://hc.apache.org/httpcomponents-core-4.4.x), (Apache License, Version 2.0)
   com.fasterxml.jackson.core:jackson-annotations:2.13.2 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.core:jackson-core:2.13.2 - Jackson-core (https://github.com/FasterXML/jackson-core/tree/jackson-core-2.13.2), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.core:jackson-databind:2.13.2.2 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.2.2), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-databind:2.13.4.2 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.4.2), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.13.2 - Jackson datatype: jdk8 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.13.2), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.module:jackson-module-parameter-names:2.13.2 - Jackson-module-parameter-names (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.13.2/parameter-names), (The Apache Software License, Version 2.0)
   jakarta.validation:jakarta.validation-api:2.0.2 - Jakarta Bean Validation API (https://beanvalidation.org), (Apache License 2.0)
