@@ -915,7 +915,7 @@ class ClientFactoryTest {
     }
 
     @Test
-    void testGetNode() {
+    void testGetClusterNode() {
         ClusterNodeResponse response = ClusterNodeResponse.builder()
                 .id(1)
                 .type(ClusterType.DATAPROXY)
@@ -935,7 +935,7 @@ class ClientFactoryTest {
     }
 
     @Test
-    void testListDPNode() {
+    void testListClusterNode() {
         ClusterNodeResponse response = ClusterNodeResponse.builder()
                 .id(5)
                 .type(ClusterType.DATAPROXY)
@@ -947,7 +947,7 @@ class ClientFactoryTest {
         List<ClusterNodeResponse> responses = new ArrayList<>();
         responses.add(response);
         stubFor(
-                get(urlMatching("/inlong/manager/api/cluster/node/list/dataproxy/1.*"))
+                get(urlMatching("/inlong/manager/api/cluster/node/listByGroupId.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(responses))
