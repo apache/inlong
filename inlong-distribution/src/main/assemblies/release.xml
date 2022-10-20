@@ -151,14 +151,14 @@
             <outputDirectory>./</outputDirectory>
         </fileSet>
 
-        <!-- package InLong Standalone bin-->
+        <!-- package InLong bin-->
         <fileSet>
             <directory>../bin</directory>
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </fileSet>
-        <!-- package InLong Standalone conf-->
+        <!-- package InLong conf-->
         <fileSet>
             <directory>../conf</directory>
             <outputDirectory>conf</outputDirectory>
