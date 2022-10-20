@@ -57,7 +57,7 @@ public class AllMigrateTest {
         List<String> tables = new ArrayList(10);
         tables.add("test.*");
         List<FieldInfo> fields = Collections.singletonList(
-            new MetaFieldInfo("data", MetaField.DATA_DEBEZIUM));
+            new MetaFieldInfo("data", MetaField.DATA));
 
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, option, null,
