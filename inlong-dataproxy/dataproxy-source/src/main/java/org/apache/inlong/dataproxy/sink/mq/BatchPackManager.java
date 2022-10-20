@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * DispatchManager
+ * BatchPackManager
  */
 public class BatchPackManager {
 

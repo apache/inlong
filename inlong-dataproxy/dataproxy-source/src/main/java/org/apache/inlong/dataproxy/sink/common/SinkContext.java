@@ -195,7 +195,7 @@ public class SinkContext {
     }
 
     /**
-     * create createEventHandler
+     * createEventHandler
      */
     public EventHandler createEventHandler() {
         // IEventHandler
