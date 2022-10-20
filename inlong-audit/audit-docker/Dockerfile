@@ -30,6 +30,7 @@ ENV PULSAR_BROKER_LIST="127.0.0.1:6650"
 ENV PULSAR_AUDIT_TOPIC="persistent:\/\/public\/default\/inlong-audit"
 ENV TUBE_MASTER_LIST="localhost:8715"
 ENV TUBE_AUDIT_TOPIC="inlong-audit"
+ENV AUDIT_DBNAME="apache_inlong_audit"
 # mysql / clickhouse / elasticsearch
 ENV STORE_MODE=mysql
 # mysql
@@ -40,6 +41,7 @@ ENV PASSWORD=inlong
 ENV STORE_CK_URL=127.0.0.1:8123
 ENV STORE_CK_USERNAME=default
 ENV STORE_CK_PASSWD=default
+ENV STORE_CK_DBNAME="apache_inlong_audit"
 # elasticsearch
 ENV STORE_ES_HOST=127.0.0.1
 ENV STORE_ES_PORT=9200
