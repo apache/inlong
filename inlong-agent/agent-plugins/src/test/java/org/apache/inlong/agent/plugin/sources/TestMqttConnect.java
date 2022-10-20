@@ -4,7 +4,7 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.MqttReader;
-import org.junit.Test;
+import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class TestMqttConnect {
     /**
      * Just using in local test.
      */
-    @Test
+    @Ignore
     public void testMqttReader() throws Exception{
         JobProfile jobProfile = JobProfile.parseJsonStr("{}");
         jobProfile.set(MqttReader.JOB_MQTT_SERVER_URI, "tcp://broker.hivemq.com:1883");
