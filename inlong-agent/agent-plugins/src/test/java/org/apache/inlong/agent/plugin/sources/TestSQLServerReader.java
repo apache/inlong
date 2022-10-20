@@ -24,11 +24,10 @@ import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.SQLServerReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -41,13 +40,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Types;
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -64,7 +60,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
  * Test cases for {@link SQLServerReader}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AgentDbUtils.class, AuditUtils.class, SQLServerReader.class})
+@PrepareForTest({AgentDbUtils.class, MetricRegister.class, AuditUtils.class, SQLServerReader.class})
 @PowerMockIgnore({"javax.management.*"})
 public class TestSQLServerReader {
 
@@ -149,6 +145,7 @@ public class TestSQLServerReader {
         field(AgentMetricItem.class, "pluginReadSuccessCount").set(agentMetricItem, atomicCountLong);
 
         //init method
+        mockStatic(MetricRegister.class);
         (reader = new SQLServerReader(sql)).init(jobProfile);
     }
 
@@ -224,31 +221,5 @@ public class TestSQLServerReader {
     @Test
     public void testGetReadSource() {
         assertEquals(sql, reader.getReadSource());
-    }
-
-    /**
-     * Just using in local test.
-     */
-    @Ignore
-    public void testSQLServerReader() {
-        JobProfile jobProfile = JobProfile.parseJsonStr("{}");
-        jobProfile.set(SQLServerReader.JOB_DATABASE_USER, "sa");
-        jobProfile.set(SQLServerReader.JOB_DATABASE_PASSWORD, "123456");
-        jobProfile.set(SQLServerReader.JOB_DATABASE_HOSTNAME, "127.0.0.1");
-        jobProfile.set(SQLServerReader.JOB_DATABASE_PORT, "1434");
-        jobProfile.set(SQLServerReader.JOB_DATABASE_DBNAME, "inlong");
-        final String sql = "select * from dbo.test01";
-        jobProfile.set(SQLServerSource.JOB_DATABASE_SQL, sql);
-        final SQLServerSource source = new SQLServerSource();
-        List<Reader> readers = source.split(jobProfile);
-        for (Reader reader : readers) {
-            reader.init(jobProfile);
-            while (!reader.isFinished()) {
-                Message message = reader.read();
-                if (Objects.nonNull(message)) {
-                    assertNotNull(message.getBody());
-                }
-            }
-        }
     }
 }
