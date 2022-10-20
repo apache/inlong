@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.pojo.cluster.kafka;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,15 +34,19 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @ApiModel("Kafka cluster info")
 public class KafkaClusterDTO {
 
+    @ApiModelProperty(value = "kafka bootstrap servers")
+    private String kafkaBootstrapServers;
     /**
      * Get the dto instance from the request
      */
     public static KafkaClusterDTO getFromRequest(KafkaClusterRequest request) {
         return KafkaClusterDTO.builder()
+                .kafkaBootstrapServers(request.getUrl())
                 .build();
     }
 
