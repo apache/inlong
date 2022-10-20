@@ -85,16 +85,6 @@ public final class Constants {
 
     public static final String INLONG_METRIC_STATE_NAME = "inlong-metric-states";
 
-    public static final String PK_NAMES = "pkNames";
-
-    public static final String DATA = "data";
-
-    public static final String AFTER = "after";
-
-    public static final String BEFORE = "before";
-
-    public static final String SOURCE = "source";
-
     /**
      * It is used for jdbc url filter for avoiding url attack
      * see also in https://su18.org/post/jdbc-connection-url-attack/
@@ -154,4 +144,16 @@ public final class Constants {
                     .defaultValue(false)
                     .withDescription("The option 'sink.multiple.enable' "
                             + "is used to determine whether to support multiple sink writing, default is 'false'.");
+
+    public static final ConfigOption<String> SINK_MULTIPLE_ADD_COLUMN_POLICY =
+            ConfigOptions.key("sink.multiple.add-column.policy")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("");
+
+    public static final ConfigOption<String> SINK_MULTIPLE_DEL_COLUMN_POLICY =
+            ConfigOptions.key("sink.multiple.del-column.policy")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("");
 }

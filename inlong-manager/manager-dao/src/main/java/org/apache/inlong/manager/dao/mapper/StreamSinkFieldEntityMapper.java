@@ -38,24 +38,30 @@ public interface StreamSinkFieldEntityMapper {
      * According to the sink id, query the sink field.
      *
      * @param sinkId sink id.
-     * @return Sink field list.
+     * @return sink field list.
      */
     List<StreamSinkFieldEntity> selectBySinkId(@Param("sinkId") Integer sinkId);
 
     /**
-     * According to the sink id, logically delete the corresponding field information.
+     * Logically delete all stream sink fields based on sink id
      *
-     * @param sinkId sink id.
-     * @return rows deleted.
+     * @param sinkId sink id
+     * @return rows deleted
      */
     int logicDeleteAll(@Param("sinkId") Integer sinkId);
 
     /**
-     * According to the sink id, physically delete the corresponding field information
+     * Physically delete all stream sink fields based on sink id
      *
-     * @param sinkId sink id.
-     * @return rows deleted.
+     * @return rows deleted
      */
     int deleteAll(@Param("sinkId") Integer sinkId);
+
+    /**
+     * Physically delete all stream sink fields based on inlong group ids
+     *
+     * @return rows deleted
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
 }

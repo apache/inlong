@@ -51,15 +51,25 @@ public enum UserTypeEnum implements IntListValuable {
             .map(UserTypeEnum::getCode)
             .collect(Collectors.toList());
 
-    public static UserTypeEnum parse(Integer value) {
+    public static UserTypeEnum parseCode(Integer value) {
         return Arrays.stream(UserTypeEnum.class.getEnumConstants())
                 .filter(x -> x.getCode().equals(value))
                 .findAny()
                 .orElse(null);
     }
 
+    public static Integer parseName(String value) {
+        for (UserTypeEnum type : UserTypeEnum.values()) {
+            if (type.name().equals(value)) {
+                return type.code;
+            }
+        }
+
+        return null;
+    }
+
     public static String name(Integer value) {
-        return parse(value).name();
+        return parseCode(value).name();
     }
 
     @Override

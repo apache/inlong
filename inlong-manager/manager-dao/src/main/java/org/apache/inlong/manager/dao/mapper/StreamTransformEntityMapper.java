@@ -41,4 +41,11 @@ public interface StreamTransformEntityMapper {
 
     int deleteById(Integer id);
 
+    /**
+     * Physically delete all stream transforms based on inlong group ids
+     *
+     * @return rows deleted
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
+
 }

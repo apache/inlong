@@ -41,7 +41,7 @@ public class DataNodeOperateHelper {
      * Get data node info by name and type
      */
     public DataNodeInfo getDataNodeInfo(String dataNodeName, String dataNodeType) {
-        DataNodeEntity entity = dataNodeMapper.selectByNameAndType(dataNodeName, dataNodeType);
+        DataNodeEntity entity = dataNodeMapper.selectByUniqueKey(dataNodeName, dataNodeType);
         if (entity == null) {
             log.error("data node not found by name={}, type={}", dataNodeName, dataNodeType);
             throw new BusinessException("data node not found");

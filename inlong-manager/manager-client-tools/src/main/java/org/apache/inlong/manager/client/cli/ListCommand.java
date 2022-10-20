@@ -24,6 +24,7 @@ import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
+import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.cli.pojo.ClusterNodeInfo;
 import org.apache.inlong.manager.client.cli.pojo.ClusterTagInfo;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
@@ -33,7 +34,9 @@ import org.apache.inlong.manager.client.cli.pojo.StreamInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.client.cli.validator.ClusterTypeValidator;
+import org.apache.inlong.manager.client.cli.validator.UserTypeValidator;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
@@ -45,6 +48,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.user.UserInfo;
+import org.apache.inlong.manager.pojo.user.UserRequest;
 
 import java.util.List;
 
@@ -67,6 +72,7 @@ public class ListCommand extends AbstractCommand {
         jcommander.addCommand("cluster", new ListCluster());
         jcommander.addCommand("cluster-tag", new ListClusterTag());
         jcommander.addCommand("cluster-node", new ListClusterNode());
+        jcommander.addCommand("user", new ListUser());
     }
 
     @Parameters(commandDescription = "Get stream summary information")
@@ -260,6 +266,35 @@ public class ListCommand extends AbstractCommand {
                 InlongClusterClient clusterClient = ClientUtils.clientFactory.getClusterClient();
                 PageResult<ClusterNodeResponse> nodeInfo = clusterClient.listNode(request);
                 PrintUtils.print(nodeInfo.getList(), ClusterNodeInfo.class);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Get user summary information")
+    private static class ListUser extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-u", "--username"}, description = "username")
+        private String username;
+
+        @Parameter(names = {"--type"}, description = "user type", validateWith = UserTypeValidator.class)
+        private String type;
+
+        @Override
+        void run() {
+            try {
+                ClientUtils.initClientFactory();
+                UserRequest request = new UserRequest();
+                Integer integer = UserTypeEnum.parseName(type);
+                request.setAccountType(integer);
+                request.setKeyword(username);
+                UserClient userClient = ClientUtils.clientFactory.getUserClient();
+                PageResult<UserInfo> userInfo = userClient.list(request);
+                PrintUtils.print(userInfo.getList(), org.apache.inlong.manager.client.cli.pojo.UserInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

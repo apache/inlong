@@ -132,4 +132,12 @@
         from stream_sink_field
         where sink_id = #{sinkId,jdbcType=INTEGER}
     </delete>
+    <delete id="deleteByInlongGroupIds">
+        delete
+        from stream_sink_field
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

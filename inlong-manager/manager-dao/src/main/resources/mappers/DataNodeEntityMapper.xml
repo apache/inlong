@@ -61,7 +61,7 @@
         from data_node
         where id = #{id, jdbcType=INTEGER}
     </select>
-    <select id="selectByNameAndType" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+    <select id="selectByUniqueKey" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         select
         <include refid="Base_Column_List"/>
         from data_node

@@ -23,6 +23,7 @@ import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
+import java.util.LinkedHashMap;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
@@ -412,7 +413,7 @@ public enum MySqlReadableMetadata {
         if (tableSchema == null) {
             return null;
         }
-        Map<String, String> mysqlType = new HashMap<>();
+        Map<String, String> mysqlType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
         table.columns()
                 .forEach(
@@ -436,7 +437,7 @@ public enum MySqlReadableMetadata {
         if (tableSchema == null) {
             return null;
         }
-        Map<String, Integer> sqlType = new HashMap<>();
+        Map<String, Integer> sqlType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
         table.columns().forEach(
                 column -> sqlType.put(column.name(), column.jdbcType())

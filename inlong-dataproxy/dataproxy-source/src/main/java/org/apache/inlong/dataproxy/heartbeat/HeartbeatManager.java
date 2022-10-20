@@ -34,6 +34,7 @@ import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
 import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 
 import java.util.ArrayList;
@@ -43,7 +44,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.PROXY_REPORT_PROTOCOL_TYPE;
 
 /**
  * Heartbeat management logic.
@@ -51,8 +51,6 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.PROXY_REPORT_PR
 @Slf4j
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
-    public static final String DEFAULT_REPORT_PORT = "46801";
-    public static final String DEFAULT_REPORT_PROTOCOL_TYPE = "TCP";
     public static final String DEFAULT_CLUSTER_TAG = "default_cluster";
     public static final String DEFAULT_CLUSTER_NAME = "default_dataproxy";
     public static final String DEFAULT_CLUSTER_INCHARGES = "admin";
@@ -118,20 +116,19 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private HeartbeatMsg buildHeartbeat() {
         ConfigManager configManager = ConfigManager.getInstance();
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
-        Map<String, String> commonProperties = configManager.getCommonProperties();
-        heartbeatMsg.setIp(commonProperties.get(ConfigConstants.PROXY_REPORT_IP));
-        heartbeatMsg.setPort(commonProperties.getOrDefault(
-                ConfigConstants.PROXY_REPORT_PORT, DEFAULT_REPORT_PORT));
+        SourceReportInfo reportInfo = configManager.getSourceReportInfo();
+        heartbeatMsg.setIp(reportInfo.getIp());
+        heartbeatMsg.setPort(reportInfo.getPort());
+        heartbeatMsg.setProtocolType(reportInfo.getProtocolType());
         heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getName());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
+        Map<String, String> commonProperties = configManager.getCommonProperties();
         heartbeatMsg.setClusterTag(commonProperties.getOrDefault(
                 ConfigConstants.PROXY_CLUSTER_TAG, DEFAULT_CLUSTER_TAG));
         heartbeatMsg.setClusterName(commonProperties.getOrDefault(
                 ConfigConstants.PROXY_CLUSTER_NAME, DEFAULT_CLUSTER_NAME));
         heartbeatMsg.setInCharges(commonProperties.getOrDefault(
                 ConfigConstants.PROXY_CLUSTER_INCHARGES, DEFAULT_CLUSTER_INCHARGES));
-        heartbeatMsg.setProtocolType(
-                commonProperties.getOrDefault(PROXY_REPORT_PROTOCOL_TYPE, DEFAULT_REPORT_PROTOCOL_TYPE));
 
         Map<String, String> groupIdMappings = configManager.getGroupIdMappingProperties();
         Map<String, Map<String, String>> streamIdMappings = configManager.getStreamIdMappingProperties();

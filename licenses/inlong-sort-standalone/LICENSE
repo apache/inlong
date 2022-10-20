@@ -429,7 +429,7 @@ The text of each license is the standard Apache 2.0 license.
   org.schwering:irclib:1.10 - IRC client library (http://moepii.sourceforge.net), (The Apache Software License, Version 2.0), (Apache 2.0 and EPL 1.0 and LGPL 2.1)
   com.fasterxml.jackson.core:jackson-annotations:2.13.2 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations/tree/jackson-annotations-2.13.2), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.core:jackson-core:2.13.2 - Jackson-core (https://github.com/FasterXML/jackson-core/tree/jackson-core-2.13.2), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.core:jackson-databind:2.13.2.2 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.2.2), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-databind:2.13.4.2 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.4.2), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.8.11 - Jackson dataformat: CBOR (https://github.com/FasterXML/jackson-dataformats-binary/tree/jackson-dataformats-binary-2.8.11/cbor), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.8.11 - Jackson dataformat: Smile (https://github.com/FasterXML/jackson-dataformats-binary/tree/jackson-dataformats-binary-2.8.11/smile), (The Apache Software License, Version 2.0)
   jakarta.validation:jakarta.validation-api:2.0.2 - Jakarta Bean Validation API (https://beanvalidation.org), (Apache License 2.0)

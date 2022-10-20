@@ -21,6 +21,8 @@ file_path=$(cd "$(dirname "$0")"/../;pwd)
 store_conf_file=${file_path}/conf/application.properties
 # proxy config
 proxy_conf_file=${file_path}/conf/audit-proxy-${MQ_TYPE}.conf
+sql_file="${file_path}"/sql/apache_inlong_audit.sql
+sql_ck_file="${file_path}"/sql/apache_inlong_audit_clickhouse.sql
 
 # replace the configuration for audit proxy
 if [ "${MQ_TYPE}" = "pulsar" ]; then
@@ -45,13 +47,17 @@ if [ -n "${STORE_MODE}" ]; then
   sed -i "s/audit.config.store.mode=.*$/audit.config.store.mode=${STORE_MODE}/g" "${store_conf_file}"
 fi
 # DB
-sed -i "s/127.0.0.1:3306/${JDBC_URL}/g" "${store_conf_file}"
+sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${JDBC_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
 sed -i "s/spring.datasource.druid.username=.*$/spring.datasource.druid.username=${USERNAME}/g" "${store_conf_file}"
 sed -i "s/spring.datasource.druid.password=.*$/spring.datasource.druid.password=${PASSWORD}/g" "${store_conf_file}"
+# mysql file for audit
+sed -i "s/apache_inlong_audit/${AUDIT_DBNAME}/g" "${sql_file}"
 # clickhouse
-sed -i "s/clickhouse.url=.*$/clickhouse.url=jdbc:clickhouse:\/\/${STORE_CK_URL}\/apache_inlong_audit/g" "${store_conf_file}"
+sed -i "s/clickhouse.url=.*$/clickhouse.url=jdbc:clickhouse:\/\/${STORE_CK_URL}\/${STORE_CK_DBNAME}/g" "${store_conf_file}"
 sed -i "s/clickhouse.username=.*$/clickhouse.username=${STORE_CK_USERNAME}/g" "${store_conf_file}"
 sed -i "s/clickhouse.password=.*$/clickhouse.password=${STORE_CK_PASSWD}/g" "${store_conf_file}"
+# mysql file for clickhouse
+sed -i "s/apache_inlong_audit/${STORE_CK_DBNAME}/g" "${sql_ck_file}"
 # elasticsearch
 sed -i "s/elasticsearch.host=.*$/elasticsearch.host=${STORE_ES_HOST}/g" "${store_conf_file}"
 sed -i "s/elasticsearch.port=.*$/elasticsearch.port=${STORE_ES_PORT}/g" "${store_conf_file}"

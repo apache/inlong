@@ -133,7 +133,7 @@ public interface InlongClusterService {
      *
      * @param request cluster info to be modified
      * @param operator current operator
-     * @return Update Result
+     * @return update result
      */
     UpdateResult updateByKey(ClusterRequest request, String operator);
 
@@ -158,8 +158,8 @@ public interface InlongClusterService {
     /**
      * Delete cluster by cluster name and type
      *
-     * @param name cluster name to be deleted
-     * @param type cluster type to be deleted
+     * @param name cluster name
+     * @param type cluster type
      * @param operator current operator
      * @return whether succeed
      */
@@ -191,6 +191,16 @@ public interface InlongClusterService {
      * @return cluster node list
      */
     PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser);
+
+    /**
+     * List cluster nodes
+     *
+     * @param inlongGroupId inlong group id
+     * @param clusterType cluster type
+     * @param protocolType protocol type, such as: TCP, HTTP
+     * @return cluster node list
+     */
+    List<ClusterNodeResponse> listNodeByGroupId(String inlongGroupId, String clusterType, String protocolType);
 
     /**
      * Query node IP list by cluster type

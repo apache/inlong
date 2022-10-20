@@ -17,15 +17,38 @@
 
 package org.apache.inlong.sort.base.format;
 
+import org.apache.flink.formats.common.TimestampFormat;
+import org.apache.flink.formats.json.JsonToRowDataConverters;
+import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.table.types.logical.BigIntType;
+import org.apache.flink.table.types.logical.BinaryType;
+import org.apache.flink.table.types.logical.BooleanType;
+import org.apache.flink.table.types.logical.CharType;
+import org.apache.flink.table.types.logical.DateType;
+import org.apache.flink.table.types.logical.DecimalType;
+import org.apache.flink.table.types.logical.DoubleType;
+import org.apache.flink.table.types.logical.FloatType;
+import org.apache.flink.table.types.logical.IntType;
+import org.apache.flink.table.types.logical.LocalZonedTimestampType;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.types.logical.RowType.RowField;
+import org.apache.flink.table.types.logical.SmallIntType;
+import org.apache.flink.table.types.logical.TimeType;
+import org.apache.flink.table.types.logical.TimestampType;
+import org.apache.flink.table.types.logical.VarBinaryType;
+import org.apache.flink.table.types.logical.VarCharType;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 
 /**
@@ -43,7 +66,38 @@ import java.util.regex.Matcher;
  */
 public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaFormat<JsonNode> {
 
+    private static final Map<Integer, LogicalType> SQL_TYPE_2_ICEBERG_TYPE_MAPPING =
+            ImmutableMap.<Integer, LogicalType>builder()
+                    .put(java.sql.Types.CHAR, new CharType())
+                    .put(java.sql.Types.VARCHAR, new VarCharType())
+                    .put(java.sql.Types.SMALLINT, new SmallIntType())
+                    .put(java.sql.Types.INTEGER, new IntType())
+                    .put(java.sql.Types.BIGINT, new BigIntType())
+                    .put(java.sql.Types.REAL, new FloatType())
+                    .put(java.sql.Types.DOUBLE, new DoubleType())
+                    .put(java.sql.Types.FLOAT, new FloatType())
+                    .put(java.sql.Types.DECIMAL, new DecimalType())
+                    .put(java.sql.Types.NUMERIC, new DecimalType())
+                    .put(java.sql.Types.BIT, new BooleanType())
+                    .put(java.sql.Types.TIME, new TimeType())
+                    .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
+                    .put(java.sql.Types.TIMESTAMP, new TimestampType())
+                    .put(java.sql.Types.BINARY, new BinaryType())
+                    .put(java.sql.Types.VARBINARY, new VarBinaryType())
+                    .put(java.sql.Types.BLOB, new VarBinaryType())
+                    .put(java.sql.Types.DATE, new DateType())
+                    .put(java.sql.Types.BOOLEAN, new BooleanType())
+                    .put(java.sql.Types.OTHER, new VarCharType())
+                    .build();
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    protected final JsonToRowDataConverters rowDataConverters;
+
+    protected JsonDynamicSchemaFormat() {
+        this.rowDataConverters =
+                new JsonToRowDataConverters(true, false, TimestampFormat.SQL);
+    }
 
     /**
      * Extract values by keys from the raw data
@@ -166,6 +220,29 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
      * @return The physical data node
      */
     public abstract JsonNode getPhysicalData(JsonNode root);
+
+    protected RowType extractSchemaNode(JsonNode schema, List<String> pkNames) {
+        Iterator<Entry<String, JsonNode>> schemaFields = schema.fields();
+        List<RowField> fields = new ArrayList<>();
+        while (schemaFields.hasNext()) {
+            Entry<String, JsonNode> entry = schemaFields.next();
+            String name = entry.getKey();
+            LogicalType type = sqlType2FlinkType(entry.getValue().asInt());
+            if (pkNames.contains(name)) {
+                type = type.copy(false);
+            }
+            fields.add(new RowField(name, type));
+        }
+        return new RowType(fields);
+    }
+
+    private LogicalType sqlType2FlinkType(int jdbcType) {
+        if (SQL_TYPE_2_ICEBERG_TYPE_MAPPING.containsKey(jdbcType)) {
+            return SQL_TYPE_2_ICEBERG_TYPE_MAPPING.get(jdbcType);
+        } else {
+            throw new IllegalArgumentException("Unsupported jdbcType: " + jdbcType);
+        }
+    }
 
     /**
      * Convert physical data to map

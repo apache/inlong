@@ -34,6 +34,8 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 
+import java.util.List;
+
 /**
  * Client for {@link InlongClusterApi}.
  */
@@ -167,7 +169,7 @@ public class InlongClusterClient {
      * Cluster name and type should not be null.
      *
      * @param request cluster to be modified
-     * @return whether succeed
+     * @return update result
      */
     public UpdateResult updateByKey(ClusterRequest request) {
         Preconditions.checkNotNull(request.getName(), "cluster name should not be null");
@@ -251,6 +253,21 @@ public class InlongClusterClient {
     public PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request) {
         Response<PageResult<ClusterNodeResponse>> response = ClientUtils.executeHttpCall(
                 inlongClusterApi.listNode(request));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
+     * List cluster nodes
+     *
+     * @param inlongGroupId inlong group id
+     * @param clusterType cluster type
+     * @param protocolType protocol type, such as: TCP, HTTP
+     * @return cluster node list
+     */
+    public List<ClusterNodeResponse> listNode(String inlongGroupId, String clusterType, String protocolType) {
+        Response<List<ClusterNodeResponse>> response = ClientUtils.executeHttpCall(
+                inlongClusterApi.listNodeByGroupId(inlongGroupId, clusterType, protocolType));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }
