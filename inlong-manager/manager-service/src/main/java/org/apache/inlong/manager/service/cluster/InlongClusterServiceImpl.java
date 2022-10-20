@@ -335,6 +335,22 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
+    public List<ClusterInfo> listByTag(String clusterTag) {
+        List<InlongClusterEntity> entities = clusterMapper.selectByClusterTag(clusterTag);
+        if (CollectionUtils.isEmpty(entities)) {
+            throw new BusinessException("can not find pulsar cluster tag: " + clusterTag);
+        }
+        List<ClusterInfo> clusterInfos = entities.stream()
+                .map(entity -> {
+                    InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
+                    return instance.getFromEntity(entity);
+                })
+                .collect(Collectors.toList());
+        LOGGER.debug("success to list inlong cluster by tag={}", clusterTag);
+        return clusterInfos;
+    }
+
+    @Override
     public ClusterInfo getOne(String clusterTag, String name, String type) {
         List<InlongClusterEntity> entityList = clusterMapper.selectByKey(clusterTag, name, type);
         if (CollectionUtils.isEmpty(entityList)) {

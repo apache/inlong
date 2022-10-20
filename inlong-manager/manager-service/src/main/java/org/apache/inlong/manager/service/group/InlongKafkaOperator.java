@@ -18,14 +18,14 @@
 package org.apache.inlong.manager.service.group;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -35,7 +35,6 @@ import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaDTO;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaRequest;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaTopicInfo;
-import org.apache.inlong.manager.service.cluster.KafkaClusterOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,9 +53,6 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private KafkaClusterOperator kafkaClusterOperator;
 
     @Override
     public Boolean accept(String mqType) {
@@ -105,19 +101,50 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
         topicInfo.setMqType(groupInfo.getMqType());
         topicInfo.setMqResource(groupInfo.getMqResource());
 
-        List<InlongClusterEntity> clusterEntities = clusterMapper.selectByClusterTag(groupInfo.getInlongClusterTag());
-        if (CollectionUtils.isEmpty(clusterEntities)) {
-            throw new BusinessException("can not find kafka cluster tag: " + groupInfo.getInlongClusterTag());
-        }
-        List<KafkaClusterInfo> briefInfos = clusterEntities.stream()
-                .map(entity -> {
-                    ClusterInfo info = kafkaClusterOperator.getFromEntity(entity);
-                    return (KafkaClusterInfo) info;
-                })
+        List<ClusterInfo> clusterInfos = clusterService.listByTag(groupInfo.getInlongClusterTag());
+        List<KafkaClusterInfo> kafkaClusterInfos = clusterInfos
+                .stream()
+                .map(info -> (KafkaClusterInfo) info)
                 .collect(Collectors.toList());
-        topicInfo.setClusterInfos(briefInfos);
+        topicInfo.setClusterInfos(kafkaClusterInfos);
 
         topicInfo.setTopic(groupInfo.getMqResource());
+        return topicInfo;
+    }
+
+    @Override
+    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo) {
+        String groupId = groupInfo.getInlongGroupId();
+        InlongGroupExtEntity backupClusterTag = groupExtEntityMapper
+                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_CLUSTER_TAG);
+        if (StringUtils.isBlank(backupClusterTag.getKeyValue())) {
+            LOGGER.info("there is no backup topic info for group={}", groupId);
+            return null;
+        }
+
+        InlongKafkaTopicInfo topicInfo = new InlongKafkaTopicInfo();
+        topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
+        topicInfo.setMqType(getMQType());
+
+        // set backup group mq resource
+        InlongGroupExtEntity backupMqResource = groupExtEntityMapper
+                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_MQ_RESOURCE);
+        if (StringUtils.isBlank(backupMqResource.getKeyValue())) {
+            topicInfo.setMqResource(groupInfo.getMqResource());
+            topicInfo.setTopic(groupInfo.getMqResource());
+        } else {
+            topicInfo.setMqResource(backupMqResource.getKeyValue());
+            topicInfo.setTopic(groupInfo.getMqResource());
+        }
+
+        // set backup cluster info
+        List<ClusterInfo> clusterInfos = clusterService.listByTag(backupClusterTag.getKeyValue());
+        List<KafkaClusterInfo> kafkaClusterInfos = clusterInfos
+                .stream()
+                .map(info -> (KafkaClusterInfo) info)
+                .collect(Collectors.toList());
+        topicInfo.setClusterInfos(kafkaClusterInfos);
+
         return topicInfo;
     }
 

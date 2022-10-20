@@ -113,7 +113,7 @@ public interface InlongGroupService {
      * @return Topic information
      * @apiNote TubeMQ corresponds to the group, only 1 topic
      */
-    InlongGroupTopicInfo getTopic(String groupId);
+    List<InlongGroupTopicInfo> getTopic(String groupId);
 
     /**
      * Save the group modified when the approval is passed

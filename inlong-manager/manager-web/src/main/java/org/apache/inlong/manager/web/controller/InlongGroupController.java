@@ -46,6 +46,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * Inlong group control layer
  */
@@ -164,7 +166,7 @@ public class InlongGroupController {
 
     @RequestMapping(value = "/group/getTopic/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Get topic info")
-    public Response<InlongGroupTopicInfo> getTopic(@PathVariable String groupId) {
+    public Response<List<InlongGroupTopicInfo>> getTopic(@PathVariable String groupId) {
         return Response.success(groupService.getTopic(groupId));
     }
 

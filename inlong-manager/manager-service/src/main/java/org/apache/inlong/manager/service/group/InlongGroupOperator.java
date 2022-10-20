@@ -72,4 +72,11 @@ public interface InlongGroupOperator {
      */
     InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo);
 
+    /**
+     * Get backup topic info for the given inlong group if exists
+     * @param groupInfo
+     * @return
+     */
+    InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo);
+
 }

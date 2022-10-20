@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -31,10 +32,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeTopicInfo;
-import org.apache.inlong.manager.service.cluster.TubeClusterOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,9 +46,6 @@ import java.util.stream.Collectors;
 public class InlongTubeOperator extends AbstractGroupOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongTubeOperator.class);
-
-    @Autowired
-    private TubeClusterOperator tubeClusterOperator;
 
     @Override
     public Boolean accept(String mqType) {
@@ -87,20 +83,50 @@ public class InlongTubeOperator extends AbstractGroupOperator {
         topicInfo.setMqType(groupInfo.getMqType());
         topicInfo.setMqResource(groupInfo.getMqResource());
 
-
-        List<InlongClusterEntity> clusterEntities = clusterMapper.selectByClusterTag(groupInfo.getInlongClusterTag());
-        if (CollectionUtils.isEmpty(clusterEntities)) {
-            throw new BusinessException("can not find pulsar cluster tag: " + groupInfo.getInlongClusterTag());
-        }
-        List<TubeClusterInfo> briefInfos = clusterEntities.stream()
-                .map(entity -> {
-                    ClusterInfo info = tubeClusterOperator.getFromEntity(entity);
-                    return (TubeClusterInfo) info;
-                })
+        List<ClusterInfo> clusterInfos = clusterService.listByTag(groupInfo.getInlongClusterTag());
+        List<TubeClusterInfo> tubeClusterInfos = clusterInfos
+                .stream()
+                .map(info -> (TubeClusterInfo) info)
                 .collect(Collectors.toList());
-        topicInfo.setClusterInfos(briefInfos);
+        topicInfo.setClusterInfos(tubeClusterInfos);
 
         topicInfo.setTopic(groupInfo.getMqResource());
+        return topicInfo;
+    }
+
+    @Override
+    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo) {
+        String groupId = groupInfo.getInlongGroupId();
+        InlongGroupExtEntity backupClusterTag = groupExtEntityMapper
+                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_CLUSTER_TAG);
+        if (StringUtils.isBlank(backupClusterTag.getKeyValue())) {
+            LOGGER.info("there is no backup topic info for group={}", groupId);
+            return null;
+        }
+
+        InlongTubeTopicInfo topicInfo = new InlongTubeTopicInfo();
+        topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
+        topicInfo.setMqType(groupInfo.getMqType());
+
+        // set backup group mq resource
+        InlongGroupExtEntity backupMqResource = groupExtEntityMapper
+                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_MQ_RESOURCE);
+        if (StringUtils.isBlank(backupMqResource.getKeyValue())) {
+            topicInfo.setMqResource(groupInfo.getMqResource());
+            topicInfo.setTopic(groupInfo.getMqResource());
+        } else {
+            topicInfo.setMqResource(backupMqResource.getKeyValue());
+            topicInfo.setTopic(groupInfo.getMqResource());
+        }
+
+        //set backup cluster
+        List<ClusterInfo> clusterInfos = clusterService.listByTag(backupClusterTag.getKeyValue());
+        List<TubeClusterInfo> tubeClusterInfos = clusterInfos
+                .stream()
+                .map(info -> (TubeClusterInfo) info)
+                .collect(Collectors.toList());
+        topicInfo.setClusterInfos(tubeClusterInfos);
+
         return topicInfo;
     }
 

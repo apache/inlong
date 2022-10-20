@@ -362,7 +362,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private void setTopicInfo(ConsumptionInfo info) {
         // Determine whether the consumed topic belongs to this groupId or the inlong stream under it
         String groupId = info.getInlongGroupId();
-        InlongGroupTopicInfo topicVO = groupService.getTopic(groupId);
+        List<InlongGroupTopicInfo> topicsVO = groupService.getTopic(groupId);
+        InlongGroupTopicInfo topicVO = topicsVO.get(0);
         Preconditions.checkNotNull(topicVO, "inlong group not exist: " + groupId);
 
         // Tube’s topic is the inlong group level, one inlong group, one TubeMQ topic

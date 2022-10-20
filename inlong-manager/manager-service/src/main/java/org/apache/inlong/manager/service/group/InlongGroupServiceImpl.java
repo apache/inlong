@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -40,6 +41,7 @@ import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -56,6 +58,7 @@ import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.sort.UserDefinedSortConf;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
@@ -100,6 +103,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private SourceOperatorFactory sourceOperatorFactory;
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private InlongClusterService clusterService;
 
     /**
      * Check whether modification is supported under the current group status, and which fields can be modified.
@@ -360,17 +365,31 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public InlongGroupTopicInfo getTopic(String groupId) {
+    public List<InlongGroupTopicInfo> getTopic(String groupId) {
         // the group info will not null in get() method
+        List<InlongGroupTopicInfo> topicInfos = new ArrayList<>();
         InlongGroupInfo groupInfo = this.get(groupId);
 
         InlongGroupOperator instance = groupOperatorFactory.getInstance(groupInfo.getMqType());
         InlongGroupTopicInfo topicInfo = instance.getTopic(groupInfo);
+        topicInfos.add(topicInfo);
+
+        // get back up topic info
+        InlongGroupExtEntity backupClusterTag = groupExtMapper
+                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_CLUSTER_TAG);
+        if (!StringUtils.isBlank(backupClusterTag.getKeyValue())) {
+            LOGGER.info("find backup topic info for group={}", groupId);
+            ClusterInfo backupClusterInfo = clusterService.getOne(backupClusterTag.getKeyValue(), null, null);
+            instance = groupOperatorFactory.getInstance(backupClusterInfo.getType());
+            InlongGroupTopicInfo backupTopicInfo = instance.getBackupTopic(groupInfo);
+            topicInfos.add(backupTopicInfo);
+        }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to get topic for groupId={}, result=" + topicInfo, groupId);
+            LOGGER.debug("success to get topic for groupId={}, result=" + topicInfos, groupId);
         }
-        return topicInfo;
+
+        return topicInfos;
     }
 
     @Override
