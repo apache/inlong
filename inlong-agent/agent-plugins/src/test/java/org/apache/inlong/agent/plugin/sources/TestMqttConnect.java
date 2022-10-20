@@ -50,6 +50,7 @@ public class TestMqttConnect {
         jobProfile.set(MqttSource.JOB_MQTTJOB_TOPICS, "testtopic/mqtt/p1/ebr/delivered,testtopic/NARTU2");
         jobProfile.set(MqttReader.JOB_MQTT_QOS, "0");
         jobProfile.set("job.instance.id", "_1");
+
         final MqttSource source = new MqttSource();
         List<Reader> readers = source.split(jobProfile);
         ExecutorService threadPool = Executors.newFixedThreadPool(5);
