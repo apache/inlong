@@ -28,6 +28,12 @@ import java.util.List;
 public class DataProxyNodeResponse {
 
     /**
+     * DataProxy cluster id
+     */
+    @Deprecated
+    private Integer clusterId;
+
+    /**
      * Is the DataProxy cluster an intranet? 0: no, 1: yes
      */
     private Integer isIntranet;

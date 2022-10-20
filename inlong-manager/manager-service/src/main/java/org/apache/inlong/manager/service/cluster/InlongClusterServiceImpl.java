@@ -703,6 +703,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             return response;
         }
 
+        // all cluster nodes belong to the same clusterId
+        response.setClusterId(nodeEntities.get(0).getParentId());
+
         // TODO consider the data proxy load and re-balance
         List<DataProxyNodeInfo> nodeList = new ArrayList<>();
         for (InlongClusterNodeEntity nodeEntity : nodeEntities) {
