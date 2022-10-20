@@ -20,6 +20,7 @@ package org.apache.inlong.sort.base;
 
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
 /**
  * connector base option constant
@@ -145,15 +146,15 @@ public final class Constants {
                     .withDescription("The option 'sink.multiple.enable' "
                             + "is used to determine whether to support multiple sink writing, default is 'false'.");
 
-    public static final ConfigOption<String> SINK_MULTIPLE_ADD_COLUMN_POLICY =
+    public static final ConfigOption<SchemaUpdateExceptionPolicy> SINK_MULTIPLE_ADD_COLUMN_POLICY =
             ConfigOptions.key("sink.multiple.add-column.policy")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("");
+                    .enumType(SchemaUpdateExceptionPolicy.class)
+                    .defaultValue(SchemaUpdateExceptionPolicy.TRY_IT_BEST)
+                    .withDescription("The action to deal with column add.");
 
-    public static final ConfigOption<String> SINK_MULTIPLE_DEL_COLUMN_POLICY =
+    public static final ConfigOption<SchemaUpdateExceptionPolicy> SINK_MULTIPLE_DEL_COLUMN_POLICY =
             ConfigOptions.key("sink.multiple.del-column.policy")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("");
+                    .enumType(SchemaUpdateExceptionPolicy.class)
+                    .defaultValue(SchemaUpdateExceptionPolicy.TRY_IT_BEST)
+                    .withDescription("The action to deal with column delete.");
 }
