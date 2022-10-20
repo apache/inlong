@@ -90,6 +90,12 @@ public class Constants {
     //  Common configs
     // ------------------------------------------------------------------------
     /**
+     * The pipeline name is the key of configuration
+     * that represents the configuration of {@link this#JOB_NAME} in Flink Table API
+     */
+    public static final String PIPELINE_NAME = "pipeline.name";
+
+    /**
      * The ID of the cluster, used to separate multiple clusters.
      */
     public static final ConfigOption<String> CLUSTER_ID = key("cluster-id").noDefaultValue()
