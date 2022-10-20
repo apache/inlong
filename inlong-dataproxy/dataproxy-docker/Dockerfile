@@ -23,7 +23,7 @@ RUN apt-get update \
 # add tarball from target output
 ARG DATAPROXY_TARBALL
 ADD ${DATAPROXY_TARBALL} /opt/inlong-dataproxy
-EXPOSE 46801
+EXPOSE 46801 46802
 ENV MANAGER_OPENAPI_IP=127.0.0.1
 ENV MANAGER_OPENAPI_PORT=8083
 # enable audit, true or false

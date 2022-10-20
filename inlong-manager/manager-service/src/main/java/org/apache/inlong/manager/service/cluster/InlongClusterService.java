@@ -29,6 +29,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 
 import java.util.List;
 
@@ -128,6 +129,15 @@ public interface InlongClusterService {
     Boolean update(ClusterRequest request, String operator);
 
     /**
+     * Update cluster information by unique key
+     *
+     * @param request cluster info to be modified
+     * @param operator current operator
+     * @return update result
+     */
+    UpdateResult updateByKey(ClusterRequest request, String operator);
+
+    /**
      * Bind or unbind cluster tag for clusters.
      *
      * @param request cluster info to be modified
@@ -144,6 +154,16 @@ public interface InlongClusterService {
      * @return whether succeed
      */
     Boolean delete(Integer id, String operator);
+
+    /**
+     * Delete cluster by cluster name and type
+     *
+     * @param name cluster name
+     * @param type cluster type
+     * @param operator current operator
+     * @return whether succeed
+     */
+    Boolean deleteByKey(String name, String type, String operator);
 
     /**
      * Save cluster node info.

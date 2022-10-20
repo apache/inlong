@@ -31,6 +31,7 @@ public enum DataFormat {
     CANAL("canal"),
     JSON("json"),
     DEBEZIUM_JSON("debezium_json"),
+    RAW("raw"),
     NONE("none");
 
     @Getter

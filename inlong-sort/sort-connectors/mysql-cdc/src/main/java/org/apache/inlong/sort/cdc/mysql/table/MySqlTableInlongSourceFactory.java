@@ -51,6 +51,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.MIGRATE_ALL;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.PASSWORD;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.PORT;
+import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.ROW_KINDS_FILTERED;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.SCAN_INCREMENTAL_SNAPSHOT_ENABLED;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.SCAN_NEWLY_ADDED_TABLE_ENABLED;
@@ -148,7 +149,8 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         double distributionFactorLower = config.get(SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND);
         boolean scanNewlyAddedTableEnabled = config.get(SCAN_NEWLY_ADDED_TABLE_ENABLED);
         Duration heartbeatInterval = config.get(HEARTBEAT_INTERVAL);
-
+        final String rowKindFiltered = config.get(ROW_KINDS_FILTERED).isEmpty()
+            ? ROW_KINDS_FILTERED.defaultValue() : config.get(ROW_KINDS_FILTERED);
         boolean enableParallelRead = config.get(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
         if (enableParallelRead) {
             validatePrimaryKeyIfEnableParallel(physicalSchema);
@@ -189,7 +191,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                 heartbeatInterval,
                 migrateAll,
                 inlongMetric,
-                inlongAudit);
+                inlongAudit, rowKindFiltered);
     }
 
     @Override
@@ -233,6 +235,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         options.add(HEARTBEAT_INTERVAL);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
+        options.add(ROW_KINDS_FILTERED);
         return options;
     }
 

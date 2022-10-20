@@ -60,9 +60,6 @@ public class AgentConstants {
     public static final String AGENT_CONF_PARENT = "agent.conf.parent";
     public static final String DEFAULT_AGENT_CONF_PARENT = "conf";
 
-    public static final String AGENT_LOCAL_STORE_READONLY = "agent.localStore.readonly";
-    public static final boolean DEFAULT_AGENT_LOCAL_STORE_READONLY = false;
-
     public static final String AGENT_HTTP_PORT = "agent.http.port";
     public static final int DEFAULT_AGENT_HTTP_PORT = 8008;
 
@@ -75,19 +72,6 @@ public class AgentConstants {
     public static final String TRIGGER_MAX_RUNNING_NUM = "trigger.max.running.num";
     public static final int DEFAULT_TRIGGER_MAX_RUNNING_NUM = 4096;
 
-    public static final String AGENT_LOCAL_STORE_TRANSACTIONAL = "agent.localStore.transactional";
-    public static final boolean DEFAULT_AGENT_LOCAL_STORE_TRANSACTIONAL = true;
-
-    public static final String AGENT_LOCAL_STORE_LOCK_TIMEOUT = "agent.localStore.lockTimeout";
-    public static final int DEFAULT_AGENT_LOCAL_STORE_LOCK_TIMEOUT = 10000;
-
-    public static final String AGENT_LOCAL_STORE_NO_SYNC_VOID = "agent.localStore.noSyncVoid";
-    public static final boolean DEFAULT_AGENT_LOCAL_STORE_NO_SYNC_VOID = false;
-
-    public static final String AGENT_LOCAL_STORE_WRITE_NO_SYNC_VOID =
-            "agent.localStore.WriteNoSyncVoid";
-    public static final boolean DEFAULT_AGENT_LOCAL_STORE_WRITE_NO_SYNC_VOID = false;
-
     public static final String AGENT_FETCH_CENTER_INTERVAL_SECONDS = "agent.fetchCenter.interval";
     public static final int DEFAULT_AGENT_FETCH_CENTER_INTERVAL_SECONDS = 5;
 
@@ -98,36 +82,11 @@ public class AgentConstants {
     // time in ms
     public static final long DEFAULT_THREAD_POOL_AWAIT_TIME = 300;
 
-    public static final String JOB_THREAD_PENDING_MAX = "job.thread.pending.max";
-    public static final int DEFAULT_JOB_THREAD_PENDING_MAX = 40;
-
-    public static final String JOB_THREAD_RUNNING_CORE = "job.thread.running.core";
-    public static final int DEFAULT_JOB_THREAD_RUNNING_CORE = 4;
-
     public static final String JOB_MONITOR_INTERVAL = "job.monitor.interval";
     public static final int DEFAULT_JOB_MONITOR_INTERVAL = 5;
 
-    public static final String JOB_THREAD_RUNNING_MAX = "job.thread.running.max";
-    public static final int DEFAULT_JOB_THREAD_RUNNING_MAX = 20;
-
-    public static final String JOB_RUNNING_THREAD_KEEP_ALIVE = "job.running.thread.keepAlive";
-    public static final long DEFAULT_JOB_RUNNING_THREAD_KEEP_ALIVE = 60L;
-
     public static final String JOB_FINISH_CHECK_INTERVAL = "job.finish.checkInterval";
     public static final long DEFAULT_JOB_FINISH_CHECK_INTERVAL = 6L;
-
-    public static final String TASK_PENDING_MAX = "task.pending.max";
-    public static final int DEFAULT_TASK_PENDING_MAX = 100;
-
-    public static final String TASK_RUNNING_THREAD_CORE_SIZE = "task.running.thread.coreSize";
-    public static final int DEFAULT_TASK_RUNNING_THREAD_CORE_SIZE = 4;
-
-    public static final String TASK_RUNNING_THREAD_MAX_SIZE = "task.running.thread.maxSize";
-    public static final int DEFAULT_TASK_RUNNING_THREAD_MAX_SIZE =
-            Runtime.getRuntime().availableProcessors() * 2;
-
-    public static final String TASK_RUNNING_THREAD_KEEP_ALIVE = "task.running.thread.keepAlive";
-    public static final long DEFAULT_TASK_RUNNING_THREAD_KEEP_ALIVE = 60L;
 
     public static final String TASK_RETRY_MAX_CAPACITY = "task.retry.maxCapacity";
     public static final int DEFAULT_TASK_RETRY_MAX_CAPACITY = 10000;
@@ -152,9 +111,6 @@ public class AgentConstants {
 
     public static final String TRIGGER_CHECK_INTERVAL = "trigger.check.interval";
     public static final int DEFAULT_TRIGGER_CHECK_INTERVAL = 2;
-
-    public static final String WORKER_POOL_AWAIT_TIME = "worker.pool.await.time";
-    public static final long DEFAULT_WORKER_POOL_AWAIT_TIME = 10;
 
     public static final String JOB_DB_CACHE_TIME = "job.db.cache.time";
     // cache for 3 days.

@@ -15,17 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.client.cli.pojo;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
+import java.util.Date;
 
 /**
- * Constants of protocol type.
+ * User info, including user id, username, etc.
  */
-public class ProtocolType {
+@Data
+public class UserInfo {
 
-    public static final String TCP = "TCP";
-    public static final String UDP = "UDP";
-
-    public static final String HTTP = "HTTP";
-    public static final String HTTPS = "HTTPS";
-
+    private Integer id;
+    private String name;
+    private Integer accountType;
+    private String status;
+    private String creator;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 }

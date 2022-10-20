@@ -62,6 +62,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -389,6 +390,38 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
+    public UpdateResult updateByKey(ClusterRequest request, String operator) {
+        LOGGER.debug("begin to update inlong cluster: {}", request);
+        Preconditions.checkNotNull(request, "inlong cluster info cannot be null");
+        String name = request.getName();
+        String type = request.getType();
+        Preconditions.checkNotEmpty(name, "inlong cluster name cannot be empty");
+        Preconditions.checkNotEmpty(type, "inlong cluster type cannot be empty");
+        InlongClusterEntity entity = clusterMapper.selectByNameAndType(name, type);
+        if (entity == null) {
+            LOGGER.error("inlong cluster not found by name={}, type={}", name, type);
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
+        }
+
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            String errMsg = String.format("cluster has already updated with name=%s, type=%s, curVersion=%s",
+                    request.getName(), request.getType(), request.getVersion());
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+        request.setId(entity.getId());
+        UserEntity userEntity = userMapper.selectByName(operator);
+        boolean isInCharge = Preconditions.inSeparatedString(operator, entity.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+                "Current user does not have permission to update cluster info");
+
+        InlongClusterOperator instance = clusterOperatorFactory.getInstance(request.getType());
+        instance.updateOpt(request, operator);
+        LOGGER.info("success to update inlong cluster: {} by {}", request, operator);
+        return new UpdateResult(entity.getId(), true, request.getVersion() + 1);
+    }
+
+    @Override
     public Boolean bindTag(BindTagRequest request, String operator) {
         LOGGER.info("begin to bind or unbind cluster tag: {}", request);
         Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
@@ -423,6 +456,40 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             });
         }
         LOGGER.info("success to bind or unbind cluster tag {} by {}", request, operator);
+        return true;
+    }
+
+    @Override
+    public Boolean deleteByKey(String name, String type, String operator) {
+        Preconditions.checkNotNull(name, "cluster name should not be empty or null");
+        Preconditions.checkNotNull(name, "cluster type should not be empty or null");
+        InlongClusterEntity entity = clusterMapper.selectByNameAndType(name, type);
+        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
+            LOGGER.error("inlong cluster not found by clusterName={}, type={} or was already deleted",
+                    name, type);
+            return false;
+        }
+        UserEntity userEntity = userMapper.selectByName(operator);
+        boolean isInCharge = Preconditions.inSeparatedString(operator, entity.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+                "Current user does not have permission to delete cluster info");
+
+        List<InlongClusterNodeEntity> nodeEntities = clusterNodeMapper.selectByParentId(entity.getId(), null);
+        if (CollectionUtils.isNotEmpty(nodeEntities)) {
+            String errMsg = String.format("there are undeleted nodes under the cluster [%s], "
+                    + "please delete the node first", entity.getName());
+            throw new BusinessException(errMsg);
+        }
+
+        entity.setIsDeleted(entity.getId());
+        entity.setModifier(operator);
+        if (InlongConstants.AFFECTED_ONE_ROW != clusterMapper.updateById(entity)) {
+            LOGGER.error("cluster has already updated with name={}, type={}, curVersion={}", entity.getName(),
+                    entity.getType(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
+        LOGGER.info("success to delete inlong cluster for clusterName={}, type={} by user={}",
+                name, type, operator);
         return true;
     }
 

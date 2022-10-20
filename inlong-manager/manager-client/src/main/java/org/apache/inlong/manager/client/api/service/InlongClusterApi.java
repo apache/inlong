@@ -28,12 +28,14 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface InlongClusterApi {
 
@@ -64,11 +66,17 @@ public interface InlongClusterApi {
     @POST("cluster/update")
     Call<Response<Boolean>> update(@Body ClusterRequest request);
 
+    @POST("cluster/updateByKey")
+    Call<Response<UpdateResult>> updateByKey(@Body ClusterRequest request);
+
     @POST("cluster/bindTag")
     Call<Response<Boolean>> bindTag(@Body BindTagRequest request);
 
     @DELETE("cluster/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);
+
+    @DELETE("cluster/deleteByKey")
+    Call<Response<Boolean>> deleteByKey(@Query("name") String name, @Query("type") String type);
 
     @POST("cluster/node/save")
     Call<Response<Integer>> saveNode(@Body ClusterNodeRequest request);

@@ -41,7 +41,7 @@ public class HeartbeatMsg {
     /**
      * Port of component
      */
-    private int port;
+    private String port;
 
     /**
      * ProtocolType of component

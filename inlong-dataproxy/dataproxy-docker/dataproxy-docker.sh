@@ -21,6 +21,7 @@ local_ip=$(ifconfig | grep inet | grep -v inet6 | grep -v "127.0.0.1" | awk '{pr
 # config
 cd "${file_path}/"
 common_conf_file=./conf/common.properties
+
 sed -i "s/manager.hosts=.*$/manager.hosts=${MANAGER_OPENAPI_IP}:${MANAGER_OPENAPI_PORT}/g" "${common_conf_file}"
 sed -i "s/audit.enable=.*$/audit.enable=${AUDIT_ENABLE}/g" "${common_conf_file}"
 sed -i "s/audit.proxys=.*$/audit.proxys=${AUDIT_PROXY_URL}/g" "${common_conf_file}"

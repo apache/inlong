@@ -148,7 +148,7 @@ public class NodeRelationUtils {
             StreamField leftField = leftJoinFields.get(index);
             StreamField rightField = rightJoinFields.get(index);
             LogicOperator operator;
-            if (index != leftJoinFields.size() - 1) {
+            if (index != 0) {
                 operator = AndOperator.getInstance();
             } else {
                 operator = EmptyOperator.getInstance();

@@ -114,7 +114,7 @@ public class AuditServiceImpl implements AuditService {
 
         // for now, we use the first sink type only.
         // this is temporary behavior before multiple sinks in one stream is fully supported.
-        List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId, null);
+        List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId);
         String sinkNodeType = null;
         if (CollectionUtils.isNotEmpty(sinkEntityList)) {
             sinkNodeType = sinkEntityList.get(0).getSinkType();
