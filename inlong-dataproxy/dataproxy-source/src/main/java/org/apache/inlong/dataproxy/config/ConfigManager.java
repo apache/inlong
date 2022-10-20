@@ -35,6 +35,8 @@ import org.apache.inlong.dataproxy.config.holder.GroupIdPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.MQClusterConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.MxPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
+import org.apache.inlong.dataproxy.config.holder.SourceReportConfigHolder;
+import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -73,6 +75,8 @@ public class ConfigManager {
     private final PropertiesConfigHolder tubeSwitchConfig = new PropertiesConfigHolder("tube_switch.properties");
     private final PropertiesConfigHolder weightHolder = new PropertiesConfigHolder("weight.properties");
     private final FileConfigHolder blackListConfig = new FileConfigHolder("blacklist.properties");
+    // source report configure holder
+    private final SourceReportConfigHolder sourceReportConfigHolder = new SourceReportConfigHolder();
 
     /**
      * get instance for config manager
@@ -134,6 +138,14 @@ public class ConfigManager {
 
     public boolean updateMxProperties(Map<String, String> result) {
         return updatePropertiesHolder(result, mxConfig);
+    }
+
+    public void addSourceReportInfo(String sourceIp, String sourcePort, String protocolType) {
+        sourceReportConfigHolder.addSourceInfo(sourceIp, sourcePort, protocolType);
+    }
+
+    public SourceReportInfo getSourceReportInfo() {
+        return sourceReportConfigHolder.getSourceReportInfo();
     }
 
     /**

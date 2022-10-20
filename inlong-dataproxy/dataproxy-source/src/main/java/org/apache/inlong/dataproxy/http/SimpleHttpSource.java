@@ -27,6 +27,7 @@ import org.apache.flume.Context;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.remote.ConfigMessageServlet;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
@@ -166,6 +167,8 @@ public class SimpleHttpSource extends HttpBaseSource {
             servletContext.addServlet(new ServletHolder(new ConfigMessageServlet()),
                     "/dataproxy/config/*");
             srv.start();
+            ConfigManager.getInstance().addSourceReportInfo(
+                    host, String.valueOf(port), "HTTP");
             Preconditions.checkArgument(srv.getHandler().equals(servletContext));
         } catch (ClassNotFoundException ex) {
             LOG.error("Error while configuring HTTPSource. Exception follows.", ex);

@@ -27,6 +27,7 @@ import java.net.InetSocketAddress;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,8 @@ public class SimpleUdpSource
             System.exit(-1);
             //throw new FlumeException(e.getMessage());
         }
+        ConfigManager.getInstance().addSourceReportInfo(
+                host, String.valueOf(port), getProtocolName().toUpperCase());
         logger.info("Simple UDP Source started at host {}, port {}", host, port);
     }
 
