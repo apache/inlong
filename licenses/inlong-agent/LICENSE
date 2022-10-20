@@ -500,6 +500,7 @@ EPL licenses
 The following components are provided under EPL license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
+  org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5- paho.mqtt.java (https://github.com/eclipse/paho.mqtt.java/tree/v1.2.5), (EPL 2.0)
   org.glassfish.hk2.external:aopalliance-repackaged:2.6.1- aopalliance version 1.0 repackaged as a module (https://github.com/eclipse-ee4j/glassfish-hk2/external/aopalliance-repackaged), (EPL 2.0;  GPL2 w/ CPE)
   org.glassfish.hk2:hk2-api:2.6.1 - HK2 API module (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/hk2-api), (EPL 2.0;  GPL2 w/ CPE)
   org.glassfish.hk2:hk2-locator:2.6.1 - ServiceLocator Default Implementation (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/hk2-locator), (EPL 2.0;  GPL2 w/ CPE)
