@@ -26,7 +26,8 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterBriefInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
@@ -34,6 +35,7 @@ import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaDTO;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaRequest;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaTopicInfo;
+import org.apache.inlong.manager.service.cluster.KafkaClusterOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,9 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private KafkaClusterOperator kafkaClusterOperator;
 
     @Override
     public Boolean accept(String mqType) {
@@ -99,20 +104,20 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
         topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
         topicInfo.setMqType(groupInfo.getMqType());
         topicInfo.setMqResource(groupInfo.getMqResource());
-        topicInfo.setTopic(groupInfo.getMqResource());
+
         List<InlongClusterEntity> clusterEntities = clusterMapper.selectByClusterTag(groupInfo.getInlongClusterTag());
         if (CollectionUtils.isEmpty(clusterEntities)) {
             throw new BusinessException("can not find kafka cluster tag: " + groupInfo.getInlongClusterTag());
         }
-        List<KafkaClusterBriefInfo> briefInfos = clusterEntities.stream()
+        List<KafkaClusterInfo> briefInfos = clusterEntities.stream()
                 .map(entity -> {
-                    KafkaClusterBriefInfo briefInfo = new KafkaClusterBriefInfo();
-                    CommonBeanUtils.copyProperties(entity, briefInfo);
-                    briefInfo.setKafkaBootstrapServers(entity.getUrl());
-                    return briefInfo;
+                    ClusterInfo info = kafkaClusterOperator.getFromEntity(entity);
+                    return (KafkaClusterInfo) info;
                 })
                 .collect(Collectors.toList());
         topicInfo.setClusterInfos(briefInfos);
+
+        topicInfo.setTopic(groupInfo.getMqResource());
         return topicInfo;
     }
 

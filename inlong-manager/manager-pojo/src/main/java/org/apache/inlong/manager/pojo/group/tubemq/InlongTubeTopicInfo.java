@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterBriefInfo;
+import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
 import java.util.List;
@@ -36,7 +36,7 @@ import java.util.List;
 public class InlongTubeTopicInfo extends InlongGroupTopicInfo {
 
     @ApiModelProperty(value = "Tube cluster brief info")
-    private List<TubeClusterBriefInfo> clusterInfos;
+    private List<TubeClusterInfo> clusterInfos;
 
     @ApiModelProperty(value = "tube topic")
     private String topic;

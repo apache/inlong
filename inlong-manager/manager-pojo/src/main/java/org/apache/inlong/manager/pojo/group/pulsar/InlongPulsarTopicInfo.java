@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterBriefInfo;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
 import java.util.List;
@@ -36,7 +36,7 @@ import java.util.List;
 public class InlongPulsarTopicInfo extends InlongGroupTopicInfo {
 
     @ApiModelProperty(value = "Pulsar cluster info list")
-    private List<PulsarClusterBriefInfo> clusterInfos;
+    private List<PulsarClusterInfo> clusterInfos;
 
     @ApiModelProperty(value = "Pulsar topics")
     private List<String> topics;

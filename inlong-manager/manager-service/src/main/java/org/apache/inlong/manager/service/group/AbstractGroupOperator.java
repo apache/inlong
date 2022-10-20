@@ -29,7 +29,6 @@ import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +47,6 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
 
     @Autowired
     protected InlongClusterEntityMapper clusterMapper;
-
-    @Autowired
-    protected InlongClusterOperatorFactory clusterOperatorFactory;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)

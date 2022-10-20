@@ -24,14 +24,17 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterBriefInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeTopicInfo;
+import org.apache.inlong.manager.service.cluster.TubeClusterOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,6 +47,9 @@ import java.util.stream.Collectors;
 public class InlongTubeOperator extends AbstractGroupOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongTubeOperator.class);
+
+    @Autowired
+    private TubeClusterOperator tubeClusterOperator;
 
     @Override
     public Boolean accept(String mqType) {
@@ -80,21 +86,21 @@ public class InlongTubeOperator extends AbstractGroupOperator {
         topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
         topicInfo.setMqType(groupInfo.getMqType());
         topicInfo.setMqResource(groupInfo.getMqResource());
-        topicInfo.setTopic(groupInfo.getMqResource());
+
 
         List<InlongClusterEntity> clusterEntities = clusterMapper.selectByClusterTag(groupInfo.getInlongClusterTag());
         if (CollectionUtils.isEmpty(clusterEntities)) {
-            throw new BusinessException("can not find kafka cluster tag: " + groupInfo.getInlongClusterTag());
+            throw new BusinessException("can not find pulsar cluster tag: " + groupInfo.getInlongClusterTag());
         }
-        List<TubeClusterBriefInfo> briefInfos = clusterEntities.stream()
+        List<TubeClusterInfo> briefInfos = clusterEntities.stream()
                 .map(entity -> {
-                    TubeClusterBriefInfo briefInfo = new TubeClusterBriefInfo();
-                    CommonBeanUtils.copyProperties(entity, briefInfo);
-                    briefInfo.setTubeMasterUrl(entity.getUrl());
-                    return briefInfo;
+                    ClusterInfo info = tubeClusterOperator.getFromEntity(entity);
+                    return (TubeClusterInfo) info;
                 })
                 .collect(Collectors.toList());
         topicInfo.setClusterInfos(briefInfos);
+
+        topicInfo.setTopic(groupInfo.getMqResource());
         return topicInfo;
     }
 

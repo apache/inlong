@@ -24,8 +24,8 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
-import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterBriefInfo;
-import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
@@ -130,17 +130,11 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
         if (CollectionUtils.isEmpty(clusterEntities)) {
             throw new BusinessException("can not find pulsar cluster tag: " + groupInfo.getInlongClusterTag());
         }
-        List<PulsarClusterBriefInfo> briefInfos = clusterEntities.stream()
-                        .map(entity -> {
-                            PulsarClusterBriefInfo briefInfo = new PulsarClusterBriefInfo();
-                            CommonBeanUtils.copyProperties(entity, briefInfo);
-                            PulsarClusterDTO dto = PulsarClusterDTO.getFromJson(entity.getExtParams());
-                            briefInfo.setNamespace(groupInfo.getMqResource());
-                            briefInfo.setPulsarAdminUrl(dto.getAdminUrl());
-                            briefInfo.setTenant(dto.getTenant());
-                            briefInfo.setPulsarServiceUrl(entity.getUrl());
-                            return briefInfo;
-                        })
+        List<PulsarClusterInfo> briefInfos = clusterEntities.stream()
+                .map(entity -> {
+                    ClusterInfo info = pulsarClusterOperator.getFromEntity(entity);
+                    return (PulsarClusterInfo) info;
+                })
                 .collect(Collectors.toList());
         topicInfo.setClusterInfos(briefInfos);
 
