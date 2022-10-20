@@ -31,6 +31,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -225,13 +226,14 @@ public interface InlongClient {
     PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request);
 
     /**
-     * Get DataProxy node info by groupId and protocol
+     * List cluster nodes
      *
-     * @param groupId inlong group id
-     * @param protocolType protocol type, such as: TCP,HTTP
-     * @return DataProxy list
+     * @param inlongGroupId inlong group id
+     * @param clusterType cluster type
+     * @param protocolType protocol type, such as: TCP, HTTP
+     * @return cluster node list
      */
-    List<ClusterNodeResponse> listDataProxyNode(String groupId, String protocolType);
+    List<ClusterNodeResponse> listNode(String inlongGroupId, String clusterType, @Nullable String protocolType);
 
     /**
      * Update cluster node.

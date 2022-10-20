@@ -78,7 +78,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -581,25 +580,23 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public List<ClusterNodeResponse> getDataProxyByGroupId(String groupId, String protocolType, String currentUser) {
-        Map<Integer, List<InlongClusterNodeEntity>> clusterDataProxy = getDataProxyClusterNodes(groupId, protocolType);
-        if (clusterDataProxy.isEmpty()) {
-            return new ArrayList<>();
-        }
-        Integer clusterId = clusterDataProxy.keySet().iterator().next();
-        InlongClusterEntity cluster = clusterMapper.selectById(clusterId);
-        String message = "Current user does not have permission to get cluster node list";
-        checkUser(cluster, currentUser, message);
-        return CommonBeanUtils
-                .copyListProperties(clusterDataProxy.get(clusterId), ClusterNodeResponse::new);
-    }
+    public List<ClusterNodeResponse> listNodeByGroupId(String groupId, String clusterType, String protocolType) {
+        LOGGER.debug("begin to get cluster nodes for groupId={}, clusterType={}, protocol={}",
+                groupId, clusterType, protocolType);
 
-    private void checkUser(InlongClusterEntity cluster, String currentUser, String errMsg) {
-        UserEntity userEntity = userMapper.selectByName(currentUser);
-        boolean isInCharge = Preconditions.inSeparatedString(currentUser, cluster.getInCharges(),
-                InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
-                errMsg);
+        List<InlongClusterNodeEntity> nodeEntities = getClusterNodes(groupId, clusterType, protocolType);
+        if (CollectionUtils.isEmpty(nodeEntities)) {
+            LOGGER.debug("not any cluster node for groupId={}, clusterType={}, protocol={}",
+                    groupId, clusterType, protocolType);
+            return Collections.emptyList();
+        }
+
+        List<ClusterNodeResponse> result = CommonBeanUtils.copyListProperties(nodeEntities, ClusterNodeResponse::new);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("success to get nodes for groupId={}, clusterType={}, protocol={}, result size={}",
+                    groupId, clusterType, protocolType, result);
+        }
+        return result;
     }
 
     public List<ClusterNodeResponse> listNodeByClusterTag(ClusterPageRequest request) {
@@ -696,69 +693,60 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public DataProxyNodeResponse getDataProxyNodes(String inlongGroupId, String protocolType) {
-        Map<Integer, List<InlongClusterNodeEntity>> clusterDataProxy = getDataProxyClusterNodes(inlongGroupId,
-                protocolType);
+    public DataProxyNodeResponse getDataProxyNodes(String groupId, String protocolType) {
+        LOGGER.debug("begin to get data proxy nodes for groupId={}, protocol={}", groupId, protocolType);
+
+        List<InlongClusterNodeEntity> nodeEntities = getClusterNodes(groupId, ClusterType.DATAPROXY, protocolType);
         DataProxyNodeResponse response = new DataProxyNodeResponse();
-        if (clusterDataProxy.isEmpty()) {
+        if (CollectionUtils.isEmpty(nodeEntities)) {
+            LOGGER.debug("not any data proxy node for groupId={}, protocol={}", groupId, protocolType);
             return response;
         }
-        Integer clusterId = clusterDataProxy.keySet().iterator().next();
-        response.setClusterId(clusterId);
-        // if more than one data proxy cluster, currently takes first
+
         // TODO consider the data proxy load and re-balance
-        List<DataProxyNodeInfo> nodeInfos = new ArrayList<>();
-        for (InlongClusterNodeEntity nodeEntity : clusterDataProxy.get(clusterId)) {
+        List<DataProxyNodeInfo> nodeList = new ArrayList<>();
+        for (InlongClusterNodeEntity nodeEntity : nodeEntities) {
             DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
             nodeInfo.setId(nodeEntity.getId());
             nodeInfo.setIp(nodeEntity.getIp());
             nodeInfo.setPort(nodeEntity.getPort());
             nodeInfo.setProtocolType(nodeEntity.getProtocolType());
-            nodeInfos.add(nodeInfo);
+            nodeList.add(nodeInfo);
         }
-        response.setNodeList(nodeInfos);
+        response.setNodeList(nodeList);
+
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to get data proxy nodes for groupId={}, protocol={} result={}",
-                    inlongGroupId, protocolType, response);
+            LOGGER.debug("success to get dp nodes for groupId={}, protocol={}, result={}",
+                    groupId, protocolType, response);
         }
         return response;
     }
 
-    private Map<Integer, List<InlongClusterNodeEntity>> getDataProxyClusterNodes(String inlongGroupId,
-            String protocolType) {
-        LOGGER.debug("begin to get data proxy nodes for groupId={}, protocol={}", inlongGroupId, protocolType);
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(inlongGroupId);
+    private List<InlongClusterNodeEntity> getClusterNodes(String groupId, String clusterType, String protocolType) {
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         if (groupEntity == null) {
-            String msg = "inlong group not exists for inlongGroupId=" + inlongGroupId;
+            String msg = "inlong group not exists for groupId=" + groupId;
             LOGGER.debug(msg);
             throw new BusinessException(msg);
         }
 
         String clusterTag = groupEntity.getInlongClusterTag();
         if (StringUtils.isBlank(clusterTag)) {
-            String msg = "not found any cluster tag for inlongGroupId=" + inlongGroupId;
+            String msg = "not found any cluster tag for groupId=" + groupId;
             LOGGER.debug(msg);
             throw new BusinessException(msg);
         }
 
-        List<InlongClusterEntity> clusterList = clusterMapper.selectByKey(clusterTag, null, ClusterType.DATAPROXY);
+        List<InlongClusterEntity> clusterList = clusterMapper.selectByKey(clusterTag, null, clusterType);
         if (CollectionUtils.isEmpty(clusterList)) {
-            String msg = "not found any data proxy cluster for inlongGroupId=" + inlongGroupId
+            String msg = "not found any data proxy cluster for groupId=" + groupId
                     + " and clusterTag=" + clusterTag;
             LOGGER.debug(msg);
             throw new BusinessException(msg);
         }
-        List<InlongClusterNodeEntity> nodeList = new ArrayList<>();
-        for (InlongClusterEntity entity : clusterList) {
-            List<InlongClusterNodeEntity> clusterDPList = clusterNodeMapper
-                    .selectByParentId(entity.getId(), protocolType);
-            if (CollectionUtils.isNotEmpty(clusterDPList)) {
-                nodeList.addAll(clusterDPList);
-            }
-        }
-        Map<Integer, List<InlongClusterNodeEntity>> clusterDP = new HashMap<>();
-        clusterDP.put(clusterList.get(0).getId(), nodeList);
-        return clusterDP;
+
+        // TODO if more than one data proxy cluster, currently takes first
+        return clusterNodeMapper.selectByParentId(clusterList.get(0).getId(), protocolType);
     }
 
     @Override
@@ -920,6 +908,16 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         String errMsg = String.format("inlong cluster tag [%s] was used by inlong group %s", clusterTag, groupIds);
         LOGGER.error(errMsg);
         throw new BusinessException(errMsg + ", please delete them first");
+    }
+
+    /**
+     * Check the given user is the admin or is one of the in charges of cluster.
+     */
+    private void checkUser(InlongClusterEntity cluster, String user, String errMsg) {
+        UserEntity userEntity = userMapper.selectByName(user);
+        boolean isInCharge = Preconditions.inSeparatedString(user, cluster.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || UserTypeEnum.ADMIN.getCode().equals(userEntity.getAccountType()),
+                errMsg);
     }
 
 }

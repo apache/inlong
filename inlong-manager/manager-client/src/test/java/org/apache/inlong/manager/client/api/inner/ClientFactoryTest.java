@@ -953,7 +953,8 @@ class ClientFactoryTest {
                                         Response.success(responses))
                                 ))
         );
-        List<ClusterNodeResponse> clusterNode = clusterClient.listDataProxyNode("1", ProtocolType.HTTP);
+        List<ClusterNodeResponse> clusterNode = clusterClient.listNode(
+                "1", ClusterType.DATAPROXY, ProtocolType.HTTP);
         Assertions.assertEquals(1, clusterNode.size());
     }
 
