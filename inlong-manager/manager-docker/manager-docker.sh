@@ -33,6 +33,11 @@ sed -i "s/spring.profiles.active=.*$/spring.profiles.active=${ACTIVE_PROFILE}/g"
 sed -i "s/127.0.0.1:3306/${JDBC_URL}/g" "${conf_file}"
 sed -i "s/datasource.druid.username=.*$/datasource.druid.username=${USERNAME}/g" "${conf_file}"
 sed -i "s/datasource.druid.password=.*$/datasource.druid.password=${PASSWORD}/g" "${conf_file}"
+# for data cleansing
+sed -i "s/data.cleansing.enabled=.*$/data.cleansing.enabled=${CLEANSING_ENABLE}/g" "${conf_file}"
+sed -i "s/data.cleansing.interval.seconds=.*$/data.cleansing.interval.seconds=${CLEANSING_INTERVAL}/g" "${conf_file}"
+sed -i "s/data.cleansing.before.days=.*$/data.cleansing.before.days=${CLEANSING_BEFORE_DAYS}/g" "${conf_file}"
+sed -i "s/data.cleansing.batchSize=.*$/data.cleansing.batchSize=${CLEANSING_BATCHSIZE}/g" "${conf_file}"
 # for audit data
 sed -i "s/audit.ck.jdbcUrl=.*$/audit.ck.jdbcUrl=${AUDIT_CK_URL}/g" "${conf_file}"
 sed -i "s/audit.ck.username=.*$/audit.ck.username=${AUDIT_CK_USERNAME}/g" "${conf_file}"

@@ -208,6 +208,14 @@
         from inlong_group
         where is_deleted = 0
     </select>
+    <select id="selectDeletedGroupIds" resultType="java.lang.String">
+        select inlong_group_id
+        from inlong_group
+        where modify_time &lt;= #{timeBefore, jdbcType=TIMESTAMP}
+        group by inlong_group_id
+        having min(is_deleted) > 0
+        limit #{limit, jdbcType=INTEGER}
+    </select>
 
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         update inlong_group
@@ -316,5 +324,13 @@
         delete
         from inlong_group
         where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteByInlongGroupIds">
+        delete
+        from inlong_group
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
     </delete>
 </mapper>

@@ -661,7 +661,7 @@ public class DataProxyConfigRepository implements IRepository {
         }
         // delete old stream sink
         deleteStreamSinks.forEach((v) -> {
-            streamSinkMapper.deleteByPrimaryKey(v.getId());
+            streamSinkMapper.deleteById(v.getId());
         });
         return inlongGroupId;
     }

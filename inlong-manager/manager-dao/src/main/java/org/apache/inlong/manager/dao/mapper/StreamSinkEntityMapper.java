@@ -142,6 +142,13 @@ public interface StreamSinkEntityMapper {
 
     int updateStatus(StreamSinkEntity entity);
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteById(Integer id);
+
+    /**
+     * Physically delete all stream sinks based on inlong group ids
+     *
+     * @return rows deleted
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
 }

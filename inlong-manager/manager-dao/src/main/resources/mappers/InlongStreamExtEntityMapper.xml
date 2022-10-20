@@ -99,19 +99,17 @@
         </if>
     </update>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <delete id="deleteById" parameterType="java.lang.Integer">
         delete
         from inlong_stream_ext
         where id = #{id,jdbcType=INTEGER}
     </delete>
-
-    <delete id="deleteAllByRelatedId">
+    <delete id="deleteByInlongGroupIds">
         delete
         from inlong_stream_ext
-        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
-        <if test="streamId != null and streamId != ''">
-            and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
-        </if>
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
     </delete>
-
 </mapper>
