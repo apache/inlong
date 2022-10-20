@@ -41,6 +41,7 @@ public class KafkaClusterDTO {
 
     @ApiModelProperty(value = "kafka bootstrap servers")
     private String kafkaBootstrapServers;
+
     /**
      * Get the dto instance from the request
      */

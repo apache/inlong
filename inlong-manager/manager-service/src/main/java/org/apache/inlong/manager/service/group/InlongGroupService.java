@@ -112,7 +112,7 @@ public interface InlongGroupService {
      * @param groupId inlong group id
      * @return topic info
      */
-    InlongGroupTopicInfo getTopic(String groupId);
+    List<InlongGroupTopicInfo> getTopic(String groupId);
 
     /**
      * According to the group id, query the backup topic to which it belongs
