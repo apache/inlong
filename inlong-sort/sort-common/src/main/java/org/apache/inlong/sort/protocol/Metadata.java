@@ -79,6 +79,7 @@ public interface Metadata {
             case DATABASE_NAME:
             case OP_TYPE:
             case DATA_CANAL:
+            case DATA:
             case DATA_DEBEZIUM:
             case COLLECTION_NAME:
             case SCHEMA_NAME:
@@ -106,6 +107,7 @@ public interface Metadata {
             case UPDATE_BEFORE:
                 metadataType = "ARRAY<MAP<STRING, STRING>>";
                 break;
+            case DATA_BYTES:
             case DATA_BYTES_DEBEZIUM:
             case DATA_BYTES_CANAL:
                 metadataType = "BYTES";
