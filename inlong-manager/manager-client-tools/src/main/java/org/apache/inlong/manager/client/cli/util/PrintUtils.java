@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.cli.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.lang.reflect.Field;
@@ -178,9 +179,15 @@ public class PrintUtils {
             field.setAccessible(true);
             if (field.isAnnotationPresent(ParseStatus.class)) {
                 try {
-                    int status = Integer.parseInt(field.get(target).toString());
-                    SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(status);
-                    field.set(target, String.format("%s (%d)", groupStatus, status));
+                    int code = Integer.parseInt(field.get(target).toString());
+                    String name = "";
+                    Class<?> clazz = field.getAnnotation(ParseStatus.class).clazz();
+                    if (SimpleGroupStatus.class.equals(clazz)) {
+                        name = SimpleGroupStatus.parseStatusByCode(code).toString();
+                    } else if (SimpleSourceStatus.class.equals(clazz)) {
+                        name = SimpleSourceStatus.parseByStatus(code).toString();
+                    }
+                    field.set(target, String.format("%s (%d)", name, code));
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }

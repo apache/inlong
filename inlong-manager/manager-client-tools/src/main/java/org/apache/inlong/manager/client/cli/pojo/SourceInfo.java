@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.cli.pojo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.apache.inlong.manager.client.cli.util.ParseStatus;
+import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
 
 import java.util.Date;
 
@@ -36,7 +37,7 @@ public class SourceInfo {
     private String sourceName;
     private String serializationType;
 
-    @ParseStatus
+    @ParseStatus(clazz = SimpleSourceStatus.class)
     private String status;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
