@@ -44,4 +44,16 @@ public class InlongGroupTopicInfo {
             + "Pulsar corresponds to inlong stream, there are multiple topics")
     private List<InlongStreamBriefInfo> streamTopics;
 
+    @ApiModelProperty(value = "TubeMQ master URL")
+    private String tubeMasterUrl;
+
+    @ApiModelProperty(value = "Pulsar service URL")
+    private String pulsarServiceUrl;
+
+    @ApiModelProperty(value = "Pulsar admin URL")
+    private String pulsarAdminUrl;
+
+    @ApiModelProperty(value = "Kafka admin URL")
+    private String kafkaBootstrapServers;
+
 }

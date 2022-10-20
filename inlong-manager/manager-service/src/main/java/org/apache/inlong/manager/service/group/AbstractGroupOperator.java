@@ -52,7 +52,6 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
     @Autowired
     protected InlongClusterOperatorFactory clusterOperatorFactory;
 
-
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public String saveOpt(InlongGroupRequest request, String operator) {
