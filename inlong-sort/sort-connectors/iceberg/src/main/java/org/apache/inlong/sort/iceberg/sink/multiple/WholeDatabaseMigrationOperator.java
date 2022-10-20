@@ -23,6 +23,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.flink.streaming.api.operators.AbstractStreamOperator;
 import org.apache.flink.streaming.api.operators.OneInputStreamOperator;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
+import org.apache.flink.streaming.runtime.tasks.ProcessingTimeCallback;
+import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.PartitionSpec;
@@ -40,32 +42,48 @@ import org.apache.iceberg.types.Types.NestedField;
 import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
+import org.apache.inlong.sort.base.sink.TableChange;
+import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
+import org.apache.inlong.sort.base.sink.TableChange.DeleteColumn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
+
+import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE;
 
 public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<RecordWithSchema>
-        implements OneInputStreamOperator<RowData, RecordWithSchema> {
+        implements OneInputStreamOperator<RowData, RecordWithSchema>, ProcessingTimeCallback {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WholeDatabaseMigrationOperator.class);
+    private static final long HELPER_DEBUG_INTERVEL = 10 * 60 * 1000;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
     private final CatalogLoader catalogLoader;
     private final MultipleSinkOption multipleSinkOption;
 
     private transient Catalog catalog;
     private transient SupportsNamespaces asNamespaceCatalog;
     private transient AbstractDynamicSchemaFormat<JsonNode> dynamicSchemaFormat;
+    private transient ProcessingTimeService processingTimeService;
 
     // record cache, wait schema to consume record
     private transient Map<TableIdentifier, Queue<RecordWithSchema>> recordQueues;
 
     // schema cache
     private transient Map<TableIdentifier, Schema> schemaCache;
+
+    // blacklist to filter schema update failed table
+    private transient Set<TableIdentifier> blacklist;
 
     public WholeDatabaseMigrationOperator(CatalogLoader catalogLoader,
             MultipleSinkOption multipleSinkOption) {
@@ -79,9 +97,14 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
         this.catalog = catalogLoader.loadCatalog();
         this.asNamespaceCatalog =
                 catalog instanceof SupportsNamespaces ? (SupportsNamespaces) catalog : null;
+        this.dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat(multipleSinkOption.getFormat());
+        this.processingTimeService = getRuntimeContext().getProcessingTimeService();
+        processingTimeService.registerTimer(
+                processingTimeService.getCurrentProcessingTime() + HELPER_DEBUG_INTERVEL, this);
+
         this.recordQueues = new HashMap<>();
         this.schemaCache = new HashMap<>();
-        this.dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat(multipleSinkOption.getFormat());
+        this.blacklist = new HashSet<>();
     }
 
     @Override
@@ -95,22 +118,34 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     @Override
     public void processElement(StreamRecord<RowData> element) throws Exception {
         String wholeData = element.getValue().getString(0).toString();
-
         JsonNode jsonNode = objectMapper.readTree(wholeData);
+
+        TableIdentifier tableId = parseId(jsonNode);
+        if (blacklist.contains(tableId)) {
+            return;
+        }
+
         boolean isDDL = dynamicSchemaFormat.extractDDLFlag(jsonNode);
         if (isDDL) {
-            execDDL(jsonNode);
+            execDDL(jsonNode, tableId);
         } else {
-            execDML(jsonNode);
+            execDML(jsonNode, tableId);
         }
     }
 
-    private void execDDL(JsonNode jsonNode) {
+    @Override
+    public void onProcessingTime(long timestamp) {
+        LOG.info("Black list table: {} at time {}.", blacklist, timestamp);
+        processingTimeService.registerTimer(
+                processingTimeService.getCurrentProcessingTime() + HELPER_DEBUG_INTERVEL, this);
+    }
+
+    private void execDDL(JsonNode jsonNode, TableIdentifier tableId) {
         // todo:parse ddl sql
     }
 
-    private void execDML(JsonNode jsonNode) throws IOException {
-        RecordWithSchema record = parseRecord(jsonNode);
+    private void execDML(JsonNode jsonNode, TableIdentifier tableId) {
+        RecordWithSchema record = parseRecord(jsonNode, tableId);
         Schema schema = schemaCache.get(record.getTableId());
         Schema dataSchema = record.getSchema();
         recordQueues.compute(record.getTableId(), (k, v) -> {
@@ -132,22 +167,28 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     // ================================ 所有的与coordinator交互的request和response方法 ============================
     private void handleSchemaInfoEvent(TableIdentifier tableId, Schema schema) {
         schemaCache.put(tableId, schema);
-        Schema currentSchema = schemaCache.get(tableId);
+        Schema latestSchema = schemaCache.get(tableId);
         Queue<RecordWithSchema> queue = recordQueues.get(tableId);
         while (queue != null && !queue.isEmpty()) {
             Schema dataSchema = queue.peek().getSchema();
             // if compatible, this means that the current schema is the latest schema
             // if not, prove the need to update the current schema
-            if (isCompatible(currentSchema, dataSchema)) {
-                RecordWithSchema recordWithSchema = queue.poll();
-                output.collect(new StreamRecord<>(
-                        recordWithSchema
-                                .refreshFieldId(currentSchema)
-                                .refreshRowData((jsonNode, schema1) ->
-                                     dynamicSchemaFormat.extractRowData(jsonNode, FlinkSchemaUtil.convert(schema1))
-                                )));
+            if (isCompatible(latestSchema, dataSchema)) {
+                RecordWithSchema recordWithSchema = queue.poll()
+                        .refreshFieldId(latestSchema)
+                        .refreshRowData((jsonNode, schema1) -> {
+                            try {
+                                return dynamicSchemaFormat.extractRowData(jsonNode, FlinkSchemaUtil.convert(schema1));
+                            } catch (Exception e) {
+                                LOG.warn("Ignore table {} schema change, old: {} new: {}.",
+                                        tableId, dataSchema, latestSchema, e);
+                                blacklist.add(tableId);
+                            }
+                            return Collections.emptyList();
+                        });
+                output.collect(new StreamRecord<>(recordWithSchema));
             } else {
-                handldAlterSchemaEventFromOperator(tableId, currentSchema, dataSchema);
+                handldAlterSchemaEventFromOperator(tableId, latestSchema, dataSchema);
             }
         }
     }
@@ -192,9 +233,11 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
         // for scenarios that cannot be changed, it is always considered that there is a problem with the data.
         Transaction transaction = table.newTransaction();
         if (table.schema().sameSchema(oldSchema)) {
-            List<TableChange> tableChanges = TableChange.diffSchema(oldSchema, newSchema);
-            TableChange.applySchemaChanges(transaction.updateSchema(), tableChanges);
-            LOG.info("Schema evolution in table({}) for table change: {}", tableId, tableChanges);
+            List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(oldSchema, newSchema);
+            if (canHandleWithSchemaUpdate(tableId, tableChanges)) {
+                SchemaChangeUtils.applySchemaChanges(transaction.updateSchema(), tableChanges);
+                LOG.info("Schema evolution in table({}) for table change: {}", tableId, tableChanges);
+            }
         }
         transaction.commitTransaction();
         handleSchemaInfoEvent(tableId, table.schema());
@@ -211,18 +254,43 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
         return true;
     }
 
-    // 从数据中解析schema信息并转换成为flink内置的schema,对不同的格式（canal-json、ogg）以插件接口的方式提供这个转换方式
-    private RecordWithSchema parseRecord(JsonNode data) throws IOException {
+    private TableIdentifier parseId(JsonNode data) throws IOException {
         String databaseStr = dynamicSchemaFormat.parse(data, multipleSinkOption.getDatabasePattern());
         String tableStr = dynamicSchemaFormat.parse(data, multipleSinkOption.getTablePattern());
+        return TableIdentifier.of(databaseStr, tableStr);
+    }
+
+    // 从数据中解析schema信息并转换成为flink内置的schema,对不同的格式（canal-json、ogg）以插件接口的方式提供这个转换方式
+    private RecordWithSchema parseRecord(JsonNode data, TableIdentifier tableId) {
         List<String> pkListStr = dynamicSchemaFormat.extractPrimaryKeyNames(data);
         RowType schema = dynamicSchemaFormat.extractSchema(data, pkListStr);
 
         RecordWithSchema record = new RecordWithSchema(
                 data,
                 FlinkSchemaUtil.convert(FlinkSchemaUtil.toSchema(schema)),
-                TableIdentifier.of(databaseStr, tableStr),
+                tableId,
                 pkListStr);
         return record;
+    }
+
+    private boolean canHandleWithSchemaUpdate(TableIdentifier tableId, List<TableChange> tableChanges) {
+        boolean canHandle = true;
+        for (TableChange tableChange : tableChanges) {
+            if (tableChange instanceof AddColumn) {
+                canHandle &= MultipleSinkOption.canHandleWithSchemaUpdate(tableId.toString(), tableChange,
+                        multipleSinkOption.getAddColumnPolicy());
+            } else if (tableChange instanceof DeleteColumn) {
+                canHandle &= MultipleSinkOption.canHandleWithSchemaUpdate(tableId.toString(), tableChange,
+                        multipleSinkOption.getDelColumnPolicy());
+            } else {
+                canHandle &= MultipleSinkOption.canHandleWithSchemaUpdate(tableId.toString(), tableChange,
+                        LOG_WITH_IGNORE);
+            }
+        }
+
+        if (!canHandle) {
+            blacklist.add(tableId);
+        }
+        return canHandle;
     }
 }

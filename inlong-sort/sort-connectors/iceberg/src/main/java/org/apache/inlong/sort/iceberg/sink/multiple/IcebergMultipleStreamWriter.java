@@ -222,6 +222,4 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
         multipleSchemas.put(recordWithSchema.getTableId(), recordWithSchema.getSchema());
         return true;
     }
-
-
 }
