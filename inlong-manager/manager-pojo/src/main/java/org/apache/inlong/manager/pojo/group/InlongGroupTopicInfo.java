@@ -45,4 +45,16 @@ public abstract class InlongGroupTopicInfo {
     @ApiModelProperty(value = "MQ cluster info list")
     private List<? extends ClusterInfo> clusterInfos;
 
+    @ApiModelProperty(value = "TubeMQ master URL")
+    private String tubeMasterUrl;
+
+    @ApiModelProperty(value = "Pulsar service URL")
+    private String pulsarServiceUrl;
+
+    @ApiModelProperty(value = "Pulsar admin URL")
+    private String pulsarAdminUrl;
+
+    @ApiModelProperty(value = "Kafka admin URL")
+    private String kafkaBootstrapServers;
+
 }
