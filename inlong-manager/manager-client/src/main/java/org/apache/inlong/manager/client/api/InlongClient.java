@@ -31,6 +31,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -223,6 +224,16 @@ public interface InlongClient {
      * @return cluster node list
      */
     PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request);
+
+    /**
+     * List cluster nodes
+     *
+     * @param inlongGroupId inlong group id
+     * @param clusterType cluster type
+     * @param protocolType protocol type, such as: TCP, HTTP
+     * @return cluster node list
+     */
+    List<ClusterNodeResponse> listNode(String inlongGroupId, String clusterType, @Nullable String protocolType);
 
     /**
      * Update cluster node.

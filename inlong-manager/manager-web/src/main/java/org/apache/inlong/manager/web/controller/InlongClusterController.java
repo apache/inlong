@@ -52,6 +52,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * Inlong cluster controller
  */
@@ -190,10 +192,23 @@ public class InlongClusterController {
     }
 
     @PostMapping(value = "/cluster/node/list")
-    @ApiOperation(value = "List cluster nodes")
+    @ApiOperation(value = "List cluster nodes by pagination")
     public Response<PageResult<ClusterNodeResponse>> listNode(@RequestBody ClusterPageRequest request) {
         String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(clusterService.listNode(request, currentUser));
+    }
+
+    @GetMapping(value = "/cluster/node/listByGroupId")
+    @ApiOperation(value = "List cluster nodes by groupId, clusterType and protocolType")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "inlongGroupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "clusterType", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "protocolType", dataTypeClass = String.class, required = false)
+    })
+    @OperationLog(operation = OperationType.GET)
+    public Response<List<ClusterNodeResponse>> listByGroupId(@RequestParam String inlongGroupId,
+            @RequestParam String clusterType, @RequestParam(required = false) String protocolType) {
+        return Response.success(clusterService.listNodeByGroupId(inlongGroupId, clusterType, protocolType));
     }
 
     @RequestMapping(value = "/cluster/node/update", method = RequestMethod.POST)
