@@ -186,7 +186,7 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
     }
 
     @Override
-    public boolean storeOnlyMonitoredTables() {
+    public boolean storeOnlyCapturedTables() {
         return storeOnlyMonitoredTablesDdl;
     }
 

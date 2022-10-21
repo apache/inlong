@@ -30,6 +30,11 @@
     <artifactId>sort-connector-oracle-cdc</artifactId>
     <name>Apache InLong - Sort-connector-oracle-cdc</name>
     <packaging>jar</packaging>
+
+    <properties>
+        <debezium.version>1.6.4.Final</debezium.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.ververica</groupId>
@@ -54,6 +59,26 @@
             <artifactId>sort-format-json</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-connector-oracle</artifactId>
+            <version>${debezium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-api</artifactId>
+            <version>${debezium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-embedded</artifactId>
+            <version>${debezium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-core</artifactId>
+            <version>${debezium.version}</version>
         </dependency>
     </dependencies>
 
