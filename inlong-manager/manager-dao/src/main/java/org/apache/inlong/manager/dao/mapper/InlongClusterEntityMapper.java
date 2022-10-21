@@ -59,6 +59,4 @@ public interface InlongClusterEntityMapper {
 
     int deleteByPrimaryKey(Integer id);
 
-    List<InlongClusterEntity> selectByClusterTag(String clusterTag);
-
 }
