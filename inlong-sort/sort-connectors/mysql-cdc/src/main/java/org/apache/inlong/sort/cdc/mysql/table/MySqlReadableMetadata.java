@@ -138,7 +138,6 @@ public enum MySqlReadableMetadata {
                 }
             }),
 
-
     DATA_DEBEZIUM(
         "meta.data_debezium",
         DataTypes.STRING(),
@@ -171,8 +170,7 @@ public enum MySqlReadableMetadata {
                     .tableChange(tableSchema).build();
 
                 try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    return StringData.fromString(objectMapper.writeValueAsString(debeziumJson));
+                    return StringData.fromString(OBJECT_MAPPER.writeValueAsString(debeziumJson));
                 } catch (Exception e) {
                     throw new IllegalStateException("exception occurs when get meta data", e);
                 }
@@ -440,8 +438,7 @@ public enum MySqlReadableMetadata {
             .type(getOpType(record)).sqlType(getSqlType(tableSchema)).build();
 
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return StringData.fromString(objectMapper.writeValueAsString(canalJson));
+            return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
         } catch (Exception e) {
             throw new IllegalStateException("exception occurs when get meta data", e);
         }
@@ -450,6 +447,9 @@ public enum MySqlReadableMetadata {
     private final String key;
     private final DataType dataType;
     private final MetadataConverter converter;
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
 
     MySqlReadableMetadata(String key, DataType dataType, MetadataConverter converter) {
         this.key = key;
