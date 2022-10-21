@@ -447,9 +447,7 @@ public enum MySqlReadableMetadata {
     private final String key;
     private final DataType dataType;
     private final MetadataConverter converter;
-
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
 
     MySqlReadableMetadata(String key, DataType dataType, MetadataConverter converter) {
         this.key = key;
