@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.queue.tubemq;
 
 import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -45,6 +46,11 @@ import java.util.List;
 @Slf4j
 @Service
 public class TubeMQResourceOperator implements QueueResourceOperator {
+
+    /**
+     * The name rule for TubeMQ consumer group: clusterTag_topicName_sinkId_consumer_group
+     */
+    private static final String TUBEMQ_CONSUMER_GROUP = "%s_%s_%s_consumer_group";
 
     @Autowired
     private InlongClusterService clusterService;
@@ -76,23 +82,23 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
         }
 
         try {
+            // 1. create tubemq topic
             List<InlongStreamBriefInfo> streamInfoList = streamService.getTopicList(groupId);
-            if (streamInfoList == null || streamInfoList.isEmpty()) {
-                log.warn("skip to create tube topic as no streams for groupId={}", groupId);
+            if (CollectionUtils.isEmpty(streamInfoList)) {
+                log.warn("skip to create tubemq topic as no streams for groupId={}", groupId);
                 return;
             }
-            // 1. create tubemq topic
             String clusterTag = groupInfo.getInlongClusterTag();
             TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
             String topicName = groupInfo.getMqResource();
             tubeMQOperator.createTopic(tubeCluster, topicName, operator);
             log.info("success to create tubemq topic for groupId={}", groupId);
+
+            // 2. create tubemq consumer group
             for (InlongStreamBriefInfo stream : streamInfoList) {
                 List<StreamSink> streamSinks = sinkService.listSink(groupId, stream.getInlongStreamId());
                 for (StreamSink sink : streamSinks) {
-                    // 2. create tubemq consumer group
-                    // consumer naming rules: clusterTag_topicName_consumer_group
-                    String consumeGroup = clusterTag + "_" + topicName + "_" + sink.getId() + "_consumer_group";
+                    String consumeGroup = String.format(TUBEMQ_CONSUMER_GROUP, clusterTag, topicName, sink.getId());
                     tubeMQOperator.createConsumerGroup(tubeCluster, topicName, consumeGroup, operator);
                     log.info("success to create tubemq consumer group for groupId={}", groupId);
 
