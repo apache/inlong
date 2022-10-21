@@ -95,32 +95,19 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
     }
 
     @Override
-    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
+    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos) {
         InlongKafkaTopicInfo topicInfo = new InlongKafkaTopicInfo();
         topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
         topicInfo.setMqType(groupInfo.getMqType());
         topicInfo.setMqResource(groupInfo.getMqResource());
-
-        List<ClusterInfo> clusterInfos = clusterService.listByTag(groupInfo.getInlongClusterTag());
-        List<KafkaClusterInfo> kafkaClusterInfos = clusterInfos
-                .stream()
-                .map(info -> (KafkaClusterInfo) info)
-                .collect(Collectors.toList());
-        topicInfo.setClusterInfos(kafkaClusterInfos);
-
+        topicInfo.setClusterInfos(clusterInfos);
         topicInfo.setTopic(groupInfo.getMqResource());
         return topicInfo;
     }
 
     @Override
-    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo) {
+    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos) {
         String groupId = groupInfo.getInlongGroupId();
-        InlongGroupExtEntity backupClusterTag = groupExtEntityMapper
-                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_CLUSTER_TAG);
-        if (StringUtils.isBlank(backupClusterTag.getKeyValue())) {
-            LOGGER.info("there is no backup topic info for group={}", groupId);
-            return null;
-        }
 
         InlongKafkaTopicInfo topicInfo = new InlongKafkaTopicInfo();
         topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
@@ -138,13 +125,7 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
         }
 
         // set backup cluster info
-        List<ClusterInfo> clusterInfos = clusterService.listByTag(backupClusterTag.getKeyValue());
-        List<KafkaClusterInfo> kafkaClusterInfos = clusterInfos
-                .stream()
-                .map(info -> (KafkaClusterInfo) info)
-                .collect(Collectors.toList());
-        topicInfo.setClusterInfos(kafkaClusterInfos);
-
+        topicInfo.setClusterInfos(clusterInfos);
         return topicInfo;
     }
 

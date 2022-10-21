@@ -35,9 +35,6 @@ import java.util.List;
 @ApiModel("Inlong pulsar group topic info")
 public class InlongPulsarTopicInfo extends InlongGroupTopicInfo {
 
-    @ApiModelProperty(value = "Pulsar cluster info list")
-    private List<PulsarClusterInfo> clusterInfos;
-
     @ApiModelProperty(value = "Pulsar topics")
     private List<String> topics;
 

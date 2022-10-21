@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.group;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 
 import java.util.List;
@@ -55,5 +56,8 @@ public class InlongGroupTopicInfo {
 
     @ApiModelProperty(value = "Kafka admin URL")
     private String kafkaBootstrapServers;
+
+    @ApiModelProperty(value = "cluster infos")
+    private List<ClusterInfo> clusterInfos;
 
 }

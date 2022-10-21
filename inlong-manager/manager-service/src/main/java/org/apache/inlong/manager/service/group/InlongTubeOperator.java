@@ -26,7 +26,6 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
@@ -37,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Inlong group operator for TubeMQ.
@@ -77,33 +75,20 @@ public class InlongTubeOperator extends AbstractGroupOperator {
     }
 
     @Override
-    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
+    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos) {
         InlongTubeTopicInfo topicInfo = new InlongTubeTopicInfo();
         topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
         topicInfo.setMqType(groupInfo.getMqType());
         topicInfo.setMqResource(groupInfo.getMqResource());
-
-        List<ClusterInfo> clusterInfos = clusterService.listByTag(groupInfo.getInlongClusterTag());
-        List<TubeClusterInfo> tubeClusterInfos = clusterInfos
-                .stream()
-                .map(info -> (TubeClusterInfo) info)
-                .collect(Collectors.toList());
-        topicInfo.setClusterInfos(tubeClusterInfos);
-
+        topicInfo.setClusterInfos(clusterInfos);
         topicInfo.setTopic(groupInfo.getMqResource());
         return topicInfo;
     }
 
     @Override
-    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo) {
-        String groupId = groupInfo.getInlongGroupId();
-        InlongGroupExtEntity backupClusterTag = groupExtEntityMapper
-                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_CLUSTER_TAG);
-        if (StringUtils.isBlank(backupClusterTag.getKeyValue())) {
-            LOGGER.info("there is no backup topic info for group={}", groupId);
-            return null;
-        }
+    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos) {
 
+        String groupId = groupInfo.getInlongGroupId();
         InlongTubeTopicInfo topicInfo = new InlongTubeTopicInfo();
         topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
         topicInfo.setMqType(groupInfo.getMqType());
@@ -120,12 +105,7 @@ public class InlongTubeOperator extends AbstractGroupOperator {
         }
 
         //set backup cluster
-        List<ClusterInfo> clusterInfos = clusterService.listByTag(backupClusterTag.getKeyValue());
-        List<TubeClusterInfo> tubeClusterInfos = clusterInfos
-                .stream()
-                .map(info -> (TubeClusterInfo) info)
-                .collect(Collectors.toList());
-        topicInfo.setClusterInfos(tubeClusterInfos);
+        topicInfo.setClusterInfos(clusterInfos);
 
         return topicInfo;
     }

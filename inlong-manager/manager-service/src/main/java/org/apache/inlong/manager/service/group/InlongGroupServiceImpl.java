@@ -369,9 +369,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // the group info will not null in get() method
         List<InlongGroupTopicInfo> topicInfos = new ArrayList<>();
         InlongGroupInfo groupInfo = this.get(groupId);
-
+        List<ClusterInfo> clusterInfos = clusterService.listByTag(groupInfo.getInlongClusterTag());
         InlongGroupOperator instance = groupOperatorFactory.getInstance(groupInfo.getMqType());
-        InlongGroupTopicInfo topicInfo = instance.getTopic(groupInfo);
+        InlongGroupTopicInfo topicInfo = instance.getTopic(groupInfo, clusterInfos);
         topicInfos.add(topicInfo);
 
         // get back up topic info
@@ -379,9 +379,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                 .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_CLUSTER_TAG);
         if (!StringUtils.isBlank(backupClusterTag.getKeyValue())) {
             LOGGER.info("find backup topic info for group={}", groupId);
-            ClusterInfo backupClusterInfo = clusterService.getOne(backupClusterTag.getKeyValue(), null, null);
-            instance = groupOperatorFactory.getInstance(backupClusterInfo.getType());
-            InlongGroupTopicInfo backupTopicInfo = instance.getBackupTopic(groupInfo);
+            List<ClusterInfo> backupClusterInfos = clusterService.listByTag(backupClusterTag.getKeyValue());
+            instance = groupOperatorFactory.getInstance(backupClusterInfos.get(0).getType());
+            InlongGroupTopicInfo backupTopicInfo = instance.getBackupTopic(groupInfo, backupClusterInfos);
             topicInfos.add(backupTopicInfo);
         }
 

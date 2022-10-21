@@ -35,9 +35,6 @@ import java.util.List;
 @ApiModel("Inlong kafka group topic info")
 public class InlongKafkaTopicInfo extends InlongGroupTopicInfo {
 
-    @ApiModelProperty(value = "Kafka cluster info")
-    private List<KafkaClusterInfo> clusterInfos;
-
     @ApiModelProperty(value = "Kafka topic")
     private String topic;
 

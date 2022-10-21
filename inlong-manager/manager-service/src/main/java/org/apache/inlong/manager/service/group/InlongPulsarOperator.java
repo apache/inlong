@@ -119,18 +119,12 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
     }
 
     @Override
-    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
+    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos) {
         InlongPulsarTopicInfo topicInfo = new InlongPulsarTopicInfo();
         topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
         topicInfo.setMqType(groupInfo.getMqType());
         topicInfo.setMqResource(groupInfo.getMqResource());
-
-        List<ClusterInfo> clusterInfos = clusterService.listByTag(groupInfo.getInlongClusterTag());
-        List<PulsarClusterInfo> pulsarClusterInfos = clusterInfos
-                .stream()
-                .map(info -> (PulsarClusterInfo) info)
-                .collect(Collectors.toList());
-        topicInfo.setClusterInfos(pulsarClusterInfos);
+        topicInfo.setClusterInfos(clusterInfos);
 
         List<InlongStreamBriefInfo> streamTopics = streamService.getTopicList(groupInfo.getInlongGroupId());
         if (CollectionUtils.isEmpty(streamTopics)) {
@@ -146,15 +140,8 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
     }
 
     @Override
-    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo) {
+    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos) {
         String groupId = groupInfo.getInlongGroupId();
-        InlongGroupExtEntity backupClusterTag = groupExtEntityMapper
-                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_CLUSTER_TAG);
-        if (StringUtils.isBlank(backupClusterTag.getKeyValue())) {
-            LOGGER.info("there is no backup topic info for group={}", groupId);
-            return null;
-        }
-
         InlongPulsarTopicInfo topicInfo = new InlongPulsarTopicInfo();
         topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
         topicInfo.setMqType(getMQType());
@@ -166,12 +153,7 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
                 ? groupInfo.getMqResource() : backupMqResource.getKeyValue());
 
         // set backup cluster info
-        List<ClusterInfo> clusterInfos = clusterService.listByTag(backupClusterTag.getKeyValue());
-        List<PulsarClusterInfo> pulsarClusterInfos = clusterInfos
-                .stream()
-                .map(info -> (PulsarClusterInfo) info)
-                .collect(Collectors.toList());
-        topicInfo.setClusterInfos(pulsarClusterInfos);
+        topicInfo.setClusterInfos(clusterInfos);
 
         // set backup stream mq resource
         List<InlongStreamBriefInfo> streamTopics = streamService.getTopicList(groupId);

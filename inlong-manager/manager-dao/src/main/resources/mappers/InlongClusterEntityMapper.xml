@@ -253,7 +253,7 @@
         from inlong_cluster
         <where>
             is_deleted = 0
-            and inlong_cluster_tag = #{clusterTag, jdbcType=STRING}
+            and inlong_cluster_tag = #{clusterTag, jdbcType=VARCHAR}
         </where>
     </select>
 

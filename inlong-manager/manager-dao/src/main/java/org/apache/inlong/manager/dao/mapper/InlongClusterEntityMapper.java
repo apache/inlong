@@ -51,12 +51,12 @@ public interface InlongClusterEntityMapper {
      */
     List<SortSourceClusterInfo> selectAllClusters();
 
+    List<InlongClusterEntity> selectByClusterTag(String clusterTag);
+
     int updateById(InlongClusterEntity record);
 
     int updateByIdSelective(InlongClusterEntity record);
 
     int deleteByPrimaryKey(Integer id);
-
-    List<InlongClusterEntity> selectByClusterTag(String clusterTag);
 
 }
