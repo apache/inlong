@@ -142,27 +142,27 @@ const fieldsDefault: FieldItemType[] = [
       options: [
         {
           label: i18n.t('meta.Stream.DataSeparator.Space'),
-          value: '32',
+          value: '(Space)',
         },
         {
           label: i18n.t('meta.Stream.DataSeparator.VerticalLine'),
-          value: '124',
+          value: '|',
         },
         {
           label: i18n.t('meta.Stream.DataSeparator.Comma'),
-          value: '44',
+          value: ',',
         },
         {
           label: i18n.t('meta.Stream.DataSeparator.Semicolon'),
-          value: '59',
+          value: ';',
         },
         {
           label: i18n.t('meta.Stream.DataSeparator.Asterisk'),
-          value: '42',
+          value: '*',
         },
         {
           label: i18n.t('meta.Stream.DataSeparator.DoubleQuotes'),
-          value: '34',
+          value: '"',
         },
       ],
       useInput: true,
