@@ -29,7 +29,7 @@ public class HiveValidator extends ConnectorDescriptorValidator {
     public static final String CONNECTOR_HIVE_VERSION = "hive-version";
     public static final String CONNECTOR_VERSION_VALUE_2_2_0 = "2.2.0";
     public static final String CONNECTOR_VERSION_VALUE_2_3_6 = "2.3.6";
-    public static final String CONNECTOR_VERSION_VALUE_3_1_2 = "3.1.2";
+    public static final String CONNECTOR_VERSION_VALUE_3_1_3 = "3.1.3";
     public static final String CONNECTOR_VERSION_VALUE_1_2_2 = "1.2.2";
     public static final String CONNECTOR_HIVE_DATABASE = "default-database";
     public static final String CONNECTOR_HIVE_TABLE = "table-name";
