@@ -32,7 +32,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <debezium.version>1.6.4.Final</debezium.version>
+        <debezium.version>1.7.0.Final</debezium.version>
     </properties>
 
     <dependencies>
