@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.MqttReader;
 import org.slf4j.Logger;
@@ -46,8 +47,11 @@ public class MqttSource extends AbstractSource {
     }
 
     private List<Reader> splitSqlJob(String topics) {
+        if(StringUtils.isEmpty(topics)) {
+            return null;
+        }
         final List<Reader> result = new ArrayList<>();
-        String[] topicList = topics.split(",");
+        String[] topicList = topics.split(CommonConstants.COMMA);
         if (Objects.nonNull(topicList)) {
             Arrays.stream(topicList).forEach(topic -> {
                 result.add(new MqttReader(topic));

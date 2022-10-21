@@ -139,7 +139,7 @@ public class MqttReader extends AbstractReader {
             }
             LOGGER.info("the mqtt subscribe topic is [{}], qos is [{}]", topic, qos);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("init mqtt client error ", e);
         }
     }
 
@@ -149,9 +149,9 @@ public class MqttReader extends AbstractReader {
                 client.connect(options);
                 LOGGER.info("the mqtt client reconnect success");
             } catch (MqttSecurityException e) {
-                e.printStackTrace();
+                LOGGER.error("reconnect mqtt client error ", e);
             } catch (MqttException e) {
-                e.printStackTrace();
+                LOGGER.error("reconnect mqtt client error ", e);
             }
         }
     }
@@ -206,7 +206,7 @@ public class MqttReader extends AbstractReader {
         try {
             client.disconnect();
         } catch (MqttException e) {
-            e.printStackTrace();
+            LOGGER.error("disconnect mqtt client error ", e);
         }
     }
 
