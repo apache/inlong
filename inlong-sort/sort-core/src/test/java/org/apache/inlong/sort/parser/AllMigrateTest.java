@@ -68,7 +68,7 @@ public class AllMigrateTest {
 
     private MySqlExtractNode buildAllMigrateExtractNodeWithBytesFormat() {
         List<FieldInfo> fields = Collections.singletonList(
-            new MetaFieldInfo("data", MetaField.DATA_BYTES));
+            new MetaFieldInfo("data", MetaField.DATA_BYTES_DEBEZIUM));
         Map<String, String> option = new HashMap<>();
         option.put("append-mode", "true");
         option.put("migrate-all", "true");
