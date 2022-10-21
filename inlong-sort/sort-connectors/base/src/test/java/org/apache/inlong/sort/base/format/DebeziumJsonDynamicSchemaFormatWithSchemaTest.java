@@ -213,7 +213,8 @@ public class DebeziumJsonDynamicSchemaFormatWithSchemaTest extends DynamicSchema
                 + "      \"pos\": 154,\n"
                 + "      \"row\": 0,\n"
                 + "      \"thread\": 7,\n"
-                + "      \"query\": \"INSERT INTO customers (first_name, last_name, email) VALUES ('Anne', 'Kretchmar', 'annek@noanswer.org')\"\n"
+                + "      \"query\": \"INSERT INTO customers (first_name, last_name, email)"
+                + " VALUES ('Anne', 'Kretchmar', 'annek@noanswer.org')\"\n"
                 + "    }\n"
                 + "  }\n"
                 + "}";
