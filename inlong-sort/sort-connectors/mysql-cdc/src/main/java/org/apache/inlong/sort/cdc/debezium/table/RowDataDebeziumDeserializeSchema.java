@@ -58,7 +58,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -635,14 +634,10 @@ public final class RowDataDebeziumDeserializeSchema
                 fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
                 break;
             case ZonedTimestamp.SCHEMA_NAME:
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
-                fieldValue = timestampFormatter.format(zonedDateTime
-                        .withZoneSameInstant(serverTimeZone).toLocalDateTime());
+                // by default the field value is zoned timestamp, no need to convert
                 break;
             case Timestamp.SCHEMA_NAME:
-                Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
-                fieldValue = timestampFormatter.format(LocalDateTime.ofInstant(instantTime,
-                        serverTimeZone));
+                fieldValue = Instant.ofEpochMilli((Long) fieldValue).toString();
                 break;
             default:
                 LOG.error("parse schema {} error", schemaName);
