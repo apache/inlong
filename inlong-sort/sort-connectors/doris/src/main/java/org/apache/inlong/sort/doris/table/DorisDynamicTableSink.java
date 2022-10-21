@@ -26,8 +26,6 @@ import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.OutputFormatProvider;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 
 /**
  * DorisDynamicTableSink copy from {@link org.apache.doris.flink.table.DorisDynamicTableSink}
@@ -94,8 +92,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 .setExecutionOptions(executionOptions)
                 .setDatabasePattern(databasePattern)
                 .setTablePattern(tablePattern)
-                .setDynamicSchemaFormat(
-                        (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat));
+                .setDynamicSchemaFormat(sinkMultipleFormat);
         return OutputFormatProvider.of(builder.build());
     }
 
