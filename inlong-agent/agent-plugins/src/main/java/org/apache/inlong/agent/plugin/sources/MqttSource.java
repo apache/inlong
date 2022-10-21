@@ -47,7 +47,7 @@ public class MqttSource extends AbstractSource {
     }
 
     private List<Reader> splitSqlJob(String topics) {
-        if(StringUtils.isEmpty(topics)) {
+        if (StringUtils.isEmpty(topics)) {
             return null;
         }
         final List<Reader> result = new ArrayList<>();
