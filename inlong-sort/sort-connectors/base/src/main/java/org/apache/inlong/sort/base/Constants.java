@@ -112,6 +112,12 @@ public final class Constants {
                     .withDescription(
                             "The format of multiple sink, it represents the real format of the raw binary data");
 
+    public static final ConfigOption<Boolean> SOURCE_MULTIPLE_ENABLE =
+            ConfigOptions.key("source.multiple.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether migrate multiple databases");
+
     /**
      * It is used for jdbc url filter for avoiding url attack
      * see also in https://su18.org/post/jdbc-connection-url-attack/

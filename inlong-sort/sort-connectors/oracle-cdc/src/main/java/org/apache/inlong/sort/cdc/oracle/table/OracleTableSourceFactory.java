@@ -35,6 +35,7 @@ import org.apache.inlong.sort.cdc.oracle.debezium.table.DebeziumOptions;
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SOURCE_MULTIPLE_ENABLE;
 
 /**
  * Factory for creating configured instance of {@link OracleTableSource}.
@@ -95,12 +96,6 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
                             "Optional startup mode for Oracle CDC consumer, valid enumerations are "
                                     + "\"initial\", \"latest-offset\"");
 
-    public static final ConfigOption<Boolean> SOURCE_MULTIPLE_ENABLE =
-            ConfigOptions.key("source.multiple.enable")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("Whether migrate multiple databases");
-
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
         final FactoryUtil.TableFactoryHelper helper =
@@ -131,7 +126,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
                 startupOptions,
-                sourceMultipleEnable ,
+                sourceMultipleEnable,
                 inlongMetric,
                 inlongAudit);
     }
