@@ -72,7 +72,7 @@ public class LoadBalancingDriver implements Driver {
   private static final Base64.Encoder base64Encoder = Base64.getEncoder();
   private static final AtomicInteger threadId = new AtomicInteger();
   private static final ThreadLocal<MessageDigest> digestThreadLocal =
-      ThreadLocal.withInitial(() -> uncheckedCall(() -> MessageDigest.getInstance("md5")));
+      ThreadLocal.withInitial(() -> uncheckedCall(() -> MessageDigest.getInstance("SHA 256")));
 
   static {
     MYSQL_DRIVER_NAME = determineDriverName();
