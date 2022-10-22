@@ -38,12 +38,13 @@ public class FlinkStatusPoller implements SortStatusPoller {
 
     @Override
     public Map<String, SortStatus> poll(List<InlongGroupInfo> groupInfos, String credentials) {
+        log.debug("groupInfos = {}, credentials = {}", groupInfos, credentials);
         Map<String, SortStatus> statusMap = new HashMap<>();
         for (InlongGroupInfo groupInfo : groupInfos) {
             String groupId = groupInfo.getInlongGroupId();
             try {
                 List<InlongGroupExtInfo> extList = groupInfo.getExtList();
-                log.debug("inlong group ext info: {}", extList);
+                log.debug("inlong group {} ext info: {}", groupId, extList);
 
                 Map<String, String> kvConf = new HashMap<>();
                 extList.forEach(groupExtInfo -> kvConf.put(groupExtInfo.getKeyName(), groupExtInfo.getKeyValue()));
@@ -63,6 +64,7 @@ public class FlinkStatusPoller implements SortStatusPoller {
 
                 String sortUrl = kvConf.get(InlongConstants.SORT_URL);
                 FlinkService flinkService = new FlinkService(sortUrl);
+                log.debug("jodId = {}, sorUrl = {}", jobId, sortUrl);
                 SortStatus status = convertToSortStatus(flinkService.getJobStatus(jobId));
                 statusMap.put(groupId, status);
             } catch (Exception e) {
@@ -74,6 +76,7 @@ public class FlinkStatusPoller implements SortStatusPoller {
     }
 
     private SortStatus convertToSortStatus(JobStatus jobStatus) {
+        log.debug("flink jobStatus = {}", jobStatus);
         switch (jobStatus) {
             case CREATED:
             case INITIALIZING:

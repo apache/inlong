@@ -33,7 +33,7 @@ public class ListSortStatusRequest {
     @ApiModelProperty(value = "Inlong group ids")
     private List<String> inlongGroupIds;
 
-    @ApiModelProperty(value = "Credential info needed for backend query, such as sort cluster token")
+    @ApiModelProperty(value = "Optional credential info needed for backend query, such as sort cluster token")
     private String credentials;
 
 }
