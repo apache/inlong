@@ -28,7 +28,10 @@ import io.debezium.relational.history.HistoryRecordComparator;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
-import org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil;
+
+import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
+import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.removeHistory;
+import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
 /**
  * Inspired from {@link io.debezium.relational.history.MemoryDatabaseHistory} but we will store the
@@ -64,7 +67,7 @@ public class FlinkDatabaseHistory extends AbstractDatabaseHistory {
      * Gets the registered HistoryRecords under the given instance name.
      */
     private ConcurrentLinkedQueue<SchemaRecord> getRegisteredHistoryRecord(String instanceName) {
-        Collection<SchemaRecord> historyRecords = DatabaseHistoryUtil.retrieveHistory(instanceName);
+        Collection<SchemaRecord> historyRecords = retrieveHistory(instanceName);
         return new ConcurrentLinkedQueue<>(historyRecords);
     }
 
@@ -80,13 +83,13 @@ public class FlinkDatabaseHistory extends AbstractDatabaseHistory {
 
         // register the schema changes into state
         // every change should be visible to the source function
-        DatabaseHistoryUtil.registerHistory(instanceName, schemaRecords);
+        registerHistory(instanceName, schemaRecords);
     }
 
     @Override
     public void stop() {
         super.stop();
-        DatabaseHistoryUtil.removeHistory(instanceName);
+        removeHistory(instanceName);
     }
 
     @Override
