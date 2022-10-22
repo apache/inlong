@@ -112,7 +112,7 @@ public final class RowDataDebeziumDeserializeSchema
      */
     private final ValueValidator validator;
 
-    private boolean migrateAll;
+    private boolean sourceMultipleEnable;
 
     private ZoneId serverTimeZone;
 
@@ -124,10 +124,10 @@ public final class RowDataDebeziumDeserializeSchema
             ZoneId serverTimeZone,
             boolean appendSource,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory,
-            boolean migrateAll) {
+            boolean sourceMultipleEnable) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
-        this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters, migrateAll);
-        this.migrateAll = migrateAll;
+        this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters, sourceMultipleEnable);
+        this.sourceMultipleEnable = sourceMultipleEnable;
         this.serverTimeZone = serverTimeZone;
         this.physicalConverter =
                 createConverter(
@@ -633,7 +633,7 @@ public final class RowDataDebeziumDeserializeSchema
                         .toArray(DeserializationRuntimeConverter[]::new);
         final String[] fieldNames = rowType.getFieldNames().toArray(new String[0]);
 
-        if (!migrateAll) {
+        if (!sourceMultipleEnable) {
             return new DeserializationRuntimeConverter() {
 
                 private static final long serialVersionUID = 1L;
@@ -665,11 +665,11 @@ public final class RowDataDebeziumDeserializeSchema
                 }
             };
         } else {
-            return getAllMigrationConverter(serverTimeZone, userDefinedConverterFactory);
+            return getMultipleMigrationConverter(serverTimeZone, userDefinedConverterFactory);
         }
     }
 
-    private DeserializationRuntimeConverter getAllMigrationConverter(
+    private DeserializationRuntimeConverter getMultipleMigrationConverter(
             ZoneId serverTimeZone, DeserializationRuntimeConverterFactory userDefinedConverterFactory) {
         return new DeserializationRuntimeConverter() {
 
@@ -862,7 +862,7 @@ public final class RowDataDebeziumDeserializeSchema
         };
         private ZoneId serverTimeZone = ZoneId.of("UTC");
         private boolean appendSource = false;
-        private boolean migrateAll = false;
+        private boolean sourceMultipleEnable = false;
         private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
                 DeserializationRuntimeConverterFactory.DEFAULT;
 
@@ -871,8 +871,8 @@ public final class RowDataDebeziumDeserializeSchema
             return this;
         }
 
-        public Builder setMigrateAll(boolean migrateAll) {
-            this.migrateAll = migrateAll;
+        public Builder setSourceMultipleEnable(boolean sourceMultipleEnable) {
+            this.sourceMultipleEnable = sourceMultipleEnable;
             return this;
         }
 
@@ -916,7 +916,7 @@ public final class RowDataDebeziumDeserializeSchema
                     serverTimeZone,
                     appendSource,
                     userDefinedConverterFactory,
-                    migrateAll);
+                    sourceMultipleEnable);
         }
     }
 }

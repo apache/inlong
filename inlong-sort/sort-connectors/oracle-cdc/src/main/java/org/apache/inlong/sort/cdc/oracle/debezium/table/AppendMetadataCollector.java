@@ -39,11 +39,11 @@ public final class AppendMetadataCollector implements Collector<RowData>, Serial
 
     public transient SourceRecord inputRecord;
     public transient Collector<RowData> outputCollector;
-    private boolean migrateAll;
+    private boolean sourceMultipleEnable;
 
-    public AppendMetadataCollector(MetadataConverter[] metadataConverters, boolean migrateAll) {
+    public AppendMetadataCollector(MetadataConverter[] metadataConverters, boolean sourceMultipleEnable) {
         this.metadataConverters = metadataConverters;
-        this.migrateAll = migrateAll;
+        this.sourceMultipleEnable = sourceMultipleEnable;
     }
 
     public void collect(RowData physicalRow, TableChange tableSchema) {
@@ -52,7 +52,7 @@ public final class AppendMetadataCollector implements Collector<RowData>, Serial
             Object meta = metadataConverters[i].read(inputRecord, tableSchema, physicalRow);
             metaRow.setField(i, meta);
         }
-        if (migrateAll) {
+        if (sourceMultipleEnable) {
             // all data are put into meta row, set physicalRow to empty
             physicalRow = new GenericRowData(0);
         }

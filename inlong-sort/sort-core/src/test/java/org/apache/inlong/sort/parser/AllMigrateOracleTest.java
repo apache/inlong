@@ -51,7 +51,7 @@ public class AllMigrateOracleTest {
         List<FieldInfo> fields = Arrays.asList(
                 new MetaFieldInfo("data", MetaField.DATA));
         Map<String, String> option = new HashMap<>();
-        option.put("migrate-all", "true");
+        option.put("source.multiple.enable", "true");
         OracleExtractNode node = new OracleExtractNode("1", "oracle_input", fields,
                 null, option, null, "localhost", "system",
                 "inlong", "test", "SCHEMA1,SCHEMA2", "SCHEMA1.TB.*, SCHEMA2.TB1", 1521,
@@ -65,7 +65,7 @@ public class AllMigrateOracleTest {
         List<FieldInfo> fields = Arrays.asList(
                 new MetaFieldInfo("data", MetaField.DATA_BYTES));
         Map<String, String> option = new HashMap<>();
-        option.put("migrate-all", "true");
+        option.put("source.multiple.enable", "true");
         OracleExtractNode node = new OracleExtractNode("1", "oracle_input", fields,
                 null, option, null, "localhost", "system",
                 "inlong", "test", "SCHEMA1,SCHEMA2", "SCHEMA1.TB.*, SCHEMA2.TB1", 1521,

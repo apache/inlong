@@ -61,7 +61,7 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
     private final String schemaName;
     private final Properties dbzProperties;
     private final StartupOptions startupOptions;
-    private final boolean migrateAll;
+    private final boolean sourceMultipleEnable;
     private final String inlongMetric;
     private final String inlongAudit;
 
@@ -86,7 +86,7 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
             String password,
             Properties dbzProperties,
             StartupOptions startupOptions,
-            boolean migrateAll,
+            boolean sourceMultipleEnable,
             String inlongMetric,
             String inlongAudit) {
         this.physicalSchema = physicalSchema;
@@ -101,7 +101,7 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
         this.startupOptions = startupOptions;
         this.producedDataType = physicalSchema.toPhysicalRowDataType();
         this.metadataKeys = Collections.emptyList();
-        this.migrateAll = migrateAll;
+        this.sourceMultipleEnable = sourceMultipleEnable;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
     }
@@ -130,7 +130,7 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                         .setResultTypeInfo(typeInfo)
                         .setUserDefinedConverterFactory(
                                 OracleDeserializationConverterFactory.instance())
-                        .setMigrateAll(migrateAll)
+                        .setSourceMultipleEnable(sourceMultipleEnable)
                         .build();
         OracleSource.Builder<RowData> builder =
                 OracleSource.<RowData>builder()
@@ -181,7 +181,7 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
                         password,
                         dbzProperties,
                         startupOptions,
-                        migrateAll,
+                        sourceMultipleEnable,
                         inlongMetric,
                         inlongAudit);
         source.metadataKeys = metadataKeys;

@@ -95,11 +95,11 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
                             "Optional startup mode for Oracle CDC consumer, valid enumerations are "
                                     + "\"initial\", \"latest-offset\"");
 
-    public static final ConfigOption<Boolean> MIGRATE_ALL =
-            ConfigOptions.key("migrate-all")
+    public static final ConfigOption<Boolean> SOURCE_MULTIPLE_ENABLE =
+            ConfigOptions.key("source.multiple.enable")
                     .booleanType()
                     .defaultValue(false)
-                    .withDescription("Whether migrate all databases");
+                    .withDescription("Whether migrate multiple databases");
 
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
@@ -116,7 +116,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
         String schemaName = config.get(SCHEMA_NAME);
         int port = config.get(PORT);
         StartupOptions startupOptions = getStartupOptions(config);
-        final boolean migrateAll = config.get(MIGRATE_ALL);
+        final boolean sourceMultipleEnable = config.get(SOURCE_MULTIPLE_ENABLE);
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String inlongAudit = config.get(INLONG_AUDIT);
@@ -131,7 +131,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
                 startupOptions,
-                migrateAll,
+                sourceMultipleEnable ,
                 inlongMetric,
                 inlongAudit);
     }
@@ -160,7 +160,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
         options.add(SCAN_STARTUP_MODE);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
-        options.add(MIGRATE_ALL);
+        options.add(SOURCE_MULTIPLE_ENABLE);
         return options;
     }
 
