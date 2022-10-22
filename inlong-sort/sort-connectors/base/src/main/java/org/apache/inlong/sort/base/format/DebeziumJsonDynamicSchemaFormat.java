@@ -18,14 +18,25 @@
 package org.apache.inlong.sort.base.format;
 
 import org.apache.flink.formats.json.JsonToRowDataConverters.JsonToRowDataConverter;
+import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.BigIntType;
+import org.apache.flink.table.types.logical.BooleanType;
+import org.apache.flink.table.types.logical.DoubleType;
+import org.apache.flink.table.types.logical.FloatType;
+import org.apache.flink.table.types.logical.IntType;
+import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.types.logical.SmallIntType;
+import org.apache.flink.table.types.logical.TinyIntType;
+import org.apache.flink.table.types.logical.VarBinaryType;
+import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Debezium json dynamic format
@@ -34,13 +45,17 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
 
     private static final String IDENTIFIER = "debezium-json";
     private static final String DDL_FLAG = "ddl";
-    private static final String SCHEMA = "sqlType";
+    private static final String SCHEMA = "schema";
+    private static final String SQL_TYPE = "sqlType";
     private static final String AFTER = "after";
     private static final String BEFORE = "before";
     private static final String SOURCE = "source";
     private static final String PK_NAMES = "pkNames";
     private static final String OP_TYPE = "op";
     private static final String PAYLOAD = "payload";
+    private static final String FIELDS = "fields";
+    private static final String FIELD = "field";
+    private static final String TYPE = "type";
     /**
      * Snapshot read
      */
@@ -58,6 +73,18 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
      */
     private static final String OP_DELETE = "d";
 
+    private static final Map<String, LogicalType> DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING =
+            ImmutableMap.<String, LogicalType>builder()
+                    .put("BOOLEAN", new BooleanType())
+                    .put("INT8", new TinyIntType())
+                    .put("INT16", new SmallIntType())
+                    .put("INT32", new IntType())
+                    .put("INT64", new BigIntType())
+                    .put("FLOAT32", new FloatType())
+                    .put("FLOAT64", new DoubleType())
+                    .put("STRING", new VarCharType())
+                    .put("BYTES", new VarBinaryType())
+                    .build();
 
     private static final DebeziumJsonDynamicSchemaFormat FORMAT = new DebeziumJsonDynamicSchemaFormat();
 
@@ -121,10 +148,50 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
         return extractDDLFlag(payload);
     }
 
+    public RowType extractSchemaFromExtractInfo(JsonNode data, List<String> pkNames) {
+        JsonNode payload = data.get(PAYLOAD);
+        if (payload == null) {
+            JsonNode sourceNode = data.get(SOURCE);
+            if (sourceNode == null) {
+                throw new IllegalArgumentException(String.format("Error schema: %s.", data));
+            }
+            JsonNode schemaNode = sourceNode.get(SQL_TYPE);
+            if (schemaNode == null) {
+                throw new IllegalArgumentException(String.format("Error schema: %s.", data));
+            }
+            return super.extractSchemaNode(schemaNode, pkNames);
+        }
+        return extractSchemaFromExtractInfo(payload, pkNames);
+    }
+
     @Override
     public RowType extractSchema(JsonNode data, List<String> pkNames) {
-        JsonNode schema = data.get(SCHEMA);
-        return extractSchemaNode(schema, pkNames);
+        // first get schema from 'sqlType', fallback to get it from 'schema'
+        try {
+            return extractSchemaFromExtractInfo(data, pkNames);
+        } catch (IllegalArgumentException e) {
+            JsonNode schema = data.get(SCHEMA);
+            for (JsonNode field : schema.get(FIELDS)) {
+                if (AFTER.equals(field.get(FIELD).asText())) {
+                    return extractSchemaNode(field.get(FIELDS), pkNames);
+                }
+            }
+            throw new IllegalArgumentException(String.format("Error schema: %s.", schema));
+        }
+    }
+
+    @Override
+    public RowType extractSchemaNode(JsonNode schema, List<String> pkNames) {
+        List<RowType.RowField> fields = new ArrayList<>();
+        for (JsonNode field : schema) {
+            String name = field.get(FIELD).asText();
+            LogicalType type = debeziumType2FlinkType(field.get(TYPE).asText());
+            if (pkNames.contains(name)) {
+                type = type.copy(false);
+            }
+            fields.add(new RowType.RowField(name, type));
+        }
+        return new RowType(fields);
     }
 
     @Override
@@ -174,5 +241,13 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     @Override
     public String identifier() {
         return IDENTIFIER;
+    }
+
+    private LogicalType debeziumType2FlinkType(String debeziumType) {
+        if (DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING.containsKey(debeziumType.toUpperCase())) {
+            return DEBEZIUM_TYPE_2_FLINK_TYPE_MAPPING.get(debeziumType.toUpperCase());
+        } else {
+            throw new IllegalArgumentException("Unsupported debeziumType: " + debeziumType.toUpperCase());
+        }
     }
 }

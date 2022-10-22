@@ -18,6 +18,10 @@
 package org.apache.inlong.sort.base.format;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.table.types.logical.IntType;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.types.logical.VarCharType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -246,6 +250,21 @@ public class DebeziumJsonDynamicSchemaFormatWithSchemaTest extends DynamicSchema
         JsonNode rootNode = (JsonNode) getDynamicSchemaFormat()
                 .deserialize(getSource().getBytes(StandardCharsets.UTF_8));
         Assert.assertNotNull(((JsonDynamicSchemaFormat) getDynamicSchemaFormat()).getPhysicalData(rootNode));
+    }
+
+    @Test
+    public void testExtractRowType() throws IOException {
+        JsonNode rootNode = (JsonNode) getDynamicSchemaFormat()
+                .deserialize(getSource().getBytes(StandardCharsets.UTF_8));
+        String[] names = new String[]{"id", "first_name", "last_name", "email"};
+        LogicalType[] types = new LogicalType[]{
+                new IntType(false),
+                new VarCharType(false, 1),
+                new VarCharType(),
+                new VarCharType()
+        };
+        RowType rowType = RowType.of(true, types, names);
+        Assert.assertEquals(getDynamicSchemaFormat().extractSchema(rootNode), rowType);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
