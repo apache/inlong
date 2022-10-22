@@ -33,6 +33,7 @@
 
     <properties>
         <debezium.version>1.7.0.Final</debezium.version>
+        <oracle.xdb.version>21.3.0.0</oracle.xdb.version>
     </properties>
 
     <dependencies>
@@ -79,6 +80,11 @@
             <groupId>io.debezium</groupId>
             <artifactId>debezium-core</artifactId>
             <version>${debezium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.xml</groupId>
+            <artifactId>xdb</artifactId>
+            <version>${oracle.xdb.version}</version>
         </dependency>
     </dependencies>
 
