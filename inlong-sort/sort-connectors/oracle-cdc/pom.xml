@@ -33,7 +33,7 @@
 
     <properties>
         <debezium.version>1.7.0.Final</debezium.version>
-        <oracle.xdb.version>21.3.0.0</oracle.xdb.version>
+        <oracle.xdb.version>19.3.0.0</oracle.xdb.version>
     </properties>
 
     <dependencies>
@@ -82,7 +82,7 @@
             <version>${debezium.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.oracle.database.xml</groupId>
+            <groupId>com.oracle.ojdbc</groupId>
             <artifactId>xdb</artifactId>
             <version>${oracle.xdb.version}</version>
         </dependency>
@@ -147,6 +147,12 @@
                                     <pattern>org.apache.inlong.sort.base</pattern>
                                     <shadedPattern>
                                         org.apache.inlong.sort.cdc.oracle.shaded.org.apache.inlong.sort.base
+                                    </shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.debezium</pattern>
+                                    <shadedPattern>
+                                        org.apache.inlong.sort.cdc.oracle.shaded.io.debezium
                                     </shadedPattern>
                                 </relocation>
                                 <relocation>
