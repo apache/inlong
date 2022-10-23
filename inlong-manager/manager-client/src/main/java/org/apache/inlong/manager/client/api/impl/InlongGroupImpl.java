@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api.impl;
 
 import com.google.common.base.Objects;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
@@ -46,6 +47,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
+import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
@@ -55,7 +57,6 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -298,8 +299,11 @@ public class InlongGroupImpl implements InlongGroup {
             ListSortStatusRequest request = new ListSortStatusRequest();
             request.setInlongGroupIds(Collections.singletonList(groupInfo.getInlongGroupId()));
             request.setCredentials(credentials);
-            Map<String, SortStatus> statusMap = groupClient.listSortStatus(request).getStatusMap();
-            groupContext.updateSortStatus(statusMap.getOrDefault(groupInfo.getInlongGroupId(), SortStatus.UNKNOWN));
+            ListSortStatusResponse sortStatusInfo = groupClient.listSortStatus(request);
+            if (MapUtils.isNotEmpty(sortStatusInfo.getStatusMap())) {
+                groupContext.updateSortStatus(sortStatusInfo.getStatusMap().getOrDefault(
+                        groupInfo.getInlongGroupId(), SortStatus.UNKNOWN));
+            }
         }
         return groupContext;
     }

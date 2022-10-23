@@ -52,8 +52,10 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
+import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -131,16 +133,21 @@ public class InlongClientImpl implements InlongClient {
 
         // group info
         PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(request);
-        List<InlongGroupBriefInfo> briefInfos = pageInfo.getList();
+        final List<InlongGroupBriefInfo> briefInfos = pageInfo.getList();
 
         // sort status info
         ListSortStatusRequest sortStatusRequest = new ListSortStatusRequest();
         sortStatusRequest.setInlongGroupIds(groupIds);
         sortStatusRequest.setCredentials(credentials);
-        Map<String, SortStatus> sortStatusMap = groupClient.listSortStatus(sortStatusRequest).getStatusMap();
+        Map<String, SortStatus> sortStatusMap = new HashMap<>();
+        ListSortStatusResponse response = groupClient.listSortStatus(sortStatusRequest);
+        if (MapUtils.isNotEmpty(response.getStatusMap())) {
+            sortStatusMap = response.getStatusMap();
+        }
 
         Map<String, InlongGroupStatusInfo> groupStatusMap = Maps.newHashMap();
         if (CollectionUtils.isNotEmpty(briefInfos)) {
+            Map<String, SortStatus> finalSortStatusMap = sortStatusMap;
             briefInfos.forEach(briefInfo -> {
                 String groupId = briefInfo.getInlongGroupId();
                 SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(briefInfo.getStatus());
@@ -151,7 +158,7 @@ public class InlongClientImpl implements InlongClient {
                         .originalStatus(briefInfo.getStatus())
                         .simpleGroupStatus(groupStatus)
                         .streamSources(sources)
-                        .sortStatus(sortStatusMap.getOrDefault(groupId, SortStatus.UNKNOWN))
+                        .sortStatus(finalSortStatusMap.getOrDefault(groupId, SortStatus.UNKNOWN))
                         .build();
                 groupStatusMap.put(groupId, statusInfo);
             });

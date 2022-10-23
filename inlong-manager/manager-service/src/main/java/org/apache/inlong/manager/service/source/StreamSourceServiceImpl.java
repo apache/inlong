@@ -213,7 +213,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         if (CollectionUtils.isNotEmpty(streamFields)) {
             streamFields.forEach(streamField -> streamField.setId(null));
         }
-        sourceOperator.updateOpt(request, groupEntity.getStatus(), operator);
+        sourceOperator.updateOpt(request, groupEntity.getStatus(), groupEntity.getLightweight(), operator);
 
         LOGGER.info("success to update source info: {}", request);
         return true;

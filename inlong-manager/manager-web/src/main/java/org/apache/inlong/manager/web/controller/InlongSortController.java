@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
 import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
 import org.apache.inlong.manager.service.core.SortService;
@@ -41,8 +42,8 @@ public class InlongSortController {
 
     @RequestMapping(value = "/sort/listStatus", method = RequestMethod.POST)
     @ApiOperation(value = "List sort job status by inlong groups")
-    public ListSortStatusResponse listSortStatus(@RequestBody ListSortStatusRequest request) {
-        return sortService.listSortStatus(request);
+    public Response<ListSortStatusResponse> listSortStatus(@RequestBody ListSortStatusRequest request) {
+        return Response.success(sortService.listSortStatus(request));
     }
 
 }
