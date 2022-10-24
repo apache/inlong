@@ -25,6 +25,9 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * TableChange represent requested changes to a table.
+ */
 public interface TableChange {
     final class First implements ColumnPosition {
         private static final First INSTANCE = new First();

@@ -27,6 +27,9 @@ import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.ALERT
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE;
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.TRY_IT_BEST;
 
+/**
+ * MultipleSinkOption collect all parameters used for multiple sink.
+ */
 public class MultipleSinkOption implements Serializable {
 
     private static final long serialVersionUID = 1L;

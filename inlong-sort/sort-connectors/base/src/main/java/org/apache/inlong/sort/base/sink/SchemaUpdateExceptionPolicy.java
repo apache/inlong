@@ -18,6 +18,16 @@
 
 package org.apache.inlong.sort.base.sink;
 
+/**
+ * Multiple sink scenes will meet different table data.
+ * Maybe one table data have different schema, once it's schema mismatch with catalog schema, how to handle
+ * this table data. For example schema mismatch:
+ *
+ * <pre>
+ * data : {a : int, b : string, c : date}
+ * catalog : {a : string, b : timestamp}
+ * </pre>
+ */
 public enum SchemaUpdateExceptionPolicy {
     TRY_IT_BEST("Try it best to handle schema update, if can not handle it, just ignore it."),
     LOG_WITH_IGNORE("Ignore schema update and log it."),
