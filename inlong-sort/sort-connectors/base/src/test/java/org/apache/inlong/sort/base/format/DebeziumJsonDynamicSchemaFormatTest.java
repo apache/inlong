@@ -88,6 +88,13 @@ public class DebeziumJsonDynamicSchemaFormatTest extends DynamicSchemaFormatBase
         Assert.assertEquals(values, Arrays.asList("111", "scooter"));
     }
 
+    @Test
+    public void testExtractPhysicalData() throws IOException {
+        JsonNode rootNode = (JsonNode) getDynamicSchemaFormat()
+                .deserialize(getSource().getBytes(StandardCharsets.UTF_8));
+        Assert.assertNotNull(((JsonDynamicSchemaFormat) getDynamicSchemaFormat()).getPhysicalData(rootNode));
+    }
+
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     protected AbstractDynamicSchemaFormat getDynamicSchemaFormat() {
