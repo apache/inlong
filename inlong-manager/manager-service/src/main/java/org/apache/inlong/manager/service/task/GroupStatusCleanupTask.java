@@ -42,7 +42,7 @@ public class GroupStatusCleanupTask implements InitializingBean {
      */
     private static final String SystemInitModifier = "system-startup";
 
-    @Value("${group.cleanup.enabled:false}")
+    @Value("${group.status.cleanup.enabled:false}")
     private Boolean enabled;
 
     @Autowired
@@ -58,8 +58,7 @@ public class GroupStatusCleanupTask implements InitializingBean {
             InlongGroupPageRequest request = InlongGroupPageRequest.builder()
                     .status(GroupStatus.CONFIG_ING.getCode()).build();
             List<InlongGroupEntity> groupEntities = groupMapper.selectByCondition(request);
-
-            log.debug("group entities to cleanup on startup: {}", groupEntities);
+            
             for (InlongGroupEntity entity : groupEntities) {
                 groupMapper.updateStatus(entity.getInlongGroupId(), GroupStatus.CONFIG_FAILED.getCode(),
                         SystemInitModifier);
