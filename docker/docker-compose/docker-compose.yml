@@ -76,6 +76,7 @@ services:
       - manager
     ports:
       - "46801:46801"
+      - "46802:46802"
     environment:
       - MANAGER_OPENAPI_IP=manager
       - MANAGER_OPENAPI_PORT=8083
