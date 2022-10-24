@@ -36,10 +36,7 @@ import java.util.List;
 @Slf4j
 @Service
 public class GroupStatusCleanupTask implements InitializingBean {
-
-    /**
-     * The execution starts after this delay in seconds.
-     */
+    
     private static final String SystemInitModifier = "system-startup";
 
     @Value("${group.status.cleanup.enabled:false}")
