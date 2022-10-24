@@ -76,12 +76,14 @@ public class RecordUtils {
      * According column's type, get it's logicalType
      * Refer: https://ververica.github.io/flink-cdc-connectors/master/content/connectors/oracle-cdc.html?from_wecom=1
      * @param column
+     * @param struct
      * @return
      */
-    public static LogicalType convertLogicType(Column column) {
+    public static LogicalType convertLogicType(Column column, Struct struct) {
         String typeName = column.typeName();
-        Integer p = column.length();
-        Integer s = column.scale().orElse(0);
+        // Oracle Number Type default precision is 38
+        Integer p = column.length() == 0 ? 38 : column.length();
+        Integer s = column.scale().isPresent() ? column.scale().orElse(0) : struct.getInt32("scale");
         if (NUMBER_TYPE.contains(typeName)) {
             if (p == 1) {
                 return new BooleanType();

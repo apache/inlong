@@ -718,13 +718,19 @@ public final class RowDataDebeziumDeserializeSchema
                     // struct type convert normal type
                     if (fieldValue instanceof Struct) {
                         Column column = tableSchema.getTable().columnWithName(fieldName);
-                        LogicalType logicType = RecordUtils.convertLogicType(column);
+                        LogicalType logicType = RecordUtils.convertLogicType(column, (Struct)fieldValue);
                         DeserializationRuntimeConverter fieldConverter = createConverter(
                                 logicType,
                                 serverTimeZone,
                                 userDefinedConverterFactory);
                         fieldValue =
                                 convertField(fieldConverter, fieldValue, fieldSchema);
+                        if (fieldValue instanceof DecimalData) {
+                            fieldValue = ((DecimalData) fieldValue).toBigDecimal();
+                        }
+                        if (fieldValue instanceof TimestampData) {
+                            fieldValue = ((TimestampData) fieldValue).toTimestamp();
+                        }
                     }
 
                     data.put(fieldName, fieldValue);
