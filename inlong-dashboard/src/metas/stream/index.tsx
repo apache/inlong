@@ -142,7 +142,7 @@ const fieldsDefault: FieldItemType[] = [
       options: [
         {
           label: i18n.t('meta.Stream.DataSeparator.Space'),
-          value: '(Space)',
+          value: ' ',
         },
         {
           label: i18n.t('meta.Stream.DataSeparator.VerticalLine'),
