@@ -19,6 +19,7 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
+import akka.io.Tcp.Write;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -40,6 +41,7 @@ import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.SerializableTable;
 import org.apache.iceberg.Table;
+import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.TableLoader;
@@ -54,6 +56,8 @@ import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleFilesCommiter;
 import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleStreamWriter;
 import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessOperator;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleFileCommiter;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleStreamWriter;
 import org.apache.inlong.sort.iceberg.sink.multiple.MultipleWriteResult;
 import org.apache.inlong.sort.iceberg.sink.multiple.RecordWithSchema;
 import org.apache.inlong.sort.iceberg.sink.multiple.WholeDatabaseMigrationOperator;
@@ -84,8 +88,8 @@ import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES_DE
 public class FlinkSink {
     private static final Logger LOG = LoggerFactory.getLogger(FlinkSink.class);
 
-    private static final String ICEBERG_STREAM_WRITER_NAME = IcebergStreamWriter.class.getSimpleName();
-    private static final String ICEBERG_FILES_COMMITTER_NAME = IcebergFilesCommitter.class.getSimpleName();
+    private static final String ICEBERG_STREAM_WRITER_NAME = IcebergSingleStreamWriter.class.getSimpleName();
+    private static final String ICEBERG_FILES_COMMITTER_NAME = IcebergSingleFileCommiter.class.getSimpleName();
     private static final String ICEBERG_MULTIPLE_STREAM_WRITER_NAME =
             IcebergMultipleStreamWriter.class.getSimpleName();
     private static final String ICEBERG_MULTIPLE_FILES_COMMITTER_NAME =
@@ -183,9 +187,9 @@ public class FlinkSink {
         }
 
         /**
-         * This iceberg {@link Table} instance is used for initializing {@link IcebergStreamWriter} which will write all
-         * the records into {@link DataFile}s and emit them to downstream operator. Providing a table would avoid so
-         * many table loading from each separate task.
+         * This iceberg {@link Table} instance is used for initializing {@link IcebergSingleStreamWriter} which will
+         * write all the records into {@link DataFile}s and emit them to downstream operator. Providing a table would \
+         * avoid so many table loading from each separate task.
          *
          * @param newTable the loaded iceberg table instance.
          * @return {@link Builder} to connect the iceberg table.
@@ -196,7 +200,7 @@ public class FlinkSink {
         }
 
         /**
-         * The table loader is used for loading tables in {@link IcebergFilesCommitter} lazily, we need this loader
+         * The table loader is used for loading tables in {@link IcebergSingleFileCommiter} lazily, we need this loader
          * because {@link Table} is not serializable and could not just use the loaded table from Builder#table in the
          * remote task manager.
          *
@@ -431,7 +435,8 @@ public class FlinkSink {
         }
 
         private SingleOutputStreamOperator<Void> appendCommitter(SingleOutputStreamOperator<WriteResult> writerStream) {
-            IcebergFilesCommitter filesCommitter = new IcebergFilesCommitter(tableLoader, overwrite);
+            IcebergProcessOperator<WriteResult, Void> filesCommitter = new IcebergProcessOperator<>(
+                    new IcebergSingleFileCommiter(TableIdentifier.of(table.name()), tableLoader, overwrite));
             SingleOutputStreamOperator<Void> committerStream = writerStream
                     .transform(operatorName(ICEBERG_FILES_COMMITTER_NAME), Types.VOID, filesCommitter)
                     .setParallelism(1)
@@ -488,7 +493,7 @@ public class FlinkSink {
                 }
             }
 
-            IcebergStreamWriter<RowData> streamWriter = createStreamWriter(
+            IcebergProcessOperator<RowData, WriteResult> streamWriter = createStreamWriter(
                     table, flinkRowType, equalityFieldIds, upsertMode, appendMode, inlongMetric, auditHostAndPorts);
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
@@ -587,7 +592,7 @@ public class FlinkSink {
         }
     }
 
-    static IcebergStreamWriter<RowData> createStreamWriter(Table table,
+    static IcebergProcessOperator<RowData, WriteResult> createStreamWriter(Table table,
             RowType flinkRowType,
             List<Integer> equalityFieldIds,
             boolean upsert,
@@ -604,7 +609,8 @@ public class FlinkSink {
                 serializableTable, serializableTable.schema(), flinkRowType, targetFileSize,
                 fileFormat, equalityFieldIds, upsert, appendMode);
 
-        return new IcebergStreamWriter<>(table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts);
+        return new IcebergProcessOperator<>(new IcebergSingleStreamWriter<>(
+                table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts));
     }
 
     private static FileFormat getFileFormat(Map<String, String> properties) {
