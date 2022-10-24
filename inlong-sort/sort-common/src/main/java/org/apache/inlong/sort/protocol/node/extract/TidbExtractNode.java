@@ -37,6 +37,7 @@ import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.Metadata;
+import org.apache.inlong.sort.protocol.constant.TiDBConstant;
 import org.apache.inlong.sort.protocol.enums.ExtractMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -140,22 +141,22 @@ public class TidbExtractNode extends ExtractNode implements Metadata, InlongMetr
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
 
-        options.put("connector", "tidb");
-        options.put("tidb.database.url", url);
-        options.put("tidb.username", username);
-        options.put("tidb.password", password);
-        options.put("tidb.database.name", database);
-        options.put("tidb.table.name", tableName);
+        options.put(TiDBConstant.CONNECTOR, TiDBConstant.CONNECTOR_NAME);
+        options.put(TiDBConstant.URL, url);
+        options.put(TiDBConstant.USERNAME, username);
+        options.put(TiDBConstant.PASSWORD, password);
+        options.put(TiDBConstant.DATABASE_NAME, database);
+        options.put(TiDBConstant.TABLE_NAME, tableName);
         // current only support kafka streaming source
-        options.put("tidb.streaming.source", "kafka");
-        options.put("tidb.streaming.codec", codec);
-        options.put("tidb.streaming.kafka.bootstrap.servers", bootstrapServers);
-        options.put("tidb.streaming.kafka.topic", topic);
+        options.put(TiDBConstant.STREAMING_SOURCE, TiDBConstant.STREAMING_SOURCE_KAFKA);
+        options.put(TiDBConstant.STREAMING_CODEC, codec);
+        options.put(TiDBConstant.BOOTSTRAP_SERVERS, bootstrapServers);
+        options.put(TiDBConstant.TOPIC_NAME, topic);
         if (StringUtils.isNotBlank(groupId)) {
-            options.put("tidb.streaming.kafka.group.id", groupId);
+            options.put(TiDBConstant.GROUP_ID, groupId);
         }
         if (StringUtils.isNotBlank(autoOffsetReset)) {
-            options.put("tidb.streaming.kafka.auto.offset.reset", autoOffsetReset);
+            options.put(TiDBConstant.OFFSET_RESET, autoOffsetReset);
         }
         return options;
     }
