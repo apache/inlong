@@ -59,7 +59,7 @@ import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleFileCommiter;
 import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleStreamWriter;
 import org.apache.inlong.sort.iceberg.sink.multiple.MultipleWriteResult;
 import org.apache.inlong.sort.iceberg.sink.multiple.RecordWithSchema;
-import org.apache.inlong.sort.iceberg.sink.multiple.WholeDatabaseMigrationOperator;
+import org.apache.inlong.sort.iceberg.sink.multiple.DynamicSchemaHandleOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +94,7 @@ public class FlinkSink {
     private static final String ICEBERG_MULTIPLE_FILES_COMMITTER_NAME =
             IcebergMultipleFilesCommiter.class.getSimpleName();
     private static final String ICEBERG_WHOLE_DATABASE_MIGRATION_NAME =
-            WholeDatabaseMigrationOperator.class.getSimpleName();
+            DynamicSchemaHandleOperator.class.getSimpleName();
 
     private FlinkSink() {
     }
@@ -218,7 +218,7 @@ public class FlinkSink {
 
         /**
          * The catalog loader is used for loading tables in {@link IcebergMultipleStreamWriter} and
-         * {@link WholeDatabaseMigrationOperator} lazily, we need this loader because in multiple sink scene which table
+         * {@link DynamicSchemaHandleOperator} lazily, we need this loader because in multiple sink scene which table
          * to load is determined in runtime, so we should hold a {@link org.apache.iceberg.catalog.Catalog} at runtime.
          *
          * @param catalogLoader to load iceberg catalog inside tasks.
@@ -518,7 +518,7 @@ public class FlinkSink {
             // upsert mode will be initialized at runtime
 
             int parallelism = writeParallelism == null ? input.getParallelism() : writeParallelism;
-            WholeDatabaseMigrationOperator routeOperator = new WholeDatabaseMigrationOperator(
+            DynamicSchemaHandleOperator routeOperator = new DynamicSchemaHandleOperator(
                     catalogLoader,
                     multipleSinkOption);
             SingleOutputStreamOperator<RecordWithSchema> routeStream = input

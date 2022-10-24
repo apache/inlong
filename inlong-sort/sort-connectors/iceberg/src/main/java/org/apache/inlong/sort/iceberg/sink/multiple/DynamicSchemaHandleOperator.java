@@ -61,10 +61,10 @@ import java.util.Set;
 
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE;
 
-public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<RecordWithSchema>
+public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWithSchema>
         implements OneInputStreamOperator<RowData, RecordWithSchema>, ProcessingTimeCallback {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WholeDatabaseMigrationOperator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicSchemaHandleOperator.class);
     private static final long HELPER_DEBUG_INTERVEL = 10 * 60 * 1000;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -85,7 +85,7 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
     // blacklist to filter schema update failed table
     private transient Set<TableIdentifier> blacklist;
 
-    public WholeDatabaseMigrationOperator(CatalogLoader catalogLoader,
+    public DynamicSchemaHandleOperator(CatalogLoader catalogLoader,
             MultipleSinkOption multipleSinkOption) {
         this.catalogLoader = catalogLoader;
         this.multipleSinkOption = multipleSinkOption;
@@ -117,8 +117,7 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
 
     @Override
     public void processElement(StreamRecord<RowData> element) throws Exception {
-        String wholeData = element.getValue().getString(0).toString();
-        JsonNode jsonNode = objectMapper.readTree(wholeData);
+        JsonNode jsonNode = dynamicSchemaFormat.deserialize(element.getValue().getBinary(0));
 
         TableIdentifier tableId = parseId(jsonNode);
         if (blacklist.contains(tableId)) {
