@@ -22,6 +22,7 @@ import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
+import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -115,37 +116,25 @@ public enum OracleReadableMetaData {
                 @Override
                 public Object read(SourceRecord record,
                         @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
-                    // construct canal json
-                    Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
-                    // tableName
-                    String tableName = getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY);
-                    // databaseName
-                    String databaseName = getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY);
-                    // schemaName
-                    String schemaName = getMetaData(record, AbstractSourceInfo.SCHEMA_NAME_KEY);
-                    // opTs
-                    long opTs = (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
-                    // ts
-                    long ts = (Long) messageStruct.get(FieldName.TIMESTAMP);
-                    // actual data
-                    GenericRowData data = (GenericRowData) rowData;
-                    Map<String, Object> field = (Map<String, Object>) data.getField(0);
-                    List<Map<String, Object>> dataList = new ArrayList<>();
-                    dataList.add(field);
+                    return getCanalData(record, tableSchema, (GenericRowData) rowData);
+                }
+            }),
 
-                    CanalJson canalJson = CanalJson.builder()
-                            .data(dataList).database(databaseName).schema(schemaName)
-                            .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
-                            .oracleType(getOracleType(tableSchema))
-                            .table(tableName).ts(ts)
-                            .type(getOpType(record)).sqlType(getSqlType(tableSchema)).build();
-                    try {
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        return StringData.fromString(objectMapper.writeValueAsString(canalJson));
-                    } catch (Exception e) {
-                        throw new IllegalStateException("exception occurs when get meta data", e);
-                    }
+    DATA_CANAL(
+            "meta.data_canal",
+            DataTypes.STRING(),
+            new MetadataConverter() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    return null;
+                }
+
+                @Override
+                public Object read(SourceRecord record,
+                        @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+                    return getCanalData(record, tableSchema, (GenericRowData) rowData);
                 }
             }),
 
@@ -385,6 +374,39 @@ public enum OracleReadableMetaData {
                 }
             });
 
+    private static StringData getCanalData(SourceRecord record, TableChange tableSchema, GenericRowData rowData) {
+        // construct canal json
+        Struct messageStruct = (Struct) record.value();
+        Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
+        // tableName
+        String tableName = getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY);
+        // databaseName
+        String databaseName = getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY);
+        // schemaName
+        String schemaName = getMetaData(record, AbstractSourceInfo.SCHEMA_NAME_KEY);
+        // opTs
+        long opTs = (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY);
+        // ts
+        long ts = (Long) messageStruct.get(FieldName.TIMESTAMP);
+        // actual data
+        GenericRowData data = rowData;
+        Map<String, Object> field = (Map<String, Object>) data.getField(0);
+        List<Map<String, Object>> dataList = new ArrayList<>();
+        dataList.add(field);
+
+        CanalJson canalJson = CanalJson.builder()
+                .data(dataList).database(databaseName).schema(schemaName)
+                .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
+                .oracleType(getOracleType(tableSchema))
+                .table(tableName).ts(ts)
+                .type(getOpType(record)).sqlType(getSqlType(tableSchema)).build();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return StringData.fromString(objectMapper.writeValueAsString(canalJson));
+        } catch (Exception e) {
+            throw new IllegalStateException("exception occurs when get meta data", e);
+        }
+    }
 
     private final String key;
 

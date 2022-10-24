@@ -42,14 +42,13 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class AllMigrateOracleTest {
 
     private OracleExtractNode buildAllMigrateExtractNode() {
         List<FieldInfo> fields = Arrays.asList(
-                new MetaFieldInfo("data", MetaField.DATA));
+                new MetaFieldInfo("data", MetaField.DATA_CANAL));
         Map<String, String> option = new HashMap<>();
         option.put("source.multiple.enable", "true");
         OracleExtractNode node = new OracleExtractNode("1", "oracle_input", fields,
@@ -63,7 +62,7 @@ public class AllMigrateOracleTest {
 
     private OracleExtractNode buildAllMigrateExtractNodeWithBytesFormat() {
         List<FieldInfo> fields = Arrays.asList(
-                new MetaFieldInfo("data", MetaField.DATA_BYTES));
+                new MetaFieldInfo("data", MetaField.DATA_BYTES_CANAL));
         Map<String, String> option = new HashMap<>();
         option.put("source.multiple.enable", "true");
         OracleExtractNode node = new OracleExtractNode("1", "oracle_input", fields,
