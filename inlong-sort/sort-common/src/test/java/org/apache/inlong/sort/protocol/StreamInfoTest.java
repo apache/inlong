@@ -98,7 +98,7 @@ public class StreamInfoTest extends SerializeBaseTest<StreamInfo> {
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
         return new HiveLoadNode("2", "hive_output", fields, relations, null, null,
-                1, null, "myHive", "default", "test", "/opt/hive-conf", "3.1.2",
+                1, null, "myHive", "default", "test", "/opt/hive-conf", "3.1.3",
                 null, Arrays.asList(new FieldInfo("day", new LongFormatInfo())));
     }
 
