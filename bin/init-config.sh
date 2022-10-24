@@ -55,11 +55,7 @@ init_inlong_dataproxy() {
   cd $INLONG_HOME/inlong-dataproxy/conf
   sed -i 's/manager.hosts=.*/'''manager.hosts=${manager_server_hostname}:${manager_server_port}'''/g' common.properties
   sed -i 's/audit.proxys=.*/'''audit.proxys=${audit_proxys_ip}:${audit_proxys_port}'''/g' common.properties
-  if [ $mq_type == "pulsar" ]; then
-    sed -i 's/localhost.*/'''${local_ip}'''/g' dataproxy-pulsar.conf
-  elif [ $mq_type == "tubemq" ]; then
-    sed -i 's/localhost.*/'''${local_ip}'''/g' dataproxy-tube.conf
-  fi 
+  sed -i 's/localhost.*/'''${local_ip}'''/g' dataproxy-${mq_type}.conf
 }
 
 init_inlong_manager() {
