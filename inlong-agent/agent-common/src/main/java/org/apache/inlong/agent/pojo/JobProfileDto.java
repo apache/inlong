@@ -320,6 +320,7 @@ public class JobProfileDto {
                 job.setMqttJob(mqttJob);
                 job.setSource(MQTT_SOURCE);
                 profileDto.setJob(job);
+                break;
             default:
         }
         return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));

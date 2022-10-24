@@ -37,7 +37,6 @@ public class MqttJob {
     private String automaticReconnect;
     private String mqttVersion;
 
-
     @Data
     public static class MqttJobConfig {
 
