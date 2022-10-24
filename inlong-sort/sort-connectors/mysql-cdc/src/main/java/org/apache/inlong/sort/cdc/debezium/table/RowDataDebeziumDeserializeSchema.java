@@ -81,9 +81,6 @@ public final class RowDataDebeziumDeserializeSchema
 
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
 
-    private static final DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern(
-            "yyyy-MM-dd HH:mm:ss");
-
     /**
      * TypeInformation of the produced {@link RowData}. *
      */
@@ -637,7 +634,9 @@ public final class RowDataDebeziumDeserializeSchema
                 // by default the field value is zoned timestamp, no need to convert
                 break;
             case Timestamp.SCHEMA_NAME:
-                fieldValue = Instant.ofEpochMilli((Long) fieldValue).toString();
+                Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
+                fieldValue = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.ofInstant(instantTime,
+                        serverTimeZone));
                 break;
             default:
                 LOG.error("parse schema {} error", schemaName);
