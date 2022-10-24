@@ -58,7 +58,7 @@ public class GroupStatusCleanupTask implements InitializingBean {
             InlongGroupPageRequest request = InlongGroupPageRequest.builder()
                     .status(GroupStatus.CONFIG_ING.getCode()).build();
             List<InlongGroupEntity> groupEntities = groupMapper.selectByCondition(request);
-            
+
             for (InlongGroupEntity entity : groupEntities) {
                 groupMapper.updateStatus(entity.getInlongGroupId(), GroupStatus.CONFIG_FAILED.getCode(),
                         SystemInitModifier);

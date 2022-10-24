@@ -99,6 +99,15 @@ public interface InlongClient {
      * List group status
      *
      * @param groupIds inlong group id list
+     * @return map of inlong group status list
+     * @throws Exception the exception
+     */
+    Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds) throws Exception;
+
+    /**
+     * List group status
+     *
+     * @param groupIds inlong group id list
      * @param credentials auth info to query sort task such as sort cluster token
      * @return map of inlong group status list
      * @throws Exception the exception

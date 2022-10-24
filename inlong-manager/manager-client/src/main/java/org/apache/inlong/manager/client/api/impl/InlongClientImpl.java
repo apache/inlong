@@ -52,10 +52,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
-import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -126,7 +124,7 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds, String credentials) {
+    public Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds) {
         InlongGroupPageRequest request = new InlongGroupPageRequest();
         request.setGroupIdList(groupIds);
         request.setListSources(true);
@@ -135,19 +133,8 @@ public class InlongClientImpl implements InlongClient {
         PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(request);
         final List<InlongGroupBriefInfo> briefInfos = pageInfo.getList();
 
-        // sort status info
-        ListSortStatusRequest sortStatusRequest = new ListSortStatusRequest();
-        sortStatusRequest.setInlongGroupIds(groupIds);
-        sortStatusRequest.setCredentials(credentials);
-        Map<String, SortStatus> sortStatusMap = new HashMap<>();
-        ListSortStatusResponse response = groupClient.listSortStatus(sortStatusRequest);
-        if (MapUtils.isNotEmpty(response.getStatusMap())) {
-            sortStatusMap = response.getStatusMap();
-        }
-
         Map<String, InlongGroupStatusInfo> groupStatusMap = Maps.newHashMap();
         if (CollectionUtils.isNotEmpty(briefInfos)) {
-            Map<String, SortStatus> finalSortStatusMap = sortStatusMap;
             briefInfos.forEach(briefInfo -> {
                 String groupId = briefInfo.getInlongGroupId();
                 SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(briefInfo.getStatus());
@@ -158,12 +145,29 @@ public class InlongClientImpl implements InlongClient {
                         .originalStatus(briefInfo.getStatus())
                         .simpleGroupStatus(groupStatus)
                         .streamSources(sources)
-                        .sortStatus(finalSortStatusMap.getOrDefault(groupId, SortStatus.UNKNOWN))
                         .build();
                 groupStatusMap.put(groupId, statusInfo);
             });
         }
         return groupStatusMap;
+    }
+
+    @Override
+    public Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds, String credentials) {
+        Map<String, InlongGroupStatusInfo> statusInfoMap = listGroupStatus(groupIds);
+
+        // sort status info
+        ListSortStatusRequest sortStatusRequest = new ListSortStatusRequest();
+        sortStatusRequest.setInlongGroupIds(groupIds);
+        sortStatusRequest.setCredentials(credentials);
+        Map<String, SortStatus> sortStatusMap = groupClient.listSortStatus(sortStatusRequest).getStatusMap();
+
+        if (MapUtils.isNotEmpty(sortStatusMap)) {
+            statusInfoMap.forEach((groupId, statusInfo) -> {
+                statusInfo.setSortStatus(sortStatusMap.getOrDefault(groupId, SortStatus.UNKNOWN));
+            });
+        }
+        return statusInfoMap;
     }
 
     @Override
