@@ -86,7 +86,9 @@
         and type = #{type, jdbcType=VARCHAR}
         and ip = #{ip, jdbcType=VARCHAR}
         and port = #{port, jdbcType=INTEGER}
-        and protocol_type = #{protocolType, jdbcType=VARCHAR}
+        <if test="protocolType != null and protocolType != ''">
+            and protocol_type = #{protocolType, jdbcType=VARCHAR}
+        </if>
     </select>
     <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.pojo.cluster.ClusterPageRequest"
@@ -101,6 +103,9 @@
             </if>
             <if test="parentId != null and parentId != ''">
                 and parent_id = #{parentId, jdbcType=INTEGER}
+            </if>
+            <if test="protocolType != null and protocolType != ''">
+                and protocol_type = #{protocolType, jdbcType=VARCHAR}
             </if>
             <if test="keyword != null and keyword != ''">
                 and (

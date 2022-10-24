@@ -52,6 +52,8 @@ public class Entrance {
         EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner()
                 .inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        tableEnv.getConfig().getConfiguration().setString(Constants.PIPELINE_NAME,
+                config.getString(Constants.JOB_NAME));
         String sqlFile = config.getString(Constants.SQL_SCRIPT_FILE);
         Parser parser;
         if (StringUtils.isEmpty(sqlFile)) {

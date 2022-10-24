@@ -118,13 +118,17 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
           const suffixNp = Array.isArray(v.suffix.name) ? v.suffix.name : v.suffix.name.split('.');
           v.suffix.name = suffixNp && suffixNp.length > 1 ? suffixNp : v.suffix.name;
         }
+        const suffixProps =
+          typeof v.suffix?.props === 'function' ? v.suffix.props(realTimeValues) : v.suffix?.props;
 
         return {
           ...v,
           name,
           type: viewOnly ? 'text' : v.type,
           suffix:
-            typeof v.suffix === 'object' && viewOnly ? { ...v.suffix, type: 'text' } : v.suffix,
+            typeof v.suffix === 'object'
+              ? { ...v.suffix, props: suffixProps, type: viewOnly ? 'text' : v.suffix.type }
+              : v.suffix,
           extra: viewOnly ? null : v.extra,
           props: {
             ...initialProps,
@@ -179,7 +183,7 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
         return type !== 'input' && type !== 'inputsearch';
       });
       const newRealTimeValues = trim(allValues) as any;
-      setRealTimeValues(newRealTimeValues);
+      setRealTimeValues(prev => ({ ...prev, ...newRealTimeValues }));
       if (noPrevent && props.onFilter) {
         props.onFilter(newRealTimeValues);
       }

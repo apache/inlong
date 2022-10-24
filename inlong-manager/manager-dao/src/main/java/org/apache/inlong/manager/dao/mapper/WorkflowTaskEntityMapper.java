@@ -48,4 +48,11 @@ public interface WorkflowTaskEntityMapper {
 
     int update(WorkflowTaskEntity workflowTaskEntity);
 
+    /**
+     * Physically delete all task infos based on process ids
+     *
+     * @return rows deleted
+     */
+    int deleteByProcessIds(@Param("processIdList") List<Integer> processIdList);
+
 }

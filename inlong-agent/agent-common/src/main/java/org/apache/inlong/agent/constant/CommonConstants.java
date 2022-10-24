@@ -77,7 +77,7 @@ public class CommonConstants {
     public static final int DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS = 4 * 1000;
 
     public static final String PROXY_BATCH_FLUSH_INTERVAL = "proxy.batch.flush.interval";
-    public static final int DEFAULT_PROXY_BATCH_FLUSH_INTERVAL = 2 * 1000;
+    public static final int DEFAULT_PROXY_BATCH_FLUSH_INTERVAL = 1000;
 
     public static final String PROXY_SENDER_MAX_TIMEOUT = "proxy.sender.maxTimeout";
     // max timeout in seconds.

@@ -78,6 +78,20 @@ public class UserClient {
     }
 
     /**
+     * Get user info by username
+     *
+     * @param name username
+     * @return user info
+     */
+    public UserInfo getByName(String name) {
+        Preconditions.checkNotNull(name, "username cannot be null");
+
+        Response<UserInfo> response = ClientUtils.executeHttpCall(userApi.getByName(name));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * List all users basic info by request condition
      *
      * @param request request

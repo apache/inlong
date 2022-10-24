@@ -49,7 +49,7 @@ public class MySqlExtractNodeTest extends SerializeBaseTest<MySqlExtractNode> {
         Map<MetaField, String> formatMap = new HashMap<>();
         formatMap.put(MetaField.PROCESS_TIME, "AS PROCTIME()");
         formatMap.put(MetaField.TABLE_NAME, "STRING METADATA FROM 'meta.table_name' VIRTUAL");
-        formatMap.put(MetaField.DATA, "STRING METADATA FROM 'meta.data' VIRTUAL");
+        formatMap.put(MetaField.DATA_CANAL, "STRING METADATA FROM 'meta.data_canal' VIRTUAL");
         formatMap.put(MetaField.DATABASE_NAME, "STRING METADATA FROM 'meta.database_name' VIRTUAL");
         formatMap.put(MetaField.OP_TYPE, "STRING METADATA FROM 'meta.op_type' VIRTUAL");
         formatMap.put(MetaField.OP_TS, "TIMESTAMP_LTZ(3) METADATA FROM 'meta.op_ts' VIRTUAL");
@@ -60,7 +60,12 @@ public class MySqlExtractNodeTest extends SerializeBaseTest<MySqlExtractNode> {
         formatMap.put(MetaField.PK_NAMES, "ARRAY<STRING> METADATA FROM 'meta.pk_names' VIRTUAL");
         formatMap.put(MetaField.BATCH_ID, "BIGINT METADATA FROM 'meta.batch_id' VIRTUAL");
         formatMap.put(MetaField.UPDATE_BEFORE, "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL");
-        formatMap.put(MetaField.DATA_BYTES, "BYTES METADATA FROM 'meta.data' VIRTUAL");
+        formatMap.put(MetaField.DATA_BYTES_DEBEZIUM, "BYTES METADATA FROM 'meta.data_debezium' VIRTUAL");
+        formatMap.put(MetaField.DATA_DEBEZIUM, "STRING METADATA FROM 'meta.data_debezium' VIRTUAL");
+        formatMap.put(MetaField.DATA_BYTES_CANAL, "BYTES METADATA FROM 'meta.data_canal' VIRTUAL");
+        formatMap.put(MetaField.DATA, "STRING METADATA FROM 'meta.data_canal' VIRTUAL");
+        formatMap.put(MetaField.DATA_BYTES, "BYTES METADATA FROM 'meta.data_canal' VIRTUAL");
+
         MySqlExtractNode node = getTestObject();
         boolean formatEquals = true;
         for (MetaField metaField : node.supportedMetaFields()) {

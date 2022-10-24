@@ -67,11 +67,7 @@
         from stream_transform_field
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-        delete
-        from stream_transform_field
-        where id = #{id,jdbcType=INTEGER}
-    </delete>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity">
         insert into stream_transform_field (id, inlong_group_id, inlong_stream_id,
@@ -299,9 +295,22 @@
         </foreach>
     </insert>
 
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete
+        from stream_transform_field
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
     <delete id="deleteAll">
         delete
         from stream_transform_field
         where transform_id = #{transformId,jdbcType=INTEGER}
+    </delete>
+    <delete id="deleteByInlongGroupIds">
+        delete
+        from stream_transform_field
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
     </delete>
 </mapper>

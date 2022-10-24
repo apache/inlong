@@ -27,6 +27,8 @@ ENV JDBC_URL=127.0.0.1:3306
 ENV USERNAME=root
 ENV PASSWORD=inlong
 ENV ZK_URL=127.0.0.1:2181
+ENV CLEANSING_ENABLE=false
+ENV MANAGER_DBNAME=apache_inlong_manager
 # support download plugins from remote address.
 ENV PLUGINS_URL=default
 # for flink-sort-plugin.properties
@@ -45,6 +47,11 @@ ADD target/sort-dist-${VERSION}.jar /opt/inlong-sort/
 ADD target/sort-connector-pulsar-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-jdbc-${VERSION}.jar /opt/inlong-sort/connectors/
 ADD target/sort-connector-hive-${VERSION}.jar /opt/inlong-sort/connectors/
+# audit clickhouse
+ENV AUDIT_CK_URL=127.0.0.1:8123
+ENV AUDIT_CK_USERNAME=default
+ENV AUDIT_CK_PASSWD=default
+ENV AUDIT_CK_DBNAME="apache_inlong_audit"
 # add mysql connector
 RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
 ADD manager-docker.sh bin/

@@ -19,11 +19,13 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -76,12 +79,32 @@ public class StreamSinkController {
         return Response.success(sinkService.update(request, LoginUserUtils.getLoginUser().getName()));
     }
 
+    @RequestMapping(value = "/sink/updateByKey", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.UPDATE)
+    @ApiOperation(value = "Update stream sink by key")
+    public Response<UpdateResult> updateByKey(@RequestBody SinkRequest request) {
+        return Response.success(sinkService.updateByKey(request, LoginUserUtils.getLoginUser().getName()));
+    }
+
     @RequestMapping(value = "/sink/delete/{id}", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete stream sink")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        boolean result = sinkService.delete(id, LoginUserUtils.getLoginUser().getName());
+        return Response.success(sinkService.delete(id, LoginUserUtils.getLoginUser().getName()));
+    }
+
+    @RequestMapping(value = "/sink/deleteByKey", method = RequestMethod.DELETE)
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiOperation(value = "Delete stream sink by key")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> deleteByKey(@RequestParam String groupId, @RequestParam String streamId,
+            @RequestParam String name) {
+        boolean result = sinkService.deleteByKey(groupId, streamId, name, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
 

@@ -70,8 +70,8 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
         entity.setModifier(operator);
         int rowCount = dataNodeEntityMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("data node has already updated with name={}, type={}, curVersion={}", request.getName(),
-                    request.getType(), request.getVersion());
+            LOGGER.error("data node has already updated with name={}, type={}, request version={}, updated row={}",
+                    request.getName(), request.getType(), request.getVersion(), rowCount);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
     }

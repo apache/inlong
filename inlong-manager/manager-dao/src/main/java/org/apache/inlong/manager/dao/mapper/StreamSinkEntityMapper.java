@@ -64,12 +64,21 @@ public interface StreamSinkEntityMapper {
     /**
      * Query valid sink list by the given group id and stream id.
      *
-     * @param groupId Inlong group id.
-     * @param streamId Inlong stream id.
-     * @param sinkName Stream sink name.
-     * @return Sink entity list.
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
+     * @return stream sink entity list
      */
-    List<StreamSinkEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
+    List<StreamSinkEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
+    /**
+     * Query stream sink by the unique key.
+     *
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
+     * @param sinkName stream sink name
+     * @return stream sink entity
+     */
+    StreamSinkEntity selectByUniqueKey(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("sinkName") String sinkName);
 
     /**
@@ -133,6 +142,13 @@ public interface StreamSinkEntityMapper {
 
     int updateStatus(StreamSinkEntity entity);
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteById(Integer id);
+
+    /**
+     * Physically delete all stream sinks based on inlong group ids
+     *
+     * @return rows deleted
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
 }

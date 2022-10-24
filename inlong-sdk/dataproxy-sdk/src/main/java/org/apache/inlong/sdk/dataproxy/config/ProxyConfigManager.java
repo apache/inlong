@@ -590,6 +590,7 @@ public class ProxyConfigManager extends Thread {
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
         params.add(new BasicNameValuePair("extTag", clientConfig.getNetTag()));
         params.add(new BasicNameValuePair("ip", this.localIP));
+        params.add(new BasicNameValuePair("protocolType", clientConfig.getProtocolType()));
         LOGGER.info("Begin to get configure from manager {}, param is {}", url, params);
 
         String resultStr = requestConfiguration(url, params);

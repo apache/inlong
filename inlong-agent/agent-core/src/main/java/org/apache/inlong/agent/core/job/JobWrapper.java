@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
@@ -60,7 +61,7 @@ public class JobWrapper extends AbstractStateWrapper {
         this.taskManager = manager.getTaskManager();
         this.jobManager = manager.getJobManager();
         this.job = job;
-        this.allTasks = new ArrayList<>();
+        this.allTasks = new CopyOnWriteArrayList<>();
         this.db = manager.getCommandDb();
         doChangeState(State.ACCEPTED);
     }
@@ -149,6 +150,7 @@ public class JobWrapper extends AbstractStateWrapper {
             submitAllTasks();
             checkAllTasksStateAndWait();
             cleanup();
+            LOGGER.info("job name is {}, state is {}", job.getName(), getCurrentState());
         } catch (Exception ex) {
             doChangeState(State.FAILED);
             LOGGER.error("error caught: {}, message: {}",

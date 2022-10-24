@@ -60,6 +60,9 @@ public class ClusterPageRequest extends PageRequest {
     @ApiModelProperty(value = "Extend tag")
     private String extTag;
 
+    @ApiModelProperty(value = "Protocol type, such as: TCP, HTTP")
+    private String protocolType;
+
     @ApiModelProperty(value = "The inlong cluster tag list")
     private List<String> clusterTagList;
 

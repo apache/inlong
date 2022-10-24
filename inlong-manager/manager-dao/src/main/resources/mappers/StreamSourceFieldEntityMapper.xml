@@ -258,4 +258,12 @@
         from stream_source_field
         where source_id = #{sourceId,jdbcType=INTEGER}
     </delete>
+    <delete id="deleteByInlongGroupIds">
+        delete
+        from stream_source_field
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

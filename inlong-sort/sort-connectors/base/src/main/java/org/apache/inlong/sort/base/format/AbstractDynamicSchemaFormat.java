@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.base.format;
 
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.RowType;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,18 +43,31 @@ public abstract class AbstractDynamicSchemaFormat<T> {
     public static final Pattern PATTERN = Pattern.compile("\\$\\{\\s*([\\w.-]+)\\s*}", Pattern.CASE_INSENSITIVE);
 
     /**
-     * Extract value by key from the raw data
+     * Extract values by key from the raw data
      *
      * @param message The byte array of raw data
      * @param keys The key list that will be used to extract
      * @return The value list maps the keys
      * @throws IOException The exceptions may throws when extract
      */
-    public List<String> extract(byte[] message, String... keys) throws IOException {
+    public List<String> extractValues(byte[] message, String... keys) throws IOException {
         if (keys == null || keys.length == 0) {
             return new ArrayList<>();
         }
-        final T data = deserialize(message);
+        return extractValues(deserialize(message), keys);
+    }
+
+    /**
+     * Extract values by key from the raw data
+     *
+     * @param data The raw data
+     * @param keys The key list that will be used to extract
+     * @return The value list maps the keys
+     */
+    public List<String> extractValues(T data, String... keys) {
+        if (keys == null || keys.length == 0) {
+            return new ArrayList<>();
+        }
         List<String> values = new ArrayList<>(keys.length);
         for (String key : keys) {
             values.add(extract(data, key));
@@ -67,6 +83,71 @@ public abstract class AbstractDynamicSchemaFormat<T> {
      * @return The value maps the key in the raw data
      */
     public abstract String extract(T data, String key);
+
+    /**
+     * Extract primary key names
+     *
+     * @param data The raw data
+     * @return The primary key name list
+     */
+    public abstract List<String> extractPrimaryKeyNames(T data);
+
+    /**
+     * Extract primary key values
+     *
+     * @param message The byte array of raw data
+     * @return The values of primary key
+     * @throws IOException The exception may be thrown when executing
+     */
+    public List<String> extractPrimaryKeyValues(byte[] message) throws IOException {
+        return extractPrimaryKeyValues(deserialize(message));
+    }
+
+    /**
+     * Extract primary key values
+     *
+     * @param data The raw data
+     * @return The values of primary key
+     */
+    public List<String> extractPrimaryKeyValues(T data) {
+        List<String> pkNames = extractPrimaryKeyNames(data);
+        if (pkNames == null || pkNames.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return extractValues(data, pkNames.toArray(new String[]{}));
+    }
+
+    /**
+     * Extract is-ddl flag
+     *
+     * @param data The raw data
+     * @return The flag of whether is ddl
+     */
+    public abstract boolean extractDDLFlag(T data);
+
+    public RowType extractSchema(T data) {
+        return extractSchema(data, extractPrimaryKeyNames(data));
+    }
+
+    /**
+     * Extract data schema info {@link RowType} from data
+     *
+     * @param data The raw data
+     * @return The data schema info
+     */
+    public abstract RowType extractSchema(T data, List<String> pkNames);
+
+    public List<RowData> extractRowData(T data) {
+        return extractRowData(data, extractSchema(data));
+    }
+
+    /**
+     * Extract data {@link RowData} from data
+     *
+     * @param data The raw data
+     * @return The row data
+     */
+    public abstract List<RowData> extractRowData(T data, RowType rowType);
 
     /**
      * Deserialize from byte array

@@ -149,7 +149,7 @@ public class DataProxyConfigRepositoryTest {
         StreamSinkEntityMapper mapper = PowerMockito.mock(StreamSinkEntityMapper.class);
         PowerMockito.when(mapper.selectByCondition(any())).thenReturn(streamSinks);
         PowerMockito.when(mapper.insert(any())).thenReturn(1);
-        PowerMockito.when(mapper.deleteByPrimaryKey(anyInt())).thenReturn(1);
+        PowerMockito.when(mapper.deleteById(anyInt())).thenReturn(1);
         return mapper;
     }
 

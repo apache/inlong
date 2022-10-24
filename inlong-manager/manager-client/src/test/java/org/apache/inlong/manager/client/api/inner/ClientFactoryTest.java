@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
@@ -914,7 +915,7 @@ class ClientFactoryTest {
     }
 
     @Test
-    void testGetNode() {
+    void testGetClusterNode() {
         ClusterNodeResponse response = ClusterNodeResponse.builder()
                 .id(1)
                 .type(ClusterType.DATAPROXY)
@@ -931,6 +932,30 @@ class ClientFactoryTest {
         );
         ClusterNodeResponse clientNode = clusterClient.getNode(1);
         Assertions.assertEquals(1, clientNode.getId());
+    }
+
+    @Test
+    void testListClusterNode() {
+        ClusterNodeResponse response = ClusterNodeResponse.builder()
+                .id(5)
+                .type(ClusterType.DATAPROXY)
+                .parentId(1)
+                .ip("127.0.0.1")
+                .port(46801)
+                .protocolType(ProtocolType.HTTP)
+                .build();
+        List<ClusterNodeResponse> responses = new ArrayList<>();
+        responses.add(response);
+        stubFor(
+                get(urlMatching("/inlong/manager/api/cluster/node/listByGroupId.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(responses))
+                                ))
+        );
+        List<ClusterNodeResponse> clusterNode = clusterClient.listNode(
+                "1", ClusterType.DATAPROXY, ProtocolType.HTTP);
+        Assertions.assertEquals(1, clusterNode.size());
     }
 
     @Test

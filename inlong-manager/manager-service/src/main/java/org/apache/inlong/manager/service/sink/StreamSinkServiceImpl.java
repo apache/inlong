@@ -37,6 +37,7 @@ import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
@@ -59,7 +60,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -96,18 +96,18 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String groupId = request.getInlongGroupId();
         groupCheckService.checkGroupStatus(groupId, operator);
 
-        // Make sure that there is no sink info with the current groupId and streamId
+        // Make sure that there is no same sink name under the current groupId and streamId
         String streamId = request.getInlongStreamId();
         String sinkName = request.getSinkName();
         // Check whether the stream exist or not
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         Preconditions.checkNotNull(streamEntity, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
-        List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
-        for (StreamSinkEntity sinkEntity : sinkList) {
-            if (sinkEntity != null && Objects.equals(sinkEntity.getSinkName(), sinkName)) {
-                String err = "sink name=%s already exists with the groupId=%s streamId=%s";
-                throw new BusinessException(String.format(err, sinkName, groupId, streamId));
-            }
+
+        // Check whether the sink name exists with the same groupId and streamId
+        StreamSinkEntity exists = sinkMapper.selectByUniqueKey(groupId, streamId, sinkName);
+        if (exists != null && exists.getSinkName().equals(sinkName)) {
+            String err = "sink name=%s already exists with the groupId=%s streamId=%s";
+            throw new BusinessException(String.format(err, sinkName, groupId, streamId));
         }
 
         // According to the sink type, save sink information
@@ -162,7 +162,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     public List<StreamSink> listSink(String groupId, String streamId) {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
+        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
         }
@@ -225,7 +225,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(SinkRequest request, String operator) {
-        LOGGER.info("begin to update sink info: {}", request);
+        LOGGER.info("begin to update sink by id: {}", request);
         this.checkParams(request);
         Preconditions.checkNotNull(request.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
 
@@ -240,13 +240,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(streamEntity, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
 
         // Check whether the sink name exists with the same groupId and streamId
-        List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
-        for (StreamSinkEntity entity : sinkList) {
-            Integer sinkId = entity.getId();
-            if (!Objects.equals(request.getId(), sinkId) && Objects.equals(entity.getSinkName(), sinkName)) {
-                String err = "sink name=%s already exists with the groupId=%s streamId=%s";
-                throw new BusinessException(String.format(err, sinkName, groupId, streamId));
-            }
+        StreamSinkEntity existEntity = sinkMapper.selectByUniqueKey(groupId, streamId, sinkName);
+        if (existEntity != null && !existEntity.getId().equals(request.getId())) {
+            String errMsg = "sink name=%s already exists with the groupId=%s streamId=%s";
+            throw new BusinessException(String.format(errMsg, sinkName, groupId, streamId));
         }
 
         SinkStatus nextStatus = null;
@@ -266,12 +263,35 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             }
             streamProcessOperation.startProcess(groupId, streamId, operator, false);
         }
-        LOGGER.info("success to update sink info: {}", request);
+        LOGGER.info("success to update sink by id: {}", request);
         return true;
     }
 
     @Override
-    public void updateStatus(int id, int status, String log) {
+    @Transactional(rollbackFor = Throwable.class)
+    public UpdateResult updateByKey(SinkRequest request, String operator) {
+        LOGGER.info("begin to update sink by key: {}", request);
+
+        // Check whether the stream sink exists
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+        String sinkName = request.getSinkName();
+        StreamSinkEntity entity = sinkMapper.selectByUniqueKey(groupId, streamId, sinkName);
+        if (entity == null) {
+            String errMsg = String.format("stream sink not found with groupId=%s, streamId=%s, sinkName=%s",
+                    groupId, streamId, sinkName);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+
+        request.setId(entity.getId());
+        Boolean result = this.update(request, operator);
+        LOGGER.info("success to update sink by key: {}", request);
+        return new UpdateResult(entity.getId(), result, request.getVersion() + 1);
+    }
+
+    @Override
+    public void updateStatus(Integer id, int status, String log) {
         StreamSinkEntity entity = new StreamSinkEntity();
         entity.setId(id);
         entity.setStatus(status);
@@ -281,17 +301,40 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         LOGGER.info("success to update sink status={} for id={} with log: {}", status, id, log);
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete sink by id={}", id);
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
+
         groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
+
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
         sinkOperator.deleteOpt(entity, operator);
-        LOGGER.info("success to delete sink info: {}", entity);
+        LOGGER.info("success to delete sink by id: {}", entity);
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public Boolean deleteByKey(String groupId, String streamId, String sinkName, String operator) {
+        LOGGER.info("begin to delete sink by groupId={}, streamId={}, sinkName={}", groupId, streamId, sinkName);
+
+        // Check whether the sink name exists with the same groupId and streamId
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(sinkName, "stream sink name is empty or null");
+        StreamSinkEntity entity = sinkMapper.selectByUniqueKey(groupId, streamId, sinkName);
+        Preconditions.checkNotNull(entity, String.format("stream sink not exist by groupId=%s streamId=%s sinkName=%s",
+                groupId, streamId, sinkName));
+
+        groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
+
+        StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
+        sinkOperator.deleteOpt(entity, operator);
+        LOGGER.info("success to delete sink by key: {}", entity);
         return true;
     }
 
@@ -305,7 +348,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // Check if it can be deleted
         groupCheckService.checkGroupStatus(groupId, operator);
 
-        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
+        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId);
         if (CollectionUtils.isNotEmpty(entityList)) {
             entityList.forEach(entity -> {
                 Integer id = entity.getId();
@@ -338,10 +381,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // Check if it can be deleted
         groupCheckService.checkGroupStatus(groupId, operator);
 
-        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
+        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId);
         if (CollectionUtils.isNotEmpty(entityList)) {
             entityList.forEach(entity -> {
-                sinkMapper.deleteByPrimaryKey(entity.getId());
+                sinkMapper.deleteById(entity.getId());
                 sinkFieldMapper.deleteAll(entity.getId());
             });
         }

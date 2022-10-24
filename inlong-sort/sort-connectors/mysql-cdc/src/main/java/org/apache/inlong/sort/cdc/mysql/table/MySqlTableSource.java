@@ -34,6 +34,7 @@ import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
 import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
 import org.apache.inlong.sort.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
+import org.apache.inlong.sort.base.filter.RowKindValidator;
 import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
 
 import javax.annotation.Nullable;
@@ -78,6 +79,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     private final StartupOptions startupOptions;
     private final boolean appendSource;
     private final boolean scanNewlyAddedTableEnabled;
+    private final String rowKindsFiltered;
     private final Properties jdbcProperties;
     private final Duration heartbeatInterval;
     private final boolean migrateAll;
@@ -125,7 +127,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             Duration heartbeatInterval,
             boolean migrateAll,
             String inlongMetric,
-            String inlongAudit) {
+            String inlongAudit,
+            String rowKindsFiltered) {
         this(
                 physicalSchema,
                 port,
@@ -153,7 +156,8 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                 heartbeatInterval,
                 migrateAll,
                 inlongMetric,
-                inlongAudit);
+                inlongAudit,
+                rowKindsFiltered);
     }
 
     /**
@@ -186,7 +190,9 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             Duration heartbeatInterval,
             boolean migrateAll,
             String inlongMetric,
-            String inlongAudit) {
+            String inlongAudit,
+            String rowKindsFiltered
+            ) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -217,6 +223,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
         this.migrateAll = migrateAll;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
+        this.rowKindsFiltered = rowKindsFiltered;
     }
 
     @Override
@@ -246,8 +253,9 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         .setResultTypeInfo(typeInfo)
                         .setServerTimeZone(serverTimeZone)
                         .setAppendSource(appendSource)
+                        .setValidator(new RowKindValidator(rowKindsFiltered))
                         .setUserDefinedConverterFactory(
-                                MySqlDeserializationConverterFactory.instance())
+                            MySqlDeserializationConverterFactory.instance())
                         .setMigrateAll(migrateAll)
                         .build();
         if (enableParallelRead) {
@@ -256,7 +264,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .hostname(hostname)
                             .port(port)
                             .databaseList(database)
-                            .tableList(database + "." + tableName)
+                            .tableList(tableName)
                             .username(username)
                             .password(password)
                             .serverTimeZone(serverTimeZone.toString())
@@ -285,7 +293,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .hostname(hostname)
                             .port(port)
                             .databaseList(database)
-                            .tableList(database + "." + tableName)
+                            .tableList(tableName)
                             .username(username)
                             .password(password)
                             .serverTimeZone(serverTimeZone.toString())
@@ -366,7 +374,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         heartbeatInterval,
                         migrateAll,
                         inlongMetric,
-                        inlongAudit);
+                        inlongAudit, rowKindsFiltered);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

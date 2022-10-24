@@ -53,7 +53,7 @@ public class HiveLoadNode extends LoadNode implements InlongMetric, Serializable
     private static final String timestampPattern = "partition.time-extractor.timestamp-pattern";
     private static final String delay = "sink.partition-commit.delay";
     private static final String policyKind = "sink.partition-commit.policy.kind";
-    private static final String HIVE_VERSION = "3.1.2";
+    private static final String HIVE_VERSION = "3.1.3";
 
     @JsonProperty("tableName")
     @Nonnull

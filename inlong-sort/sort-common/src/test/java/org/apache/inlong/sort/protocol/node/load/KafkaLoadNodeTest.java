@@ -50,7 +50,8 @@ public class KafkaLoadNodeTest extends SerializeBaseTest<KafkaLoadNode> {
     public void testMetaFields() {
         Map<MetaField, String> formatMap = new HashMap<>();
         formatMap.put(MetaField.PROCESS_TIME, "AS PROCTIME()");
-        formatMap.put(MetaField.DATA, "STRING METADATA FROM 'value.data'");
+        formatMap.put(MetaField.DATA_CANAL, "STRING METADATA FROM 'value.data_canal'");
+        formatMap.put(MetaField.DATA, "STRING METADATA FROM 'value.data_canal'");
         formatMap.put(MetaField.TABLE_NAME, "STRING METADATA FROM 'value.table'");
         formatMap.put(MetaField.DATABASE_NAME, "STRING METADATA FROM 'value.database'");
         formatMap.put(MetaField.OP_TYPE, "STRING METADATA FROM 'value.op-type'");

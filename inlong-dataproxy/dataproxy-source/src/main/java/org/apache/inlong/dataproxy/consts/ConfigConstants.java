@@ -99,8 +99,6 @@ public class ConfigConstants {
     public static final String DEFAULT_PROXY_CLUSTER_NAME = "DataProxy";
     public static final String PROXY_CLUSTER_TAG = "proxy.cluster.tag";
     public static final String PROXY_CLUSTER_INCHARGES = "proxy.cluster.inCharges";
-    public static final String PROXY_REPORT_IP = "proxy.report.ip";
-    public static final String PROXY_REPORT_PORT = "proxy.report.port";
     public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
 
     public static final String DECODER_BODY = "body";

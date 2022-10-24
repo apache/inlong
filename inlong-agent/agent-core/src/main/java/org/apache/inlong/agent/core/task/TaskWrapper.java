@@ -210,7 +210,7 @@ public class TaskWrapper extends AbstractStateWrapper {
             if (!isException()) {
                 doChangeState(State.SUCCEEDED);
             }
-            LOGGER.info("start to destroy task {}", task.getTaskId());
+            LOGGER.info("task state is {}, start to destroy task {}", getCurrentState(), task.getTaskId());
             task.destroy();
         } catch (Exception ex) {
             LOGGER.error("error while running wrapper", ex);

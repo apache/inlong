@@ -239,8 +239,15 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request) {
-        Preconditions.checkNotNull(request.getParentId(), "Cluster id cannot be empty");
+        Preconditions.checkNotNull(request.getParentId(), "parentId cannot be empty");
         return clusterClient.listNode(request);
+    }
+
+    @Override
+    public List<ClusterNodeResponse> listNode(String inlongGroupId, String clusterType, String protocolType) {
+        Preconditions.checkNotNull(inlongGroupId, "inlongGroupId cannot be empty");
+        Preconditions.checkNotNull(clusterType, "clusterType cannot be empty");
+        return clusterClient.listNode(inlongGroupId, clusterType, protocolType);
     }
 
     @Override

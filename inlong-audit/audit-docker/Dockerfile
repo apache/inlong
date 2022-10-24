@@ -27,10 +27,28 @@ EXPOSE 10081
 # pulsar or tubemq
 ENV MQ_TYPE=pulsar
 ENV PULSAR_BROKER_LIST="127.0.0.1:6650"
+ENV PULSAR_AUDIT_TOPIC="persistent:\/\/public\/default\/inlong-audit"
 ENV TUBE_MASTER_LIST="localhost:8715"
+ENV TUBE_AUDIT_TOPIC="inlong-audit"
+ENV AUDIT_DBNAME="apache_inlong_audit"
+# mysql / clickhouse / elasticsearch
+ENV STORE_MODE=mysql
+# mysql
 ENV JDBC_URL=127.0.0.1:3306
 ENV USERNAME=root
 ENV PASSWORD=inlong
+# clickhouse
+ENV STORE_CK_URL=127.0.0.1:8123
+ENV STORE_CK_USERNAME=default
+ENV STORE_CK_PASSWD=default
+ENV STORE_CK_DBNAME="apache_inlong_audit"
+# elasticsearch
+ENV STORE_ES_HOST=127.0.0.1
+ENV STORE_ES_PORT=9200
+ENV STORE_ES_AUTHENABLE=false
+ENV STORE_ES_USERNAME=elastic
+ENV STORE_ES_PASSWD=inlong
+# jvm
 ENV AUDIT_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 WORKDIR /opt/inlong-audit
 # add mysql connector

@@ -413,15 +413,17 @@
           and is_deleted = 0
     </update>
 
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <delete id="deleteById" parameterType="java.lang.Integer">
         delete
         from inlong_stream
         where id = #{id,jdbcType=INTEGER}
     </delete>
-    <delete id="deleteAllByGroupId">
+    <delete id="deleteByInlongGroupIds">
         delete
         from inlong_stream
-        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
-          and is_deleted = 0
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
     </delete>
 </mapper>
