@@ -203,7 +203,6 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         Map<String, String> tableProps = catalogTable.getOptions();
         TableSchema tableSchema = TableSchemaUtils.getPhysicalSchema(catalogTable.getSchema());
 
-        // todo:优化后续这里和单路输出的逻辑
         boolean multipleSink = Boolean.parseBoolean(
                 tableProps.getOrDefault(SINK_MULTIPLE_ENABLE.key(), SINK_MULTIPLE_ENABLE.defaultValue().toString()));
         if (multipleSink) {

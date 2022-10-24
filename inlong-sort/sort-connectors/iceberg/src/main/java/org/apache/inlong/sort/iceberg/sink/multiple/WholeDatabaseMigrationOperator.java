@@ -163,8 +163,7 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
         }
     }
 
-
-    // ================================ 所有的与coordinator交互的request和response方法 ============================
+    // ======================== All coordinator interact request and response method ============================
     private void handleSchemaInfoEvent(TableIdentifier tableId, Schema schema) {
         schemaCache.put(tableId, schema);
         Schema latestSchema = schemaCache.get(tableId);
@@ -193,7 +192,7 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
         }
     }
 
-    // ================================ 所有的coordinator处理的方法 ==============================================
+    // ================================ All coordinator handle method ==============================================
     private void handleTableCreateEventFromOperator(TableIdentifier tableId, Schema schema) {
         if (!catalog.tableExists(tableId)) {
             if (asNamespaceCatalog != null && !asNamespaceCatalog.namespaceExists(tableId.namespace())) {
@@ -206,9 +205,9 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
             }
 
             ImmutableMap.Builder<String, String> properties = ImmutableMap.builder();
-            properties.put("format-version", "2"); // todo:后续考虑默认参数给哪些，并且将这个默认参数暴露在表参数上
+            properties.put("format-version", "2");
             properties.put("write.upsert.enabled", "true");
-            // 设置了这个属性自动建表后hive才能查询到
+            // for hive visible
             properties.put("engine.hive.enabled", "true");
 
             try {
@@ -243,7 +242,7 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
         handleSchemaInfoEvent(tableId, table.schema());
     }
 
-    // =============================== 工具方法 =================================================================
+    // =============================== Utils method =================================================================
     // The way to judge compatibility is whether all the field names in the old schema exist in the new schema
     private boolean isCompatible(Schema newSchema, Schema oldSchema) {
         for (NestedField field : oldSchema.columns()) {
@@ -260,7 +259,6 @@ public class WholeDatabaseMigrationOperator extends AbstractStreamOperator<Recor
         return TableIdentifier.of(databaseStr, tableStr);
     }
 
-    // 从数据中解析schema信息并转换成为flink内置的schema,对不同的格式（canal-json、ogg）以插件接口的方式提供这个转换方式
     private RecordWithSchema parseRecord(JsonNode data, TableIdentifier tableId) {
         List<String> pkListStr = dynamicSchemaFormat.extractPrimaryKeyNames(data);
         RowType schema = dynamicSchemaFormat.extractSchema(data, pkListStr);

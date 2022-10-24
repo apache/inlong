@@ -26,27 +26,19 @@ import org.apache.iceberg.relocated.com.google.common.base.Joiner;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.types.Type;
 import org.apache.iceberg.types.Types.NestedField;
-import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 import org.apache.inlong.sort.base.sink.TableChange;
 import org.apache.inlong.sort.iceberg.FlinkTypeToType;
 import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
 import org.apache.inlong.sort.base.sink.TableChange.ColumnPosition;
 import org.apache.inlong.sort.base.sink.TableChange.UnknownColumnChange;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE;
-import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE;
-import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.TRY_IT_BEST;
-
 public class SchemaChangeUtils {
     private static final Joiner DOT = Joiner.on(".");
-
 
     /**
      * Compare two schemas and get the schema changes that happened in them.
@@ -84,8 +76,8 @@ public class SchemaChangeUtils {
             tableChanges.clear();
             tableChanges.add(
                     new UnknownColumnChange(
-                            String.format("Unspported schema update.\n" +
-                                    "oldSchema:\n%s\n, newSchema:\n %s", oldSchema, newSchema)));
+                            String.format("Unspported schema update.\n"
+                                    + "oldSchema:\n%s\n, newSchema:\n %s", oldSchema, newSchema)));
         }
 
         return tableChanges;

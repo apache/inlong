@@ -21,13 +21,9 @@ package org.apache.inlong.sort.iceberg.sink.multiple;
 import org.apache.flink.api.common.functions.AbstractRichFunction;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.streaming.api.TimerService;
-import org.apache.flink.streaming.api.operators.TimestampedCollector;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 import org.apache.flink.util.function.ThrowingConsumer;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessFunction.Context;
-
-import java.io.IOException;
 
 public abstract class IcebergProcessFunction<IN, OUT> extends AbstractRichFunction {
 

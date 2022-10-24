@@ -54,23 +54,21 @@ import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES;
 import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES_DEFAULT;
 
 /**
- * Iceberg writer that can distinguish different sink tables and route and distribute data into different IcebergStreamWriter.
+ * Iceberg writer that can distinguish different sink tables and route and distribute data into different
+ * IcebergStreamWriter.
  */
 public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWithSchema, MultipleWriteResult>
         implements CheckpointedFunction, BoundedOneInput {
     private static final Logger LOG = LoggerFactory.getLogger(IcebergMultipleStreamWriter.class);
 
     private final boolean appendMode;
-    // 可以吧这里的catalogLoad封装在tableLoader中
     private final CatalogLoader catalogLoader;
 
     private transient Catalog catalog;
-    // 下面两个的key都是整个db.table的路径
     private transient Map<TableIdentifier, IcebergSingleStreamWriter<RowData>> multipleWriters;
     private transient Map<TableIdentifier, Table> multipleTables;
     private transient Map<TableIdentifier, Schema> multipleSchemas;
     private transient FunctionInitializationContext functionInitializationContext;
-
 
     public IcebergMultipleStreamWriter(boolean appendMode, CatalogLoader catalogLoader) {
         this.appendMode = appendMode;
@@ -115,7 +113,6 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
         TableIdentifier tableId = recordWithSchema.getTableId();
 
         if (isSchemaUpdate(recordWithSchema)) {
-            // 在schema变更时就应该中断之前写入的文件，然后新启动一个writer
             if (multipleTables.get(tableId) == null) {
                 Table table = catalog.loadTable(recordWithSchema.getTableId());
                 multipleTables.put(tableId, table);
@@ -152,7 +149,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
 
             if (multipleWriters.get(tableId) == null) {
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
-                        tableId.toString(), taskWriterFactory, null, null);  // todo：后面再考虑metric的兼容
+                        tableId.toString(), taskWriterFactory, null, null);
                 writer.setup(getRuntimeContext(),
                         new CallbackCollector<>(writeResult ->
                                 collector.collect(new MultipleWriteResult(tableId, writeResult))),
@@ -161,6 +158,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                 writer.open(new Configuration());
                 multipleWriters.put(tableId, writer);
             } else {  // only if second times schema will evolute
+                // Refresh new schema maybe cause previous file writer interrupted, so here should handle it
                 multipleWriters.get(tableId).schemaEvolution(taskWriterFactory);
             }
 

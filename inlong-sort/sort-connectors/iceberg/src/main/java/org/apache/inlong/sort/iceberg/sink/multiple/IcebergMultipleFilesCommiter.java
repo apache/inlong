@@ -23,9 +23,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.operators.BoundedOneInput;
-import org.apache.flink.util.Collector;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.TableLoader;
@@ -47,6 +45,7 @@ public class IcebergMultipleFilesCommiter extends IcebergProcessFunction<Multipl
     }
 
     private transient FunctionInitializationContext functionInitializationContext;
+
     @Override
     public void processElement(MultipleWriteResult value) throws Exception {
         TableIdentifier tableId = value.getTableId();
@@ -73,7 +72,6 @@ public class IcebergMultipleFilesCommiter extends IcebergProcessFunction<Multipl
     public void initializeState(FunctionInitializationContext context) throws Exception {
         this.functionInitializationContext = context;
     }
-
 
     @Override
     public void notifyCheckpointComplete(long checkpointId) throws Exception {

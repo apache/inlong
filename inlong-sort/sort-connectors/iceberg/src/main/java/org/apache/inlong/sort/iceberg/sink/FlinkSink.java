@@ -19,7 +19,6 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
-import akka.io.Tcp.Write;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -212,7 +211,19 @@ public class FlinkSink {
             return this;
         }
 
-        // todo:排版和注释增加
+        public Builder tableSchema(TableSchema newTableSchema) {
+            this.tableSchema = newTableSchema;
+            return this;
+        }
+
+        /**
+         * The catalog loader is used for loading tables in {@link IcebergMultipleStreamWriter} and
+         * {@link WholeDatabaseMigrationOperator} lazily, we need this loader because in multiple sink scene which table
+         * to load is determined in runtime, so we should hold a {@link org.apache.iceberg.catalog.Catalog} at runtime.
+         *
+         * @param catalogLoader to load iceberg catalog inside tasks.
+         * @return {@link Builder} to connect the iceberg table.
+         */
         public Builder catalogLoader(CatalogLoader catalogLoader) {
             this.catalogLoader = catalogLoader;
             return this;
@@ -225,11 +236,6 @@ public class FlinkSink {
 
         public Builder multipleSinkOption(MultipleSinkOption multipleSinkOption) {
             this.multipleSinkOption = multipleSinkOption;
-            return this;
-        }
-
-        public Builder tableSchema(TableSchema newTableSchema) {
-            this.tableSchema = newTableSchema;
             return this;
         }
 
@@ -380,7 +386,6 @@ public class FlinkSink {
         private <T> DataStreamSink<T> chainIcebergMultipleSinkOperators() {
             Preconditions.checkArgument(inputCreator != null,
                     "Please use forRowData() or forMapperOutputType() to initialize the input DataStream.");
-            // 校验flink的schema应该为string，并且只有一个string
             DataStream<RowData> rowDataInput = inputCreator.apply(uidPrefix);
 
             // Add parallel writers that append rows to files
@@ -520,8 +525,7 @@ public class FlinkSink {
                     .transform(operatorName(ICEBERG_WHOLE_DATABASE_MIGRATION_NAME),
                             TypeInformation.of(RecordWithSchema.class),
                             routeOperator)
-                    .setParallelism(parallelism);  // todo:这个并行度理论上应该和上游的并行度保持一致，后面再抽取一个单独的参数设置这个并行度
-
+                    .setParallelism(parallelism);
 
             IcebergProcessOperator streamWriter =
                     new IcebergProcessOperator(new IcebergMultipleStreamWriter(appendMode, catalogLoader));

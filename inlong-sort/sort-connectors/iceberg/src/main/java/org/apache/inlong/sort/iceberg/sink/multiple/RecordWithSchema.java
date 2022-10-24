@@ -20,12 +20,9 @@ package org.apache.inlong.sort.iceberg.sink.multiple;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.types.RowKind;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.catalog.TableIdentifier;
-import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.types.Type;
-import org.apache.iceberg.types.Type.NestedType;
 import org.apache.iceberg.types.Types.BinaryType;
 import org.apache.iceberg.types.Types.BooleanType;
 import org.apache.iceberg.types.Types.DateType;
@@ -42,16 +39,11 @@ import org.apache.iceberg.types.Types.TimeType;
 import org.apache.iceberg.types.Types.TimestampType;
 import org.apache.iceberg.types.Types.UUIDType;
 
-import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-// 后续把Schema抽取成泛型，然后iceberg的这个泛型就是
 public class RecordWithSchema {
 
     public RecordWithSchema(
@@ -69,7 +61,6 @@ public class RecordWithSchema {
 
     private List<RowData> data;
 
-    // todo:反序列化存在问题，反序列化后Type都是new出来的，但是比较时却和Type.get出来的实例比较，因为没覆写equals方法所以比较会失败
     private Schema schema;
 
     private final TableIdentifier tableId;
@@ -105,8 +96,10 @@ public class RecordWithSchema {
         return this;
     }
 
-    // todo:bug
-    // here deserialize Type is new, but is different from getInstance(), so here should replace it.
+    // todo: here RecordWithSchema is deserialized from network, it's `Schema` is the new object, the `Type` is the
+    //       same.However `Type` do not implement equals method, so some method will return unexpected result when
+    //       compare this schema with Table#schema loaded from catalog, For example, Schema#sameSchema will return false
+    //       even thought schema is the same, can't get the comparators of Type even thought type is the same.
     public void replaceSchema() {
         List<NestedField> columns = schema.columns();
         List<NestedField> newColumns = new ArrayList<>();
@@ -142,8 +135,8 @@ public class RecordWithSchema {
             case TIME:
                 return TimeType.get();
             case TIMESTAMP:
-                return ((TimestampType) type).shouldAdjustToUTC() ?
-                        TimestampType.withZone() : TimestampType.withoutZone();
+                return ((TimestampType) type).shouldAdjustToUTC()
+                        ? TimestampType.withZone() : TimestampType.withoutZone();
             case STRING:
                 return StringType.get();
             case UUID:
@@ -161,16 +154,18 @@ public class RecordWithSchema {
                                 .collect(Collectors.toList()));
             case LIST:
                 ListType listType = ((ListType) type);
-                return listType.isElementOptional() ?
-                        ListType.ofOptional(listType.elementId(), replaceType(listType.elementType())) :
-                        ListType.ofRequired(listType.elementId(), replaceType(listType.elementType()));
+                return listType.isElementOptional()
+                        ? ListType.ofOptional(listType.elementId(), replaceType(listType.elementType()))
+                        : ListType.ofRequired(listType.elementId(), replaceType(listType.elementType()));
             case MAP:
                 MapType mapType = ((MapType) type);
-                return mapType.isValueOptional() ?
-                        MapType.ofOptional(mapType.keyId(), mapType.valueId(), replaceType(mapType.keyType()), replaceType(mapType.valueType())) :
-                        MapType.ofRequired(mapType.keyId(), mapType.valueId(), replaceType(mapType.keyType()), replaceType(mapType.valueType()));
+                return mapType.isValueOptional()
+                        ? MapType.ofOptional(mapType.keyId(), mapType.valueId(),
+                                replaceType(mapType.keyType()), replaceType(mapType.valueType()))
+                        : MapType.ofRequired(mapType.keyId(), mapType.valueId(),
+                                replaceType(mapType.keyType()), replaceType(mapType.valueType()));
             default:
-                throw new UnsupportedOperationException("Unspportted type: " + type);
+                throw new UnsupportedOperationException("Unspported type: " + type);
         }
     }
 }

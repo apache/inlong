@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -78,7 +77,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
         this.catalogLoader = toCopy.catalogLoader;
     }
 
-    public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable, CatalogLoader catalogLoader) {
+    public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable,
+            CatalogLoader catalogLoader) {
         this.tableLoader = tableLoader;
         this.tableSchema = tableSchema;
         this.catalogTable = catalogTable;
@@ -95,24 +95,32 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                 .orElseGet(ImmutableList::of);
 
         final ReadableConfig tableOptions = Configuration.fromMap(catalogTable.getOptions());
-        // todo:优化参数的构造器，加一些校验，例如在多路输出的时候就不需要表这些参数了
-        return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
-                .tableLoader(tableLoader)
-                .tableSchema(tableSchema)
-                .equalityFieldColumns(equalityColumns)
-                .overwrite(overwrite)
-                .appendMode(tableOptions.get(ICEBERG_IGNORE_ALL_CHANGELOG))
-                .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT))
-                .catalogLoader(catalogLoader)
-                .multipleSink(tableOptions.get(SINK_MULTIPLE_ENABLE))
-                .multipleSinkOption(MultipleSinkOption.builder()
-                        .withFormat(tableOptions.get(SINK_MULTIPLE_FORMAT))
-                        .withDatabasePattern(tableOptions.get(SINK_MULTIPLE_DATABASE_PATTERN))
-                        .withTablePattern(tableOptions.get(SINK_MULTIPLE_TABLE_PATTERN))
-                        .withAddColumnPolicy(tableOptions.get(SINK_MULTIPLE_ADD_COLUMN_POLICY))
-                        .withDelColumnPolicy(tableOptions.get(SINK_MULTIPLE_DEL_COLUMN_POLICY))
-                        .build())
-                .append();
+        boolean multipleSink = tableOptions.get(SINK_MULTIPLE_ENABLE);
+        if (multipleSink) {
+            return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
+                    .overwrite(overwrite)
+                    .appendMode(tableOptions.get(ICEBERG_IGNORE_ALL_CHANGELOG))
+                    .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT))
+                    .catalogLoader(catalogLoader)
+                    .multipleSink(tableOptions.get(SINK_MULTIPLE_ENABLE))
+                    .multipleSinkOption(MultipleSinkOption.builder()
+                            .withFormat(tableOptions.get(SINK_MULTIPLE_FORMAT))
+                            .withDatabasePattern(tableOptions.get(SINK_MULTIPLE_DATABASE_PATTERN))
+                            .withTablePattern(tableOptions.get(SINK_MULTIPLE_TABLE_PATTERN))
+                            .withAddColumnPolicy(tableOptions.get(SINK_MULTIPLE_ADD_COLUMN_POLICY))
+                            .withDelColumnPolicy(tableOptions.get(SINK_MULTIPLE_DEL_COLUMN_POLICY))
+                            .build())
+                    .append();
+        } else {
+            return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
+                    .tableLoader(tableLoader)
+                    .tableSchema(tableSchema)
+                    .equalityFieldColumns(equalityColumns)
+                    .overwrite(overwrite)
+                    .appendMode(tableOptions.get(ICEBERG_IGNORE_ALL_CHANGELOG))
+                    .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT))
+                    .append();
+        }
     }
 
     @Override

@@ -27,9 +27,7 @@ import org.apache.flink.core.io.SimpleVersionedSerialization;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.table.runtime.typeutils.SortedMapTypeInfo;
-import org.apache.flink.util.Collector;
 import org.apache.iceberg.AppendFiles;
 import org.apache.iceberg.ManifestFile;
 import org.apache.iceberg.ReplacePartitions;
@@ -106,10 +104,10 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
     // the same flink job; another case is restoring from snapshot created by another different job. For the second
     // case, we need to maintain the old flink job's id in flink state backend to find the max-committed-checkpoint-id
     // when traversing iceberg table's snapshots.
-    private final ListStateDescriptor<String> JOB_ID_DESCRIPTOR;
+    private final ListStateDescriptor<String> jobIdDescriptor;
     private transient ListState<String> jobIdState;
     // All pending checkpoints states for this function.
-    private final ListStateDescriptor<SortedMap<Long, byte[]>> STATE_DESCRIPTOR;
+    private final ListStateDescriptor<SortedMap<Long, byte[]>> stateDescriptor;
     private transient ListState<SortedMap<Long, byte[]>> checkpointsState;
 
     public IcebergSingleFileCommiter(TableIdentifier tableId, TableLoader tableLoader, boolean replacePartitions) {
@@ -117,9 +115,9 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
         // one IcebergMultipleFilesCommiter use same StateStore.
         this.tableLoader = tableLoader;
         this.replacePartitions = replacePartitions;
-        this.JOB_ID_DESCRIPTOR= new ListStateDescriptor<>(
+        this.jobIdDescriptor = new ListStateDescriptor<>(
                 String.format("iceberg(%s)-flink-job-id", tableId.toString()), BasicTypeInfo.STRING_TYPE_INFO);
-        this.STATE_DESCRIPTOR = buildStateDescriptor(tableId);
+        this.stateDescriptor = buildStateDescriptor(tableId);
     }
 
     @Override
@@ -140,8 +138,8 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
                 .createOutputFileFactory(table, flinkJobId, subTaskId, attemptId);
         this.maxCommittedCheckpointId = INITIAL_CHECKPOINT_ID;
 
-        this.checkpointsState = context.getOperatorStateStore().getListState(STATE_DESCRIPTOR);
-        this.jobIdState = context.getOperatorStateStore().getListState(JOB_ID_DESCRIPTOR);
+        this.checkpointsState = context.getOperatorStateStore().getListState(stateDescriptor);
+        this.jobIdState = context.getOperatorStateStore().getListState(jobIdDescriptor);
         if (context.isRestored()) {
             String restoredFlinkJobId = jobIdState.get().iterator().next();
             Preconditions.checkState(!Strings.isNullOrEmpty(restoredFlinkJobId),
