@@ -136,12 +136,6 @@ public final class Constants {
                     .defaultValue(false)
                     .withDescription("Whether migrate multiple databases");
 
-    /**
-     * It is used for jdbc url filter for avoiding url attack
-     * see also in https://su18.org/post/jdbc-connection-url-attack/
-     */
-    public static final String AUTO_DESERIALIZE = "autoDeserialize";
-
     public static final ConfigOption<String> SINK_MULTIPLE_TABLE_PATTERN =
             ConfigOptions.key("sink.multiple.table-pattern")
                     .stringType()
