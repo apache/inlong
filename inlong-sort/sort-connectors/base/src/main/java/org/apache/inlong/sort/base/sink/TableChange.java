@@ -178,6 +178,9 @@ public interface TableChange {
         }
     }
 
+    /**
+     * Represents a column change that is not recognized by the connector.
+     */
     final class UnknownColumnChange implements ColumnChange {
         private String description;
 
