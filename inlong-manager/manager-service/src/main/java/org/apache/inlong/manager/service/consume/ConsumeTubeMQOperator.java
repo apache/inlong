@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -62,8 +61,7 @@ public class ConsumeTubeMQOperator extends AbstractConsumeOperator {
     @Override
     public void checkTopicInfo(InlongConsumeRequest request) {
         String groupId = request.getInlongGroupId();
-        List<InlongGroupTopicInfo> topicInfos = groupService.getTopic(groupId);
-        InlongGroupTopicInfo topicInfo = topicInfos.get(0);
+        InlongGroupTopicInfo topicInfo = groupService.getTopic(groupId);
         Preconditions.checkNotNull(topicInfo, "inlong group not exist: " + groupId);
 
         // one inlong group only has one TubeMQ topic
