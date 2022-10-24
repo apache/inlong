@@ -58,7 +58,7 @@ public class DorisStreamLoad implements Serializable {
 
     private static final List<String> DORIS_SUCCESS_STATUS = new ArrayList<>(
             Arrays.asList("Success", "Publish Timeout"));
-    private static final String LOAD_URL_PATTERN = "http://%s/api/%s/%s/_stream_load?";
+    private static final String LOAD_URL_PATTERN = "http://%s/api/%s/%s/_stream_load";
     private final String authEncoding;
     private final Properties streamLoadProp;
     private final CloseableHttpClient httpClient;
@@ -125,6 +125,8 @@ public class DorisStreamLoad implements Serializable {
             for (Map.Entry<Object, Object> entry : streamLoadProp.entrySet()) {
                 put.setHeader(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
             }
+            put.setHeader("format", "json");
+            put.setHeader("strip_outer_array", "true");
             StringEntity entity = new StringEntity(value, "UTF-8");
             put.setEntity(entity);
 

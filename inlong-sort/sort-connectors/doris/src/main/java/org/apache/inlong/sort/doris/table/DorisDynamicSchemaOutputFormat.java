@@ -31,6 +31,7 @@ import org.apache.flink.runtime.util.ExecutorThreadFactory;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,11 +67,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final DorisOptions options;
     private final DorisReadOptions readOptions;
     private final DorisExecutionOptions executionOptions;
-    private final transient JsonDynamicSchemaFormat dynamicSchemaFormat;
     private final String databasePattern;
     private final String tablePattern;
     private long batchBytes = 0L;
     private DorisStreamLoad dorisStreamLoad;
+    private String dynamicSchemaFormat;
     private transient volatile boolean closed = false;
     private transient ScheduledExecutorService scheduler;
     private transient ScheduledFuture<?> scheduledFuture;
@@ -79,7 +80,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     public DorisDynamicSchemaOutputFormat(DorisOptions option,
             DorisReadOptions readOptions,
             DorisExecutionOptions executionOptions,
-            JsonDynamicSchemaFormat dynamicSchemaFormat,
+            String dynamicSchemaFormat,
             String databasePattern,
             String tablePattern) {
         this.options = option;
@@ -166,10 +167,18 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private void addBatch(T row) throws IOException {
         if (row instanceof RowData) {
             RowData rowData = (RowData) row;
-            JsonNode rootNode = dynamicSchemaFormat.deserialize(rowData.getBinary(0));
+            if (null == dynamicSchemaFormat) {
+                LOG.error("dynamicSchemaFormat is null");
+                throw new RuntimeException("dynamicSchemaFormat can not be null");
+            }
+            JsonDynamicSchemaFormat jsonDynamicSchemaFormat = (JsonDynamicSchemaFormat)
+                    DynamicSchemaFormatFactory.getFormat(dynamicSchemaFormat);
+            JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(rowData.getBinary(0));
             String tableIdentifier = StringUtils.join(
-                    dynamicSchemaFormat.extractValues(rootNode, databasePattern, tablePattern), ".");
-            Map<String, String> physicalData = dynamicSchemaFormat.physicalDataToMap(rootNode);
+                    jsonDynamicSchemaFormat.parse(rowData.getBinary(0), databasePattern),
+                    ".",
+                    jsonDynamicSchemaFormat.parse(rowData.getBinary(0), tablePattern));
+            Map<String, String> physicalData = jsonDynamicSchemaFormat.physicalDataToMap(rootNode);
             batchBytes += physicalData.toString().getBytes(StandardCharsets.UTF_8).length;
             // add doris delete sign
             if (enableBatchDelete()) {
@@ -225,6 +234,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     private void load(String tableIdentifier, String result) throws IOException {
+        LOG.info("lk_test load value:{}", result);
         String[] tableWithDb = tableIdentifier.split("\\.");
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
@@ -268,7 +278,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         private final DorisOptions.Builder optionsBuilder;
         private DorisReadOptions readOptions;
         private DorisExecutionOptions executionOptions;
-        private JsonDynamicSchemaFormat dynamicSchemaFormat;
+        private String dynamicSchemaFormat;
         private String databasePattern;
         private String tablePattern;
 
@@ -302,7 +312,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
 
         public DorisDynamicSchemaOutputFormat.Builder setDynamicSchemaFormat(
-                JsonDynamicSchemaFormat dynamicSchemaFormat) {
+                String dynamicSchemaFormat) {
             this.dynamicSchemaFormat = dynamicSchemaFormat;
             return this;
         }
