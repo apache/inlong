@@ -134,7 +134,7 @@ public final class Constants {
             ConfigOptions.key("source.multiple.enable")
                     .booleanType()
                     .defaultValue(false)
-                    .withDescription("Whether migrate multiple databases");
+                    .withDescription("Whether enable migrate multiple databases");
 
     public static final ConfigOption<String> SINK_MULTIPLE_TABLE_PATTERN =
             ConfigOptions.key("sink.multiple.table-pattern")

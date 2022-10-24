@@ -33,7 +33,6 @@
 
     <properties>
         <debezium.version>1.7.0.Final</debezium.version>
-        <oracle.xdb.version>19.3.0.0</oracle.xdb.version>
     </properties>
 
     <dependencies>
@@ -80,11 +79,6 @@
             <groupId>io.debezium</groupId>
             <artifactId>debezium-core</artifactId>
             <version>${debezium.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.oracle.ojdbc</groupId>
-            <artifactId>xdb</artifactId>
-            <version>${oracle.xdb.version}</version>
         </dependency>
     </dependencies>
 
@@ -158,7 +152,7 @@
                                 <relocation>
                                     <pattern>org.apache.kafka</pattern>
                                     <shadedPattern>
-                                        com.ververica.cdc.connectors.shaded.org.apache.kafka
+                                        org.apache.inlong.sort.cdc.oracle.shaded.org.apache.kafka
                                     </shadedPattern>
                                 </relocation>
                                 <relocation>
