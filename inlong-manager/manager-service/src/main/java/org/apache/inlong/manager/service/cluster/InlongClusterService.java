@@ -120,10 +120,13 @@ public interface InlongClusterService {
     PageResult<ClusterInfo> list(ClusterPageRequest request);
 
     /**
-     * List clusters by tag
+     * List clusters by tag and type
+     *
+     * @param clusterTag cluster tag
+     * @param clusterType cluster type
+     * @return cluster info list
      */
-    List<ClusterInfo> listByTag(String clusterTag);
-
+    List<ClusterInfo> listByTagAndType(String clusterTag, String clusterType);
 
     /**
      * Update cluster information

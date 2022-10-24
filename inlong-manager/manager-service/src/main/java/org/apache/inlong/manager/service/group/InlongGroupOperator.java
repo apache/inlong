@@ -17,13 +17,10 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-
-import java.util.List;
 
 /**
  * Interface of the inlong group operator.
@@ -73,13 +70,16 @@ public interface InlongGroupOperator {
      * @param groupInfo inlong group which need to get topic info
      * @return topic info
      */
-    InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos);
+    InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo);
 
     /**
-     * Get backup topic info for the given inlong group if exists
-     * @param groupInfo
-     * @return
+     * Get backup topic info for the given inlong group if exists.
+     *
+     * @param groupInfo inlong group info
+     * @return backup topic info
      */
-    InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos);
+    default InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo) {
+        return null;
+    }
 
 }

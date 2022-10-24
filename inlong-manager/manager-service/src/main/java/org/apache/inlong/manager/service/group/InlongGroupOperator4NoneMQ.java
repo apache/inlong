@@ -34,9 +34,9 @@ import org.springframework.stereotype.Service;
  * Inlong group operator without MQ.
  */
 @Service
-public class InlongNoneMqOperator extends AbstractGroupOperator {
+public class InlongGroupOperator4NoneMQ extends AbstractGroupOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlongNoneMqOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupOperator4NoneMQ.class);
 
     @Override
     public Boolean accept(String mqType) {

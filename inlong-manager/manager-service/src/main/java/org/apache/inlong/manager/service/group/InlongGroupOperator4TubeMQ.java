@@ -18,32 +18,30 @@
 package org.apache.inlong.manager.service.group;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.common.constant.ClusterSwitch;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
-import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeTopicInfo;
+import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQTopicInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
 
 /**
  * Inlong group operator for TubeMQ.
  */
 @Service
-public class InlongTubeOperator extends AbstractGroupOperator {
+public class InlongGroupOperator4TubeMQ extends AbstractGroupOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlongTubeOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupOperator4TubeMQ.class);
 
     @Override
     public Boolean accept(String mqType) {
@@ -75,37 +73,24 @@ public class InlongTubeOperator extends AbstractGroupOperator {
     }
 
     @Override
-    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos) {
-        InlongTubeTopicInfo topicInfo = new InlongTubeTopicInfo();
-        topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
-        topicInfo.setMqType(groupInfo.getMqType());
-        topicInfo.setMqResource(groupInfo.getMqResource());
-        topicInfo.setClusterInfos(clusterInfos);
+    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
+        InlongTubeMQTopicInfo topicInfo = new InlongTubeMQTopicInfo();
+        // each inlong group is associated with a TubeMQ topic
         topicInfo.setTopic(groupInfo.getMqResource());
         return topicInfo;
     }
 
     @Override
-    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos) {
-
-        String groupId = groupInfo.getInlongGroupId();
-        InlongTubeTopicInfo topicInfo = new InlongTubeTopicInfo();
-        topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
-        topicInfo.setMqType(groupInfo.getMqType());
-
-        // set backup group mq resource
-        InlongGroupExtEntity backupMqResource = groupExtEntityMapper
-                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_MQ_RESOURCE);
-        if (StringUtils.isBlank(backupMqResource.getKeyValue())) {
-            topicInfo.setMqResource(groupInfo.getMqResource());
-            topicInfo.setTopic(groupInfo.getMqResource());
+    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo) {
+        // set backup topic, each inlong group is associated with a TubeMQ topic
+        InlongTubeMQTopicInfo topicInfo = new InlongTubeMQTopicInfo();
+        InlongGroupExtEntity extEntity = groupExtMapper.selectByUniqueKey(groupInfo.getInlongGroupId(),
+                BACKUP_MQ_RESOURCE);
+        if (extEntity != null && StringUtils.isNotBlank(extEntity.getKeyValue())) {
+            topicInfo.setTopic(extEntity.getKeyValue());
         } else {
-            topicInfo.setMqResource(backupMqResource.getKeyValue());
             topicInfo.setTopic(groupInfo.getMqResource());
         }
-
-        //set backup cluster
-        topicInfo.setClusterInfos(clusterInfos);
 
         return topicInfo;
     }

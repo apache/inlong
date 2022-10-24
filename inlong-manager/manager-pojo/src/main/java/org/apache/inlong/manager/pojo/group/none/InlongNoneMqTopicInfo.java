@@ -15,23 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group.tubemq;
+package org.apache.inlong.manager.pojo.group.none;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
+/**
+ * Inlong group request without MQ.
+ */
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@ApiModel("Inlong tube group topic info")
-public class InlongTubeTopicInfo extends InlongGroupTopicInfo {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Inlong group request without MQ")
+@JsonTypeDefine(value = MQType.NONE)
+public class InlongNoneMqTopicInfo extends InlongGroupTopicInfo {
 
-    @ApiModelProperty(value = "tube topic")
-    private String topic;
+    // no field
+
+    public InlongNoneMqTopicInfo() {
+        this.setMqType(MQType.NONE);
+    }
+
 }

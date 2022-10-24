@@ -427,7 +427,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         List<InlongStreamBriefInfo> topicList = streamMapper.selectBriefList(groupId);
-        LOGGER.debug("success to get topic list by groupId={}", groupId);
+        LOGGER.debug("success to get topic list by groupId={}, result size={}", groupId, topicList.size());
         return topicList;
     }
 

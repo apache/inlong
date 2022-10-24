@@ -78,7 +78,6 @@
         </if>
         and is_deleted = 0
     </select>
-
     <select id="selectByKey" resultType="org.apache.inlong.manager.dao.entity.InlongStreamExtEntity">
         select
         <include refid="Base_Column_List"/>

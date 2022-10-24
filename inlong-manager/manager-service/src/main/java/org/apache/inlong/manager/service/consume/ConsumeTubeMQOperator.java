@@ -28,13 +28,13 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarInfo;
 import org.apache.inlong.manager.pojo.consume.tubemq.ConsumeTubeMQDTO;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQTopicInfo;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -61,14 +61,13 @@ public class ConsumeTubeMQOperator extends AbstractConsumeOperator {
     @Override
     public void checkTopicInfo(InlongConsumeRequest request) {
         String groupId = request.getInlongGroupId();
-        List<InlongGroupTopicInfo> topicInfos = groupService.getTopic(groupId);
-        InlongGroupTopicInfo topicInfo = topicInfos.get(0);
+        InlongGroupTopicInfo topicInfo = groupService.getTopic(groupId);
         Preconditions.checkNotNull(topicInfo, "inlong group not exist: " + groupId);
 
         // one inlong group only has one TubeMQ topic
-        String mqResource = topicInfo.getMqResource();
-        Preconditions.checkTrue(Objects.equals(mqResource, request.getTopic()),
-                String.format("inlong consume topic %s not belongs to inlong group %s", request.getTopic(), groupId));
+        InlongTubeMQTopicInfo tubeMQTopic = (InlongTubeMQTopicInfo) topicInfo;
+        Preconditions.checkTrue(Objects.equals(tubeMQTopic.getTopic(), request.getTopic()),
+                String.format("topic %s for consume not belongs to inlong group %s", request.getTopic(), groupId));
     }
 
     @Override

@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -80,6 +79,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_CLUSTER_TAG;
 import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
 
 /**
@@ -92,19 +92,20 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupServiceImpl.class);
 
     @Autowired
-    private InlongGroupOperatorFactory groupOperatorFactory;
-    @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private InlongGroupExtEntityMapper groupExtMapper;
     @Autowired
-    private StreamSourceEntityMapper streamSourceMapper;
-    @Autowired
-    private SourceOperatorFactory sourceOperatorFactory;
-    @Autowired
     private InlongStreamService streamService;
     @Autowired
+    private StreamSourceEntityMapper streamSourceMapper;
+    @Autowired
     private InlongClusterService clusterService;
+
+    @Autowired
+    private InlongGroupOperatorFactory groupOperatorFactory;
+    @Autowired
+    private SourceOperatorFactory sourceOperatorFactory;
 
     /**
      * Check whether modification is supported under the current group status, and which fields can be modified.
@@ -365,31 +366,51 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public List<InlongGroupTopicInfo> getTopic(String groupId) {
+    public InlongGroupTopicInfo getTopic(String groupId) {
         // the group info will not null in get() method
-        List<InlongGroupTopicInfo> topicInfos = new ArrayList<>();
         InlongGroupInfo groupInfo = this.get(groupId);
-        List<ClusterInfo> clusterInfos = clusterService.listByTag(groupInfo.getInlongClusterTag());
-        InlongGroupOperator instance = groupOperatorFactory.getInstance(groupInfo.getMqType());
-        InlongGroupTopicInfo topicInfo = instance.getTopic(groupInfo, clusterInfos);
-        topicInfos.add(topicInfo);
+        InlongGroupOperator groupOperator = groupOperatorFactory.getInstance(groupInfo.getMqType());
+        InlongGroupTopicInfo topicInfo = groupOperator.getTopic(groupInfo);
 
-        // get back up topic info
-        InlongGroupExtEntity backupClusterTag = groupExtMapper
-                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_CLUSTER_TAG);
-        if (!StringUtils.isBlank(backupClusterTag.getKeyValue())) {
-            LOGGER.info("find backup topic info for group={}", groupId);
-            List<ClusterInfo> backupClusterInfos = clusterService.listByTag(backupClusterTag.getKeyValue());
-            instance = groupOperatorFactory.getInstance(backupClusterInfos.get(0).getType());
-            InlongGroupTopicInfo backupTopicInfo = instance.getBackupTopic(groupInfo, backupClusterInfos);
-            topicInfos.add(backupTopicInfo);
+        // set the base params
+        topicInfo.setInlongGroupId(groupId);
+        String clusterTag = groupInfo.getInlongClusterTag();
+        topicInfo.setInlongClusterTag(clusterTag);
+
+        // assert: each MQ type has a corresponding type of cluster
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, groupInfo.getMqType());
+        topicInfo.setClusterInfos(clusterInfos);
+
+        LOGGER.debug("success to get topic for groupId={}, result={}", groupId, topicInfo);
+        return topicInfo;
+    }
+
+    @Override
+    public InlongGroupTopicInfo getBackupTopic(String groupId) {
+        // backup topic info saved in the ext table
+        InlongGroupExtEntity extEntity = groupExtMapper.selectByUniqueKey(groupId, BACKUP_CLUSTER_TAG);
+        if (StringUtils.isBlank(extEntity.getKeyValue())) {
+            LOGGER.warn("not found any backup topic for groupId={}", groupId);
+            return null;
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to get topic for groupId={}, result=" + topicInfos, groupId);
-        }
+        // the group info will not null in get() method
+        InlongGroupInfo groupInfo = this.get(groupId);
+        InlongGroupOperator groupOperator = groupOperatorFactory.getInstance(groupInfo.getMqType());
+        InlongGroupTopicInfo backupTopicInfo = groupOperator.getBackupTopic(groupInfo);
 
-        return topicInfos;
+        // set the base params
+        backupTopicInfo.setInlongGroupId(groupId);
+        String backupClusterTag = extEntity.getKeyValue();
+        backupTopicInfo.setInlongClusterTag(backupClusterTag);
+
+        // set backup cluster info
+        // assert: each MQ type has a corresponding type of cluster
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(backupClusterTag, groupInfo.getMqType());
+        backupTopicInfo.setClusterInfos(clusterInfos);
+
+        LOGGER.debug("success to get backup topic for groupId={}, result={}", groupId, backupTopicInfo);
+        return backupTopicInfo;
     }
 
     @Override

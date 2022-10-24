@@ -17,17 +17,13 @@
 
 package org.apache.inlong.manager.service.group;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
+import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
@@ -35,24 +31,23 @@ import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaDTO;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaRequest;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaTopicInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
+
 /**
  * Inlong group operator for Kafka.
  */
 @Service
-public class InlongKafkaOperator extends AbstractGroupOperator {
+public class InlongGroupOperator4Kafka extends AbstractGroupOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlongKafkaOperator.class);
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupOperator4Kafka.class);
 
     @Override
     public Boolean accept(String mqType) {
@@ -95,37 +90,36 @@ public class InlongKafkaOperator extends AbstractGroupOperator {
     }
 
     @Override
-    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos) {
+    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
         InlongKafkaTopicInfo topicInfo = new InlongKafkaTopicInfo();
-        topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
-        topicInfo.setMqType(groupInfo.getMqType());
-        topicInfo.setMqResource(groupInfo.getMqResource());
-        topicInfo.setClusterInfos(clusterInfos);
-        topicInfo.setTopic(groupInfo.getMqResource());
+        // each inlong stream is associated with a Kafka topic
+        List<String> topics = streamService.getTopicList(groupInfo.getInlongGroupId()).stream()
+                .map(InlongStreamBriefInfo::getMqResource)
+                .collect(Collectors.toList());
+        topicInfo.setTopics(topics);
+
         return topicInfo;
     }
 
     @Override
-    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo, List<ClusterInfo> clusterInfos) {
+    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo) {
+        // set backup topics, each inlong stream is associated with a Kafka topic
         String groupId = groupInfo.getInlongGroupId();
+        List<InlongStreamBriefInfo> streamTopics = streamService.getTopicList(groupId);
+        streamTopics.forEach(stream -> {
+            InlongStreamExtEntity streamExtEntity = streamExtMapper.selectByKey(groupId, stream.getInlongStreamId(),
+                    BACKUP_MQ_RESOURCE);
+            if (streamExtEntity != null && StringUtils.isNotBlank(streamExtEntity.getKeyValue())) {
+                stream.setMqResource(streamExtEntity.getKeyValue());
+            }
+        });
 
         InlongKafkaTopicInfo topicInfo = new InlongKafkaTopicInfo();
-        topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
-        topicInfo.setMqType(getMQType());
+        List<String> topics = streamTopics.stream()
+                .map(InlongStreamBriefInfo::getMqResource)
+                .collect(Collectors.toList());
+        topicInfo.setTopics(topics);
 
-        // set backup group mq resource
-        InlongGroupExtEntity backupMqResource = groupExtEntityMapper
-                .selectByGroupIdAndKeyName(groupId, ClusterSwitch.BACKUP_MQ_RESOURCE);
-        if (StringUtils.isBlank(backupMqResource.getKeyValue())) {
-            topicInfo.setMqResource(groupInfo.getMqResource());
-            topicInfo.setTopic(groupInfo.getMqResource());
-        } else {
-            topicInfo.setMqResource(backupMqResource.getKeyValue());
-            topicInfo.setTopic(groupInfo.getMqResource());
-        }
-
-        // set backup cluster info
-        topicInfo.setClusterInfos(clusterInfos);
         return topicInfo;
     }
 

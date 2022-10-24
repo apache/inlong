@@ -44,7 +44,8 @@ public interface InlongStreamExtEntityMapper {
 
     List<InlongStreamExtEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
-    InlongStreamExtEntity selectByKey(String groupId, String streamId, String keyName);
+    InlongStreamExtEntity selectByKey(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("keyName") String keyName);
 
     int updateByPrimaryKey(InlongStreamExtEntity record);
 

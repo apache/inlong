@@ -22,20 +22,26 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
+import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
 import java.util.List;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = MQType.KAFKA)
 @ApiModel("Inlong kafka group topic info")
 public class InlongKafkaTopicInfo extends InlongGroupTopicInfo {
 
-    @ApiModelProperty(value = "Kafka topic")
-    private String topic;
+    @ApiModelProperty(value = "Kafka topics")
+    private List<String> topics;
+
+    public InlongKafkaTopicInfo() {
+        this.setMqType(MQType.KAFKA);
+    }
 
 }

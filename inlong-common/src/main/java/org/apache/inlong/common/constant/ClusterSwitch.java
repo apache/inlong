@@ -21,6 +21,14 @@ package org.apache.inlong.common.constant;
  * Constants of cluster switching
  */
 public class ClusterSwitch {
+
+    /**
+     * Cluster tag for backup.
+     */
     public static final String BACKUP_CLUSTER_TAG = "backup_cluster_tag";
+
+    /**
+     * MQ resource for backup, represents the namespace of Pulsar, the topic of TubeMQ, etc.
+     */
     public static final String BACKUP_MQ_RESOURCE = "backup_mq_resource";
 }

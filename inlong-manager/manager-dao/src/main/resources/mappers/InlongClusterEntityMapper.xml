@@ -246,15 +246,4 @@
         from inlong_cluster
         where id = #{id,jdbcType=INTEGER}
     </delete>
-
-    <select id="selectByClusterTag" resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from inlong_cluster
-        <where>
-            is_deleted = 0
-            and inlong_cluster_tag = #{clusterTag, jdbcType=VARCHAR}
-        </where>
-    </select>
-
 </mapper>

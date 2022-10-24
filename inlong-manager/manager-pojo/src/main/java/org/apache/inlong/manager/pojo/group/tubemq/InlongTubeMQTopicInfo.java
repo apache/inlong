@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group.pulsar;
+package org.apache.inlong.manager.pojo.group.tubemq;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,27 +27,19 @@ import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = MQType.PULSAR)
-@ApiModel("Inlong pulsar group topic info")
-public class InlongPulsarTopicInfo extends InlongGroupTopicInfo {
+@JsonTypeDefine(value = MQType.TUBEMQ)
+@ApiModel("Inlong tube group topic info")
+public class InlongTubeMQTopicInfo extends InlongGroupTopicInfo {
 
-    @ApiModelProperty(value = "Pulsar tenant")
-    private String tenant;
+    @ApiModelProperty(value = "TubeMQ topic")
+    private String topic;
 
-    @ApiModelProperty(value = "Pulsar namespace")
-    private String namespace;
-
-    @ApiModelProperty(value = "Pulsar topics")
-    private List<String> topics;
-
-    public InlongPulsarTopicInfo() {
-        this.setMqType(MQType.PULSAR);
+    public InlongTubeMQTopicInfo() {
+        this.setMqType(MQType.TUBEMQ);
     }
 
 }
