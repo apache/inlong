@@ -103,6 +103,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
         // protocolType may be null, and the protocolTypes' length may be less than ports' length
         String[] ports = heartbeat.getPort().split(InlongConstants.COMMA);
+        String[] ips = heartbeat.getIp().split(InlongConstants.COMMA);
         String protocolType = heartbeat.getProtocolType();
         String[] protocolTypes = null;
         if (StringUtils.isNotBlank(protocolType) && ports.length > 1) {
@@ -118,6 +119,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             HeartbeatMsg heartbeatMsg = JsonUtils.parseObject(JsonUtils.toJsonByte(heartbeat), HeartbeatMsg.class);
             assert heartbeatMsg != null;
             heartbeatMsg.setPort(ports[i].trim());
+            heartbeatMsg.setIp(ips[i].trim());
             if (protocolTypes != null) {
                 heartbeatMsg.setProtocolType(protocolTypes[i]);
             } else {
