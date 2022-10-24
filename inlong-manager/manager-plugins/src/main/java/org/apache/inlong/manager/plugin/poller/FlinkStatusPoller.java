@@ -38,7 +38,6 @@ public class FlinkStatusPoller implements SortStatusPoller {
 
     @Override
     public Map<String, SortStatus> poll(List<InlongGroupInfo> groupInfos, String credentials) {
-        log.debug("groupInfos = {}, credentials = {}", groupInfos, credentials);
         Map<String, SortStatus> statusMap = new HashMap<>();
         for (InlongGroupInfo groupInfo : groupInfos) {
             String groupId = groupInfo.getInlongGroupId();
@@ -64,9 +63,9 @@ public class FlinkStatusPoller implements SortStatusPoller {
 
                 String sortUrl = kvConf.get(InlongConstants.SORT_URL);
                 FlinkService flinkService = new FlinkService(sortUrl);
-                log.debug("jodId = {}, sorUrl = {}", jobId, sortUrl);
                 SortStatus status = convertToSortStatus(flinkService.getJobStatus(jobId));
                 statusMap.put(groupId, status);
+                log.info("get sort status = {} for flink jodId = {}, sortUrl = {}", status, jobId, sortUrl);
             } catch (Exception e) {
                 log.error("polling sort status failed for group " + groupId, e);
                 statusMap.put(groupId, SortStatus.UNKNOWN);

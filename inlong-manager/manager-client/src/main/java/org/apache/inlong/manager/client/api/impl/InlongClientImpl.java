@@ -129,9 +129,8 @@ public class InlongClientImpl implements InlongClient {
         request.setGroupIdList(groupIds);
         request.setListSources(true);
 
-        // group info
         PageResult<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(request);
-        final List<InlongGroupBriefInfo> briefInfos = pageInfo.getList();
+        List<InlongGroupBriefInfo> briefInfos = pageInfo.getList();
 
         Map<String, InlongGroupStatusInfo> groupStatusMap = Maps.newHashMap();
         if (CollectionUtils.isNotEmpty(briefInfos)) {
@@ -144,8 +143,7 @@ public class InlongClientImpl implements InlongClient {
                         .inlongGroupId(briefInfo.getInlongGroupId())
                         .originalStatus(briefInfo.getStatus())
                         .simpleGroupStatus(groupStatus)
-                        .streamSources(sources)
-                        .build();
+                        .streamSources(sources).build();
                 groupStatusMap.put(groupId, statusInfo);
             });
         }
