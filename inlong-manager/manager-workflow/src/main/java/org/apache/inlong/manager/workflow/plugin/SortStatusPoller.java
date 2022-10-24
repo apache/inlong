@@ -23,6 +23,9 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Sort task status poller interface for inlong groups
+ */
 public interface SortStatusPoller {
     Map<String, SortStatus> poll(List<InlongGroupInfo> groupInfo, String credentials);
 }

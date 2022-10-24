@@ -33,9 +33,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Flink sort task status poller for inlong groups
+ */
 @Slf4j
 public class FlinkStatusPoller implements SortStatusPoller {
 
+    /**
+     * Poll sort task status for groups
+     * @param groupInfos group ids to poll
+     * @param credentials not used for flink
+     * @return
+     */
     @Override
     public Map<String, SortStatus> poll(List<InlongGroupInfo> groupInfos, String credentials) {
         Map<String, SortStatus> statusMap = new HashMap<>();
