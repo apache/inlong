@@ -234,7 +234,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     private void load(String tableIdentifier, String result) throws IOException {
-        LOG.info("lk_test load value:{}", result);
         String[] tableWithDb = tableIdentifier.split("\\.");
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
