@@ -57,7 +57,7 @@ public class JobProfileDto {
     /**
      * mqtt source
      */
-    public static final String MQTT_SOURCE = "org.apache.agent.plugin.sources.MqttSource";
+    public static final String MQTT_SOURCE = "org.apache.inlong.agent.plugin.sources.MqttSource";
 
     private static final Gson GSON = new Gson();
 

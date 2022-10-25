@@ -116,7 +116,8 @@ public class MqttReader extends AbstractReader {
                 client.setCallback(new MqttCallback() {
                     @Override
                     public void connectionLost(Throwable cause) {
-                        LOGGER.info("the mqtt connection is lost, try to reconnect");
+                        LOGGER.info("the mqtt connection is lost, try to reconnect. jobId:{},serverURI:{},clientId:{}",
+                                instanceId, serverURI, clientId);
                         reconnect();
                     }
 
@@ -144,7 +145,8 @@ public class MqttReader extends AbstractReader {
             }
             LOGGER.info("the mqtt subscribe topic is [{}], qos is [{}]", topic, qos);
         } catch (Exception e) {
-            LOGGER.error("init mqtt client error ", e);
+            LOGGER.error("init mqtt client error {}. jobId:{},serverURI:{},clientId:{}", e, instanceId, serverURI,
+                    clientId);
         }
     }
 
@@ -161,11 +163,11 @@ public class MqttReader extends AbstractReader {
         if (!client.isConnected()) {
             try {
                 client.connect(options);
-                LOGGER.info("the mqtt client reconnect success");
-            } catch (MqttSecurityException e) {
-                LOGGER.error("reconnect mqtt client error ", e);
-            } catch (MqttException e) {
-                LOGGER.error("reconnect mqtt client error ", e);
+                LOGGER.info("the mqtt client reconnect success. jobId:{}, serverURI:{}, clientId:{}", instanceId,
+                        serverURI, clientId);
+            } catch (Exception e) {
+                LOGGER.error("reconnect mqtt client error {}. jobId:{}, serverURI:{}, clientId:{}", e, instanceId,
+                        serverURI, clientId);
             }
         }
     }
@@ -220,7 +222,8 @@ public class MqttReader extends AbstractReader {
         try {
             client.disconnect();
         } catch (MqttException e) {
-            LOGGER.error("disconnect mqtt client error ", e);
+            LOGGER.error("disconnect mqtt client error {}. jobId:{},serverURI:{},clientId:{}", e, instanceId, serverURI,
+                    clientId);
         }
     }
 
