@@ -80,7 +80,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
         List<InlongGroupInfo> groupInfoList = request.getInlongGroupIds().stream()
                 .map(groupId -> groupService.get(groupId)).collect(Collectors.toList());
         Map<String, SortStatus> statusMap = sortStatusPoller.poll(groupInfoList, request.getCredentials());
-        log.info("get sort status map = {}", statusMap);
+        log.debug("get sort status map = {}", statusMap);
         return ListSortStatusResponse.builder().statusMap(statusMap).build();
     }
 
