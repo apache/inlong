@@ -58,7 +58,6 @@ public class SchemaChangeUtils {
             if (oi < oldFields.size() && oldFields.get(oi).equals(newFields.get(ni))) {
                 oi++;
                 ni++;
-                continue;
             } else {
                 NestedField newField = newSchema.findField(newFields.get(ni));
                 tableChanges.add(
@@ -76,7 +75,7 @@ public class SchemaChangeUtils {
             tableChanges.clear();
             tableChanges.add(
                     new UnknownColumnChange(
-                            String.format("Unspported schema update.\n"
+                            String.format("Unsupported schema update.\n"
                                     + "oldSchema:\n%s\n, newSchema:\n %s", oldSchema, newSchema)));
         }
 
