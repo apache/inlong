@@ -246,5 +246,4 @@
         from inlong_cluster
         where id = #{id,jdbcType=INTEGER}
     </delete>
-
 </mapper>

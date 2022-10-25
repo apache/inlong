@@ -333,6 +333,25 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
+    public List<ClusterInfo> listByTagAndType(String clusterTag, String clusterType) {
+        List<InlongClusterEntity> clusterEntities = clusterMapper.selectByKey(clusterTag, null, clusterType);
+        if (CollectionUtils.isEmpty(clusterEntities)) {
+            throw new BusinessException(String.format("cannot find any cluster by tag %s and type %s",
+                    clusterTag, clusterType));
+        }
+
+        List<ClusterInfo> clusterInfos = clusterEntities.stream()
+                .map(entity -> {
+                    InlongClusterOperator operator = clusterOperatorFactory.getInstance(entity.getType());
+                    return operator.getFromEntity(entity);
+                })
+                .collect(Collectors.toList());
+
+        LOGGER.debug("success to list inlong cluster by tag={}", clusterTag);
+        return clusterInfos;
+    }
+
+    @Override
     public ClusterInfo getOne(String clusterTag, String name, String type) {
         List<InlongClusterEntity> entityList = clusterMapper.selectByKey(clusterTag, name, type);
         if (CollectionUtils.isEmpty(entityList)) {

@@ -39,6 +39,7 @@ import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -104,6 +105,18 @@ public class InlongGroupController {
         return Response.success(groupService.countGroupByUser(operator));
     }
 
+    @GetMapping(value = "/group/getTopic/{groupId}")
+    @ApiOperation(value = "Get topic info")
+    public Response<InlongGroupTopicInfo> getTopic(@PathVariable String groupId) {
+        return Response.success(groupService.getTopic(groupId));
+    }
+
+    @GetMapping(value = "/group/getBackupTopic/{groupId}")
+    @ApiOperation(value = "Get backup topic info")
+    public Response<InlongGroupTopicInfo> getBackupTopic(@PathVariable String groupId) {
+        return Response.success(groupService.getBackupTopic(groupId));
+    }
+
     @RequestMapping(value = "/group/startProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Start inlong approval process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
@@ -160,12 +173,6 @@ public class InlongGroupController {
     public Response<String> deleteAsync(@PathVariable String groupId) {
         String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(groupProcessOperation.deleteProcessAsync(groupId, operator));
-    }
-
-    @RequestMapping(value = "/group/getTopic/{groupId}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get topic info")
-    public Response<InlongGroupTopicInfo> getTopic(@PathVariable String groupId) {
-        return Response.success(groupService.getTopic(groupId));
     }
 
     @PostMapping(value = "/group/reset")

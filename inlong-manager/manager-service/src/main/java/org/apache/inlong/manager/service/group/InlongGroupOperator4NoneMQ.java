@@ -20,23 +20,23 @@ package org.apache.inlong.manager.service.group;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
+import org.apache.inlong.manager.pojo.group.none.InlongNoneMqInfo;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
- * Inlong group operator for TubeMQ.
+ * Inlong group operator without MQ.
  */
 @Service
-public class InlongTubeOperator extends AbstractGroupOperator {
+public class InlongGroupOperator4NoneMQ extends AbstractGroupOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlongTubeOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupOperator4NoneMQ.class);
 
     @Override
     public Boolean accept(String mqType) {
@@ -45,33 +45,29 @@ public class InlongTubeOperator extends AbstractGroupOperator {
 
     @Override
     public String getMQType() {
-        return MQType.TUBEMQ;
-    }
-
-    @Override
-    public InlongTubeMQInfo getFromEntity(InlongGroupEntity entity) {
-        if (entity == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
-
-        InlongTubeMQInfo groupInfo = new InlongTubeMQInfo();
-        CommonBeanUtils.copyProperties(entity, groupInfo);
-
-        // TODO get the cluster
-        // groupInfo.setTubeMaster();
-        return groupInfo;
+        return MQType.NONE;
     }
 
     @Override
     protected void setTargetEntity(InlongGroupRequest request, InlongGroupEntity targetEntity) {
-        LOGGER.info("do nothing for inlong group with TubeMQ");
+        LOGGER.info("do nothing for inlong group without MQ");
+    }
+
+    @Override
+    public InlongGroupInfo getFromEntity(InlongGroupEntity entity) {
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+
+        InlongNoneMqInfo groupInfo = new InlongNoneMqInfo();
+        CommonBeanUtils.copyProperties(entity, groupInfo);
+        return groupInfo;
     }
 
     @Override
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
-        // TODO add cache for cluster info
-        // topicInfo.setTubeMasterUrl(groupInfo.getMqType());
-        return super.getTopic(groupInfo);
+        LOGGER.info("return null topic for inlong group without MQ");
+        return null;
     }
 
 }

@@ -15,34 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.group;
+package org.apache.inlong.manager.pojo.group.pulsar;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
 import java.util.List;
 
-/**
- * Inlong group and topic info
- */
 @Data
-@ApiModel("Inlong group and topic info")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
-public abstract class InlongGroupTopicInfo {
+@Builder
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = MQType.PULSAR)
+@ApiModel("Inlong pulsar group topic info")
+public class InlongPulsarTopicInfo extends InlongGroupTopicInfo {
 
-    @ApiModelProperty(value = "Inlong group id", required = true)
-    private String inlongGroupId;
+    @ApiModelProperty(value = "Pulsar tenant")
+    private String tenant;
 
-    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR, or KAFKA")
-    private String mqType;
+    @ApiModelProperty(value = "Pulsar namespace")
+    private String namespace;
 
-    @ApiModelProperty(value = "Inlong cluster tag of the current InlongGroup")
-    private String inlongClusterTag;
+    @ApiModelProperty(value = "Pulsar topics")
+    private List<String> topics;
 
-    @ApiModelProperty(value = "MQ cluster info list")
-    private List<? extends ClusterInfo> clusterInfos;
+    public InlongPulsarTopicInfo() {
+        this.setMqType(MQType.PULSAR);
+    }
 
 }

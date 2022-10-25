@@ -40,6 +40,7 @@ import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
 import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -56,6 +57,7 @@ import org.apache.inlong.manager.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.sort.UserDefinedSortConf;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
@@ -77,6 +79,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_CLUSTER_TAG;
 import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
 
 /**
@@ -89,17 +92,20 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupServiceImpl.class);
 
     @Autowired
-    private InlongGroupOperatorFactory groupOperatorFactory;
-    @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private InlongGroupExtEntityMapper groupExtMapper;
     @Autowired
+    private InlongStreamService streamService;
+    @Autowired
     private StreamSourceEntityMapper streamSourceMapper;
     @Autowired
-    private SourceOperatorFactory sourceOperatorFactory;
+    private InlongClusterService clusterService;
+
     @Autowired
-    private InlongStreamService streamService;
+    private InlongGroupOperatorFactory groupOperatorFactory;
+    @Autowired
+    private SourceOperatorFactory sourceOperatorFactory;
 
     /**
      * Check whether modification is supported under the current group status, and which fields can be modified.
@@ -363,14 +369,48 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public InlongGroupTopicInfo getTopic(String groupId) {
         // the group info will not null in get() method
         InlongGroupInfo groupInfo = this.get(groupId);
+        InlongGroupOperator groupOperator = groupOperatorFactory.getInstance(groupInfo.getMqType());
+        InlongGroupTopicInfo topicInfo = groupOperator.getTopic(groupInfo);
 
-        InlongGroupOperator instance = groupOperatorFactory.getInstance(groupInfo.getMqType());
-        InlongGroupTopicInfo topicInfo = instance.getTopic(groupInfo);
+        // set the base params
+        topicInfo.setInlongGroupId(groupId);
+        String clusterTag = groupInfo.getInlongClusterTag();
+        topicInfo.setInlongClusterTag(clusterTag);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to get topic for groupId={}, result=" + topicInfo, groupId);
-        }
+        // assert: each MQ type has a corresponding type of cluster
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(clusterTag, groupInfo.getMqType());
+        topicInfo.setClusterInfos(clusterInfos);
+
+        LOGGER.debug("success to get topic for groupId={}, result={}", groupId, topicInfo);
         return topicInfo;
+    }
+
+    @Override
+    public InlongGroupTopicInfo getBackupTopic(String groupId) {
+        // backup topic info saved in the ext table
+        InlongGroupExtEntity extEntity = groupExtMapper.selectByUniqueKey(groupId, BACKUP_CLUSTER_TAG);
+        if (StringUtils.isBlank(extEntity.getKeyValue())) {
+            LOGGER.warn("not found any backup topic for groupId={}", groupId);
+            return null;
+        }
+
+        // the group info will not null in get() method
+        InlongGroupInfo groupInfo = this.get(groupId);
+        InlongGroupOperator groupOperator = groupOperatorFactory.getInstance(groupInfo.getMqType());
+        InlongGroupTopicInfo backupTopicInfo = groupOperator.getBackupTopic(groupInfo);
+
+        // set the base params
+        backupTopicInfo.setInlongGroupId(groupId);
+        String backupClusterTag = extEntity.getKeyValue();
+        backupTopicInfo.setInlongClusterTag(backupClusterTag);
+
+        // set backup cluster info
+        // assert: each MQ type has a corresponding type of cluster
+        List<ClusterInfo> clusterInfos = clusterService.listByTagAndType(backupClusterTag, groupInfo.getMqType());
+        backupTopicInfo.setClusterInfos(clusterInfos);
+
+        LOGGER.debug("success to get backup topic for groupId={}, result={}", groupId, backupTopicInfo);
+        return backupTopicInfo;
     }
 
     @Override

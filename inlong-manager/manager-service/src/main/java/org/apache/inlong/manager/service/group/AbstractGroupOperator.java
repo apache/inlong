@@ -17,17 +17,20 @@
 
 package org.apache.inlong.manager.service.group;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
+import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +45,18 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGroupOperator.class);
 
     @Autowired
+    protected ObjectMapper objectMapper;
+    @Autowired
+    protected InlongStreamService streamService;
+    @Autowired
+    protected InlongClusterService clusterService;
+
+    @Autowired
     protected InlongGroupEntityMapper groupMapper;
+    @Autowired
+    protected InlongGroupExtEntityMapper groupExtMapper;
+    @Autowired
+    protected InlongStreamExtEntityMapper streamExtMapper;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -88,15 +102,6 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
                     request.getInlongGroupId(), request.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
-    }
-
-    @Override
-    public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
-        InlongGroupTopicInfo topicInfo = new InlongGroupTopicInfo();
-        topicInfo.setInlongGroupId(groupInfo.getInlongGroupId());
-        topicInfo.setMqType(groupInfo.getMqType());
-        topicInfo.setMqResource(groupInfo.getMqResource());
-        return topicInfo;
     }
 
 }
