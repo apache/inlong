@@ -79,12 +79,12 @@ public class MqttReader extends AbstractReader {
         this.topic = topic;
     }
 
-    @Override
-    public void init(JobProfile jobConf) {
-        super.init(jobConf);
-        jobProfile = jobConf;
-        LOGGER.info("init mqtt reader with jobConf {}", jobConf.toJsonStr());
-
+    /**
+     * set global params value
+     *
+     * @param jobConf
+     */
+    private void setGlobalParamsValue(JobProfile jobConf) {
         mqttMessagesQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_MQTT_QUEUE_SIZE, 1000));
         instanceId = jobConf.getInstanceId();
         userName = jobConf.get(JOB_MQTT_USERNAME);
@@ -104,7 +104,12 @@ public class MqttReader extends AbstractReader {
         options.setPassword(password.toCharArray());
         options.setAutomaticReconnect(automaticReconnect);
         options.setMqttVersion(mqttVersion);
+    }
 
+    /**
+     * connect to MQTT Broker
+     */
+    private void connect() {
         try {
             synchronized (MqttReader.class) {
                 client = new MqttClient(serverURI, clientId, new MemoryPersistence());
@@ -141,6 +146,15 @@ public class MqttReader extends AbstractReader {
         } catch (Exception e) {
             LOGGER.error("init mqtt client error ", e);
         }
+    }
+
+    @Override
+    public void init(JobProfile jobConf) {
+        super.init(jobConf);
+        jobProfile = jobConf;
+        LOGGER.info("init mqtt reader with jobConf {}", jobConf.toJsonStr());
+        setGlobalParamsValue(jobConf);
+        connect();
     }
 
     private void reconnect() {
