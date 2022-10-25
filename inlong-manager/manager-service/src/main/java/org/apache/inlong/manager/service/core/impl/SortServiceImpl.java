@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.manager.common.enums.SortStatus;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
 import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
@@ -73,10 +74,7 @@ public class SortServiceImpl implements SortService, PluginBinder {
 
     @Override
     public ListSortStatusResponse listSortStatus(ListSortStatusRequest request) {
-        if (sortStatusPoller == null) {
-            log.error("sort job status poller not initialized");
-            return null;
-        }
+        Preconditions.checkNotNull(sortStatusPoller, "sort job status poller not initialized");
         List<InlongGroupInfo> groupInfoList = request.getInlongGroupIds().stream()
                 .map(groupId -> groupService.get(groupId)).collect(Collectors.toList());
         Map<String, SortStatus> statusMap = sortStatusPoller.poll(groupInfoList, request.getCredentials());
