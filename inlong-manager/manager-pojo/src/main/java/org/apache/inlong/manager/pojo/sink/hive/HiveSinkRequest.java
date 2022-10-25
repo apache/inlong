@@ -79,7 +79,7 @@ public class HiveSinkRequest extends SinkRequest {
     private String dataEncoding = StandardCharsets.UTF_8.toString();
 
     @ApiModelProperty("Data separator")
-    private String dataSeparator = "1";
+    private String dataSeparator = String.valueOf((int) '\001');
 
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;

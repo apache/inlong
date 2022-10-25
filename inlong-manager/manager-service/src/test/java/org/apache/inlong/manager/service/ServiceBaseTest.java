@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
@@ -117,7 +117,7 @@ public class ServiceBaseTest extends BaseTest {
         request.setInlongGroupId(inlongGroupId);
         request.setInlongStreamId(inlongStreamId);
         request.setMqResource(inlongStreamId);
-        request.setDataSeparator("124");
+        request.setDataSeparator(String.valueOf((int) '|'));
         request.setDataEncoding("UTF-8");
         request.setFieldList(createStreamFields(inlongGroupId, inlongStreamId));
         streamService.save(request, GLOBAL_OPERATOR);

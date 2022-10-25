@@ -60,7 +60,7 @@ public class PulsarSourceRequest extends SourceRequest {
     private String dataEncoding = StandardCharsets.UTF_8.toString();
 
     @ApiModelProperty(value = "Data separator")
-    private String dataSeparator = "124";
+    private String dataSeparator = String.valueOf((int) '|');
 
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
