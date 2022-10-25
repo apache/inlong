@@ -172,10 +172,6 @@ public class SinkTask extends Thread {
                             new NotFoundException(ConfigConstants.TOPIC_KEY + " info is null"));
                     continue;
                 }
-                // check whether order-type message
-                if (eventStat.isOrderMessage()) {
-                    sleep(1000);
-                }
                 // check whether duplicated event
                 String clientSeqId = event.getHeaders().get(ConfigConstants.SEQUENCE_ID);
                 if (pulsarConfig.getClientIdCache() && clientSeqId != null) {
