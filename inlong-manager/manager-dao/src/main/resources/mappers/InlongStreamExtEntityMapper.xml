@@ -87,16 +87,6 @@
         and is_deleted = 0
     </select>
 
-    <select id="selectByKey" resultType="org.apache.inlong.manager.dao.entity.InlongStreamExtEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from inlong_stream_ext
-        where inlong_group_id = #{groupId, jdbcType=VARCHAR}
-        and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
-        and key_name = #{keyName, jdbcType=VARCHAR}
-        and is_deleted = 0
-    </select>
-
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongStreamExtEntity">
         update inlong_stream_ext
         set inlong_group_id  = #{inlongGroupId,jdbcType=VARCHAR},
