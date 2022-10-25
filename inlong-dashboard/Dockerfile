@@ -18,6 +18,8 @@
 #
 FROM nginx
 # add built files from target output
+RUN yum -y update \
+    && yum install -y net-tools vim wget procps iputils
 ARG DASHBOARD_FILE
 WORKDIR /usr/share/nginx/html
 ADD ${DASHBOARD_FILE} /usr/share/nginx/html

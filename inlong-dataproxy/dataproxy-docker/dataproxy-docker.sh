@@ -35,7 +35,7 @@ sed -i "s/proxy.cluster.inCharges=.*$/proxy.cluster.inCharges=${CLUSTER_IN_CHARG
 if [ "${MQ_TYPE}" = "pulsar" ]; then
   bash +x ./bin/dataproxy-start.sh pulsar
 fi
-if [ "${MQ_TYPE}" = "tubemq" ]; then
+if [ "${MQ_TYPE}" = "tube" ]; then
   bash +x ./bin/dataproxy-start.sh tube
 fi
 
