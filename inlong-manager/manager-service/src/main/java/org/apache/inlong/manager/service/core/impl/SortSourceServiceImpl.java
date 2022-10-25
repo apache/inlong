@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,13 +26,25 @@ import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaTopicInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarTopicInfo;
+import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQTopicInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.service.core.SortSourceService;
+import org.apache.inlong.manager.service.group.InlongGroupOperatorFactory;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +80,8 @@ public class SortSourceServiceImpl implements SortSourceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceServiceImpl.class);
 
     private static final Gson GSON = new Gson();
+    private static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on("&").trimResults()
+            .withKeyValueSeparator("=");
     private static final Set<String> SUPPORTED_MQ_TYPE = new HashSet<String>() {
         {
             add(MQType.KAFKA);
@@ -78,6 +93,7 @@ public class SortSourceServiceImpl implements SortSourceService {
     private static final String KEY_AUTH = "authentication";
     private static final String KEY_TENANT = "tenant";
     private static final String KEY_NAME_SPACE = "namespace";
+    private static final String KEY_IS_CONSUMABLE = "consumer";
 
     private static final int RESPONSE_CODE_SUCCESS = 0;
     private static final int RESPONSE_CODE_NO_UPDATE = 1;
@@ -99,6 +115,8 @@ public class SortSourceServiceImpl implements SortSourceService {
     private StreamSinkEntityMapper streamSinkEntityMapper;
     @Autowired
     private InlongGroupEntityMapper inlongGroupEntityMapper;
+    @Autowired
+    private InlongGroupService groupService;
 
     @PostConstruct
     public void initialize() {
@@ -115,7 +133,7 @@ public class SortSourceServiceImpl implements SortSourceService {
     public void reload() {
         LOGGER.debug("start to reload sort config.");
         try {
-            reloadAllSourceConfig();
+            reloadAllSourceConfigV2();
         } catch (Throwable t) {
             LOGGER.error("fail to reload all source config", t);
         }
@@ -175,6 +193,157 @@ public class SortSourceServiceImpl implements SortSourceService {
                 .md5(sortSourceMd5Map.get(cluster).get(task))
                 .build();
 
+    }
+
+    private void reloadAllSourceConfigV2() {
+        List<StreamSinkEntity> sinkEntities = streamSinkEntityMapper.selectAllStreamSinks();
+        // convert to Map<clusterName, Map<taskName, List<groupId>>> format.
+        Map<String, Map<String, List<String>>> groupMap = new ConcurrentHashMap<>();
+        sinkEntities.forEach(stream -> {
+            Map<String, List<String>> task2groupsMap =
+                    groupMap.computeIfAbsent(stream.getInlongClusterName(), k -> new ConcurrentHashMap<>());
+            List<String> groupIdList =
+                    task2groupsMap.computeIfAbsent(stream.getSortTaskName(), k -> new ArrayList<>());
+            groupIdList.add(stream.getInlongGroupId());
+        });
+
+        // get all group topic info by groupId
+        Map<String, List<InlongGroupTopicInfo>> allGroupTopicInfo = sinkEntities.stream()
+                .flatMap(entity -> {
+                    InlongGroupTopicInfo topicInfo = groupService.getTopic(entity.getInlongGroupId());
+                    InlongGroupTopicInfo backupTopicInfo = groupService.getBackupTopic(entity.getInlongGroupId());
+                    return Stream.of(topicInfo, backupTopicInfo);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(InlongGroupTopicInfo::getInlongGroupId));
+
+        // Prepare CacheZones for each cluster and task
+        Map<String, Map<String, String>> newMd5Map = new ConcurrentHashMap<>();
+        Map<String, Map<String, CacheZoneConfig>> newConfigMap = new ConcurrentHashMap<>();
+        groupMap.forEach((clusterName, task2Group) -> {
+
+            // prepare the new config and md5
+            Map<String, CacheZoneConfig> task2Config = new ConcurrentHashMap<>();
+            Map<String, String> task2Md5 = new ConcurrentHashMap<>();
+
+            task2Group.forEach((taskName, groupList) -> {
+                CacheZoneConfig cacheZoneConfig =
+                        CacheZoneConfig.builder()
+                                .sortClusterName(clusterName)
+                                .sortTaskId(taskName)
+                                .build();
+                List<InlongGroupTopicInfo> relatedGroupInfos = groupList.stream()
+                        .flatMap(groupId -> allGroupTopicInfo.get(groupId).stream())
+                        .collect(Collectors.toList());
+                Map<String, CacheZone> cacheZoneMap = this.parsePulsarCacheZones(relatedGroupInfos);
+                cacheZoneConfig.setCacheZones(cacheZoneMap);
+
+                String jsonStr = GSON.toJson(cacheZoneConfig);
+                String md5 = DigestUtils.md5Hex(jsonStr);
+                task2Config.put(taskName, cacheZoneConfig);
+                task2Md5.put(taskName, md5);
+            });
+
+            newConfigMap.put(clusterName, task2Config);
+            newMd5Map.put(clusterName, task2Md5);
+        });
+
+        sortSourceConfigMap = newConfigMap;
+        sortSourceMd5Map = newMd5Map;
+    }
+
+
+    private Map<String, CacheZone> parsePulsarCacheZones(List<InlongGroupTopicInfo> groupTopicInfos) {
+        Map<String, CacheZone> cacheZoneMap = new HashMap<>();
+        groupTopicInfos.forEach(info -> this.parseCacheZones(info, cacheZoneMap));
+        return cacheZoneMap;
+    }
+
+    private void parseCacheZones(InlongGroupTopicInfo info, Map<String, CacheZone> cacheZoneMap) {
+        switch (info.getMqType().toUpperCase()) {
+            case ClusterType.PULSAR :
+                this.parsePulsarTopic((InlongPulsarTopicInfo) info, cacheZoneMap);
+                break;
+            case ClusterType.KAFKA :
+                this.parseKafkaTopic((InlongKafkaTopicInfo) info, cacheZoneMap);
+                break;
+            case ClusterType.TUBEMQ:
+                this.parseTubeTopic((InlongTubeMQTopicInfo) info, cacheZoneMap);
+                break;
+            default:
+                LOGGER.error("unsupported mq type={}", info.getMqType());
+        }
+    }
+
+    private boolean isConsumable(ClusterInfo info) {
+        try {
+            Map<String, String> extTagMap = MAP_SPLITTER.split(info.getExtTag());
+            String isConsumable = extTagMap.get(KEY_IS_CONSUMABLE);
+            return isConsumable == null || "true".equalsIgnoreCase(isConsumable);
+        } catch (Throwable t) {
+            LOGGER.error("fail to parse cluster ext params", t);
+        }
+        return false;
+    }
+
+    private void parsePulsarTopic(InlongPulsarTopicInfo pulsarInfo, Map<String, CacheZone> cacheZoneMap) {
+        String namespace = pulsarInfo.getNamespace();
+        pulsarInfo.getClusterInfos().stream()
+                .filter(this::isConsumable)
+                .forEach(cluster -> {
+                    PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) cluster;
+                    CacheZone zone = cacheZoneMap.computeIfAbsent(pulsarCluster.getName(),
+                            k -> CacheZone.builder()
+                                    .zoneType(ClusterType.PULSAR)
+                                    .serviceUrl(pulsarCluster.getUrl())
+                                    .zoneName(pulsarCluster.getName())
+                                    .topics(new ArrayList<>())
+                                    .build());
+                    String tenant = pulsarCluster.getTenant();
+                    // only one stream in a given group
+                    String topic = pulsarInfo.getTopics().get(0);
+                    String fullTopic = tenant.concat("/").concat(namespace).concat("/").concat(topic);
+                    Topic sdkTopic = Topic.builder().topic(fullTopic).build();
+                    zone.getTopics().add(sdkTopic);
+                });
+    }
+
+    private void parseKafkaTopic(InlongKafkaTopicInfo kafkaInfo, Map<String, CacheZone> cacheZoneMap) {
+        kafkaInfo.getClusterInfos().stream()
+                .filter(this::isConsumable)
+                .forEach(cluster -> {
+                    KafkaClusterInfo kafkaCluster = (KafkaClusterInfo) cluster;
+                    CacheZone zone = cacheZoneMap.computeIfAbsent(kafkaCluster.getName(),
+                            k -> CacheZone.builder()
+                                    .zoneType(ClusterType.KAFKA)
+                                    .serviceUrl(kafkaCluster.getUrl())
+                                    .zoneName(kafkaCluster.getName())
+                                    .topics(new ArrayList<>())
+                                    .build());
+                    // only one stream in a given group
+                    String topic = kafkaInfo.getTopics().get(0);
+                    Topic sdkTopic = Topic.builder().topic(topic).build();
+                    zone.getTopics().add(sdkTopic);
+                });
+    }
+
+    private void parseTubeTopic(InlongTubeMQTopicInfo tubeInfo, Map<String, CacheZone> cacheZoneMap) {
+        tubeInfo.getClusterInfos().stream()
+                .filter(this::isConsumable)
+                .forEach(cluster -> {
+                    TubeClusterInfo tubeCluster = (TubeClusterInfo) cluster;
+                    CacheZone zone = cacheZoneMap.computeIfAbsent(tubeCluster.getName(),
+                            k -> CacheZone.builder()
+                                    .zoneType(ClusterType.TUBEMQ)
+                                    .serviceUrl(tubeCluster.getUrl())
+                                    .zoneName(tubeCluster.getName())
+                                    .topics(new ArrayList<>())
+                                    .build());
+                    // only one stream in a given group
+                    String topic = tubeInfo.getTopic();
+                    Topic sdkTopic = Topic.builder().topic(topic).build();
+                    zone.getTopics().add(sdkTopic);
+                });
     }
 
     private void reloadAllSourceConfig() {

@@ -36,6 +36,7 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
@@ -389,7 +390,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public InlongGroupTopicInfo getBackupTopic(String groupId) {
         // backup topic info saved in the ext table
         InlongGroupExtEntity extEntity = groupExtMapper.selectByUniqueKey(groupId, BACKUP_CLUSTER_TAG);
-        if (StringUtils.isBlank(extEntity.getKeyValue())) {
+        if (extEntity == null || StringUtils.isBlank(extEntity.getKeyValue())) {
             LOGGER.warn("not found any backup topic for groupId={}", groupId);
             return null;
         }

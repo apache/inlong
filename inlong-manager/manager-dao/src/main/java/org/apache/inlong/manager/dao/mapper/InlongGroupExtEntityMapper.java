@@ -38,7 +38,9 @@ public interface InlongGroupExtEntityMapper {
 
     int updateByPrimaryKey(InlongGroupExtEntity record);
 
-    InlongGroupExtEntity selectByUniqueKey(@Param("groupId") String groupId, @Param("keyName") String keyName);
+    InlongGroupExtEntity selectByUniqueKey(
+            @Param("inlongGroupId") String inlongGroupId,
+            @Param("keyName") String keyName);
 
     /**
      * Insert data in batches

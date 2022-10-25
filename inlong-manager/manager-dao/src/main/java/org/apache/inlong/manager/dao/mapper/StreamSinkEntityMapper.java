@@ -117,6 +117,8 @@ public interface StreamSinkEntityMapper {
      */
     List<SinkInfo> selectAllConfig(@Param("groupId") String groupId, @Param("idList") List<String> streamIdList);
 
+    List<StreamSinkEntity> selectAllStreamSinks();
+
     /**
      * Select all tasks for sort-standalone
      *
