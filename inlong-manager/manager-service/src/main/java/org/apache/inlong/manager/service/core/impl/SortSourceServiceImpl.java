@@ -43,7 +43,6 @@ import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.service.core.SortSourceService;
-import org.apache.inlong.manager.service.group.InlongGroupOperatorFactory;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,7 +250,6 @@ public class SortSourceServiceImpl implements SortSourceService {
         sortSourceConfigMap = newConfigMap;
         sortSourceMd5Map = newMd5Map;
     }
-
 
     private Map<String, CacheZone> parsePulsarCacheZones(List<InlongGroupTopicInfo> groupTopicInfos) {
         Map<String, CacheZone> cacheZoneMap = new HashMap<>();

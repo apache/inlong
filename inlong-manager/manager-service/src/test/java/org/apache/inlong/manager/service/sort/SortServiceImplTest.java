@@ -24,7 +24,6 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
@@ -32,7 +31,6 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
@@ -255,11 +253,11 @@ public class SortServiceImplTest extends ServiceBaseTest {
         request.setVersion(InlongConstants.INITIAL_VERSION);
         List<InlongStreamExtInfo> extInfos = new ArrayList<>();
         InlongStreamExtInfo ext = new InlongStreamExtInfo();
+        extInfos.add(ext);
         ext.setInlongStreamId(streamId);
         ext.setInlongGroupId(groupId);
         ext.setKeyName(ClusterSwitch.BACKUP_MQ_RESOURCE);
         ext.setKeyValue("backup topic");
-        extInfos.add(ext);
         request.setExtList(extInfos);
         streamService.save(request, "test operator");
     }
