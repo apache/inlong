@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
-class DeltaManifests {
+public class DeltaManifests {
 
     private static final CharSequence[] EMPTY_REF_DATA_FILES = new CharSequence[0];
 
@@ -36,11 +36,11 @@ class DeltaManifests {
     private final ManifestFile deleteManifest;
     private final CharSequence[] referencedDataFiles;
 
-    DeltaManifests(ManifestFile dataManifest, ManifestFile deleteManifest) {
+    public DeltaManifests(ManifestFile dataManifest, ManifestFile deleteManifest) {
         this(dataManifest, deleteManifest, EMPTY_REF_DATA_FILES);
     }
 
-    DeltaManifests(ManifestFile dataManifest, ManifestFile deleteManifest, CharSequence[] referencedDataFiles) {
+    public DeltaManifests(ManifestFile dataManifest, ManifestFile deleteManifest, CharSequence[] referencedDataFiles) {
         Preconditions.checkNotNull(referencedDataFiles, "Referenced data files shouldn't be null.");
 
         this.dataManifest = dataManifest;
@@ -48,19 +48,19 @@ class DeltaManifests {
         this.referencedDataFiles = referencedDataFiles;
     }
 
-    ManifestFile dataManifest() {
+    public ManifestFile dataManifest() {
         return dataManifest;
     }
 
-    ManifestFile deleteManifest() {
+    public ManifestFile deleteManifest() {
         return deleteManifest;
     }
 
-    CharSequence[] referencedDataFiles() {
+    public CharSequence[] referencedDataFiles() {
         return referencedDataFiles;
     }
 
-    List<ManifestFile> manifests() {
+    public List<ManifestFile> manifests() {
         List<ManifestFile> manifests = Lists.newArrayListWithCapacity(2);
         if (dataManifest != null) {
             manifests.add(dataManifest);
