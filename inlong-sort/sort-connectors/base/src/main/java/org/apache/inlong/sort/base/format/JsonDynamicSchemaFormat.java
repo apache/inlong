@@ -41,10 +41,10 @@ import org.apache.flink.table.types.logical.TimeType;
 import org.apache.flink.table.types.logical.TimestampType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.types.logical.VarCharType;
+import org.apache.flink.types.RowKind;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +65,11 @@ import java.util.regex.Matcher;
  * the result of pared will be 'prefix_1_2_3_suffix'
  */
 public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaFormat<JsonNode> {
+
+    /**
+     * The first item of array
+     */
+    private static final Integer FIRST = 0;
 
     private static final Map<Integer, LogicalType> SQL_TYPE_2_ICEBERG_TYPE_MAPPING =
             ImmutableMap.<Integer, LogicalType>builder()
@@ -89,10 +94,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
                     .put(java.sql.Types.BOOLEAN, new BooleanType())
                     .put(java.sql.Types.OTHER, new VarCharType())
                     .build();
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     protected final JsonToRowDataConverters rowDataConverters;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     protected JsonDynamicSchemaFormat() {
         this.rowDataConverters =
@@ -112,6 +115,10 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
             return new ArrayList<>();
         }
         JsonNode physicalNode = getPhysicalData(root);
+        if (physicalNode.isArray()) {
+            // Extract from the first value when the physicalNode is array
+            physicalNode = physicalNode.get(FIRST);
+        }
         List<String> values = new ArrayList<>(keys.length);
         if (physicalNode == null) {
             for (String key : keys) {
@@ -198,6 +205,10 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
         Matcher matcher = PATTERN.matcher(pattern);
         StringBuffer sb = new StringBuffer();
         JsonNode physicalNode = getPhysicalData(rootNode);
+        if (physicalNode.isArray()) {
+            // Extract from the first value when the physicalNode is array
+            physicalNode = physicalNode.get(FIRST);
+        }
         while (matcher.find()) {
             String keyText = matcher.group(1);
             String replacement = extract(physicalNode, keyText);
@@ -219,7 +230,45 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
      * @param root The json root node
      * @return The physical data node
      */
-    public abstract JsonNode getPhysicalData(JsonNode root);
+    public JsonNode getPhysicalData(JsonNode root) {
+        JsonNode physicalData = getUpdateAfter(root);
+        if (physicalData == null) {
+            physicalData = getUpdateBefore(root);
+        }
+        return physicalData;
+    }
+
+    /**
+     * Get physical data of update after
+     *
+     * @param root The json root node
+     * @return The physical data node of update after
+     */
+    public abstract JsonNode getUpdateAfter(JsonNode root);
+
+    /**
+     * Get physical data of update before
+     *
+     * @param root The json root node
+     * @return The physical data node of update before
+     */
+    public abstract JsonNode getUpdateBefore(JsonNode root);
+
+    /**
+     * Convert opType to RowKind
+     *
+     * @param opType The opTyoe of data
+     * @return The RowKind of data
+     */
+    public abstract List<RowKind> opType2RowKind(String opType);
+
+    /**
+     * Get opType of data
+     *
+     * @param root The json root node
+     * @return The opType of data
+     */
+    public abstract String getOpType(JsonNode root);
 
     protected RowType extractSchemaNode(JsonNode schema, List<String> pkNames) {
         Iterator<Entry<String, JsonNode>> schemaFields = schema.fields();
@@ -245,18 +294,26 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     }
 
     /**
-     * Convert physical data to map
+     * Convert json node to map
      *
-     * @param root The json root node
-     * @return The map of physicalData
+     * @param data The json node
+     * @return The List of json node
      * @throws IOException The exception may be thrown when executing
      */
-    public Map<String, String> physicalDataToMap(JsonNode root) throws IOException {
-        JsonNode physicalData = getPhysicalData(root);
-        if (physicalData == null) {
-            return new HashMap<>();
+    public List<Map<String, String>> jsonNode2Map(JsonNode data) throws IOException {
+        if (data == null) {
+            return new ArrayList<>();
         }
-        return objectMapper.convertValue(physicalData, new TypeReference<Map<String, String>>() {
-        });
+        List<Map<String, String>> values = new ArrayList<>();
+        if (data.isArray()) {
+            for (int i = 0; i < data.size(); i++) {
+                values.add(objectMapper.convertValue(data.get(i), new TypeReference<Map<String, String>>() {
+                }));
+            }
+        } else {
+            values.add(objectMapper.convertValue(data, new TypeReference<Map<String, String>>() {
+            }));
+        }
+        return values;
     }
 }

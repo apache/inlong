@@ -33,6 +33,7 @@ import org.apache.flink.table.types.logical.TinyIntType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +109,58 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
             return physicalData;
         }
         return getPhysicalData(payload);
+    }
+
+    @Override
+    public JsonNode getUpdateAfter(JsonNode root) {
+        JsonNode payload = root.get(PAYLOAD);
+        if (payload == null) {
+            return root.get(AFTER);
+        }
+        return getUpdateAfter(payload);
+    }
+
+    @Override
+    public JsonNode getUpdateBefore(JsonNode root) {
+        JsonNode payload = root.get(PAYLOAD);
+        if (payload == null) {
+            return root.get(BEFORE);
+        }
+        return getUpdateBefore(payload);
+    }
+
+    @Override
+    public List<RowKind> opType2RowKind(String opType) {
+        List<RowKind> rowKinds = new ArrayList<>();
+        switch (opType) {
+            case OP_CREATE:
+            case OP_READ:
+                rowKinds.add(RowKind.INSERT);
+                break;
+            case OP_UPDATE:
+                rowKinds.add(RowKind.UPDATE_BEFORE);
+                rowKinds.add(RowKind.UPDATE_AFTER);
+                break;
+            case OP_DELETE:
+                rowKinds.add(RowKind.DELETE);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported op_type: " + opType);
+        }
+        return rowKinds;
+    }
+
+    @Override
+    public String getOpType(JsonNode root) {
+        JsonNode payload = root.get(PAYLOAD);
+        if (payload == null) {
+            JsonNode opNode = root.get(OP_TYPE);
+            if (opNode == null) {
+                throw new IllegalArgumentException(String.format("Error node: %s, %s is null", root, OP_TYPE));
+            }
+            return opNode.asText();
+        }
+        return getOpType(payload);
     }
 
     @Override

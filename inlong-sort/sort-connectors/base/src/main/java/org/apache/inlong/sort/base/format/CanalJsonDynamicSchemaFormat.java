@@ -34,6 +34,7 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     private static final String IDENTIFIER = "canal-json";
     private static final String DDL_FLAG = "ddl";
     private static final String DATA = "data";
+    private static final String OLD = "old";
     private static final String PK_NAMES = "pkNames";
     private static final String SCHEMA = "sqlType";
     private static final String OP_TYPE = "type";
@@ -53,12 +54,42 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     }
 
     @Override
-    public JsonNode getPhysicalData(JsonNode root) {
-        JsonNode physicalData = root.get(DATA);
-        if (physicalData != null) {
-            return root.get(DATA).get(0);
+    public JsonNode getUpdateAfter(JsonNode root) {
+        return root.get(DATA);
+    }
+
+    @Override
+    public JsonNode getUpdateBefore(JsonNode root) {
+        return root.get(OLD);
+    }
+
+    @Override
+    public List<RowKind> opType2RowKind(String opType) {
+        List<RowKind> rowKinds = new ArrayList<>();
+        switch (opType) {
+            case OP_INSERT:
+                rowKinds.add(RowKind.INSERT);
+                break;
+            case OP_UPDATE:
+                rowKinds.add(RowKind.UPDATE_BEFORE);
+                rowKinds.add(RowKind.UPDATE_AFTER);
+                break;
+            case OP_DELETE:
+                rowKinds.add(RowKind.DELETE);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported op_type: " + opType);
         }
-        return null;
+        return rowKinds;
+    }
+
+    @Override
+    public String getOpType(JsonNode root) {
+        JsonNode opNode = root.get(OP_TYPE);
+        if (opNode == null) {
+            throw new IllegalArgumentException(String.format("Error node: %s, %s is null", root, OP_TYPE));
+        }
+        return opNode.asText();
     }
 
     @Override
@@ -75,7 +106,7 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
 
     @Override
     public boolean extractDDLFlag(JsonNode data) {
-        return data.has(DDL_FLAG) ? data.get(DDL_FLAG).asBoolean(false) : false;
+        return data.has(DDL_FLAG) && data.get(DDL_FLAG).asBoolean(false);
     }
 
     @Override
