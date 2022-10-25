@@ -54,6 +54,10 @@ public class JobProfileDto {
      * mongo source
      */
     public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.MongoDBSource";
+    /**
+     * oracle source
+     */
+    public static final String ORACLE_SOURCE = "org.apache.inlong.agent.plugin.sources.OracleSource";
 
     private static final Gson GSON = new Gson();
 
@@ -222,6 +226,22 @@ public class JobProfileDto {
         return mongoJob;
     }
 
+    private static OracleJob getOracleJob(DataConfig dataConfigs) {
+        OracleJob.OracleJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                OracleJob.OracleJobConfig.class);
+        OracleJob oracleJob = new OracleJob();
+        oracleJob.setUser(config.getUser());
+        oracleJob.setHostname(config.getHostname());
+        oracleJob.setPassword(config.getPassword());
+        oracleJob.setPort(config.getPort());
+        oracleJob.setBatchSize(config.getBatchSize());
+        oracleJob.setSid(config.getSid());
+        oracleJob.setServiceName(config.getServiceName());
+        oracleJob.setCommand(config.getCommand());
+
+        return oracleJob;
+    }
+
     private static Proxy getProxy(DataConfig dataConfigs) {
         Proxy proxy = new Proxy();
         Manager manager = new Manager();
@@ -285,6 +305,12 @@ public class JobProfileDto {
                 job.setSource(KAFKA_SOURCE);
                 profileDto.setJob(job);
                 break;
+            case ORACLE:
+                OracleJob oracleJob = getOracleJob(dataConfig);
+                job.setOracleJob(oracleJob);
+                job.setSource(ORACLE_SOURCE);
+                profileDto.setJob(job);
+                break;
             case MONGODB:
                 MongoJob mongoJob = getMongoJob(dataConfig);
                 job.setMongoJob(mongoJob);
@@ -317,6 +343,7 @@ public class JobProfileDto {
         private FileJob fileJob;
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
+        private OracleJob oracleJob;
         private MongoJob mongoJob;
     }
 
