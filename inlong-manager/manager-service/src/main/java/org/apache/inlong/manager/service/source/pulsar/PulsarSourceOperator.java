@@ -154,7 +154,7 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             if (DataTypeEnum.CSV.getName().equalsIgnoreCase(pulsarSource.getSerializationType())) {
                 pulsarSource.setDataSeparator(streamInfo.getDataSeparator());
                 if (StringUtils.isEmpty(pulsarSource.getDataSeparator())) {
-                    pulsarSource.setDataSeparator(",");
+                    pulsarSource.setDataSeparator("44");
                 }
             }
             pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
