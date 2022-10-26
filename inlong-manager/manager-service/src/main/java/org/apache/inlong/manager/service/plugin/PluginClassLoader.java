@@ -24,7 +24,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
+import org.apache.inlong.manager.common.plugin.PluginDefinition;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,12 +58,13 @@ public class PluginClassLoader extends URLClassLoader {
      */
     public static final int PLUGIN_DEF_CAPACITY = 1024;
     private final File pluginDirectory;
+    private final String osName;
+
     /**
      * pluginName -> pluginDefinition
      */
     private Map<String, PluginDefinition> pluginDefinitionMap = new HashMap<>();
     private ObjectMapper yamlMapper;
-    private String osName;
 
     private PluginClassLoader(URL url, ClassLoader parent, String osName) throws IOException {
         super(new URL[]{url}, parent);

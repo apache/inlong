@@ -15,13 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.plugin;
+package org.apache.inlong.manager.common.plugin;
 
 /**
- * Interface of plugin binder.
+ * Interface of plugin.
  */
-public interface PluginBinder {
-
-    void acceptPlugin(Plugin plugin);
+public interface Plugin {
 
 }

@@ -15,25 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort;
+package org.apache.inlong.manager.common.plugin;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.List;
-
 /**
- * Sort status request
+ * PluginDefinition should be defined in *.jar/META-INF/plugin.yaml.
+ * <p/> For example:
+ *
+ * <pre>
+ *    name: test
+ *    description: this plugin is use for test
+ *    pluginClass: org.apache.inlong.plugin.TestPlugin
+ *    javaVersion: 1.8 or 8
+ * </pre>
  */
 @Data
-@ApiModel("list sort status request")
-public class ListSortStatusRequest {
+public class PluginDefinition {
 
-    @ApiModelProperty(value = "Inlong group ids")
-    private List<String> inlongGroupIds;
+    /**
+     * name of plugin
+     */
+    private String name;
 
-    @ApiModelProperty(value = "Optional credential info needed for backend query, such as sort cluster token")
-    private String credentials;
+    /**
+     * description of plugin to be used for user help
+     */
+    private String description;
 
+    /**
+     * java_version of plugin to be used for check validate
+     */
+    private String javaVersion;
+
+    /**
+     * the full class name of plugin
+     */
+    private String pluginClass;
 }

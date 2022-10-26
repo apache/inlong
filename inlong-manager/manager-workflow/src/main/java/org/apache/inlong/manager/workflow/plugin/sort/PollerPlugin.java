@@ -15,38 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.plugin;
+package org.apache.inlong.manager.workflow.plugin.sort;
 
-import lombok.Data;
+import org.apache.inlong.manager.common.plugin.Plugin;
 
 /**
- * pluginDefinition should be defined in *.jar/META-INF/plugin.yaml
- * for example:
- *    name: test
- *    description: this plugin is use for test
- *    pluginClass: org.apache.inlong.plugin.testPlugin
- *    javaVersion: 1.8 or 8
+ * Interface of Poller Plugin.
  */
-@Data
-public class PluginDefinition {
+public interface PollerPlugin extends Plugin {
 
     /**
-     * name of plugin
+     * Get Sort poller instance.
+     *
+     * @return Sort poller instance
      */
-    private String name;
+    default SortPoller getSortPoller() {
+        return null;
+    }
 
-    /**
-     * description of plugin to be used for user help
-     */
-    private String description;
-
-    /**
-     * java_version of plugin to be used for check validate
-     */
-    private String javaVersion;
-
-    /**
-     * the full class name of plugin
-     */
-    private String pluginClass;
 }

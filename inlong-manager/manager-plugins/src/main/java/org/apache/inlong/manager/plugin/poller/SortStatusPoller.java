@@ -19,6 +19,7 @@ package org.apache.inlong.manager.plugin.poller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -26,9 +27,12 @@ import org.apache.inlong.manager.common.enums.SortStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.workflow.plugin.SortStatusPoller;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
+import org.apache.inlong.manager.workflow.plugin.sort.SortPoller;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,17 +41,38 @@ import java.util.Map;
  * Flink sort task status poller for inlong groups
  */
 @Slf4j
-public class FlinkStatusPoller implements SortStatusPoller {
+public class SortStatusPoller implements SortPoller {
 
     /**
-     * Poll sort task status for groups
-     * @param groupInfos group ids to poll
-     * @param credentials not used for flink
-     * @return
+     * Flink job status to InLong sort status mapping.
      */
+    private static final Map<JobStatus, SortStatus> JOB_SORT_STATUS_MAP = new HashMap<>(8);
+
+    static {
+        JOB_SORT_STATUS_MAP.put(JobStatus.CREATED, SortStatus.NEW);
+        JOB_SORT_STATUS_MAP.put(JobStatus.INITIALIZING, SortStatus.NEW);
+
+        JOB_SORT_STATUS_MAP.put(JobStatus.RUNNING, SortStatus.RUNNING);
+        JOB_SORT_STATUS_MAP.put(JobStatus.FAILED, SortStatus.FAILED);
+        JOB_SORT_STATUS_MAP.put(JobStatus.CANCELED, SortStatus.STOPPED);
+        JOB_SORT_STATUS_MAP.put(JobStatus.SUSPENDED, SortStatus.PAUSED);
+        JOB_SORT_STATUS_MAP.put(JobStatus.FINISHED, SortStatus.FINISHED);
+
+        JOB_SORT_STATUS_MAP.put(JobStatus.FAILING, SortStatus.OPERATING);
+        JOB_SORT_STATUS_MAP.put(JobStatus.CANCELLING, SortStatus.OPERATING);
+        JOB_SORT_STATUS_MAP.put(JobStatus.RESTARTING, SortStatus.OPERATING);
+        JOB_SORT_STATUS_MAP.put(JobStatus.RECONCILING, SortStatus.OPERATING);
+    }
+
     @Override
-    public Map<String, SortStatus> poll(List<InlongGroupInfo> groupInfos, String credentials) {
-        Map<String, SortStatus> statusMap = new HashMap<>();
+    public List<SortStatusInfo> pollSortStatus(List<InlongGroupInfo> groupInfos, String credentials) {
+        log.debug("begin to poll sort status for inlong groups");
+        if (CollectionUtils.isEmpty(groupInfos)) {
+            log.debug("end to poll sort status, as the inlong groups is empty");
+            return Collections.emptyList();
+        }
+
+        List<SortStatusInfo> statusInfos = new ArrayList<>(groupInfos.size());
         for (InlongGroupInfo groupInfo : groupInfos) {
             String groupId = groupInfo.getInlongGroupId();
             try {
@@ -65,46 +90,26 @@ public class FlinkStatusPoller implements SortStatusPoller {
                 }
 
                 String jobId = kvConf.get(InlongConstants.SORT_JOB_ID);
+                SortStatusInfo statusInfo = SortStatusInfo.builder().inlongGroupId(groupId).build();
                 if (StringUtils.isBlank(jobId)) {
-                    statusMap.put(groupId, SortStatus.NOT_EXISTS);
+                    statusInfo.setSortStatus(SortStatus.NOT_EXISTS);
+                    statusInfos.add(statusInfo);
                     continue;
                 }
 
                 String sortUrl = kvConf.get(InlongConstants.SORT_URL);
                 FlinkService flinkService = new FlinkService(sortUrl);
-                SortStatus status = convertToSortStatus(flinkService.getJobStatus(jobId));
-                statusMap.put(groupId, status);
-                log.info("get sort status = {} for flink jodId = {}, sortUrl = {}", status, jobId, sortUrl);
+                statusInfo.setSortStatus(
+                        JOB_SORT_STATUS_MAP.getOrDefault(flinkService.getJobStatus(jobId), SortStatus.UNKNOWN)
+                );
+                statusInfos.add(statusInfo);
             } catch (Exception e) {
-                log.error("polling sort status failed for group " + groupId, e);
-                statusMap.put(groupId, SortStatus.UNKNOWN);
+                log.error("polling sort status failed for groupId=" + groupId, e);
             }
         }
-        return statusMap;
+
+        log.debug("success to get sort status: {}", statusInfos);
+        return statusInfos;
     }
 
-    private SortStatus convertToSortStatus(JobStatus jobStatus) {
-        log.debug("flink jobStatus = {}", jobStatus);
-        switch (jobStatus) {
-            case CREATED:
-            case INITIALIZING:
-                return SortStatus.NEW;
-            case RUNNING:
-                return SortStatus.RUNNING;
-            case FAILED:
-                return SortStatus.FAILED;
-            case CANCELED:
-                return SortStatus.STOPPED;
-            case SUSPENDED:
-                return SortStatus.PAUSED;
-            case FINISHED:
-                return SortStatus.FINISHED;
-            case FAILING:
-            case CANCELLING:
-            case RESTARTING:
-            case RECONCILING:
-                return SortStatus.OPERATING;
-        }
-        return SortStatus.UNKNOWN;
-    }
 }

@@ -19,7 +19,6 @@ package org.apache.inlong.manager.client.api.impl;
 
 import com.google.common.base.Objects;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
@@ -46,8 +45,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
-import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
-import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
+import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
+import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
@@ -57,6 +56,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -294,17 +294,25 @@ public class InlongGroupImpl implements InlongGroup {
     private InlongGroupContext generateSnapshot(String credentials) {
         InlongGroupContext groupContext = generateSnapshot();
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
-        if (groupInfo.getExtList().stream().anyMatch(info -> InlongConstants.SORT_JOB_ID.equals(info.getKeyName())
-                && StringUtils.isNotEmpty(info.getKeyValue()))) {
-            ListSortStatusRequest request = new ListSortStatusRequest();
+        if (groupInfo.getExtList().stream().anyMatch(ext -> InlongConstants.SORT_JOB_ID.equals(ext.getKeyName())
+                && StringUtils.isNotEmpty(ext.getKeyValue()))) {
+            SortStatusRequest request = new SortStatusRequest();
             request.setInlongGroupIds(Collections.singletonList(groupInfo.getInlongGroupId()));
             request.setCredentials(credentials);
-            ListSortStatusResponse sortStatusInfo = groupClient.listSortStatus(request);
-            if (MapUtils.isNotEmpty(sortStatusInfo.getStatusMap())) {
-                groupContext.updateSortStatus(sortStatusInfo.getStatusMap().getOrDefault(
-                        groupInfo.getInlongGroupId(), SortStatus.UNKNOWN));
+            List<SortStatusInfo> statusInfos = groupClient.listSortStatus(request);
+
+            SortStatus sortStatus = SortStatus.UNKNOWN;
+            if (CollectionUtils.isNotEmpty(statusInfos)) {
+                Optional<SortStatusInfo> optional = statusInfos.stream()
+                        .filter(status -> groupInfo.getInlongGroupId().equals(status.getInlongGroupId()))
+                        .findFirst();
+                if (optional.isPresent()) {
+                    sortStatus = optional.get().getSortStatus();
+                }
             }
+            groupContext.updateSortStatus(sortStatus);
         }
+
         return groupContext;
     }
 

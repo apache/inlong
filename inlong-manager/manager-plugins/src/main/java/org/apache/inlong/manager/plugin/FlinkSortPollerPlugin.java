@@ -15,29 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort;
+package org.apache.inlong.manager.plugin;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.SortStatus;
-
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.plugin.poller.SortStatusPoller;
+import org.apache.inlong.manager.workflow.plugin.sort.PollerPlugin;
+import org.apache.inlong.manager.workflow.plugin.sort.SortPoller;
 
 /**
- * Sort status response
+ * Plugin of Flink Sort poller.
  */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("list sort status response")
-public class ListSortStatusResponse {
+@Slf4j
+public class FlinkSortPollerPlugin implements PollerPlugin {
 
-    @ApiModelProperty(value = "group id to sort status mapping")
-    private Map<String, SortStatus> statusMap;
+    @Override
+    public SortPoller getSortPoller() {
+        return new SortStatusPoller();
+    }
 
 }

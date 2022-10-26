@@ -15,20 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.service;
+package org.apache.inlong.manager.pojo.sort;
 
-import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
-import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.POST;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.enums.SortStatus;
 
-import java.util.List;
+/**
+ * Sort status info
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Sort status info")
+public class SortStatusInfo {
 
-public interface InlongSortApi {
+    @ApiModelProperty(value = "Inlong group id")
+    private String inlongGroupId;
 
-    @POST("sort/listStatus")
-    Call<Response<List<SortStatusInfo>>> listStatus(@Body SortStatusRequest request);
+    @ApiModelProperty(value = "Sort status info")
+    private SortStatus sortStatus;
 
 }

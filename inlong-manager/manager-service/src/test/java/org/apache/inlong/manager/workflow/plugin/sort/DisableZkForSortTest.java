@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sort;
+package org.apache.inlong.manager.workflow.plugin.sort;
 
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;

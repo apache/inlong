@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.plugin;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.workflow.plugin.Plugin;
-import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
+import org.apache.inlong.manager.common.plugin.Plugin;
+import org.apache.inlong.manager.common.plugin.PluginDefinition;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

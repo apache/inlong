@@ -15,17 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.plugin;
-
-import org.apache.inlong.manager.common.enums.SortStatus;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-
-import java.util.List;
-import java.util.Map;
+package org.apache.inlong.manager.common.plugin;
 
 /**
- * Sort task status poller interface for inlong groups
+ * Interface of plugin binder.
  */
-public interface SortStatusPoller {
-    Map<String, SortStatus> poll(List<InlongGroupInfo> groupInfo, String credentials);
+public interface PluginBinder {
+
+    void acceptPlugin(Plugin plugin);
+
 }
