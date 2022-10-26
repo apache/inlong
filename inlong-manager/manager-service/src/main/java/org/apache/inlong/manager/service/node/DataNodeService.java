@@ -67,7 +67,7 @@ public interface DataNodeService {
      *
      * @param request node info to be modified
      * @param operator current operator
-     * @return Update result
+     * @return update result
      */
     UpdateResult updateByKey(DataNodeRequest request, String operator);
 

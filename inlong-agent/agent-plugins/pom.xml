@@ -126,6 +126,11 @@
             <artifactId>kafka_${flink.scala.binary.version}</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>${paho.client.version}</version>
+        </dependency>
+        <dependency>
             <artifactId>guava</artifactId>
             <groupId>com.google.guava</groupId>
         </dependency>

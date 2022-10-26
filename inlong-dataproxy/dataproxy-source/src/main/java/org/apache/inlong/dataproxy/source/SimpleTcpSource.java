@@ -39,6 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
+import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.EventLoopUtil;
 import org.slf4j.Logger;
@@ -221,6 +222,8 @@ public class SimpleTcpSource extends BaseSource
                     host, port, e);
             System.exit(-1);
         }
+        ConfigManager.getInstance().addSourceReportInfo(
+                host, String.valueOf(port), getProtocolName().toUpperCase());
         logger.info("Simple TCP Source started at host {}, port {}", host, port);
     }
 

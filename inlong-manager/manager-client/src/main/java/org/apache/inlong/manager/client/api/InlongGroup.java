@@ -44,6 +44,15 @@ public interface InlongGroup {
     InlongGroupContext context() throws Exception;
 
     /**
+     * Create snapshot for Inlong group with credential info such as sort token
+     *
+     * @param credentials credential info such as sort token
+     * @return inlong group context
+     * @throws Exception the exception
+     */
+    InlongGroupContext context(String credentials) throws Exception;
+
+    /**
      * Init inlong group.
      * This operation will init all physical resources needed to start a stream group
      * Must be operated after all inlong streams were created;

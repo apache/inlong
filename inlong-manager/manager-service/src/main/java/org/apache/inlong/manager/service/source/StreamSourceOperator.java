@@ -96,7 +96,7 @@ public interface StreamSourceOperator {
      * @param groupStatus the belongs group status
      * @param operator name of operator
      */
-    void updateOpt(SourceRequest request, Integer groupStatus, String operator);
+    void updateOpt(SourceRequest request, Integer groupStatus, Integer groupMode, String operator);
 
     /**
      * Stop the source task.

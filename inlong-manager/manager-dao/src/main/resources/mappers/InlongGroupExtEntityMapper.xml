@@ -45,7 +45,7 @@
         and is_deleted = 0
     </select>
     <!-- Query the undeleted extended attributes based on inlongGroupId and keyName -->
-    <select id="selectByGroupIdAndKeyName" resultType="org.apache.inlong.manager.dao.entity.InlongGroupExtEntity">
+    <select id="selectByUniqueKey" resultType="org.apache.inlong.manager.dao.entity.InlongGroupExtEntity">
         select
         <include refid="Base_Column_List"/>
         from inlong_group_ext
@@ -53,6 +53,7 @@
         and key_name = #{keyName, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
         delete
         from inlong_group_ext
@@ -150,4 +151,13 @@
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>
+
+    <delete id="deleteByInlongGroupIds">
+        delete
+        from inlong_group_ext
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

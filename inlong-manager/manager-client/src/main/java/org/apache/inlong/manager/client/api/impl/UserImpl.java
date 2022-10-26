@@ -55,6 +55,12 @@ public class UserImpl implements User {
     }
 
     @Override
+    public UserInfo getByName(String name) {
+        Preconditions.checkNotNull(name, "username cannot be null");
+        return userClient.getByName(name);
+    }
+
+    @Override
     public PageResult<UserInfo> list(UserRequest request) {
         Preconditions.checkNotNull(request, "request cannot be null");
         return userClient.list(request);

@@ -29,7 +29,7 @@ import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.tubemq.TubeClusterRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
-import org.apache.inlong.manager.service.group.InlongNoneMqOperator;
+import org.apache.inlong.manager.service.group.InlongGroupOperator4NoneMQ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TubeClusterOperator extends AbstractClusterOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlongNoneMqOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupOperator4NoneMQ.class);
 
     @Autowired
     private ObjectMapper objectMapper;

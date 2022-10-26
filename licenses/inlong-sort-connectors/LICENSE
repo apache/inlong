@@ -444,6 +444,28 @@
       inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/DebeziumSourceFunction.java
       inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/table/OracleTableSource.java
       inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/table/OracleTableSourceFactory.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/history/FlinkJsonTableChangeSerializer.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/DebeziumChangeConsumer.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/DebeziumChangeFetcher.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/DebeziumOffset.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/DebeziumOffsetSerializer.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/FlinkDatabaseHistory.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/FlinkDatabaseSchemaHistory.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/FlinkOffsetBackingStore.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/Handover.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/internal/SchemaRecord.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/table/AppendMetadataCollector.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/table/DebeziumOptions.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/table/DeserializationRuntimeConverter.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/table/DeserializationRuntimeConverterFactory.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/table/MetadataConverter.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/table/RowDataDebeziumDeserializeSchema.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/utils/DatabaseHistoryUtil.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/utils/TemporalConversions.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/DebeziumDeserializationSchema.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/debezium/DebeziumSourceFunction.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/table/OracleDeserializationConverterFactory.java
+      inlong-sort/sort-connectors/oracle-cdc/src/main/java/org/apache/inlong/sort/cdc/oracle/table/OracleReadableMetaData.java
  Source  : flink-cdc-connectors 2.2.1 (Please note that the software have been modified.)
  License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
  
@@ -582,6 +604,13 @@
   Source  : org.apache.flink:flink-connector-kafka_2.11:1.13.5 (Please note that the software have been modified.)
   License : https://github.com/apache/flink/blob/master/LICENSE
 
+  1.3.12 inlong-sort/sort-connectors/doris/src/main/java/org/apache/inlong/sort/doris/table/DorisDynamicSchemaOutputFormat.java
+         inlong-sort/sort-connectors/doris/src/main/java/org/apache/inlong/sort/doris/table/DorisDynamicTableFactory.java
+         inlong-sort/sort-connectors/doris/src/main/java/org/apache/inlong/sort/doris/table/DorisDynamicTableSink.java
+         inlong-sort/sort-connectors/doris/src/main/java/org/apache/inlong/sort/doris/table/DorisStreamLoad.java
+    Source  : org.apache.doris:flink-doris-connector-1.13_2.11:1.0.3 (Please note that the software have been modified.)
+    License : https://github.com/apache/doris-flink-connector/blob/1.13_2.11-1.0.3/LICENSE.txt
+
 
 =======================================================================
 Apache InLong Subcomponents:
@@ -707,16 +736,16 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.hbase.thirdparty:hbase-shaded-netty:2.2.1 - Apache HBase Relocated (Shaded) Netty Libs (http://hbase.apache.org/hbase-shaded-netty), (Apache License, Version 2.0)
   org.apache.hbase.thirdparty:hbase-shaded-protobuf:2.2.1 - Apache HBase Patched and Relocated (Shaded) Protobuf (http://hbase.apache.org/hbase-shaded-protobuf), (Apache License, Version 2.0)
   com.zaxxer:HikariCP:4.0.3 - HikariCP (https://github.com/brettwooldridge/HikariCP/tree/HikariCP-4.0.3), (The Apache Software License, Version 2.0)
-  org.apache.hive:hive-classification:3.1.2 - Hive Classifications (https://github.com/apache/hive/tree/release-3.1.2-rc0/classification), (Apache License, Version 2.0)
-  org.apache.hive:hive-common:3.1.2 - Hive Common (https://github.com/apache/hive/tree/release-3.1.2-rc0/common)
-  org.apache.hive:hive-exec:3.1.2 - Hive Query Language (https://github.com/apache/hive/tree/rel/release-3.1.2/ql), (Apache License, Version 2.0)
-  org.apache.hive:hive-llap-client:3.1.2 - Hive Llap Client (https://github.com/apache/hive/tree/release-3.1.2-rc0/llap-client)
-  org.apache.hive:hive-llap-common:3.1.2 - Hive Llap Common (https://github.com/apache/hive/tree/release-3.1.2-rc0/llap-common)
-  org.apache.hive:hive-llap-tez:3.1.2 - Hive Llap Tez (https://github.com/apache/hive/tree/release-3.1.2-rc0/llap-tez)
-  org.apache.hive:hive-serde:3.1.2 - Hive Serde (https://github.com/apache/hive/tree/release-3.1.2-rc0/serde)
-  org.apache.hive:hive-service-rpc:3.1.2 - Hive Service RPC (https://github.com/apache/hive/tree/release-3.1.2-rc0/service-rpc)
+  org.apache.hive:hive-classification:3.1.3 - Hive Classifications (https://github.com/apache/hive/tree/rel/release-3.1.3/classification), (Apache License, Version 2.0)
+  org.apache.hive:hive-common:3.1.3 - Hive Common (https://github.com/apache/hive/tree/rel/release-3.1.3/common)
+  org.apache.hive:hive-exec:3.1.3 - Hive Query Language (https://github.com/apache/hive/tree/rel/release-3.1.3/ql), (Apache License, Version 2.0)
+  org.apache.hive:hive-llap-client:3.1.3 - Hive Llap Client (https://github.com/apache/hive/tree/rel/release-3.1.3/llap-client)
+  org.apache.hive:hive-llap-common:3.1.3 - Hive Llap Common (https://github.com/apache/hive/tree/rel/release-3.1.3/llap-common)
+  org.apache.hive:hive-llap-tez:3.1.3 - Hive Llap Tez (https://github.com/apache/hive/tree/rel/release-3.1.3/llap-tez)
+  org.apache.hive:hive-serde:3.1.3 - Hive Serde (https://github.com/apache/hive/tree/rel/release-3.1.3/serde)
+  org.apache.hive:hive-service-rpc:3.1.3 - Hive Service RPC (https://github.com/apache/hive/tree/rel/release-3.1.3/service-rpc)
   org.apache.hive:hive-storage-api:2.7.0 - Hive Storage API (https://github.com/apache/hive/tree/rel/storage-release-2.7.0/storage-api)
-  org.apache.hive:hive-upgrade-acid:3.1.2 - Hive Upgrade Acid (https://github.com/apache/hive/tree/release-3.1.2-rc0/upgrade-acid/)
+  org.apache.hive:hive-upgrade-acid:3.1.3 - Hive Upgrade Acid (https://github.com/apache/hive/tree/rel/release-3.1.3/upgrade-acid/)
   org.apache.htrace:htrace-core4:4.1.0-incubating - htrace-core4 (http://htrace.org/), (The Apache Software License, Version 2.0)
   org.apache.htrace:htrace-core4:4.2.0-incubating - htrace-core4 (http://htrace.org/), (The Apache Software License, Version 2.0)
   org.apache.httpcomponents:httpasyncclient:4.1.2 - Apache HttpAsyncClient (http://hc.apache.org/httpcomponents-asyncclient), (Apache License, Version 2.0)
@@ -729,7 +758,7 @@ The text of each license is the standard Apache 2.0 license.
   com.google.j2objc:j2objc-annotations:1.3 - J2ObjC Annotations (https://github.com/google/j2objc/), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.core:jackson-annotations:2.13.2 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.core:jackson-core:2.13.2 - Jackson-core (https://github.com/FasterXML/jackson-core/tree/jackson-core-2.13.2), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.core:jackson-databind:2.13.2.2 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.2.2), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-databind:2.13.4.2 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.4.2), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.8.11 - Jackson dataformat: CBOR (https://github.com/FasterXML/jackson-dataformats-binary/tree/jackson-dataformats-binary-2.8.11/cbor), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.10.4 - Jackson dataformat: CBOR (https://github.com/FasterXML/jackson-dataformats-binary/tree/jackson-dataformats-binary-2.10.4/cbor), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.8.11 - Jackson dataformat: Smile (https://github.com/FasterXML/jackson-dataformats-binary/tree/jackson-dataformats-binary-2.8.11/smile), (The Apache Software License, Version 2.0)

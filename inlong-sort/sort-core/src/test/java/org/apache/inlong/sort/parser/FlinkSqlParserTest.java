@@ -137,7 +137,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
         return new HiveLoadNode(id, "hive_output",
                 fields, relations, null, null, 1,
                 null, "myCatalog", "default", "work2",
-                "/opt/hive/conf", "3.1.2",
+                "/opt/hive/conf", "3.1.3",
                 null, null);
     }
 

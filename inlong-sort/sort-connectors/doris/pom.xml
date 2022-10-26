@@ -17,8 +17,8 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>sort-connectors</artifactId>
         <groupId>org.apache.inlong</groupId>
@@ -36,8 +36,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.doris</groupId>
-            <artifactId>flink-doris-connector-${flink.minor.version}_${flink.scala.binary.version}</artifactId>
+            <artifactId>flink-doris-connector-${flink.minor.version}_${flink.scala.binary.version}
+            </artifactId>
             <version>${flink.connector.doris.version}</version>
         </dependency>
     </dependencies>
@@ -55,17 +61,14 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.apache.doris:*</include>
-                                </includes>
-                            </artifactSet>
                             <filters>
                                 <filter>
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
                                     <includes>
                                         <include>org/apache/inlong/**</include>
-                                        <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
+                                        <include>
+                                            META-INF/services/org.apache.flink.table.factories.Factory
+                                        </include>
                                     </includes>
                                 </filter>
                             </filters>

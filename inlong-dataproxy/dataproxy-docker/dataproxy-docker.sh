@@ -21,10 +21,12 @@ local_ip=$(ifconfig | grep inet | grep -v inet6 | grep -v "127.0.0.1" | awk '{pr
 # config
 cd "${file_path}/"
 common_conf_file=./conf/common.properties
+mq_conf_file=./conf/dataproxy-${MQ_TYPE}.conf
+
 sed -i "s/manager.hosts=.*$/manager.hosts=${MANAGER_OPENAPI_IP}:${MANAGER_OPENAPI_PORT}/g" "${common_conf_file}"
 sed -i "s/audit.enable=.*$/audit.enable=${AUDIT_ENABLE}/g" "${common_conf_file}"
 sed -i "s/audit.proxys=.*$/audit.proxys=${AUDIT_PROXY_URL}/g" "${common_conf_file}"
-sed -i "s/proxy.report.ip=.*$/proxy.report.ip=${local_ip}/g" "${common_conf_file}"
+sed -i "s/localhost.*$/${local_ip}/g" "${mq_conf_file}"
 sed -i "s/proxy.cluster.tag=.*$/proxy.cluster.tag=${CLUSTER_TAG}/g" "${common_conf_file}"
 sed -i "s/proxy.cluster.name=.*$/proxy.cluster.name=${CLUSTER_NAME}/g" "${common_conf_file}"
 sed -i "s/proxy.cluster.inCharges=.*$/proxy.cluster.inCharges=${CLUSTER_IN_CHARGES}/g" "${common_conf_file}"

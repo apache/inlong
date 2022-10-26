@@ -111,6 +111,14 @@
         </where>
         order by id desc
     </select>
+    <select id="selectByInlongGroupIds" resultType="java.lang.Integer">
+        select id
+        from workflow_process
+        where inlong_group_id in
+        <foreach item="item" index="index" collection="groupIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
 
     <select id="countByQuery" parameterType="org.apache.inlong.manager.pojo.workflow.ProcessCountRequest"
             resultType="org.apache.inlong.manager.pojo.common.CountInfo">
@@ -155,4 +163,13 @@
             ext_params = #{extParams,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
+
+    <delete id="deleteByProcessIds">
+        delete
+        from workflow_process
+        where id in
+        <foreach item="item" index="index" collection="processIdList" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

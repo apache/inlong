@@ -46,6 +46,6 @@ CREATE TABLE IF NOT EXISTS `audit_data`
     `size`             BIGINT       NOT NULL DEFAULT '0' COMMENT 'Message size',
     `delay`            BIGINT       NOT NULL DEFAULT '0' COMMENT 'Message delay count',
     `update_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Update time',
-    INDEX ip_packet (`ip`, `inlong_group_id`, `inlong_stream_id`, `log_ts`)
+    INDEX group_stream_audit_id (`inlong_group_id`, `inlong_stream_id`, `audit_id`, `log_ts`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8 COMMENT ='Inlong audit data table';

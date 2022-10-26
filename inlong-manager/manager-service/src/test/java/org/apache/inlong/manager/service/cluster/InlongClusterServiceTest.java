@@ -22,7 +22,7 @@ import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.consts.MQType;
-import org.apache.inlong.manager.common.consts.ProtocolType;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
@@ -39,8 +39,6 @@ import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.heartbeat.HeartbeatManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Comparator;
@@ -51,7 +49,6 @@ import java.util.List;
  */
 public class InlongClusterServiceTest extends ServiceBaseTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceTest.class);
     @Autowired
     private InlongClusterService clusterService;
     @Autowired
@@ -111,11 +108,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Update cluster by unique key.
      */
-    public UpdateResult updatePulsarClusterByKey(
-            String name,
-            String clusterTag,
-            String adminUrl,
-            Integer version) {
+    public UpdateResult updatePulsarClusterByKey(String name, String clusterTag, String adminUrl, Integer version) {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setName(name);
         request.setClusterTags(clusterTag);
@@ -176,7 +169,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         return clusterService.updateNode(request, GLOBAL_OPERATOR);
     }
 
-    private HeartbeatMsg createHeartbeatMsg(String clusterName, String ip, int port, String type) {
+    private HeartbeatMsg createHeartbeatMsg(String clusterName, String ip, String port, String type) {
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(ip);
         heartbeatMsg.setPort(port);
@@ -307,7 +300,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     }
 
     @Test
-    public void testGetDataProxyIp() {
+    public void testDataProxyCluster() {
         String clusterTag = "default_cluster";
         String clusterName = "test_data_proxy";
         String extTag = "ext_1";
@@ -327,9 +320,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(nodeId2);
 
         // report heartbeat
-        HeartbeatMsg msg1 = createHeartbeatMsg(clusterName, ip, port1, ComponentTypeEnum.DataProxy.getName());
+        HeartbeatMsg msg1 = createHeartbeatMsg(clusterName, ip, String.valueOf(port1),
+                ComponentTypeEnum.DataProxy.getName());
         heartbeatManager.reportHeartbeat(msg1);
-        HeartbeatMsg msg2 = createHeartbeatMsg(clusterName, ip, port2, ComponentTypeEnum.DataProxy.getName());
+        HeartbeatMsg msg2 = createHeartbeatMsg(clusterName, ip, String.valueOf(port2),
+                ComponentTypeEnum.DataProxy.getName());
         heartbeatManager.reportHeartbeat(msg2);
 
         // create an inlong group which use the clusterTag

@@ -24,12 +24,16 @@ import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
+import org.apache.inlong.manager.client.api.inner.client.UserClient;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
+import org.apache.inlong.manager.client.cli.validator.UserTypeValidator;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
+import org.apache.inlong.manager.pojo.user.UserRequest;
 
 import java.io.File;
 import java.util.List;
@@ -49,6 +53,7 @@ public class CreateCommand extends AbstractCommand {
         jcommander.addCommand("cluster", new CreateCluster());
         jcommander.addCommand("cluster-tag", new CreateClusterTag());
         jcommander.addCommand("cluster-node", new CreateClusterNode());
+        jcommander.addCommand("user", new CreateUser());
     }
 
     @Parameters(commandDescription = "Create group by json file")
@@ -168,6 +173,44 @@ public class CreateCommand extends AbstractCommand {
                 Integer nodeId = clusterClient.saveNode(request);
                 if (nodeId != null) {
                     System.out.println("Create cluster node success! ID: " + nodeId);
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Parameters(commandDescription = "Create user")
+    private static class CreateUser extends AbstractCommandRunner {
+
+        @Parameter()
+        private List<String> params;
+
+        @Parameter(names = {"-u", "--username"}, description = "username")
+        private String username;
+
+        @Parameter(names = {"-p", "--password"}, description = "password")
+        private String password;
+
+        @Parameter(names = {"-t", "--type"}, description = "account type", validateWith = UserTypeValidator.class)
+        private String type;
+
+        @Parameter(names = {"-d", "--days"}, description = "valid days")
+        private Integer validDays;
+
+        @Override
+        void run() {
+            try {
+                UserRequest request = new UserRequest();
+                request.setName(username);
+                request.setPassword(password);
+                request.setAccountType(UserTypeEnum.parseName(type));
+                request.setValidDays(validDays);
+                ClientUtils.initClientFactory();
+                UserClient userClient = ClientUtils.clientFactory.getUserClient();
+                Integer userId = userClient.register(request);
+                if (userId != null) {
+                    System.out.println("Create user success! ID: " + userId);
                 }
             } catch (Exception e) {
                 System.out.println(e.getMessage());

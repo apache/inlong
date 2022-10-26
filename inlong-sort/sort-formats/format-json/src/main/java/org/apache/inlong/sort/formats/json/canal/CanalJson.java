@@ -36,6 +36,8 @@ public class CanalJson {
 
     private boolean isDdl;
     private List<String> pkNames;
+    private String schema;
+    private Map<String, String> oracleType;
 
     public List<Map<String, Object>> getData() {
         return data;
@@ -124,5 +126,22 @@ public class CanalJson {
     public boolean isDdl() {
         return isDdl;
     }
+
+    public Map<String, String> getOracleType() {
+        return oracleType;
+    }
+
+    public void setOracleType(Map<String, String> oracleType) {
+        this.oracleType = oracleType;
+    }
+
+    public String getSchema() {
+        return schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+
 }
 

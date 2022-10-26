@@ -167,22 +167,22 @@ public class OracleReader extends AbstractReader {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        int batchSize = jobConf.getInt(JOB_DATABASE_BATCH_SIZE, DEFAULT_JOB_DATABASE_BATCH_SIZE);
-        String userName = jobConf.get(JOB_DATABASE_USER);
-        String password = jobConf.get(JOB_DATABASE_PASSWORD);
-        String hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
-        String sid = jobConf.get(JOB_DATABASE_SID, DEFAULT_JOB_DATABASE_SID);
+        final int batchSize = jobConf.getInt(JOB_DATABASE_BATCH_SIZE, DEFAULT_JOB_DATABASE_BATCH_SIZE);
+        final String userName = jobConf.get(JOB_DATABASE_USER);
+        final String password = jobConf.get(JOB_DATABASE_PASSWORD);
+        final String hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
+        final String sid = jobConf.get(JOB_DATABASE_SID, DEFAULT_JOB_DATABASE_SID);
 
-        int port = jobConf.getInt(JOB_DATABASE_PORT);
+        final int port = jobConf.getInt(JOB_DATABASE_PORT);
 
-        String driverClass = jobConf.get(JOB_DATABASE_DRIVER_CLASS,
+        final String driverClass = jobConf.get(JOB_DATABASE_DRIVER_CLASS,
                 DEFAULT_JOB_DATABASE_DRIVER_CLASS);
         separator = jobConf.get(JOB_DATABASE_SEPARATOR, STD_FIELD_SEPARATOR_SHORT);
         finished = false;
         try {
-            String databaseType = jobConf.get(JOB_DATABASE_TYPE, ORACLE);
+            final String databaseType = jobConf.get(JOB_DATABASE_TYPE, ORACLE);
             // jdbc url,such as jdbc:oracle:thin@host:port:sid or jdbc:oracle:thin@host:port/service_name
-            String url;
+            final String url;
             if (StringUtils.isNotEmpty(sid)) {
                 url = String.format("jdbc:%s:thin:@%s:%d:%s", databaseType, hostName, port, sid);
             } else {

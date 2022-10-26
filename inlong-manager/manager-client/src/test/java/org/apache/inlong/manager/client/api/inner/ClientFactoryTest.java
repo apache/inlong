@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
@@ -38,7 +39,6 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.auth.TokenAuthentication;
 import org.apache.inlong.manager.common.consts.DataNodeType;
-import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
@@ -60,9 +60,9 @@ import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
-import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarTopicInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
@@ -81,7 +81,6 @@ import org.apache.inlong.manager.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
-import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.pojo.stream.StreamField;
@@ -93,6 +92,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -476,19 +476,14 @@ class ClientFactoryTest {
 
     @Test
     void getTopic() {
-        InlongGroupTopicInfo expected = new InlongGroupTopicInfo();
+        InlongPulsarTopicInfo expected = new InlongPulsarTopicInfo();
         expected.setInlongGroupId("1");
-        expected.setMqResource("testTopic");
-        expected.setMqType(MQType.TUBEMQ);
-        expected.setPulsarAdminUrl("http://127.0.0.1:8080");
-        expected.setPulsarServiceUrl("http://127.0.0.1:8081");
-        expected.setTubeMasterUrl("http://127.0.0.1:8082");
-        List<InlongStreamBriefInfo> list = new ArrayList<>();
-        expected.setStreamTopics(list);
-        InlongStreamBriefInfo briefInfo = new InlongStreamBriefInfo();
-        briefInfo.setId(1);
-        briefInfo.setInlongGroupId("testgroup");
-        briefInfo.setModifyTime(new Date());
+        expected.setNamespace("testTopic");
+        PulsarClusterInfo clusterInfo = new PulsarClusterInfo();
+        clusterInfo.setUrl("pulsar://127.0.0.1:6650");
+        clusterInfo.setAdminUrl("http://127.0.0.1:8080");
+        expected.setClusterInfos(Collections.singletonList(clusterInfo));
+        expected.setTopics(new ArrayList<>());
         stubFor(
                 get(urlMatching("/inlong/manager/api/group/getTopic/1.*"))
                         .willReturn(
@@ -496,13 +491,12 @@ class ClientFactoryTest {
                                         Response.success(expected))
                                 ))
         );
-        InlongGroupTopicInfo actual = groupClient.getTopic("1");
+
+        InlongPulsarTopicInfo actual = (InlongPulsarTopicInfo) groupClient.getTopic("1");
         Assertions.assertEquals(expected.getInlongGroupId(), actual.getInlongGroupId());
         Assertions.assertEquals(expected.getMqType(), actual.getMqType());
-        Assertions.assertEquals(expected.getTubeMasterUrl(), actual.getTubeMasterUrl());
-        Assertions.assertEquals(expected.getPulsarAdminUrl(), actual.getPulsarAdminUrl());
-        Assertions.assertEquals(expected.getPulsarServiceUrl(), actual.getPulsarServiceUrl());
-        Assertions.assertEquals(expected.getStreamTopics(), actual.getStreamTopics());
+        Assertions.assertEquals(expected.getTopics().size(), actual.getTopics().size());
+        Assertions.assertEquals(expected.getClusterInfos().size(), actual.getClusterInfos().size());
     }
 
     @Test
@@ -914,7 +908,7 @@ class ClientFactoryTest {
     }
 
     @Test
-    void testGetNode() {
+    void testGetClusterNode() {
         ClusterNodeResponse response = ClusterNodeResponse.builder()
                 .id(1)
                 .type(ClusterType.DATAPROXY)
@@ -931,6 +925,30 @@ class ClientFactoryTest {
         );
         ClusterNodeResponse clientNode = clusterClient.getNode(1);
         Assertions.assertEquals(1, clientNode.getId());
+    }
+
+    @Test
+    void testListClusterNode() {
+        ClusterNodeResponse response = ClusterNodeResponse.builder()
+                .id(5)
+                .type(ClusterType.DATAPROXY)
+                .parentId(1)
+                .ip("127.0.0.1")
+                .port(46801)
+                .protocolType(ProtocolType.HTTP)
+                .build();
+        List<ClusterNodeResponse> responses = new ArrayList<>();
+        responses.add(response);
+        stubFor(
+                get(urlMatching("/inlong/manager/api/cluster/node/listByGroupId.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(responses))
+                                ))
+        );
+        List<ClusterNodeResponse> clusterNode = clusterClient.listNode(
+                "1", ClusterType.DATAPROXY, ProtocolType.HTTP);
+        Assertions.assertEquals(1, clusterNode.size());
     }
 
     @Test

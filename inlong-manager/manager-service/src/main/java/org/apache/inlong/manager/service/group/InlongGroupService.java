@@ -109,11 +109,18 @@ public interface InlongGroupService {
     /**
      * According to the group id, query the topic to which it belongs
      *
-     * @param groupId Inlong group id
-     * @return Topic information
-     * @apiNote TubeMQ corresponds to the group, only 1 topic
+     * @param groupId inlong group id
+     * @return topic info
      */
     InlongGroupTopicInfo getTopic(String groupId);
+
+    /**
+     * According to the group id, query the backup topic to which it belongs
+     *
+     * @param groupId inlong group id
+     * @return backup topic info
+     */
+    InlongGroupTopicInfo getBackupTopic(String groupId);
 
     /**
      * Save the group modified when the approval is passed

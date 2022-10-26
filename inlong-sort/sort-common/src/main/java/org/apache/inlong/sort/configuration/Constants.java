@@ -18,7 +18,6 @@
 package org.apache.inlong.sort.configuration;
 
 import java.time.Duration;
-
 import static org.apache.inlong.sort.configuration.ConfigOptions.key;
 
 /**
@@ -91,10 +90,22 @@ public class Constants {
     //  Common configs
     // ------------------------------------------------------------------------
     /**
+     * The pipeline name is the key of configuration
+     * that represents the configuration of {@link this#JOB_NAME} in Flink Table API
+     */
+    public static final String PIPELINE_NAME = "pipeline.name";
+
+    /**
      * The ID of the cluster, used to separate multiple clusters.
      */
     public static final ConfigOption<String> CLUSTER_ID = key("cluster-id").noDefaultValue()
             .withDescription("The ID of the cluster, used to separate multiple clusters.");
+
+    /**
+     * The job name of this job, default is 'InLong-Sort-Job'
+     */
+    public static final ConfigOption<String> JOB_NAME = key("job.name").defaultValue("InLong-Sort-Job")
+            .withDescription("The job name of this job");
 
     /**
      * The ZooKeeper quorum to use.

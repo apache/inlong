@@ -45,4 +45,8 @@ public interface ProcessPlugin extends Plugin {
         return null;
     }
 
+    default SortStatusPoller createSortStatusPoller() {
+        return null;
+    }
+
 }

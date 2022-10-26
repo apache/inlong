@@ -58,6 +58,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -367,14 +368,15 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
         // Tube’s topic is the inlong group level, one inlong group, one TubeMQ topic
         String mqType = topicVO.getMqType();
+        // this class was deprecated, just comment it out
         if (MQType.TUBEMQ.equals(mqType)) {
-            String mqResource = topicVO.getMqResource();
+            String mqResource = /*topicVO.getMqResource()*/ null;
             Preconditions.checkTrue(mqResource == null || mqResource.equals(info.getTopic()),
                     "topic [" + info.getTopic() + "] not belong to inlong group " + groupId);
         } else if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
             // Pulsar's topic is the inlong stream level.
             // There will be multiple inlong streams under one inlong group, and there will be multiple topics
-            List<InlongStreamBriefInfo> streamTopics = topicVO.getStreamTopics();
+            List<InlongStreamBriefInfo> streamTopics = /*topicVO.getStreamTopics()*/ new ArrayList<>();
             if (streamTopics != null && streamTopics.size() > 0) {
                 Set<String> topicSet = new HashSet<>(Arrays.asList(info.getTopic().split(",")));
                 streamTopics.forEach(stream -> topicSet.remove(stream.getMqResource()));

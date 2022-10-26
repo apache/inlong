@@ -44,6 +44,9 @@ public interface InlongStreamExtEntityMapper {
 
     List<InlongStreamExtEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
+    InlongStreamExtEntity selectByKey(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("keyName") String keyName);
+
     int updateByPrimaryKey(InlongStreamExtEntity record);
 
     /**
@@ -53,13 +56,13 @@ public interface InlongStreamExtEntityMapper {
      */
     int logicDeleteAllByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteById(Integer id);
 
     /**
-     * Physically delete all extension fields based on group id and stream id
+     * Physically delete all extension fields based on inlong group ids
      *
      * @return rows deleted
      */
-    int deleteAllByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
 }

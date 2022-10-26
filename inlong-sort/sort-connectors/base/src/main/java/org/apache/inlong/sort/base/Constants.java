@@ -20,6 +20,7 @@ package org.apache.inlong.sort.base;
 
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
+import org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy;
 
 /**
  * connector base option constant
@@ -85,6 +86,16 @@ public final class Constants {
 
     public static final String INLONG_METRIC_STATE_NAME = "inlong-metric-states";
 
+    /**
+     * It is used for jdbc url filter for avoiding url attack
+     * see also in https://su18.org/post/jdbc-connection-url-attack/
+     */
+    public static final String AUTO_DESERIALIZE = "autoDeserialize";
+
+    public static final String AUTO_DESERIALIZE_TRUE = "autoDeserialize=true";
+
+    public static final String AUTO_DESERIALIZE_FALSE = "autoDeserialize=false";
+
     public static final ConfigOption<String> INLONG_METRIC =
             ConfigOptions.key("inlong.metric.labels")
                     .stringType()
@@ -112,14 +123,44 @@ public final class Constants {
                     .withDescription(
                             "The format of multiple sink, it represents the real format of the raw binary data");
 
-    /**
-     * It is used for jdbc url filter for avoiding url attack
-     * see also in https://su18.org/post/jdbc-connection-url-attack/
-     */
-    public static final String AUTO_DESERIALIZE = "autoDeserialize";
+    public static final ConfigOption<String> SINK_MULTIPLE_DATABASE_PATTERN =
+            ConfigOptions.key("sink.multiple.database-pattern")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("The option 'sink.multiple.database-pattern' "
+                            + "is used extract database name from the raw binary data, "
+                            + "this is only used in the multiple sink writing scenario.");
 
-    public static final String AUTO_DESERIALIZE_TRUE = "autoDeserialize=true";
+    public static final ConfigOption<Boolean> SOURCE_MULTIPLE_ENABLE =
+            ConfigOptions.key("source.multiple.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether enable migrate multiple databases");
 
-    public static final String AUTO_DESERIALIZE_FALSE = "autoDeserialize=false";
+    public static final ConfigOption<String> SINK_MULTIPLE_TABLE_PATTERN =
+            ConfigOptions.key("sink.multiple.table-pattern")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("The option 'sink.multiple.table-pattern' "
+                            + "is used extract table name from the raw binary data, "
+                            + "this is only used in the multiple sink writing scenario.");
 
+    public static final ConfigOption<Boolean> SINK_MULTIPLE_ENABLE =
+            ConfigOptions.key("sink.multiple.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("The option 'sink.multiple.enable' "
+                            + "is used to determine whether to support multiple sink writing, default is 'false'.");
+
+    public static final ConfigOption<SchemaUpdateExceptionPolicy> SINK_MULTIPLE_ADD_COLUMN_POLICY =
+            ConfigOptions.key("sink.multiple.add-column.policy")
+                    .enumType(SchemaUpdateExceptionPolicy.class)
+                    .defaultValue(SchemaUpdateExceptionPolicy.TRY_IT_BEST)
+                    .withDescription("The action to deal with column add.");
+
+    public static final ConfigOption<SchemaUpdateExceptionPolicy> SINK_MULTIPLE_DEL_COLUMN_POLICY =
+            ConfigOptions.key("sink.multiple.del-column.policy")
+                    .enumType(SchemaUpdateExceptionPolicy.class)
+                    .defaultValue(SchemaUpdateExceptionPolicy.TRY_IT_BEST)
+                    .withDescription("The action to deal with column delete.");
 }

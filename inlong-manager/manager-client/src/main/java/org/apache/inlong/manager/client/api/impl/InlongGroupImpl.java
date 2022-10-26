@@ -19,6 +19,8 @@ package org.apache.inlong.manager.client.api.impl;
 
 import com.google.common.base.Objects;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongGroup;
@@ -32,9 +34,11 @@ import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.WorkflowClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.common.enums.SortStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
@@ -42,6 +46,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
+import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
+import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskResponse;
@@ -49,6 +55,7 @@ import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,6 +107,10 @@ public class InlongGroupImpl implements InlongGroup {
     @Override
     public InlongGroupContext context() throws Exception {
         return generateSnapshot();
+    }
+
+    public InlongGroupContext context(String credentials) throws Exception {
+        return generateSnapshot(credentials);
     }
 
     @Override
@@ -278,6 +289,23 @@ public class InlongGroupImpl implements InlongGroup {
         }
 
         return new InlongGroupContext(groupContext);
+    }
+
+    private InlongGroupContext generateSnapshot(String credentials) {
+        InlongGroupContext groupContext = generateSnapshot();
+        InlongGroupInfo groupInfo = groupContext.getGroupInfo();
+        if (groupInfo.getExtList().stream().anyMatch(info -> InlongConstants.SORT_JOB_ID.equals(info.getKeyName())
+                && StringUtils.isNotEmpty(info.getKeyValue()))) {
+            ListSortStatusRequest request = new ListSortStatusRequest();
+            request.setInlongGroupIds(Collections.singletonList(groupInfo.getInlongGroupId()));
+            request.setCredentials(credentials);
+            ListSortStatusResponse sortStatusInfo = groupClient.listSortStatus(request);
+            if (MapUtils.isNotEmpty(sortStatusInfo.getStatusMap())) {
+                groupContext.updateSortStatus(sortStatusInfo.getStatusMap().getOrDefault(
+                        groupInfo.getInlongGroupId(), SortStatus.UNKNOWN));
+            }
+        }
+        return groupContext;
     }
 
     private List<InlongStream> fetchInlongStreams(String groupId) {

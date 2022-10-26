@@ -56,7 +56,9 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `version`                int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`),
-    INDEX group_status_deleted_index (`status`, `is_deleted`)
+    INDEX `group_status_deleted_index` (`status`, `is_deleted`),
+    INDEX `group_modify_time_index` (`modify_time`),
+    INDEX `group_cluster_tag_index` (`inlong_cluster_tag`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong group table';
 
@@ -72,8 +74,8 @@ CREATE TABLE IF NOT EXISTS `inlong_group_ext`
     `is_deleted`      int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `modify_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    KEY `group_id_index` (`inlong_group_id`),
-    UNIQUE KEY `unique_inlong_group_key` (`inlong_group_id`, `key_name`)
+    UNIQUE KEY `unique_inlong_group_key` (`inlong_group_id`, `key_name`),
+    INDEX `group_ext_group_index` (`inlong_group_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong group extension table';
 
@@ -123,7 +125,8 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`      int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_inlong_cluster` (`name`, `type`, `is_deleted`)
+    UNIQUE KEY `unique_inlong_cluster` (`name`, `type`, `is_deleted`),
+    INDEX `cluster_type_index` (`type`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong cluster table';
 
@@ -137,7 +140,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
     `type`          varchar(20)  NOT NULL COMMENT 'Cluster type, such as: AGENT, DATAPROXY, etc',
     `ip`            varchar(512) NOT NULL COMMENT 'Cluster IP, separated by commas, such as: 127.0.0.1:8080,host2:8081',
     `port`          int(6)       NULL COMMENT 'Cluster port',
-    `protocol_type` varchar(20)  NOT NULL COMMENT 'DATAPROXY Source listen protocol type, such as: TCP/HTTP',
+    `protocol_type` varchar(20)  DEFAULT NULL COMMENT 'DATAPROXY Source listen protocol type, such as: TCP/HTTP',
     `ext_params`    mediumtext            DEFAULT NULL COMMENT 'Another fields will be saved as JSON string',
     `description`   varchar(256)          DEFAULT '' COMMENT 'Description of cluster node',
     `status`        int(4)                DEFAULT '0' COMMENT 'Cluster status',
@@ -262,7 +265,7 @@ CREATE TABLE IF NOT EXISTS `stream_source_cmd_config`
     `modify_time`         timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `result_info`         varchar(64)      DEFAULT NULL,
     PRIMARY KEY (`id`),
-    KEY `unique_source_cmd_config` (`task_id`, `bSend`, `specified_data_time`)
+    UNIQUE KEY `unique_source_cmd_config` (`task_id`, `bSend`, `specified_data_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
@@ -297,7 +300,8 @@ CREATE TABLE IF NOT EXISTS `inlong_stream`
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_inlong_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`)
+    UNIQUE KEY `unique_inlong_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`),
+    INDEX `stream_group_id_index` (`inlong_group_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong stream table';
 
@@ -315,7 +319,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream_ext`
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_stream_key` (`inlong_group_id`, `inlong_stream_id`, `key_name`),
-    KEY `stream_id_index` (`inlong_group_id`, `inlong_stream_id`)
+    INDEX `stream_id_index` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong stream extension table';
 
@@ -339,7 +343,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream_field`
     `rank_num`            smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`),
-    KEY `field_stream_id_index` (`inlong_stream_id`)
+    INDEX `stream_field_group_stream_index` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='File/DB data source field table';
 
@@ -396,9 +400,9 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `modify_time`         timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_source_name` (`inlong_group_id`, `inlong_stream_id`, `source_name`, `is_deleted`),
-    KEY `source_status_index` (`status`, `is_deleted`),
-    KEY `source_agent_ip_index` (`agent_ip`, `is_deleted`),
-    KEY `template_id_index` (`template_id`)
+    INDEX `source_status_index` (`status`, `is_deleted`),
+    INDEX `source_agent_ip_index` (`agent_ip`, `is_deleted`),
+    INDEX `source_template_id_index` (`template_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source table';
 
@@ -465,8 +469,8 @@ CREATE TABLE IF NOT EXISTS `stream_source_field`
     `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
     `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Inlong stream id',
-    `source_id`        int(11)      NOT NULL COMMENT 'Sink id',
-    `source_type`      varchar(15)  NOT NULL COMMENT 'Sink type',
+    `source_id`        int(11)      NOT NULL COMMENT 'Source id',
+    `source_type`      varchar(15)  NOT NULL COMMENT 'Source type',
     `field_name`       varchar(120) NOT NULL COMMENT 'field name',
     `field_value`      varchar(128) DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
     `pre_expression`   varchar(256) DEFAULT NULL COMMENT 'Pre-defined field value expression',
@@ -478,7 +482,8 @@ CREATE TABLE IF NOT EXISTS `stream_source_field`
     `rank_num`         smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`       int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`),
-    KEY `source_id_index` (`source_id`)
+    INDEX `source_id_index` (`source_id`),
+    INDEX `source_group_stream_index` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream source field table';
 
@@ -506,7 +511,8 @@ CREATE TABLE IF NOT EXISTS `stream_transform_field`
     -- The source node name of the transport field
     `origin_field_name` varchar(50)   DEFAULT '' COMMENT 'Origin field name before transform operation',
     PRIMARY KEY (`id`),
-    KEY `transform_id_index` (`transform_id`)
+    INDEX `transform_id_index` (`transform_id`),
+    INDEX `transform_group_stream_index` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream transform field table';
 
@@ -533,7 +539,9 @@ CREATE TABLE IF NOT EXISTS `stream_sink_field`
     `origin_field_name` varchar(50)   DEFAULT '' COMMENT 'Origin field name before transform operation',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    INDEX `sink_id_index` (`sink_id`),
+    INDEX `sink_group_stream_index` (`inlong_group_id`, `inlong_stream_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream sink field table';
 
@@ -628,7 +636,7 @@ CREATE TABLE IF NOT EXISTS `workflow_approver`
     `is_deleted`   int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
     `version`      int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
-    KEY `process_name_task_name_index` (`process_name`, `task_name`)
+    INDEX `process_name_task_name_index` (`process_name`, `task_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow approver table';
 
@@ -661,7 +669,8 @@ CREATE TABLE IF NOT EXISTS `workflow_event_log`
     `remark`               text COMMENT 'Execution result remark information',
     `exception`            mediumtext COMMENT 'Exception information',
     PRIMARY KEY (`id`),
-    INDEX event_group_status_index (`inlong_group_id`, `status`)
+    INDEX event_group_status_index (`inlong_group_id`, `status`),
+    INDEX event_process_task_index (`process_id`, `task_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow event log table';
 
@@ -757,7 +766,7 @@ CREATE TABLE IF NOT EXISTS `sort_source_config`
     `topic`        varchar(128) DEFAULT '' COMMENT 'Topic',
     `ext_params`   mediumtext   DEFAULT NULL COMMENT 'Another fields, will be saved as JSON type',
     PRIMARY KEY (`id`),
-    KEY `sort_source_config_index` (`cluster_name`, `task_name`)
+    INDEX `sort_source_config_index` (`cluster_name`, `task_name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Sort source config table';
 

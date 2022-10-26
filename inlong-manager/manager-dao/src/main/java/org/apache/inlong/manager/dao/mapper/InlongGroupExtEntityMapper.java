@@ -38,7 +38,7 @@ public interface InlongGroupExtEntityMapper {
 
     int updateByPrimaryKey(InlongGroupExtEntity record);
 
-    InlongGroupExtEntity selectByGroupIdAndKeyName(String groupId, String keyName);
+    InlongGroupExtEntity selectByUniqueKey(@Param("groupId") String groupId, @Param("keyName") String keyName);
 
     /**
      * Insert data in batches
@@ -65,5 +65,12 @@ public interface InlongGroupExtEntityMapper {
      * @return rows updated
      */
     int logicDeleteAllByGroupId(String groupId);
+
+    /**
+     * Physically delete all extended fields based on inlong group ids
+     *
+     * @return rows deleted
+     */
+    int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
 
 }

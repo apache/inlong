@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.pojo.group;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 
 import java.util.List;
 
@@ -29,31 +30,19 @@ import java.util.List;
  */
 @Data
 @ApiModel("Inlong group and topic info")
-public class InlongGroupTopicInfo {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
+public abstract class InlongGroupTopicInfo {
 
     @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
+    @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR, or KAFKA")
     private String mqType;
 
-    @ApiModelProperty(value = "MQ resource, TubeMQ topic name, or Pulsar namespace name")
-    private String mqResource;
+    @ApiModelProperty(value = "Inlong cluster tag of the current InlongGroup")
+    private String inlongClusterTag;
 
-    @ApiModelProperty(value = "Topic list, TubeMQ corresponds to inlong group, there is only 1 topic, "
-            + "Pulsar corresponds to inlong stream, there are multiple topics")
-    private List<InlongStreamBriefInfo> streamTopics;
-
-    @ApiModelProperty(value = "TubeMQ master URL")
-    private String tubeMasterUrl;
-
-    @ApiModelProperty(value = "Pulsar service URL")
-    private String pulsarServiceUrl;
-
-    @ApiModelProperty(value = "Pulsar admin URL")
-    private String pulsarAdminUrl;
-
-    @ApiModelProperty(value = "Kafka admin URL")
-    private String kafkaBootstrapServers;
+    @ApiModelProperty(value = "MQ cluster info list")
+    private List<? extends ClusterInfo> clusterInfos;
 
 }

@@ -17,12 +17,38 @@
 
 package org.apache.inlong.sort.base.format;
 
+import org.apache.flink.formats.common.TimestampFormat;
+import org.apache.flink.formats.json.JsonToRowDataConverters;
+import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.table.types.logical.BigIntType;
+import org.apache.flink.table.types.logical.BinaryType;
+import org.apache.flink.table.types.logical.BooleanType;
+import org.apache.flink.table.types.logical.CharType;
+import org.apache.flink.table.types.logical.DateType;
+import org.apache.flink.table.types.logical.DecimalType;
+import org.apache.flink.table.types.logical.DoubleType;
+import org.apache.flink.table.types.logical.FloatType;
+import org.apache.flink.table.types.logical.IntType;
+import org.apache.flink.table.types.logical.LocalZonedTimestampType;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.types.logical.RowType.RowField;
+import org.apache.flink.table.types.logical.SmallIntType;
+import org.apache.flink.table.types.logical.TimeType;
+import org.apache.flink.table.types.logical.TimestampType;
+import org.apache.flink.table.types.logical.VarBinaryType;
+import org.apache.flink.table.types.logical.VarCharType;
+import org.apache.flink.types.RowKind;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 
 /**
@@ -40,23 +66,59 @@ import java.util.regex.Matcher;
  */
 public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaFormat<JsonNode> {
 
+    /**
+     * The first item of array
+     */
+    private static final Integer FIRST = 0;
+
+    private static final Map<Integer, LogicalType> SQL_TYPE_2_ICEBERG_TYPE_MAPPING =
+            ImmutableMap.<Integer, LogicalType>builder()
+                    .put(java.sql.Types.CHAR, new CharType())
+                    .put(java.sql.Types.VARCHAR, new VarCharType())
+                    .put(java.sql.Types.SMALLINT, new SmallIntType())
+                    .put(java.sql.Types.INTEGER, new IntType())
+                    .put(java.sql.Types.BIGINT, new BigIntType())
+                    .put(java.sql.Types.REAL, new FloatType())
+                    .put(java.sql.Types.DOUBLE, new DoubleType())
+                    .put(java.sql.Types.FLOAT, new FloatType())
+                    .put(java.sql.Types.DECIMAL, new DecimalType())
+                    .put(java.sql.Types.NUMERIC, new DecimalType())
+                    .put(java.sql.Types.BIT, new BooleanType())
+                    .put(java.sql.Types.TIME, new TimeType())
+                    .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
+                    .put(java.sql.Types.TIMESTAMP, new TimestampType())
+                    .put(java.sql.Types.BINARY, new BinaryType())
+                    .put(java.sql.Types.VARBINARY, new VarBinaryType())
+                    .put(java.sql.Types.BLOB, new VarBinaryType())
+                    .put(java.sql.Types.DATE, new DateType())
+                    .put(java.sql.Types.BOOLEAN, new BooleanType())
+                    .put(java.sql.Types.OTHER, new VarCharType())
+                    .build();
+    protected final JsonToRowDataConverters rowDataConverters;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    protected JsonDynamicSchemaFormat() {
+        this.rowDataConverters =
+                new JsonToRowDataConverters(true, false, TimestampFormat.ISO_8601);
+    }
+
     /**
-     * Extract value by key from the raw data
+     * Extract values by keys from the raw data
      *
-     * @param message The byte array of raw data
+     * @param root The raw data
      * @param keys The key list that will be used to extract
      * @return The value list maps the keys
-     * @throws IOException The exceptions may throws when extract
      */
     @Override
-    public List<String> extract(byte[] message, String... keys) throws IOException {
+    public List<String> extractValues(JsonNode root, String... keys) {
         if (keys == null || keys.length == 0) {
             return new ArrayList<>();
         }
-        final JsonNode root = deserialize(message);
         JsonNode physicalNode = getPhysicalData(root);
+        if (physicalNode.isArray()) {
+            // Extract from the first value when the physicalNode is array
+            physicalNode = physicalNode.get(FIRST);
+        }
         List<String> values = new ArrayList<>(keys.length);
         if (physicalNode == null) {
             for (String key : keys) {
@@ -143,6 +205,10 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
         Matcher matcher = PATTERN.matcher(pattern);
         StringBuffer sb = new StringBuffer();
         JsonNode physicalNode = getPhysicalData(rootNode);
+        if (physicalNode.isArray()) {
+            // Extract from the first value when the physicalNode is array
+            physicalNode = physicalNode.get(FIRST);
+        }
         while (matcher.find()) {
             String keyText = matcher.group(1);
             String replacement = extract(physicalNode, keyText);
@@ -164,5 +230,90 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
      * @param root The json root node
      * @return The physical data node
      */
-    protected abstract JsonNode getPhysicalData(JsonNode root);
+    public JsonNode getPhysicalData(JsonNode root) {
+        JsonNode physicalData = getUpdateAfter(root);
+        if (physicalData == null) {
+            physicalData = getUpdateBefore(root);
+        }
+        return physicalData;
+    }
+
+    /**
+     * Get physical data of update after
+     *
+     * @param root The json root node
+     * @return The physical data node of update after
+     */
+    public abstract JsonNode getUpdateAfter(JsonNode root);
+
+    /**
+     * Get physical data of update before
+     *
+     * @param root The json root node
+     * @return The physical data node of update before
+     */
+    public abstract JsonNode getUpdateBefore(JsonNode root);
+
+    /**
+     * Convert opType to RowKind
+     *
+     * @param opType The opTyoe of data
+     * @return The RowKind of data
+     */
+    public abstract List<RowKind> opType2RowKind(String opType);
+
+    /**
+     * Get opType of data
+     *
+     * @param root The json root node
+     * @return The opType of data
+     */
+    public abstract String getOpType(JsonNode root);
+
+    protected RowType extractSchemaNode(JsonNode schema, List<String> pkNames) {
+        Iterator<Entry<String, JsonNode>> schemaFields = schema.fields();
+        List<RowField> fields = new ArrayList<>();
+        while (schemaFields.hasNext()) {
+            Entry<String, JsonNode> entry = schemaFields.next();
+            String name = entry.getKey();
+            LogicalType type = sqlType2FlinkType(entry.getValue().asInt());
+            if (pkNames.contains(name)) {
+                type = type.copy(false);
+            }
+            fields.add(new RowField(name, type));
+        }
+        return new RowType(fields);
+    }
+
+    private LogicalType sqlType2FlinkType(int jdbcType) {
+        if (SQL_TYPE_2_ICEBERG_TYPE_MAPPING.containsKey(jdbcType)) {
+            return SQL_TYPE_2_ICEBERG_TYPE_MAPPING.get(jdbcType);
+        } else {
+            throw new IllegalArgumentException("Unsupported jdbcType: " + jdbcType);
+        }
+    }
+
+    /**
+     * Convert json node to map
+     *
+     * @param data The json node
+     * @return The List of json node
+     * @throws IOException The exception may be thrown when executing
+     */
+    public List<Map<String, String>> jsonNode2Map(JsonNode data) throws IOException {
+        if (data == null) {
+            return new ArrayList<>();
+        }
+        List<Map<String, String>> values = new ArrayList<>();
+        if (data.isArray()) {
+            for (int i = 0; i < data.size(); i++) {
+                values.add(objectMapper.convertValue(data.get(i), new TypeReference<Map<String, String>>() {
+                }));
+            }
+        } else {
+            values.add(objectMapper.convertValue(data, new TypeReference<Map<String, String>>() {
+            }));
+        }
+        return values;
+    }
 }

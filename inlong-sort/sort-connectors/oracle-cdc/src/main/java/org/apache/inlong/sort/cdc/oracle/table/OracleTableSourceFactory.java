@@ -19,7 +19,6 @@
 package org.apache.inlong.sort.cdc.oracle.table;
 
 import com.ververica.cdc.connectors.oracle.table.StartupOptions;
-import com.ververica.cdc.debezium.table.DebeziumOptions;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
@@ -31,10 +30,12 @@ import org.apache.flink.table.factories.FactoryUtil;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.inlong.sort.cdc.oracle.debezium.table.DebeziumOptions;
 
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SOURCE_MULTIPLE_ENABLE;
 
 /**
  * Factory for creating configured instance of {@link OracleTableSource}.
@@ -110,6 +111,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
         String schemaName = config.get(SCHEMA_NAME);
         int port = config.get(PORT);
         StartupOptions startupOptions = getStartupOptions(config);
+        final boolean sourceMultipleEnable = config.get(SOURCE_MULTIPLE_ENABLE);
         ResolvedSchema physicalSchema = context.getCatalogTable().getResolvedSchema();
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String inlongAudit = config.get(INLONG_AUDIT);
@@ -124,6 +126,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
                 startupOptions,
+                sourceMultipleEnable,
                 inlongMetric,
                 inlongAudit);
     }
@@ -152,6 +155,7 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
         options.add(SCAN_STARTUP_MODE);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
+        options.add(SOURCE_MULTIPLE_ENABLE);
         return options;
     }
 

@@ -116,7 +116,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
-    public void updateOpt(SourceRequest request, Integer groupStatus, String operator) {
+    public void updateOpt(SourceRequest request, Integer groupStatus, Integer groupMode, String operator) {
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
 
@@ -124,7 +124,10 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             LOGGER.warn("auto push source {} can not be updated", entity.getSourceName());
             return;
         }
-        if (!SourceStatus.ALLOWED_UPDATE.contains(entity.getStatus())) {
+
+        boolean allowUpdate = InlongConstants.LIGHTWEIGHT_MODE.equals(groupMode)
+                || SourceStatus.ALLOWED_UPDATE.contains(entity.getStatus());
+        if (!allowUpdate) {
             throw new BusinessException(String.format("source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
@@ -157,21 +160,24 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         setTargetEntity(request, entity);
         entity.setModifier(operator);
 
-        // re-issue task if necessary
         entity.setPreviousStatus(entity.getStatus());
-        if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
-            entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
-        } else {
-            switch (SourceStatus.forCode(entity.getStatus())) {
-                case SOURCE_NORMAL:
-                    entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
-                    break;
-                case SOURCE_FAILED:
-                    entity.setStatus(SourceStatus.SOURCE_NEW.getCode());
-                    break;
-                default:
-                    // others leave it be
-                    break;
+
+        // re-issue task if necessary
+        if (InlongConstants.STANDARD_MODE.equals(groupMode)) {
+            if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
+                entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
+            } else {
+                switch (SourceStatus.forCode(entity.getStatus())) {
+                    case SOURCE_NORMAL:
+                        entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
+                        break;
+                    case SOURCE_FAILED:
+                        entity.setStatus(SourceStatus.SOURCE_NEW.getCode());
+                        break;
+                    default:
+                        // others leave it be
+                        break;
+                }
             }
         }
 

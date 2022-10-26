@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.enums.MetaField;
+import org.apache.inlong.common.enums.RowKindEnum;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.Metadata;
@@ -79,6 +81,8 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     private ExtractMode extractMode;
     @JsonProperty("url")
     private String url;
+    @JsonProperty("rowKindsFiltered")
+    private List<RowKindEnum> rowKindsFiltered;
 
     /**
      * Constructor only used for {@link ExtractMode#CDC}
@@ -116,7 +120,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             @Nullable @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
             @Nullable @JsonProperty("serverTimeZone") String serverTimeZone) {
         this(id, name, fields, watermarkField, properties, primaryKey, tableNames, hostname, username, password,
-                database, port, serverId, incrementalSnapshotEnabled, serverTimeZone, ExtractMode.CDC, null);
+                database, port, serverId, incrementalSnapshotEnabled, serverTimeZone, ExtractMode.CDC, null, null);
     }
 
     /**
@@ -143,7 +147,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             @Nullable @JsonProperty("url") String url) {
         this(id, name, fields, null, properties, primaryKey, tableNames, null, username,
                 password, null, null, null, null, null,
-                ExtractMode.SCAN, url);
+                ExtractMode.SCAN, url, null);
     }
 
     /**
@@ -185,7 +189,8 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             @Nullable @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
             @Nullable @JsonProperty("serverTimeZone") String serverTimeZone,
             @Nonnull @JsonProperty("extractMode") ExtractMode extractMode,
-            @Nullable @JsonProperty("url") String url) {
+            @Nullable @JsonProperty("url") String url,
+            @Nullable @JsonProperty("rowKindsFiltered") List<RowKindEnum> rowKindsFiltered) {
         super(id, name, fields, watermarkField, properties);
         this.tableNames = Preconditions.checkNotNull(tableNames, "tableNames is null");
         Preconditions.checkState(!tableNames.isEmpty(), "tableNames is empty");
@@ -206,6 +211,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
         this.incrementalSnapshotEnabled = incrementalSnapshotEnabled;
         this.serverTimeZone = serverTimeZone;
         this.extractMode = extractMode;
+        this.rowKindsFiltered = rowKindsFiltered;
     }
 
     @Override
@@ -225,6 +231,11 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             options.put("connector", "mysql-cdc-inlong");
             options.put("hostname", hostname);
             options.put("database-name", database);
+            if (rowKindsFiltered != null) {
+                List<String> rowKinds = rowKindsFiltered.stream().map(RowKindEnum::shortString)
+                    .collect(Collectors.toList());
+                options.put("row-kinds-filtered", StringUtils.join(rowKinds, "&"));
+            }
             if (port != null) {
                 options.put("port", port.toString());
             }
@@ -269,7 +280,13 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
                 break;
             case DATA:
             case DATA_BYTES:
-                metadataKey = "meta.data";
+            case DATA_CANAL:
+            case DATA_BYTES_CANAL:
+                metadataKey = "meta.data_canal";
+                break;
+            case DATA_DEBEZIUM:
+            case DATA_BYTES_DEBEZIUM:
+                metadataKey = "meta.data_debezium";
                 break;
             case IS_DDL:
                 metadataKey = "meta.is_ddl";
@@ -306,9 +323,10 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
 
     @Override
     public Set<MetaField> supportedMetaFields() {
-        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATA,
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATA_CANAL,
             MetaField.DATABASE_NAME, MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL,
             MetaField.TS, MetaField.SQL_TYPE, MetaField.MYSQL_TYPE, MetaField.PK_NAMES,
-            MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA_BYTES);
+            MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA_BYTES_DEBEZIUM,
+            MetaField.DATA_DEBEZIUM, MetaField.DATA_BYTES_CANAL, MetaField.DATA, MetaField.DATA_BYTES);
     }
 }

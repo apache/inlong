@@ -395,7 +395,7 @@ The text of each license is the standard Apache 2.0 license.
   com.google.j2objc:j2objc-annotations:1.3 - J2ObjC Annotations (https://github.com/google/j2objc/), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.core:jackson-annotations:2.13.2 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations/tree/jackson-annotations-2.13.2), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.core:jackson-core:2.13.2 - Jackson-core (https://github.com/FasterXML/jackson-core/tree/jackson-core-2.13.2), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.core:jackson-databind:2.13.2.2 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.2.2), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-databind:2.13.4.2 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.4.2), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.10.0 - Jackson-dataformat-CSV (https://github.com/FasterXML/jackson-dataformats-text/tree/jackson-dataformats-text-2.10.0), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.10.0 - Jackson datatype: jdk8 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.10.0), (The Apache Software License, Version 2.0)
   jakarta.validation:jakarta.validation-api:2.0.2 - Jakarta Bean Validation API (https://beanvalidation.org), (Apache License 2.0)
@@ -500,6 +500,7 @@ EPL licenses
 The following components are provided under EPL license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
+  org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5- paho.mqtt.java (https://github.com/eclipse/paho.mqtt.java/tree/v1.2.5), (EPL 2.0)
   org.glassfish.hk2.external:aopalliance-repackaged:2.6.1- aopalliance version 1.0 repackaged as a module (https://github.com/eclipse-ee4j/glassfish-hk2/external/aopalliance-repackaged), (EPL 2.0;  GPL2 w/ CPE)
   org.glassfish.hk2:hk2-api:2.6.1 - HK2 API module (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/hk2-api), (EPL 2.0;  GPL2 w/ CPE)
   org.glassfish.hk2:hk2-locator:2.6.1 - ServiceLocator Default Implementation (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/hk2-locator), (EPL 2.0;  GPL2 w/ CPE)

@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.core;
 
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
+import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
+import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
 
 /**
  * Sort Service
@@ -55,4 +57,12 @@ public interface SortService {
      * @return Response of sort cluster config
      */
     SortSourceConfigResponse getSourceConfig(String clusterName, String sortTaskId, String md5);
+
+    /**
+     * Get sort job status.
+     *
+     * @param request Request params like group ids and sort cluster token
+     * @return Response of corresponding sort jobs' status
+     */
+    ListSortStatusResponse listSortStatus(ListSortStatusRequest request);
 }

@@ -40,6 +40,7 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
+import org.apache.inlong.sort.base.filter.RowValidator;
 import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.debezium.utils.TemporalConversions;
 import org.apache.kafka.connect.data.ConnectSchema;
@@ -51,14 +52,12 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -81,9 +80,6 @@ public final class RowDataDebeziumDeserializeSchema
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_DATE;
 
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
-
-    private static final DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern(
-            "yyyy-MM-dd HH:mm:ss");
 
     /**
      * TypeInformation of the produced {@link RowData}. *
@@ -109,7 +105,7 @@ public final class RowDataDebeziumDeserializeSchema
     /**
      * Validator to validate the row value.
      */
-    private final ValueValidator validator;
+    private final RowValidator rowKindValidator;
 
     private boolean migrateAll;
 
@@ -119,7 +115,7 @@ public final class RowDataDebeziumDeserializeSchema
             RowType physicalDataType,
             MetadataConverter[] metadataConverters,
             TypeInformation<RowData> resultTypeInfo,
-            ValueValidator validator,
+            RowValidator rowValidator,
             ZoneId serverTimeZone,
             boolean appendSource,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory,
@@ -134,7 +130,7 @@ public final class RowDataDebeziumDeserializeSchema
                         serverTimeZone,
                         userDefinedConverterFactory);
         this.resultTypeInfo = checkNotNull(resultTypeInfo);
-        this.validator = checkNotNull(validator);
+        this.rowKindValidator = rowValidator;
         this.appendSource = checkNotNull(appendSource);
     }
 
@@ -623,6 +619,9 @@ public final class RowDataDebeziumDeserializeSchema
      * @return
      */
     private Object getTimeValue(Object fieldValue, String schemaName) {
+        if (fieldValue == null) {
+            return null;
+        }
         switch (schemaName) {
             case MicroTime.SCHEMA_NAME:
                 Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
@@ -632,13 +631,11 @@ public final class RowDataDebeziumDeserializeSchema
                 fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
                 break;
             case ZonedTimestamp.SCHEMA_NAME:
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
-                fieldValue = timestampFormatter.format(zonedDateTime
-                        .withZoneSameInstant(serverTimeZone).toLocalDateTime());
+                // by default the field value is zoned timestamp, no need to convert
                 break;
             case Timestamp.SCHEMA_NAME:
                 Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
-                fieldValue = timestampFormatter.format(LocalDateTime.ofInstant(instantTime,
+                fieldValue = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.ofInstant(instantTime,
                         serverTimeZone));
                 break;
             default:
@@ -661,24 +658,20 @@ public final class RowDataDebeziumDeserializeSchema
         Schema valueSchema = record.valueSchema();
         if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
             GenericRowData insert = extractAfterRow(value, valueSchema);
-            validator.validate(insert, RowKind.INSERT);
             insert.setRowKind(RowKind.INSERT);
             emit(record, insert, tableSchema, out);
         } else if (op == Envelope.Operation.DELETE) {
             GenericRowData delete = extractBeforeRow(value, valueSchema);
-            validator.validate(delete, RowKind.DELETE);
             delete.setRowKind(RowKind.DELETE);
             emit(record, delete, tableSchema, out);
         } else {
             if (!appendSource) {
                 GenericRowData before = extractBeforeRow(value, valueSchema);
-                validator.validate(before, RowKind.UPDATE_BEFORE);
                 before.setRowKind(RowKind.UPDATE_BEFORE);
                 emit(record, before, tableSchema, out);
             }
 
             GenericRowData after = extractAfterRow(value, valueSchema);
-            validator.validate(after, RowKind.UPDATE_AFTER);
             after.setRowKind(RowKind.UPDATE_AFTER);
             emit(record, after, tableSchema, out);
         }
@@ -699,6 +692,9 @@ public final class RowDataDebeziumDeserializeSchema
     private void emit(SourceRecord inRecord, RowData physicalRow,
                       TableChange tableChange, Collector<RowData> collector
     ) {
+        if (!rowKindValidator.validate(physicalRow.getRowKind())) {
+            return;
+        }
         if (appendSource) {
             physicalRow.setRowKind(RowKind.INSERT);
         }
@@ -718,14 +714,6 @@ public final class RowDataDebeziumDeserializeSchema
     }
 
     /**
-     * Custom validator to validate the row value.
-     */
-    public interface ValueValidator extends Serializable {
-
-        void validate(RowData rowData, RowKind rowKind) throws Exception;
-    }
-
-    /**
      * Builder of {@link RowDataDebeziumDeserializeSchema}.
      */
     public static class Builder {
@@ -733,8 +721,7 @@ public final class RowDataDebeziumDeserializeSchema
         private RowType physicalRowType;
         private TypeInformation<RowData> resultTypeInfo;
         private MetadataConverter[] metadataConverters = new MetadataConverter[0];
-        private ValueValidator validator = (rowData, rowKind) -> {
-        };
+        private RowValidator rowValidator;
         private ZoneId serverTimeZone = ZoneId.of("UTC");
         private boolean appendSource = false;
         private boolean migrateAll = false;
@@ -761,8 +748,8 @@ public final class RowDataDebeziumDeserializeSchema
             return this;
         }
 
-        public Builder setValueValidator(ValueValidator validator) {
-            this.validator = validator;
+        public Builder setValidator(RowValidator rowFilter) {
+            this.rowValidator = rowFilter;
             return this;
         }
 
@@ -787,7 +774,7 @@ public final class RowDataDebeziumDeserializeSchema
                     physicalRowType,
                     metadataConverters,
                     resultTypeInfo,
-                    validator,
+                    rowValidator,
                     serverTimeZone,
                     appendSource,
                     userDefinedConverterFactory,

@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.common.enums.SortStatus;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
 import java.util.List;
@@ -49,5 +50,8 @@ public class InlongGroupStatusInfo {
 
     @ApiModelProperty(value = "Stream sources in the inlong group")
     private List<StreamSource> streamSources;
+
+    @ApiModelProperty(value = "sort job status of the group")
+    private SortStatus sortStatus = SortStatus.UNKNOWN;
 
 }

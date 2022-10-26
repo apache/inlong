@@ -17,41 +17,39 @@
 
 package org.apache.inlong.manager.service.group;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarTopicInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
 
 /**
  * Inlong group operator for Pulsar.
  */
 @Service
-public class InlongPulsarOperator extends AbstractGroupOperator {
+public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlongPulsarOperator.class);
-
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private InlongStreamService streamService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupOperator4Pulsar.class);
 
     @Override
     public Boolean accept(String mqType) {
@@ -112,14 +110,43 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
 
     @Override
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
-        InlongGroupTopicInfo topicInfo = super.getTopic(groupInfo);
-        // Pulsar topic corresponds to the inlong stream one-to-one
-        List<InlongStreamBriefInfo> streamTopics = streamService.getTopicList(groupInfo.getInlongGroupId());
-        topicInfo.setStreamTopics(streamTopics);
-        // TODO add cache for cluster info, and support extends different MQs
-        // topicInfo.setTenant();
-        // topicInfo.setAdminUrl();
-        // topicInfo.setServiceUrl();
+        InlongPulsarTopicInfo topicInfo = new InlongPulsarTopicInfo();
+        topicInfo.setNamespace(groupInfo.getMqResource());
+        // each inlong stream is associated with a Pulsar topic
+        List<String> topics = streamService.getTopicList(groupInfo.getInlongGroupId()).stream()
+                .map(InlongStreamBriefInfo::getMqResource)
+                .collect(Collectors.toList());
+        topicInfo.setTopics(topics);
+
+        return topicInfo;
+    }
+
+    @Override
+    public InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo) {
+        // set backup namespace
+        String groupId = groupInfo.getInlongGroupId();
+        InlongGroupExtEntity extEntity = groupExtMapper.selectByUniqueKey(groupId, BACKUP_MQ_RESOURCE);
+        InlongPulsarTopicInfo topicInfo = new InlongPulsarTopicInfo();
+        if (extEntity != null && StringUtils.isNotBlank(extEntity.getKeyValue())) {
+            topicInfo.setNamespace(extEntity.getKeyValue());
+        } else {
+            topicInfo.setNamespace(groupInfo.getMqResource());
+        }
+
+        // set backup topics, each inlong stream is associated with a Pulsar topic
+        List<InlongStreamBriefInfo> streamTopics = streamService.getTopicList(groupId);
+        streamTopics.forEach(stream -> {
+            InlongStreamExtEntity streamExtEntity = streamExtMapper.selectByKey(groupId, stream.getInlongStreamId(),
+                    BACKUP_MQ_RESOURCE);
+            if (streamExtEntity != null && StringUtils.isNotBlank(streamExtEntity.getKeyValue())) {
+                stream.setMqResource(streamExtEntity.getKeyValue());
+            }
+        });
+        List<String> topics = streamTopics.stream()
+                .map(InlongStreamBriefInfo::getMqResource)
+                .collect(Collectors.toList());
+        topicInfo.setTopics(topics);
+
         return topicInfo;
     }
 

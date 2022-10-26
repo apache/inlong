@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -33,7 +34,9 @@ import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
+import org.apache.inlong.dataproxy.config.AuthUtils;
 import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 
 import java.util.ArrayList;
@@ -50,7 +53,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @Slf4j
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
-    public static final String DEFAULT_REPORT_PORT = "46801";
     public static final String DEFAULT_CLUSTER_TAG = "default_cluster";
     public static final String DEFAULT_CLUSTER_NAME = "default_dataproxy";
     public static final String DEFAULT_CLUSTER_INCHARGES = "admin";
@@ -86,6 +88,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 "http://" + managerHost + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_HEARTBEAT_REPORT;
         try {
             HttpPost post = new HttpPost(url);
+            post.addHeader(HttpHeaders.CONNECTION, "close");
+            post.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
             String body = gson.toJson(heartbeat);
             StringEntity stringEntity = new StringEntity(body);
             stringEntity.setContentType("application/json");
@@ -116,12 +120,13 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     private HeartbeatMsg buildHeartbeat() {
         ConfigManager configManager = ConfigManager.getInstance();
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
-        Map<String, String> commonProperties = configManager.getCommonProperties();
-        heartbeatMsg.setIp(commonProperties.get(ConfigConstants.PROXY_REPORT_IP));
-        heartbeatMsg.setPort(Integer.parseInt(commonProperties.getOrDefault(
-                ConfigConstants.PROXY_REPORT_PORT, DEFAULT_REPORT_PORT)));
+        SourceReportInfo reportInfo = configManager.getSourceReportInfo();
+        heartbeatMsg.setIp(reportInfo.getIp());
+        heartbeatMsg.setPort(reportInfo.getPort());
+        heartbeatMsg.setProtocolType(reportInfo.getProtocolType());
         heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getName());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
+        Map<String, String> commonProperties = configManager.getCommonProperties();
         heartbeatMsg.setClusterTag(commonProperties.getOrDefault(
                 ConfigConstants.PROXY_CLUSTER_TAG, DEFAULT_CLUSTER_TAG));
         heartbeatMsg.setClusterName(commonProperties.getOrDefault(
