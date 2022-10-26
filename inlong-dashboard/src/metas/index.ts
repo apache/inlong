@@ -21,17 +21,25 @@ import { useState, useEffect, useCallback } from 'react';
 import type { MetaExportWithBackend, MetaExportWithBackendList } from '@/metas/types';
 import { consumes, defaultValue as defaultConsume } from './consumes';
 import { groups, defaultValue as defaultGroup } from './groups';
+import { clusters, defaultValue as defaultCluster } from './clusters';
+import { nodes, defaultValue as defaultNode } from './nodes';
+import { streams, defaultValue as defaultStream } from './streams';
+import { sources, defaultValue as defaultSource } from './sources';
 
 export interface UseLoadMetaResult {
   loading: boolean;
   Entity: MetaExportWithBackend;
 }
 
-export type MetaTypeKeys = 'consume' | 'group';
+export type MetaTypeKeys = 'consume' | 'group' | 'cluster' | 'node' | 'stream' | 'source';
 
 const metasMap: Record<MetaTypeKeys, [MetaExportWithBackendList, string?]> = {
   consume: [consumes, defaultConsume],
   group: [groups, defaultGroup],
+  cluster: [clusters, defaultCluster],
+  node: [nodes, defaultNode],
+  stream: [streams, defaultStream],
+  source: [sources, defaultSource],
 };
 
 export const useDefaultMeta = (metaType: MetaTypeKeys) => {

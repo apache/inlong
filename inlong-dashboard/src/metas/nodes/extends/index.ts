@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import type { MetaExportWithBackendList } from '@/metas/types';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
-
-export const defaultValue = sources[0].value;
+export const allExtendsNodes: MetaExportWithBackendList = [
+  // You can extends at here...
+];

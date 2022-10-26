@@ -22,8 +22,8 @@ import { Button } from 'antd';
 import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
-import { consumeForm, consumeTable } from '@/metas/consume';
-import { pickObjectArray } from '@/utils';
+import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { statusList, lastConsumerStatusList } from '@/metas/consumes/common/status';
 
 export const dashCardList = [
   {
@@ -48,55 +48,72 @@ export const dashCardList = [
   },
 ];
 
-export const getFilterFormContent = defaultValues =>
-  [
-    {
-      type: 'inputsearch',
-      name: 'keyword',
-      initialValue: defaultValues.keyword,
-      props: {
-        allowClear: true,
-      },
+export const getFilterFormContent = defaultValues => [
+  {
+    type: 'inputsearch',
+    name: 'keyword',
+    initialValue: defaultValues.keyword,
+    props: {
+      allowClear: true,
     },
-  ].concat(
-    pickObjectArray(['status', 'lastConsumeStatus'], consumeForm).map(item => ({
-      ...item,
-      visible: true,
-      initialValue: defaultValues[item.name],
-    })),
-  );
+  },
+  {
+    type: 'select',
+    name: 'status',
+    label: i18n.t('basic.Status'),
+    initialValue: defaultValues.status,
+    props: {
+      allowClear: true,
+      options: statusList,
+      dropdownMatchSelectWidth: false,
+    },
+  },
+  {
+    type: 'select',
+    name: 'lastConsumeStatus',
+    label: i18n.t('pages.ConsumeDashboard.config.OperatingStatus'),
+    initialValue: defaultValues.lastConsumeStatus,
+    props: {
+      allowClear: true,
+      options: lastConsumerStatusList,
+      dropdownMatchSelectWidth: false,
+    },
+  },
+];
 
-export const getColumns = ({ onDelete }) => {
+export const useColumns = ({ onDelete }) => {
+  const { defaultValue } = useDefaultMeta('consume');
+
+  const { Entity } = useLoadMeta('consume', defaultValue);
+
   const genCreateUrl = record => `/consume/create/${record.id}`;
   const genDetailUrl = record =>
     [0, 10].includes(record.status) ? genCreateUrl(record) : `/consume/detail/${record.id}`;
 
-  return consumeTable
-    .map(item => {
-      if (item.dataIndex === 'consumerGroup') {
-        return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
-      }
-      return item;
-    })
-    .concat([
-      {
-        title: i18n.t('basic.Operating'),
-        dataIndex: 'action',
-        render: (text, record) => (
-          <>
+  return Entity?.ColumnList?.map(item => {
+    if (item.dataIndex === 'consumerGroup') {
+      return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
+    }
+    return item;
+  }).concat([
+    {
+      title: i18n.t('basic.Operating'),
+      dataIndex: 'action',
+      render: (text, record) => (
+        <>
+          <Button type="link">
+            <Link to={genDetailUrl(record)}>{i18n.t('basic.Detail')}</Link>
+          </Button>
+          {[20, 22].includes(record?.status) && (
             <Button type="link">
-              <Link to={genDetailUrl(record)}>{i18n.t('basic.Detail')}</Link>
+              <Link to={genCreateUrl(record)}>{i18n.t('basic.Edit')}</Link>
             </Button>
-            {[20, 22].includes(record?.status) && (
-              <Button type="link">
-                <Link to={genCreateUrl(record)}>{i18n.t('basic.Edit')}</Link>
-              </Button>
-            )}
-            <Button type="link" onClick={() => onDelete(record)}>
-              {i18n.t('basic.Delete')}
-            </Button>
-          </>
-        ),
-      },
-    ]);
+          )}
+          <Button type="link" onClick={() => onDelete(record)}>
+            {i18n.t('basic.Delete')}
+          </Button>
+        </>
+      ),
+    },
+  ]);
 };

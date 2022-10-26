@@ -17,9 +17,12 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import type { MetaExportWithBackendList } from '@/metas/types';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
-
-export const defaultValue = sources[0].value;
+export const allDefaultStreams: MetaExportWithBackendList = [
+  {
+    label: 'ALL',
+    value: '',
+    LoadEntity: () => import('../common/StreamInfo').then(r => ({ default: r.StreamInfo })),
+  },
+];

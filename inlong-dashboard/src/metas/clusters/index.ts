@@ -17,9 +17,9 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import { allDefaultClusters } from './defaults';
+import { allExtendsClusters } from './extends';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
+export const clusters = allDefaultClusters.concat(allExtendsClusters);
 
-export const defaultValue = sources[0].value;
+export const defaultValue = clusters[0].value;

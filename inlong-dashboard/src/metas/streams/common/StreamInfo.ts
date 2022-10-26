@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import { StreamDefaultInfo } from './StreamDefaultInfo';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
-
-export const defaultValue = sources[0].value;
+export class StreamInfo extends StreamDefaultInfo {
+  // You can extends StreamInfo at here...
+}

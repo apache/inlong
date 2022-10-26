@@ -17,24 +17,26 @@
  * under the License.
  */
 
+import { DataWithBackend } from '@/metas/DataWithBackend';
 import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
+import { SourceInfo } from '../common/SourceInfo';
 
-export const binLog: FieldItemType[] = [
-  {
-    name: 'hostname',
+const { I18n, FormField, TableColumn } = DataWithBackend;
+
+export default class TubeMqSource extends SourceInfo implements DataWithBackend {
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sources.Db.Server'),
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'port',
+  })
+  @TableColumn()
+  @I18n('meta.Sources.Db.Server')
+  hostname: string;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Sources.Db.Port'),
     initialValue: 3306,
     rules: [{ required: true }],
     props: values => ({
@@ -42,52 +44,56 @@ export const binLog: FieldItemType[] = [
       min: 0,
       max: 65535,
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'user',
+  })
+  @TableColumn()
+  @I18n('meta.Sources.Db.Port')
+  port: number;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sources.Db.User'),
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
-  },
-  {
-    name: 'password',
+  })
+  @I18n('meta.Sources.Db.User')
+  user: string;
+
+  @FormField({
     type: 'password',
-    label: i18n.t('meta.Sources.Db.Password'),
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
-  },
-  {
-    name: 'historyFilename',
+  })
+  @I18n('meta.Sources.Db.Password')
+  password: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sources.Db.HistoryFilename'),
     rules: [{ required: true }],
     initialValue: '/data/inlong-agent/.history',
     props: values => ({
       disabled: values?.status === 101,
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'serverTimezone',
+  })
+  @I18n('meta.Sources.Db.HistoryFilename')
+  historyFilename: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sources.Db.ServerTimezone'),
     tooltip: 'UTC, UTC+8, Asia/Shanghai, ...',
     initialValue: 'UTC',
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
-  },
-  {
-    name: 'intervalMs',
+  })
+  @I18n('meta.Sources.Db.ServerTimezone')
+  serverTimezone: string;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Sources.Db.IntervalMs'),
     initialValue: 1000,
     rules: [{ required: true }],
     suffix: 'ms',
@@ -96,11 +102,12 @@ export const binLog: FieldItemType[] = [
       min: 1000,
       max: 3600000,
     }),
-  },
-  {
-    name: 'allMigration',
+  })
+  @I18n('meta.Sources.Db.IntervalMs')
+  intervalMs: number;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Sources.Db.AllMigration'),
     rules: [{ required: true }],
     initialValue: false,
     props: values => ({
@@ -116,16 +123,19 @@ export const binLog: FieldItemType[] = [
         },
       ],
     }),
-  },
-  {
-    name: 'tableWhiteList',
+  })
+  @I18n('meta.Sources.Db.AllMigration')
+  allMigration: boolean;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sources.Db.TableWhiteList'),
     tooltip: i18n.t('meta.Sources.Db.TableWhiteListHelp'),
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
     visible: values => !values?.allMigration,
-  },
-];
+  })
+  @I18n('meta.Sources.Db.TableWhiteList')
+  tableWhiteList: boolean;
+}

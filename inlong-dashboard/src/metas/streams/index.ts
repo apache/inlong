@@ -17,31 +17,9 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
+import { allDefaultStreams } from './defaults';
+import { allExtendsStreams } from './extends';
 
-export const hive: FieldItemType[] = [
-  {
-    type: 'input',
-    label: 'JDBC URL',
-    name: 'jdbcUrl',
-    rules: [{ required: true }],
-    initialValue: 'jdbc:hive2://127.0.0.1:10000',
-  },
-  {
-    type: 'input',
-    label: i18n.t('meta.Sinks.Hive.DataPath'),
-    name: 'dataPath',
-    rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.DataPathHelp'),
-    initialValue: 'hdfs://127.0.0.1:9000/user/hive/warehouse/default',
-  },
-  {
-    type: 'input',
-    label: i18n.t('meta.Sinks.Hive.ConfDir'),
-    name: 'hiveConfDir',
-    rules: [{ required: true }],
-    tooltip: i18n.t('meta.Sinks.Hive.ConfDirHelp'),
-    initialValue: '/usr/hive/conf',
-  },
-];
+export const streams = allDefaultStreams.concat(allExtendsStreams);
+
+export const defaultValue = streams[0].value;

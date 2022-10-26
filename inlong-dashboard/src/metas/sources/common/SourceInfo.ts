@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import { SourceDefaultInfo } from './SourceDefaultInfo';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
-
-export const defaultValue = sources[0].value;
+export class SourceInfo extends SourceDefaultInfo {
+  // You can extends SourceInfo at here...
+}

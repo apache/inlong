@@ -17,16 +17,14 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import i18n from '@/i18n';
-import { groupForm } from '@/metas/group';
-import { streamForm } from '@/metas/stream';
+import { useLoadMeta, useDefaultMeta } from '@/metas';
 import request from '@/utils/request';
-import { pickObjectArray } from '@/utils';
 import { dataToValues, valuesToData } from './helper';
 
 export interface Props extends ModalProps {
@@ -36,28 +34,77 @@ export interface Props extends ModalProps {
   mqType: string;
 }
 
-export const genFormContent = (isCreate, mqType) => {
-  return [
-    ...streamForm,
-    ...pickObjectArray(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength'], groupForm).map(
-      item => ({
-        ...item,
-        visible: mqType === 'PULSAR',
-      }),
-    ),
-  ].map(item => {
-    const obj = { ...item };
-
-    if (!isCreate && (obj.name === 'inlongStreamId' || obj.name === 'dataType')) {
-      obj.type = 'text';
-    }
-
-    return obj;
-  });
-};
-
 const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modalProps }) => {
   const [form] = useForm();
+
+  const { defaultValue } = useDefaultMeta('stream');
+
+  const { Entity } = useLoadMeta('stream', defaultValue);
+
+  const genFormContent = useCallback(
+    (isCreate, mqType) => {
+      return [
+        ...(Entity?.FieldList || []),
+        {
+          type: 'inputnumber',
+          label: i18n.t('meta.Group.NumberOfAccess'),
+          name: 'dailyRecords',
+          rules: [{ required: true }],
+          suffix: i18n.t('meta.Group.TenThousand/Day'),
+          props: {
+            min: 1,
+            precision: 0,
+          },
+          visible: mqType === 'PULSAR',
+        },
+        {
+          type: 'inputnumber',
+          label: i18n.t('meta.Group.AccessSize'),
+          name: 'dailyStorage',
+          rules: [{ required: true }],
+          suffix: i18n.t('meta.Group.GB/Day'),
+          props: {
+            min: 1,
+            precision: 0,
+          },
+          visible: mqType === 'PULSAR',
+        },
+        {
+          type: 'inputnumber',
+          label: i18n.t('meta.Group.AccessPeakPerSecond'),
+          name: 'peakRecords',
+          rules: [{ required: true }],
+          suffix: i18n.t('meta.Group.Stripe/Second'),
+          props: {
+            min: 1,
+            precision: 0,
+          },
+          visible: mqType === 'PULSAR',
+        },
+        {
+          type: 'inputnumber',
+          label: i18n.t('meta.Group.SingleStripMaximumLength'),
+          name: 'maxLength',
+          rules: [{ required: true }],
+          suffix: 'Byte',
+          props: {
+            min: 1,
+            precision: 0,
+          },
+          visible: mqType === 'PULSAR',
+        },
+      ].map(item => {
+        const obj = { ...item };
+
+        if (!isCreate && (obj.name === 'inlongStreamId' || obj.name === 'dataType')) {
+          obj.type = 'text';
+        }
+
+        return obj;
+      });
+    },
+    [Entity?.FieldList],
+  );
 
   const { data: savedData, run: getStreamData } = useRequest(
     {

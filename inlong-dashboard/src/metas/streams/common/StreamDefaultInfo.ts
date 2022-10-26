@@ -17,19 +17,19 @@
  * under the License.
  */
 
-import EditableTable from '@/components/EditableTable';
+import { DataWithBackend } from '@/metas/DataWithBackend';
 import i18n from '@/i18n';
+import EditableTable from '@/components/EditableTable';
 import { fieldTypes as sourceFieldsTypes } from '@/metas/sinks/common/sourceFields';
-import type { FieldItemType } from '@/metas/common';
-import { genFields, genForm, genTable } from '@/metas/common';
 import { statusList, genStatusTag } from './status';
-import { fieldsExtends } from './extends';
 
-const fieldsDefault: FieldItemType[] = [
-  {
+const { I18n, FormField, TableColumn } = DataWithBackend;
+
+export class StreamDefaultInfo extends DataWithBackend {
+  readonly id: number;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Stream.StreamId'),
-    name: 'inlongStreamId',
     props: {
       maxLength: 32,
     },
@@ -40,55 +40,53 @@ const fieldsDefault: FieldItemType[] = [
         message: i18n.t('meta.Stream.StreamIdRules'),
       },
     ],
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Stream.StreamId')
+  inlongStreamId: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Stream.StreamName'),
-    name: 'name',
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Stream.StreamName')
+  name: string;
+
+  @FormField({
     type: 'textarea',
-    label: i18n.t('meta.Stream.Description'),
-    name: 'description',
     props: {
       showCount: true,
       maxLength: 256,
     },
-  },
-  {
-    type: 'text',
-    label: i18n.t('basic.Creator'),
-    name: 'creator',
-    visible: false,
-    _renderTable: true,
-  },
-  {
-    type: 'text',
-    label: i18n.t('basic.CreateTime'),
-    name: 'createTime',
-    visible: false,
-    _renderTable: true,
-  },
-  {
+  })
+  @I18n('meta.Stream.Description')
+  description: string;
+
+  @TableColumn()
+  @I18n('basic.Creator')
+  readonly creator: string;
+
+  @TableColumn()
+  @I18n('basic.CreateTime')
+  readonly createTime: string;
+
+  @FormField({
     type: 'select',
-    label: i18n.t('basic.Status'),
-    name: 'status',
     props: {
       allowClear: true,
       options: statusList,
       dropdownMatchSelectWidth: false,
     },
     visible: false,
-    _renderTable: {
-      render: text => genStatusTag(text),
-    },
-  },
-  {
+  })
+  @TableColumn({
+    render: text => genStatusTag(text),
+  })
+  @I18n('basic.Status')
+  status: string;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Stream.DataType'),
-    name: 'dataType',
     initialValue: 'CSV',
     tooltip: i18n.t('meta.Stream.DataTypeCsvHelp'),
     props: {
@@ -112,11 +110,12 @@ const fieldsDefault: FieldItemType[] = [
       ],
     },
     rules: [{ required: true }],
-  },
-  {
+  })
+  @I18n('meta.Stream.DataType')
+  dataType: string;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Stream.DataEncoding'),
-    name: 'dataEncoding',
     initialValue: 'UTF-8',
     props: {
       options: [
@@ -131,11 +130,12 @@ const fieldsDefault: FieldItemType[] = [
       ],
     },
     rules: [{ required: true }],
-  },
-  {
+  })
+  @I18n('meta.Stream.DataEncoding')
+  dataEncoding: string;
+
+  @FormField({
     type: 'select',
-    label: i18n.t('meta.Stream.DataSeparator'),
-    name: 'dataSeparator',
     initialValue: '124',
     props: {
       dropdownMatchSelectWidth: false,
@@ -180,11 +180,12 @@ const fieldsDefault: FieldItemType[] = [
         max: 127,
       },
     ],
-  },
-  {
+  })
+  @I18n('meta.Stream.DataSeparator')
+  dataSeparator: string;
+
+  @FormField({
     type: EditableTable,
-    label: i18n.t('meta.Stream.SourceDataField'),
-    name: 'rowTypeFields',
     props: {
       size: 'small',
       columns: [
@@ -215,11 +216,15 @@ const fieldsDefault: FieldItemType[] = [
         },
       ],
     },
-  },
-];
+  })
+  @I18n('meta.Stream.SourceDataField')
+  rowTypeFields: Record<string, string>[];
 
-export const stream = genFields(fieldsDefault, fieldsExtends);
+  parse(data) {
+    return data;
+  }
 
-export const streamForm = genForm(stream);
-
-export const streamTable = genTable(stream);
+  stringify(data) {
+    return data;
+  }
+}

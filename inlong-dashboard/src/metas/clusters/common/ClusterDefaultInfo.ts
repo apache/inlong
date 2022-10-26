@@ -17,67 +17,45 @@
  * under the License.
  */
 
-import React from 'react';
-import i18n from '@/i18n';
+import { DataWithBackend } from '@/metas/DataWithBackend';
 import UserSelect from '@/components/UserSelect';
-import type { FieldItemType } from '@/metas/common';
-import { genFields, genForm, genTable } from '@/metas/common';
-import { agent } from './agent';
-import { dataProxy } from './dataProxy';
-import { pulsar } from './pulsar';
-import { tubeMQ } from './tubeMQ';
+import { clusters, defaultValue } from '..';
 
-const allClusters = [
-  {
-    label: 'Agent',
-    value: 'AGENT',
-    fields: agent,
-  },
-  {
-    label: 'DataProxy',
-    value: 'DATAPROXY',
-    fields: dataProxy,
-  },
-  {
-    label: 'Pulsar',
-    value: 'PULSAR',
-    fields: pulsar,
-  },
-  {
-    label: 'TubeMQ',
-    value: 'TUBEMQ',
-    fields: tubeMQ,
-  },
-];
+const { I18n, FormField, TableColumn } = DataWithBackend;
 
-const defaultCommonFields: FieldItemType[] = [
-  {
+export class ClusterDefaultInfo extends DataWithBackend {
+  id: number;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('pages.Clusters.Name'),
-    name: 'name',
     rules: [{ required: true }],
     props: {
       maxLength: 128,
     },
-    _renderTable: true,
-  },
-  {
-    type: 'radio',
-    name: 'type',
-    label: i18n.t('pages.Clusters.Type'),
-    initialValue: allClusters[0].value,
+  })
+  @TableColumn()
+  @I18n('pages.Clusters.Name')
+  name: string;
+
+  @FormField({
+    type: clusters.length > 3 ? 'select' : 'radio',
+    initialValue: defaultValue,
     rules: [{ required: true }],
     props: {
-      options: allClusters.map(item => ({
-        label: item.label,
-        value: item.value,
-      })),
+      options: clusters
+        .filter(item => item.value)
+        .map(item => ({
+          label: item.label,
+          value: item.value,
+        })),
     },
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('pages.Clusters.Type')
+  type: string;
+
+  @FormField({
     type: 'select',
-    label: i18n.t('pages.Clusters.Tag'),
-    name: 'clusterTags',
     rules: [{ required: true }],
     props: {
       mode: 'multiple',
@@ -103,33 +81,39 @@ const defaultCommonFields: FieldItemType[] = [
         },
       },
     },
-    _renderTable: true,
-  },
-  {
-    type: <UserSelect mode="multiple" />,
-    label: i18n.t('pages.Clusters.InCharges'),
-    name: 'inCharges',
+  })
+  @TableColumn()
+  @I18n('pages.Clusters.Tag')
+  clusterTags: string;
+
+  @FormField({
+    type: UserSelect,
     rules: [{ required: true }],
-    _renderTable: true,
-  },
-  {
+    props: {
+      mode: 'multiple',
+      currentUserClosable: false,
+    },
+  })
+  @TableColumn()
+  @I18n('pages.Clusters.InCharges')
+  inCharges: string;
+
+  @FormField({
     type: 'textarea',
-    label: i18n.t('pages.Clusters.Description'),
-    name: 'description',
     props: {
       maxLength: 256,
     },
-  },
-];
+  })
+  @I18n('pages.Clusters.Description')
+  description: string;
 
-export const clusters = allClusters.map(item => {
-  const itemFields = defaultCommonFields.concat(item.fields);
-  const fields = genFields(itemFields);
+  version?: number;
 
-  return {
-    ...item,
-    fields,
-    form: genForm(fields),
-    table: genTable(fields),
-  };
-});
+  parse(data) {
+    return data;
+  }
+
+  stringify(data) {
+    return data;
+  }
+}

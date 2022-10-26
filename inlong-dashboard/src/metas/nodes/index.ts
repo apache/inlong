@@ -17,9 +17,11 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import { allDefaultNodes } from './defaults';
+import { allExtendsNodes } from './extends';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
+export * as dao from './common/dao';
 
-export const defaultValue = sources[0].value;
+export const nodes = allDefaultNodes.concat(allExtendsNodes);
+
+export const defaultValue = nodes[0].value;

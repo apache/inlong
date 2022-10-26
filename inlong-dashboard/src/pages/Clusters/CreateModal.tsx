@@ -23,7 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import request from '@/utils/request';
-import { clusters } from '@/metas/clusters';
+import { useDefaultMeta, useLoadMeta } from '@/metas';
 import i18n from '@/i18n';
 
 export interface Props extends ModalProps {
@@ -34,7 +34,9 @@ export interface Props extends ModalProps {
 const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   const [form] = useForm();
 
-  const [type, setType] = useState(clusters[0].value);
+  const { defaultValue } = useDefaultMeta('cluster');
+
+  const [type, setType] = useState(defaultValue);
 
   const { data: savedData, run: getData } = useRequest(
     id => ({
@@ -82,14 +84,15 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       }
     } else {
       form.resetFields();
-      setType(clusters[0].value);
+      setType(defaultValue);
     }
   }, [modalProps.visible]);
 
+  const { Entity } = useLoadMeta('cluster', type);
+
   const content = useMemo(() => {
-    const current = clusters.find(item => item.value === type);
-    return current?.form;
-  }, [type]);
+    return Entity ? Entity.FieldList : [];
+  }, [Entity]);
 
   return (
     <Modal

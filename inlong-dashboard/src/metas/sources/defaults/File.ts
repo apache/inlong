@@ -17,15 +17,16 @@
  * under the License.
  */
 
+import { DataWithBackend } from '@/metas/DataWithBackend';
 import i18n from '@/i18n';
 import rulesPattern from '@/utils/pattern';
-import type { FieldItemType } from '@/metas/common';
+import { SourceInfo } from '../common/SourceInfo';
 
-export const file: FieldItemType[] = [
-  {
+const { I18n, FormField, TableColumn } = DataWithBackend;
+
+export default class PulsarSource extends SourceInfo implements DataWithBackend {
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sources.File.DataSourceIP'),
-    name: 'agentIp',
     rules: [
       {
         pattern: rulesPattern.ip,
@@ -36,26 +37,30 @@ export const file: FieldItemType[] = [
     props: values => ({
       disabled: values?.status === 101,
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sources.File.DataSourceIP')
+  agentIp: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sources.File.FilePath'),
-    name: 'pattern',
     tooltip: i18n.t('meta.Sources.File.FilePathHelp'),
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sources.File.FilePath')
+  pattern: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sources.File.TimeOffset'),
-    name: 'timeOffset',
     tooltip: i18n.t('meta.Sources.File.TimeOffsetHelp'),
     props: values => ({
       disabled: values?.status === 101,
     }),
-  },
-];
+  })
+  @I18n('meta.Sources.File.TimeOffset')
+  timeOffset: string;
+}

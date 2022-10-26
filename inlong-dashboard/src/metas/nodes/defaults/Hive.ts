@@ -18,42 +18,35 @@
  */
 
 import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { NodeInfo } from '../common/NodeInfo';
 
-export const pulsar: FieldItemType[] = [
-  {
+const { I18n, FormField } = DataWithBackend;
+
+export default class HiveNode extends NodeInfo implements DataWithBackend {
+  @FormField({
     type: 'input',
-    label: 'Service URL',
-    name: 'url',
-    tooltip: i18n.t('pages.Clusters.Pulsar.ServiceUrlHelper'),
     rules: [{ required: true }],
-    props: {
-      placeholder: 'pulsar://127.0.0.1:6650,127.0.1.2:6650',
-    },
-  },
-  {
+    initialValue: 'jdbc:hive2://127.0.0.1:10000',
+  })
+  @I18n('JDBC URL')
+  jdbcUrl: string;
+
+  @FormField({
     type: 'input',
-    label: 'Admin URL',
-    name: 'adminUrl',
-    tooltip: i18n.t('pages.Clusters.Pulsar.AdminUrlHelper'),
     rules: [{ required: true }],
-    props: {
-      placeholder: 'http://127.0.0.1:8080,127.0.1.2:8080',
-    },
-  },
-  {
+    tooltip: i18n.t('meta.Sinks.DataPathHelp'),
+    initialValue: 'hdfs://127.0.0.1:9000/user/hive/warehouse/default',
+  })
+  @I18n('meta.Sinks.Hive.DataPath')
+  dataPath: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('pages.Clusters.Pulsar.Tenant'),
-    name: 'tenant',
     rules: [{ required: true }],
-    initialValue: 'public',
-  },
-  {
-    type: 'input',
-    label: 'Token',
-    name: 'token',
-    props: {
-      placeholder: 'Required if the cluster is configured with Token',
-    },
-  },
-];
+    tooltip: i18n.t('meta.Sinks.Hive.ConfDirHelp'),
+    initialValue: '/usr/hive/conf',
+  })
+  @I18n('meta.Sinks.Hive.ConfDir')
+  hiveConfDir: string;
+}

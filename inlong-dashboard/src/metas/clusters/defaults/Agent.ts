@@ -17,9 +17,7 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { ClusterInfo } from '../common/ClusterInfo';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
-
-export const defaultValue = sources[0].value;
+export default class AgentCluster extends ClusterInfo implements DataWithBackend {}

@@ -17,9 +17,28 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import type { MetaExportWithBackendList } from '@/metas/types';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
+export const allDefaultSources: MetaExportWithBackendList = [
+  {
+    label: 'ALL',
+    value: '',
+    LoadEntity: () => import('../common/SourceInfo').then(r => ({ default: r.SourceInfo })),
+  },
 
-export const defaultValue = sources[0].value;
+  {
+    label: 'Auto Push',
+    value: 'AUTO_PUSH',
+    LoadEntity: () => import('./AutoPush'),
+  },
+  {
+    label: 'MySQL BinLog',
+    value: 'MYSQL_BINLOG',
+    LoadEntity: () => import('./MysqlBinlog'),
+  },
+  {
+    label: 'File',
+    value: 'FILE',
+    LoadEntity: () => import('./File'),
+  },
+];

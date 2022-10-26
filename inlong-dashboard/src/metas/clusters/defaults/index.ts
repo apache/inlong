@@ -17,9 +17,32 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import type { MetaExportWithBackendList } from '@/metas/types';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
-
-export const defaultValue = sources[0].value;
+export const allDefaultClusters: MetaExportWithBackendList = [
+  {
+    label: 'ALL',
+    value: '',
+    LoadEntity: () => import('../common/ClusterInfo').then(r => ({ default: r.ClusterInfo })),
+  },
+  {
+    label: 'Agent',
+    value: 'AGENT',
+    LoadEntity: () => import('./Agent'),
+  },
+  {
+    label: 'DataProxy',
+    value: 'DATAPROXY',
+    LoadEntity: () => import('./DataProxy'),
+  },
+  {
+    label: 'Pulsar',
+    value: 'PULSAR',
+    LoadEntity: () => import('./Pulsar'),
+  },
+  {
+    label: 'TubeMQ',
+    value: 'TUBEMQ',
+    LoadEntity: () => import('./TubeMq'),
+  },
+];

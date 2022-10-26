@@ -24,7 +24,7 @@ import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
-import { streamTable } from '@/metas/stream';
+import { useLoadMeta, useDefaultMeta } from '@/metas';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
 import { getFilterFormContent } from './config';
@@ -33,6 +33,8 @@ type Props = CommonInterface;
 
 const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
   const { t } = useTranslation();
+
+  const { defaultValue } = useDefaultMeta('stream');
 
   const [options, setOptions] = useState({
     pageSize: defaultSize,
@@ -123,7 +125,9 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     total: data?.total,
   };
 
-  const columns = streamTable.concat([
+  const { Entity } = useLoadMeta('stream', defaultValue);
+
+  const columns = Entity?.ColumnList?.concat([
     {
       title: t('basic.Operating'),
       dataIndex: 'action',

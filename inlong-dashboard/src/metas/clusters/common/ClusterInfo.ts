@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import { ClusterDefaultInfo } from './ClusterDefaultInfo';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
-
-export const defaultValue = sources[0].value;
+export class ClusterInfo extends ClusterDefaultInfo {
+  // You can extends ClusterInfo at here...
+}

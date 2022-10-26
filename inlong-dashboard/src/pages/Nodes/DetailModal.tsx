@@ -21,10 +21,12 @@ import React, { useState, useMemo } from 'react';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
-import { useRequest, useUpdateEffect } from '@/hooks';
-import request from '@/utils/request';
-import { nodes } from '@/metas/nodes';
+import { useUpdateEffect } from '@/hooks';
+import { dao } from '@/metas/nodes';
+import { useDefaultMeta, useLoadMeta } from '@/metas';
 import i18n from '@/i18n';
+
+const { useFindNodeDao, useSaveNodeDao } = dao;
 
 export interface Props extends ModalProps {
   // Require when edit
@@ -34,44 +36,29 @@ export interface Props extends ModalProps {
 const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   const [form] = useForm();
 
-  const [type, setType] = useState(nodes[0].value);
+  const { defaultValue } = useDefaultMeta('node');
 
-  const { data: savedData, run: getData } = useRequest(
-    id => ({
-      url: `/node/get/${id}`,
-    }),
-    {
-      manual: true,
-      formatResult: result => ({
-        ...result,
-        inCharges: result.inCharges?.split(','),
-        clusterTags: result.clusterTags?.split(','),
-      }),
-      onSuccess: result => {
-        form.setFieldsValue(result);
-        setType(result.type);
-      },
+  const [type, setType] = useState(defaultValue);
+
+  const { data: savedData, run: getData } = useFindNodeDao({
+    onSuccess: result => {
+      form.setFieldsValue(result);
+      setType(result.type);
     },
-  );
+  });
 
-  const onOk = async () => {
+  const { runAsync: save } = useSaveNodeDao();
+
+  const onOk = async e => {
     const values = await form.validateFields();
-    const isUpdate = id;
-    const submitData = {
-      ...values,
-      inCharges: values.inCharges?.join(','),
-      clusterTags: values.clusterTags?.join(','),
-    };
+    const isUpdate = Boolean(id);
+    const data = { ...values };
     if (isUpdate) {
-      submitData.id = id;
-      submitData.version = savedData?.version;
+      data.id = id;
+      data.version = savedData?.version;
     }
-    await request({
-      url: `/node/${isUpdate ? 'update' : 'save'}`,
-      method: 'POST',
-      data: submitData,
-    });
-    await modalProps?.onOk(submitData);
+    await save(data);
+    await modalProps?.onOk(e);
     message.success(i18n.t('basic.OperatingSuccess'));
   };
 
@@ -83,14 +70,15 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
       }
     } else {
       form.resetFields();
-      setType(nodes[0].value);
+      setType(defaultValue);
     }
   }, [modalProps.visible]);
 
+  const { Entity } = useLoadMeta('node', type);
+
   const content = useMemo(() => {
-    const current = nodes.find(item => item.value === type);
-    return current?.form;
-  }, [type]);
+    return Entity ? Entity.FieldList : [];
+  }, [Entity]);
 
   return (
     <Modal {...modalProps} title={id ? i18n.t('basic.Detail') : i18n.t('basic.Create')} onOk={onOk}>

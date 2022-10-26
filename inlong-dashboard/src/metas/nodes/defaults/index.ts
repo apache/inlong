@@ -17,9 +17,17 @@
  * under the License.
  */
 
-import { allDefaultSources } from './defaults';
-import { allExtendsSources } from './extends';
+import type { MetaExportWithBackendList } from '@/metas/types';
 
-export const sources = allDefaultSources.concat(allExtendsSources);
-
-export const defaultValue = sources[0].value;
+export const allDefaultNodes: MetaExportWithBackendList = [
+  {
+    label: 'ALL',
+    value: '',
+    LoadEntity: () => import('../common/NodeInfo').then(r => ({ default: r.NodeInfo })),
+  },
+  {
+    label: 'Hive',
+    value: 'HIVE',
+    LoadEntity: () => import('./Hive'),
+  },
+];
