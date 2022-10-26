@@ -31,6 +31,7 @@ ENV PULSAR_AUDIT_TOPIC="persistent:\/\/public\/default\/inlong-audit"
 ENV TUBE_MASTER_LIST="localhost:8715"
 ENV TUBE_AUDIT_TOPIC="inlong-audit"
 ENV AUDIT_DBNAME="apache_inlong_audit"
+# proxy/store/all, start audit module individually, or all
 ENV START_MODE="all"
 # mysql / clickhouse / elasticsearch
 ENV STORE_MODE=mysql
