@@ -25,6 +25,7 @@ import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -444,7 +445,7 @@ public enum OracleReadableMetaData {
         if (tableSchema == null) {
             return null;
         }
-        Map<String, String> oracleType = new HashMap<>();
+        Map<String, String> oracleType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
         table.columns()
                 .forEach(
@@ -463,7 +464,7 @@ public enum OracleReadableMetaData {
         if (tableSchema == null) {
             return null;
         }
-        Map<String, Integer> mysqlType = new HashMap<>();
+        Map<String, Integer> mysqlType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
         table.columns()
                 .forEach(
