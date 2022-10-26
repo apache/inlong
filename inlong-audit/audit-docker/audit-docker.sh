@@ -80,7 +80,7 @@ fi
 
 # start proxy
 cd "${file_path}/"
-if [ "${START_MODE}" = "both" ] || [ "${START_MODE}" = "proxy" ]; then
+if [ "${START_MODE}" = "all" ] || [ "${START_MODE}" = "proxy" ]; then
   if [ "${MQ_TYPE}" = "pulsar" ]; then
     bash +x ./bin/proxy-start.sh pulsar
   fi
@@ -89,7 +89,7 @@ if [ "${START_MODE}" = "both" ] || [ "${START_MODE}" = "proxy" ]; then
   fi
 fi
 # start store
-if [ "${START_MODE}" = "both" ] || [ "${START_MODE}" = "store" ]; then
+if [ "${START_MODE}" = "all" ] || [ "${START_MODE}" = "store" ]; then
   bash +x ./bin/store-start.sh
 fi
 sleep 3
