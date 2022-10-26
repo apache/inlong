@@ -54,6 +54,10 @@ public class JobProfileDto {
      * mongo source
      */
     public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.MongoDBSource";
+    /**
+     * mqtt source
+     */
+    public static final String MQTT_SOURCE = "org.apache.inlong.agent.plugin.sources.MqttSource";
 
     private static final Gson GSON = new Gson();
 
@@ -222,6 +226,26 @@ public class JobProfileDto {
         return mongoJob;
     }
 
+    public static MqttJob getMqttJob(DataConfig dataConfigs) {
+        MqttJob.MqttJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                MqttJob.MqttJobConfig.class);
+        MqttJob mqttJob = new MqttJob();
+
+        mqttJob.setServerURI(config.getServerURI());
+        mqttJob.setUserName(config.getUserName());
+        mqttJob.setPassword(config.getPassword());
+        mqttJob.setConnectionTimeOut(config.getConnectionTimeOut());
+        mqttJob.setKeepAliveInterval(config.getKeepAliveInterval());
+        mqttJob.setQos(config.getQos());
+        mqttJob.setCleanSession(config.getCleanSession());
+        mqttJob.setClientIdPrefix(config.getClientIdPrefix());
+        mqttJob.setQueueSize(config.getQueueSize());
+        mqttJob.setAutomaticReconnect(config.getAutomaticReconnect());
+        mqttJob.setMqttVersion(config.getMqttVersion());
+
+        return mqttJob;
+    }
+
     private static Proxy getProxy(DataConfig dataConfigs) {
         Proxy proxy = new Proxy();
         Manager manager = new Manager();
@@ -291,6 +315,12 @@ public class JobProfileDto {
                 job.setSource(MONGO_SOURCE);
                 profileDto.setJob(job);
                 break;
+            case MQTT:
+                MqttJob mqttJob = getMqttJob(dataConfig);
+                job.setMqttJob(mqttJob);
+                job.setSource(MQTT_SOURCE);
+                profileDto.setJob(job);
+                break;
             default:
         }
         return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));
@@ -318,6 +348,7 @@ public class JobProfileDto {
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
         private MongoJob mongoJob;
+        private MqttJob mqttJob;
     }
 
     @Data

@@ -31,7 +31,7 @@ public enum TaskTypeEnum {
     MONGODB(9),
     TUBEMQ(10),
     REDIS(11),
-
+    MQTT(12),
 
     ;
 
@@ -65,6 +65,8 @@ public enum TaskTypeEnum {
                 return MONGODB;
             case 10:
                 return TUBEMQ;
+            case 12:
+                return MQTT;
             default:
                 throw new RuntimeException(String.format("Unsupported taskType=%s", taskType));
         }
