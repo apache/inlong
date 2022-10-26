@@ -54,6 +54,7 @@ import org.apache.flink.streaming.connectors.kafka.internals.metrics.KafkaMetric
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkFixedPartitioner;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
+import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.NetUtils;
 import org.apache.flink.util.TemporaryClassLoaderContext;
@@ -94,7 +95,6 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
@@ -934,7 +934,8 @@ public class FlinkKafkaProducer<IN>
             throws FlinkKafkaException {
         checkErroneous();
 
-        ProducerRecord<byte[], byte[]> record;
+        ProducerRecord<byte[], byte[]> record = null;
+        List<ProducerRecord<byte[], byte[]>> records = null;
         if (keyedSchema != null) {
             byte[] serializedKey = keyedSchema.serializeKey(next);
             byte[] serializedValue = keyedSchema.serializeValue(next);
@@ -967,9 +968,7 @@ public class FlinkKafkaProducer<IN>
                                 serializedKey,
                                 serializedValue);
             } else {
-                record =
-                        new ProducerRecord<>(
-                                targetTopic, null, timestamp, serializedKey, serializedValue);
+                record = new ProducerRecord<>(targetTopic, null, timestamp, serializedKey, serializedValue);
             }
         } else if (kafkaSchema != null) {
             if (kafkaSchema instanceof KafkaContextAware) {
@@ -986,18 +985,28 @@ public class FlinkKafkaProducer<IN>
                     partitions = getPartitionsByTopic(targetTopic, transaction.producer);
                     topicPartitionsMap.put(targetTopic, partitions);
                 }
-
                 contextAwareSchema.setPartitions(partitions);
             }
-            record = kafkaSchema.serialize(next, context.timestamp());
+            if (kafkaSchema instanceof DynamicKafkaSerializationSchema) {
+                records = ((DynamicKafkaSerializationSchema) kafkaSchema)
+                        .serializeForList((RowData) next, context.timestamp());
+            } else {
+                record = kafkaSchema.serialize(next, context.timestamp());
+            }
         } else {
             throw new RuntimeException(
                     "We have neither KafkaSerializationSchema nor KeyedSerializationSchema, this"
                             + "is a bug.");
         }
+        if (record != null) {
+            send(record, transaction);
+        } else if (records != null) {
+            records.forEach(r -> send(r, transaction));
+        }
+    }
 
+    private void send(ProducerRecord<byte[], byte[]> record, FlinkKafkaProducer.KafkaTransactionState transaction) {
         sendOutMetrics(1L, (long) record.value().length);
-
         pendingRecords.incrementAndGet();
         transaction.producer.send(record, callback);
     }
