@@ -26,6 +26,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
+import org.apache.inlong.manager.common.enums.SortStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
@@ -58,6 +59,8 @@ public class InlongGroupContext implements Serializable {
 
     private SimpleGroupStatus status;
 
+    private SortStatus sortStatus = SortStatus.UNKNOWN;
+
     private InlongGroupStatusInfo statusInfo;
 
     public InlongGroupContext(InnerGroupContext groupContext) {
@@ -73,6 +76,7 @@ public class InlongGroupContext implements Serializable {
                 .inlongGroupId(groupInfo.getInlongGroupId())
                 .originalStatus(groupInfo.getStatus())
                 .simpleGroupStatus(this.status)
+                .sortStatus(this.sortStatus)
                 .streamSources(getGroupSources()).build();
         this.extensions = Maps.newHashMap();
         List<InlongGroupExtInfo> extInfos = groupInfo.getExtList();
@@ -81,6 +85,11 @@ public class InlongGroupContext implements Serializable {
                 extensions.put(extInfo.getKeyName(), extInfo.getKeyValue());
             });
         }
+    }
+
+    public void updateSortStatus(SortStatus sortStatus) {
+        this.sortStatus = sortStatus;
+        this.statusInfo.setSortStatus(sortStatus);
     }
 
     private List<StreamSource> getGroupSources() {
