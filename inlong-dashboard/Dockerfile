@@ -19,7 +19,7 @@
 FROM nginx
 # add built files from target output
 RUN apt-get update \
-    && apt-get install -y net-tools vim wget procps iputils
+    && apt-get install -y net-tools vim wget procps
 ARG DASHBOARD_FILE
 WORKDIR /usr/share/nginx/html
 ADD ${DASHBOARD_FILE} /usr/share/nginx/html
