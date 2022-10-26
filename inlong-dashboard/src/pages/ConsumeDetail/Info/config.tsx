@@ -17,12 +17,14 @@
  * under the License.
  */
 
-import { consumeForm } from '@/metas/consume';
+import { useLoadMeta } from '@/metas';
 import { excludeObjectArray } from '@/utils';
 
-export const getFormContent = ({ editing, isCreate }) => {
+export const useFormContent = ({ mqType, editing, isCreate }) => {
+  const { Entity } = useLoadMeta('consume', mqType);
+
   const excludeKeys = isCreate ? ['masterUrl'] : [];
-  const fields = excludeObjectArray(excludeKeys, consumeForm);
+  const fields = excludeObjectArray(excludeKeys, Entity?.FieldList || []);
 
   return isCreate
     ? fields

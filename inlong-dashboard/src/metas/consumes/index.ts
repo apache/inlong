@@ -17,6 +17,9 @@
  * under the License.
  */
 
-import type { FieldItemType } from '@/metas/common';
+import { allDefaultConsumes } from './defaults';
+import { allExtendsConsumes } from './extends';
 
-export const autoPush: FieldItemType[] = [];
+export const consumes = allDefaultConsumes.concat(allExtendsConsumes);
+
+export const defaultValue = consumes[0].value;

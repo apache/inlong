@@ -17,8 +17,8 @@
  * under the License.
  */
 
-import type { FieldItemType } from '@/metas/common';
+import { ConsumeDefaultInfo } from './ConsumeDefaultInfo';
 
-export const fieldsExtends: FieldItemType[] = [
-  // You can extended fields here...
-];
+export class ConsumeInfo extends ConsumeDefaultInfo {
+  // You can extends ConsumeInfo at here...
+}

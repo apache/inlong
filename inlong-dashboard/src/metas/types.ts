@@ -17,6 +17,32 @@
  * under the License.
  */
 
-import type { FieldItemType } from '@/metas/common';
+import { DataStatic } from './DataStatic';
+import { DataWithBackend } from './DataWithBackend';
 
-export const dataProxy: FieldItemType[] = [];
+class MetaClassStatic implements DataStatic {}
+
+export type MetaExportStatic = typeof MetaClassStatic;
+
+export type MetaExportStaticList = {
+  label: string;
+  value: string;
+  LoadEntity: () => Promise<{ default: MetaExportStatic }>;
+}[];
+
+class MetaClassWithBackend extends DataWithBackend implements DataWithBackend {
+  parse(data) {
+    return data;
+  }
+  stringify(data) {
+    return data;
+  }
+}
+
+export type MetaExportWithBackend = typeof MetaClassWithBackend;
+
+export type MetaExportWithBackendList = {
+  label: string;
+  value: string;
+  LoadEntity: () => Promise<{ default: MetaExportWithBackend }>;
+}[];

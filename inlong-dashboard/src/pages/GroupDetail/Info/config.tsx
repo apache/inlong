@@ -17,13 +17,14 @@
  * under the License.
  */
 
-// import React from 'react';
-import { groupForm } from '@/metas/group';
+import { useLoadMeta } from '@/metas';
 import { excludeObjectArray } from '@/utils';
 
-export const getFormContent = ({ editing, isCreate, isUpdate }) => {
+export const useFormContent = ({ mqType, editing, isCreate, isUpdate }) => {
+  const { Entity } = useLoadMeta('group', mqType);
+
   const excludeKeys = ['ensemble'].concat(isCreate ? 'mqResource' : '');
-  const fields = excludeObjectArray(excludeKeys, groupForm);
+  const fields = excludeObjectArray(excludeKeys, Entity?.FieldList || []);
 
   return isCreate
     ? fields.map(item => {

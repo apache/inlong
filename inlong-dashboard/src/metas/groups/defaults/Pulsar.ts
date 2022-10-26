@@ -17,110 +17,15 @@
  * under the License.
  */
 
-import React from 'react';
-import UserSelect from '@/components/UserSelect';
-import type { FieldItemType } from '@/metas/common';
-import { genFields, genForm, genTable } from '@/metas/common';
+import { DataWithBackend } from '@/metas/DataWithBackend';
 import i18n from '@/i18n';
-import { statusList, genStatusTag } from './status';
-import { groupExtends } from './extends';
+import { GroupInfo } from '../common/GroupInfo';
 
-const groupDefault: FieldItemType[] = [
-  {
-    type: 'input',
-    label: i18n.t('meta.Group.InlongGroupId'),
-    name: 'inlongGroupId',
-    props: {
-      maxLength: 32,
-    },
-    rules: [
-      { required: true },
-      {
-        pattern: /^[a-z_\-\d]+$/,
-        message: i18n.t('meta.Group.InlongGroupIdRules'),
-      },
-    ],
-    _renderTable: true,
-  },
-  {
-    type: 'input',
-    label: i18n.t('meta.Group.InlongGroupName'),
-    name: 'name',
-    props: {
-      maxLength: 32,
-    },
-  },
-  {
-    type: <UserSelect mode="multiple" currentUserClosable={false} />,
-    label: i18n.t('meta.Group.InlongGroupOwners'),
-    name: 'inCharges',
-    rules: [
-      {
-        required: true,
-      },
-    ],
-    extra: i18n.t('meta.Group.InlongGroupOwnersExtra'),
-    _renderTable: true,
-  },
-  {
-    type: 'textarea',
-    label: i18n.t('meta.Group.InlongGroupIntroduction'),
-    name: 'description',
-    props: {
-      showCount: true,
-      maxLength: 100,
-    },
-  },
-  {
+const { I18n, FormField } = DataWithBackend;
+
+export default class PulsarGroup extends GroupInfo implements DataWithBackend {
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Group.MQType'),
-    name: 'mqType',
-    initialValue: 'TUBEMQ',
-    rules: [{ required: true }],
-    props: {
-      options: [
-        {
-          label: 'TubeMQ',
-          value: 'TUBEMQ',
-        },
-        {
-          label: 'Pulsar',
-          value: 'PULSAR',
-        },
-      ],
-    },
-    _renderTable: true,
-  },
-  {
-    type: 'text',
-    label: 'MQ Resource',
-    name: 'mqResource',
-  },
-  {
-    type: 'input',
-    label: i18n.t('basic.CreateTime'),
-    name: 'createTime',
-    visible: false,
-    _renderTable: true,
-  },
-  {
-    type: 'select',
-    label: i18n.t('basic.Status'),
-    name: 'status',
-    props: {
-      allowClear: true,
-      options: statusList,
-      dropdownMatchSelectWidth: false,
-    },
-    visible: false,
-    _renderTable: {
-      render: text => genStatusTag(text),
-    },
-  },
-  {
-    type: 'radio',
-    label: i18n.t('meta.Group.QueueModule'),
-    name: 'queueModule',
     initialValue: 'SERIAL',
     rules: [{ required: true }],
     props: {
@@ -135,12 +40,12 @@ const groupDefault: FieldItemType[] = [
         },
       ],
     },
-    visible: values => values.mqType === 'PULSAR',
-  },
-  {
+  })
+  @I18n('meta.Group.QueueModule')
+  queueModule: string;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Group.PartitionNum'),
-    name: 'partitionNum',
     initialValue: 3,
     rules: [{ required: true }],
     props: {
@@ -148,60 +53,13 @@ const groupDefault: FieldItemType[] = [
       max: 20,
       precision: 0,
     },
-    visible: values => values.mqType === 'PULSAR' && values.queueModule === 'PARALLEL',
-  },
-  {
+    visible: values => values.queueModule === 'PARALLEL',
+  })
+  @I18n('meta.Group.PartitionNum')
+  partitionNum: number;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Group.NumberOfAccess'),
-    name: 'dailyRecords',
-    rules: [{ required: true }],
-    suffix: i18n.t('meta.Group.TenThousand/Day'),
-    props: {
-      min: 1,
-      precision: 0,
-    },
-    visible: values => values.mqType === 'TUBEMQ',
-  },
-  {
-    type: 'inputnumber',
-    label: i18n.t('meta.Group.AccessSize'),
-    name: 'dailyStorage',
-    rules: [{ required: true }],
-    suffix: i18n.t('meta.Group.GB/Day'),
-    props: {
-      min: 1,
-      precision: 0,
-    },
-    visible: values => values.mqType === 'TUBEMQ',
-  },
-  {
-    type: 'inputnumber',
-    label: i18n.t('meta.Group.AccessPeakPerSecond'),
-    name: 'peakRecords',
-    rules: [{ required: true }],
-    suffix: i18n.t('meta.Group.Stripe/Second'),
-    props: {
-      min: 1,
-      precision: 0,
-    },
-    visible: values => values.mqType === 'TUBEMQ',
-  },
-  {
-    type: 'inputnumber',
-    label: i18n.t('meta.Group.SingleStripMaximumLength'),
-    name: 'maxLength',
-    rules: [{ required: true }],
-    suffix: 'Byte',
-    props: {
-      min: 1,
-      precision: 0,
-    },
-    visible: values => values.mqType === 'TUBEMQ',
-  },
-  {
-    type: 'inputnumber',
-    label: 'ensemble',
-    name: 'ensemble',
     initialValue: 3,
     suffix: i18n.t('meta.Group.EnsembleSuffix'),
     extra: i18n.t('meta.Group.EnsembleExtra'),
@@ -224,12 +82,12 @@ const groupDefault: FieldItemType[] = [
       max: 10,
       precision: 0,
     },
-    visible: values => values.mqType === 'PULSAR',
-  },
-  {
+  })
+  @I18n('ensemble')
+  ensemble: number;
+
+  @FormField({
     type: 'inputnumber',
-    label: 'Write Quorum',
-    name: 'writeQuorum',
     initialValue: 3,
     suffix: i18n.t('meta.Group.WriteQuorumSuffix'),
     extra: i18n.t('meta.Group.WriteQuorumExtra'),
@@ -238,12 +96,12 @@ const groupDefault: FieldItemType[] = [
       max: 10,
       precision: 0,
     },
-    visible: values => values.mqType === 'PULSAR',
-  },
-  {
+  })
+  @I18n('Write Quorum')
+  writeQuorum: number;
+
+  @FormField({
     type: 'inputnumber',
-    label: 'ACK Quorum',
-    name: 'ackQuorum',
     initialValue: 2,
     suffix: i18n.t('meta.Group.AckQuorumSuffix'),
     extra: i18n.t('meta.Group.AckQuorumExtra'),
@@ -252,12 +110,12 @@ const groupDefault: FieldItemType[] = [
       max: 10,
       precision: 0,
     },
-    visible: values => values.mqType === 'PULSAR',
-  },
-  {
+  })
+  @I18n('ACK Quorum')
+  ackQuorum: number;
+
+  @FormField({
     type: 'inputnumber',
-    label: 'Time To Live',
-    name: 'ttl',
     initialValue: 24,
     rules: [
       ({ getFieldValue }) => ({
@@ -293,12 +151,12 @@ const groupDefault: FieldItemType[] = [
       min: 1,
       precision: 0,
     },
-    visible: values => values.mqType === 'PULSAR',
-  },
-  {
+  })
+  @I18n('Time To Live')
+  ttl: number;
+
+  @FormField({
     type: 'inputnumber',
-    label: 'Retention Time',
-    name: 'retentionTime',
     initialValue: 72,
     rules: [
       ({ getFieldValue }) => ({
@@ -342,12 +200,12 @@ const groupDefault: FieldItemType[] = [
       min: -1,
       precision: 0,
     },
-    visible: values => values.mqType === 'PULSAR',
-  },
-  {
+  })
+  @I18n('Retention Time')
+  retentionTime: number;
+
+  @FormField({
     type: 'inputnumber',
-    label: 'Retention Size',
-    name: 'retentionSize',
     initialValue: -1,
     suffix: {
       type: 'select',
@@ -375,12 +233,7 @@ const groupDefault: FieldItemType[] = [
       min: -1,
       precision: 0,
     },
-    visible: values => values.mqType === 'PULSAR',
-  },
-];
-
-export const group = genFields(groupDefault, groupExtends);
-
-export const groupForm = genForm(group);
-
-export const groupTable = genTable(group);
+  })
+  @I18n('Retention Size')
+  retentionSize: number;
+}

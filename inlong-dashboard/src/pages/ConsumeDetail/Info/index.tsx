@@ -17,20 +17,25 @@
  * under the License.
  */
 
-import React, { forwardRef, useImperativeHandle, useMemo } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
 import { Button, message, Space } from 'antd';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useBoolean, useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
+import { useDefaultMeta } from '@/metas';
 import { CommonInterface } from '../common';
-import { getFormContent } from './config';
+import { useFormContent } from './config';
 
 type Props = CommonInterface;
 
 const Comp = ({ id, readonly, isCreate }: Props, ref) => {
   const { t } = useTranslation();
   const [editing, { setTrue, setFalse }] = useBoolean(false);
+
+  const { defaultValue } = useDefaultMeta('consume');
+
+  const [mqType, setMqType] = useState(defaultValue);
 
   const [form] = useForm();
 
@@ -47,6 +52,7 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
     }),
     onSuccess: data => {
       form.setFieldsValue(data);
+      setMqType(data.mqType);
     },
   });
 
@@ -86,15 +92,19 @@ const Comp = ({ id, readonly, isCreate }: Props, ref) => {
     setFalse();
   };
 
+  const formContent = useFormContent({
+    mqType,
+    editing,
+    isCreate,
+  });
+
   return (
     <div style={{ position: 'relative' }}>
       <FormGenerator
         form={form}
-        content={getFormContent({
-          editing,
-          isCreate,
-        })}
+        content={formContent}
         initialValues={data}
+        onValuesChange={(c, values) => setMqType(values.mqType)}
         useMaxWidth={800}
       />
 

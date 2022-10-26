@@ -17,21 +17,26 @@
  * under the License.
  */
 
-import React, { useEffect, useMemo, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect, useMemo, useImperativeHandle, forwardRef, useState } from 'react';
 import { Button, Space, message } from 'antd';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useBoolean, useSelector } from '@/hooks';
 import { useTranslation } from 'react-i18next';
+import { useDefaultMeta } from '@/metas';
 import request from '@/utils/request';
 import { State } from '@/models';
 import { CommonInterface } from '../common';
-import { getFormContent } from './config';
+import { useFormContent } from './config';
 
 type Props = CommonInterface;
 
 const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
   const { t } = useTranslation();
   const [editing, { setTrue, setFalse }] = useBoolean(isCreate);
+
+  const { defaultValue } = useDefaultMeta('consume');
+
+  const [mqType, setMqType] = useState(defaultValue);
 
   const { userName } = useSelector<State, State>(state => state);
 
@@ -48,7 +53,10 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
       ...data,
       inCharges: data.inCharges.split(','),
     }),
-    onSuccess: data => form.setFieldsValue(data),
+    onSuccess: data => {
+      form.setFieldsValue(data);
+      setMqType(data.mqType);
+    },
   });
 
   const onOk = async () => {
@@ -100,16 +108,20 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
     setFalse();
   };
 
+  const formContent = useFormContent({
+    mqType,
+    editing,
+    isCreate,
+    isUpdate,
+  });
+
   return (
     <div style={{ position: 'relative' }}>
       <FormGenerator
         form={form}
-        content={getFormContent({
-          editing,
-          isCreate,
-          isUpdate,
-        })}
+        content={formContent}
         initialValues={data}
+        onValuesChange={(c, values) => setMqType(values.mqType)}
         useMaxWidth={600}
       />
 

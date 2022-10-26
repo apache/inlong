@@ -18,35 +18,17 @@
  */
 
 import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
 
-export const tubeMQ: FieldItemType[] = [
-  {
-    type: 'input',
-    label: 'RPC URL',
-    name: 'url',
-    rules: [{ required: true }],
-    tooltip: i18n.t('pages.Clusters.Tube.MasterRpcUrlHelper'),
-    props: {
-      placeholder: '127.0.0.1:8715,127.0.1.2:8715',
-    },
-  },
-  {
-    type: 'input',
-    label: 'Web URL',
-    name: 'masterWebUrl',
-    rules: [{ required: true }],
-    tooltip: i18n.t('pages.Clusters.Tube.MasterWebUrlHelper'),
-    props: {
-      placeholder: 'http://127.0.0.1:8080',
-    },
-  },
-  {
-    type: 'input',
-    label: 'Token',
-    name: 'token',
-    props: {
-      placeholder: 'Required if the cluster is configured with Token',
-    },
-  },
-];
+export abstract class DataStatic {
+  static I18nMap: Record<string, unknown> = {};
+
+  static I18n(i18nkey: string): PropertyDecorator {
+    return (target: any, propertyKey: string) => {
+      const { I18nMap } = target.constructor;
+      target.constructor.I18nMap = {
+        ...I18nMap,
+        [propertyKey]: i18nkey.indexOf('.') !== -1 ? i18n.t(i18nkey) : i18nkey,
+      };
+    };
+  }
+}

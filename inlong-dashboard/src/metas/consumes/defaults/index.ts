@@ -17,8 +17,22 @@
  * under the License.
  */
 
-import type { FieldItemType } from '@/metas/common';
+import type { MetaExportWithBackendList } from '@/metas/types';
 
-export const groupExtends: FieldItemType[] = [
-  // You can extended group fields here...
+export const allDefaultConsumes: MetaExportWithBackendList = [
+  {
+    label: 'ALL',
+    value: '',
+    LoadEntity: () => import('../common/ConsumeInfo').then(r => ({ default: r.ConsumeInfo })),
+  },
+  {
+    label: 'Pulsar',
+    value: 'PULSAR',
+    LoadEntity: () => import('./Pulsar'),
+  },
+  {
+    label: 'TubeMq',
+    value: 'TUBEMQ',
+    LoadEntity: () => import('./TubeMq'),
+  },
 ];
