@@ -218,10 +218,10 @@ public class SortServiceImplTest extends ServiceBaseTest {
     private void prepareGroupId(String groupId) {
         InlongPulsarRequest request = new InlongPulsarRequest();
         request.setInlongGroupId(groupId);
-        request.setMqResource("test namespace");
+        request.setMqResource("test_namespace");
         request.setInlongClusterTag(TEST_TAG);
         request.setVersion(InlongConstants.INITIAL_VERSION);
-        request.setName("test group name");
+        request.setName("test_group_name");
         request.setMqType(ClusterType.PULSAR);
         request.setInCharges(TEST_CREATOR);
         List<InlongGroupExtInfo> extList = new ArrayList<>();
@@ -235,7 +235,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
                 .builder()
                 .inlongGroupId(groupId)
                 .keyName(ClusterSwitch.BACKUP_MQ_RESOURCE)
-                .keyValue("backup name")
+                .keyValue("backup_name")
                 .build();
 
         extList.add(ext1);
@@ -248,7 +248,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         InlongStreamRequest request = new InlongStreamRequest();
         request.setInlongGroupId(groupId);
         request.setInlongStreamId(streamId);
-        request.setName("test stream name");
+        request.setName("test_stream_name");
         request.setMqResource(TEST_TOPIC);
         request.setVersion(InlongConstants.INITIAL_VERSION);
         List<InlongStreamExtInfo> extInfos = new ArrayList<>();
@@ -257,9 +257,9 @@ public class SortServiceImplTest extends ServiceBaseTest {
         ext.setInlongStreamId(streamId);
         ext.setInlongGroupId(groupId);
         ext.setKeyName(ClusterSwitch.BACKUP_MQ_RESOURCE);
-        ext.setKeyValue("backup topic");
+        ext.setKeyValue("backup_topic");
         request.setExtList(extInfos);
-        streamService.save(request, "test operator");
+        streamService.save(request, "test_operator");
     }
 
     private void prepareCluster(String clusterName) {

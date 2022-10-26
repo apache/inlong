@@ -258,7 +258,7 @@ public class SortSourceServiceImpl implements SortSourceService {
     }
 
     private void parseCacheZones(InlongGroupTopicInfo info, Map<String, CacheZone> cacheZoneMap) {
-        switch (info.getMqType().toUpperCase()) {
+        switch (info.getMqType()) {
             case ClusterType.PULSAR :
                 this.parsePulsarTopic((InlongPulsarTopicInfo) info, cacheZoneMap);
                 break;
