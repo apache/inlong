@@ -77,6 +77,12 @@ public class InlongStreamImpl implements InlongStream {
 
     private Map<String, StreamTransform> streamTransforms = Maps.newHashMap();
 
+    private Set<String> sourcesToDelete = Sets.newHashSet();
+
+    private Set<String> sinksToDelete = Sets.newHashSet();
+
+    private Set<String> transformsToDelete = Sets.newHashSet();
+
     private List<StreamField> streamFields = Lists.newArrayList();
 
     /**
@@ -196,19 +202,19 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream deleteSource(String sourceName) {
-        streamSources.remove(sourceName);
+        sourcesToDelete.add(sourceName);
         return this;
     }
 
     @Override
     public InlongStream deleteSink(String sinkName) {
-        streamSinks.remove(sinkName);
+        sinksToDelete.add(sinkName);
         return this;
     }
 
     @Override
     public InlongStream deleteTransform(String transformName) {
-        streamTransforms.remove(transformName);
+        transformsToDelete.add(transformName);
         return this;
     }
 
@@ -345,8 +351,12 @@ public class InlongStreamImpl implements InlongStream {
                             updateState.getValue()));
                 }
                 updateTransformNames.add(transformName);
-            } else {
-                log.warn("Unknown transform {} from server", transformName);
+            } else if (transformsToDelete.contains(transformName)) {
+                TransformRequest transformRequest = StreamTransformTransfer.createTransformRequest(transform,
+                        streamInfo);
+                if (!transformClient.deleteTransform(transformRequest)) {
+                    throw new RuntimeException(String.format("Delete transform=%s failed", transformRequest));
+                }
             }
         }
         for (Map.Entry<String, StreamTransform> transformEntry : this.streamTransforms.entrySet()) {
@@ -379,8 +389,10 @@ public class InlongStreamImpl implements InlongStream {
                             updateState.getValue()));
                 }
                 updateSourceNames.add(sourceName);
-            } else {
-                log.warn("Unknown source {} from server", sourceName);
+            } else if (sourcesToDelete.contains(sourceName)) {
+                if (!sourceClient.deleteSource(id)) {
+                    throw new RuntimeException(String.format("Delete source=%s failed", source));
+                }
             }
         }
         for (Map.Entry<String, StreamSource> sourceEntry : this.streamSources.entrySet()) {
@@ -414,8 +426,10 @@ public class InlongStreamImpl implements InlongStream {
                             updateState.getValue()));
                 }
                 updateSinkNames.add(sinkName);
-            } else {
-                log.error("Unknown sink {} from server", sinkName);
+            } else if (sinksToDelete.contains(sinkName)) {
+                if (!sinkClient.deleteSink(id)) {
+                    throw new RuntimeException(String.format("Delete sink=%s failed", sink));
+                }
             }
         }
 
