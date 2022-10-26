@@ -300,17 +300,20 @@ public class LoadNodeUtils {
      */
     public static DorisLoadNode createLoadNode(DorisSink dorisSink, List<FieldInfo> fieldInfos,
             List<FieldRelation> fieldRelations, Map<String, String> properties) {
-        DataTypeEnum dataType = DataTypeEnum.forName(dorisSink.getSinkMultipleFormat());
-        Format format;
-        switch (dataType) {
-            case CANAL:
-                format = new CanalJsonFormat();
-                break;
-            case DEBEZIUM_JSON:
-                format = new DebeziumJsonFormat();
-                break;
-            default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for doris", dataType));
+        Format format = null;
+        if (dorisSink.getSinkMultipleEnable() != null && dorisSink.getSinkMultipleEnable() && StringUtils.isNotBlank(
+                dorisSink.getSinkMultipleFormat())) {
+            DataTypeEnum dataType = DataTypeEnum.forName(dorisSink.getSinkMultipleFormat());
+            switch (dataType) {
+                case CANAL:
+                    format = new CanalJsonFormat();
+                    break;
+                case DEBEZIUM_JSON:
+                    format = new DebeziumJsonFormat();
+                    break;
+                default:
+                    throw new IllegalArgumentException(String.format("Unsupported dataType=%s for doris", dataType));
+            }
         }
         return new DorisLoadNode(
                 dorisSink.getSinkName(),

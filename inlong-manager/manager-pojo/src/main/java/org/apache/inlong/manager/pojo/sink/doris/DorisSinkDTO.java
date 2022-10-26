@@ -74,7 +74,7 @@ public class DorisSinkDTO {
     @ApiModelProperty("Password encrypt version")
     private Integer encryptVersion;
 
-    @ApiModelProperty("Properties for clickhouse")
+    @ApiModelProperty("Properties for doris")
     private Map<String, Object> properties;
 
     /**
