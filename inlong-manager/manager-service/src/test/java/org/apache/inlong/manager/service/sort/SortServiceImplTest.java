@@ -20,9 +20,12 @@ package org.apache.inlong.manager.service.sort;
 import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
@@ -34,10 +37,22 @@ import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
+import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.hive.HiveSinkRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.SortService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.node.DataNodeService;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -52,6 +67,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Sort service test for {@link SortService}
@@ -85,6 +103,10 @@ public class SortServiceImplTest extends ServiceBaseTest {
     private InlongGroupService groupService;
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private DataNodeService dataNodeService;
+    @Autowired
+    private StreamSinkService streamSinkService;
 
     @Test
     @Order(1)
@@ -201,18 +223,18 @@ public class SortServiceImplTest extends ServiceBaseTest {
     }
 
     private void prepareDataNode(String taskName) {
-        DataNodeEntity entity = new DataNodeEntity();
-        entity.setName(taskName);
-        entity.setType(TEST_SINK_TYPE);
-        entity.setExtParams("{\"paramKey1\":\"paramValue1\"}");
-        entity.setCreator(TEST_CREATOR);
-        entity.setInCharges(TEST_CREATOR);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
-        dataNodeEntityMapper.insert(entity);
+        HiveDataNodeRequest request = new HiveDataNodeRequest();
+        request.setUrl("test_hive_url");
+        request.setName(taskName);
+        request.setExtParams("{\"paramKey1\":\"paramValue1\",\"hdfsUgi\":\"test_hdfsUgi\"}");
+        request.setHdfsPath("testPath");
+        request.setHiveConfDir("testDir");
+        request.setWarehouse("testWareHouse");
+        request.setHdfsUgi("testUgi");
+        request.setInCharges(TEST_CREATOR);
+        request.setUsername("test_hive_user");
+        request.setToken("test_hive_token");
+        dataNodeService.save(request, TEST_CREATOR);
     }
 
     private void prepareGroupId(String groupId) {
@@ -265,7 +287,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
     private void prepareCluster(String clusterName) {
         InlongClusterEntity entity = new InlongClusterEntity();
         entity.setName(clusterName);
-        entity.setType(TEST_SINK_TYPE);
+        entity.setType(DataNodeType.HIVE);
         entity.setExtParams("{}");
         entity.setCreator(TEST_CREATOR);
         entity.setInCharges(TEST_CREATOR);
@@ -295,22 +317,19 @@ public class SortServiceImplTest extends ServiceBaseTest {
     }
 
     private void prepareTask(String taskName, String groupId, String clusterName) {
-        StreamSinkEntity entity = new StreamSinkEntity();
-        entity.setInlongGroupId(groupId);
-        entity.setInlongStreamId("1");
-        entity.setSinkType(TEST_SINK_TYPE);
-        entity.setSinkName(taskName);
-        entity.setInlongClusterName(clusterName);
-        entity.setDataNodeName(taskName);
-        entity.setSortTaskName(taskName);
-        entity.setCreator(TEST_CREATOR);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
-        entity.setExtParams("{\"delimiter\":\"|\",\"dataType\":\"text\"}");
-        streamSinkEntityMapper.insert(entity);
+        SinkRequest request = new HiveSinkRequest();
+        request.setDataNodeName(taskName);
+        request.setSinkType(SinkType.HIVE);
+        request.setInlongClusterName(clusterName);
+        request.setSinkName(taskName);
+        request.setSortTaskName(taskName);
+        request.setInlongGroupId(groupId);
+        request.setInlongStreamId("1");
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("delimiter", "|");
+        properties.put("dataType", "text");
+        request.setProperties(properties);
+        streamSinkService.save(request, TEST_CREATOR);
     }
 
 }
