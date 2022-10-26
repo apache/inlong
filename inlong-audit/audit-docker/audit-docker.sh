@@ -80,14 +80,18 @@ fi
 
 # start proxy
 cd "${file_path}/"
-if [ "${MQ_TYPE}" = "pulsar" ]; then
-  bash +x ./bin/proxy-start.sh pulsar
-fi
-if [ "${MQ_TYPE}" = "tubemq" ]; then
-  bash +x ./bin/proxy-start.sh tube
+if [ "${START_MODE}" = "both" ] || [ "${START_MODE}" = "proxy" ]; then
+  if [ "${MQ_TYPE}" = "pulsar" ]; then
+    bash +x ./bin/proxy-start.sh pulsar
+  fi
+  if [ "${MQ_TYPE}" = "tubemq" ]; then
+    bash +x ./bin/proxy-start.sh tube
+  fi
 fi
 # start store
-bash +x ./bin/store-start.sh
+if [ "${START_MODE}" = "both" ] || [ "${START_MODE}" = "store" ]; then
+  bash +x ./bin/store-start.sh
+fi
 sleep 3
 # keep alive
 tail -F ./logs/info.log
