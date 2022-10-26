@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,9 @@ import java.util.stream.Collectors;
 public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSinkOperator.class);
+
+    protected static final String KEY_GROUP_ID = "inlongGroupId";
+    protected static final String KEY_STREAM_ID = "inlongStreamId";
 
     @Autowired
     protected ObjectMapper objectMapper;
@@ -211,6 +215,23 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         sinkFieldMapper.logicDeleteAll(entity.getId());
+    }
+
+    @Override
+    public Map<String, String> parse2IdParams(StreamSink streamSink) {
+        Map<String, String> param;
+        try {
+            param = objectMapper.convertValue(streamSink.getProperties(), Map.class);
+        } catch (Exception e) {
+            LOGGER.error("cannot parse properties of groupId={}, streamId={}, "
+                            + "sinkName={}, the row properties is={}", streamSink.getInlongGroupId(),
+                    streamSink.getInlongStreamId(), streamSink.getSinkName(), streamSink.getProperties());
+            return null;
+        }
+        // put group and stream info
+        param.put(KEY_GROUP_ID, streamSink.getInlongGroupId());
+        param.put(KEY_STREAM_ID, streamSink.getInlongStreamId());
+        return param;
     }
 
     /**

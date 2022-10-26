@@ -100,7 +100,12 @@
         from data_node
         where is_deleted = 0
     </select>
-
+    <select id="selectAllDataNodes" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_node
+        where is_deleted = 0
+    </select>
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         update data_node
         set name        = #{name, jdbcType=VARCHAR},

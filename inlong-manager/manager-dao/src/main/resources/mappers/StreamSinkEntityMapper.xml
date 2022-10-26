@@ -350,12 +350,6 @@
             </if>
         </where>
     </select>
-    <select id="selectAllStreamSinks" resultType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from stream_sink
-        where is_deleted = 0
-    </select>
     <select id="selectAllTasks" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo">
         select inlong_cluster_name as sortClusterName,
                sort_task_name,
