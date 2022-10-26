@@ -150,6 +150,7 @@ public class OracleExtractNode extends ExtractNode implements InlongMetric, Meta
     @Override
     public Set<MetaField> supportedMetaFields() {
         return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
-                MetaField.SCHEMA_NAME, MetaField.OP_TS);
+                MetaField.SCHEMA_NAME, MetaField.OP_TS, MetaField.DATA, MetaField.DATA_CANAL,
+                MetaField.DATA_BYTES, MetaField.DATA_BYTES_CANAL);
     }
 }

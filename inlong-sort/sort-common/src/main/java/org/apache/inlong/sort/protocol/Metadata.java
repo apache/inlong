@@ -54,6 +54,14 @@ public interface Metadata {
             case OP_TS:
                 metadataKey = "op_ts";
                 break;
+            case DATA:
+            case DATA_BYTES:
+                metadataKey = "meta.data";
+                break;
+            case DATA_CANAL:
+            case DATA_BYTES_CANAL:
+                metadataKey = "meta.data_canal";
+                break;
 
             default:
                 throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",

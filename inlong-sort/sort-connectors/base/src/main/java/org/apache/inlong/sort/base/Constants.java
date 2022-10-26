@@ -131,6 +131,12 @@ public final class Constants {
                             + "is used extract database name from the raw binary data, "
                             + "this is only used in the multiple sink writing scenario.");
 
+    public static final ConfigOption<Boolean> SOURCE_MULTIPLE_ENABLE =
+            ConfigOptions.key("source.multiple.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether enable migrate multiple databases");
+
     public static final ConfigOption<String> SINK_MULTIPLE_TABLE_PATTERN =
             ConfigOptions.key("sink.multiple.table-pattern")
                     .stringType()
