@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.doris.table;
 
+import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.doris.flink.cfg.DorisExecutionOptions;
 import org.apache.doris.flink.cfg.DorisOptions;
@@ -26,13 +27,24 @@ import org.apache.doris.flink.exception.StreamLoadException;
 import org.apache.doris.flink.rest.RestService;
 import org.apache.doris.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.api.common.io.RichOutputFormat;
+import org.apache.flink.api.common.state.ListState;
+import org.apache.flink.api.common.state.ListStateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.runtime.state.FunctionInitializationContext;
+import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,13 +59,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 
 /**
  * DorisDynamicSchemaOutputFormat, copy from {@link org.apache.doris.flink.table.DorisDynamicOutputFormat}
  * It is used in the multiple sink scenario, in this scenario, we directly convert the data format by
  * 'sink.multiple.format' in the data stream to doris json that is used to load
  */
-public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
+public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T>
+     implements CheckpointedFunction {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(DorisDynamicSchemaOutputFormat.class);
@@ -72,6 +88,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final DorisOptions options;
     private final DorisReadOptions readOptions;
     private final DorisExecutionOptions executionOptions;
+    private final MetricOption metricOption;
     private final String databasePattern;
     private final String tablePattern;
     private final String dynamicSchemaFormat;
@@ -84,18 +101,26 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private transient volatile Exception flushException;
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
 
+
+    private transient SinkMetricData metricData;
+    private transient ListState<MetricState> metricStateListState;
+    private transient MetricState metricState;
+    private transient AtomicLong numPendingRequests;
+
     public DorisDynamicSchemaOutputFormat(DorisOptions option,
             DorisReadOptions readOptions,
             DorisExecutionOptions executionOptions,
             String dynamicSchemaFormat,
             String databasePattern,
-            String tablePattern) {
+            String tablePattern,
+            MetricOption metricOption) {
         this.options = option;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
         this.dynamicSchemaFormat = dynamicSchemaFormat;
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
+        this.metricOption = metricOption;
     }
 
     /**
@@ -124,6 +149,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 executionOptions.getStreamLoadProp());
         jsonDynamicSchemaFormat = (JsonDynamicSchemaFormat)
                 DynamicSchemaFormatFactory.getFormat(dynamicSchemaFormat);
+
+        if (metricOption != null) {
+            metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
+        }
+        this.numPendingRequests = new AtomicLong(0);
         if (executionOptions.getBatchIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
             this.scheduler = new ScheduledThreadPoolExecutor(1,
                     new ExecutorThreadFactory("doris-streamload-output-format"));
@@ -169,9 +199,9 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 return;
             }
             String tableIdentifier = StringUtils.join(
-                    jsonDynamicSchemaFormat.parse(rowData.getBinary(0), databasePattern),
+                    jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
                     ".",
-                    jsonDynamicSchemaFormat.parse(rowData.getBinary(0), tablePattern));
+                    jsonDynamicSchemaFormat.parse(rootNode, tablePattern));
             List<RowKind> rowKinds = jsonDynamicSchemaFormat
                     .opType2RowKind(jsonDynamicSchemaFormat.getOpType(rootNode));
             List<Map<String, String>> physicalDataList = jsonDynamicSchemaFormat.jsonNode2Map(
@@ -182,6 +212,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 updateBeforeList = jsonDynamicSchemaFormat.jsonNode2Map(updateBeforeNode);
             }
             for (int i = 0; i < physicalDataList.size(); i++) {
+                numPendingRequests.incrementAndGet();
                 for (RowKind rowKind : rowKinds) {
                     switch (rowKind) {
                         case INSERT:
@@ -259,10 +290,14 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         for (Entry<String, List> kvs : batchMap.entrySet()) {
             load(kvs.getKey(), OBJECT_MAPPER.writeValueAsString(kvs.getValue()));
         }
+        numPendingRequests.set(0);
     }
 
     private void load(String tableIdentifier, String result) throws IOException {
         String[] tableWithDb = tableIdentifier.split("\\.");
+        if (metricData != null) {
+            metricData.invokeWithEstimate(result);
+        }
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
                 dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result);
@@ -298,6 +333,37 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
     }
 
+    @Override
+    public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
+        Gson gson = new Gson();
+        LOG.info("snapshotState begin, context is:{}", gson.toJson(functionSnapshotContext));
+        while (numPendingRequests.get() != 0) {
+            flush();
+        }
+        if (metricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, metricData,
+                    getRuntimeContext().getIndexOfThisSubtask());
+        }
+        LOG.info("snapshotState end, context is:{}", gson.toJson(functionSnapshotContext));
+    }
+
+    @Override
+    public void initializeState(FunctionInitializationContext context) throws Exception {
+        Gson gson = new Gson();
+        LOG.info("initializeState begin, context is:{}", gson.toJson(context));
+        if (this.metricOption != null) {
+            this.metricStateListState = context.getOperatorStateStore().getUnionListState(
+                    new ListStateDescriptor<>(
+                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                    })));
+        }
+        if (context.isRestored()) {
+            metricState = MetricStateUtils.restoreMetricState(metricStateListState,
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
+        }
+        LOG.info("initializeState end, context is:{}", gson.toJson(context));
+    }
+
     /**
      * Builder for {@link DorisDynamicSchemaOutputFormat}.
      */
@@ -306,6 +372,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         private final DorisOptions.Builder optionsBuilder;
         private DorisReadOptions readOptions;
         private DorisExecutionOptions executionOptions;
+        private MetricOption metricOption;
         private String dynamicSchemaFormat;
         private String databasePattern;
         private String tablePattern;
@@ -350,6 +417,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             return this;
         }
 
+        public DorisDynamicSchemaOutputFormat.Builder setMetricOption(MetricOption metricOption) {
+            this.metricOption = metricOption;
+            return this;
+        }
+
         public DorisDynamicSchemaOutputFormat.Builder setTablePattern(String tablePattern) {
             this.tablePattern = tablePattern;
             return this;
@@ -359,7 +431,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         public DorisDynamicSchemaOutputFormat build() {
             return new DorisDynamicSchemaOutputFormat(
                     optionsBuilder.build(), readOptions, executionOptions,
-                    dynamicSchemaFormat, databasePattern, tablePattern);
+                    dynamicSchemaFormat, databasePattern, tablePattern,
+                    metricOption);
         }
     }
 }

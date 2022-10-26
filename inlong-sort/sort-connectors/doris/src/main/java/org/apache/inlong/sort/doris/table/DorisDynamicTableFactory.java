@@ -37,6 +37,7 @@ import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.base.metric.MetricOption;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -58,6 +59,8 @@ import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTE
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 
 /**
  * This class copy from {@link org.apache.doris.flink.table.DorisDynamicTableFactory}
@@ -208,6 +211,8 @@ public final class DorisDynamicTableFactory implements DynamicTableSourceFactory
         options.add(SINK_MULTIPLE_DATABASE_PATTERN);
         options.add(SINK_MULTIPLE_TABLE_PATTERN);
         options.add(SINK_MULTIPLE_ENABLE);
+        options.add(INLONG_METRIC);
+        options.add(INLONG_AUDIT);
         return options;
     }
 
@@ -293,12 +298,18 @@ public final class DorisDynamicTableFactory implements DynamicTableSourceFactory
         String sinkMultipleFormat = helper.getOptions().getOptional(SINK_MULTIPLE_FORMAT).orElse(null);
         validateSinkMultiple(physicalSchema.toPhysicalRowDataType(),
                 multipleSink, sinkMultipleFormat, databasePattern, tablePattern);
+
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(helper.getOptions().getOptional(INLONG_METRIC).orElse(INLONG_METRIC.defaultValue()))
+                .withInlongAudit(helper.getOptions().getOptional(INLONG_AUDIT).orElse(INLONG_AUDIT.defaultValue()))
+                .build();
         // create and return dynamic table sink
         return new DorisDynamicTableSink(
                 getDorisOptions(helper.getOptions()),
                 getDorisReadOptions(helper.getOptions()),
                 getDorisExecutionOptions(helper.getOptions(), streamLoadProp),
-                physicalSchema, multipleSink, sinkMultipleFormat, databasePattern, tablePattern
+                physicalSchema, multipleSink, sinkMultipleFormat,
+                databasePattern, tablePattern, metricOption
         );
     }
 

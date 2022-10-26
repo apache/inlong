@@ -26,6 +26,7 @@ import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.OutputFormatProvider;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.metric.MetricOption;
 
 /**
  * DorisDynamicTableSink copy from {@link org.apache.doris.flink.table.DorisDynamicTableSink}
@@ -41,6 +42,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     private final String sinkMultipleFormat;
     private final String databasePattern;
     private final String tablePattern;
+    private final MetricOption metricOption;
 
     public DorisDynamicTableSink(DorisOptions options,
             DorisReadOptions readOptions,
@@ -49,7 +51,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
             boolean multipleSink,
             String sinkMultipleFormat,
             String databasePattern,
-            String tablePattern) {
+            String tablePattern,
+            MetricOption metricOption) {
         this.options = options;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
@@ -58,6 +61,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
         this.sinkMultipleFormat = sinkMultipleFormat;
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
+        this.metricOption = metricOption;
     }
 
     @Override
@@ -92,14 +96,16 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 .setExecutionOptions(executionOptions)
                 .setDatabasePattern(databasePattern)
                 .setTablePattern(tablePattern)
-                .setDynamicSchemaFormat(sinkMultipleFormat);
+                .setDynamicSchemaFormat(sinkMultipleFormat)
+                .setMetricOption(metricOption);
         return OutputFormatProvider.of(builder.build());
     }
 
     @Override
     public DynamicTableSink copy() {
         return new DorisDynamicTableSink(options, readOptions, executionOptions,
-                tableSchema, multipleSink, sinkMultipleFormat, databasePattern, tablePattern);
+                tableSchema, multipleSink, sinkMultipleFormat, databasePattern, tablePattern,
+                metricOption);
     }
 
     @Override
