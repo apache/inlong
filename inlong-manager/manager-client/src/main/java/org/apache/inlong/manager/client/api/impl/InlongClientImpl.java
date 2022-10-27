@@ -165,7 +165,7 @@ public class InlongClientImpl implements InlongClient {
             Map<String, SortStatus> sortStatusMap = sortStatusInfos.stream()
                     .collect(Collectors.toMap(SortStatusInfo::getInlongGroupId, SortStatusInfo::getSortStatus));
             groupStatusMap.forEach((groupId, groupStatusInfo) ->
-                    groupStatusInfo.setSortStatus(sortStatusMap.getOrDefault(groupId, SortStatus.UNKNOWN)));
+                    groupStatusInfo.setSortStatus(sortStatusMap.getOrDefault(groupId, SortStatus.NOT_EXISTS)));
         }
 
         return groupStatusMap;

@@ -294,24 +294,25 @@ public class InlongGroupImpl implements InlongGroup {
     private InlongGroupContext generateSnapshot(String credentials) {
         InlongGroupContext groupContext = generateSnapshot();
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
+
+        SortStatus sortStatus = SortStatus.NOT_EXISTS;
         if (groupInfo.getExtList().stream().anyMatch(ext -> InlongConstants.SORT_JOB_ID.equals(ext.getKeyName())
                 && StringUtils.isNotEmpty(ext.getKeyValue()))) {
             SortStatusRequest request = new SortStatusRequest();
-            request.setInlongGroupIds(Collections.singletonList(groupInfo.getInlongGroupId()));
+            final String groupId = groupInfo.getInlongGroupId();
+            request.setInlongGroupIds(Collections.singletonList(groupId));
             request.setCredentials(credentials);
             List<SortStatusInfo> statusInfos = groupClient.listSortStatus(request);
-
-            SortStatus sortStatus = SortStatus.UNKNOWN;
             if (CollectionUtils.isNotEmpty(statusInfos)) {
                 Optional<SortStatusInfo> optional = statusInfos.stream()
-                        .filter(status -> groupInfo.getInlongGroupId().equals(status.getInlongGroupId()))
+                        .filter(statusInfo -> groupId.equals(statusInfo.getInlongGroupId()))
                         .findFirst();
                 if (optional.isPresent()) {
                     sortStatus = optional.get().getSortStatus();
                 }
             }
-            groupContext.updateSortStatus(sortStatus);
         }
+        groupContext.updateSortStatus(sortStatus);
 
         return groupContext;
     }
