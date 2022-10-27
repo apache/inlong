@@ -37,22 +37,18 @@ public class MultipleSinkOption implements Serializable {
 
     private String format;
 
-    private SchemaUpdateExceptionPolicy addColumnPolicy;
-
-    private SchemaUpdateExceptionPolicy delColumnPolicy;
+    private SchemaUpdateExceptionPolicy schemaUpdatePolicy;
 
     private String databasePattern;
 
     private String tablePattern;
 
     public MultipleSinkOption(String format,
-            SchemaUpdateExceptionPolicy addColumnPolicy,
-            SchemaUpdateExceptionPolicy delColumnPolicy,
+            SchemaUpdateExceptionPolicy schemaUpdatePolicy,
             String databasePattern,
             String tablePattern) {
         this.format = format;
-        this.addColumnPolicy = addColumnPolicy;
-        this.delColumnPolicy = delColumnPolicy;
+        this.schemaUpdatePolicy = schemaUpdatePolicy;
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
     }
@@ -61,12 +57,8 @@ public class MultipleSinkOption implements Serializable {
         return format;
     }
 
-    public SchemaUpdateExceptionPolicy getAddColumnPolicy() {
-        return addColumnPolicy;
-    }
-
-    public SchemaUpdateExceptionPolicy getDelColumnPolicy() {
-        return delColumnPolicy;
+    public SchemaUpdateExceptionPolicy getSchemaUpdatePolicy() {
+        return schemaUpdatePolicy;
     }
 
     public String getDatabasePattern() {
@@ -83,8 +75,7 @@ public class MultipleSinkOption implements Serializable {
 
     public static class Builder {
         private String format;
-        private SchemaUpdateExceptionPolicy addColumnPolicy;
-        private SchemaUpdateExceptionPolicy delColumnPolicy;
+        private SchemaUpdateExceptionPolicy schemaUpdatePolicy;
         private String databasePattern;
         private String tablePattern;
 
@@ -93,13 +84,8 @@ public class MultipleSinkOption implements Serializable {
             return this;
         }
 
-        public MultipleSinkOption.Builder withAddColumnPolicy(SchemaUpdateExceptionPolicy addColumnPolicy) {
-            this.addColumnPolicy = addColumnPolicy;
-            return this;
-        }
-
-        public MultipleSinkOption.Builder withDelColumnPolicy(SchemaUpdateExceptionPolicy delColumnPolicy) {
-            this.delColumnPolicy = delColumnPolicy;
+        public MultipleSinkOption.Builder withSchemaUpdatePolicy(SchemaUpdateExceptionPolicy schemaUpdatePolicy) {
+            this.schemaUpdatePolicy = schemaUpdatePolicy;
             return this;
         }
 
@@ -114,7 +100,7 @@ public class MultipleSinkOption implements Serializable {
         }
 
         public MultipleSinkOption build() {
-            return new MultipleSinkOption(format, addColumnPolicy, delColumnPolicy, databasePattern, tablePattern);
+            return new MultipleSinkOption(format, schemaUpdatePolicy, databasePattern, tablePattern);
         }
     }
 
