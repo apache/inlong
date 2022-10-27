@@ -18,27 +18,26 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
-import org.apache.inlong.manager.common.enums.SortStatus;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.plugin.Plugin;
+import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
-import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
+import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
+import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.service.core.SortClusterService;
-import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.core.SortService;
+import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.workflow.plugin.Plugin;
-import org.apache.inlong.manager.workflow.plugin.PluginBinder;
-import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
-import org.apache.inlong.manager.workflow.plugin.SortStatusPoller;
+import org.apache.inlong.manager.workflow.plugin.sort.PollerPlugin;
+import org.apache.inlong.manager.workflow.plugin.sort.SortPoller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -52,15 +51,18 @@ public class SortServiceImpl implements SortService, PluginBinder {
     @Lazy
     @Autowired
     private SortSourceService sortSourceService;
-
     @Lazy
     @Autowired
     private SortClusterService sortClusterService;
-
     @Autowired
     private InlongGroupService groupService;
 
-    private SortStatusPoller sortStatusPoller;
+    /**
+     * The plugin poller will be initialed after the application starts.
+     *
+     * @see org.apache.inlong.manager.service.plugin.PluginService#afterPropertiesSet
+     */
+    private SortPoller sortPoller;
 
     @Override
     public SortClusterResponse getClusterConfig(String clusterName, String md5) {
@@ -73,21 +75,28 @@ public class SortServiceImpl implements SortService, PluginBinder {
     }
 
     @Override
-    public ListSortStatusResponse listSortStatus(ListSortStatusRequest request) {
-        Preconditions.checkNotNull(sortStatusPoller, "sort job status poller not initialized");
-        List<InlongGroupInfo> groupInfoList = request.getInlongGroupIds().stream()
-                .map(groupId -> groupService.get(groupId)).collect(Collectors.toList());
-        Map<String, SortStatus> statusMap = sortStatusPoller.poll(groupInfoList, request.getCredentials());
-        log.debug("get sort status map = {}", statusMap);
-        return ListSortStatusResponse.builder().statusMap(statusMap).build();
+    public List<SortStatusInfo> listSortStatus(SortStatusRequest request) {
+        Preconditions.checkNotNull(sortPoller, "sort status poller not initialized, please try later");
+
+        try {
+            List<InlongGroupInfo> groupInfoList = request.getInlongGroupIds().stream()
+                    .map(groupId -> groupService.get(groupId))
+                    .collect(Collectors.toList());
+
+            List<SortStatusInfo> statusInfos = sortPoller.pollSortStatus(groupInfoList, request.getCredentials());
+            log.debug("success to list sort status for request={}, result={}", request, statusInfos);
+            return statusInfos;
+        } catch (Exception e) {
+            log.error("poll sort status error: ", e);
+            throw new BusinessException("poll sort status error: " + e.getMessage());
+        }
     }
 
     @Override
     public void acceptPlugin(Plugin plugin) {
-        if (!(plugin instanceof ProcessPlugin)) {
-            return;
+        if (plugin instanceof PollerPlugin) {
+            PollerPlugin pollerPlugin = (PollerPlugin) plugin;
+            sortPoller = pollerPlugin.getSortPoller();
         }
-        ProcessPlugin processPlugin = (ProcessPlugin) plugin;
-        sortStatusPoller = processPlugin.createSortStatusPoller();
     }
 }

@@ -51,7 +51,8 @@ import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
-import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
+import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
+import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
 import java.util.List;
@@ -152,20 +153,22 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds, String credentials) {
-        Map<String, InlongGroupStatusInfo> statusInfoMap = listGroupStatus(groupIds);
+        Map<String, InlongGroupStatusInfo> groupStatusMap = listGroupStatus(groupIds);
 
         // sort status info
-        ListSortStatusRequest sortStatusRequest = new ListSortStatusRequest();
-        sortStatusRequest.setInlongGroupIds(groupIds);
-        sortStatusRequest.setCredentials(credentials);
-        Map<String, SortStatus> sortStatusMap = groupClient.listSortStatus(sortStatusRequest).getStatusMap();
+        SortStatusRequest statusRequest = new SortStatusRequest();
+        statusRequest.setInlongGroupIds(groupIds);
+        statusRequest.setCredentials(credentials);
+        List<SortStatusInfo> sortStatusInfos = groupClient.listSortStatus(statusRequest);
 
-        if (MapUtils.isNotEmpty(sortStatusMap)) {
-            statusInfoMap.forEach((groupId, statusInfo) -> {
-                statusInfo.setSortStatus(sortStatusMap.getOrDefault(groupId, SortStatus.UNKNOWN));
-            });
+        if (CollectionUtils.isNotEmpty(sortStatusInfos)) {
+            Map<String, SortStatus> sortStatusMap = sortStatusInfos.stream()
+                    .collect(Collectors.toMap(SortStatusInfo::getInlongGroupId, SortStatusInfo::getSortStatus));
+            groupStatusMap.forEach((groupId, groupStatusInfo) ->
+                    groupStatusInfo.setSortStatus(sortStatusMap.getOrDefault(groupId, SortStatus.NOT_EXISTS)));
         }
-        return statusInfoMap;
+
+        return groupStatusMap;
     }
 
     @Override

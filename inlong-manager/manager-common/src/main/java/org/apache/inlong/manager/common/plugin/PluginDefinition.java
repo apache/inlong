@@ -15,20 +15,46 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.service;
+package org.apache.inlong.manager.common.plugin;
 
-import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
-import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.POST;
+import lombok.Data;
 
 import java.util.List;
 
-public interface InlongSortApi {
+/**
+ * PluginDefinition should be defined in *.jar/META-INF/plugin.yaml.
+ * <p/> For example:
+ *
+ * <pre>
+ *    name: test-plugin
+ *    description: this plugin is used for test
+ *    javaVersion: 1.8 or 8
+ *    pluginClasses:
+ *      - org.apache.inlong.plugin.TestPlugin1
+ *      - org.apache.inlong.plugin.TestPlugin2
+ * </pre>
+ */
+@Data
+public class PluginDefinition {
 
-    @POST("sort/listStatus")
-    Call<Response<List<SortStatusInfo>>> listStatus(@Body SortStatusRequest request);
+    /**
+     * Name of plugin
+     */
+    private String name;
+
+    /**
+     * Description of plugin to be used for user help
+     */
+    private String description;
+
+    /**
+     * Java version of plugin to be used for check validate
+     */
+    private String javaVersion;
+
+    /**
+     * List of the full class name of plugins
+     */
+    private List<String> pluginClasses;
 
 }

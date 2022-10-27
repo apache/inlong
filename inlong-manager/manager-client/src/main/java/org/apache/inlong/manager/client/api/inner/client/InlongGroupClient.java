@@ -35,11 +35,13 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
-import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
+import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
+import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import retrofit2.Call;
+
+import java.util.List;
 
 import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD;
 import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD_OLD;
@@ -147,11 +149,10 @@ public class InlongGroupClient {
      * List sort task status for inlong groups
      *
      * @param request sort status request
-     * @return Response encapsulate of group id to sort status map
+     * @return list of sort status infos
      */
-    public ListSortStatusResponse listSortStatus(ListSortStatusRequest request) {
-        Response<ListSortStatusResponse> response = ClientUtils.executeHttpCall(
-                inlongSortApi.listSortStatus(request));
+    public List<SortStatusInfo> listSortStatus(SortStatusRequest request) {
+        Response<List<SortStatusInfo>> response = ClientUtils.executeHttpCall(inlongSortApi.listStatus(request));
         ClientUtils.assertRespSuccess(response);
         return response.getData();
     }

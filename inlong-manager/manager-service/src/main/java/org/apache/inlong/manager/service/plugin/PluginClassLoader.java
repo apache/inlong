@@ -24,7 +24,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
+import org.apache.inlong.manager.common.plugin.PluginDefinition;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,19 +58,27 @@ public class PluginClassLoader extends URLClassLoader {
      * plugin.yaml should less than 1k
      */
     public static final int PLUGIN_DEF_CAPACITY = 1024;
+    private static final ObjectMapper YAML_MAPPER;
+
+    static {
+        YAML_MAPPER = new ObjectMapper(new YAMLFactory());
+        YAML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        YAML_MAPPER.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
+        YAML_MAPPER.setSerializationInclusion(Include.NON_NULL);
+    }
+
     private final File pluginDirectory;
+    private final String osName;
+
     /**
      * pluginName -> pluginDefinition
      */
     private Map<String, PluginDefinition> pluginDefinitionMap = new HashMap<>();
-    private ObjectMapper yamlMapper;
-    private String osName;
 
     private PluginClassLoader(URL url, ClassLoader parent, String osName) throws IOException {
         super(new URL[]{url}, parent);
         this.pluginDirectory = new File(url.getPath());
         this.osName = osName;
-        initYamlMapper();
         loadPluginDefinition();
     }
 
@@ -120,14 +129,6 @@ public class PluginClassLoader extends URLClassLoader {
         return this.pluginDefinitionMap;
     }
 
-    private void initYamlMapper() {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        this.yamlMapper = mapper;
-    }
-
     /**
      * load pluginDefinition in **.jar/META-INF/plugin.yaml
      */
@@ -141,46 +142,46 @@ public class PluginClassLoader extends URLClassLoader {
         List<PluginDefinition> definitions = new ArrayList<>();
         for (File jarFile : files) {
             if (!jarFile.getName().endsWith(".jar")) {
-                log.warn("{} is not valid plugin jar, skip to load", jarFile);
+                log.warn("invalid plugin jar {}, skip to load", jarFile);
                 continue;
             }
-            log.info("{} is valid plugin jar, start to load", jarFile);
+
+            log.info("start to load valid plugin jar {}", jarFile);
             JarFile pluginJar = new JarFile(jarFile);
             String pluginDef = readPluginDef(pluginJar);
             pluginDef = pluginDef.replaceAll("[\\x00]+", "");
-            PluginDefinition definition = yamlMapper.readValue(pluginDef, PluginDefinition.class);
+            PluginDefinition definition = YAML_MAPPER.readValue(pluginDef, PluginDefinition.class);
+
             if (osName.startsWith(WINDOWS_PREFIX)) {
-                addURL(new URL("file:///" + jarFile.getAbsolutePath()));
+                super.addURL(new URL("file:///" + jarFile.getAbsolutePath()));
             } else {
-                addURL(new URL("file://" + jarFile.getAbsolutePath()));
+                super.addURL(new URL("file://" + jarFile.getAbsolutePath()));
             }
             checkPluginValid(jarFile, definition);
             definitions.add(definition);
         }
+
         pluginDefinitionMap = definitions.stream()
                 .collect(Collectors.toMap(PluginDefinition::getName, definition -> definition));
     }
 
     private void checkPluginValid(File jarFile, PluginDefinition pluginDefinition) {
-        if (StringUtils.isEmpty(pluginDefinition.getName())) {
-            throw new RuntimeException(String.format("%s should define pluginName in plugin.yaml", jarFile.getName()));
-        }
-        if (StringUtils.isEmpty(pluginDefinition.getPluginClass())) {
-            throw new RuntimeException(String.format("%s should define pluginClass in plugin.yaml", jarFile.getName()));
-        }
-        try {
-            this.loadClass(pluginDefinition.getPluginClass());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(
-                    String.format("pluginClass '%s' could not be found in %s", pluginDefinition.getPluginClass(),
-                            jarFile.getName()));
-        }
+        String info = "[%s] not defined in plugin.yaml for " + jarFile.getName();
+        Preconditions.checkNotEmpty(pluginDefinition.getName(), String.format(info, "name"));
+        Preconditions.checkNotEmpty(pluginDefinition.getJavaVersion(), String.format(info, "javaVersion"));
+        Preconditions.checkNotEmpty(pluginDefinition.getPluginClasses(), String.format(info, "pluginClasses"));
         if (StringUtils.isEmpty(pluginDefinition.getDescription())) {
-            log.warn(String.format("%s should define description in plugin.yaml", jarFile.getName()));
+            log.warn(String.format(info, "description"));
         }
-        if (StringUtils.isEmpty(pluginDefinition.getJavaVersion())) {
-            throw new RuntimeException(String.format("%s should define javaVersion in plugin.yaml", jarFile.getName()));
+
+        for (String clazz : pluginDefinition.getPluginClasses()) {
+            try {
+                this.loadClass(clazz);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(String.format("plugin class %s not found in %s", clazz, jarFile.getName()));
+            }
         }
+
         JarHell.checkJavaVersion(pluginDefinition.getName(), pluginDefinition.getJavaVersion());
     }
 

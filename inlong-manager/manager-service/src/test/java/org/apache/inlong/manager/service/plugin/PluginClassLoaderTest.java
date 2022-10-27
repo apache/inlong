@@ -18,13 +18,15 @@
 package org.apache.inlong.manager.service.plugin;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.workflow.plugin.Plugin;
-import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.plugin.Plugin;
+import org.apache.inlong.manager.common.plugin.PluginDefinition;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
+import org.apache.inlong.manager.workflow.plugin.sort.PollerPlugin;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,25 +35,33 @@ import java.util.Objects;
  */
 public class PluginClassLoaderTest {
 
+    /**
+     * The test plugin jar was packaged from manager-plugins,
+     * naming it to `manager-plugin-example.jar`.
+     */
     @Test
     public void testLoadPlugin() {
-
         String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource("")).getPath();
         PluginClassLoader pluginClassLoader = PluginClassLoader.getFromPluginUrl(path + "plugins",
                 Thread.currentThread().getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitionMap = pluginClassLoader.getPluginDefinitions();
         Assertions.assertEquals(1, pluginDefinitionMap.size());
+
         PluginDefinition pluginDefinition = Lists.newArrayList(pluginDefinitionMap.values()).get(0);
         Assertions.assertNotNull(pluginDefinition);
-        String pluginClass = pluginDefinition.getPluginClass();
-        Assertions.assertTrue(StringUtils.isNotEmpty(pluginClass));
-        try {
-            Class cls = pluginClassLoader.loadClass(pluginClass);
-            Plugin plugin = (Plugin) cls.getDeclaredConstructor().newInstance();
-            Assertions.assertTrue(plugin instanceof ProcessPlugin);
-        } catch (Exception e) {
-            Assertions.assertTrue(e instanceof ClassNotFoundException);
-            Assertions.fail();
+        List<String> classNames = pluginDefinition.getPluginClasses();
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(classNames));
+
+        for (String name : classNames) {
+            try {
+                Class<?> cls = pluginClassLoader.loadClass(name);
+                Plugin plugin = (Plugin) cls.getDeclaredConstructor().newInstance();
+                Assertions.assertTrue(plugin instanceof ProcessPlugin
+                        || plugin instanceof PollerPlugin);
+            } catch (Exception e) {
+                Assertions.assertTrue(e instanceof ClassNotFoundException);
+                Assertions.fail();
+            }
         }
     }
 

@@ -15,25 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.sort;
+package org.apache.inlong.manager.workflow.plugin.sort;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
-import java.util.List;
+import org.apache.inlong.manager.common.plugin.Plugin;
 
 /**
- * Sort status request
+ * Interface of Poller Plugin.
  */
-@Data
-@ApiModel("list sort status request")
-public class ListSortStatusRequest {
+public interface PollerPlugin extends Plugin {
 
-    @ApiModelProperty(value = "Inlong group ids")
-    private List<String> inlongGroupIds;
-
-    @ApiModelProperty(value = "Optional credential info needed for backend query, such as sort cluster token")
-    private String credentials;
+    /**
+     * Get Sort poller instance.
+     *
+     * @return Sort poller instance
+     */
+    default SortPoller getSortPoller() {
+        return null;
+    }
 
 }

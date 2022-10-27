@@ -15,38 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.plugin;
-
-import lombok.Data;
+package org.apache.inlong.manager.common.plugin;
 
 /**
- * pluginDefinition should be defined in *.jar/META-INF/plugin.yaml
- * for example:
- *    name: test
- *    description: this plugin is use for test
- *    pluginClass: org.apache.inlong.plugin.testPlugin
- *    javaVersion: 1.8 or 8
+ * Interface of plugin.
  */
-@Data
-public class PluginDefinition {
+public interface Plugin {
 
-    /**
-     * name of plugin
-     */
-    private String name;
-
-    /**
-     * description of plugin to be used for user help
-     */
-    private String description;
-
-    /**
-     * java_version of plugin to be used for check validate
-     */
-    private String javaVersion;
-
-    /**
-     * the full class name of plugin
-     */
-    private String pluginClass;
 }

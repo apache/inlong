@@ -43,8 +43,7 @@ public class JarHell {
         JavaVersion version = parse(javaVersion);
         if (CURRENT_VERSION.compareTo(version) < 0) {
             throw new IllegalArgumentException(
-                    String.format("%s requires Java %s:, your system: %s", resource, CURRENT_VERSION,
-                            javaVersion));
+                    String.format("%s requires Java %s, your system: %s", resource, CURRENT_VERSION, javaVersion));
         }
     }
 
@@ -76,7 +75,7 @@ public class JarHell {
     }
 
     /**
-     * Check the string if is vaild.
+     * Check the string if is valid.
      */
     public static boolean isValid(String value) {
         return value.matches("^0*[0-9]+(\\.[0-9]+)*(-[a-zA-Z0-9]+)?$");
@@ -127,7 +126,7 @@ public class JarHell {
                 return -1;
             } else if (prePart == null && o.prePart != null) {
                 return 1;
-            } else if (prePart != null && o.prePart != null) {
+            } else if (prePart != null) {
                 return comparePrePart(prePart, o.prePart);
             }
             return 0;
@@ -138,8 +137,7 @@ public class JarHell {
                 return otherPrePart.matches("\\d+")
                         ? (new BigInteger(prePart)).compareTo(new BigInteger(otherPrePart)) : -1;
             } else {
-                return otherPrePart.matches("\\d+")
-                        ? 1 : prePart.compareTo(otherPrePart);
+                return otherPrePart.matches("\\d+") ? 1 : prePart.compareTo(otherPrePart);
             }
         }
     }

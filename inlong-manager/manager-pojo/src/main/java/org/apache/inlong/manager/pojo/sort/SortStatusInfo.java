@@ -15,13 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.plugin;
+package org.apache.inlong.manager.pojo.sort;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.enums.SortStatus;
 
 /**
- * Interface of plugin binder.
+ * Sort status info
  */
-public interface PluginBinder {
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Sort status info")
+public class SortStatusInfo {
 
-    void acceptPlugin(Plugin plugin);
+    @ApiModelProperty(value = "Inlong group id")
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "Sort status info")
+    private SortStatus sortStatus;
 
 }
