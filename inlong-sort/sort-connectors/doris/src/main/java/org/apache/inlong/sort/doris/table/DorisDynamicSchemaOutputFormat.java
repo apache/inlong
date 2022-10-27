@@ -198,8 +198,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T>
                 // Ignore ddl change for now
                 return;
             }
-            Gson gson = new Gson();
-            LOG.info("lk_test rootNode is:{} ", gson.toJson(rootNode));
             String tableIdentifier = StringUtils.join(
                     jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
                     ".",
@@ -296,6 +294,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T>
     }
 
     private void load(String tableIdentifier, String result) throws IOException {
+        LOG.info("lk_test load tableIdentifier:{} value:{}", tableIdentifier, result);
         String[] tableWithDb = tableIdentifier.split("\\.");
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
@@ -303,6 +302,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T>
                 batchMap.remove(tableIdentifier);
                 break;
             } catch (StreamLoadException e) {
+                LOG.error("lk_test, maxRetries:{} ", executionOptions.getMaxRetries());
                 LOG.error("doris sink error, retry times = {}", i, e);
                 if (i >= executionOptions.getMaxRetries()) {
                     throw new IOException(e);
