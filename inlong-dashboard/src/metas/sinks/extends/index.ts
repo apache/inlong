@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import { allDefaultSinks } from './defaults';
-import { allExtendsSinks } from './extends';
+import type { MetaExportWithBackendList } from '@/metas/types';
 
-export const sinks = allDefaultSinks.concat(allExtendsSinks);
-
-export const defaultValue = sinks[0].value;
+export const allExtendsSinks: MetaExportWithBackendList = [
+  // You can extends at here...
+];

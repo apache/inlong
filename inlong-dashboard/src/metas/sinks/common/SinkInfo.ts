@@ -17,9 +17,8 @@
  * under the License.
  */
 
-import { allDefaultSinks } from './defaults';
-import { allExtendsSinks } from './extends';
+import { SinkDefaultInfo } from './SinkDefaultInfo';
 
-export const sinks = allDefaultSinks.concat(allExtendsSinks);
-
-export const defaultValue = sinks[0].value;
+export class SinkInfo extends SinkDefaultInfo {
+  // You can extends SinkInfo at here...
+}

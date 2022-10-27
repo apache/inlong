@@ -17,9 +17,27 @@
  * under the License.
  */
 
-import { allDefaultSinks } from './defaults';
-import { allExtendsSinks } from './extends';
+import type { MetaExportWithBackendList } from '@/metas/types';
 
-export const sinks = allDefaultSinks.concat(allExtendsSinks);
-
-export const defaultValue = sinks[0].value;
+export const allDefaultSinks: MetaExportWithBackendList = [
+  {
+    label: 'ALL',
+    value: '',
+    LoadEntity: () => import('../common/SinkInfo').then(r => ({ default: r.SinkInfo })),
+  },
+  {
+    label: 'Clickhouse',
+    value: 'CLICKHOUSE',
+    LoadEntity: () => import('./Clickhouse'),
+  },
+  {
+    label: 'Hive',
+    value: 'HIVE',
+    LoadEntity: () => import('./Hive'),
+  },
+  {
+    label: 'Kafka',
+    value: 'KAFKA',
+    LoadEntity: () => import('./Kafka'),
+  },
+];
