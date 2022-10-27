@@ -30,7 +30,6 @@
     <name>Apache InLong - TubeMQ Manager</name>
 
     <properties>
-        <guava.version>30.0-jre</guava.version>
         <docker.image.prefix>springboot-docker</docker.image.prefix>
     </properties>
 
