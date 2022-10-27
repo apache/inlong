@@ -39,4 +39,8 @@ public enum SchemaUpdateExceptionPolicy {
     SchemaUpdateExceptionPolicy(String description) {
         this.description = description;
     }
+
+    public String getDescription() {
+        return description;
+    }
 }

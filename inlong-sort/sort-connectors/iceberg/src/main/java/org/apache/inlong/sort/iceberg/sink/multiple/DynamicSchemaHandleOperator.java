@@ -44,7 +44,6 @@ import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.base.sink.MultipleSinkOption;
 import org.apache.inlong.sort.base.sink.TableChange;
 import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
-import org.apache.inlong.sort.base.sink.TableChange.DeleteColumn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +57,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-
-import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE;
 
 public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWithSchema>
         implements OneInputStreamOperator<RowData, RecordWithSchema>, ProcessingTimeCallback {
@@ -232,7 +229,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         Transaction transaction = table.newTransaction();
         if (table.schema().sameSchema(oldSchema)) {
             List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(oldSchema, newSchema);
-            if (canHandleWithSchemaUpdate(tableId, tableChanges)) {
+            if (canHandleWithSchemaUpdatePolicy(tableId, tableChanges)) {
                 SchemaChangeUtils.applySchemaChanges(transaction.updateSchema(), tableChanges);
                 LOG.info("Schema evolution in table({}) for table change: {}", tableId, tableChanges);
             }
@@ -270,21 +267,22 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         return record;
     }
 
-    private boolean canHandleWithSchemaUpdate(TableIdentifier tableId, List<TableChange> tableChanges) {
+    private boolean canHandleWithSchemaUpdatePolicy(TableIdentifier tableId, List<TableChange> tableChanges) {
         boolean canHandle = true;
         for (TableChange tableChange : tableChanges) {
             if (tableChange instanceof AddColumn) {
                 canHandle &= MultipleSinkOption.canHandleWithSchemaUpdate(tableId.toString(), tableChange,
-                        multipleSinkOption.getAddColumnPolicy());
-            } else if (tableChange instanceof DeleteColumn) {
-                canHandle &= MultipleSinkOption.canHandleWithSchemaUpdate(tableId.toString(), tableChange,
-                        multipleSinkOption.getDelColumnPolicy());
+                        multipleSinkOption.getSchemaUpdatePolicy());
             } else {
-                canHandle &= MultipleSinkOption.canHandleWithSchemaUpdate(tableId.toString(), tableChange,
-                        LOG_WITH_IGNORE);
+                if (MultipleSinkOption.canHandleWithSchemaUpdate(tableId.toString(), tableChange,
+                        multipleSinkOption.getSchemaUpdatePolicy())) {
+                    LOG.info("Ignore table {} schema change: {} because iceberg can't handle it.",
+                            tableId, tableChange);
+                }
+                // todo:currently iceberg can only handle addColumn, so always return false
+                canHandle = false;
             }
         }
-
         if (!canHandle) {
             blacklist.add(tableId);
         }
