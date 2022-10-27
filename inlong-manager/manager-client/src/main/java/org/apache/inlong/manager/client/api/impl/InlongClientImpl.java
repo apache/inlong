@@ -161,7 +161,7 @@ public class InlongClientImpl implements InlongClient {
         statusRequest.setCredentials(credentials);
         List<SortStatusInfo> sortStatusInfos = groupClient.listSortStatus(statusRequest);
 
-        if (CollectionUtils.isEmpty(sortStatusInfos)) {
+        if (CollectionUtils.isNotEmpty(sortStatusInfos)) {
             Map<String, SortStatus> sortStatusMap = sortStatusInfos.stream()
                     .collect(Collectors.toMap(SortStatusInfo::getInlongGroupId, SortStatusInfo::getSortStatus));
             groupStatusMap.forEach((groupId, groupStatusInfo) ->

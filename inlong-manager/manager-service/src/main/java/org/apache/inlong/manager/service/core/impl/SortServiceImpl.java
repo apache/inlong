@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.core.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -76,14 +77,19 @@ public class SortServiceImpl implements SortService, PluginBinder {
     @Override
     public List<SortStatusInfo> listSortStatus(SortStatusRequest request) {
         Preconditions.checkNotNull(sortPoller, "sort status poller not initialized, please try later");
-        List<InlongGroupInfo> groupInfoList = request.getInlongGroupIds().stream()
-                .map(groupId -> groupService.get(groupId))
-                .collect(Collectors.toList());
 
-        List<SortStatusInfo> statusInfos = sortPoller.pollSortStatus(groupInfoList, request.getCredentials());
-        log.debug("success list sort status for request={}, result={}", request, statusInfos);
+        try {
+            List<InlongGroupInfo> groupInfoList = request.getInlongGroupIds().stream()
+                    .map(groupId -> groupService.get(groupId))
+                    .collect(Collectors.toList());
 
-        return statusInfos;
+            List<SortStatusInfo> statusInfos = sortPoller.pollSortStatus(groupInfoList, request.getCredentials());
+            log.debug("success to list sort status for request={}, result={}", request, statusInfos);
+            return statusInfos;
+        } catch (Exception e) {
+            log.error("poll sort status error: ", e);
+            throw new BusinessException("poll sort status error: " + e.getMessage());
+        }
     }
 
     @Override

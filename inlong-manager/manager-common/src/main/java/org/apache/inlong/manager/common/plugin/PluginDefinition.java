@@ -19,37 +19,42 @@ package org.apache.inlong.manager.common.plugin;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * PluginDefinition should be defined in *.jar/META-INF/plugin.yaml.
  * <p/> For example:
  *
  * <pre>
- *    name: test
- *    description: this plugin is use for test
- *    pluginClass: org.apache.inlong.plugin.TestPlugin
+ *    name: test-plugin
+ *    description: this plugin is used for test
  *    javaVersion: 1.8 or 8
+ *    pluginClasses:
+ *      - org.apache.inlong.plugin.TestPlugin1
+ *      - org.apache.inlong.plugin.TestPlugin2
  * </pre>
  */
 @Data
 public class PluginDefinition {
 
     /**
-     * name of plugin
+     * Name of plugin
      */
     private String name;
 
     /**
-     * description of plugin to be used for user help
+     * Description of plugin to be used for user help
      */
     private String description;
 
     /**
-     * java_version of plugin to be used for check validate
+     * Java version of plugin to be used for check validate
      */
     private String javaVersion;
 
     /**
-     * the full class name of plugin
+     * List of the full class name of plugins
      */
-    private String pluginClass;
+    private List<String> pluginClasses;
+
 }

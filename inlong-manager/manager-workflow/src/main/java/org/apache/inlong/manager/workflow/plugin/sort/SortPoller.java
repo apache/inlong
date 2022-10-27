@@ -33,7 +33,8 @@ public interface SortPoller {
      * @param groupInfos inlong group infos
      * @param credentials credential info
      * @return list of Sort status infos
+     * @throws Exception any exception if occurred
      */
-    List<SortStatusInfo> pollSortStatus(List<InlongGroupInfo> groupInfos, String credentials);
+    List<SortStatusInfo> pollSortStatus(List<InlongGroupInfo> groupInfos, String credentials) throws Exception;
 
 }

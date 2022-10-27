@@ -46,7 +46,7 @@ public class SortStatusPoller implements SortPoller {
     /**
      * Flink job status to InLong sort status mapping.
      */
-    private static final Map<JobStatus, SortStatus> JOB_SORT_STATUS_MAP = new HashMap<>(8);
+    private static final Map<JobStatus, SortStatus> JOB_SORT_STATUS_MAP = new HashMap<>(16);
 
     static {
         JOB_SORT_STATUS_MAP.put(JobStatus.CREATED, SortStatus.NEW);

@@ -43,7 +43,7 @@ public class JarHell {
         JavaVersion version = parse(javaVersion);
         if (CURRENT_VERSION.compareTo(version) < 0) {
             throw new IllegalArgumentException(
-                    String.format("%s requires Java %s:, your system: %s", resource, CURRENT_VERSION, javaVersion));
+                    String.format("%s requires Java %s, your system: %s", resource, CURRENT_VERSION, javaVersion));
         }
     }
 
