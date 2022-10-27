@@ -10,6 +10,8 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RespContent {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @JsonProperty(value = "TxnId")
     private int txnId;
 
@@ -63,9 +65,8 @@ public class RespContent {
 
     @Override
     public String toString() {
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.writeValueAsString(this);
+            return OBJECT_MAPPER.writeValueAsString(this);
         } catch (JsonProcessingException e) {
             return "";
         }
