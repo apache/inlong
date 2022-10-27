@@ -94,8 +94,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
                     .put(java.sql.Types.BOOLEAN, new BooleanType())
                     .put(java.sql.Types.OTHER, new VarCharType())
                     .build();
+    public final ObjectMapper objectMapper = new ObjectMapper();
     protected final JsonToRowDataConverters rowDataConverters;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     protected JsonDynamicSchemaFormat() {
         this.rowDataConverters =
