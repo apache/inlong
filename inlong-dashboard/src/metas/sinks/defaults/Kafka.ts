@@ -17,35 +17,37 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { SinkInfo } from '../common/SinkInfo';
 
-export const kafka: FieldItemType[] = [
-  {
-    name: 'bootstrapServers',
+const { I18n, FormField, TableColumn } = DataWithBackend;
+
+export default class HiveSink extends SinkInfo implements DataWithBackend {
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Kafka.Server'),
     rules: [{ required: true }],
     initialValue: '127.0.0.1:9092',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'topicName',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Kafka.Server')
+  bootstrapServers: string;
+
+  @FormField({
     type: 'input',
-    label: 'Topic',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'serializationType',
+  })
+  @TableColumn()
+  @I18n('Topic')
+  topicName: string;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Sinks.Kafka.SerializationType'),
     initialValue: 'JSON',
     rules: [{ required: true }],
     props: values => ({
@@ -65,12 +67,13 @@ export const kafka: FieldItemType[] = [
         },
       ],
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'partitionNum',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Kafka.SerializationType')
+  serializationType: string;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Sinks.Kafka.PartitionNum'),
     initialValue: 3,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
@@ -78,11 +81,12 @@ export const kafka: FieldItemType[] = [
       max: 30,
     }),
     rules: [{ required: true }],
-  },
-  {
-    name: 'autoOffsetReset',
+  })
+  @I18n('meta.Sinks.Kafka.PartitionNum')
+  partitionNum: number;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Sinks.Kafka.AutoOffsetReset'),
     initialValue: 'earliest',
     rules: [{ required: true }],
     props: values => ({
@@ -102,5 +106,7 @@ export const kafka: FieldItemType[] = [
         },
       ],
     }),
-  },
-];
+  })
+  @I18n('meta.Sinks.Kafka.AutoOffsetReset')
+  autoOffsetReset: string;
+}

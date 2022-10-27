@@ -25,4 +25,19 @@ export const allDefaultSinks: MetaExportWithBackendList = [
     value: '',
     LoadEntity: () => import('../common/SinkInfo').then(r => ({ default: r.SinkInfo })),
   },
+  {
+    label: 'Clickhouse',
+    value: 'CLICKHOUSE',
+    LoadEntity: () => import('./Clickhouse'),
+  },
+  {
+    label: 'Hive',
+    value: 'HIVE',
+    LoadEntity: () => import('./Hive'),
+  },
+  {
+    label: 'Kafka',
+    value: 'KAFKA',
+    LoadEntity: () => import('./Kafka'),
+  },
 ];

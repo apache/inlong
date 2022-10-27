@@ -17,10 +17,13 @@
  * under the License.
  */
 
+import { DataWithBackend } from '@/metas/DataWithBackend';
 import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
-import { sourceFields } from './common/sourceFields';
+import { SinkInfo } from '../common/SinkInfo';
+import { sourceFields } from '../common/sourceFields';
+
+const { I18n, FormField, TableColumn } = DataWithBackend;
 
 const clickhouseTargetTypes = [
   'String',
@@ -37,31 +40,31 @@ const clickhouseTargetTypes = [
   value: item,
 }));
 
-export const clickhouse: FieldItemType[] = [
-  {
-    name: 'dbName',
+export default class HiveSink extends SinkInfo implements DataWithBackend {
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Clickhouse.DbName'),
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'tableName',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Clickhouse.DbName')
+  dbName: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Clickhouse.TableName'),
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'enableCreateResource',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Clickhouse.TableName')
+  tableName: string;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Sinks.EnableCreateResource'),
     rules: [{ required: true }],
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
@@ -78,39 +81,43 @@ export const clickhouse: FieldItemType[] = [
         },
       ],
     }),
-  },
-  {
-    name: 'username',
+  })
+  @I18n('meta.Sinks.EnableCreateResource')
+  enableCreateResource: number;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Username'),
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'password',
+  })
+  @I18n('meta.Sinks.Username')
+  username: string;
+
+  @FormField({
     type: 'password',
-    label: i18n.t('meta.Sinks.Password'),
+    rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
+  })
+  @I18n('meta.Sinks.Password')
+  password: string;
+
+  @FormField({
     type: 'input',
-    label: 'JDBC URL',
-    name: 'jdbcUrl',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       placeholder: 'jdbc:clickhouse://127.0.0.1:8123',
     }),
-  },
-  {
-    name: 'flushInterval',
+  })
+  @I18n('JDBC URL')
+  jdbcUrl: string;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Sinks.Clickhouse.FlushInterval'),
     initialValue: 1,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
@@ -118,11 +125,12 @@ export const clickhouse: FieldItemType[] = [
     }),
     rules: [{ required: true }],
     suffix: i18n.t('meta.Sinks.Clickhouse.FlushIntervalUnit'),
-  },
-  {
-    name: 'flushRecord',
+  })
+  @I18n('meta.Sinks.Clickhouse.FlushInterval')
+  flushInterval: number;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Sinks.Clickhouse.FlushRecord'),
     initialValue: 1000,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
@@ -130,11 +138,12 @@ export const clickhouse: FieldItemType[] = [
     }),
     rules: [{ required: true }],
     suffix: i18n.t('meta.Sinks.Clickhouse.FlushRecordUnit'),
-  },
-  {
-    name: 'retryTime',
+  })
+  @I18n('meta.Sinks.Clickhouse.FlushRecord')
+  flushRecord: number;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Sinks.Clickhouse.RetryTimes'),
     initialValue: 3,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
@@ -142,11 +151,12 @@ export const clickhouse: FieldItemType[] = [
     }),
     rules: [{ required: true }],
     suffix: i18n.t('meta.Sinks.Clickhouse.RetryTimesUnit'),
-  },
-  {
-    name: 'isDistributed',
+  })
+  @I18n('meta.Sinks.Clickhouse.RetryTimes')
+  retryTime: number;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Sinks.Clickhouse.IsDistributed'),
     initialValue: 0,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
@@ -162,11 +172,12 @@ export const clickhouse: FieldItemType[] = [
       ],
     }),
     rules: [{ required: true }],
-  },
-  {
-    name: 'partitionStrategy',
+  })
+  @I18n('meta.Sinks.Clickhouse.IsDistributed')
+  isDistributed: number;
+
+  @FormField({
     type: 'select',
-    label: i18n.t('meta.Sinks.Clickhouse.PartitionStrategy'),
     initialValue: 'BALANCE',
     rules: [{ required: true }],
     props: values => ({
@@ -187,61 +198,69 @@ export const clickhouse: FieldItemType[] = [
       ],
     }),
     visible: values => values.isDistributed,
-  },
-  {
-    name: 'partitionFields',
+  })
+  @I18n('meta.Sinks.Clickhouse.PartitionStrategy')
+  partitionStrategy: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Clickhouse.PartitionFields'),
     rules: [{ required: true }],
     visible: values => values.isDistributed && values.partitionStrategy === 'HASH',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
-    name: 'engine',
+  })
+  @I18n('meta.Sinks.Clickhouse.PartitionFields')
+  partitionFields: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Clickhouse.Engine'),
     initialValue: 'Log',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
-    name: 'orderBy',
+  })
+  @I18n('meta.Sinks.Clickhouse.Engine')
+  engine: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Clickhouse.OrderBy'),
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
-    name: 'partitionBy',
+  })
+  @I18n('meta.Sinks.Clickhouse.OrderBy')
+  orderBy: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Clickhouse.PartitionBy'),
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
-    name: 'primaryKey',
+  })
+  @I18n('meta.Sinks.Clickhouse.PartitionBy')
+  partitionBy: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Clickhouse.PrimaryKey'),
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
-    name: 'sinkFieldList',
+  })
+  @I18n('meta.Sinks.Clickhouse.PrimaryKey')
+  primaryKey: string;
+
+  @FormField({
     type: EditableTable,
     props: values => ({
       size: 'small',
       editing: ![110, 130].includes(values?.status),
       columns: getFieldListColumns(values),
     }),
-  },
-];
+  })
+  sinkFieldList: Record<string, unknown>[];
+}
 
 const getFieldListColumns = sinkValues => {
   return [
