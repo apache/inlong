@@ -19,7 +19,6 @@ package org.apache.inlong.sort.doris.table;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.doris.flink.exception.StreamLoadException;
-import org.apache.doris.flink.rest.models.RespContent;
 import org.apache.doris.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.doris.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.doris.shaded.org.apache.commons.codec.binary.Base64;
@@ -32,6 +31,8 @@ import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.doris.table.models.RespContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,7 @@ public class DorisStreamLoad implements Serializable {
         this.httpClient = httpClientBuilder.build();
     }
 
-    public void load(String db, String tbl, String value) throws StreamLoadException {
+    public void load(String db, String tbl, String value, SinkMetricData metricData) throws StreamLoadException {
         LoadResponse loadResponse = loadBatch(db, tbl, value);
         LOG.info("Streamload Response:{}", loadResponse);
         if (loadResponse.status != 200) {
@@ -93,6 +94,14 @@ public class DorisStreamLoad implements Serializable {
                             respContent.getErrorURL());
                     throw new StreamLoadException(errMsg);
                 }
+                try {
+                    if (metricData != null) {
+                        metricData.invoke(respContent.getNumberLoadedRows(), respContent.getLoadBytes());
+                    }
+                } catch (Exception e) {
+                    LOG.warn("metricData invoke get err:", e);
+                }
+
             } catch (IOException e) {
                 throw new StreamLoadException(e);
             }

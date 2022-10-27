@@ -198,6 +198,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T>
                 // Ignore ddl change for now
                 return;
             }
+            Gson gson = new Gson();
+            LOG.info("lk_test rootNode is:{} ", gson.toJson(rootNode));
             String tableIdentifier = StringUtils.join(
                     jsonDynamicSchemaFormat.parse(rootNode, databasePattern),
                     ".",
@@ -295,12 +297,9 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T>
 
     private void load(String tableIdentifier, String result) throws IOException {
         String[] tableWithDb = tableIdentifier.split("\\.");
-        if (metricData != null) {
-            metricData.invokeWithEstimate(result);
-        }
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
-                dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result);
+                dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result, metricData);
                 batchMap.remove(tableIdentifier);
                 break;
             } catch (StreamLoadException e) {
@@ -335,8 +334,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T>
 
     @Override
     public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
-        Gson gson = new Gson();
-        LOG.info("snapshotState begin, context is:{}", gson.toJson(functionSnapshotContext));
         while (numPendingRequests.get() != 0) {
             flush();
         }
@@ -344,13 +341,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T>
             MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, metricData,
                     getRuntimeContext().getIndexOfThisSubtask());
         }
-        LOG.info("snapshotState end, context is:{}", gson.toJson(functionSnapshotContext));
     }
 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
-        Gson gson = new Gson();
-        LOG.info("initializeState begin, context is:{}", gson.toJson(context));
         if (this.metricOption != null) {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
@@ -361,7 +355,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T>
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
                     getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
         }
-        LOG.info("initializeState end, context is:{}", gson.toJson(context));
     }
 
     /**
