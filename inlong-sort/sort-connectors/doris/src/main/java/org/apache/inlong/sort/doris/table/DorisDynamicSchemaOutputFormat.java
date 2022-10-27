@@ -75,13 +75,14 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final String databasePattern;
     private final String tablePattern;
     private final String dynamicSchemaFormat;
+    private final boolean ignoreSingleTableErrors;
+    private final transient Map<String, Exception> flushExceptionMap = new HashMap<>();
     private long batchBytes = 0L;
     private int size;
     private DorisStreamLoad dorisStreamLoad;
     private transient volatile boolean closed = false;
     private transient ScheduledExecutorService scheduler;
     private transient ScheduledFuture<?> scheduledFuture;
-    private transient volatile Exception flushException;
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
 
     public DorisDynamicSchemaOutputFormat(DorisOptions option,
@@ -89,13 +90,15 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             DorisExecutionOptions executionOptions,
             String dynamicSchemaFormat,
             String databasePattern,
-            String tablePattern) {
+            String tablePattern,
+            boolean ignoreSingleTableErrors) {
         this.options = option;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
         this.dynamicSchemaFormat = dynamicSchemaFormat;
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
+        this.ignoreSingleTableErrors = ignoreSingleTableErrors;
     }
 
     /**
@@ -130,26 +133,28 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             this.scheduledFuture = this.scheduler.scheduleWithFixedDelay(() -> {
                 synchronized (DorisDynamicSchemaOutputFormat.this) {
                     if (!closed) {
-                        try {
-                            flush();
-                        } catch (Exception e) {
-                            flushException = e;
-                        }
+                        flush();
                     }
                 }
             }, executionOptions.getBatchIntervalMs(), executionOptions.getBatchIntervalMs(), TimeUnit.MILLISECONDS);
         }
     }
 
-    private void checkFlushException() {
-        if (flushException != null) {
-            throw new RuntimeException("Writing records to streamload failed.", flushException);
+    private boolean checkFlushException(String tableIdentifier) {
+        Exception flushException = flushExceptionMap.get(tableIdentifier);
+        if (flushException == null) {
+            return false;
         }
+        if (!ignoreSingleTableErrors) {
+            throw new RuntimeException(
+                    String.format("Writing records to streamload of tableIdentifier:%s failed.", tableIdentifier),
+                    flushException);
+        }
+        return true;
     }
 
     @Override
     public synchronized void writeRecord(T row) throws IOException {
-        checkFlushException();
         addBatch(row);
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
@@ -169,9 +174,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 return;
             }
             String tableIdentifier = StringUtils.join(
-                    jsonDynamicSchemaFormat.parse(rowData.getBinary(0), databasePattern),
-                    ".",
-                    jsonDynamicSchemaFormat.parse(rowData.getBinary(0), tablePattern));
+                    jsonDynamicSchemaFormat.parse(rootNode, databasePattern), ".",
+                    jsonDynamicSchemaFormat.parse(rootNode, tablePattern));
+            if (checkFlushException(tableIdentifier)) {
+                return;
+            }
             List<RowKind> rowKinds = jsonDynamicSchemaFormat
                     .opType2RowKind(jsonDynamicSchemaFormat.getOpType(rootNode));
             List<Map<String, String>> physicalDataList = jsonDynamicSchemaFormat.jsonNode2Map(
@@ -247,18 +254,31 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 this.dorisStreamLoad.close();
             }
         }
-        checkFlushException();
     }
 
     @SuppressWarnings({"rawtypes"})
-    public synchronized void flush() throws IOException {
-        checkFlushException();
+    public synchronized void flush() {
         if (batchMap.isEmpty()) {
             return;
         }
         for (Entry<String, List> kvs : batchMap.entrySet()) {
-            load(kvs.getKey(), OBJECT_MAPPER.writeValueAsString(kvs.getValue()));
+            if (checkFlushException(kvs.getKey())) {
+                continue;
+            }
+            try {
+                load(kvs.getKey(), OBJECT_MAPPER.writeValueAsString(kvs.getValue()));
+            } catch (Exception e) {
+                flushExceptionMap.put(kvs.getKey(), e);
+                if (!ignoreSingleTableErrors) {
+                    throw new RuntimeException(
+                            String.format("Writing records to streamload of tableIdentifier:%s failed.", kvs.getKey()),
+                            e);
+                }
+                batchMap.remove(kvs.getKey());
+            }
         }
+        batchBytes = 0;
+        size = 0;
     }
 
     private void load(String tableIdentifier, String result) throws IOException {
@@ -284,8 +304,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 }
             }
         }
-        batchBytes = 0;
-        size = 0;
     }
 
     private String getBackend() throws IOException {
@@ -309,6 +327,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         private String dynamicSchemaFormat;
         private String databasePattern;
         private String tablePattern;
+        private boolean ignoreSingleTableErrors;
 
         public Builder() {
             this.optionsBuilder = DorisOptions.builder().setTableIdentifier("");
@@ -355,11 +374,16 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             return this;
         }
 
+        public DorisDynamicSchemaOutputFormat.Builder setIgnoreSingleTableErrors(boolean ignoreSingleTableErrors) {
+            this.ignoreSingleTableErrors = ignoreSingleTableErrors;
+            return this;
+        }
+
         @SuppressWarnings({"rawtypes"})
         public DorisDynamicSchemaOutputFormat build() {
             return new DorisDynamicSchemaOutputFormat(
                     optionsBuilder.build(), readOptions, executionOptions,
-                    dynamicSchemaFormat, databasePattern, tablePattern);
+                    dynamicSchemaFormat, databasePattern, tablePattern, ignoreSingleTableErrors);
         }
     }
 }

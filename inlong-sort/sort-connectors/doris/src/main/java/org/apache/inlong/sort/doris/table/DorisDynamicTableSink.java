@@ -41,6 +41,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     private final String sinkMultipleFormat;
     private final String databasePattern;
     private final String tablePattern;
+    private final boolean ignoreSingleTableErrors;
 
     public DorisDynamicTableSink(DorisOptions options,
             DorisReadOptions readOptions,
@@ -49,7 +50,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
             boolean multipleSink,
             String sinkMultipleFormat,
             String databasePattern,
-            String tablePattern) {
+            String tablePattern,
+            boolean ignoreSingleTableErrors) {
         this.options = options;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
@@ -58,6 +60,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
         this.sinkMultipleFormat = sinkMultipleFormat;
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
+        this.ignoreSingleTableErrors = ignoreSingleTableErrors;
     }
 
     @Override
@@ -92,14 +95,15 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 .setExecutionOptions(executionOptions)
                 .setDatabasePattern(databasePattern)
                 .setTablePattern(tablePattern)
-                .setDynamicSchemaFormat(sinkMultipleFormat);
+                .setDynamicSchemaFormat(sinkMultipleFormat)
+                .setIgnoreSingleTableErrors(ignoreSingleTableErrors);
         return OutputFormatProvider.of(builder.build());
     }
 
     @Override
     public DynamicTableSink copy() {
-        return new DorisDynamicTableSink(options, readOptions, executionOptions,
-                tableSchema, multipleSink, sinkMultipleFormat, databasePattern, tablePattern);
+        return new DorisDynamicTableSink(options, readOptions, executionOptions, tableSchema,
+                multipleSink, sinkMultipleFormat, databasePattern, tablePattern, ignoreSingleTableErrors);
     }
 
     @Override

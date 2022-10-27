@@ -157,4 +157,10 @@ public final class Constants {
                     .enumType(SchemaUpdateExceptionPolicy.class)
                     .defaultValue(SchemaUpdateExceptionPolicy.TRY_IT_BEST)
                     .withDescription("The action to deal with schema update in multiple sink.");
+
+    public static final ConfigOption<Boolean> SINK_MULTIPLE_IGNORE_SINGLE_TABLE_ERRORS =
+            ConfigOptions.key("sink.multiple.ignore-single-table-errors")
+                    .booleanType()
+                    .defaultValue(true)
+                    .withDescription("Whether ignore the single table erros when multiple sink writing scenario.");
 }
