@@ -47,7 +47,9 @@ if [ -n "${STORE_MODE}" ]; then
   sed -i "s/audit.config.store.mode=.*$/audit.config.store.mode=${STORE_MODE}/g" "${store_conf_file}"
 fi
 # DB
-sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${JDBC_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
+sed -i "s/127.0.0.1:3306\/apache_inlong_audit/${MYSQL_URL}\/${AUDIT_DBNAME}/g" "${store_conf_file}"
+sed -i "s/spring.datasource.druid.driver-class-name=.*$/spring.datasource.druid.driver-class-name=${DRIVER_CLASS_NAME}/g" "${store_conf_file}"
+sed -i "s/spring.datasource.druid.url=.*$/spring.datasource.druid.url=${JDBC_URL}/g" "${store_conf_file}"
 sed -i "s/spring.datasource.druid.username=.*$/spring.datasource.druid.username=${USERNAME}/g" "${store_conf_file}"
 sed -i "s/spring.datasource.druid.password=.*$/spring.datasource.druid.password=${PASSWORD}/g" "${store_conf_file}"
 # mysql file for audit
@@ -66,7 +68,7 @@ sed -i "s/elasticsearch.username=.*$/elasticsearch.username=${STORE_ES_USERNAME}
 sed -i "s/elasticsearch.password=.*$/elasticsearch.password=${STORE_ES_PASSWD}/g" "${store_conf_file}"
 
 # Whether the database table exists. If it does not exist, initialize the database and skip if it exists.
-if [[ "${JDBC_URL}" =~ (.+):([0-9]+) ]]; then
+if [[ "${MYSQL_URL}" =~ (.+):([0-9]+) ]]; then
   datasource_hostname=${BASH_REMATCH[1]}
   datasource_port=${BASH_REMATCH[2]}
 
