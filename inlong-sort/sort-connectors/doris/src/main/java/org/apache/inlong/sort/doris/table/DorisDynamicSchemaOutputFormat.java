@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.doris.table;
 
-import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.doris.flink.cfg.DorisExecutionOptions;
 import org.apache.doris.flink.cfg.DorisOptions;
@@ -301,7 +300,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T>
                 batchMap.remove(tableIdentifier);
                 break;
             } catch (StreamLoadException e) {
-                LOG.error("lk_test, maxRetries:{} ", executionOptions.getMaxRetries());
                 LOG.error("doris sink error, retry times = {}", i, e);
                 if (i >= executionOptions.getMaxRetries()) {
                     throw new IOException(e);
