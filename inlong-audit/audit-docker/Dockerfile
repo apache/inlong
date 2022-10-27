@@ -37,7 +37,7 @@ ENV START_MODE="all"
 ENV STORE_MODE=mysql
 # mysql
 ENV JDBC_URL="jdbc:mysql://127.0.0.1:3306/apache_inlong_audit?characterEncoding=utf8"
-ENV MYSQL_URL="127.0.0.1:3306"
+ENV MYSQL_HOST="127.0.0.1:3306"
 ENV USERNAME=root
 ENV PASSWORD=inlong
 ENV DRIVER_CLASS_NAME="com.mysql.cj.jdbc.Driver"
