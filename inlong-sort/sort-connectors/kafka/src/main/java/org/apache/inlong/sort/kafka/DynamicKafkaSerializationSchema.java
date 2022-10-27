@@ -214,10 +214,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             }
             JsonNode updateBeforeNode = jsonDynamicSchemaFormat.getUpdateBefore(rootNode);
             JsonNode updateAfterNode = jsonDynamicSchemaFormat.getUpdateAfter(rootNode);
-            boolean splitRequired = (updateAfterNode != null && updateAfterNode.isArray()
-                    && updateAfterNode.size() > 1) || (updateBeforeNode != null && updateBeforeNode.isArray()
-                    && updateBeforeNode.size() > 1);
-            if (!splitRequired) {
+            if (!splitRequired(updateBeforeNode, updateAfterNode)) {
                 values.add(new ProducerRecord<>(
                         jsonDynamicSchemaFormat.parse(rootNode, topicPattern),
                         extractPartition(consumedRow, null, consumedRow.getBinary(0)),
@@ -230,6 +227,12 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             values.add(new ProducerRecord<>(topic, null, null, consumedRow.getBinary(0)));
         }
         return values;
+    }
+
+    private boolean splitRequired(JsonNode updateBeforeNode, JsonNode updateAfterNode) {
+        return (updateAfterNode != null && updateAfterNode.isArray()
+                && updateAfterNode.size() > 1) || (updateBeforeNode != null && updateBeforeNode.isArray()
+                && updateBeforeNode.size() > 1);
     }
 
     private void split2JsonArray(JsonNode rootNode,
