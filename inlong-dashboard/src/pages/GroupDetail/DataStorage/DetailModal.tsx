@@ -17,13 +17,13 @@
  * under the License.
  */
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Skeleton, Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
-import FormGenerator, { useForm, FormItemProps } from '@/components/FormGenerator';
-import { sinks } from '@/metas/sinks';
+import FormGenerator, { useForm } from '@/components/FormGenerator';
+import { useDefaultMeta, useLoadMeta } from '@/metas';
 import request from '@/utils/request';
 
 export interface DetailModalProps extends ModalProps {
@@ -34,38 +34,18 @@ export interface DetailModalProps extends ModalProps {
   onOk?: (values) => void;
 }
 
-const sinksMap: Record<string, typeof sinks[0]> = sinks.reduce(
-  (acc, cur) => ({
-    ...acc,
-    [cur.value]: cur,
-  }),
-  {},
-);
-
 const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) => {
   const [form] = useForm();
 
   const { t } = useTranslation();
 
+  const { defaultValue } = useDefaultMeta('sink');
+
   // Q: Why sinkType default = '' ?
   // A: Avoid the table of the fields triggering the monitoring of the column change.
   const [sinkType, setSinkType] = useState('');
 
-  const toFormVals = useCallback(
-    v => {
-      const mapFunc = sinksMap[sinkType]?.toFormValues;
-      return mapFunc ? mapFunc(v) : v;
-    },
-    [sinkType],
-  );
-
-  const toSubmitVals = useCallback(
-    v => {
-      const mapFunc = sinksMap[sinkType]?.toSubmitValues;
-      return mapFunc ? mapFunc(v) : v;
-    },
-    [sinkType],
-  );
+  const { Entity } = useLoadMeta('sink', sinkType);
 
   const {
     data,
@@ -77,7 +57,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
     }),
     {
       manual: true,
-      formatResult: result => toFormVals(result),
+      formatResult: result => new Entity()?.parse(result) || result,
       onSuccess: result => {
         setSinkType(result.sinkType);
         form.setFieldsValue(result);
@@ -91,7 +71,8 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
       if (id) {
         getData(id);
       } else {
-        setSinkType(sinks[0].value);
+        form.setFieldsValue({ inlongGroupId });
+        setSinkType(defaultValue);
       }
     } else {
       form.resetFields();
@@ -100,42 +81,12 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
   }, [modalProps.visible]);
 
   const formContent = useMemo(() => {
-    const currentForm = sinksMap[sinkType]?.form || [];
-    return [
-      {
-        type: 'select',
-        label: t('pages.GroupDetail.Sink.DataStreams'),
-        name: 'inlongStreamId',
-        props: {
-          disabled: !!id,
-          options: {
-            requestService: {
-              url: '/stream/list',
-              method: 'POST',
-              data: {
-                pageNum: 1,
-                pageSize: 1000,
-                inlongGroupId,
-              },
-            },
-            requestParams: {
-              formatResult: result =>
-                result?.list.map(item => ({
-                  label: item.inlongStreamId,
-                  value: item.inlongStreamId,
-                })) || [],
-            },
-          },
-        },
-        rules: [{ required: true }],
-      } as FormItemProps,
-    ].concat(currentForm);
-  }, [sinkType, inlongGroupId, id, t]);
+    return Entity ? Entity.FieldList : [];
+  }, [Entity]);
 
   const onOk = async () => {
     const values = await form.validateFields();
-    delete values._showHigher; // delete front-end key
-    const submitData = toSubmitVals(values);
+    const submitData = new Entity()?.stringify(values) || values;
     const isUpdate = Boolean(id);
     if (isUpdate) {
       submitData.id = id;
@@ -154,7 +105,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
   };
 
   return (
-    <Modal title={sinksMap[sinkType]?.label} width={1200} {...modalProps} onOk={onOk}>
+    <Modal title="Sink" width={1200} {...modalProps} onOk={onOk}>
       {loading ? (
         <Skeleton active />
       ) : (
@@ -163,7 +114,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
           wrapperCol={{ span: 12 }}
           content={formContent}
           form={form}
-          initialValues={id ? data : {}}
+          initialValues={id ? data : { inlongGroupId }}
           onValuesChange={(c, values) => setSinkType(values.sinkType)}
         />
       )}

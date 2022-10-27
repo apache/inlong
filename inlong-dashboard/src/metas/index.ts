@@ -25,13 +25,14 @@ import { clusters, defaultValue as defaultCluster } from './clusters';
 import { nodes, defaultValue as defaultNode } from './nodes';
 import { streams, defaultValue as defaultStream } from './streams';
 import { sources, defaultValue as defaultSource } from './sources';
+import { sinks, defaultValue as defaultSink } from './sinks';
 
 export interface UseLoadMetaResult {
   loading: boolean;
   Entity: MetaExportWithBackend;
 }
 
-export type MetaTypeKeys = 'consume' | 'group' | 'cluster' | 'node' | 'stream' | 'source';
+export type MetaTypeKeys = 'consume' | 'group' | 'cluster' | 'node' | 'stream' | 'source' | 'sink';
 
 const metasMap: Record<MetaTypeKeys, [MetaExportWithBackendList, string?]> = {
   consume: [consumes, defaultConsume],
@@ -40,6 +41,7 @@ const metasMap: Record<MetaTypeKeys, [MetaExportWithBackendList, string?]> = {
   node: [nodes, defaultNode],
   stream: [streams, defaultStream],
   source: [sources, defaultSource],
+  sink: [sinks, defaultSink],
 };
 
 export const useDefaultMeta = (metaType: MetaTypeKeys) => {

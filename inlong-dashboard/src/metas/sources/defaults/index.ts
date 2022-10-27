@@ -25,7 +25,6 @@ export const allDefaultSources: MetaExportWithBackendList = [
     value: '',
     LoadEntity: () => import('../common/SourceInfo').then(r => ({ default: r.SourceInfo })),
   },
-
   {
     label: 'Auto Push',
     value: 'AUTO_PUSH',
