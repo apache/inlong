@@ -25,37 +25,19 @@ import HighTable from '@/components/HighTable';
 import { PageContainer } from '@/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
-import { clusters } from '@/metas/clusters';
+import { useDefaultMeta, useLoadMeta } from '@/metas';
 import CreateModal from './CreateModal';
 import request from '@/utils/request';
 import { timestampFormat } from '@/utils';
 
-const getFilterFormContent = defaultValues => [
-  {
-    type: 'inputsearch',
-    name: 'keyword',
-  },
-  {
-    type: 'radiobutton',
-    name: 'type',
-    label: i18n.t('pages.Clusters.Type'),
-    initialValue: defaultValues.type,
-    props: {
-      buttonStyle: 'solid',
-      options: clusters.map(item => ({
-        label: item.label,
-        value: item.value,
-      })),
-    },
-  },
-];
-
 const Comp: React.FC = () => {
+  const { defaultValue, options: clusters } = useDefaultMeta('cluster');
+
   const [options, setOptions] = useState({
     keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    type: clusters[0].value,
+    type: defaultValue,
   });
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
@@ -122,11 +104,32 @@ const Comp: React.FC = () => {
     total: data?.total,
   };
 
-  const columns = useMemo(() => {
-    const current = clusters.find(item => item.value === options.type);
-    if (!current?.table) return [];
+  const getFilterFormContent = useCallback(
+    defaultValues => [
+      {
+        type: 'inputsearch',
+        name: 'keyword',
+      },
+      {
+        type: 'radiobutton',
+        name: 'type',
+        label: i18n.t('pages.Clusters.Type'),
+        initialValue: defaultValues.type,
+        props: {
+          buttonStyle: 'solid',
+          options: clusters,
+        },
+      },
+    ],
+    [clusters],
+  );
 
-    return current.table.concat([
+  const { Entity } = useLoadMeta('cluster', options.type);
+
+  const columns = useMemo(() => {
+    if (!Entity) return [];
+
+    return Entity.ColumnList?.concat([
       {
         title: i18n.t('pages.Clusters.LastModifier'),
         dataIndex: 'modifier',
@@ -159,7 +162,7 @@ const Comp: React.FC = () => {
         ),
       } as any,
     ]);
-  }, [options.type, onDelete]);
+  }, [Entity, onDelete]);
 
   return (
     <PageContainer useDefaultBreadcrumb={false}>

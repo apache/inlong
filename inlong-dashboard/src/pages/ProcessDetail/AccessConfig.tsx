@@ -20,10 +20,12 @@
 import React from 'react';
 import { Divider, Table } from 'antd';
 import i18n from '@/i18n';
-import { groupForm } from '@/metas/group';
+import { useLoadMeta } from '@/metas';
 
-const getContent = (isFinished, isViwer) =>
-  groupForm.map(item => {
+export const useGroupFormContent = ({ mqType = '', isFinished, isViwer }) => {
+  const { Entity } = useLoadMeta('group', mqType);
+
+  return Entity?.FieldList?.map(item => {
     const obj = { ...item };
 
     const canEditSet = new Set([
@@ -52,8 +54,16 @@ const getContent = (isFinished, isViwer) =>
 
     return obj;
   });
+};
 
-export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, isFinished }) => {
+export const getFormContent = ({
+  isViwer,
+  formData,
+  suffixContent,
+  noExtraForm,
+  isFinished,
+  groupFormContent = [],
+}) => {
   const array = [
     {
       type: (
@@ -62,7 +72,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, 
         </Divider>
       ),
     },
-    ...(getContent(isFinished, isViwer) || []),
+    ...groupFormContent,
     {
       type: (
         <Divider orientation="left">

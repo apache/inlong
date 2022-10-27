@@ -23,59 +23,29 @@ import i18n from '@/i18n';
 import HighTable from '@/components/HighTable';
 import { PageContainer } from '@/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
-import { useRequest } from '@/hooks';
-import { nodes } from '@/metas/nodes';
+import { dao } from '@/metas/nodes';
+import { useDefaultMeta, useLoadMeta } from '@/metas';
 import DetailModal from './DetailModal';
-import request from '@/utils/request';
 
-const getFilterFormContent = defaultValues => [
-  {
-    type: 'inputsearch',
-    name: 'keyword',
-  },
-  {
-    type: 'radiobutton',
-    name: 'type',
-    label: i18n.t('meta.Nodes.Type'),
-    initialValue: defaultValues.type,
-    props: {
-      buttonStyle: 'solid',
-      options: nodes.map(item => ({
-        label: item.label,
-        value: item.value,
-      })),
-    },
-  },
-];
+const { useListNodeDao, useDeleteNodeDao } = dao;
 
 const Comp: React.FC = () => {
+  const { defaultValue, options: nodes } = useDefaultMeta('node');
+
   const [options, setOptions] = useState({
     keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    type: nodes[0].value,
+    type: defaultValue,
   });
 
   const [detailModal, setDetailModal] = useState<Record<string, unknown>>({
     visible: false,
   });
 
-  const {
-    data,
-    loading,
-    run: getList,
-  } = useRequest(
-    {
-      url: '/node/list',
-      method: 'POST',
-      data: {
-        ...options,
-      },
-    },
-    {
-      refreshDeps: [options],
-    },
-  );
+  const { data, loading, run: getList } = useListNodeDao({ options });
+
+  const { runAsync: destory } = useDeleteNodeDao();
 
   const onEdit = ({ id }) => {
     setDetailModal({ visible: true, id });
@@ -86,16 +56,13 @@ const Comp: React.FC = () => {
       Modal.confirm({
         title: i18n.t('basic.DeleteConfirm'),
         onOk: async () => {
-          await request({
-            url: `/node/delete/${id}`,
-            method: 'DELETE',
-          });
+          await destory(id);
           await getList();
           message.success(i18n.t('basic.DeleteSuccess'));
         },
       });
     },
-    [getList],
+    [getList, destory],
   );
 
   const onChange = ({ current: pageNum, pageSize }) => {
@@ -120,33 +87,52 @@ const Comp: React.FC = () => {
     total: data?.total,
   };
 
-  const columns = useMemo(() => {
-    const current = nodes.find(item => item.value === options.type);
-    if (!current?.table) return [];
+  const getFilterFormContent = useCallback(
+    defaultValues => [
+      {
+        type: 'inputsearch',
+        name: 'keyword',
+      },
+      {
+        type: 'radiobutton',
+        name: 'type',
+        label: i18n.t('meta.Nodes.Type'),
+        initialValue: defaultValues.type,
+        props: {
+          buttonStyle: 'solid',
+          options: nodes,
+        },
+      },
+    ],
+    [nodes],
+  );
 
-    return current.table
-      .map(item => ({
-        ...item,
-        ellipsisMulti: 2,
-      }))
-      .concat([
-        {
-          title: i18n.t('basic.Operating'),
-          dataIndex: 'action',
-          width: 200,
-          render: (text, record) => (
-            <>
-              <Button type="link" onClick={() => onEdit(record)}>
-                {i18n.t('basic.Edit')}
-              </Button>
-              <Button type="link" onClick={() => onDelete(record)}>
-                {i18n.t('basic.Delete')}
-              </Button>
-            </>
-          ),
-        } as any,
-      ]);
-  }, [options.type, onDelete]);
+  const { Entity } = useLoadMeta('node', options.type);
+
+  const columns = useMemo(() => {
+    if (!Entity) return [];
+
+    return Entity.ColumnList?.map(item => ({
+      ...item,
+      ellipsisMulti: 2,
+    })).concat([
+      {
+        title: i18n.t('basic.Operating'),
+        dataIndex: 'action',
+        width: 200,
+        render: (text, record) => (
+          <>
+            <Button type="link" onClick={() => onEdit(record)}>
+              {i18n.t('basic.Edit')}
+            </Button>
+            <Button type="link" onClick={() => onDelete(record)}>
+              {i18n.t('basic.Delete')}
+            </Button>
+          </>
+        ),
+      } as any,
+    ]);
+  }, [Entity, onDelete]);
 
   return (
     <PageContainer useDefaultBreadcrumb={false}>

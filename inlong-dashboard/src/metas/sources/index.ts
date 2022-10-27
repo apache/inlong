@@ -17,84 +17,9 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
-import { genFields, genForm, genTable } from '@/metas/common';
-import { statusList, genStatusTag } from './common/status';
-import { autoPush } from './autoPush';
-import { binLog } from './binLog';
-import { file } from './file';
+import { allDefaultSources } from './defaults';
+import { allExtendsSources } from './extends';
 
-const allSources = [
-  {
-    label: 'MySQL BinLog',
-    value: 'MYSQL_BINLOG',
-    fields: binLog,
-  },
-  {
-    label: 'File',
-    value: 'FILE',
-    fields: file,
-  },
-  {
-    label: 'Auto Push',
-    value: 'AUTO_PUSH',
-    fields: autoPush,
-  },
-];
+export const sources = allDefaultSources.concat(allExtendsSources);
 
-const defaultCommonFields: FieldItemType[] = [
-  {
-    name: 'sourceName',
-    type: 'input',
-    label: i18n.t('meta.Sources.Name'),
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: !!values.id,
-      maxLength: 128,
-    }),
-    _renderTable: true,
-  },
-  {
-    name: 'sourceType',
-    type: 'select',
-    label: i18n.t('meta.Sources.Type'),
-    rules: [{ required: true }],
-    initialValue: allSources[0].value,
-    props: values => ({
-      disabled: !!values.id,
-      options: allSources.map(item => ({
-        label: item.label,
-        value: item.value,
-      })),
-    }),
-  },
-  {
-    name: 'status',
-    type: 'select',
-    label: i18n.t('basic.Status'),
-    props: {
-      allowClear: true,
-      options: statusList,
-      dropdownMatchSelectWidth: false,
-    },
-    visible: false,
-    _renderTable: {
-      render: text => genStatusTag(text),
-    },
-  },
-];
-
-export const sources = allSources.map(item => {
-  const itemFields = defaultCommonFields.concat(item.fields);
-  const fields = genFields(itemFields);
-
-  return {
-    ...item,
-    fields,
-    form: genForm(fields),
-    table: genTable(fields),
-    toFormValues: null,
-    toSubmitValues: null,
-  };
-});
+export const defaultValue = sources[0].value;
