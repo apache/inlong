@@ -26,6 +26,9 @@ import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamSinkInfo;
 
 import java.util.List;
 
+/**
+ * Loader for sort service to load configs thought Cursor
+ */
 public interface SortConfigLoader {
     /**
      * Load all clusters by cursor
@@ -39,11 +42,29 @@ public interface SortConfigLoader {
      */
     List<SortSourceStreamSinkInfo> loadAllStreamSinks();
 
+    /**
+     * Load groups by cursor
+     * @return List of group info
+     */
     List<SortSourceGroupInfo> loadAllGroup();
 
+    /**
+     * Load group backup info by cursor
+     * @param keyName Key name
+     * @return List of group backup info
+     */
     List<InlongGroupExtEntity> loadGroupBackupInfo(String keyName);
 
+    /**
+     * Load stream backup info by cursor
+     * @param keyName Key name
+     * @return List of stream backup info
+     */
     List<InlongStreamExtEntity> loadStreamBackupInfo(String keyName);
 
+    /**
+     * Load all inlong stream info by cursor
+     * @return List of stream info
+     */
     List<SortSourceStreamInfo> loadAllStreams();
 }
