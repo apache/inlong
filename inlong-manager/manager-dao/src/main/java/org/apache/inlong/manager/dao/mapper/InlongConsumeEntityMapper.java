@@ -20,6 +20,7 @@ package org.apache.inlong.manager.dao.mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.pojo.common.CountInfo;
+import org.apache.inlong.manager.pojo.consume.InlongConsumeBriefInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
 import org.springframework.stereotype.Repository;
 
@@ -34,10 +35,12 @@ public interface InlongConsumeEntityMapper {
 
     List<CountInfo> countByUser(@Param(value = "username") String username);
 
-    List<InlongConsumeEntity> selectByCondition(InlongConsumePageRequest request);
-
     InlongConsumeEntity selectExists(@Param("consumerGroup") String consumerGroup, @Param("topic") String topic,
             @Param("inlongGroupId") String inlongGroupId);
+
+    List<InlongConsumeEntity> selectByCondition(InlongConsumePageRequest request);
+
+    List<InlongConsumeBriefInfo> selectBriefList(InlongConsumePageRequest request);
 
     int updateById(InlongConsumeEntity record);
 

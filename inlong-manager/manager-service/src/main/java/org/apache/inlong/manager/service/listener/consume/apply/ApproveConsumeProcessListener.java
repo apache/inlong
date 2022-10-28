@@ -102,10 +102,10 @@ public class ApproveConsumeProcessListener implements ProcessEventListener {
     }
 
     /**
-     * Update consumption after approve
+     * Update consume info after approval
      */
-    private void updateConsumerInfo(Integer consumptionId, String consumerGroup) {
-        InlongConsumeEntity existEntity = consumeMapper.selectById(consumptionId);
+    private void updateConsumerInfo(Integer consumeId, String consumerGroup) {
+        InlongConsumeEntity existEntity = consumeMapper.selectById(consumeId);
         existEntity.setStatus(ConsumeStatus.APPROVE_PASSED.getCode());
         existEntity.setConsumerGroup(consumerGroup);
         int rowCount = consumeMapper.updateByIdSelective(existEntity);

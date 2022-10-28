@@ -28,7 +28,7 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 import java.util.Map;
 
 /**
- * New data consumption form
+ * Apply inlong consume process form
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
