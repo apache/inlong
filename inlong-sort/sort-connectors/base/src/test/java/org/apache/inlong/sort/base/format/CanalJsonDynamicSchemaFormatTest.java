@@ -18,11 +18,16 @@
 package org.apache.inlong.sort.base.format;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.table.data.GenericRowData;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.data.binary.BinaryStringData;
+import org.apache.flink.types.RowKind;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -94,6 +99,25 @@ public class CanalJsonDynamicSchemaFormatTest extends DynamicSchemaFormatBaseTes
         List<String> primaryKeys = getDynamicSchemaFormat().extractPrimaryKeyNames(rootNode);
         List<String> values = getDynamicSchemaFormat().extractValues(rootNode, primaryKeys.toArray(new String[]{}));
         Assert.assertEquals(values, Collections.singletonList("111"));
+    }
+
+    @Test
+    public void testExtractRowData() throws IOException {
+        JsonNode rootNode = (JsonNode) getDynamicSchemaFormat()
+                .deserialize(getSource().getBytes(StandardCharsets.UTF_8));
+        List<RowData> values = getDynamicSchemaFormat().extractRowData(rootNode);
+        List<RowData> rowDataList = new ArrayList<>();
+        rowDataList.add(GenericRowData.ofKind(RowKind.UPDATE_BEFORE,
+                111,
+                BinaryStringData.fromString("scooter"),
+                BinaryStringData.fromString("Big 2-wheel scooter"),
+                5.15f));
+        rowDataList.add(GenericRowData.ofKind(RowKind.UPDATE_AFTER,
+                111,
+                BinaryStringData.fromString("scooter"),
+                BinaryStringData.fromString("Big 2-wheel scooter"),
+                5.18f));
+        Assert.assertEquals(values, rowDataList);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
