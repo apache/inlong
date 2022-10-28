@@ -44,7 +44,7 @@ public class TestOracleConnect {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestOracleConnect.class);
 
-    @Test
+    @Ignore
     public void testOracle() {
         JobProfile jobProfile = new JobProfile();
         jobProfile.set("job.oracleJob.hostname", "192.168.161.120");
