@@ -99,7 +99,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
 
     protected JsonDynamicSchemaFormat() {
         this.rowDataConverters =
-                new JsonToRowDataConverters(true, false, TimestampFormat.ISO_8601);
+                new JsonToRowDataConverters(false, false, TimestampFormat.ISO_8601);
     }
 
     /**
