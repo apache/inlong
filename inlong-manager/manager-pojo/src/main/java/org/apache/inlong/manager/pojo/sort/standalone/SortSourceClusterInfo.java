@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SortSourceClusterInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceClusterInfo.class);
+    private static final Gson GSON = new Gson();
     private static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on("&").trimResults()
             .withKeyValueSeparator("=");
     private static final String KEY_IS_CONSUMABLE = "consumer";
@@ -48,8 +49,7 @@ public class SortSourceClusterInfo {
     public Map<String, String> getExtParamsMap() {
         if (extParamsMap.isEmpty() && extParams != null) {
             try {
-                Gson gson = new Gson();
-                extParamsMap = gson.fromJson(extParams, Map.class);
+                extParamsMap = GSON.fromJson(extParams, Map.class);
             } catch (Throwable t) {
                 LOGGER.error("fail to parse cluster ext params", t);
             }

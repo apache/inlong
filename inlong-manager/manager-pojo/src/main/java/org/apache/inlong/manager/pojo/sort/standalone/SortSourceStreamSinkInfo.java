@@ -31,6 +31,7 @@ public class SortSourceStreamSinkInfo {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceStreamSinkInfo.class);
+    private static final Gson GSON = new Gson();
     String sortClusterName;
     String sortTaskName;
     String groupId;
@@ -43,8 +44,7 @@ public class SortSourceStreamSinkInfo {
         }
         if (StringUtils.isNotBlank(extParams)) {
             try {
-                Gson gson = new Gson();
-                extParamsMap = gson.fromJson(extParams, Map.class);
+                extParamsMap = GSON.fromJson(extParams, Map.class);
             } catch (Throwable t) {
                 LOGGER.error("fail to parse source stream ext params", t);
                 extParamsMap = new ConcurrentHashMap<>();

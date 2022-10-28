@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SortSourceGroupInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceGroupInfo.class);
+    private static final Gson GSON = new Gson();
     private static final String KEY_BACKUP_CLUSTER_TAG = "backup_cluster_tag";
     private static final String KEY_BACKUP_TOPIC = "backup_topic";
 
@@ -44,8 +45,7 @@ public class SortSourceGroupInfo {
     public Map<String, String> getExtParamsMap() {
         if (extParamsMap.isEmpty() && StringUtils.isNotBlank(extParams)) {
             try {
-                Gson gson = new Gson();
-                extParamsMap = gson.fromJson(extParams, Map.class);
+                extParamsMap = GSON.fromJson(extParams, Map.class);
             } catch (Throwable t) {
                 LOGGER.error("fail to parse group ext params", t);
             }
