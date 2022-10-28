@@ -82,6 +82,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
     @Override
     public void reportHeartbeat(HeartbeatMsg heartbeat) {
+        if (null == heartbeat) {
+            return;
+        }
         ConfigManager configManager = ConfigManager.getInstance();
         final String managerHost = configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
         final String url =
@@ -121,6 +124,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         ConfigManager configManager = ConfigManager.getInstance();
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         SourceReportInfo reportInfo = configManager.getSourceReportInfo();
+        if (!validReportInfo(reportInfo)) {
+            return null;
+        }
         heartbeatMsg.setIp(reportInfo.getIp());
         heartbeatMsg.setPort(reportInfo.getPort());
         heartbeatMsg.setProtocolType(reportInfo.getProtocolType());
@@ -167,5 +173,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         }
         heartbeatMsg.setStreamHeartbeats(streamHeartbeats);
         return heartbeatMsg;
+    }
+
+    private boolean validReportInfo(SourceReportInfo reportInfo) {
+        return StringUtils.isNotBlank(reportInfo.getIp()) && StringUtils.isNotBlank(reportInfo.getPort());
     }
 }
