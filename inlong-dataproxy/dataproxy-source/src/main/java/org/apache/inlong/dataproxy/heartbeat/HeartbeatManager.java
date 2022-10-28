@@ -176,9 +176,6 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     }
 
     private boolean validReportInfo(SourceReportInfo reportInfo) {
-        if (StringUtils.isBlank(reportInfo.getIp()) || StringUtils.isBlank(reportInfo.getPort())) {
-            return false;
-        }
-        return true;
+        return StringUtils.isNoneBlank(reportInfo.getIp()) && StringUtils.isNoneBlank(reportInfo.getPort());
     }
 }
