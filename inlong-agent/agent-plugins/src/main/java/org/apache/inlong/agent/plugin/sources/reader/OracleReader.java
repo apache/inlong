@@ -17,29 +17,40 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.commons.codec.binary.Base64;
+import com.google.gson.Gson;
+import io.debezium.connector.oracle.OracleConnector;
+import io.debezium.engine.ChangeEvent;
+import io.debezium.engine.DebeziumEngine;
+import io.debezium.relational.history.FileDatabaseHistory;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.OracleConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.utils.AgentDbUtils;
+import org.apache.inlong.agent.plugin.sources.snapshot.OracleSnapshotBase;
+import org.apache.inlong.agent.pojo.DebeziumFormat;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.GsonUtil;
+import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
-import static java.sql.Types.BINARY;
-import static java.sql.Types.BLOB;
-import static java.sql.Types.LONGVARBINARY;
-import static java.sql.Types.VARBINARY;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 
 /**
  * Read data from Oracle database by SQL
@@ -51,82 +62,80 @@ public class OracleReader extends AbstractReader {
     public static final String JOB_DATABASE_PASSWORD = "job.oracleJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.oracleJob.hostname";
     public static final String JOB_DATABASE_PORT = "job.oracleJob.port";
-    public static final String JOB_DATABASE_SID = "job.oracleJob.sid";
-    public static final String DEFAULT_JOB_DATABASE_SID = "";
-    public static final String JOB_DATABASE_SERVICE_NAME = "job.oracleJob.serviceName";
-    public static final String JOB_DATABASE_BATCH_SIZE = "job.oracleJob.batchSize";
-    public static final int DEFAULT_JOB_DATABASE_BATCH_SIZE = 1000;
-    public static final String JOB_DATABASE_DRIVER_CLASS = "job.database.driverClass";
-    public static final String DEFAULT_JOB_DATABASE_DRIVER_CLASS = "oracle.jdbc.driver.OracleDriver";
-    public static final String STD_FIELD_SEPARATOR_SHORT = "\001";
-    public static final String JOB_DATABASE_SEPARATOR = "job.sql.separator";
-    // pre-set sql lines, commands like "set xxx=xx;"
-    public static final String JOB_DATABASE_TYPE = "job.database.type";
+    public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.oracleJob.snapshot.mode";
+    public static final String JOB_DATABASE_SERVER_NAME = "job.oracleJob.serverName";
+    public static final String JOB_DATABASE_QUEUE_SIZE = "job.oracleJob.queueSize";
+    public static final String JOB_DATABASE_OFFSETS = "job.oracleJob.offsets";
+    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE = "job.oracleJob.offset.specificOffsetFile";
+    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS = "job.oracleJob.offset.specificOffsetPos";
+    public static final String JOB_DATABASE_DBNAME = "job.oracleJob.dbname";
+    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.oracleJob.offset.intervalMs";
+    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.oracleJob.history.filename";
+
+    private static final Gson GSON = new Gson();
     public static final String ORACLE = "oracle";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlReader.class);
-    private static final String[] NEW_LINE_CHARS = new String[]{String.valueOf(CharUtils.CR),
-            String.valueOf(CharUtils.LF)};
-    private static final String[] EMPTY_CHARS = new String[]{StringUtils.EMPTY, StringUtils.EMPTY};
 
-    private final String sql;
+    private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
 
-    private PreparedStatement preparedStatement;
-    private Connection conn;
-    private ResultSet resultSet;
-    private int columnCount;
-
-    // column types
-    private String[] columnTypeNames;
-    private int[] columnTypeCodes;
+    private String databaseStoreHistoryName;
+    private String instanceId;
+    private String dbName;
+    private String serverName;
+    private String userName;
+    private String password;
+    private String hostName;
+    private String port;
+    private String offsetFlushIntervalMs;
+    private String offsetStoreFileName;
+    private String snapshotMode;
+    private String offset;
+    private String specificOffsetFile;
+    private String specificOffsetPos;
+    private OracleSnapshotBase oracleSnapshot;
     private boolean finished = false;
-    private String separator;
+    private ExecutorService executor;
 
-    public OracleReader(String sql) {
-        this.sql = sql;
+    /**
+     * pair.left : table name
+     * pair.right : actual data
+     */
+    private LinkedBlockingQueue<Pair<String, String>> oracleMessageQueue;
+    private JobProfile jobProfile;
+    private boolean destroyed = false;
+
+    public OracleReader() {
     }
 
     @Override
     public Message read() {
-        try {
-            if (!resultSet.next()) {
-                finished = true;
-                return null;
-            }
-            final List<String> lineColumns = new ArrayList<>();
-            for (int i = 1; i <= columnCount; i++) {
-                final String dataValue;
-                /* handle special blob value, encode with base64, BLOB=2004 */
-                final int typeCode = columnTypeCodes[i - 1];
-                final String typeName = columnTypeNames[i - 1];
-
-                // binary type
-                if (typeCode == BLOB || typeCode == BINARY || typeCode == VARBINARY
-                        || typeCode == LONGVARBINARY || typeName.contains("BLOB")) {
-                    final byte[] data = resultSet.getBytes(i);
-                    dataValue = new String(Base64.encodeBase64(data, false), StandardCharsets.UTF_8);
-                } else {
-                    // non-binary type
-                    dataValue = StringUtils.replaceEachRepeatedly(resultSet.getString(i),
-                            NEW_LINE_CHARS, EMPTY_CHARS);
-                }
-                lineColumns.add(dataValue);
-            }
-            long dataSize = lineColumns.stream().mapToLong(column -> column.length()).sum();
-            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
-                    System.currentTimeMillis(), 1, dataSize);
-            readerMetric.pluginReadSuccessCount.incrementAndGet();
-            readerMetric.pluginReadCount.incrementAndGet();
-            return generateMessage(lineColumns);
-        } catch (Exception ex) {
-            LOGGER.error("error while reading data", ex);
-            readerMetric.pluginReadFailCount.incrementAndGet();
-            readerMetric.pluginReadCount.incrementAndGet();
-            throw new RuntimeException(ex);
+        if (!oracleMessageQueue.isEmpty()) {
+            return getOracleMessage();
+        } else {
+            return null;
         }
     }
 
-    private Message generateMessage(List<String> lineColumns) {
-        return new DefaultMessage(StringUtils.join(lineColumns, separator).getBytes(StandardCharsets.UTF_8));
+    /**
+     * poll message from buffer pool
+     *
+     * @return org.apache.inlong.agent.plugin.Message
+     */
+    private DefaultMessage getOracleMessage() {
+        // Retrieves and removes the head of this queue,
+        // or returns null if this queue is empty.
+        Pair<String, String> message = oracleMessageQueue.poll();
+        if (Objects.isNull(message)) {
+            return null;
+        }
+        Map<String, String> header = new HashMap<>(DEFAULT_MAP_CAPACITY);
+        header.put(PROXY_KEY_DATA, message.getKey());
+        return new DefaultMessage(GsonUtil.toJson(message.getValue()).getBytes(StandardCharsets.UTF_8), header);
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
     }
 
     @Override
@@ -136,7 +145,7 @@ public class OracleReader extends AbstractReader {
 
     @Override
     public String getReadSource() {
-        return sql;
+        return instanceId;
     }
 
     @Override
@@ -151,12 +160,16 @@ public class OracleReader extends AbstractReader {
 
     @Override
     public String getSnapshot() {
-        return StringUtils.EMPTY;
+        if (oracleSnapshot != null) {
+            return oracleSnapshot.getSnapshot();
+        } else {
+            return StringUtils.EMPTY;
+        }
     }
 
     @Override
     public void finishRead() {
-        destroy();
+        this.finished = true;
     }
 
     @Override
@@ -164,67 +177,119 @@ public class OracleReader extends AbstractReader {
         return true;
     }
 
+    private String tryToInitAndGetHistoryPath() {
+        String historyPath = agentConf.get(
+                AgentConstants.AGENT_HISTORY_PATH, AgentConstants.DEFAULT_AGENT_HISTORY_PATH);
+        String parentPath = agentConf.get(
+                AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME);
+        return AgentUtils.makeDirsIfNotExist(historyPath, parentPath).getAbsolutePath();
+    }
+
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        final int batchSize = jobConf.getInt(JOB_DATABASE_BATCH_SIZE, DEFAULT_JOB_DATABASE_BATCH_SIZE);
-        final String userName = jobConf.get(JOB_DATABASE_USER);
-        final String password = jobConf.get(JOB_DATABASE_PASSWORD);
-        final String hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
-        final String sid = jobConf.get(JOB_DATABASE_SID, DEFAULT_JOB_DATABASE_SID);
-
-        final int port = jobConf.getInt(JOB_DATABASE_PORT);
-
-        final String driverClass = jobConf.get(JOB_DATABASE_DRIVER_CLASS,
-                DEFAULT_JOB_DATABASE_DRIVER_CLASS);
-        separator = jobConf.get(JOB_DATABASE_SEPARATOR, STD_FIELD_SEPARATOR_SHORT);
+        jobProfile = jobConf;
+        LOGGER.info("init oracle reader with jobConf {}", jobConf.toJsonStr());
+        userName = jobConf.get(JOB_DATABASE_USER);
+        password = jobConf.get(JOB_DATABASE_PASSWORD);
+        hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
+        port = jobConf.get(JOB_DATABASE_PORT);
+        dbName = jobConf.get(JOB_DATABASE_DBNAME);
+        serverName = jobConf.get(JOB_DATABASE_SERVER_NAME);
+        instanceId = jobConf.getInstanceId();
+        offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "100000");
+        offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
+                tryToInitAndGetHistoryPath()) + "/offset.dat" + instanceId;
+        snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, OracleConstants.INITIAL);
+        oracleMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_DATABASE_QUEUE_SIZE, 1000));
         finished = false;
-        try {
-            final String databaseType = jobConf.get(JOB_DATABASE_TYPE, ORACLE);
-            // jdbc url,such as jdbc:oracle:thin@host:port:sid or jdbc:oracle:thin@host:port/service_name
-            final String url;
-            if (StringUtils.isNotEmpty(sid)) {
-                url = String.format("jdbc:%s:thin:@%s:%d:%s", databaseType, hostName, port, sid);
-            } else {
-                String serviceName = jobConf.get(JOB_DATABASE_SERVICE_NAME);
-                url = String.format("jdbc:%s:thin:@%s:%d/%s", databaseType, hostName, port, serviceName);
-            }
-            conn = AgentDbUtils.getConnectionFailover(driverClass, url, userName, password);
-            preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setFetchSize(batchSize);
-            resultSet = preparedStatement.executeQuery();
 
-            initColumnMeta();
-        } catch (Exception ex) {
-            LOGGER.error("error create statement", ex);
-            destroy();
-            throw new RuntimeException(ex);
-        }
+        databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
+                tryToInitAndGetHistoryPath()) + "/history.dat" + jobConf.getInstanceId();
+        offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
+        specificOffsetFile = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "");
+        specificOffsetPos = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS, "-1");
+
+        oracleSnapshot = new OracleSnapshotBase(offsetStoreFileName);
+        oracleSnapshot.save(offset, oracleSnapshot.getFile());
+
+        Properties props = getEngineProps();
+
+        DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
+                        io.debezium.engine.format.Json.class)
+                .using(props)
+                .notifying((records, committer) -> {
+                    try {
+                        for (ChangeEvent<String, String> record : records) {
+                            DebeziumFormat debeziumFormat = GSON
+                                    .fromJson(record.value(), DebeziumFormat.class);
+                            oracleMessageQueue.put(Pair.of(debeziumFormat.getSource().getTable(), record.value()));
+                            committer.markProcessed(record);
+                        }
+                        committer.markBatchFinished();
+                        long dataSize = records.stream().mapToLong(c -> c.value().length()).sum();
+                        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+                                System.currentTimeMillis(), records.size(), dataSize);
+                        readerMetric.pluginReadSuccessCount.addAndGet(records.size());
+                        readerMetric.pluginReadCount.addAndGet(records.size());
+                    } catch (Exception e) {
+                        readerMetric.pluginReadFailCount.addAndGet(records.size());
+                        readerMetric.pluginReadCount.addAndGet(records.size());
+                        LOGGER.error("parse binlog message error", e);
+                    }
+                })
+                .using((success, message, error) -> {
+                    if (!success) {
+                        LOGGER.error("oracle job with jobConf {} has error {}", instanceId, message, error);
+                    }
+                }).build();
+
+        executor = Executors.newSingleThreadExecutor();
+        executor.execute(engine);
+
+        LOGGER.info("get initial snapshot of job {}, snapshot {}", instanceId, getSnapshot());
     }
 
-    /**
-     * Init column meta data.
-     *
-     * @throws Exception - sql exception
-     */
-    private void initColumnMeta() throws Exception {
-        columnCount = resultSet.getMetaData().getColumnCount();
-        columnTypeNames = new String[columnCount];
-        columnTypeCodes = new int[columnCount];
-        for (int i = 0; i < columnCount; i++) {
-            columnTypeCodes[i] = resultSet.getMetaData().getColumnType(i + 1);
-            String t = resultSet.getMetaData().getColumnTypeName(i + 1);
-            if (t != null) {
-                columnTypeNames[i] = t.toUpperCase();
-            }
-        }
+    private Properties getEngineProps() {
+        Properties props = new Properties();
+        props.setProperty("name", "engine" + instanceId);
+        props.setProperty("connector.class", OracleConnector.class.getCanonicalName());
+        props.setProperty("database.hostname", hostName);
+        props.setProperty("database.port", port);
+        props.setProperty("database.user", userName);
+        props.setProperty("database.password", password);
+        props.setProperty("database.dbname", dbName);
+        props.setProperty("database.server.name", serverName);
+        props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());
+        props.setProperty("database.history", FileDatabaseHistory.class.getCanonicalName());
+        props.setProperty("offset.flush.interval.ms", offsetFlushIntervalMs);
+        props.setProperty("database.snapshot.mode", snapshotMode);
+        props.setProperty("key.converter.schemas.enable", "false");
+        props.setProperty("value.converter.schemas.enable", "false");
+        props.setProperty("snapshot.mode", snapshotMode);
+        props.setProperty("offset.storage.file.filename", offsetStoreFileName);
+        props.setProperty("offset.storage.file.filename", offsetStoreFileName);
+        props.setProperty("database.history.file.filename", databaseStoreHistoryName);
+        props.setProperty("tombstones.on.delete", "false");
+        props.setProperty("converters", "datetime");
+        props.setProperty("datetime.type", "org.apache.inlong.agent.plugin.utils.BinlogTimeConverter");
+        props.setProperty("datetime.format.date", "yyyy-MM-dd");
+        props.setProperty("datetime.format.time", "HH:mm:ss");
+        props.setProperty("datetime.format.datetime", "yyyy-MM-dd HH:mm:ss");
+        props.setProperty("datetime.format.timestamp", "yyyy-MM-dd HH:mm:ss");
+
+        LOGGER.info("oracle job {} start with props {}", jobProfile.getInstanceId(), props);
+        return props;
     }
 
     @Override
     public void destroy() {
-        finished = true;
-        AgentUtils.finallyClose(resultSet);
-        AgentUtils.finallyClose(preparedStatement);
-        AgentUtils.finallyClose(conn);
+        synchronized (this) {
+            if (!destroyed) {
+                this.executor.shutdownNow();
+                this.oracleSnapshot.close();
+                this.destroyed = true;
+            }
+        }
     }
 }

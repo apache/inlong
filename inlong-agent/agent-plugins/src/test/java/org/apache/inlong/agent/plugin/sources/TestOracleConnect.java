@@ -18,14 +18,23 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.sources.reader.MongoDBReader;
 import org.apache.inlong.agent.plugin.sources.reader.OracleReader;
+import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSQLSnapshotBase;
 import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -33,54 +42,27 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TestOracleConnect {
 
-    /**
-     * Just using in local test.
-     */
-    @Ignore
-    public void testOracleConnectBySid() {
-        JobProfile jobProfile = JobProfile.parseJsonStr("{}");
-        jobProfile.set(OracleReader.JOB_DATABASE_USER, "c###inlong_test");
-        jobProfile.set(OracleReader.JOB_DATABASE_PASSWORD, "123456");
-        jobProfile.set(OracleReader.JOB_DATABASE_HOSTNAME, "127.0.0.1");
-        jobProfile.set(OracleReader.JOB_DATABASE_PORT, "1521");
-        jobProfile.set(OracleReader.JOB_DATABASE_SID, "ORCLCDB");
-        final String sql = "select * from test02";
-        jobProfile.set(OracleSource.JOB_DATABASE_SQL, sql);
-        final OracleSource source = new OracleSource();
-        List<Reader> readers = source.split(jobProfile);
-        for (Reader reader : readers) {
-            reader.init(jobProfile);
-            while (!reader.isFinished()) {
-                Message message = reader.read();
-                if (Objects.nonNull(message)) {
-                    assertNotNull(message.getBody());
-                }
-            }
-        }
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestOracleConnect.class);
 
-    /**
-     * Just using in local test.
-     */
-    @Ignore
-    public void testOracleConnectByServiceName() {
-        JobProfile jobProfile = JobProfile.parseJsonStr("{}");
-        jobProfile.set(OracleReader.JOB_DATABASE_USER, "c###inlong_test");
-        jobProfile.set(OracleReader.JOB_DATABASE_PASSWORD, "123456");
-        jobProfile.set(OracleReader.JOB_DATABASE_HOSTNAME, "127.0.0.1");
-        jobProfile.set(OracleReader.JOB_DATABASE_PORT, "1521");
-        jobProfile.set(OracleReader.JOB_DATABASE_SERVICE_NAME, "ORCLCDB");
-        final String sql = "select * from test02";
-        jobProfile.set(OracleSource.JOB_DATABASE_SQL, sql);
-        final OracleSource source = new OracleSource();
-        List<Reader> readers = source.split(jobProfile);
-        for (Reader reader : readers) {
-            reader.init(jobProfile);
-            while (!reader.isFinished()) {
-                Message message = reader.read();
-                if (Objects.nonNull(message)) {
-                    assertNotNull(message.getBody());
-                }
+    @Test
+    public void testOracle() {
+        JobProfile jobProfile = new JobProfile();
+        jobProfile.set("job.oracleJob.hostname", "192.168.161.120");
+        jobProfile.set("job.oracleJob.port", "1521");
+        jobProfile.set("job.oracleJob.user", "c##dbzuser");
+        jobProfile.set("job.oracleJob.password", "dbz");
+        jobProfile.set("job.oracleJob.sid", "ORCLCDB");
+        jobProfile.set("job.oracleJob.dbname", "ORCLCDB");
+        jobProfile.set("job.oracleJob.serverName", "server1");
+        jobProfile.set(JobConstants.JOB_INSTANCE_ID, UUID.randomUUID().toString());
+        jobProfile.set(PROXY_INLONG_GROUP_ID, UUID.randomUUID().toString());
+        jobProfile.set(PROXY_INLONG_STREAM_ID, UUID.randomUUID().toString());
+        OracleReader oracleReader = new OracleReader();
+        oracleReader.init(jobProfile);
+        while (true) {
+            Message message = oracleReader.read();
+            if (message != null) {
+                LOGGER.info("event content: {}", message);
             }
         }
     }
