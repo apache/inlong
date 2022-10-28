@@ -17,7 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.springframework.stereotype.Repository;
 
@@ -41,6 +44,9 @@ public interface InlongGroupExtEntityMapper {
     InlongGroupExtEntity selectByUniqueKey(
             @Param("inlongGroupId") String inlongGroupId,
             @Param("keyName") String keyName);
+
+    @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
+    Cursor<InlongGroupExtEntity> selectByKeyName(@Param("keyName") String keyName);
 
     /**
      * Insert data in batches

@@ -27,37 +27,29 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Data
-public class SortSourceGroupInfo {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceGroupInfo.class);
-    private static final String KEY_BACKUP_CLUSTER_TAG = "backup_cluster_tag";
-    private static final String KEY_BACKUP_TOPIC = "backup_topic";
+public class SortSourceStreamSinkInfo {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceStreamSinkInfo.class);
+    String sortClusterName;
+    String sortTaskName;
     String groupId;
-    String clusterTag;
-    String mqResource;
     String extParams;
-    String mqType;
-    Map<String, String> extParamsMap = new ConcurrentHashMap<>();
+    Map<String, String> extParamsMap;
 
     public Map<String, String> getExtParamsMap() {
-        if (extParamsMap.isEmpty() && StringUtils.isNotBlank(extParams)) {
+        if (extParamsMap != null) {
+            return extParamsMap;
+        }
+        if (StringUtils.isNotBlank(extParams)) {
             try {
                 Gson gson = new Gson();
                 extParamsMap = gson.fromJson(extParams, Map.class);
             } catch (Throwable t) {
-                LOGGER.error("fail to parse group ext params", t);
+                LOGGER.error("fail to parse source stream ext params", t);
+                extParamsMap = new ConcurrentHashMap<>();
             }
         }
         return extParamsMap;
-    }
-
-    public String getBackupClusterTag() {
-        return getExtParamsMap().get(KEY_BACKUP_CLUSTER_TAG);
-    }
-
-    public String getBackupTopic() {
-        return getExtParamsMap().get(KEY_BACKUP_TOPIC);
     }
 }

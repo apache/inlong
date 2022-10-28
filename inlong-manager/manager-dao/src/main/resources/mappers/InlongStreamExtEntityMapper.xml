@@ -86,6 +86,13 @@
         and key_name = #{keyName, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
+    <select id="selectByKeyName" resultType="org.apache.inlong.manager.dao.entity.InlongStreamExtEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_stream_ext
+        where key_name = #{keyName, jdbcType=VARCHAR}
+        and is_deleted = 0
+    </select>
 
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongStreamExtEntity">
         update inlong_stream_ext

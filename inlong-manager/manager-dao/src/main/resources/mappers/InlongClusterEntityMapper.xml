@@ -164,9 +164,10 @@
         </where>
         order by modify_time desc
     </select>
-    <select id="selectAllClusters" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo">
+    <select id="selectAllClusters" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo" >
         select name,
                type,
+               url,
                cluster_tags,
                ext_tag,
                ext_params

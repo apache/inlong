@@ -38,6 +38,7 @@ public class SortSourceClusterInfo {
     private static final long serialVersionUID = 1L;
     String name;
     String type;
+    String url;
     String clusterTags;
     String extTag;
     String extParams;
