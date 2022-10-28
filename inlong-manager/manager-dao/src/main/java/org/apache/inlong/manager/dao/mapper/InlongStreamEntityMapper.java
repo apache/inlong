@@ -17,8 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
@@ -52,6 +54,9 @@ public interface InlongStreamEntityMapper {
 
     int selectCountByGroupId(@Param("groupId") String groupId);
 
+    @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
+    Cursor<SortSourceStreamInfo> selectAllStreams();
+
     int updateByPrimaryKey(InlongStreamEntity record);
 
     int updateByIdentifierSelective(InlongStreamEntity streamEntity);
@@ -72,6 +77,4 @@ public interface InlongStreamEntityMapper {
      * @return rows deleted
      */
     int deleteByInlongGroupIds(@Param("groupIdList") List<String> groupIdList);
-
-    Cursor<SortSourceStreamInfo> selectAllStreams();
 }
