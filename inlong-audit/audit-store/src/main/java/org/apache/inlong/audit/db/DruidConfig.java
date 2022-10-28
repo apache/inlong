@@ -18,6 +18,7 @@
 package org.apache.inlong.audit.db;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import org.apache.inlong.audit.config.StoreConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,8 @@ public class DruidConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DruidConfig.class);
 
+    @Autowired
+    protected StoreConfig storeConfig;
     @Autowired
     private DruidDataSourceProperties properties;
 
@@ -63,7 +66,9 @@ public class DruidConfig {
                 .getMaxPoolPreparedStatementPerConnectionSize());
         try {
             druidDataSource.setFilters(properties.getFilters());
-            druidDataSource.init();
+            if (storeConfig.isMysqlStore()) {
+                druidDataSource.init();
+            }
         } catch (SQLException e) {
             LOGGER.error("init druidDataSource failed: ", e);
         }
