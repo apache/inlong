@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEPARATOR;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
@@ -30,9 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -45,7 +44,7 @@ import org.apache.flume.event.EventBuilder;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.InLongMsg;
-import org.apache.inlong.common.util.NetworkUtils;
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.dataproxy.base.OrderEvent;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
@@ -247,97 +246,193 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         allChannels.remove(ctx.channel());
     }
 
-    private void checkGroupIdInfo(ProxyMessage message, Map<String, String> commonAttrMap,
-                                  Map<String, String> attrMap, AtomicReference<String> topicInfo) {
-        String groupId = message.getGroupId();
-        String streamId = message.getStreamId();
-        if (null != groupId) {
-            // get configured group Id
-            String from = commonAttrMap.get(AttributeConstants.FROM);
-            if ("dc".equals(from)) {
-                String dcInterfaceId = message.getStreamId();
-                if (StringUtils.isNotEmpty(dcInterfaceId)
-                        && configManager.getDcMappingProperties()
-                        .containsKey(dcInterfaceId.trim())) {
-                    groupId = configManager.getDcMappingProperties()
-                            .get(dcInterfaceId.trim()).trim();
-                    message.setGroupId(groupId);
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (msg == null) {
+            logger.debug("Get null msg, just skip!");
+            return;
+        }
+        ByteBuf cb = (ByteBuf) msg;
+        try {
+            Channel remoteChannel = ctx.channel();
+            String strRemoteIP = getRemoteIp(remoteChannel);
+            int len = cb.readableBytes();
+            if (len == 0 && this.filterEmptyMsg) {
+                logger.debug("Get empty msg from {}, just skip!", strRemoteIP);
+                return;
+            }
+            // parse message
+            Map<String, Object> resultMap = null;
+            final long msgRcvTime = System.currentTimeMillis();
+            try {
+                resultMap = serviceDecoder.extractData(cb,
+                        strRemoteIP, msgRcvTime, remoteChannel);
+                if (resultMap == null || resultMap.isEmpty()) {
+                    logger.debug("Parse message result is null, from {}", strRemoteIP);
+                    return;
                 }
+            } catch (MessageIDException ex) {
+                logger.error("MessageIDException ex = {}", ex);
+                throw new IOException(ex.getCause());
             }
-            // get configured topic name
-            String configTopic = MessageUtils.getTopic(
-                    configManager.getTopicProperties(), groupId, streamId);
-            if (StringUtils.isNotEmpty(configTopic)) {
-                topicInfo.set(configTopic.trim());
+            // get msgType from parsed result
+            MsgType msgType = (MsgType) resultMap.get(ConfigConstants.MSG_TYPE);
+            // get attribute data from parsed result
+            Map<String, String> commonAttrMap =
+                    (Map<String, String>) resultMap.get(ConfigConstants.COMMON_ATTR_MAP);
+            if (commonAttrMap == null) {
+                commonAttrMap = new HashMap<>();
             }
-            // get configured m value
-            Map<String, String> mxValue =
-                    configManager.getMxPropertiesMaps().get(groupId);
-            if (mxValue != null && mxValue.size() != 0) {
-                message.getAttributeMap().putAll(mxValue);
-            } else {
-                message.getAttributeMap().putAll(mapSplitter.split(this.defaultMXAttr));
+            // process heartbeat message
+            if (MsgType.MSG_HEARTBEAT.equals(msgType)
+                    || MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
+                MessageUtils.returnSourceRspPackage(
+                        commonAttrMap, resultMap, remoteChannel, msgType);
+                return;
             }
-        } else {
-            String num2name = commonAttrMap.get(AttributeConstants.NUM2NAME);
-            String groupIdNum = commonAttrMap.get(AttributeConstants.GROUPID_NUM);
-            String streamIdNum = commonAttrMap.get(AttributeConstants.STREAMID_NUM);
-            // get configured groupId and steamId by numbers
-            if (configManager.getGroupIdMappingProperties() != null
-                    && configManager.getStreamIdMappingProperties() != null) {
-                groupId = configManager.getGroupIdMappingProperties().get(groupIdNum);
-                streamId = (configManager.getStreamIdMappingProperties().get(groupIdNum) == null)
-                        ? null : configManager.getStreamIdMappingProperties().get(groupIdNum).get(streamIdNum);
-                if (groupId != null && streamId != null) {
-                    String enableTrans =
-                            (configManager.getGroupIdEnableMappingProperties() == null)
-                                    ? null : configManager.getGroupIdEnableMappingProperties().get(groupIdNum);
-                    if (("TRUE".equalsIgnoreCase(enableTrans)
-                            && "TRUE".equalsIgnoreCase(num2name))) {
-                        String extraAttr = "groupId=" + groupId + "&" + "streamId=" + streamId;
-                        message.setData(newBinMsg(message.getData(), extraAttr));
-                    }
-                    // reset groupId and streamId to message and attrMap
-                    attrMap.put(AttributeConstants.GROUP_ID, groupId);
-                    attrMap.put(AttributeConstants.STREAM_ID, streamId);
-                    message.setGroupId(groupId);
-                    message.setStreamId(streamId);
-                    // get configured topic name
-                    String configTopic = MessageUtils.getTopic(
-                            configManager.getTopicProperties(), groupId, streamId);
-                    if (StringUtils.isNotEmpty(configTopic)) {
-                        topicInfo.set(configTopic.trim());
-                    }
-                }
+            // reject unsupported messages
+            if (commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
+                    || commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
+                commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
+                        DataProxyErrCode.ERR_CODE_UNSUPPORTED_EXTENDFIELD_VALUE.getErrCodeStr());
+                MessageUtils.returnSourceRspPackage(
+                        commonAttrMap, resultMap, remoteChannel, msgType);
+                return;
             }
+            // check message's groupId, streamId, topic
+            List<ProxyMessage> msgList =
+                    (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
+            if (msgList == null) {
+                commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
+                        DataProxyErrCode.ERR_CODE_EMPTY_MSG.getErrCodeStr());
+                MessageUtils.returnSourceRspPackage(
+                        commonAttrMap, resultMap, remoteChannel, msgType);
+                return;
+            }
+            // transfer message data
+            Map<String, HashMap<String, List<ProxyMessage>>> messageMap =
+                    new HashMap<>(msgList.size());
+            if (!convertMsgList(msgList, commonAttrMap, messageMap, strRemoteIP)) {
+                MessageUtils.returnSourceRspPackage(
+                        commonAttrMap, resultMap, remoteChannel, msgType);
+                return;
+            }
+            // send messages to channel
+            formatMessagesAndSend(ctx, commonAttrMap,
+                    messageMap, strRemoteIP, msgType, msgRcvTime);
+            // return response
+            if (!MessageUtils.isSyncSendForOrder(
+                    commonAttrMap.get(AttributeConstants.MESSAGE_SYNC_SEND))) {
+                MessageUtils.returnSourceRspPackage(
+                        commonAttrMap, resultMap, remoteChannel, msgType);
+            }
+        } finally {
+            cb.release();
         }
     }
 
-    private boolean updateMsgList(List<ProxyMessage> msgList, Map<String, String> commonAttrMap,
-                                  Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
-                                  String strRemoteIP) {
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.error("exception caught cause = {}", cause);
+        monitorIndexExt.incrementAndGet("EVENT_OTHEREXP");
+        ctx.close();
+    }
+
+    /**
+     * Complete the message content and covert proxy message to map
+     *
+     * @param msgList  the message list
+     * @param commonAttrMap common attribute map
+     * @param messageMap    message list
+     * @param strRemoteIP   remote ip
+     *
+     * @return  convert result
+     */
+    private boolean convertMsgList(List<ProxyMessage> msgList, Map<String, String> commonAttrMap,
+                                   Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
+                                   String strRemoteIP) {
         for (ProxyMessage message : msgList) {
-            String topic = this.defaultTopic;
-            Map<String, String> attrMap = message.getAttributeMap();
-            AtomicReference<String> topicInfo = new AtomicReference<>(topic);
-            checkGroupIdInfo(message, commonAttrMap, attrMap, topicInfo);
+            String configTopic = null;
             String groupId = message.getGroupId();
             String streamId = message.getStreamId();
+            // get topic by groupId and streamId
+            if (null == groupId) {
+                String num2name = commonAttrMap.get(AttributeConstants.NUM2NAME);
+                String groupIdNum = commonAttrMap.get(AttributeConstants.GROUPID_NUM);
+                String streamIdNum = commonAttrMap.get(AttributeConstants.STREAMID_NUM);
+                // get configured groupId and steamId by numbers
+                if (configManager.getGroupIdMappingProperties() != null
+                        && configManager.getStreamIdMappingProperties() != null) {
+                    groupId = configManager.getGroupIdMappingProperties().get(groupIdNum);
+                    streamId = (configManager.getStreamIdMappingProperties().get(groupIdNum) == null)
+                            ? null : configManager.getStreamIdMappingProperties().get(groupIdNum).get(streamIdNum);
+                    if (groupId != null && streamId != null) {
+                        String enableTrans =
+                                (configManager.getGroupIdEnableMappingProperties() == null)
+                                        ? null : configManager.getGroupIdEnableMappingProperties().get(groupIdNum);
+                        if (("TRUE".equalsIgnoreCase(enableTrans)
+                                && "TRUE".equalsIgnoreCase(num2name))) {
+                            String extraAttr = "groupId=" + groupId + "&" + "streamId=" + streamId;
+                            message.setData(newBinMsg(message.getData(), extraAttr));
+                        }
+                        // reset groupId and streamId to message and attrMap
+                        message.setGroupId(groupId);
+                        message.setStreamId(streamId);
+                        // get configured topic name
+                        configTopic = MessageUtils.getTopic(
+                                configManager.getTopicProperties(), groupId, streamId);
+                    }
+                }
+            } else {
+                // get configured group Id
+                String from = commonAttrMap.get(AttributeConstants.FROM);
+                if ("dc".equals(from)) {
+                    String dcInterfaceId = message.getStreamId();
+                    if (StringUtils.isNotEmpty(dcInterfaceId)
+                            && configManager.getDcMappingProperties()
+                            .containsKey(dcInterfaceId.trim())) {
+                        groupId = configManager.getDcMappingProperties()
+                                .get(dcInterfaceId.trim()).trim();
+                        message.setGroupId(groupId);
+                    }
+                }
+                // get configured m value
+                Map<String, String> mxValue =
+                        configManager.getMxPropertiesMaps().get(groupId);
+                if (mxValue != null && mxValue.size() != 0) {
+                    message.getAttributeMap().putAll(mxValue);
+                } else {
+                    message.getAttributeMap().putAll(mapSplitter.split(this.defaultMXAttr));
+                }
+                // get configured topic name
+                configTopic = MessageUtils.getTopic(
+                        configManager.getTopicProperties(), groupId, streamId);
+            }
+            // check topic configure
+            if (StringUtils.isEmpty(configTopic)) {
+                String acceptMsg =
+                        configManager.getCommonProperties().getOrDefault(
+                                ConfigConstants.SOURCE_NO_TOPIC_ACCEPT, "false");
+                if ("true".equalsIgnoreCase(acceptMsg)) {
+                    configTopic = this.defaultTopic;
+                } else {
+                    commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
+                            DataProxyErrCode.ERR_CODE_UNCONFIGURED_GROUPID_OR_STREAMID.getErrCodeStr());
+                    logger.debug("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
+                            groupId, streamId);
+                    return false;
+                }
+            }
             if (streamId == null) {
                 streamId = "";
                 message.setStreamId(streamId);
             }
-            topic = topicInfo.get();
-            if (StringUtils.isEmpty(topic)) {
-                logger.warn("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
-                        groupId, streamId);
-            }
             // append topic
-            message.setTopic(topic);
+            message.setTopic(configTopic);
             commonAttrMap.put(AttributeConstants.NODE_IP, strRemoteIP);
             // add ProxyMessage
             HashMap<String, List<ProxyMessage>> streamIdMsgMap = messageMap
-                    .computeIfAbsent(topic, k -> new HashMap<>());
+                    .computeIfAbsent(configTopic, k -> new HashMap<>());
             List<ProxyMessage> streamIdMsgList = streamIdMsgMap
                     .computeIfAbsent(streamId, k -> new ArrayList<>());
             streamIdMsgList.add(message);
@@ -345,6 +440,16 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         return true;
     }
 
+    /**
+     * format message to event and send to channel
+     *
+     * @param ctx  client connect
+     * @param commonAttrMap common attribute map
+     * @param messageMap    message list
+     * @param strRemoteIP   remote ip
+     * @param msgType    the message type
+     * @param msgRcvTime  the received time
+     */
     private void formatMessagesAndSend(ChannelHandlerContext ctx, Map<String, String> commonAttrMap,
                                        Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
                                        String strRemoteIP, MsgType msgType, long msgRcvTime) throws MessageIDException {
@@ -439,7 +544,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         .append(topicEntry.getKey()).append(SEPARATOR)
                         .append(streamIdEntry.getKey()).append(SEPARATOR)
                         .append(strRemoteIP).append(SEPARATOR)
-                        .append(NetworkUtils.getLocalIp()).append(SEPARATOR)
+                        .append(getLocalIp()).append(SEPARATOR)
                         .append(orderType).append(SEPARATOR)
                         .append(DateTimeUtils.ms2yyyyMMddHHmm(longDataTime)).append(SEPARATOR)
                         .append(DateTimeUtils.ms2yyyyMMddHHmm(msgRcvTime));
@@ -451,7 +556,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                             recordMsgCnt, 1, data.length, 0);
                     strBuff.delete(0, strBuff.length());
                 } catch (Throwable ex) {
-                    logger.error("Error writting to channel,data will discard.", ex);
+                    logger.error("Error writting to channel, data will discard.", ex);
                     monitorIndexExt.incrementAndGet("EVENT_DROPPED");
                     monitorIndex.addAndGet(strBuff.toString(), 0, 0, 0, recordMsgCnt);
                     this.addStatistics(false, data.length, event);
@@ -460,199 +565,6 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         }
-    }
-
-    private void responsePackage(Map<String, String> commonAttrMap,
-                                 Map<String, Object> resultMap,
-                                 Channel remoteChannel,
-                                 MsgType msgType) throws Exception {
-        String isAck = commonAttrMap.get(AttributeConstants.MESSAGE_IS_ACK);
-        if (isAck == null || "true".equals(isAck)) {
-            if (MsgType.MSG_ACK_SERVICE.equals(msgType) || MsgType.MSG_ORIGINAL_RETURN
-                    .equals(msgType)
-                    || MsgType.MSG_MULTI_BODY.equals(msgType) || MsgType.MSG_MULTI_BODY_ATTR
-                    .equals(msgType)) {
-                byte[] backAttr = mapJoiner.join(commonAttrMap).getBytes(StandardCharsets.UTF_8);
-                byte[] backBody = null;
-
-                if (backAttr != null && !new String(backAttr, StandardCharsets.UTF_8).isEmpty()) {
-                    if (MsgType.MSG_ORIGINAL_RETURN.equals(msgType)) {
-
-                        backBody = (byte[]) resultMap.get(ConfigConstants.DECODER_BODY);
-                    } else {
-
-                        backBody = new byte[]{50};
-                    }
-                    int backTotalLen = 1 + 4 + backBody.length + 4 + backAttr.length;
-                    ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer(4 + backTotalLen);
-                    buffer.writeInt(backTotalLen);
-                    buffer.writeByte(msgType.getValue());
-                    buffer.writeInt(backBody.length);
-                    buffer.writeBytes(backBody);
-                    buffer.writeInt(backAttr.length);
-                    buffer.writeBytes(backAttr);
-                    if (remoteChannel.isWritable()) {
-                        remoteChannel.writeAndFlush(buffer);
-                    } else {
-                        String backAttrStr = new String(backAttr, StandardCharsets.UTF_8);
-                        logger.warn(
-                                "the send buffer1 is full, so disconnect it!please check remote client"
-                                        + "; Connection info:"
-                                        + remoteChannel + ";attr is " + backAttrStr);
-                        buffer.release();
-                        throw new Exception(new Throwable(
-                                "the send buffer1 is full, so disconnect it!please check remote client"
-                                        +
-                                        "; Connection info:" + remoteChannel + ";attr is "
-                                        + backAttrStr));
-                    }
-                }
-            } else if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
-                String backAttrs = (String) resultMap.get(ConfigConstants.DECODER_ATTRS);
-                String uniqVal = commonAttrMap.get(AttributeConstants.UNIQ_ID);
-                ByteBuf binBuffer = MessageUtils.getResponsePackage(backAttrs, msgType, uniqVal);
-                if (remoteChannel.isWritable()) {
-                    remoteChannel.writeAndFlush(binBuffer);
-                    logger.debug("Connection info: {} ; attr is {} ; uniqVal {}",
-                            remoteChannel, backAttrs, uniqVal);
-                } else {
-                    binBuffer.release();
-                    logger.warn(
-                            "the send buffer2 is full, so disconnect it!please check remote client"
-                                    + "; Connection info:" + remoteChannel + ";attr is "
-                                    + backAttrs);
-                    throw new Exception(new Throwable(
-                            "the send buffer2 is full,so disconnect it!please check remote client, Connection info:"
-                                    + remoteChannel + ";attr is " + backAttrs));
-                }
-            }
-        }
-    }
-
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg == null) {
-            logger.error("Get null msg, just skip!");
-            return;
-        }
-        ByteBuf cb = (ByteBuf) msg;
-        try {
-            Channel remoteChannel = ctx.channel();
-            String strRemoteIP = getRemoteIp(remoteChannel);
-            int len = cb.readableBytes();
-            if (len == 0 && this.filterEmptyMsg) {
-                logger.warn("Get empty msg from {}, just skip!", strRemoteIP);
-                return;
-            }
-            // parse message
-            Map<String, Object> resultMap = null;
-            final long msgRcvTime = System.currentTimeMillis();
-            try {
-                resultMap = serviceDecoder.extractData(cb,
-                        strRemoteIP, msgRcvTime, remoteChannel);
-                if (resultMap == null || resultMap.isEmpty()) {
-                    logger.info("Parse message result is null, from {}", strRemoteIP);
-                    return;
-                }
-            } catch (MessageIDException ex) {
-                logger.error("MessageIDException ex = {}", ex);
-                throw new IOException(ex.getCause());
-            }
-            // process message by msgType
-            MsgType msgType = (MsgType) resultMap.get(ConfigConstants.MSG_TYPE);
-            if (MsgType.MSG_HEARTBEAT.equals(msgType)) {
-                ByteBuf heartbeatBuffer = ByteBufAllocator.DEFAULT.buffer(5);
-                heartbeatBuffer.writeBytes(new byte[]{0, 0, 0, 1, 1});
-                remoteChannel.writeAndFlush(heartbeatBuffer);
-                return;
-            }
-            // process heart beat 8
-            if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
-                return;
-            }
-            // process data message
-            Map<String, String> commonAttrMap =
-                    (Map<String, String>) resultMap.get(ConfigConstants.COMMON_ATTR_MAP);
-            if (commonAttrMap == null) {
-                commonAttrMap = new HashMap<String, String>();
-            }
-            List<ProxyMessage> msgList = (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
-            boolean checkMessageTopic = true;
-            if (msgList != null) {
-                if (commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)) {
-                    // process file check data
-                    Map<String, String> headers = new HashMap<String, String>();
-                    headers.put("msgtype", "filestatus");
-                    headers.put(ConfigConstants.FILE_CHECK_DATA, "true");
-                    headers.put(AttributeConstants.UNIQ_ID,
-                            commonAttrMap.get(AttributeConstants.UNIQ_ID));
-                    for (ProxyMessage message : msgList) {
-                        byte[] body = message.getData();
-                        Event event = EventBuilder.withBody(body, headers);
-                        if (MessageUtils.isSyncSendForOrder(commonAttrMap
-                                .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
-                            event = new OrderEvent(ctx, event);
-                        }
-                        try {
-                            processor.processEvent(event);
-                            this.addStatistics(true, body.length, event);
-                        } catch (Throwable ex) {
-                            logger.error("Error writing to controller,data will discard.", ex);
-                            this.addStatistics(false, body.length, event);
-                            throw new ChannelException(
-                                    "Process Controller Event error can't write event to channel.");
-                        }
-                    }
-                } else if (commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
-                    // process minute check data
-                    Map<String, String> headers = new HashMap<String, String>();
-                    headers.put("msgtype", "measure");
-                    headers.put(ConfigConstants.FILE_CHECK_DATA, "true");
-                    headers.put(AttributeConstants.UNIQ_ID,
-                            commonAttrMap.get(AttributeConstants.UNIQ_ID));
-                    for (ProxyMessage message : msgList) {
-                        byte[] body = message.getData();
-                        Event event = EventBuilder.withBody(body, headers);
-                        if (MessageUtils.isSyncSendForOrder(commonAttrMap
-                                .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
-                            event = new OrderEvent(ctx, event);
-                        }
-                        try {
-                            processor.processEvent(event);
-                            this.addStatistics(true, body.length, event);
-                        } catch (Throwable ex) {
-                            logger.error("Error writing to controller,data will discard.", ex);
-                            this.addStatistics(false, body.length, event);
-                            throw new ChannelException(
-                                    "Process Controller Event error can't write event to channel.");
-                        }
-                    }
-                } else {
-                    // process message data
-                    Map<String, HashMap<String, List<ProxyMessage>>> messageMap =
-                            new HashMap<>(msgList.size());
-                    checkMessageTopic = updateMsgList(msgList,
-                            commonAttrMap, messageMap, strRemoteIP);
-                    if (checkMessageTopic) {
-                        formatMessagesAndSend(ctx, commonAttrMap,
-                                messageMap, strRemoteIP, msgType, msgRcvTime);
-                    }
-                }
-            }
-            if (!checkMessageTopic || !MessageUtils.isSyncSendForOrder(commonAttrMap
-                    .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
-                responsePackage(commonAttrMap, resultMap, remoteChannel, msgType);
-            }
-        } finally {
-            cb.release();
-        }
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("exception caught cause = {}", cause);
-        monitorIndexExt.incrementAndGet("EVENT_OTHEREXP");
-        ctx.close();
     }
 
     /**

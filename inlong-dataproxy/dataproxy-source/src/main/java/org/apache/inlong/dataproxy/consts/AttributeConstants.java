@@ -90,4 +90,8 @@ public class AttributeConstants {
 
     public static final String MESSAGE_IS_ACK = "isAck";
 
+    public static final String MESSAGE_PROCESS_ERRCODE = "errCode";
+
+    public static final String MESSAGE_PROCESS_ERRMSG = "errMsg";
+
 }
