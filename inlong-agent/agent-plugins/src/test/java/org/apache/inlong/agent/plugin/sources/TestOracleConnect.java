@@ -40,7 +40,7 @@ public class TestOracleConnect {
     @Ignore
     public void testOracle() {
         JobProfile jobProfile = new JobProfile();
-        jobProfile.set("job.oracleJob.hostname", "192.168.161.120");
+        jobProfile.set("job.oracleJob.hostname", "localhost");
         jobProfile.set("job.oracleJob.port", "1521");
         jobProfile.set("job.oracleJob.user", "c##dbzuser");
         jobProfile.set("job.oracleJob.password", "dbz");
