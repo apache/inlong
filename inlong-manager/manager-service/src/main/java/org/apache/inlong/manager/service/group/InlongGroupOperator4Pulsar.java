@@ -135,16 +135,17 @@ public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
 
         // set backup topics, each inlong stream is associated with a Pulsar topic
         List<InlongStreamBriefInfo> streamTopics = streamService.getTopicList(groupId);
-        streamTopics.forEach(stream -> {
-            InlongStreamExtEntity streamExtEntity = streamExtMapper.selectByKey(groupId, stream.getInlongStreamId(),
-                    BACKUP_MQ_RESOURCE);
-            if (streamExtEntity != null && StringUtils.isNotBlank(streamExtEntity.getKeyValue())) {
-                stream.setMqResource(streamExtEntity.getKeyValue());
-            }
-        });
         List<String> topics = streamTopics.stream()
-                .map(InlongStreamBriefInfo::getMqResource)
+                .map(stream -> {
+                    InlongStreamExtEntity streamExtEntity = streamExtMapper.selectByKey(groupId,
+                            stream.getInlongStreamId(), BACKUP_MQ_RESOURCE);
+                    if (streamExtEntity != null && StringUtils.isNotBlank(streamExtEntity.getKeyValue())) {
+                        return streamExtEntity.getKeyValue();
+                    }
+                    return stream.getMqResource();
+                })
                 .collect(Collectors.toList());
+
         topicInfo.setTopics(topics);
 
         return topicInfo;
