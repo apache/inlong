@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.heartbeat;
+package org.apache.inlong.manager.service.heartbeat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
@@ -54,7 +53,6 @@ import java.util.concurrent.TimeUnit;
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
     private static final String AUTO_REGISTERED = "auto registered";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Getter
     private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeatCache;

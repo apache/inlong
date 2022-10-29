@@ -24,7 +24,6 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ConsumeStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
@@ -59,7 +58,7 @@ import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
 public class InlongConsumeServiceImpl implements InlongConsumeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongConsumeServiceImpl.class);
-    private static final String AUTO_CREATE_MSG = "auto create by inlong";
+    private static final String AUTO_CREATE_MSG = "auto_create_by_system";
 
     @Autowired
     private InlongConsumeEntityMapper consumeMapper;
@@ -175,11 +174,9 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         OrderFieldEnum.checkOrderField(request);
         OrderTypeEnum.checkOrderType(request);
-        Page<InlongConsumeEntity> entityPage = (Page<InlongConsumeEntity>) consumeMapper.selectByCondition(request);
-        List<InlongConsumeBriefInfo> briefInfos = CommonBeanUtils.copyListProperties(entityPage,
-                InlongConsumeBriefInfo::new);
+        Page<InlongConsumeBriefInfo> briefInfos = (Page<InlongConsumeBriefInfo>) consumeMapper.selectBriefList(request);
         PageResult<InlongConsumeBriefInfo> pageResult = new PageResult<>(briefInfos,
-                entityPage.getTotal(), entityPage.getPageNum(), entityPage.getPageSize());
+                briefInfos.getTotal(), briefInfos.getPageNum(), briefInfos.getPageSize());
 
         LOGGER.debug("success to list inlong consume for {}", request);
         return pageResult;
