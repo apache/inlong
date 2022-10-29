@@ -238,10 +238,22 @@ public class JobProfileDto {
         oracleJob.setHostname(config.getHostname());
         oracleJob.setPassword(config.getPassword());
         oracleJob.setPort(config.getPort());
-        oracleJob.setBatchSize(config.getBatchSize());
-        oracleJob.setSid(config.getSid());
-        oracleJob.setServiceName(config.getServiceName());
-        oracleJob.setCommand(config.getCommand());
+        oracleJob.setServerName(config.getServerName());
+        oracleJob.setDbname(config.getDbname());
+
+        OracleJob.Offset offset = new OracleJob.Offset();
+        offset.setFilename(config.getOffsetFilename());
+        offset.setSpecificOffsetFile(config.getSpecificOffsetFile());
+        offset.setSpecificOffsetPos(config.getSpecificOffsetPos());
+        oracleJob.setOffset(offset);
+
+        OracleJob.Snapshot snapshot = new OracleJob.Snapshot();
+        snapshot.setMode(config.getSnapshotMode());
+        oracleJob.setSnapshot(snapshot);
+
+        OracleJob.History history = new OracleJob.History();
+        history.setFilename(config.getHistoryFilename());
+        oracleJob.setHistory(history);
 
         return oracleJob;
     }

@@ -94,7 +94,7 @@ public class TestOracleReader {
 
     private AtomicLong atomicCountLong;
 
-    private final String INSTANCE_ID = "instanceId";
+    private final String instanceId = "s4bc475560b4444dbd4e9812ab1fd64d";
 
     @Before
     public void setUp() throws Exception {
@@ -118,7 +118,7 @@ public class TestOracleReader {
         atomicLong = new AtomicLong(0L);
         atomicCountLong = new AtomicLong(0L);
 
-        when(jobProfile.getInstanceId()).thenReturn(INSTANCE_ID);
+        when(jobProfile.getInstanceId()).thenReturn(instanceId);
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_GROUP_ID), anyString())).thenReturn(groupId);
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString())).thenReturn(streamId);
         when(jobProfile.get(eq(OracleReader.JOB_DATABASE_USER))).thenReturn(username);
@@ -229,7 +229,6 @@ public class TestOracleReader {
      */
     @Test
     public void testGetReadSource() {
-        assertEquals(INSTANCE_ID, reader.getReadSource());
+        assertEquals(instanceId, reader.getReadSource());
     }
-
 }

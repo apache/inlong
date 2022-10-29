@@ -26,10 +26,33 @@ public class OracleJob {
     private String user;
     private String password;
     private String port;
-    private String sid;
-    private String serviceName;
-    private String batchSize;
-    private String command;
+    private String serverName;
+    private String dbname;
+
+    private OracleJob.Snapshot snapshot;
+    private OracleJob.Offset offset;
+    private OracleJob.History history;
+
+    @Data
+    public static class Offset {
+
+        private String intervalMs;
+        private String filename;
+        private String specificOffsetFile;
+        private String specificOffsetPos;
+    }
+
+    @Data
+    public static class Snapshot {
+
+        private String mode;
+    }
+
+    @Data
+    public static class History {
+
+        private String filename;
+    }
 
     @Data
     public static class OracleJobConfig {
@@ -38,9 +61,15 @@ public class OracleJob {
         private String user;
         private String password;
         private String port;
-        private String sid;
-        private String serviceName;
-        private String batchSize;
-        private String command;
+        private String dbname;
+        private String serverName;
+
+        private String snapshotMode;
+        private String intervalMs;
+        private String offsetFilename;
+        private String historyFilename;
+
+        private String specificOffsetFile;
+        private String specificOffsetPos;
     }
 }
