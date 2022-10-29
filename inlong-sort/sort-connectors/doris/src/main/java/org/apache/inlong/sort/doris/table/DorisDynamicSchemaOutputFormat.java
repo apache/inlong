@@ -47,6 +47,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * DorisDynamicSchemaOutputFormat, copy from {@link org.apache.doris.flink.table.DorisDynamicOutputFormat}
@@ -76,11 +77,16 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final String tablePattern;
     private final String dynamicSchemaFormat;
     private final boolean ignoreSingleTableErrors;
-    private final transient Map<String, Exception> flushExceptionMap = new HashMap<>();
+    private final Map<String, Exception> flushExceptionMap = new HashMap<>();
+    private final AtomicLong readInNum = new AtomicLong(0);
+    private final AtomicLong writeOutNum = new AtomicLong(0);
+    private final AtomicLong errorNum = new AtomicLong(0);
+    private final AtomicLong ddlNum = new AtomicLong(0);
     private long batchBytes = 0L;
     private int size;
     private DorisStreamLoad dorisStreamLoad;
     private transient volatile boolean closed = false;
+    private transient volatile boolean flushing = false;
     private transient ScheduledExecutorService scheduler;
     private transient ScheduledFuture<?> scheduledFuture;
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
@@ -132,7 +138,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                     new ExecutorThreadFactory("doris-streamload-output-format"));
             this.scheduledFuture = this.scheduler.scheduleWithFixedDelay(() -> {
                 synchronized (DorisDynamicSchemaOutputFormat.this) {
-                    if (!closed) {
+                    if (!closed && !flushing) {
                         flush();
                     }
                 }
@@ -158,7 +164,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         addBatch(row);
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
-        if (valid) {
+        if (valid && !flushing) {
             flush();
         }
     }
@@ -168,8 +174,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         if (row instanceof RowData) {
             RowData rowData = (RowData) row;
             JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(rowData.getBinary(0));
+            readInNum.incrementAndGet();
             boolean isDDL = jsonDynamicSchemaFormat.extractDDLFlag(rootNode);
             if (isDDL) {
+                ddlNum.incrementAndGet();
                 // Ignore ddl change for now
                 return;
             }
@@ -226,6 +234,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                             }
                             break;
                         default:
+                            errorNum.incrementAndGet();
                             throw new RuntimeException("Unrecognized row kind:" + rowKind.toString());
                     }
                 }
@@ -239,12 +248,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     public synchronized void close() throws IOException {
         if (!closed) {
             closed = true;
-
             if (this.scheduledFuture != null) {
                 scheduledFuture.cancel(false);
                 this.scheduler.shutdown();
             }
-
             try {
                 flush();
             } catch (Exception e) {
@@ -258,27 +265,45 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     @SuppressWarnings({"rawtypes"})
     public synchronized void flush() {
+        flushing = true;
         if (batchMap.isEmpty()) {
             return;
         }
+        List<String> errorTables = new ArrayList<>();
         for (Entry<String, List> kvs : batchMap.entrySet()) {
-            if (checkFlushException(kvs.getKey())) {
+            if (checkFlushException(kvs.getKey()) || kvs.getValue().isEmpty()) {
                 continue;
             }
+            String loadValue = null;
             try {
-                load(kvs.getKey(), OBJECT_MAPPER.writeValueAsString(kvs.getValue()));
+                loadValue = OBJECT_MAPPER.writeValueAsString(kvs.getValue());
+                load(kvs.getKey(), loadValue);
+                LOG.info("load {} records to tableIdentifier: {}", kvs.getValue().size(), kvs.getKey());
+                writeOutNum.addAndGet(kvs.getValue().size());
+                // Clean the data that has been loaded.
+                kvs.getValue().clear();
             } catch (Exception e) {
                 flushExceptionMap.put(kvs.getKey(), e);
+                errorNum.getAndAdd(kvs.getValue().size());
                 if (!ignoreSingleTableErrors) {
                     throw new RuntimeException(
-                            String.format("Writing records to streamload of tableIdentifier:%s failed.", kvs.getKey()),
-                            e);
+                            String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
+                                    kvs.getKey(), loadValue), e);
                 }
-                batchMap.remove(kvs.getKey());
+                errorTables.add(kvs.getKey());
+                LOG.warn("The tableIdentifier: {} load failed and the data will be throw away in the future"
+                        + " because the option 'sink.multiple.ignore-single-table-errors' is 'true'", kvs.getKey());
             }
+        }
+        if (!errorTables.isEmpty()) {
+            // Clean the key that has erros
+            errorTables.forEach(batchMap::remove);
         }
         batchBytes = 0;
         size = 0;
+        LOG.info("Doris sink statistics: readInNum: {}, writeOutNum: {}, errorNum: {}, ddlNum: {}",
+                readInNum.get(), writeOutNum.get(), errorNum.get(), ddlNum.get());
+        flushing = false;
     }
 
     private void load(String tableIdentifier, String result) throws IOException {
@@ -286,7 +311,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
                 dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result);
-                batchMap.remove(tableIdentifier);
                 break;
             } catch (StreamLoadException e) {
                 LOG.error("doris sink error, retry times = {}", i, e);
