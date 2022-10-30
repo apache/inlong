@@ -268,6 +268,13 @@ public class SortSourceServiceImpl implements SortSourceService {
         });
         sortSourceConfigMap = newConfigMap;
         sortSourceMd5Map = newMd5Map;
+        mqClusters = null;
+        groupInfos = null;
+        allStreams = null;
+        backupClusterTag = null;
+        backupGroupMqResource = null;
+        backupStreamMqResource = null;
+        groupMap = null;
     }
 
     private Map<String, CacheZone> parseCacheZones(

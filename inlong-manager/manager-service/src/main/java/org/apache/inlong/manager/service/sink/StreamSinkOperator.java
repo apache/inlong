@@ -106,5 +106,5 @@ public interface StreamSinkOperator {
      * @param streamSink
      * @return
      */
-    Map<String, String> parse2IdParams(StreamSinkEntity streamSink);
+    Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields);
 }
