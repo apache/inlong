@@ -26,13 +26,8 @@ import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
-import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.sort.standalone.SortFieldInfo;
-import org.apache.inlong.manager.pojo.sort.standalone.SortIdInfo;
-import org.apache.inlong.manager.pojo.sort.standalone.SortSinkInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo;
-import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.service.core.SortClusterService;
 import org.apache.inlong.manager.service.core.SortConfigLoader;
 import org.apache.inlong.manager.service.node.DataNodeOperator;
@@ -196,8 +191,6 @@ public class SortClusterServiceImpl implements SortClusterService {
                     return operator.getFromEntity(entity);
                 })
                 .collect(Collectors.toMap(DataNodeInfo::getName, info -> info));
-
-
 
         // re-org all SortClusterConfigs
         Map<String, SortClusterConfig> newConfigMap = new ConcurrentHashMap<>();

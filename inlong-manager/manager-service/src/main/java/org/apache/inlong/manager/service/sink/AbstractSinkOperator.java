@@ -223,9 +223,9 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         try {
             param = objectMapper.readValue(streamSink.getExtParams(), Map.class);
         } catch (Exception e) {
-            LOGGER.error("cannot parse properties of groupId={}, streamId={}, "
-                            + "sinkName={}, the row properties is={}, exception={}", streamSink.getInlongGroupId(),
-                    streamSink.getInlongStreamId(), streamSink.getSinkName(), streamSink.getExtParams(), e.getMessage());
+            LOGGER.error("cannot parse properties of groupId={}, streamId={}, sinkName={}, the row properties is={}, "
+                            + "exception={}", streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
+                    streamSink.getSinkName(), streamSink.getExtParams(), e.getMessage());
             return null;
         }
         // put group and stream info
@@ -238,19 +238,6 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
      * Check the validity of sink fields.
      */
     protected void checkFieldInfo(SinkField fieldInfo) {
-
-    }
-
-    public static void main(String[] args) {
-        String str = "{\"jdbcUrl\":null,\"username\":null,\"password\":null,\"dbName\":null,\"tableName\":null,\"dataPath\":null,\"partitionInterval\":null,\"partitionFieldList\":null,\"partitionCreationStrategy\":null,\"fileFormat\":\"TextFile\",\"dataEncoding\":\"UTF-8\",\"dataSeparator\":\"\\u0001\",\"properties\":{\"delimiter\":\"|\",\"dataType\":\"text\"},\"hiveVersion\":null,\"encryptVersion\":1,\"hiveConfDir\":null}";
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> map;
-        try {
-            map = mapper.readValue(str, Map.class);
-            System.out.println(map);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
 
     }
 

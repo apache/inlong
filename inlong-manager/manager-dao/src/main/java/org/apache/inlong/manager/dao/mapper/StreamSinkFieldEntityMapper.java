@@ -40,6 +40,7 @@ public interface StreamSinkFieldEntityMapper {
 
     @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
     Cursor<SortFieldInfo> selectAllFields();
+
     /**
      * According to the sink id, query the sink field.
      *
