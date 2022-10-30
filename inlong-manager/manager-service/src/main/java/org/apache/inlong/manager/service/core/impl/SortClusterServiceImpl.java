@@ -173,13 +173,9 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .collect(Collectors.groupingBy(SortTaskInfo::getSortClusterName));
 
         // get all stream sinks
-        Map<String, List<StreamSink>> task2AllStreams = sinkEntities.stream()
+        Map<String, List<StreamSinkEntity>> task2AllStreams = sinkEntities.stream()
                 .filter(entity -> StringUtils.isNotBlank(entity.getInlongClusterName()))
-                .map(entity -> {
-                    StreamSinkOperator operator = sinkOperatorFactory.getInstance(entity.getSinkType());
-                    return operator.getFromEntity(entity);
-                })
-                .collect(Collectors.groupingBy(StreamSink::getSinkName));
+                .collect(Collectors.groupingBy(StreamSinkEntity::getSinkName));
 
         // get all data nodes and group by node name
         List<DataNodeEntity> dataNodeEntities = dataNodeEntityMapper.selectAllDataNodes();
@@ -206,7 +202,7 @@ public class SortClusterServiceImpl implements SortClusterService {
             } catch (Throwable e) {
                 // if get config failed, update the err log.
                 newErrorLogMap.put(clusterName, e.getMessage());
-                LOGGER.error("Failed to update cluster config of {}, error is {}", clusterName, e.getMessage());
+                LOGGER.error("Failed to update cluster config={}, error={}", clusterName, e.getMessage());
             }
         });
 
@@ -218,7 +214,7 @@ public class SortClusterServiceImpl implements SortClusterService {
     private SortClusterConfig getConfigByClusterNameV2(
             String clusterName,
             List<SortTaskInfo> tasks,
-            Map<String, List<StreamSink>> task2AllStreams,
+            Map<String, List<StreamSinkEntity>> task2AllStreams,
             Map<String, DataNodeInfo> task2DataNodeMap) {
 
         List<SortTaskConfig> taskConfigs = tasks.stream()
@@ -227,7 +223,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                     String type = task.getSinkType();
                     String dataNodeName = task.getDataNodeName();
                     DataNodeInfo nodeInfo = task2DataNodeMap.get(dataNodeName);
-                    List<StreamSink> streams = task2AllStreams.get(taskName);
+                    List<StreamSinkEntity> streams = task2AllStreams.get(taskName);
 
                     return SortTaskConfig.builder()
                             .name(taskName)
@@ -244,7 +240,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                 .build();
     }
 
-    private List<Map<String, String>> parseIdParamsV2(List<StreamSink> streams) {
+    private List<Map<String, String>> parseIdParamsV2(List<StreamSinkEntity> streams) {
         return streams.stream()
                 .map(streamSink -> {
                     StreamSinkOperator operator = sinkOperatorFactory.getInstance(streamSink.getSinkType());

@@ -65,5 +65,10 @@ public interface DataNodeOperator {
      */
     void updateOpt(DataNodeRequest request, String operator);
 
+    /**
+     * Parse data node info to sort-standalone sink params
+     * @param info DataNodeInfo
+     * @return Sink params
+     */
     Map<String, String> parse2SinkParams(DataNodeInfo info);
 }

@@ -88,9 +88,8 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
         try {
             return objectMapper.readValue(info.getExtParams(), HashMap.class);
         } catch (Exception e) {
-            LOGGER.error("cannot parse sink params from dataNode={}, extParams={}",
-                    info.getName(), info.getExtParams());
-            return null;
+            throw new BusinessException(String.format("cannot parse sink params from dataNode=%s, extParams=%s",
+                    info.getName(), info.getExtParams()));
         }
     }
 }
