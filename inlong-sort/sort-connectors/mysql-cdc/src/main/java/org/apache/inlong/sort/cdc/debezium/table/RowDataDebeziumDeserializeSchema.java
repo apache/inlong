@@ -596,9 +596,7 @@ public final class RowDataDebeziumDeserializeSchema
                     Schema fieldSchema = schema.field(fieldName).schema();
                     String schemaName = fieldSchema.name();
                     if (schemaName != null) {
-                        // normal type doesn't have schema name
-                        // schema names are time schemas
-                        fieldValue = getTimeValue(fieldValue, schemaName);
+                        fieldValue = getValueWithSchema(fieldValue, schemaName);
                     }
                     data.put(fieldName, fieldValue);
                 }
@@ -612,13 +610,13 @@ public final class RowDataDebeziumDeserializeSchema
     }
 
     /**
-     * transform debezium time format to database format
+     * extract the data with the format provided by debezium
      *
      * @param fieldValue
      * @param schemaName
-     * @return
+     * @return the extracted data with schema
      */
-    private Object getTimeValue(Object fieldValue, String schemaName) {
+    private Object getValueWithSchema(Object fieldValue, String schemaName) {
         if (fieldValue == null) {
             return null;
         }
@@ -638,8 +636,11 @@ public final class RowDataDebeziumDeserializeSchema
                 fieldValue = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.ofInstant(instantTime,
                         serverTimeZone));
                 break;
+            case Decimal.LOGICAL_NAME:
+                // no need to transfer decimal type since the value is already decimal
+                break;
             default:
-                LOG.error("parse schema {} error", schemaName);
+                LOG.debug("schema {} is not being supported", schemaName);
         }
         return fieldValue;
     }
