@@ -286,7 +286,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             // process heartbeat message
             if (MsgType.MSG_HEARTBEAT.equals(msgType)
                     || MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
-                MessageUtils.returnSourceRspPackage(
+                MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
                 return;
             }
@@ -295,7 +295,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     || commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
                 commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
                         DataProxyErrCode.UNSUPPORTED_EXTENDFIELD_VALUE.getErrCodeStr());
-                MessageUtils.returnSourceRspPackage(
+                MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
                 return;
             }
@@ -305,7 +305,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             if (msgList == null) {
                 commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
                         DataProxyErrCode.EMPTY_MSG.getErrCodeStr());
-                MessageUtils.returnSourceRspPackage(
+                MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
                 return;
             }
@@ -313,7 +313,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             Map<String, HashMap<String, List<ProxyMessage>>> messageMap =
                     new HashMap<>(msgList.size());
             if (!convertMsgList(msgList, commonAttrMap, messageMap, strRemoteIP)) {
-                MessageUtils.returnSourceRspPackage(
+                MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
                 return;
             }
@@ -323,7 +323,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             // return response
             if (!MessageUtils.isSyncSendForOrder(
                     commonAttrMap.get(AttributeConstants.MESSAGE_SYNC_SEND))) {
-                MessageUtils.returnSourceRspPackage(
+                MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
             }
         } finally {

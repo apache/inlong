@@ -46,7 +46,7 @@ public class MessageUtils {
      * @return true/false
      */
     public static boolean isSyncSendForOrder(String syncSend) {
-        if (StringUtils.isNotEmpty(syncSend) && "true".equals(syncSend)) {
+        if (StringUtils.isNotEmpty(syncSend) && "true".equalsIgnoreCase(syncSend)) {
             return true;
         }
         return false;
@@ -63,13 +63,13 @@ public class MessageUtils {
     }
 
     /**
-     *  process response to client
+     *  Return response to client in source
      * @param commonAttrMap attribute map
      * @param resultMap     result map
      * @param remoteChannel client channel
      * @param msgType       the message type
      */
-    public static void returnSourceRspPackage(Map<String, String> commonAttrMap,
+    public static void sourceReturnRspPackage(Map<String, String> commonAttrMap,
                                               Map<String, Object> resultMap,
                                               Channel remoteChannel,
                                               MsgType msgType) throws Exception {
