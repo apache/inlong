@@ -22,11 +22,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.DataSeparator;
-import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
 
 import javax.validation.constraints.NotBlank;
 import java.nio.charset.StandardCharsets;
@@ -80,7 +79,7 @@ public class HiveSinkRequest extends SinkRequest {
     private String dataEncoding = StandardCharsets.UTF_8.toString();
 
     @ApiModelProperty("Data separator")
-    private String dataSeparator = DataSeparator.SOH.getSeparator();
+    private String dataSeparator = String.valueOf((int) '\001');
 
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;

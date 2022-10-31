@@ -247,7 +247,12 @@ public class ExtractNodeUtils {
         DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
         switch (dataType) {
             case CSV:
-                format = new CsvFormat(pulsarSource.getDataSeparator());
+                String separatorStr = pulsarSource.getDataSeparator();
+                if (StringUtils.isNumeric(separatorStr)) {
+                    char dataSeparator = (char) Integer.parseInt(pulsarSource.getDataSeparator());
+                    separatorStr = Character.toString(dataSeparator);
+                }
+                format = new CsvFormat(separatorStr);
                 break;
             case AVRO:
                 format = new AvroFormat();
@@ -412,6 +417,7 @@ public class ExtractNodeUtils {
 
     /**
      * Create Redis extract node
+     *
      * @param source redis source info
      * @return redis extract source info
      */
@@ -420,8 +426,8 @@ public class ExtractNodeUtils {
         Map<String, String> properties = parseProperties(source.getProperties());
         RedisCommand command = RedisCommand.forName(source.getRedisCommand());
         RedisMode mode = RedisMode.forName(source.getRedisMode());
-        LookupOptions lookupOptions = new LookupOptions(source.getLookupCacheMaxRows(),source.getLookupCacheTtl(),
-                source.getLookupMaxRetries(),source.getLookupAsync());
+        LookupOptions lookupOptions = new LookupOptions(source.getLookupCacheMaxRows(), source.getLookupCacheTtl(),
+                source.getLookupMaxRetries(), source.getLookupAsync());
         return new RedisExtractNode(
                 source.getSourceName(),
                 source.getSourceName(),
