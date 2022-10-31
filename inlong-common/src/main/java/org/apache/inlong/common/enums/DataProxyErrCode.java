@@ -20,16 +20,16 @@ package org.apache.inlong.common.enums;
 
 public enum DataProxyErrCode {
 
-    ERR_CODE_SUCCESS(0, "Ok"),
+    SUCCESS(0, "Ok"),
 
-    ERR_CODE_UNSUPPORTED_MSGTYPE(1, "Unsupported msgType"),
-    ERR_CODE_EMPTY_MSG(2, "Empty message"),
-    ERR_CODE_UNSUPPORTED_EXTENDFIELD_VALUE(3,
+    UNSUPPORTED_MSGTYPE(1, "Unsupported msgType"),
+    EMPTY_MSG(2, "Empty message"),
+    UNSUPPORTED_EXTENDFIELD_VALUE(3,
             "Unsupported extend field value"),
-    ERR_CODE_UNCONFIGURED_GROUPID_OR_STREAMID(4,
+    UNCONFIGURED_GROUPID_OR_STREAMID(4,
             "Un-configured groupId or streamId"),
 
-    ERR_CODE_UNKNOWN(Integer.MAX_VALUE, "Unknown error");
+    UNKNOWN_ERROR(Integer.MAX_VALUE, "Unknown error");
 
     private final int errCode;
     private final String errMsg;
@@ -46,7 +46,7 @@ public enum DataProxyErrCode {
             }
         }
 
-        return ERR_CODE_UNKNOWN;
+        return UNKNOWN_ERROR;
     }
 
     public int getErrCode() {

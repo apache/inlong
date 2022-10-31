@@ -294,7 +294,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             if (commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                     || commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
                 commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
-                        DataProxyErrCode.ERR_CODE_UNSUPPORTED_EXTENDFIELD_VALUE.getErrCodeStr());
+                        DataProxyErrCode.UNSUPPORTED_EXTENDFIELD_VALUE.getErrCodeStr());
                 MessageUtils.returnSourceRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
                 return;
@@ -304,7 +304,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
             if (msgList == null) {
                 commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
-                        DataProxyErrCode.ERR_CODE_EMPTY_MSG.getErrCodeStr());
+                        DataProxyErrCode.EMPTY_MSG.getErrCodeStr());
                 MessageUtils.returnSourceRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
                 return;
@@ -417,7 +417,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     configTopic = this.defaultTopic;
                 } else {
                     commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
-                            DataProxyErrCode.ERR_CODE_UNCONFIGURED_GROUPID_OR_STREAMID.getErrCodeStr());
+                            DataProxyErrCode.UNCONFIGURED_GROUPID_OR_STREAMID.getErrCodeStr());
                     logger.debug("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
                             groupId, streamId);
                     return false;

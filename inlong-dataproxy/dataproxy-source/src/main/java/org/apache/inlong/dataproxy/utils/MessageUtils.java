@@ -158,6 +158,7 @@ public class MessageUtils {
      */
     private static ByteBuf buildHeartBeatMsgRspPackage() {
         ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer(5);
+        // magic data
         buffer.writeBytes(new byte[]{0, 0, 0, 1, 1});
         return buffer;
     }
@@ -175,6 +176,7 @@ public class MessageUtils {
         if (attrs != null) {
             attrsLen = attrs.length();
         }
+        // backTotalLen = mstType + bodyLen + body + attrsLen + attrs
         int backTotalLen = 1 + 4 + bodyLen + 4 + attrsLen;
         ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer(4 + backTotalLen);
         buffer.writeInt(backTotalLen);
@@ -196,6 +198,7 @@ public class MessageUtils {
      */
     public static ByteBuf buildBinMsgRspPackage(String attrs, String sequenceId) {
         // calculate total length
+        // binTotalLen = mstType + uniq + attrsLen + attrs + magic
         int binTotalLen = 1 + 4 + 2 + 2;
         if (null != attrs) {
             binTotalLen += attrs.length();
@@ -231,6 +234,7 @@ public class MessageUtils {
      */
     private static ByteBuf buildHBRspPackage(String attrs, byte version, int loadValue) {
         // calculate total length
+        // binTotalLen = mstType + dataTime + version + bodyLen + body + attrsLen + attrs + magic
         int binTotalLen = 1 + 4 + 1 + 4 + 2 + 2 + 2;
         if (null != attrs) {
             binTotalLen += attrs.length();
