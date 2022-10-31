@@ -137,10 +137,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             this.scheduler = new ScheduledThreadPoolExecutor(1,
                     new ExecutorThreadFactory("doris-streamload-output-format"));
             this.scheduledFuture = this.scheduler.scheduleWithFixedDelay(() -> {
-                synchronized (DorisDynamicSchemaOutputFormat.this) {
-                    if (!closed && !flushing) {
-                        flush();
-                    }
+                if (!closed && !flushing) {
+                    flush();
                 }
             }, executionOptions.getBatchIntervalMs(), executionOptions.getBatchIntervalMs(), TimeUnit.MILLISECONDS);
         }
@@ -267,6 +265,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     public synchronized void flush() {
         flushing = true;
         if (batchMap.isEmpty()) {
+            flushing = false;
             return;
         }
         List<String> errorTables = new ArrayList<>();
