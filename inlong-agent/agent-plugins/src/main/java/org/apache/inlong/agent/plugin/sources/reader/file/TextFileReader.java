@@ -18,6 +18,7 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,9 @@ public final class TextFileReader extends AbstractFileReader {
         List<String> lines = Files.newBufferedReader(fileReaderOperator.file.toPath()).lines().skip(
                 fileReaderOperator.position)
                 .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(lines)) {
+            return;
+        }
         LOGGER.info("path is {}, position is {}, data reads size {}", fileReaderOperator.file.getName(),
                 fileReaderOperator.position, lines.size());
         List<String> resultLines = new ArrayList<>();

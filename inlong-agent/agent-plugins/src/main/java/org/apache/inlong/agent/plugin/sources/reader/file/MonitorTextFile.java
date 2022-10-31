@@ -53,8 +53,9 @@ public final class MonitorTextFile {
     }
 
     /**
-     * Mode of singleton
-     * @return MonitorTextFile instance
+     * mode of singleton
+     *
+     * @return monitor text file instance
      */
     public static MonitorTextFile getInstance() {
         if (monitorTextFile == null) {
@@ -82,6 +83,7 @@ public final class MonitorTextFile {
         private final TextFileReader textFileReader;
         private final Long interval;
         private final long startTime = System.currentTimeMillis();
+        private long lastFlushTime = System.currentTimeMillis();
         private String path;
         /**
          * the last modify time of the file
@@ -143,15 +145,30 @@ public final class MonitorTextFile {
             }
             if (attributesBefore.lastModifiedTime().compareTo(attributesAfter.lastModifiedTime()) < 0) {
                 // Not triggered during data sending
-                if (Objects.nonNull(this.fileReaderOperator.iterator) && this.fileReaderOperator.iterator
-                        .hasNext()) {
-                    return;
-                }
-                this.textFileReader.getData();
-                this.textFileReader.mergeData(this.fileReaderOperator);
+                getFileData();
                 this.attributesBefore = attributesAfter;
-                this.fileReaderOperator.iterator = fileReaderOperator.stream.iterator();
+                return;
             }
+            lastFlushData();
+        }
+
+        private void lastFlushData() throws IOException {
+            long currentTime = System.currentTimeMillis();
+            if (interval * 100 > currentTime - lastFlushTime) {
+                return;
+            }
+            getFileData();
+        }
+
+        private void getFileData() throws IOException {
+            if (Objects.nonNull(this.fileReaderOperator.iterator) && this.fileReaderOperator.iterator
+                    .hasNext()) {
+                return;
+            }
+            this.textFileReader.getData();
+            this.textFileReader.mergeData(this.fileReaderOperator);
+            this.fileReaderOperator.iterator = fileReaderOperator.stream.iterator();
+            lastFlushTime = System.currentTimeMillis();
         }
     }
 }
