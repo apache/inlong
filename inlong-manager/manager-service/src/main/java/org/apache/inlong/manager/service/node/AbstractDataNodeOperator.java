@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.service.node;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
@@ -44,8 +44,6 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
 
     @Autowired
     protected DataNodeEntityMapper dataNodeEntityMapper;
-    @Autowired
-    protected ObjectMapper objectMapper;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -85,11 +83,6 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
 
     @Override
     public Map<String, String> parse2SinkParams(DataNodeInfo info) {
-        try {
-            return objectMapper.readValue(info.getExtParams(), HashMap.class);
-        } catch (Exception e) {
-            throw new BusinessException(String.format("cannot parse sink params from dataNode=%s, extParams=%s",
-                    info.getName(), info.getExtParams()));
-        }
+        return JsonUtils.parseObject(info.getExtParams(), HashMap.class);
     }
 }
