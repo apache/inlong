@@ -285,6 +285,14 @@
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
         and is_deleted = 0
     </select>
+    <select id="selectAllStreams" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo">
+        select
+               inlong_group_id,
+               inlong_stream_id,
+               mq_resource
+        from inlong_stream
+        where is_deleted = 0
+    </select>
     <select id="selectCountByGroupId" resultType="java.lang.Integer">
         select count(1)
         from inlong_stream

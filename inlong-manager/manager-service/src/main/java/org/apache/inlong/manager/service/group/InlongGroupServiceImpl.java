@@ -389,7 +389,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public InlongGroupTopicInfo getBackupTopic(String groupId) {
         // backup topic info saved in the ext table
         InlongGroupExtEntity extEntity = groupExtMapper.selectByUniqueKey(groupId, BACKUP_CLUSTER_TAG);
-        if (StringUtils.isBlank(extEntity.getKeyValue())) {
+        if (extEntity == null || StringUtils.isBlank(extEntity.getKeyValue())) {
             LOGGER.warn("not found any backup topic for groupId={}", groupId);
             return null;
         }

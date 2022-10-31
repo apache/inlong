@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.standalone;
 
-import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -28,48 +27,29 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Data
-public class SortSourceClusterInfo {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceClusterInfo.class);
-    private static final Gson GSON = new Gson();
-    private static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on("&").trimResults()
-            .withKeyValueSeparator("=");
-    private static final String KEY_IS_CONSUMABLE = "consumer";
+public class SortSourceStreamSinkInfo {
 
     private static final long serialVersionUID = 1L;
-    String name;
-    String type;
-    String url;
-    String clusterTags;
-    String extTag;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceStreamSinkInfo.class);
+    private static final Gson GSON = new Gson();
+    String sortClusterName;
+    String sortTaskName;
+    String groupId;
     String extParams;
-    Map<String, String> extTagMap = new ConcurrentHashMap<>();
-    Map<String, String> extParamsMap = new ConcurrentHashMap<>();
+    Map<String, String> extParamsMap;
 
     public Map<String, String> getExtParamsMap() {
-        if (extParamsMap.isEmpty() && extParams != null) {
+        if (extParamsMap != null) {
+            return extParamsMap;
+        }
+        if (StringUtils.isNotBlank(extParams)) {
             try {
                 extParamsMap = GSON.fromJson(extParams, Map.class);
             } catch (Throwable t) {
-                LOGGER.error("fail to parse cluster ext params", t);
+                LOGGER.error("fail to parse source stream ext params", t);
+                extParamsMap = new ConcurrentHashMap<>();
             }
         }
         return extParamsMap;
-    }
-
-    public Map<String, String> getExtTagMap() {
-        if (extTagMap.isEmpty() && StringUtils.isNotBlank(extTag)) {
-            try {
-                extTagMap = MAP_SPLITTER.split(extTag);
-            } catch (Throwable t) {
-                LOGGER.error("fail to parse cluster ext tag params", t);
-            }
-        }
-        return extTagMap;
-    }
-
-    public boolean isConsumable() {
-        String isConsumable = this.getExtTagMap().get(KEY_IS_CONSUMABLE);
-        return isConsumable == null || "true".equalsIgnoreCase(isConsumable);
     }
 }

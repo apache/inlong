@@ -17,19 +17,28 @@
 
 package org.apache.inlong.manager.service.sort;
 
+import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.SortService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +49,9 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Sort service test for {@link SortService}
@@ -51,7 +62,9 @@ public class SortServiceImplTest extends ServiceBaseTest {
     private static final String TEST_CLUSTER = "testCluster";
     private static final String TEST_TASK = "testTask";
     private static final String TEST_GROUP = "testGroup";
+    private static final String TEST_STREAM = "1";
     private static final String TEST_TAG = "testTag";
+    private static final String BACK_UP_TAG = "testBackupTag";
     private static final String TEST_TOPIC = "testTopic";
     private static final String TEST_SINK_TYPE = "testSinkType";
     private static final String TEST_CREATOR = "testUser";
@@ -66,6 +79,12 @@ public class SortServiceImplTest extends ServiceBaseTest {
     private DataNodeEntityMapper dataNodeEntityMapper;
     @Autowired
     private SortService sortService;
+    @Autowired
+    private InlongClusterService clusterService;
+    @Autowired
+    private InlongGroupService groupService;
+    @Autowired
+    private InlongStreamService streamService;
 
     @Test
     @Order(1)
@@ -173,10 +192,12 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @BeforeEach
     private void prepareAll() {
         this.prepareCluster(TEST_CLUSTER);
-        this.prepareTask(TEST_TASK, TEST_GROUP, TEST_CLUSTER);
-        this.prepareGroupId(TEST_GROUP);
-        this.preparePulsar("testPulsar", true);
+        this.preparePulsar("testPulsar", true, TEST_TAG);
+        this.preparePulsar("testPulsar2", true, BACK_UP_TAG);
         this.prepareDataNode(TEST_TASK);
+        this.prepareGroupId(TEST_GROUP);
+        this.prepareStreamId(TEST_GROUP, TEST_STREAM);
+        this.prepareTask(TEST_TASK, TEST_GROUP, TEST_CLUSTER);
     }
 
     private void prepareDataNode(String taskName) {
@@ -195,20 +216,50 @@ public class SortServiceImplTest extends ServiceBaseTest {
     }
 
     private void prepareGroupId(String groupId) {
-        InlongGroupEntity entity = new InlongGroupEntity();
-        entity.setInlongGroupId(groupId);
-        entity.setInlongClusterTag(TEST_TAG);
-        entity.setMqResource(TEST_TOPIC);
-        entity.setMqType("PULSAR");
-        entity.setName("testName");
-        entity.setDescription("testDescription");
-        entity.setCreator(TEST_CREATOR);
-        entity.setInCharges(TEST_CREATOR);
-        entity.setCreateTime(new Date());
-        entity.setModifyTime(new Date());
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
-        inlongGroupEntityMapper.insert(entity);
+        InlongPulsarRequest request = new InlongPulsarRequest();
+        request.setInlongGroupId(groupId);
+        request.setMqResource("test_namespace");
+        request.setInlongClusterTag(TEST_TAG);
+        request.setVersion(InlongConstants.INITIAL_VERSION);
+        request.setName("test_group_name");
+        request.setMqType(ClusterType.PULSAR);
+        request.setInCharges(TEST_CREATOR);
+        List<InlongGroupExtInfo> extList = new ArrayList<>();
+        InlongGroupExtInfo ext1 = InlongGroupExtInfo
+                .builder()
+                .inlongGroupId(groupId)
+                .keyName(ClusterSwitch.BACKUP_CLUSTER_TAG)
+                .keyValue(BACK_UP_TAG)
+                .build();
+        InlongGroupExtInfo ext2 = InlongGroupExtInfo
+                .builder()
+                .inlongGroupId(groupId)
+                .keyName(ClusterSwitch.BACKUP_MQ_RESOURCE)
+                .keyValue("backup_name")
+                .build();
+
+        extList.add(ext1);
+        extList.add(ext2);
+        request.setExtList(extList);
+        groupService.save(request, "test operator");
+    }
+
+    private void prepareStreamId(String groupId, String streamId) {
+        InlongStreamRequest request = new InlongStreamRequest();
+        request.setInlongGroupId(groupId);
+        request.setInlongStreamId(streamId);
+        request.setName("test_stream_name");
+        request.setMqResource(TEST_TOPIC);
+        request.setVersion(InlongConstants.INITIAL_VERSION);
+        List<InlongStreamExtInfo> extInfos = new ArrayList<>();
+        InlongStreamExtInfo ext = new InlongStreamExtInfo();
+        extInfos.add(ext);
+        ext.setInlongStreamId(streamId);
+        ext.setInlongGroupId(groupId);
+        ext.setKeyName(ClusterSwitch.BACKUP_MQ_RESOURCE);
+        ext.setKeyValue("backup_topic");
+        request.setExtList(extInfos);
+        streamService.save(request, "test_operator");
     }
 
     private void prepareCluster(String clusterName) {
@@ -226,25 +277,21 @@ public class SortServiceImplTest extends ServiceBaseTest {
         clusterEntityMapper.insert(entity);
     }
 
-    private void preparePulsar(String pulsarName, boolean isConsumable) {
-        InlongClusterEntity entity = new InlongClusterEntity();
-        entity.setName(pulsarName);
-        entity.setType("PULSAR");
-        entity.setClusterTags(TEST_TAG);
-        entity.setCreator(TEST_CREATOR);
-        entity.setInCharges(TEST_CREATOR);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
+    private void preparePulsar(String pulsarName, boolean isConsumable, String tag) {
+        PulsarClusterRequest request = new PulsarClusterRequest();
+        request.setUrl("testServiceUrl");
+        request.setName(pulsarName);
+        request.setType(ClusterType.PULSAR);
+        request.setClusterTags(tag);
+        request.setInCharges(TEST_CREATOR);
+        request.setVersion(InlongConstants.INITIAL_VERSION);
         String extTag = "zone=" + TEST_TAG
                 + "&producer=true"
                 + "&consumer=" + (isConsumable ? "true" : "false");
-        entity.setExtTag(extTag);
-        entity.setExtParams("{\"tenant\":\"testTenant\",\"namespace\":\"testNS\",\"serviceUrl\":\"testServiceUrl\","
+        request.setExtTag(extTag);
+        request.setExtParams("{\"tenant\":\"testTenant\","
                 + "\"authentication\":\"testAuth\",\"adminUrl\":\"testAdmin\"}");
-        clusterEntityMapper.insert(entity);
+        clusterService.save(request, "test operator");
     }
 
     private void prepareTask(String taskName, String groupId, String clusterName) {

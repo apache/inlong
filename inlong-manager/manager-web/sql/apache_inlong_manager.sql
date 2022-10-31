@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
     `type`          varchar(20)  NOT NULL COMMENT 'Cluster type, such as: AGENT, DATAPROXY, etc',
     `ip`            varchar(512) NOT NULL COMMENT 'Cluster IP, separated by commas, such as: 127.0.0.1:8080,host2:8081',
     `port`          int(6)       NULL COMMENT 'Cluster port',
-    `protocol_type` varchar(20)  DEFAULT NULL COMMENT 'DATAPROXY Source listen protocol type, such as: TCP/HTTP',
+    `protocol_type` varchar(20)           DEFAULT NULL COMMENT 'DATAPROXY Source listen protocol type, such as: TCP/HTTP',
     `ext_params`    mediumtext            DEFAULT NULL COMMENT 'Another fields will be saved as JSON string',
     `description`   varchar(256)          DEFAULT '' COMMENT 'Description of cluster node',
     `status`        int(4)                DEFAULT '0' COMMENT 'Cluster status',
@@ -208,48 +208,6 @@ CREATE TABLE IF NOT EXISTS `data_node`
     UNIQUE KEY `unique_data_node` (`name`, `type`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data node table';
-
--- ----------------------------
--- Deprecated: Table structure for consumption
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `consumption`
-(
-    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `consumer_group`   varchar(256) NOT NULL COMMENT 'Consumer group',
-    `in_charges`       varchar(512) NOT NULL COMMENT 'Person in charge of consumption',
-    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
-    `mq_type`          varchar(10)           DEFAULT 'TUBE' COMMENT 'Message queue type, high throughput: TUBE, high consistency: PULSAR',
-    `topic`            varchar(256) NOT NULL COMMENT 'Consumption topic',
-    `filter_enabled`   int(2)                DEFAULT '0' COMMENT 'Whether to filter, default 0, not filter consume',
-    `inlong_stream_id` varchar(256)          DEFAULT NULL COMMENT 'Inlong stream ID for consumption, if filter_enable is 1, it cannot empty',
-    `status`           int(4)       NOT NULL COMMENT 'Status: draft, pending approval, approval rejected, approval passed',
-    `is_deleted`       int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`          varchar(64)  NOT NULL COMMENT 'creator',
-    `modifier`         varchar(64)           DEFAULT NULL COMMENT 'modifier',
-    `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data consumption configuration table';
-
--- ----------------------------
--- Deprecated: Table structure for consumption_pulsar
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `consumption_pulsar`
-(
-    `id`                 int(11)      NOT NULL AUTO_INCREMENT,
-    `consumption_id`     int(11)      DEFAULT NULL COMMENT 'ID of the consumption information to which it belongs, guaranteed to be uniquely associated with consumption information',
-    `consumer_group`     varchar(256) NOT NULL COMMENT 'Consumer group',
-    `inlong_group_id`    varchar(256) NOT NULL COMMENT 'Inlong group ID',
-    `is_rlq`             tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure the retry letter topic, 0: no configuration, 1: configuration',
-    `retry_letter_topic` varchar(256) DEFAULT NULL COMMENT 'The name of the retry queue topic',
-    `is_dlq`             tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure dead letter topic, 0: no configuration, 1: means configuration',
-    `dead_letter_topic`  varchar(256) DEFAULT NULL COMMENT 'dead letter topic name',
-    `is_deleted`         int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Pulsar consumption table';
 
 -- ----------------------------
 -- Table structure for stream_source_cmd_config

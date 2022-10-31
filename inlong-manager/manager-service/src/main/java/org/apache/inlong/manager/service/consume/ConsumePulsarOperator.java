@@ -21,23 +21,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.MQType;
-import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
-import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
-import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarDTO;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarInfo;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarRequest;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarTopicInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +54,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
     private static final String PREFIX_RLQ = "rlq";
 
     @Autowired
-    private InlongGroupEntityMapper groupMapper;
+    private InlongGroupService groupService;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
     @Autowired
@@ -81,20 +79,18 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         // one inlong stream only has one Pulsar topic,
         // one inlong group may have multiple Pulsar topics.
         String groupId = request.getInlongGroupId();
+        InlongGroupTopicInfo topicInfo = groupService.getTopic(groupId);
+        Preconditions.checkNotNull(topicInfo, "inlong group not exist for groupId=" + groupId);
+
+        // check the origin topic from request exists
+        InlongPulsarTopicInfo pulsarTopic = (InlongPulsarTopicInfo) topicInfo;
         String originTopic = request.getTopic();
-        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, originTopic);
-        Preconditions.checkNotNull(streamEntity, "not found any Pulsar topic for inlong group " + groupId);
+        Preconditions.checkTrue(pulsarTopic.getTopics().contains(originTopic),
+                "Pulsar topic not exist for " + originTopic);
 
         // format the topic to 'tenant/namespace/topic'
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(
-                groupEntity.getInlongClusterTag(), null, ClusterType.PULSAR);
-        String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                ? InlongConstants.DEFAULT_PULSAR_TENANT
-                : pulsarCluster.getTenant();
-
-        request.setTopic(String.format(InlongConstants.PULSAR_TOPIC_FORMAT, tenant,
-                groupEntity.getMqResource(), originTopic));
+        request.setTopic(String.format(InlongConstants.PULSAR_TOPIC_FORMAT,
+                pulsarTopic.getTenant(), pulsarTopic.getNamespace(), originTopic));
     }
 
     @Override
@@ -122,8 +118,8 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
             throw new BusinessException(ErrorCodeEnum.PULSAR_DLQ_RLQ_ERROR);
         }
 
-        // when saving, the DLQ / RLQ under the same groupId cannot be repeated.
-        // when updating, delete the related DLQ / RLQ info.
+        // TODO when saving, save the enabled DLQ / RLQ into inlong_stream, then create Pulsar topic for them
+        //  when updating, delete the related DLQ / RLQ info if they were disabled.
         String groupId = targetEntity.getInlongGroupId();
         if (dlqEnable) {
             String dlqTopic = PREFIX_DLQ + "_" + pulsarRequest.getDeadLetterTopic();
@@ -132,6 +128,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         } else {
             pulsarRequest.setIsDlq(DLQ__RLQ_DISABLE);
             pulsarRequest.setDeadLetterTopic(null);
+            // streamService.logicDeleteDlqOrRlq(groupId, dlqNameOld, operator);
         }
         if (rlqEnable) {
             String rlqTopic = PREFIX_RLQ + "_" + pulsarRequest.getRetryLetterTopic();
@@ -140,6 +137,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         } else {
             pulsarRequest.setIsRlq(DLQ__RLQ_DISABLE);
             pulsarRequest.setRetryLetterTopic(null);
+            // streamService.logicDeleteDlqOrRlq(groupId, rlqNameOld, operator);
         }
 
         try {

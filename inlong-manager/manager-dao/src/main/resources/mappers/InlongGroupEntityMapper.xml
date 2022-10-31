@@ -202,7 +202,7 @@
     <select id="selectAllGroups" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo">
         select inlong_group_id    as groupId,
                inlong_cluster_tag as clusterTag,
-               mq_resource        as topic,
+               mq_resource        as mqResource,
                ext_params         as extParams,
                mq_type            as mqType
         from inlong_group

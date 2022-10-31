@@ -18,7 +18,9 @@
 package org.apache.inlong.manager.service.group;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -26,6 +28,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
@@ -110,7 +113,13 @@ public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
 
     @Override
     public InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo) {
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(
+                groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
+        String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
+                ? InlongConstants.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+
         InlongPulsarTopicInfo topicInfo = new InlongPulsarTopicInfo();
+        topicInfo.setTenant(tenant);
         topicInfo.setNamespace(groupInfo.getMqResource());
         // each inlong stream is associated with a Pulsar topic
         List<String> topics = streamService.getTopicList(groupInfo.getInlongGroupId()).stream()
@@ -135,16 +144,17 @@ public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
 
         // set backup topics, each inlong stream is associated with a Pulsar topic
         List<InlongStreamBriefInfo> streamTopics = streamService.getTopicList(groupId);
-        streamTopics.forEach(stream -> {
-            InlongStreamExtEntity streamExtEntity = streamExtMapper.selectByKey(groupId, stream.getInlongStreamId(),
-                    BACKUP_MQ_RESOURCE);
-            if (streamExtEntity != null && StringUtils.isNotBlank(streamExtEntity.getKeyValue())) {
-                stream.setMqResource(streamExtEntity.getKeyValue());
-            }
-        });
         List<String> topics = streamTopics.stream()
-                .map(InlongStreamBriefInfo::getMqResource)
+                .map(stream -> {
+                    InlongStreamExtEntity streamExtEntity = streamExtMapper.selectByKey(groupId,
+                            stream.getInlongStreamId(), BACKUP_MQ_RESOURCE);
+                    if (streamExtEntity != null && StringUtils.isNotBlank(streamExtEntity.getKeyValue())) {
+                        return streamExtEntity.getKeyValue();
+                    }
+                    return stream.getMqResource();
+                })
                 .collect(Collectors.toList());
+
         topicInfo.setTopics(topics);
 
         return topicInfo;

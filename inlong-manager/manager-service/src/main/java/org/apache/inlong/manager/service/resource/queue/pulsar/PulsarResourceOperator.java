@@ -252,7 +252,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
                 pulsarOperator.createSubscription(pulsarAdmin, fullTopicName, pulsarInfo.getQueueModule(), subs);
                 log.info("success to create subs={} for groupId={}, topic={}", subs, groupId, fullTopicName);
 
-                // insert the consumer group info into the consumption table
+                // insert the consumer group info into the inlong_consume table
                 Integer id = consumeService.saveBySystem(pulsarInfo, topicName, subs);
                 log.info("success to save inlong consume [{}] for subs={}, groupId={}, topic={}",
                         id, subs, groupId, topicName);
