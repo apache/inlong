@@ -60,6 +60,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
 /**
  * DorisDynamicSchemaOutputFormat, copy from {@link org.apache.doris.flink.table.DorisDynamicOutputFormat}
@@ -103,7 +105,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private transient ScheduledFuture<?> scheduledFuture;
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
 
-    private final MetricOption metricOption;
+    private final String inlongMetric;
+    private final String auditHostAndPorts;
     private transient SinkMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
@@ -115,7 +118,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             String databasePattern,
             String tablePattern,
             boolean ignoreSingleTableErrors,
-            MetricOption metricOption) {
+            String inlongMetric,
+            String auditHostAndPorts) {
         this.options = option;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
@@ -123,7 +127,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
         this.ignoreSingleTableErrors = ignoreSingleTableErrors;
-        this.metricOption = metricOption;
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
     }
 
     /**
@@ -152,6 +157,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 executionOptions.getStreamLoadProp());
         jsonDynamicSchemaFormat = (JsonDynamicSchemaFormat)
                 DynamicSchemaFormatFactory.getFormat(dynamicSchemaFormat);
+        MetricOption metricOption = MetricOption.builder()
+                .withInlongLabels(inlongMetric)
+                .withInlongAudit(auditHostAndPorts)
+                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
+                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withRegisterMetric(MetricOption.RegisteredMetric.ALL)
+                .build();
         if (metricOption != null) {
             metricData = new SinkMetricData(metricOption, getRuntimeContext().getMetricGroup());
         }
@@ -384,7 +396,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     public void initializeState(FunctionInitializationContext context) throws Exception {
-        if (this.metricOption != null) {
+        if (this.inlongMetric != null) {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
@@ -408,7 +420,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         private String databasePattern;
         private String tablePattern;
         private boolean ignoreSingleTableErrors;
-        private MetricOption metricOption;
+        private String inlongMetric;
+        private String auditHostAndPorts;
 
         public Builder() {
             this.optionsBuilder = DorisOptions.builder().setTableIdentifier("");
@@ -460,8 +473,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             return this;
         }
 
-        public DorisDynamicSchemaOutputFormat.Builder setMetricOption(MetricOption metricOption) {
-            this.metricOption = metricOption;
+        public DorisDynamicSchemaOutputFormat.Builder setInlongMetric(String inlongMetric) {
+            this.inlongMetric = inlongMetric;
+            return this;
+        }
+
+        public DorisDynamicSchemaOutputFormat.Builder setAuditHostAndPorts(String auditHostAndPorts) {
+            this.auditHostAndPorts = auditHostAndPorts;
             return this;
         }
 
@@ -469,7 +487,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         public DorisDynamicSchemaOutputFormat build() {
             return new DorisDynamicSchemaOutputFormat(
                     optionsBuilder.build(), readOptions, executionOptions,
-                    dynamicSchemaFormat, databasePattern, tablePattern, ignoreSingleTableErrors, metricOption);
+                    dynamicSchemaFormat, databasePattern, tablePattern,
+                    ignoreSingleTableErrors, inlongMetric, auditHostAndPorts);
         }
     }
 }

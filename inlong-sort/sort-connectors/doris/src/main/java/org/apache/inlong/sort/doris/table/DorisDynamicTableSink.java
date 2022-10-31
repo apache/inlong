@@ -27,7 +27,6 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.OutputFormatProvider;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.doris.internal.GenericDorisSinkFunction;
 
 /**
@@ -45,7 +44,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     private final String databasePattern;
     private final String tablePattern;
     private final boolean ignoreSingleTableErrors;
-    private final MetricOption metricOption;
+    private final String inlongMetric;
+    private final String auditHostAndPorts;
     private final Integer parallelism;
 
     public DorisDynamicTableSink(DorisOptions options,
@@ -57,7 +57,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
             String databasePattern,
             String tablePattern,
             boolean ignoreSingleTableErrors,
-            MetricOption metricOption,
+            String inlongMetric,
+            String auditHostAndPorts,
             Integer parallelism) {
         this.options = options;
         this.readOptions = readOptions;
@@ -68,7 +69,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
         this.ignoreSingleTableErrors = ignoreSingleTableErrors;
-        this.metricOption = metricOption;
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
         this.parallelism = parallelism;
     }
 
@@ -106,7 +108,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 .setTablePattern(tablePattern)
                 .setDynamicSchemaFormat(sinkMultipleFormat)
                 .setIgnoreSingleTableErrors(ignoreSingleTableErrors)
-                .setMetricOption(metricOption);
+                .setInlongMetric(inlongMetric)
+                .setAuditHostAndPorts(auditHostAndPorts);
         return SinkFunctionProvider.of(
                 new GenericDorisSinkFunction<>(builder.build()), parallelism);
     }
@@ -114,8 +117,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     @Override
     public DynamicTableSink copy() {
         return new DorisDynamicTableSink(options, readOptions, executionOptions, tableSchema,
-                multipleSink, sinkMultipleFormat, databasePattern,
-                tablePattern, ignoreSingleTableErrors, metricOption, parallelism);
+                multipleSink, sinkMultipleFormat, databasePattern, tablePattern,
+                ignoreSingleTableErrors, inlongMetric, auditHostAndPorts, parallelism);
     }
 
     @Override

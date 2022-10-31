@@ -37,7 +37,6 @@ import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.base.metric.MetricOption;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -302,10 +301,8 @@ public final class DorisDynamicTableFactory implements DynamicTableSourceFactory
         String sinkMultipleFormat = helper.getOptions().getOptional(SINK_MULTIPLE_FORMAT).orElse(null);
         validateSinkMultiple(physicalSchema.toPhysicalRowDataType(),
                 multipleSink, sinkMultipleFormat, databasePattern, tablePattern);
-        MetricOption metricOption = MetricOption.builder()
-                .withInlongLabels(helper.getOptions().getOptional(INLONG_METRIC).orElse(INLONG_METRIC.defaultValue()))
-                .withInlongAudit(helper.getOptions().getOptional(INLONG_AUDIT).orElse(INLONG_AUDIT.defaultValue()))
-                .build();
+        String inlongMetric = helper.getOptions().getOptional(INLONG_METRIC).orElse(INLONG_METRIC.defaultValue());
+        String auditHostAndPorts = helper.getOptions().getOptional(INLONG_AUDIT).orElse(INLONG_AUDIT.defaultValue());
         Integer parallelism = helper.getOptions().getOptional(FactoryUtil.SINK_PARALLELISM).orElse(1);
         // create and return dynamic table sink
         return new DorisDynamicTableSink(
@@ -313,7 +310,7 @@ public final class DorisDynamicTableFactory implements DynamicTableSourceFactory
                 getDorisReadOptions(helper.getOptions()),
                 getDorisExecutionOptions(helper.getOptions(), streamLoadProp),
                 physicalSchema, multipleSink, sinkMultipleFormat, databasePattern,
-                tablePattern, ignoreSingleTableErrors, metricOption, parallelism);
+                tablePattern, ignoreSingleTableErrors, inlongMetric, auditHostAndPorts, parallelism);
     }
 
     private void validateSinkMultiple(DataType physicalDataType, boolean multipleSink, String sinkMultipleFormat,
