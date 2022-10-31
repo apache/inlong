@@ -18,18 +18,24 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.ibatis.cursor.Cursor;
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.sort.standalone.SortFieldInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamSinkInfo;
+import org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo;
 import org.apache.inlong.manager.service.core.SortConfigLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +51,8 @@ public class SortConfigLoaderImpl implements SortConfigLoader {
     @Autowired
     private StreamSinkEntityMapper streamSinkEntityMapper;
     @Autowired
+    private StreamSinkFieldEntityMapper streamSinkFieldEntityMapper;
+    @Autowired
     private InlongGroupEntityMapper inlongGroupEntityMapper;
     @Autowired
     private InlongGroupExtEntityMapper inlongGroupExtEntityMapper;
@@ -52,6 +60,8 @@ public class SortConfigLoaderImpl implements SortConfigLoader {
     private InlongStreamExtEntityMapper inlongStreamExtEntityMapper;
     @Autowired
     private InlongStreamEntityMapper inlongStreamEntityMapper;
+    @Autowired
+    private DataNodeEntityMapper dataNodeEntityMapper;
 
     @Transactional
     @Override
@@ -105,5 +115,41 @@ public class SortConfigLoaderImpl implements SortConfigLoader {
         List<SortSourceStreamInfo> allStreams = new ArrayList<>();
         cursor.forEach(allStreams::add);
         return allStreams;
+    }
+
+    @Transactional
+    @Override
+    public List<StreamSinkEntity> loadAllStreamSinkEntity() {
+        Cursor<StreamSinkEntity> cursor = streamSinkEntityMapper.selectAllStreamSinks();
+        List<StreamSinkEntity> allStreamSinks = new ArrayList<>();
+        cursor.forEach(allStreamSinks::add);
+        return allStreamSinks;
+    }
+
+    @Transactional
+    @Override
+    public List<SortTaskInfo> loadAllTask() {
+        Cursor<SortTaskInfo> cursor = streamSinkEntityMapper.selectAllTasks();
+        List<SortTaskInfo> allTasks = new ArrayList<>();
+        cursor.forEach(allTasks::add);
+        return allTasks;
+    }
+
+    @Transactional
+    @Override
+    public List<DataNodeEntity> loadAllDataNodeEntity() {
+        Cursor<DataNodeEntity> cursor = dataNodeEntityMapper.selectAllDataNodes();
+        List<DataNodeEntity> allDataNodes = new ArrayList<>();
+        cursor.forEach(allDataNodes::add);
+        return allDataNodes;
+    }
+
+    @Transactional
+    @Override
+    public List<SortFieldInfo> loadAllFields() {
+        Cursor<SortFieldInfo> cursor = streamSinkFieldEntityMapper.selectAllFields();
+        List<SortFieldInfo> allFields = new ArrayList<>();
+        cursor.forEach(allFields::add);
+        return allFields;
     }
 }

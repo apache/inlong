@@ -120,21 +120,24 @@ public interface StreamSinkEntityMapper {
      */
     List<SinkInfo> selectAllConfig(@Param("groupId") String groupId, @Param("idList") List<String> streamIdList);
 
-    List<StreamSinkEntity> selectAllStreamSinks();
+    @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
+    Cursor<StreamSinkEntity> selectAllStreamSinks();
 
     /**
      * Select all tasks for sort-standalone
      *
      * @return All tasks
      */
-    List<SortTaskInfo> selectAllTasks();
+    @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
+    Cursor<SortTaskInfo> selectAllTasks();
 
     /**
      * Select all id params for sort-standalone
      *
      * @return All id params
      */
-    List<SortIdInfo> selectAllIdParams();
+    @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
+    Cursor<SortIdInfo> selectAllIdParams();
 
     /**
      * Select all streams for sort sdk.

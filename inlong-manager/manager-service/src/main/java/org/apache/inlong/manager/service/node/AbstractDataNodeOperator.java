@@ -21,14 +21,19 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Default operation of data node.
@@ -74,5 +79,10 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
                     request.getName(), request.getType(), request.getVersion(), rowCount);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
+    }
+
+    @Override
+    public Map<String, String> parse2SinkParams(DataNodeInfo info) {
+        return JsonUtils.parseObject(info.getExtParams(), HashMap.class);
     }
 }

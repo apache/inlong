@@ -119,7 +119,15 @@
           and field.is_deleted = 0
           and sink.is_deleted = 0
     </select>
-
+    <select id="selectAllFields" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortFieldInfo">
+        select
+            inlong_group_id,
+            inlong_stream_id,
+            field_name
+        from stream_sink_field
+        where is_deleted = 0
+        order by id asc
+    </select>
     <update id="logicDeleteAll">
         update stream_sink_field
         set is_deleted = id
