@@ -77,12 +77,30 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
         deleteMQTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(deleteMQTask);
 
+        // Delete Source
+        ServiceTask deleteSourceTask = new ServiceTask();
+        deleteSourceTask.setName("DeleteSource");
+        deleteSourceTask.setDisplayName("Group-DeleteSource");
+        deleteSourceTask.setServiceTaskType(ServiceTaskType.DELETE_SOURCE);
+        deleteSourceTask.setListenerFactory(groupTaskListenerFactory);
+        process.addTask(deleteSourceTask);
+
+        // Delete Sort
+        ServiceTask deleteSortTask = new ServiceTask();
+        deleteSortTask.setName("DeleteSort");
+        deleteSortTask.setDisplayName("Group-DeleteSort");
+        deleteSortTask.setServiceTaskType(ServiceTaskType.DELETE_SORT);
+        deleteSortTask.setListenerFactory(groupTaskListenerFactory);
+        process.addTask(deleteSortTask);
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        startEvent.addNext(deleteMQTask);
-        deleteMQTask.addNext(endEvent);
+        startEvent.addNext(deleteSourceTask);
+        deleteSourceTask.addNext(deleteMQTask);
+        deleteMQTask.addNext(deleteSortTask);
+        deleteSortTask.addNext(endEvent);
 
         return process;
     }

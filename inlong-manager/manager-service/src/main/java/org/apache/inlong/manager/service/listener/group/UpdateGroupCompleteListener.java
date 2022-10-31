@@ -22,23 +22,16 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
-import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * The listener of InlongGroup when update operates successfully.
@@ -51,8 +44,6 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
     private InlongGroupService groupService;
     @Autowired
     private StreamSourceService sourceService;
-    @Autowired
-    private WorkflowService workflowService;
 
     @Override
     public ProcessEvent event() {
@@ -84,14 +75,6 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         }
         InlongGroupInfo groupInfo = form.getGroupInfo();
         groupService.update(groupInfo.genRequest(), operator);
-        if (Objects.equals(operateType, GroupOperateType.DELETE)) {
-            List<InlongStreamInfo> streamList = form.getStreamInfos();
-            for (InlongStreamInfo streamInfo : streamList) {
-                StreamResourceProcessForm processForm = genStreamProcessForm(groupInfo, streamInfo, operateType);
-                EXECUTOR_SERVICE.execute(
-                        () -> workflowService.start(ProcessName.DELETE_STREAM_RESOURCE, operator, processForm));
-            }
-        }
         // if the inlong group is lightweight mode, the stream source needs to be processed.
         if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
             changeSource4Lightweight(groupId, operateType, operator);
@@ -116,15 +99,6 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
                 log.warn("unsupported operate={} for inlong group", operateType);
                 break;
         }
-    }
-
-    private StreamResourceProcessForm genStreamProcessForm(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            GroupOperateType operateType) {
-        StreamResourceProcessForm processForm = new StreamResourceProcessForm();
-        processForm.setGroupInfo(groupInfo);
-        processForm.setStreamInfo(streamInfo);
-        processForm.setGroupOperateType(operateType);
-        return processForm;
     }
 
 }

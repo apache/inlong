@@ -77,14 +77,23 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initMQTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(initMQTask);
 
+        // Init Sort
+        ServiceTask initSortTask = new ServiceTask();
+        initSortTask.setName("InitSort");
+        initSortTask.setDisplayName("Group-InitSort");
+        initSortTask.setServiceTaskType(ServiceTaskType.INIT_SORT);
+        initSortTask.setListenerFactory(groupTaskListenerFactory);
+        process.addTask(initSortTask);
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        // Task dependency order: 1.MQ
+        // Task dependency order: 1.MQ -> 2.Sort
         // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
         startEvent.addNext(initMQTask);
-        initMQTask.addNext(endEvent);
+        initMQTask.addNext(initSortTask);
+        initSortTask.addNext(endEvent);
 
         return process;
     }

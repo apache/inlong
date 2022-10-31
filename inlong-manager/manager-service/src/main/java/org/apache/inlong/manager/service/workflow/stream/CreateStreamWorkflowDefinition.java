@@ -85,14 +85,6 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         initSinkTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(initSinkTask);
 
-        // Init Sort
-        ServiceTask initSortTask = new ServiceTask();
-        initSortTask.setName("InitSort");
-        initSortTask.setDisplayName("Stream-InitSort");
-        initSortTask.setServiceTaskType(ServiceTaskType.INIT_SORT);
-        initSortTask.setListenerFactory(streamTaskListenerFactory);
-        process.addTask(initSortTask);
-
         // Init Source
         ServiceTask initSourceTask = new ServiceTask();
         initSourceTask.setName("InitSource");
@@ -109,8 +101,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
         startEvent.addNext(initMQTask);
         initMQTask.addNext(initSinkTask);
-        initSinkTask.addNext(initSortTask);
-        initSortTask.addNext(initSourceTask);
+        initSinkTask.addNext(initSourceTask);
         initSourceTask.addNext(endEvent);
 
         return process;
