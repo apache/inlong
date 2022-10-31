@@ -247,12 +247,12 @@ public class ExtractNodeUtils {
         DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
         switch (dataType) {
             case CSV:
-                String dataSeparatorStr = pulsarSource.getDataSeparator();
-                if (StringUtils.isNumeric(dataSeparatorStr)) {
+                String separatorStr = pulsarSource.getDataSeparator();
+                if (StringUtils.isNumeric(separatorStr)) {
                     char dataSeparator = (char) Integer.parseInt(pulsarSource.getDataSeparator());
-                    dataSeparatorStr = Character.toString(dataSeparator);
+                    separatorStr = Character.toString(dataSeparator);
                 }
-                format = new CsvFormat(dataSeparatorStr);
+                format = new CsvFormat(separatorStr);
                 break;
             case AVRO:
                 format = new AvroFormat();
