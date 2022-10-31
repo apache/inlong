@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-version: '3.5'
+version: '2.3'
 
 services:
   mysql:
@@ -43,7 +43,7 @@ services:
     command: bin/pulsar standalone
 
   manager:
-    image: inlong/manager
+    image: inlong/manager:latest
     container_name: manager
     depends_on:
       mysql:
@@ -60,7 +60,7 @@ services:
       - AUDIT_PROXY_URL=audit:10081
 
   webisite:
-    image: inlong/dashboard
+    image: inlong/dashboard:latest
     container_name: dashboard
     depends_on:
       - manager
