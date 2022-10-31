@@ -25,7 +25,10 @@ import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.OutputFormatProvider;
+import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.doris.internal.GenericDorisSinkFunction;
 
 /**
  * DorisDynamicTableSink copy from {@link org.apache.doris.flink.table.DorisDynamicTableSink}
@@ -42,6 +45,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     private final String databasePattern;
     private final String tablePattern;
     private final boolean ignoreSingleTableErrors;
+    private final MetricOption metricOption;
+    private final Integer parallelism;
 
     public DorisDynamicTableSink(DorisOptions options,
             DorisReadOptions readOptions,
@@ -51,7 +56,9 @@ public class DorisDynamicTableSink implements DynamicTableSink {
             String sinkMultipleFormat,
             String databasePattern,
             String tablePattern,
-            boolean ignoreSingleTableErrors) {
+            boolean ignoreSingleTableErrors,
+            MetricOption metricOption,
+            Integer parallelism) {
         this.options = options;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
@@ -61,6 +68,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
         this.ignoreSingleTableErrors = ignoreSingleTableErrors;
+        this.metricOption = metricOption;
+        this.parallelism = parallelism;
     }
 
     @Override
@@ -96,14 +105,17 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 .setDatabasePattern(databasePattern)
                 .setTablePattern(tablePattern)
                 .setDynamicSchemaFormat(sinkMultipleFormat)
-                .setIgnoreSingleTableErrors(ignoreSingleTableErrors);
-        return OutputFormatProvider.of(builder.build());
+                .setIgnoreSingleTableErrors(ignoreSingleTableErrors)
+                .setMetricOption(metricOption);
+        return SinkFunctionProvider.of(
+                new GenericDorisSinkFunction<>(builder.build()), parallelism);
     }
 
     @Override
     public DynamicTableSink copy() {
         return new DorisDynamicTableSink(options, readOptions, executionOptions, tableSchema,
-                multipleSink, sinkMultipleFormat, databasePattern, tablePattern, ignoreSingleTableErrors);
+                multipleSink, sinkMultipleFormat, databasePattern,
+                tablePattern, ignoreSingleTableErrors, metricOption, parallelism);
     }
 
     @Override

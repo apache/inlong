@@ -27,6 +27,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.constant.DorisConstant;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
@@ -53,7 +54,7 @@ import static org.apache.inlong.sort.protocol.constant.DorisConstant.SINK_MULTIP
 @JsonInclude(Include.NON_NULL)
 @Data
 @NoArgsConstructor
-public class DorisLoadNode extends LoadNode implements Serializable {
+public class DorisLoadNode extends LoadNode implements InlongMetric, Serializable {
 
     private static final long serialVersionUID = -8002903269814211382L;
 
