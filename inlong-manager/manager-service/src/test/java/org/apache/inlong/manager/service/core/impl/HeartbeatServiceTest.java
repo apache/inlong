@@ -54,6 +54,7 @@ public class HeartbeatServiceTest extends ServiceBaseTest {
         request.setComponentType(ComponentTypeEnum.DataProxy.getName());
         request.setIp("127.0.0.1");
         request.setPort("56802");
+        request.setClusterTag("default_cluster");
         request.setReportTime(Instant.now().toEpochMilli());
         request.setProtocolType(ProtocolType.HTTP);
 
