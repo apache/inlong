@@ -123,7 +123,7 @@ public class AgentPrometheusMetricListener extends Collector implements MetricLi
     public List<MetricFamilySamples> collect() {
         DefaultExports.initialize();
         // total
-        CounterMetricFamily totalCounter = new CounterMetricFamily("total", "metrics_of_agent_node_total",
+        CounterMetricFamily totalCounter = new CounterMetricFamily("agent", "metrics_of_agent_node_total",
                 Arrays.asList(DEFAULT_DIMENSION_LABEL));
         totalCounter.addMetric(Arrays.asList(M_JOB_RUNNING_COUNT), metricItem.jobRunningCount.get());
         totalCounter.addMetric(Arrays.asList(M_JOB_FATAL_COUNT), metricItem.jobFatalCount.get());
