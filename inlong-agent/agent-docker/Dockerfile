@@ -39,7 +39,7 @@ ENV ETH_NETWORK=eth0
 ENV AGENT_FETCH_INTERVAL=10
 ENV AGENT_HEARTBEAT_INTERVAL=10
 ENV CLUSTER_NAME=default_agent
-ENV CLUSTER_TAG=''
+ENV CLUSTER_TAG=default_cluster
 ENV AGENT_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 ADD agent-docker.sh bin/
 RUN chmod +x bin/agent-docker.sh
