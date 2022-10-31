@@ -264,7 +264,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     @SuppressWarnings({"rawtypes"})
     public synchronized void flush() {
         flushing = true;
-        if (batchMap.isEmpty()) {
+        if (!hasRecords()) {
             flushing = false;
             return;
         }
@@ -303,6 +303,21 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         LOG.info("Doris sink statistics: readInNum: {}, writeOutNum: {}, errorNum: {}, ddlNum: {}",
                 readInNum.get(), writeOutNum.get(), errorNum.get(), ddlNum.get());
         flushing = false;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private boolean hasRecords() {
+        if (batchMap.isEmpty()) {
+            return false;
+        }
+        boolean hasRecords = false;
+        for (List value : batchMap.values()) {
+            if (!value.isEmpty()) {
+                hasRecords = true;
+                break;
+            }
+        }
+        return hasRecords;
     }
 
     private void load(String tableIdentifier, String result) throws IOException {
