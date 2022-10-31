@@ -38,35 +38,16 @@ public class SQLServerSource extends AbstractSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SQLServerSource.class);
 
-    public static final String JOB_DATABASE_SQL = "job.sql.command";
-
     public SQLServerSource() {
-    }
-
-    private List<Reader> splitSqlJob(String sqlPattern) {
-        final List<Reader> result = new ArrayList<>();
-        String[] sqlList = AgentDbUtils.replaceDynamicSeq(sqlPattern);
-        if (Objects.nonNull(sqlList)) {
-            Arrays.stream(sqlList).forEach(sql -> {
-                result.add(new SQLServerReader(sql));
-            });
-        }
-        return result;
     }
 
     @Override
     public List<Reader> split(JobProfile conf) {
         super.init(conf);
-        String sqlPattern = conf.get(JOB_DATABASE_SQL, StringUtils.EMPTY).toLowerCase();
-        List<Reader> readerList = null;
-        if (StringUtils.isNotEmpty(sqlPattern)) {
-            readerList = splitSqlJob(sqlPattern);
-        }
-        if (CollectionUtils.isNotEmpty(readerList)) {
-            sourceMetric.sourceSuccessCount.incrementAndGet();
-        } else {
-            sourceMetric.sourceFailCount.incrementAndGet();
-        }
+        Reader sqlServerReader = new SQLServerReader();
+        List<Reader> readerList = new ArrayList<>();
+        readerList.add(sqlServerReader);
+        sourceMetric.sourceSuccessCount.incrementAndGet();
         return readerList;
     }
 }
