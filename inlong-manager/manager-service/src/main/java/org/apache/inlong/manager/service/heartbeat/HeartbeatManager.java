@@ -33,6 +33,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterStatus;
 import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
@@ -215,6 +216,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         final String clusterName = componentHeartbeat.getClusterName();
         final String type = componentHeartbeat.getComponentType();
         final String clusterTag = componentHeartbeat.getClusterTag();
+        Preconditions.checkNotNull(clusterTag, "cluster tag cannot be null");
+        Preconditions.checkNotNull(type, "cluster type cannot be null");
+        Preconditions.checkNotNull(clusterTag, "cluster name cannot be null");
         InlongClusterEntity entity = clusterMapper.selectByNameAndType(clusterName, type);
         if (null != entity) {
             // TODO Load balancing needs to be considered.
