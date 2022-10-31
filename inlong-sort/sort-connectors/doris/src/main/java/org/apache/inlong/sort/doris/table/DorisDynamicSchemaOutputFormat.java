@@ -295,7 +295,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
         }
         if (!errorTables.isEmpty()) {
-            // Clean the key that has erros
+            // Clean the key that has errors
             errorTables.forEach(batchMap::remove);
         }
         batchBytes = 0;
