@@ -17,6 +17,8 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar;
 
+import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
+
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,7 +38,6 @@ import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.EventStat;
-import org.apache.inlong.dataproxy.source.MsgType;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
@@ -243,7 +244,9 @@ public class PulsarClientService {
                     logger.debug("order message rsp: seqId = {}, inlongGroupId = {}, inlongStreamId = {}", sequenceId,
                             inlongGroupId, inlongStreamId);
                 }
-                ByteBuf binBuffer = MessageUtils.getResponsePackage("", MsgType.MSG_BIN_MULTI_BODY, sequenceId);
+                String attrs = ConfigConstants.DATAPROXY_IP_KEY
+                        + AttributeConstants.KEY_VALUE_SEPARATOR + getLocalIp();
+                ByteBuf binBuffer = MessageUtils.buildBinMsgRspPackage(attrs, sequenceId);
                 orderEvent.getCtx().writeAndFlush(binBuffer);
             });
         }
