@@ -51,9 +51,9 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.nio.ByteBuffer;
 
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -597,6 +597,11 @@ public final class RowDataDebeziumDeserializeSchema
                     String schemaName = fieldSchema.name();
                     if (schemaName != null) {
                         fieldValue = getValueWithSchema(fieldValue, schemaName);
+                    }
+                    if (fieldValue instanceof ByteBuffer) {
+                        // binary data (blob or varbinary in mysql) are stored in bytebuffer
+                        // use utf-8 to decode as a string by default
+                        fieldValue = new String(((ByteBuffer) fieldValue).array());
                     }
                     data.put(fieldName, fieldValue);
                 }
