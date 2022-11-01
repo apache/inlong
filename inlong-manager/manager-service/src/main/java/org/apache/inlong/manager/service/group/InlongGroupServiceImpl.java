@@ -64,6 +64,7 @@ import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -90,6 +91,9 @@ import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
 public class InlongGroupServiceImpl implements InlongGroupService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupServiceImpl.class);
+
+    @Value("${sort.enable.zookeeper:false}")
+    private boolean enableZookeeper;
 
     @Autowired
     private InlongGroupEntityMapper groupMapper;
@@ -154,7 +158,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("groupId {} has already exists", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
         }
-
+        request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
         InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
         groupId = instance.saveOpt(request, operator);
 
@@ -246,6 +250,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // check whether the current status can be modified
         checkGroupCanUpdate(entity, request, operator);
 
+        request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
         InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
         instance.updateOpt(request, operator);
 
