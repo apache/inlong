@@ -85,22 +85,13 @@ public class DeleteStreamWorkflowDefinition implements WorkflowDefinition {
         deleteMQTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(deleteMQTask);
 
-        // Delete Sort
-        ServiceTask deleteSortTask = new ServiceTask();
-        deleteSortTask.setName("DeleteSort");
-        deleteSortTask.setDisplayName("Stream-DeleteSort");
-        deleteSortTask.setServiceTaskType(ServiceTaskType.DELETE_SORT);
-        deleteSortTask.setListenerFactory(streamTaskListenerFactory);
-        process.addTask(deleteSortTask);
-
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
         startEvent.addNext(deleteDataSourceTask);
         deleteDataSourceTask.addNext(deleteMQTask);
-        deleteMQTask.addNext(deleteSortTask);
-        deleteSortTask.addNext(endEvent);
+        deleteMQTask.addNext(endEvent);
 
         return process;
     }

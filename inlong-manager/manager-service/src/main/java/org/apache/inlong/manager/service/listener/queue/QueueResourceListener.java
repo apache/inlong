@@ -41,7 +41,6 @@ import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -110,29 +109,13 @@ public class QueueResourceListener implements QueueOperateListener {
         String operator = context.getOperator();
         switch (operateType) {
             case INIT:
-                // queueOperator.createQueueForGroup(groupInfo, operator);
+                queueOperator.createQueueForGroup(groupInfo, operator);
                 List<InlongStreamInfo> streamList = groupProcessForm.getStreamInfos();
-                List<CompletableFuture<WorkflowResult>> futures = new ArrayList<>();
                 for (InlongStreamInfo streamInfo : streamList) {
                     StreamResourceProcessForm processForm = genStreamProcessForm(groupInfo, streamInfo, operateType);
                     CompletableFuture<WorkflowResult> future = CompletableFuture.supplyAsync(
                             () -> workflowService.start(ProcessName.CREATE_STREAM_RESOURCE, operator, processForm),
                             executorService);
-                    // // futures.add(future);
-                    // future.thenAccept((result) -> {
-                    //     List<TaskResponse> taskResponse = result.getNewTasks();
-                    //     int len = taskResponse.size();
-                    //     if (taskResponse.get(len - 1).getStatus().equals(TaskStatus.FAILED)) {
-                    //         String errMsg = String.format(
-                    //                 "failed to execute stream workflow for groupId=%s, streamId=%s",
-                    //                 groupId, streamInfo.getInlongStreamId());
-                    //         log.error(errMsg);
-                    //         throw new WorkflowListenerException(errMsg);
-                    //     } else {
-                    //         log.info("success to execute stream workflow for groupId={}, streamId={}", groupId,
-                    //                 streamInfo.getInlongStreamId());
-                    //     }
-                    // });
                     future.exceptionally((e) -> {
                         String errMsg = String.format("failed to execute stream workflow for groupId=%s, streamId=%s",
                                 groupId, streamInfo.getInlongStreamId());
