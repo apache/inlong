@@ -99,8 +99,6 @@ public class StreamSinkClient {
 
     /**
      * Update the stream sink by key
-     * @param sinkRequest
-     * @return
      */
     public Pair<UpdateResult, String> updateSinkByKey(SinkRequest sinkRequest) {
         Response<UpdateResult> responseBody = ClientUtils.executeHttpCall(streamSinkApi.updateByKey(sinkRequest));
