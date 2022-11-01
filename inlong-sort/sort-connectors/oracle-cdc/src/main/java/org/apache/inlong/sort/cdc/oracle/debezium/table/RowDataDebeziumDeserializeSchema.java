@@ -732,6 +732,9 @@ public final class RowDataDebeziumDeserializeSchema
                             fieldValue = ((TimestampData) fieldValue).toTimestamp();
                         }
                     }
+                    if (fieldValue instanceof ByteBuffer) {
+                        fieldValue = new String(((ByteBuffer) fieldValue).array());
+                    }
 
                     data.put(fieldName, fieldValue);
                 }

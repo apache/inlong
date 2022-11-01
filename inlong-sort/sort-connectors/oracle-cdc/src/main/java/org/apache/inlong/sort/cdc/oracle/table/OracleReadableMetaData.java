@@ -20,6 +20,7 @@ package org.apache.inlong.sort.cdc.oracle.table;
 import io.debezium.connector.AbstractSourceInfo;
 import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
+import io.debezium.relational.Column;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
@@ -447,16 +448,22 @@ public enum OracleReadableMetaData {
         }
         Map<String, String> oracleType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
-        table.columns()
-                .forEach(
-                        column -> {
-                            oracleType.put(
-                                    column.name(),
-                                    String.format(
-                                            "%s(%d)",
-                                            column.typeName(),
-                                            column.length()));
-                        });
+        for (Column column : table.columns()) {
+            if (column.typeName().matches("\\w.+\\([\\d ,]+\\)")) {
+                oracleType.put(column.name(), column.typeName());
+                continue;
+            }
+            if (column.scale().isPresent()) {
+                oracleType.put(
+                        column.name(),
+                        String.format("%s(%d, %d)",
+                                column.typeName(), column.length(), column.scale().get()));
+            } else {
+                oracleType.put(
+                        column.name(),
+                        String.format("%s(%d)", column.typeName(), column.length()));
+            }
+        }
         return oracleType;
     }
 
