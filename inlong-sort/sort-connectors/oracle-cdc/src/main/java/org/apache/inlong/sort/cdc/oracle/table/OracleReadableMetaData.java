@@ -449,6 +449,7 @@ public enum OracleReadableMetaData {
         Map<String, String> oracleType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
         for (Column column : table.columns()) {
+            // The typeName contains precision and does not need to be formatted.
             if (column.typeName().matches("\\w.+\\([\\d ,]+\\)")) {
                 oracleType.put(column.name(), column.typeName());
                 continue;
