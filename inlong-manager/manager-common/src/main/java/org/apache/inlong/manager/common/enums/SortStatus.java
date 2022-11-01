@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.common.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
@@ -51,6 +52,16 @@ public enum SortStatus {
 
     public String getDescription() {
         return description;
+    }
+
+    @JsonCreator
+    public static SortStatus forCode(int code) {
+        for (SortStatus status : values()) {
+            if (status.getCode() == code) {
+                return status;
+            }
+        }
+        throw new IllegalStateException(String.format("Illegal code=%s for SortStatus", code));
     }
 
 }
