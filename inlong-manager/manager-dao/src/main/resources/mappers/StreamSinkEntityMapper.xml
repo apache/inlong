@@ -370,7 +370,7 @@
     </select>
     <select id="selectAllStreams" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamSinkInfo">
         select inlong_cluster_name as sortClusterName,
-               data_node_name,
+               sort_task_name,
                inlong_group_id     as groupId,
                ext_params
         from stream_sink

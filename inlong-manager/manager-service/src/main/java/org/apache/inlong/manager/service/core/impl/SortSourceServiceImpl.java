@@ -198,12 +198,13 @@ public class SortSourceServiceImpl implements SortSourceService {
         groupMap = new HashMap<>();
         allStreamSinks.stream()
                 .filter(sink -> sink.getSortClusterName() != null)
-                .forEach(stream -> {
+                .filter(sink -> sink.getSortTaskName() != null)
+                .forEach(sink -> {
                     Map<String, List<String>> task2groupsMap =
-                            groupMap.computeIfAbsent(stream.getSortClusterName(), k -> new ConcurrentHashMap<>());
+                            groupMap.computeIfAbsent(sink.getSortClusterName(), k -> new ConcurrentHashMap<>());
                     List<String> groupIdList =
-                            task2groupsMap.computeIfAbsent(stream.getDataNodeName(), k -> new ArrayList<>());
-                    groupIdList.add(stream.getGroupId());
+                            task2groupsMap.computeIfAbsent(sink.getSortTaskName(), k -> new ArrayList<>());
+                    groupIdList.add(sink.getGroupId());
                 });
 
         // reload all groups
