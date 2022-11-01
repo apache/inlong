@@ -196,13 +196,16 @@ public class SortSourceServiceImpl implements SortSourceService {
         // reload all stream sinks, to Map<clusterName, Map<taskName, List<groupId>>> format
         List<SortSourceStreamSinkInfo> allStreamSinks = configLoader.loadAllStreamSinks();
         groupMap = new HashMap<>();
-        allStreamSinks.forEach(stream -> {
-            Map<String, List<String>> task2groupsMap =
-                    groupMap.computeIfAbsent(stream.getSortClusterName(), k -> new ConcurrentHashMap<>());
-            List<String> groupIdList =
-                    task2groupsMap.computeIfAbsent(stream.getSortTaskName(), k -> new ArrayList<>());
-            groupIdList.add(stream.getGroupId());
-        });
+        allStreamSinks.stream()
+                .filter(sink -> sink.getSortClusterName() != null)
+                .filter(sink -> sink.getSortTaskName() != null)
+                .forEach(sink -> {
+                    Map<String, List<String>> task2groupsMap =
+                            groupMap.computeIfAbsent(sink.getSortClusterName(), k -> new ConcurrentHashMap<>());
+                    List<String> groupIdList =
+                            task2groupsMap.computeIfAbsent(sink.getSortTaskName(), k -> new ArrayList<>());
+                    groupIdList.add(sink.getGroupId());
+                });
 
         // reload all groups
         groupInfos = configLoader.loadAllGroup()
@@ -369,6 +372,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                 .serviceUrl(cluster.getUrl())
                 .topics(sdkTopics)
                 .authentication(auth)
+                .zoneType(ClusterType.PULSAR)
                 .build();
     }
 
