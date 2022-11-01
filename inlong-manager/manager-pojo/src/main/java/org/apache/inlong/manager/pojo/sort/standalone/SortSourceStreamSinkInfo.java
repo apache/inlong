@@ -33,7 +33,7 @@ public class SortSourceStreamSinkInfo {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceStreamSinkInfo.class);
     private static final Gson GSON = new Gson();
     String sortClusterName;
-    String sortTaskName;
+    String dataNodeName;
     String groupId;
     String extParams;
     Map<String, String> extParamsMap;
