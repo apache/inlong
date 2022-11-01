@@ -43,6 +43,7 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.doris.model.RespContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -310,7 +311,14 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             String loadValue = null;
             try {
                 loadValue = OBJECT_MAPPER.writeValueAsString(kvs.getValue());
-                load(kvs.getKey(), loadValue);
+                RespContent respContent = load(kvs.getKey(), loadValue);
+                try {
+                    if (null != metricData && null != respContent) {
+                        metricData.invoke(respContent.getNumberLoadedRows(), respContent.getLoadBytes());
+                    }
+                } catch (Exception e) {
+                    LOG.warn("metricData invoke get err:", e);
+                }
                 LOG.info("load {} records to tableIdentifier: {}", kvs.getValue().size(), kvs.getKey());
                 writeOutNum.addAndGet(kvs.getValue().size());
                 // Clean the data that has been loaded.
@@ -354,11 +362,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         return hasRecords;
     }
 
-    private void load(String tableIdentifier, String result) throws IOException {
+    private RespContent load(String tableIdentifier, String result) throws IOException {
         String[] tableWithDb = tableIdentifier.split("\\.");
+        RespContent respContent = null;
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
-                dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result, metricData);
+                respContent = dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result);
                 break;
             } catch (StreamLoadException e) {
                 LOG.error("doris sink error, retry times = {}", i, e);
@@ -376,6 +385,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 }
             }
         }
+        return respContent;
     }
 
     private String getBackend() throws IOException {

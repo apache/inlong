@@ -31,7 +31,6 @@ import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.doris.model.RespContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +80,7 @@ public class DorisStreamLoad implements Serializable {
         this.httpClient = httpClientBuilder.build();
     }
 
-    public void load(String db, String tbl, String value, SinkMetricData metricData) throws StreamLoadException {
+    public RespContent load(String db, String tbl, String value) throws StreamLoadException {
         LoadResponse loadResponse = loadBatch(db, tbl, value);
         LOG.info("Streamload Response:{}", loadResponse);
         if (loadResponse.status != 200) {
@@ -94,13 +93,7 @@ public class DorisStreamLoad implements Serializable {
                             respContent.getErrorURL());
                     throw new StreamLoadException(errMsg);
                 }
-                try {
-                    if (metricData != null) {
-                        metricData.invoke(respContent.getNumberLoadedRows(), respContent.getLoadBytes());
-                    }
-                } catch (Exception e) {
-                    LOG.warn("metricData invoke get err:", e);
-                }
+                return respContent;
             } catch (IOException e) {
                 throw new StreamLoadException(e);
             }
