@@ -18,9 +18,12 @@
  */
 
 import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
-import { sourceFields } from './common/sourceFields';
+import { sourceFields } from '../common/sourceFields';
+import { SinkInfo } from '../common/SinkInfo';
+import { DataWithBackend } from '@/metas/DataWithBackend';
+
+const { I18n, FormField, TableColumn } = DataWithBackend;
 
 const esTypes = [
   'text',
@@ -40,21 +43,20 @@ const esTypes = [
   value: item,
 }));
 
-export const es: FieldItemType[] = [
-  {
-    name: 'indexName',
+export default class EsSink extends SinkInfo implements DataWithBackend {
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Es.IndexName'),
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'enableCreateResource',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Es.IndexName')
+  indexName: string;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Sinks.EnableCreateResource'),
     rules: [{ required: true }],
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
@@ -71,93 +73,109 @@ export const es: FieldItemType[] = [
         },
       ],
     }),
-  },
-  {
-    name: 'username',
+  })
+  @I18n('meta.Sinks.EnableCreateResource')
+  enableCreateResource: number;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Username'),
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'password',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Username')
+  username: string;
+
+  @FormField({
     type: 'password',
-    label: i18n.t('meta.Sinks.Password'),
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
-    type: 'input',
-    label: i18n.t('meta.Sinks.Es.Host'),
-    name: 'host',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Password')
+  password: string;
+
+  @FormField({
+    type: 'password',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
-    name: 'port',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Es.Host')
+  host: string;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Sinks.Es.Port'),
     initialValue: 9200,
+    rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
       min: 1,
       max: 65535,
-    }),
-    rules: [{ required: true }],
-  },
-  {
-    name: 'flushInterval',
-    type: 'inputnumber',
-    label: i18n.t('meta.Sinks.Es.FlushInterval'),
-    initialValue: 1,
-    props: values => ({
       disabled: [110, 130].includes(values?.status),
-      min: 1,
     }),
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Es.Port')
+  port: number;
+
+  @FormField({
+    type: 'inputnumber',
+    initialValue: 1,
     rules: [{ required: true }],
     suffix: i18n.t('meta.Sinks.Es.FlushIntervalUnit'),
-  },
-  {
-    name: 'flushRecord',
-    type: 'inputnumber',
-    label: i18n.t('meta.Sinks.Es.FlushRecord'),
-    initialValue: 1000,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
       min: 1,
+      disabled: [110, 130].includes(values?.status),
     }),
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Es.FlushInterval')
+  flushInterval: number;
+
+  @FormField({
+    type: 'inputnumber',
+    initialValue: 1000,
     rules: [{ required: true }],
     suffix: i18n.t('meta.Sinks.Es.FlushRecordUnit'),
-  },
-  {
-    name: 'retryTime',
-    type: 'inputnumber',
-    label: i18n.t('meta.Sinks.Es.RetryTimes'),
-    initialValue: 3,
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
       min: 1,
+      disabled: [110, 130].includes(values?.status),
     }),
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Es.FlushRecord')
+  flushRecord: number;
+
+  @FormField({
+    type: 'inputnumber',
+    initialValue: 3,
     rules: [{ required: true }],
     suffix: i18n.t('meta.Sinks.Es.RetryTimesUnit'),
-  },
-  {
-    name: 'sinkFieldList',
+    props: values => ({
+      min: 1,
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Es.RetryTimes')
+  retryTime: number;
+
+  @FormField({
     type: EditableTable,
     props: values => ({
       size: 'small',
       editing: ![110, 130].includes(values?.status),
       columns: getFieldListColumns(values),
     }),
-  },
-];
+  })
+  sinkFieldList: Record<string, unknown>[];
+}
 
 const getFieldListColumns = sinkValues => {
   return [

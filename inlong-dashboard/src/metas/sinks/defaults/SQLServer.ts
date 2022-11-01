@@ -18,7 +18,11 @@
 import i18n from '@/i18n';
 import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
-import { sourceFields } from './common/sourceFields';
+import { SinkInfo } from '../common/SinkInfo';
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { sourceFields } from '../common/sourceFields';
+
+const { I18n, FormField, TableColumn } = DataWithBackend;
 
 const fieldTypesConf = {
   CHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1 <= M <= 8000'),
@@ -56,62 +60,68 @@ const sqlserverFieldTypes = Object.keys(fieldTypesConf).reduce(
   [],
 );
 
-export const sqlServer: FieldItemType[] = [
-  {
+export default class SqlServerSink extends SinkInfo implements DataWithBackend {
+  @FormField({
     type: 'input',
-    label: 'JDBC URL',
-    name: 'jdbcUrl',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       placeholder: 'jdbc:sqlserver://127.0.0.1:1433;database=db_name',
     }),
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('JDBC URL')
+  jdbcUrl: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.SQLServer.SchemaName'),
-    name: 'schemaName',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.SQLServer.SchemaName')
+  schemaName: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.SQLServer.ServerTimezone'),
-    name: 'serverTimezone',
+    rules: [{ required: true }],
     initialValue: 'UTC',
-    rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.SQLServer.ServerTimezone')
+  serverTimezone: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.SQLServer.TableName'),
-    name: 'tableName',
     rules: [{ required: true }],
+    initialValue: 'UTC',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.SQLServer.TableName')
+  tableName: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.SQLServer.PrimaryKey'),
-    name: 'primaryKey',
     rules: [{ required: true }],
+    initialValue: 'UTC',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.SQLServer.PrimaryKey')
+  primaryKey: string;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Sinks.EnableCreateResource'),
-    name: 'enableCreateResource',
     rules: [{ required: true }],
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
@@ -128,11 +138,12 @@ export const sqlServer: FieldItemType[] = [
         },
       ],
     }),
-  },
-  {
+  })
+  @I18n('meta.Sinks.EnableCreateResource')
+  enableCreateResource: number;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Sinks.SQLServer.AllMigration'),
-    name: 'allMigration',
     rules: [{ required: true }],
     initialValue: true,
     props: values => ({
@@ -148,35 +159,40 @@ export const sqlServer: FieldItemType[] = [
         },
       ],
     }),
-  },
-  {
+  })
+  @I18n('meta.Sinks.AllMigration')
+  allMigration: boolean;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Username'),
-    name: 'username',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
+  })
+  @I18n('meta.Sinks.Username')
+  username: string;
+
+  @FormField({
     type: 'password',
-    label: i18n.t('meta.Sinks.Password'),
-    name: 'password',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
-    name: 'sinkFieldList',
+  })
+  @I18n('meta.Sinks.Password')
+  password: string;
+
+  @FormField({
     type: EditableTable,
     props: values => ({
       size: 'small',
       editing: ![110, 130].includes(values?.status),
       columns: getFieldListColumns(values),
     }),
-  },
-];
+  })
+  sinkFieldList: Record<string, unknown>[];
+}
 
 const getFieldListColumns = sinkValues => {
   return [

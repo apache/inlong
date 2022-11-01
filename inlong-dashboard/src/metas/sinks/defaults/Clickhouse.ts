@@ -40,7 +40,7 @@ const clickhouseTargetTypes = [
   value: item,
 }));
 
-export default class HiveSink extends SinkInfo implements DataWithBackend {
+export default class ClickhouseSink extends SinkInfo implements DataWithBackend {
   @FormField({
     type: 'input',
     rules: [{ required: true }],

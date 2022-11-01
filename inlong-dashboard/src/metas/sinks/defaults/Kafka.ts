@@ -22,7 +22,7 @@ import { SinkInfo } from '../common/SinkInfo';
 
 const { I18n, FormField, TableColumn } = DataWithBackend;
 
-export default class HiveSink extends SinkInfo implements DataWithBackend {
+export default class KafkaSink extends SinkInfo implements DataWithBackend {
   @FormField({
     type: 'input',
     rules: [{ required: true }],

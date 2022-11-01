@@ -18,9 +18,12 @@
  */
 
 import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
-import { sourceFields } from './common/sourceFields';
+import { sourceFields } from '../common/sourceFields';
+import { SinkInfo } from '../common/SinkInfo';
+import { DataWithBackend } from '@/metas/DataWithBackend';
+
+const { I18n, FormField, TableColumn } = DataWithBackend;
 
 const icebergFieldTypes = [
   'string',
@@ -98,31 +101,31 @@ const matchPartitionStrategies = fieldType => {
   return data.filter(item => !item.disabled);
 };
 
-export const iceberg: FieldItemType[] = [
-  {
-    name: 'dbName',
+export default class IcebergSink extends SinkInfo implements DataWithBackend {
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Iceberg.DbName'),
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
-    name: 'tableName',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Iceberg.DbName')
+  dbName: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Iceberg.TableName'),
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Iceberg.TableName')
+  tableName: string;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Sinks.EnableCreateResource'),
-    name: 'enableCreateResource',
     rules: [{ required: true }],
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
@@ -139,33 +142,38 @@ export const iceberg: FieldItemType[] = [
         },
       ],
     }),
-  },
-  {
+  })
+  @I18n('meta.Sinks.EnableCreateResource')
+  enableCreateResource: number;
+
+  @FormField({
     type: 'input',
-    label: 'Catalog URI',
-    name: 'catalogUri',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       placeholder: 'thrift://127.0.0.1:9083',
     }),
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('Catalog URI')
+  catalogUri: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Iceberg.Warehouse'),
-    name: 'warehouse',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       placeholder: 'hdfs://127.0.0.1:9000/user/iceberg/warehouse',
     }),
-  },
-  {
-    name: 'fileFormat',
-    type: 'radio',
-    label: i18n.t('meta.Sinks.Iceberg.FileFormat'),
-    initialValue: 'Parquet',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Iceberg.Warehouse')
+  warehouse: string;
+
+  @FormField({
+    type: 'select',
     rules: [{ required: true }],
+    initialValue: 'Parquet',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       options: [
@@ -183,11 +191,15 @@ export const iceberg: FieldItemType[] = [
         },
       ],
     }),
-  },
-  {
-    name: 'extList',
-    label: i18n.t('meta.Sinks.Iceberg.ExtList'),
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Iceberg.FileFormat')
+  fileFormat: string;
+
+  @FormField({
     type: EditableTable,
+    rules: [{ required: true }],
+    initialValue: [],
     props: values => ({
       size: 'small',
       columns: [
@@ -207,13 +219,16 @@ export const iceberg: FieldItemType[] = [
         },
       ],
     }),
-    initialValue: [],
-  },
-  {
-    name: 'dataConsistency',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Iceberg.ExtList')
+  extList: string;
+
+  @FormField({
     type: 'select',
-    label: i18n.t('meta.Sinks.Iceberg.DataConsistency'),
+    rules: [{ required: true }],
     initialValue: 'EXACTLY_ONCE',
+    isPro: true,
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       options: [
@@ -227,18 +242,21 @@ export const iceberg: FieldItemType[] = [
         },
       ],
     }),
-    isPro: true,
-  },
-  {
-    name: 'sinkFieldList',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Iceberg.DataConsistency')
+  dataConsistency: string;
+
+  @FormField({
     type: EditableTable,
     props: values => ({
       size: 'small',
       editing: ![110, 130].includes(values?.status),
       columns: getFieldListColumns(values),
     }),
-  },
-];
+  })
+  sinkFieldList: Record<string, unknown>[];
+}
 
 const getFieldListColumns = sinkValues => {
   return [

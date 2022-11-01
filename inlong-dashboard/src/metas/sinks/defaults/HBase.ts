@@ -16,9 +16,12 @@
  */
 
 import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
-import { sourceFields } from './common/sourceFields';
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { SinkInfo } from '../common/SinkInfo';
+import { sourceFields } from '../common/sourceFields';
+
+const { I18n, FormField, TableColumn } = DataWithBackend;
 
 const hbaseFieldTypes = [
   'int',
@@ -35,103 +38,114 @@ const hbaseFieldTypes = [
   value: item,
 }));
 
-export const hbase: FieldItemType[] = [
-  {
+export default class HBaseSink extends SinkInfo implements DataWithBackend {
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.HBase.Namespace'),
-    name: 'namespace',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.HBase.Namespace')
+  namespace: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.HBase.TableName'),
-    name: 'tableName',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.HBase.TableName')
+  tableName: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.HBase.RowKey'),
-    name: 'rowKey',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.HBase.RowKey')
+  rowKey: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.HBase.ZkQuorum'),
-    name: 'zkQuorum',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
       placeholder: '127.0.0.1:2181,127.0.0.2:2181',
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.HBase.ZkQuorum')
+  zkQuorum: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.HBase.ZkNodeParent'),
-    name: 'zkNodeParent',
+    rules: [{ required: true }],
     initialValue: '/hbase',
-    rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.HBase.ZkNodeParent')
+  zkNodeParent: string;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Sinks.HBase.BufferFlushMaxSize'),
-    name: 'bufferFlushMaxSize',
+    rules: [{ required: true }],
     initialValue: 2,
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      min: 1,
-    }),
     suffix: 'mb',
-  },
-  {
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.HBase.BufferFlushMaxSize')
+  bufferFlushMaxSize: number;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Sinks.HBase.BufferFlushMaxRows'),
-    name: 'bufferFlushMaxRows',
+    rules: [{ required: true }],
     initialValue: 1000,
-    rules: [{ required: true }],
     props: values => ({
-      disabled: [110, 130].includes(values?.status),
       min: 1,
+      disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.HBase.BufferFlushMaxRows')
+  bufferFlushMaxRows: number;
+
+  @FormField({
     type: 'inputnumber',
-    label: i18n.t('meta.Sinks.HBase.BufferFlushInterval'),
-    name: 'bufferFlushInterval',
-    initialValue: 1,
     rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-      min: 1,
-    }),
+    initialValue: 1,
     suffix: i18n.t('meta.Sinks.HBase.FlushIntervalUnit'),
-  },
-  {
-    name: 'sinkFieldList',
+    props: values => ({
+      min: 1,
+      disabled: [110, 130].includes(values?.status),
+    }),
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.HBase.BufferFlushInterval')
+  bufferFlushInterval: number;
+
+  @FormField({
     type: EditableTable,
     props: values => ({
       size: 'small',
-      canDelete: ![110, 130].includes(values?.status),
+      editing: ![110, 130].includes(values?.status),
       columns: getFieldListColumns(values),
     }),
-  },
-];
+  })
+  sinkFieldList: Record<string, unknown>[];
+}
 
 const getFieldListColumns = sinkValues => {
   return [
