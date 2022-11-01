@@ -158,7 +158,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("groupId {} has already exists", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
         }
-        request.setEnableZookeeper(enableZookeeper ? 1 : 0);
+        request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
         InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
         groupId = instance.saveOpt(request, operator);
 
@@ -250,7 +250,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // check whether the current status can be modified
         checkGroupCanUpdate(entity, request, operator);
 
-        request.setEnableZookeeper(enableZookeeper ? 1 : 0);
+        request.setEnableZookeeper(enableZookeeper ? InlongConstants.ENABLE_ZK : InlongConstants.DISABLE_ZK);
         InlongGroupOperator instance = groupOperatorFactory.getInstance(request.getMqType());
         instance.updateOpt(request, operator);
 
