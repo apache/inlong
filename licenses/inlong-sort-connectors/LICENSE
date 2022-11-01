@@ -608,6 +608,7 @@
          inlong-sort/sort-connectors/doris/src/main/java/org/apache/inlong/sort/doris/table/DorisDynamicTableFactory.java
          inlong-sort/sort-connectors/doris/src/main/java/org/apache/inlong/sort/doris/table/DorisDynamicTableSink.java
          inlong-sort/sort-connectors/doris/src/main/java/org/apache/inlong/sort/doris/table/DorisStreamLoad.java
+         inlong-sort/sort-connectors/doris/src/main/java/org/apache/inlong/sort/doris/model/RespContent.java
     Source  : org.apache.doris:flink-doris-connector-1.13_2.11:1.0.3 (Please note that the software have been modified.)
     License : https://github.com/apache/doris-flink-connector/blob/1.13_2.11-1.0.3/LICENSE.txt
 
