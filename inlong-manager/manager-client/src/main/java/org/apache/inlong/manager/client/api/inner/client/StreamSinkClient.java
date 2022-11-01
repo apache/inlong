@@ -24,6 +24,7 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
@@ -57,6 +58,15 @@ public class StreamSinkClient {
     }
 
     /**
+     * Delete stream sink by key
+     */
+    public boolean deleteSinkByKey(String groupId, String streamId, String name) {
+        Response<Boolean> response = ClientUtils.executeHttpCall(streamSinkApi.deleteByKey(groupId, streamId, name));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * List stream sinks by the given groupId and streamId.
      */
     public List<StreamSink> listSinks(String groupId, String streamId) {
@@ -84,6 +94,20 @@ public class StreamSinkClient {
             return Pair.of(responseBody.getData(), responseBody.getErrMsg());
         } else {
             return Pair.of(false, responseBody.getErrMsg());
+        }
+    }
+
+    /**
+     * Update the stream sink by key
+     */
+    public Pair<UpdateResult, String> updateSinkByKey(SinkRequest sinkRequest) {
+        Response<UpdateResult> responseBody = ClientUtils.executeHttpCall(streamSinkApi.updateByKey(sinkRequest));
+        ClientUtils.assertRespSuccess(responseBody);
+
+        if (responseBody.getData() != null) {
+            return Pair.of(responseBody.getData(), responseBody.getErrMsg());
+        } else {
+            return Pair.of(new UpdateResult(), responseBody.getErrMsg());
         }
     }
 
