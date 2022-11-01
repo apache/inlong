@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,6 +75,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(DorisDynamicSchemaOutputFormat.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final String COLUMNS_KEY = "columns";
     private static final String DORIS_DELETE_SIGN = "__DORIS_DELETE_SIGN__";
     /**
      * Mark the record for delete
@@ -222,8 +224,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
             List<RowKind> rowKinds = jsonDynamicSchemaFormat
                     .opType2RowKind(jsonDynamicSchemaFormat.getOpType(rootNode));
-            List<Map<String, String>> physicalDataList = jsonDynamicSchemaFormat.jsonNode2Map(
-                    jsonDynamicSchemaFormat.getPhysicalData(rootNode));
+            JsonNode physicalData = jsonDynamicSchemaFormat.getPhysicalData(rootNode);
+            List<Map<String, String>> physicalDataList = jsonDynamicSchemaFormat.jsonNode2Map(physicalData);
             JsonNode updateBeforeNode = jsonDynamicSchemaFormat.getUpdateBefore(rootNode);
             List<Map<String, String>> updateBeforeList = null;
             if (updateBeforeNode != null) {
@@ -236,10 +238,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                         case UPDATE_AFTER:
                             batchBytes += physicalDataList.get(i).toString().getBytes(StandardCharsets.UTF_8).length;
                             size++;
-                            // add doris delete sign
-                            if (enableBatchDelete()) {
-                                physicalDataList.get(i).put(DORIS_DELETE_SIGN, DORIS_DELETE_FALSE);
-                            }
                             batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
                                     .add(physicalDataList.get(i));
                             break;
@@ -249,6 +247,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                             // add doris delete sign
                             if (enableBatchDelete()) {
                                 physicalDataList.get(i).put(DORIS_DELETE_SIGN, DORIS_DELETE_TRUE);
+                                handleDeleteType(physicalData);
                             }
                             batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
                                     .add(physicalDataList.get(i));
@@ -261,6 +260,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                                 // add doris delete sign
                                 if (enableBatchDelete()) {
                                     updateBeforeList.get(i).put(DORIS_DELETE_SIGN, DORIS_DELETE_TRUE);
+                                    handleDeleteType(physicalData);
                                 }
                                 batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
                                         .add(updateBeforeList.get(i));
@@ -274,6 +274,24 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
         } else {
             throw new RuntimeException("The type of element should be 'RowData' only.");
+        }
+    }
+
+    private void handleDeleteType(JsonNode physicalData) {
+        JsonNode first = physicalData.isArray() ? physicalData.get(0) : physicalData;
+        // Add column key when fieldNames is not empty
+        Iterator<String> fieldNames = first.fieldNames();
+        if (fieldNames != null && fieldNames.hasNext()) {
+            StringBuilder sb = new StringBuilder();
+            while (fieldNames.hasNext()) {
+                String item = fieldNames.next();
+                sb.append("`").append(item.trim()
+                        .replace("`", "")).append("`,");
+            }
+            sb.append(DORIS_DELETE_SIGN);
+            executionOptions.getStreamLoadProp().put(COLUMNS_KEY, sb.toString());
+        } else {
+            executionOptions.getStreamLoadProp().put(COLUMNS_KEY, null);
         }
     }
 
