@@ -34,6 +34,8 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.interceptor.Interceptor;
 import org.apache.flume.interceptor.InterceptorBuilderFactory;
 import org.apache.flume.interceptor.InterceptorChain;
+import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
@@ -239,7 +241,7 @@ public class FailoverChannelProcessor
         if (event == null) {
             return;
         }
-
+        String errMsg = "";
         boolean success = true;
         List<Channel> requiredChannels = selector.getRequiredChannels(event);
         for (Channel reqChannel : requiredChannels) {
@@ -253,11 +255,12 @@ public class FailoverChannelProcessor
                 tx.commit();
 
             } catch (Throwable t) {
+                errMsg = "Unable to put event on channel" + reqChannel.getName()
+                        + ", error message is " + t.getMessage();
                 if (logPrinter.shouldPrint()) {
                     LOG.error("FailoverChannelProcessor Unable to put event on required channel: "
                             + reqChannel.getName(), t);
                 }
-
                 success = false;
                 try {
                     tx.rollback();
@@ -271,8 +274,12 @@ public class FailoverChannelProcessor
                 tx.close();
             }
         }
-
-        if (!success && !MessageUtils.isSyncSendForOrder(event)) {
+        if (!success) {
+            if (MessageUtils.isSyncSendForOrder(event)) {
+                MessageUtils.sinkReturnRspPackage((SinkRspEvent) event,
+                        DataProxyErrCode.PUT_EVENT_TO_CHANNEL_FAILURE, errMsg);
+                return;
+            }
             List<Channel> optionalChannels = selector.getOptionalChannels(event);
             for (Channel optChannel : optionalChannels) {
                 Transaction tx = null;

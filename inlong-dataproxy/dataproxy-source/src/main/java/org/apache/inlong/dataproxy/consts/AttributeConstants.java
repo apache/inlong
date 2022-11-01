@@ -88,6 +88,8 @@ public class AttributeConstants {
 
     public static final String MESSAGE_SYNC_SEND = "syncSend";
 
+    public static final String MESSAGE_PROXY_SEND = "proxySend";
+
     public static final String MESSAGE_IS_ACK = "isAck";
 
     public static final String MESSAGE_PROCESS_ERRCODE = "errCode";

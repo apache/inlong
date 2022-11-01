@@ -27,7 +27,22 @@ public enum DataProxyErrCode {
     UNSUPPORTED_EXTENDFIELD_VALUE(3,
             "Unsupported extend field value"),
     UNCONFIGURED_GROUPID_OR_STREAMID(4,
-            "Un-configured groupId or streamId"),
+            "Unconfigured groupId or streamId"),
+    PUT_EVENT_TO_CHANNEL_FAILURE(5,
+            "Put event to Channels failure"),
+    TOPIC_IS_BLANK(6,
+            "Topic is null"),
+    NO_AVAILABLE_RPODUCERINFO(7,
+            "No available producer"),
+    RPODUCER_IS_NULL(8,
+            "Producer is null"),
+    SEND_REQUEST_TO_PULSAR_FAILURE(9,
+            "Send requet to Pulsar failure"),
+    PULSAR_RETURN_ERROR(10,
+            "Pulsar client return error"),
+    DUPLICATED_MESSAGE(11,
+            "Duplicated message"),
+
 
     UNKNOWN_ERROR(Integer.MAX_VALUE, "Unknown error");
 
