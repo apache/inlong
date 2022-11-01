@@ -36,13 +36,58 @@ export const allDefaultSinks: MetaExportWithBackendList = [
     LoadEntity: () => import('./Doris'),
   },
   {
+    label: 'Elasticsearch',
+    value: 'ELASTICSEARCH',
+    LoadEntity: () => import('./Es'),
+  },
+  {
+    label: 'Greenplum',
+    value: 'GREENPLUM',
+    LoadEntity: () => import('./Greenplum'),
+  },
+  {
     label: 'Hive',
     value: 'HIVE',
     LoadEntity: () => import('./Hive'),
   },
   {
+    label: 'HBase',
+    value: 'HBASE',
+    LoadEntity: () => import('./HBase'),
+  },
+  {
+    label: 'Iceberg',
+    value: 'ICEBERG',
+    LoadEntity: () => import('./Iceberg'),
+  },
+  {
     label: 'Kafka',
     value: 'KAFKA',
     LoadEntity: () => import('./Kafka'),
+  },
+  {
+    label: 'MySQL',
+    value: 'MYSQL',
+    LoadEntity: () => import('./Mysql'),
+  },
+  {
+    label: 'Oracle',
+    value: 'ORACLE',
+    LoadEntity: () => import('./Oracle'),
+  },
+  {
+    label: 'PostgreSQL',
+    value: 'POSTGRESQL',
+    LoadEntity: () => import('./PostgreSql'),
+  },
+  {
+    label: 'SQLServer',
+    value: 'SQLSERVER',
+    LoadEntity: () => import('./SQLServer'),
+  },
+  {
+    label: 'TDSQLPostgreSQL',
+    value: 'TDSQLPOSTGRESQL',
+    LoadEntity: () => import('./TDSQLPostgreSql'),
   },
 ];

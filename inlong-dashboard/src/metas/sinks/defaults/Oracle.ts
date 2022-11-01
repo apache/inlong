@@ -17,36 +17,36 @@
 
 import i18n from '@/i18n';
 import type { FieldItemType } from '@/metas/common';
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { SinkInfo } from '../common/SinkInfo';
+import { sourceFields } from '../common/sourceFields';
 import EditableTable from '@/components/EditableTable';
-import { sourceFields } from './common/sourceFields';
+
+const { I18n, FormField, TableColumn } = DataWithBackend;
 
 const fieldTypesConf = {
+  BINARY_FLOAT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
+  BINARY_DOUBLE: (m, d) => (1 <= m && m <= 10 ? '' : '1 <= M <= 10'),
   SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
-  INT2: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
-  SMALLSERIAL: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
-  SERIAL2: () => '',
-  INTEGER: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
-  SERIAL: (m, d) => (1 <= m && m <= 11 ? '' : '1 <= M <= 11'),
-  BIGINT: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
-  BIGSERIAL: (m, d) => (1 <= m && m <= 20 ? '' : '1 <= M <= 20'),
-  REAL: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
-  FLOAT4: (m, d) => (1 <= m && m <= 24 ? '' : '1 <= M <= 24'),
-  FLOAT8: (m, d) => (24 < m && m <= 53 ? '' : '24 < M <= 53'),
+  FLOAT: (m, d) => (1 <= m && m <= 126 ? '' : '1 <= M <= 126'),
+  FLOAT4: () => '',
+  FLOAT8: () => '',
   DOUBLE: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  REAL: () => '',
+  NUMBER: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
   NUMERIC: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
+  DATE: () => '',
   DECIMAL: (m, d) => (1 <= m && m <= 38 && 0 <= d && d < m ? '' : '1 <= M <= 38, 0 <= D < M'),
   BOOLEAN: () => '',
-  DATE: () => '',
-  TIME: () => '',
   TIMESTAMP: () => '',
   CHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  CHARACTER: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
   VARCHAR: (m, d) => (1 <= m && m <= 4000 ? '' : '1 <= M <= 4000'),
-  TEXT: () => '',
-  BYTEA: () => '',
+  CLOB: () => '',
+  RAW: (m, d) => (1 <= m && m <= 2000 ? '' : ' 1 <= M <= 2000'),
+  BLOB: () => '',
 };
 
-const postgreSqlFieldTypes = Object.keys(fieldTypesConf).reduce(
+const oracleFieldTypes = Object.keys(fieldTypesConf).reduce(
   (acc, key) =>
     acc.concat({
       label: key,
@@ -55,51 +55,43 @@ const postgreSqlFieldTypes = Object.keys(fieldTypesConf).reduce(
   [],
 );
 
-export const postgreSql: FieldItemType[] = [
-  {
+export default class OracleSink extends SinkInfo implements DataWithBackend {
+  @FormField({
     type: 'input',
-    label: 'JDBC URL',
-    name: 'jdbcUrl',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
-      placeholder: 'jdbc:postgresql://127.0.0.1:5432/db_name',
+      placeholder: 'jdbc:oracle:thin://127.0.0.1:1521/db_name',
     }),
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('JDBC URL')
+  jdbcUrl: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.PostgreSQL.DbName'),
-    name: 'dbName',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-    _renderTable: true,
-  },
-  {
-    type: 'input',
-    label: i18n.t('meta.Sinks.PostgreSQL.TableName'),
-    name: 'tableName',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Oracle.TableName')
+  tableName: string;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.PostgreSQL.PrimaryKey'),
-    name: 'primaryKey',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-    _renderTable: true,
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Oracle.PrimaryKey')
+  primaryKey: string;
+
+  @FormField({
     type: 'radio',
-    label: i18n.t('meta.Sinks.EnableCreateResource'),
-    name: 'enableCreateResource',
     rules: [{ required: true }],
     initialValue: 1,
     tooltip: i18n.t('meta.Sinks.EnableCreateResourceHelp'),
@@ -116,48 +108,55 @@ export const postgreSql: FieldItemType[] = [
         },
       ],
     }),
-  },
-  {
+  })
+  @I18n('meta.Sinks.EnableCreateResource')
+  enableCreateResource: number;
+
+  @FormField({
     type: 'input',
-    label: i18n.t('meta.Sinks.Username'),
-    name: 'username',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Username')
+  username: string;
+
+  @FormField({
     type: 'password',
-    label: i18n.t('meta.Sinks.Password'),
-    name: 'password',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
-  },
-  {
-    name: 'sinkFieldList',
+  })
+  @TableColumn()
+  @I18n('meta.Sinks.Password')
+  password: string;
+
+  @FormField({
     type: EditableTable,
     props: values => ({
       size: 'small',
       editing: ![110, 130].includes(values?.status),
       columns: getFieldListColumns(values),
     }),
-  },
-];
+  })
+  sinkFieldList: Record<string, unknown>[];
+}
 
 const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `POSTGRESQL${i18n.t('meta.Sinks.PostgreSQL.FieldName')}`,
+      title: `ORACLE${i18n.t('meta.Sinks.Oracle.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('meta.Sinks.PostgreSQL.FieldNameRule'),
+          message: i18n.t('meta.Sinks.Oracle.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -165,12 +164,12 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `POSTGRESQL${i18n.t('meta.Sinks.PostgreSQL.FieldType')}`,
+      title: `ORACLE${i18n.t('meta.Sinks.Oracle.FieldType')}`,
       dataIndex: 'fieldType',
-      initialValue: postgreSqlFieldTypes[0].value,
+      initialValue: oracleFieldTypes[0].value,
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
-        options: postgreSqlFieldTypes,
+        options: oracleFieldTypes,
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
       }),
       rules: [
@@ -193,7 +192,7 @@ const getFieldListColumns = sinkValues => {
       ],
     },
     {
-      title: i18n.t('meta.Sinks.PostgreSQL.IsMetaField'),
+      title: i18n.t('meta.Sinks.Oracle.IsMetaField'),
       initialValue: 0,
       dataIndex: 'isMetaField',
       type: 'select',
@@ -211,7 +210,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: i18n.t('meta.Sinks.PostgreSQL.FieldFormat'),
+      title: i18n.t('meta.Sinks.Oracle.FieldFormat'),
       dataIndex: 'fieldFormat',
       initialValue: '',
       type: 'autocomplete',
@@ -225,7 +224,7 @@ const getFieldListColumns = sinkValues => {
         ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('meta.Sinks.PostgreSQL.FieldDescription'),
+      title: i18n.t('meta.Sinks.Oracle.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
