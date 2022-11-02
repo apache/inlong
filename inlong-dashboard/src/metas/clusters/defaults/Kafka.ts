@@ -30,6 +30,6 @@ export default class KafkaCluster extends ClusterInfo implements DataWithBackend
       placeholder: '127.0.0.1:9092,127.0.1.2:9092',
     },
   })
-  @I18n('Cluster URL')
+  @I18n('pages.Clusters.Kafka.ClusterUrl')
   url: string;
 }
