@@ -38,6 +38,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import io.netty.handler.codec.TooLongFrameException;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -46,13 +48,14 @@ import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.instrumentation.SinkCounter;
 import org.apache.flume.sink.AbstractSink;
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.base.HighPriorityThreadFactory;
-import org.apache.inlong.dataproxy.base.OrderEvent;
+import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
@@ -477,10 +480,18 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
             t1 = t2;
         }
         addStatistics(eventStat, true, startTime);
+        if (eventStat.isSinkRspType()) {
+            MessageUtils.sinkReturnRspPackage(
+                    (SinkRspEvent) eventStat.getEvent(), DataProxyErrCode.SUCCESS, "");
+        }
     }
 
     @Override
-    public void handleMessageSendException(String topic, EventStat eventStat, Object e) {
+    public void handleMessageSendException(String topic, EventStat eventStat,
+                                           Object e, DataProxyErrCode errCode, String errMsg) {
+        // decrease inflight count
+        currentInFlightCount.decrementAndGet();
+        // check whether retry send message
         boolean needRetry = true;
         if (e instanceof NotFoundException) {
             logger.error("NotFoundException for topic " + topic + ", message will be discard!", e);
@@ -497,9 +508,32 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
             }
         }
         addStatistics(eventStat, false, 0);
-        eventStat.incRetryCnt();
-        if (needRetry) {
-            processResendEvent(eventStat);
+        if (eventStat.isSinkRspType()) {
+            MessageUtils.sinkReturnRspPackage(
+                    (SinkRspEvent) eventStat.getEvent(), errCode, errMsg);
+        } else {
+            eventStat.incRetryCnt();
+            if (needRetry) {
+                processResendEvent(eventStat);
+            }
+        }
+    }
+
+    @Override
+    public void handleRequestProcError(String topic, EventStat eventStat, boolean needRetry,
+                                       DataProxyErrCode errCode, String errMsg) {
+        if (logPrinterB.shouldPrint()) {
+            logger.error(errMsg);
+        }
+        addStatistics(eventStat, false, 0);
+        if (MessageUtils.isSinkRspType(eventStat.getEvent())) {
+            MessageUtils.sinkReturnRspPackage(
+                    (SinkRspEvent) eventStat.getEvent(), errCode, errMsg);
+        } else {
+            eventStat.incRetryCnt();
+            if (needRetry) {
+                processResendEvent(eventStat);
+            }
         }
     }
 
@@ -532,13 +566,14 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
                 event.getHeaders().get(ConfigConstants.MSG_COUNTER_KEY));
         long dataTimeL = Long.parseLong(
                 event.getHeaders().get(AttributeConstants.DATA_TIME));
-        String orderType = eventStat.isOrderMessage() ? "order" : "non-order";
+        Pair<Boolean, String> evenProcType =
+                MessageUtils.getEventProcType(event);
         // build statistic key
         StringBuilder newBase = new StringBuilder(512)
                 .append(getName()).append(SEP_HASHTAG).append(topic)
                 .append(SEP_HASHTAG).append(streamId).append(SEP_HASHTAG)
                 .append(nodeIp).append(SEP_HASHTAG).append(NetworkUtils.getLocalIp())
-                .append(SEP_HASHTAG).append(orderType).append(SEP_HASHTAG)
+                .append(SEP_HASHTAG).append(evenProcType.getRight()).append(SEP_HASHTAG)
                 .append(DateTimeUtils.ms2yyyyMMddHHmm(dataTimeL));
         // count data
         if (isSuccess) {
@@ -547,14 +582,8 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
             monitorIndexExt.incrementAndGet("PULSAR_SINK_SUCCESS");
         } else {
             monitorIndexExt.incrementAndGet("PULSAR_SINK_EXP");
-            if (eventStat.getRetryCnt() == 0) {
-                monitorIndex.addAndGet(newBase.toString(),
-                        0, 0, 0, intMsgCnt);
-                if (logPrinterB.shouldPrint()) {
-                    logger.warn("error cannot send event, {} event size is {}",
-                            topic, event.getBody().length);
-                }
-            }
+            monitorIndex.addAndGet(newBase.toString(),
+                    0, 0, 0, intMsgCnt);
         }
     }
 
@@ -565,7 +594,7 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
 
         boolean result = true;
         Event event = eventStat.getEvent();
-        if (MessageUtils.isSyncSendForOrder(event) && (event instanceof OrderEvent)) {
+        if (eventStat.isOrderMessage()) {
             String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
             SinkTask sinkTask =
                     sinkThreadPool[Math.abs(partitionKey.hashCode()) % sinkThreadPoolSize];
@@ -592,9 +621,6 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
             if (eventStat == null || eventStat.getEvent() == null) {
                 logger.warn("processResendEvent eventStat is null!");
                 return;
-            }
-            if (eventStat.getRetryCnt() == 1) {
-                currentInFlightCount.decrementAndGet();
             }
             /*
              * If the failure requires retransmission to pulsar,

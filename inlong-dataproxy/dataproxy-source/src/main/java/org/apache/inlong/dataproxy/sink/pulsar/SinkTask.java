@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.flume.instrumentation.SinkCounter;
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
@@ -32,7 +33,6 @@ import org.apache.inlong.dataproxy.sink.EventStat;
 import org.apache.inlong.dataproxy.sink.PulsarSink;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.pulsar.client.api.PulsarClientException;
-import org.apache.pulsar.client.api.PulsarClientException.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +114,6 @@ public class SinkTask extends Thread {
     public void run() {
         logger.info("Sink task {} started.", Thread.currentThread().getName());
         while (canSend) {
-            boolean decrementFlag = false;
             Event event = null;
             EventStat eventStat = null;
             String topic = null;
@@ -157,7 +156,7 @@ public class SinkTask extends Thread {
                 // check whether discard or send event
                 if (eventStat.getRetryCnt() > maxRetrySendCnt) {
                     logger.warn("Message will be discard! send times reach to max retry cnt."
-                            + " topic = {}, max retry cnt = {}", topic, maxRetrySendCnt);
+                            + " max retry cnt = {}", maxRetrySendCnt);
                     continue;
                 }
                 // get topic
@@ -168,8 +167,8 @@ public class SinkTask extends Thread {
                     topic = MessageUtils.getTopic(pulsarSink.getTopicsProperties(), groupId, streamId);
                 }
                 if (topic == null || topic.equals("")) {
-                    pulsarSink.handleMessageSendException(topic, eventStat,
-                            new NotFoundException(ConfigConstants.TOPIC_KEY + " info is null"));
+                    pulsarSink.handleRequestProcError(topic, eventStat,
+                            false, DataProxyErrCode.TOPIC_IS_BLANK, "");
                     continue;
                 }
                 // check whether duplicated event
@@ -178,6 +177,9 @@ public class SinkTask extends Thread {
                     boolean hasSend = agentIdCache.asMap().containsKey(clientSeqId);
                     agentIdCache.put(clientSeqId, System.currentTimeMillis());
                     if (hasSend) {
+                        pulsarSink.handleRequestProcError(topic, eventStat,
+                                false, DataProxyErrCode.DUPLICATED_MESSAGE,
+                                "Duplicated message by uuid = " + clientSeqId);
                         if (logPrinterA.shouldPrint()) {
                             logger.info("{} agent package {} existed,just discard.",
                                     getName(), clientSeqId);
@@ -186,13 +188,7 @@ public class SinkTask extends Thread {
                     }
                 }
                 // send message
-                if (!pulsarClientService.sendMessage(
-                        poolIndex, topic, event, pulsarSink, eventStat)) {
-                    // only for order message
-                    processToReTrySend(eventStat);
-                }
-                currentInFlightCount.incrementAndGet();
-                decrementFlag = true;
+                pulsarClientService.sendMessage(poolIndex, topic, eventStat, pulsarSink);
             } catch (InterruptedException e) {
                 logger.error("Thread {} has been interrupted!",
                         Thread.currentThread().getName());
@@ -219,9 +215,7 @@ public class SinkTask extends Thread {
                     }
                 }
                 if (logPrinterA.shouldPrint()) {
-                    logger.error("Sink task fail to send the message, decrementFlag="
-                            + decrementFlag
-                            + ",sink.name="
+                    logger.error("Sink task fail to send the message, sink.name="
                             + Thread.currentThread().getName()
                             + ",event.headers="
                             + eventStat.getEvent().getHeaders(), t);
@@ -231,19 +225,9 @@ public class SinkTask extends Thread {
                  * so currentInFlightCount is not added,
                  * so there is no need to subtract
                  */
-                pulsarSink.handleMessageSendException(topic, eventStat, t);
-                processToReTrySend(eventStat);
+                pulsarSink.handleRequestProcError(topic, eventStat,false,
+                        DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, t.getMessage());
             }
-        }
-    }
-
-    public void processToReTrySend(EventStat eventStat) {
-        /*
-         * order message must be retried in local resendQueue
-         */
-        if (eventStat.isOrderMessage()) {
-
-            processReSendEvent(eventStat);
         }
     }
 }

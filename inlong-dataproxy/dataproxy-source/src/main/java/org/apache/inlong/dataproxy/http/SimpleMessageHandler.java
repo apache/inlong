@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
@@ -41,6 +42,7 @@ import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,13 +159,15 @@ public class SimpleMessageHandler implements MessageHandler {
         headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         Event event = EventBuilder.withBody(data, headers);
         inLongMsg.reset();
+        Pair<Boolean, String> evenProcType =
+                MessageUtils.getEventProcType("", "");
         // build metric data item
         longDataTime = longDataTime / 1000 / 60 / 10;
         longDataTime = longDataTime * 1000 * 60 * 10;
         strBuff.append("http").append(SEP_HASHTAG).append(topicName).append(SEP_HASHTAG)
                 .append(streamId).append(SEP_HASHTAG).append(strRemoteIP).append(SEP_HASHTAG)
                 .append(NetworkUtils.getLocalIp()).append(SEP_HASHTAG)
-                .append("non-order").append(SEP_HASHTAG)
+                .append(evenProcType.getRight()).append(SEP_HASHTAG)
                 .append(DateTimeUtils.ms2yyyyMMddHHmm(longDataTime)).append(SEP_HASHTAG)
                 .append(DateTimeUtils.ms2yyyyMMddHHmm(msgRcvTime));
         long beginTime = System.currentTimeMillis();
