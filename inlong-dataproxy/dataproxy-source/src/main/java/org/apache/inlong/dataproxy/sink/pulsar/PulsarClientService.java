@@ -193,7 +193,7 @@ public class PulsarClientService {
             } catch (Throwable ex) {
                 forCallBackP.setCanUseSend(false);
                 pulsarSink.handleMessageSendException(topic, es, ex,
-                        DataProxyErrCode.PULSAR_RETURN_ERROR, ex.getMessage());
+                        DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 result = ex instanceof NotFoundException;
             }
         } else {
@@ -208,13 +208,13 @@ public class PulsarClientService {
                         .exceptionally((e) -> {
                             forCallBackP.setCanUseSend(false);
                             pulsarSink.handleMessageSendException(topic, es, e,
-                                    DataProxyErrCode.PULSAR_RETURN_ERROR, e.toString());
+                                    DataProxyErrCode.MQ_RETURN_ERROR, e.toString());
                             return null;
                         });
             } catch (Throwable ex) {
                 pulsarSink.getCurrentInFlightCount().decrementAndGet();
                 pulsarSink.handleRequestProcError(topic, es, true,
-                        DataProxyErrCode.SEND_REQUEST_TO_PULSAR_FAILURE, ex.getMessage());
+                        DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
             }
             result = true;
         }

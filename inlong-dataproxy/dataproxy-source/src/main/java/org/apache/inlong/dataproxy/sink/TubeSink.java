@@ -356,7 +356,8 @@ public class TubeSink extends AbstractSink implements Configurable {
                     logger.info("Thread {} has been interrupted!", Thread.currentThread().getName());
                     return;
                 } catch (Throwable t) {
-                    resendEvent(es, bChangedInflightValue);
+                    resendEvent(es, bChangedInflightValue,
+                            DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, t.getMessage());
                     if (t instanceof TubeClientException) {
                         String message = t.getMessage();
                         if (message != null && (message.contains("No available queue for topic")
@@ -454,14 +455,15 @@ public class TubeSink extends AbstractSink implements Configurable {
                             result.getErrMsg(), resendQueue.size(),
                             myEventStat.getEvent().hashCode());
                 }
-                resendEvent(myEventStat, true);
+                resendEvent(myEventStat, true, DataProxyErrCode.MQ_RETURN_ERROR,
+                        result.getErrCode() + "#" + result.getErrMsg());
             }
         }
 
         @Override
         public void onException(final Throwable e) {
             addStatistics(myEventStat.getEvent(), false, true, 0);
-            resendEvent(myEventStat, true);
+            resendEvent(myEventStat, true, DataProxyErrCode.UNKNOWN_ERROR, e.getMessage());
         }
 
         /**
@@ -541,7 +543,8 @@ public class TubeSink extends AbstractSink implements Configurable {
     /**
      * resend event
      */
-    private void resendEvent(EventStat es, boolean sendFinished) {
+    private void resendEvent(EventStat es, boolean sendFinished,
+                             DataProxyErrCode errCode, String errMsg) {
         try {
             if (sendFinished) {
                 inflightMsgCnt.decrementAndGet();
@@ -553,8 +556,7 @@ public class TubeSink extends AbstractSink implements Configurable {
             MSG_DEDUP_HANDLER.invalidMsgSeqId(es.getEvent()
                     .getHeaders().get(ConfigConstants.SEQUENCE_ID));
             if (MessageUtils.isSinkRspType(es.getEvent())) {
-                MessageUtils.sinkReturnRspPackage((SinkRspEvent) es.getEvent(),
-                        DataProxyErrCode.SUCCESS, "");
+                MessageUtils.sinkReturnRspPackage((SinkRspEvent) es.getEvent(), errCode, errMsg);
             } else {
                 if (resendQueue.offer(es)) {
                     resendMsgCnt.incrementAndGet();

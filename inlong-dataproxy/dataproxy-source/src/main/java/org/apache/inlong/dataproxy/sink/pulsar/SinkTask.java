@@ -226,7 +226,7 @@ public class SinkTask extends Thread {
                  * so there is no need to subtract
                  */
                 pulsarSink.handleRequestProcError(topic, eventStat,false,
-                        DataProxyErrCode.SEND_REQUEST_TO_PULSAR_FAILURE, t.getMessage());
+                        DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, t.getMessage());
             }
         }
     }
