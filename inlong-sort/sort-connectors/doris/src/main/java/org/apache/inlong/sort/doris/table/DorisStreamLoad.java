@@ -124,7 +124,9 @@ public class DorisStreamLoad implements Serializable {
             put.setHeader(HttpHeaders.AUTHORIZATION, this.authEncoding);
             put.setHeader("label", label);
             for (Map.Entry<Object, Object> entry : streamLoadProp.entrySet()) {
-                put.setHeader(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+                if (entry.getValue() != null) {
+                    put.setHeader(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+                }
             }
             put.setHeader("format", "json");
             put.setHeader("strip_outer_array", "true");
