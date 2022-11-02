@@ -74,4 +74,5 @@ public interface AttributeConstants {
     String MESSAGE_PROXY_SEND = "proxySend";
     String MESSAGE_PROCESS_ERRCODE = "errCode";
     String MESSAGE_PROCESS_ERRMSG = "errMsg";
+    String MESSAGE_PARTITION_KEY = "partitionKey";
 }

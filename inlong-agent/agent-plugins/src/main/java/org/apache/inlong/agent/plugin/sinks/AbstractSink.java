@@ -52,6 +52,7 @@ public abstract class AbstractSink implements Sink {
     protected AgentMetricItem sinkMetric;
     protected Map<String, String> dimensions;
     protected static final AtomicLong METRIC_INDEX = new AtomicLong(0);
+    protected JobProfile jobConf;
 
     @Override
     public MessageFilter initMessageFilter(JobProfile jobConf) {
@@ -68,6 +69,7 @@ public abstract class AbstractSink implements Sink {
 
     @Override
     public void init(JobProfile jobConf) {
+        this.jobConf = jobConf;
         inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
         inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
 
