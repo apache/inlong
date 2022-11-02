@@ -52,7 +52,7 @@ export default class EsSink extends SinkInfo implements DataWithBackend {
     }),
   })
   @TableColumn()
-  @I18n('meta.Sinks.Es.IndexName')
+  @I18n('meta.Sinks.ES.IndexName')
   indexName: string;
 
   @FormField({
@@ -107,7 +107,7 @@ export default class EsSink extends SinkInfo implements DataWithBackend {
     }),
   })
   @TableColumn()
-  @I18n('meta.Sinks.Es.Host')
+  @I18n('meta.Sinks.ES.Host')
   host: string;
 
   @FormField({
@@ -121,49 +121,49 @@ export default class EsSink extends SinkInfo implements DataWithBackend {
     }),
   })
   @TableColumn()
-  @I18n('meta.Sinks.Es.Port')
+  @I18n('meta.Sinks.ES.Port')
   port: number;
 
   @FormField({
     type: 'inputnumber',
     initialValue: 1,
     rules: [{ required: true }],
-    suffix: i18n.t('meta.Sinks.Es.FlushIntervalUnit'),
+    suffix: i18n.t('meta.Sinks.ES.FlushIntervalUnit'),
     props: values => ({
       min: 1,
       disabled: [110, 130].includes(values?.status),
     }),
   })
   @TableColumn()
-  @I18n('meta.Sinks.Es.FlushInterval')
+  @I18n('meta.Sinks.ES.FlushInterval')
   flushInterval: number;
 
   @FormField({
     type: 'inputnumber',
     initialValue: 1000,
     rules: [{ required: true }],
-    suffix: i18n.t('meta.Sinks.Es.FlushRecordUnit'),
+    suffix: i18n.t('meta.Sinks.ES.FlushRecordUnit'),
     props: values => ({
       min: 1,
       disabled: [110, 130].includes(values?.status),
     }),
   })
   @TableColumn()
-  @I18n('meta.Sinks.Es.FlushRecord')
+  @I18n('meta.Sinks.ES.FlushRecord')
   flushRecord: number;
 
   @FormField({
     type: 'inputnumber',
     initialValue: 3,
     rules: [{ required: true }],
-    suffix: i18n.t('meta.Sinks.Es.RetryTimesUnit'),
+    suffix: i18n.t('meta.Sinks.ES.RetryTimesUnit'),
     props: values => ({
       min: 1,
       disabled: [110, 130].includes(values?.status),
     }),
   })
   @TableColumn()
-  @I18n('meta.Sinks.Es.RetryTimes')
+  @I18n('meta.Sinks.ES.RetryTimes')
   retryTime: number;
 
   @FormField({
@@ -181,13 +181,13 @@ const getFieldListColumns = sinkValues => {
   return [
     ...sourceFields,
     {
-      title: `ES ${i18n.t('meta.Sinks.Es.FieldName')}`,
+      title: `ES ${i18n.t('meta.Sinks.ES.FieldName')}`,
       dataIndex: 'fieldName',
       rules: [
         { required: true },
         {
           pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-          message: i18n.t('meta.Sinks.Es.FieldNameRule'),
+          message: i18n.t('meta.Sinks.ES.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -195,7 +195,7 @@ const getFieldListColumns = sinkValues => {
       }),
     },
     {
-      title: `ES ${i18n.t('meta.Sinks.Es.FieldType')}`,
+      title: `ES ${i18n.t('meta.Sinks.ES.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: esTypes[0].value,
       type: 'select',
@@ -223,7 +223,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'text',
     },
     {
-      title: i18n.t('meta.Sinks.Es.DateFormat'),
+      title: i18n.t('meta.Sinks.ES.DateFormat'),
       dataIndex: 'format',
       props: (text, record, idx, isNew) => ({
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,
@@ -239,7 +239,7 @@ const getFieldListColumns = sinkValues => {
       visible: (text, record) => record.fieldType === 'scaled_float',
     },
     {
-      title: `ES ${i18n.t('meta.Sinks.Es.FieldDescription')}`,
+      title: `ES ${i18n.t('meta.Sinks.ES.FieldDescription')}`,
       dataIndex: 'fieldComment',
       props: (text, record, idx, isNew) => ({
         disabled: [110, 130].includes(sinkValues?.status as number) && !isNew,

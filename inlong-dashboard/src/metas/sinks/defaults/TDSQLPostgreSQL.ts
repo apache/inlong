@@ -16,7 +16,6 @@
  */
 
 import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
 import EditableTable from '@/components/EditableTable';
 import { DataWithBackend } from '@/metas/DataWithBackend';
 import { sourceFields } from '../common/sourceFields';
@@ -53,7 +52,7 @@ const tdsqlPostgreSQLFieldTypes = [
   value: item,
 }));
 
-export default class TDSQLPostgreSqlSink extends SinkInfo implements DataWithBackend {
+export default class TDSQLPostgreSQLSink extends SinkInfo implements DataWithBackend {
   @FormField({
     type: 'input',
     rules: [{ required: true }],
