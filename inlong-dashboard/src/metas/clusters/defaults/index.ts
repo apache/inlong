@@ -36,11 +36,6 @@ export const allDefaultClusters: MetaExportWithBackendList = [
     LoadEntity: () => import('./DataProxy'),
   },
   {
-    label: 'Kafka',
-    value: 'KAFKA',
-    LoadEntity: () => import('./Kafka'),
-  },
-  {
     label: 'Pulsar',
     value: 'PULSAR',
     LoadEntity: () => import('./Pulsar'),
