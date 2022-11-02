@@ -114,7 +114,7 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     public RowType extractSchema(JsonNode data, List<String> pkNames) {
         JsonNode schema = data.get(SCHEMA);
         if (schema == null) {
-            throw new IllegalArgumentException(String.format("Error schema: %s.", data));
+            throw new IllegalArgumentException(String.format("Not found schema from: %s", data));
         }
         return extractSchemaNode(schema, pkNames);
     }
