@@ -26,9 +26,9 @@ export const allDefaultSinks: MetaExportWithBackendList = [
     LoadEntity: () => import('../common/SinkInfo').then(r => ({ default: r.SinkInfo })),
   },
   {
-    label: 'Clickhouse',
+    label: 'ClickHouse',
     value: 'CLICKHOUSE',
-    LoadEntity: () => import('./Clickhouse'),
+    LoadEntity: () => import('./ClickHouse'),
   },
   {
     label: 'Doris',
@@ -38,7 +38,7 @@ export const allDefaultSinks: MetaExportWithBackendList = [
   {
     label: 'Elasticsearch',
     value: 'ELASTICSEARCH',
-    LoadEntity: () => import('./Es'),
+    LoadEntity: () => import('./ES'),
   },
   {
     label: 'Greenplum',
@@ -68,7 +68,7 @@ export const allDefaultSinks: MetaExportWithBackendList = [
   {
     label: 'MySQL',
     value: 'MYSQL',
-    LoadEntity: () => import('./Mysql'),
+    LoadEntity: () => import('./MySQL'),
   },
   {
     label: 'Oracle',
@@ -78,7 +78,7 @@ export const allDefaultSinks: MetaExportWithBackendList = [
   {
     label: 'PostgreSQL',
     value: 'POSTGRESQL',
-    LoadEntity: () => import('./PostgreSql'),
+    LoadEntity: () => import('./PostgreSQL'),
   },
   {
     label: 'SQLServer',
@@ -88,6 +88,6 @@ export const allDefaultSinks: MetaExportWithBackendList = [
   {
     label: 'TDSQLPostgreSQL',
     value: 'TDSQLPOSTGRESQL',
-    LoadEntity: () => import('./TDSQLPostgreSql'),
+    LoadEntity: () => import('./TDSQLPostgreSQL'),
   },
 ];

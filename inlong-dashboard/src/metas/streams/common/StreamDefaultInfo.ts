@@ -88,7 +88,7 @@ export class StreamDefaultInfo extends DataWithBackend {
   @FormField({
     type: 'radio',
     initialValue: 'CSV',
-    tooltip: i18n.t('meta.Stream.DataTypeCsvHelp'),
+    tooltip: i18n.t('meta.Stream.DataTypeHelp'),
     props: {
       options: [
         {
@@ -96,16 +96,8 @@ export class StreamDefaultInfo extends DataWithBackend {
           value: 'CSV',
         },
         {
-          label: 'KEY-VALUE',
-          value: 'KEY-VALUE',
-        },
-        {
-          label: 'JSON',
-          value: 'JSON',
-        },
-        {
-          label: 'AVRO',
-          value: 'AVRO',
+          label: 'Raw-CSV',
+          value: 'RAW_CSV',
         },
       ],
     },

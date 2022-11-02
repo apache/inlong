@@ -16,7 +16,6 @@
  */
 
 import i18n from '@/i18n';
-import type { FieldItemType } from '@/metas/common';
 import { DataWithBackend } from '@/metas/DataWithBackend';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';

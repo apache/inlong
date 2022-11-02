@@ -26,18 +26,18 @@ export const allDefaultSources: MetaExportWithBackendList = [
     LoadEntity: () => import('../common/SourceInfo').then(r => ({ default: r.SourceInfo })),
   },
   {
-    label: 'Auto Push',
+    label: 'File',
+    value: 'FILE',
+    LoadEntity: () => import('./File'),
+  },
+  {
+    label: 'Auto-Push',
     value: 'AUTO_PUSH',
     LoadEntity: () => import('./AutoPush'),
   },
   {
-    label: 'MySQL BinLog',
+    label: 'MySQL-BinLog',
     value: 'MYSQL_BINLOG',
-    LoadEntity: () => import('./MysqlBinlog'),
-  },
-  {
-    label: 'File',
-    value: 'FILE',
-    LoadEntity: () => import('./File'),
+    LoadEntity: () => import('./MySQLBinlog'),
   },
 ];
