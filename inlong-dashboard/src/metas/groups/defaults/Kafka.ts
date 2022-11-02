@@ -18,34 +18,6 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
-import i18n from '@/i18n';
 import { GroupInfo } from '../common/GroupInfo';
 
-const { I18n, FormField } = DataWithBackend;
-
-export default class KafkaGroup extends GroupInfo implements DataWithBackend {
-  @FormField({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    suffix: i18n.t('meta.Group.PartitionUnit'),
-    props: {
-      min: 1,
-      precision: 0,
-    },
-  })
-  @I18n('meta.Group.Partition')
-  numPartitions: number;
-
-  @FormField({
-    type: 'inputnumber',
-    rules: [{ required: true }],
-    initialValue: 1,
-    suffix: i18n.t('meta.Group.PartitionUnit'),
-    props: {
-      min: 1,
-      precision: 0,
-    },
-  })
-  @I18n('meta.Group.AccessSize')
-  replicationFactor: number;
-}
+export default class KafkaGroup extends GroupInfo implements DataWithBackend {}
