@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sdk.dataproxy.utils;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.slf4j.Logger;
@@ -99,6 +100,9 @@ public class ProxyUtils {
 
     public static StringBuilder convertAttrToStr(Map<String, String> extraAttrMap) {
         StringBuilder attrs = new StringBuilder();
+        if (MapUtils.isEmpty(extraAttrMap)) {
+            return attrs;
+        }
         for (Map.Entry<String, String> entry : extraAttrMap.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
