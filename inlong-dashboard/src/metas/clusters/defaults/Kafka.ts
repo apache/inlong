@@ -17,27 +17,19 @@
  * under the License.
  */
 
-import type { MetaExportWithBackendList } from '@/metas/types';
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { ClusterInfo } from '../common/ClusterInfo';
 
-export const allDefaultGroups: MetaExportWithBackendList = [
-  {
-    label: 'ALL',
-    value: '',
-    LoadEntity: () => import('../common/GroupInfo').then(r => ({ default: r.GroupInfo })),
-  },
-  {
-    label: 'Kafka',
-    value: 'KAFKA',
-    LoadEntity: () => import('./Kafka'),
-  },
-  {
-    label: 'Pulsar',
-    value: 'PULSAR',
-    LoadEntity: () => import('./Pulsar'),
-  },
-  {
-    label: 'TubeMq',
-    value: 'TUBEMQ',
-    LoadEntity: () => import('./TubeMq'),
-  },
-];
+const { I18n, FormField } = DataWithBackend;
+
+export default class KafkaCluster extends ClusterInfo implements DataWithBackend {
+  @FormField({
+    type: 'input',
+    rules: [{ required: true }],
+    props: {
+      placeholder: '127.0.0.1:9092,127.0.1.2:9092',
+    },
+  })
+  @I18n('Cluster URL')
+  url: string;
+}
