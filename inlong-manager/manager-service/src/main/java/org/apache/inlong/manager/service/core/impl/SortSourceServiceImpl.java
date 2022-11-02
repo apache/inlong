@@ -364,7 +364,10 @@ public class SortSourceServiceImpl implements SortSourceService {
                         topic = Optional.ofNullable(backupStreamMqResource.get(info.getGroupId())).orElse(topic);
                     }
                     String fullTopic = tenant.concat("/").concat(namespace).concat("/").concat(topic);
-                    return Topic.builder().topic(fullTopic).build();
+                    return Topic.builder()
+                            .topic(fullTopic)
+                            .topicProperties(info.getExtParamsMap())
+                            .build();
                 })
                 .collect(Collectors.toList());
         return CacheZone.builder()
@@ -372,6 +375,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                 .serviceUrl(cluster.getUrl())
                 .topics(sdkTopics)
                 .authentication(auth)
+                .cacheZoneProperties(cluster.getExtParamsMap())
                 .zoneType(ClusterType.PULSAR)
                 .build();
     }
