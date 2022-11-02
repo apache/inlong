@@ -61,7 +61,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -102,6 +101,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final AtomicLong writeOutNum = new AtomicLong(0);
     private final AtomicLong errorNum = new AtomicLong(0);
     private final AtomicLong ddlNum = new AtomicLong(0);
+    private final String inlongMetric;
+    private final String auditHostAndPorts;
     private long batchBytes = 0L;
     private int size;
     private DorisStreamLoad dorisStreamLoad;
@@ -110,9 +111,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private transient ScheduledExecutorService scheduler;
     private transient ScheduledFuture<?> scheduledFuture;
     private transient JsonDynamicSchemaFormat jsonDynamicSchemaFormat;
-
-    private final String inlongMetric;
-    private final String auditHostAndPorts;
     private transient SinkMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
@@ -314,6 +312,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             // Add column key when fieldNames is not empty
             fieldNames = first.fieldNames();
         }
+        return genColumns(fieldNames);
+    }
+
+    private String genColumns(Iterator<String> fieldNames) {
         if (fieldNames != null && fieldNames.hasNext()) {
             StringBuilder sb = new StringBuilder();
             while (fieldNames.hasNext()) {
