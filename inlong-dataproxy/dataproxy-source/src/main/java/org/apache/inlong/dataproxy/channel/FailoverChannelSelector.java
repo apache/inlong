@@ -64,8 +64,7 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
             retChannels.add(agentFileMetricChannels.get(0));
         } else if (event.getHeaders().containsKey(ConfigConstants.SLA_METRIC_DATA)) {
             retChannels.add(slaMetricChannels.get(0));
-        } else if (MessageUtils.isSyncSendForOrder(event.getHeaders()
-                .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
+        } else if (MessageUtils.isSyncSendForOrder(event)) {
             String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
             if (partitionKey == null) {
                 partitionKey = "";

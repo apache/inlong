@@ -20,16 +20,18 @@ package org.apache.inlong.dataproxy.base;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.Map;
 import org.apache.flume.Event;
+import org.apache.inlong.dataproxy.source.MsgType;
 
-public class OrderEvent implements Event {
+public class SinkRspEvent implements Event {
 
     private ChannelHandlerContext ctx;
-
+    private MsgType msgType;
     private Event event;
 
-    public OrderEvent(ChannelHandlerContext ctx, Event event) {
-        this.ctx = ctx;
+    public SinkRspEvent(Event event, MsgType msgType, ChannelHandlerContext ctx) {
         this.event = event;
+        this.msgType = msgType;
+        this.ctx = ctx;
     }
 
     @Override
@@ -53,10 +55,20 @@ public class OrderEvent implements Event {
     }
 
     /**
-     * ctx
+     * Get event reported channel context
+     *
      * @return ctx
      */
     public ChannelHandlerContext getCtx() {
         return ctx;
+    }
+
+    /**
+     * Get event's message type
+     *
+     * @return msgType
+     */
+    public MsgType getMsgType() {
+        return msgType;
     }
 }
