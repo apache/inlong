@@ -26,14 +26,14 @@ export const allDefaultSources: MetaExportWithBackendList = [
     LoadEntity: () => import('../common/SourceInfo').then(r => ({ default: r.SourceInfo })),
   },
   {
-    label: 'File',
-    value: 'FILE',
-    LoadEntity: () => import('./File'),
-  },
-  {
     label: 'Auto-Push',
     value: 'AUTO_PUSH',
     LoadEntity: () => import('./AutoPush'),
+  },
+  {
+    label: 'File',
+    value: 'FILE',
+    LoadEntity: () => import('./File'),
   },
   {
     label: 'MySQL-BinLog',
