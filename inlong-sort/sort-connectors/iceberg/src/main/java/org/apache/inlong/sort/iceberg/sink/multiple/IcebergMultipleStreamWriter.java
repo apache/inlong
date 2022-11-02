@@ -36,7 +36,6 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.sink.TaskWriterFactory;
-import org.apache.iceberg.types.Types.NestedField;
 import org.apache.iceberg.util.PropertyUtil;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
@@ -169,12 +168,6 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             List<Integer> equalityFieldIds = recordWithSchema.getPrimaryKeys().stream()
                     .map(pk -> recordWithSchema.getSchema().findField(pk).fieldId())
                     .collect(Collectors.toList());
-            // if physical primary key not exist, put all field to logical primary key
-            if (equalityFieldIds.isEmpty()) {
-                equalityFieldIds = recordWithSchema.getSchema().columns().stream()
-                        .map(NestedField::fieldId)
-                        .collect(Collectors.toList());
-            }
 
             TaskWriterFactory<RowData> taskWriterFactory = new RowDataTaskWriterFactory(
                     table,
