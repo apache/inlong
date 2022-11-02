@@ -151,8 +151,8 @@ public class ProxySink extends AbstractSink {
                         if (result != null) {
                             long sendTime = AgentUtils.getCurrentTime();
                             if (syncSend) {
-                                senderManager.sendBatchSync(inlongGroupId, result.getKey(), result.getValue(),
-                                        0, sendTime, packProxyMessage.getExtraMap());
+                                senderManager.sendBatchSync(jobInstanceId, inlongGroupId, result.getKey(),
+                                        result.getValue(), 0, sendTime, packProxyMessage.getExtraMap());
                             } else {
                                 senderManager.sendBatchAsync(jobInstanceId, inlongGroupId, result.getKey(),
                                         result.getValue(), 0, sendTime);

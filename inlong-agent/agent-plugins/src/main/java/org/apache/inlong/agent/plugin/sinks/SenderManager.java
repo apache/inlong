@@ -252,7 +252,7 @@ public class SenderManager {
      * @param bodyList body list
      * @param retry retry time
      */
-    public void sendBatchSync(String groupId, String streamId,
+    public void sendBatchSync(String jobId, String groupId, String streamId,
             List<byte[]> bodyList, int retry, long dataTime, Map<String, String> extraMap) {
         if (retry > maxSenderRetry) {
             LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
@@ -272,11 +272,14 @@ public class SenderManager {
                 long totalSize = bodyList.stream().mapToLong(body -> body.length).sum();
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size(),
                         totalSize);
+                if (sourcePath != null) {
+                    taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
+                }
             } else {
                 getMetricItem(dims).pluginSendFailCount.addAndGet(bodyList.size());
                 getMetricItem(dims).pluginSendCount.addAndGet(bodyList.size());
                 LOGGER.warn("send data to dataproxy error {}", result.toString());
-                sendBatchSync(groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
+                sendBatchSync(jobId, groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
             }
 
         } catch (Exception exception) {
@@ -286,7 +289,7 @@ public class SenderManager {
                 TimeUnit.SECONDS.sleep(1);
                 getMetricItem(dims).pluginSendFailCount.addAndGet(bodyList.size());
                 getMetricItem(dims).pluginSendCount.addAndGet(bodyList.size());
-                sendBatchSync(groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
+                sendBatchSync(jobId, groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
             } catch (Exception ignored) {
                 // ignore it.
             }
