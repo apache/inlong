@@ -33,6 +33,7 @@ import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
+import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
@@ -42,7 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -70,13 +70,13 @@ public class EsSinkContext extends SinkContext {
     public static final int DEFAULT_FLUSH_INTERVAL = 60;
     public static final int DEFAULT_CONCURRENT_REQUESTS = 5;
     public static final int DEFAULT_MAX_CONNECT = 10;
-    public static final int DEFAULT_KEYWORD_MAX_LENGTH = 32 * 1024 - 1;
+    public static final int DEFAULT_KEYWORD_MAX_LENGTH = 31 * 1024;
     public static final boolean DEFAULT_IS_USE_INDEX_ID = false;
 
     private Context sinkContext;
     private String nodeId;
     private Map<String, EsIdConfig> idConfigMap = new ConcurrentHashMap<>();
-    private final LinkedBlockingQueue<EsIndexRequest> dispatchQueue;
+    private final BufferQueue<EsIndexRequest> dispatchQueue;
     private AtomicLong offerCounter = new AtomicLong(0);
     private AtomicLong takeCounter = new AtomicLong(0);
     private AtomicLong backCounter = new AtomicLong(0);
@@ -103,7 +103,7 @@ public class EsSinkContext extends SinkContext {
      * @param dispatchQueue
      */
     public EsSinkContext(String sinkName, Context context, Channel channel,
-            LinkedBlockingQueue<EsIndexRequest> dispatchQueue) {
+            BufferQueue<EsIndexRequest> dispatchQueue) {
         super(sinkName, context, channel);
         this.sinkContext = context;
         this.dispatchQueue = dispatchQueue;
@@ -149,6 +149,7 @@ public class EsSinkContext extends SinkContext {
             this.flushInterval = sinkContext.getInteger(KEY_FLUSH_INTERVAL, DEFAULT_FLUSH_INTERVAL);
             this.concurrentRequests = sinkContext.getInteger(KEY_CONCURRENT_REQUESTS, DEFAULT_CONCURRENT_REQUESTS);
             this.maxConnect = sinkContext.getInteger(KEY_MAX_CONNECT, DEFAULT_MAX_CONNECT);
+            this.keywordMaxLength = sinkContext.getInteger(KEY_KEYWORD_MAX_LENGTH, DEFAULT_KEYWORD_MAX_LENGTH);
             this.isUseIndexId = sinkContext.getBoolean(KEY_IS_USE_INDEX_ID, DEFAULT_IS_USE_INDEX_ID);
             // http host
             this.strHttpHosts = sinkContext.getString(KEY_HTTP_HOSTS);
@@ -303,18 +304,19 @@ public class EsSinkContext extends SinkContext {
      * @param  indexRequest
      * @return
      */
-    public boolean offerDispatchQueue(EsIndexRequest indexRequest) {
+    public void offerDispatchQueue(EsIndexRequest indexRequest) {
         this.offerCounter.incrementAndGet();
-        return dispatchQueue.offer(indexRequest);
+        dispatchQueue.acquire(indexRequest.getEvent().getBody().length);
+        dispatchQueue.offer(indexRequest);
     }
 
     /**
-     * taskDispatchQueue
+     * takeDispatchQueue
      * 
      * @return
      */
-    public EsIndexRequest taskDispatchQueue() {
-        EsIndexRequest indexRequest = this.dispatchQueue.poll();
+    public EsIndexRequest takeDispatchQueue() {
+        EsIndexRequest indexRequest = this.dispatchQueue.pollRecord();
         if (indexRequest != null) {
             this.takeCounter.incrementAndGet();
         }
@@ -327,9 +329,19 @@ public class EsSinkContext extends SinkContext {
      * @param  indexRequest
      * @return
      */
-    public boolean backDispatchQueue(EsIndexRequest indexRequest) {
+    public void backDispatchQueue(EsIndexRequest indexRequest) {
         this.backCounter.incrementAndGet();
-        return dispatchQueue.offer(indexRequest);
+        dispatchQueue.offer(indexRequest);
+    }
+
+    /**
+     * releaseDispatchQueue
+     * 
+     * @param  indexRequest
+     * @return
+     */
+    public void releaseDispatchQueue(EsIndexRequest indexRequest) {
+        dispatchQueue.release(indexRequest.getEvent().getBody().length);
     }
 
     /**

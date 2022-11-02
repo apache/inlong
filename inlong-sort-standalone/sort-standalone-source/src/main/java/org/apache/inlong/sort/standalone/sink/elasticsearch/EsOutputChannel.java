@@ -201,7 +201,7 @@ public class EsOutputChannel extends Thread {
                 return;
             }
             // get indexRequest
-            indexRequest = context.taskDispatchQueue();
+            indexRequest = context.takeDispatchQueue();
             if (indexRequest == null) {
                 Thread.sleep(context.getProcessInterval());
                 return;

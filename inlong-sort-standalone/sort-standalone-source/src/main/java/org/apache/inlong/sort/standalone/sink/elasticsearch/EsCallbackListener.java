@@ -87,6 +87,7 @@ public class EsCallbackListener implements BulkProcessor.Listener {
                 context.backDispatchQueue(requestItem);
             } else {
                 context.addSendResultMetric(event, context.getTaskName(), true, sendTime);
+                context.releaseDispatchQueue(requestItem);
                 event.ack();
             }
         }
