@@ -388,7 +388,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                 errMsg = "Get producer failed for " + topic;
                 if (MessageUtils.isSinkRspType(event)) {
                     MessageUtils.sinkReturnRspPackage((SinkRspEvent) event,
-                            DataProxyErrCode.RPODUCER_IS_NULL, errMsg);
+                            DataProxyErrCode.PRODUCER_IS_NULL, errMsg);
                 }
                 if (LOG_SINK_TASK_PRINTER.shouldPrint()) {
                     logger.error(errMsg);

@@ -162,7 +162,7 @@ public class PulsarClientService {
              *  put it back into the illegal map
              */
             pulsarSink.handleRequestProcError(topic, es,
-                    false, DataProxyErrCode.NO_AVAILABLE_RPODUCERINFO, errMsg);
+                    false, DataProxyErrCode.NO_AVAILABLE_PRODUCERINFO, errMsg);
             return false;
         }
         TopicProducerInfo forCallBackP = producerInfo;
@@ -170,7 +170,7 @@ public class PulsarClientService {
         if (producer == null) {
             errMsg = "get producer is null! topic = " + topic;
             pulsarSink.handleRequestProcError(topic, es,
-                    false, DataProxyErrCode.RPODUCER_IS_NULL, errMsg);
+                    false, DataProxyErrCode.PRODUCER_IS_NULL, errMsg);
             return false;
         }
         // build and send message

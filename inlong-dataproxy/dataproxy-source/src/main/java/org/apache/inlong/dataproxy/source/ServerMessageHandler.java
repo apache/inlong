@@ -17,6 +17,9 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROCESS_ERRCODE;
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROXY_SEND;
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_SYNC_SEND;
 import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEPARATOR;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
@@ -294,7 +297,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             // reject unsupported messages
             if (commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                     || commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
-                commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
+                commonAttrMap.put(MESSAGE_PROCESS_ERRCODE,
                         DataProxyErrCode.UNSUPPORTED_EXTENDFIELD_VALUE.getErrCodeStr());
                 MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
@@ -304,7 +307,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             List<ProxyMessage> msgList =
                     (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
             if (msgList == null) {
-                commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
+                commonAttrMap.put(MESSAGE_PROCESS_ERRCODE,
                         DataProxyErrCode.EMPTY_MSG.getErrCodeStr());
                 MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
@@ -416,7 +419,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 if ("true".equalsIgnoreCase(acceptMsg)) {
                     configTopic = this.defaultTopic;
                 } else {
-                    commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
+                    commonAttrMap.put(MESSAGE_PROCESS_ERRCODE,
                             DataProxyErrCode.UNCONFIGURED_GROUPID_OR_STREAMID.getErrCodeStr());
                     logger.debug("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
                             groupId, streamId);
@@ -516,13 +519,13 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 if ("false".equals(commonAttrMap.get(AttributeConstants.MESSAGE_IS_ACK))) {
                     headers.put(AttributeConstants.MESSAGE_IS_ACK, "false");
                 }
-                String syncSend = commonAttrMap.get(AttributeConstants.MESSAGE_SYNC_SEND);
+                String syncSend = commonAttrMap.get(MESSAGE_SYNC_SEND);
                 if (StringUtils.isNotEmpty(syncSend)) {
-                    headers.put(AttributeConstants.MESSAGE_SYNC_SEND, syncSend);
+                    headers.put(MESSAGE_SYNC_SEND, syncSend);
                 }
-                String proxySend = commonAttrMap.get(AttributeConstants.MESSAGE_PROXY_SEND);
+                String proxySend = commonAttrMap.get(MESSAGE_PROXY_SEND);
                 if (StringUtils.isNotEmpty(proxySend)) {
-                    headers.put(AttributeConstants.MESSAGE_PROXY_SEND, proxySend);
+                    headers.put(MESSAGE_PROXY_SEND, proxySend);
                 }
                 String partitionKey = commonAttrMap.get(AttributeConstants.MESSAGE_PARTITION_KEY);
                 if (StringUtils.isNotEmpty(partitionKey)) {

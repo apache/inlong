@@ -70,4 +70,8 @@ public interface AttributeConstants {
 
     String NODE_IP = "NodeIP";
 
+    String MESSAGE_SYNC_SEND = "syncSend";
+    String MESSAGE_PROXY_SEND = "proxySend";
+    String MESSAGE_PROCESS_ERRCODE = "errCode";
+    String MESSAGE_PROCESS_ERRMSG = "errMsg";
 }
