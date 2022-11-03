@@ -25,8 +25,6 @@ sed -i "s/agent.fetcher.interval=.*$/agent.fetcher.interval=$AGENT_FETCH_INTERVA
 sed -i "s/agent.heartbeat.interval=.*$/agent.heartbeat.interval=$AGENT_HEARTBEAT_INTERVAL/g" "${file_path}/conf/agent.properties"
 sed -i "s/agent.manager.vip.http.host=.*$/agent.manager.vip.http.host=$MANAGER_OPENAPI_IP/g" "${file_path}/conf/agent.properties"
 sed -i "s/agent.manager.vip.http.port=.*$/agent.manager.vip.http.port=$MANAGER_OPENAPI_PORT/g" "${file_path}/conf/agent.properties"
-sed -i "s/agent.dataproxy.http.host=.*$/agent.dataproxy.http.host=$DATAPROXY_IP/g" "${file_path}/conf/agent.properties"
-sed -i "s/agent.dataproxy.http.port=.*$/agent.dataproxy.http.port=$DATAPROXY_PORT/g" "${file_path}/conf/agent.properties"
 sed -i "s/audit.enable=.*$/audit.enable=$AUDIT_ENABLE/g" "${file_path}/conf/agent.properties"
 sed -i "s/audit.proxys=.*$/audit.proxys=$AUDIT_PROXY_URL/g" "${file_path}/conf/agent.properties"
 sed -i "s/agent.cluster.tag=.*$/agent.cluster.tag=$CLUSTER_TAG/g" "${file_path}/conf/agent.properties"
