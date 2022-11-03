@@ -15,16 +15,12 @@
 
 package org.apache.inlong.dataproxy.utils;
 
-import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROCESS_ERRCODE;
-import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROCESS_ERRMSG;
-import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROXY_SEND;
-import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_SYNC_SEND;
 import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,9 +29,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flume.Event;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.source.MsgType;
 import org.slf4j.Logger;
@@ -54,7 +50,7 @@ public class MessageUtils {
      * @return true/false
      */
     public static boolean isSyncSendForOrder(Event event) {
-        String syncSend = event.getHeaders().get(MESSAGE_SYNC_SEND);
+        String syncSend = event.getHeaders().get(AttributeConstants.MESSAGE_SYNC_SEND);
         return StringUtils.isNotEmpty(syncSend) && "true".equalsIgnoreCase(syncSend);
     }
 
@@ -63,15 +59,15 @@ public class MessageUtils {
     }
 
     public static boolean isSinkRspType(Map<String, String> attrMap) {
-        String proxySend = attrMap.get(MESSAGE_PROXY_SEND);
-        String syncSend = attrMap.get(MESSAGE_SYNC_SEND);
+        String proxySend = attrMap.get(AttributeConstants.MESSAGE_PROXY_SEND);
+        String syncSend = attrMap.get(AttributeConstants.MESSAGE_SYNC_SEND);
         return (StringUtils.isNotEmpty(proxySend) && "true".equalsIgnoreCase(proxySend))
                 || (StringUtils.isNotEmpty(syncSend) && "true".equalsIgnoreCase(syncSend));
     }
 
     public static Pair<Boolean, String> getEventProcType(Event event) {
-        String syncSend = event.getHeaders().get(MESSAGE_SYNC_SEND);
-        String proxySend = event.getHeaders().get(MESSAGE_PROXY_SEND);
+        String syncSend = event.getHeaders().get(AttributeConstants.MESSAGE_SYNC_SEND);
+        String proxySend = event.getHeaders().get(AttributeConstants.MESSAGE_PROXY_SEND);
         return getEventProcType(syncSend, proxySend);
     }
 
@@ -137,15 +133,15 @@ public class MessageUtils {
             // build return attribute string
             strBuff.append(ConfigConstants.DATAPROXY_IP_KEY)
                     .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(getLocalIp());
-            String errCode = commonAttrMap.get(MESSAGE_PROCESS_ERRCODE);
+            String errCode = commonAttrMap.get(AttributeConstants.MESSAGE_PROCESS_ERRCODE);
             if (StringUtils.isNotEmpty(errCode)) {
                 strBuff.append(AttributeConstants.SEPARATOR)
-                        .append(MESSAGE_PROCESS_ERRCODE)
+                        .append(AttributeConstants.MESSAGE_PROCESS_ERRCODE)
                         .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errCode);
-                String errMsg = commonAttrMap.get(MESSAGE_PROCESS_ERRMSG);
+                String errMsg = commonAttrMap.get(AttributeConstants.MESSAGE_PROCESS_ERRMSG);
                 if (StringUtils.isNotEmpty(errMsg)) {
                     strBuff.append(AttributeConstants.SEPARATOR)
-                            .append(MESSAGE_PROCESS_ERRMSG)
+                            .append(AttributeConstants.MESSAGE_PROCESS_ERRMSG)
                             .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errMsg);
                 }
             }
@@ -229,11 +225,11 @@ public class MessageUtils {
                 .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(getLocalIp());
         if (DataProxyErrCode.SUCCESS != errCode) {
             strBuff.append(AttributeConstants.SEPARATOR)
-                    .append(MESSAGE_PROCESS_ERRCODE)
+                    .append(AttributeConstants.MESSAGE_PROCESS_ERRCODE)
                     .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errCode.getErrCode());
             if (StringUtils.isNotEmpty(errMsg)) {
                 strBuff.append(AttributeConstants.SEPARATOR)
-                        .append(MESSAGE_PROCESS_ERRMSG)
+                        .append(AttributeConstants.MESSAGE_PROCESS_ERRMSG)
                         .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errMsg);
             }
         }

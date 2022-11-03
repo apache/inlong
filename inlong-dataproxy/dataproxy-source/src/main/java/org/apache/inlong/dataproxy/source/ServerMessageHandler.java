@@ -17,11 +17,7 @@
 
 package org.apache.inlong.dataproxy.source;
 
-import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROCESS_ERRCODE;
-import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROXY_SEND;
-import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_SYNC_SEND;
 import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEPARATOR;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
 import com.google.common.base.Joiner;
@@ -47,12 +43,13 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
@@ -297,7 +294,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             // reject unsupported messages
             if (commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                     || commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
-                commonAttrMap.put(MESSAGE_PROCESS_ERRCODE,
+                commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
                         DataProxyErrCode.UNSUPPORTED_EXTENDFIELD_VALUE.getErrCodeStr());
                 MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
@@ -307,7 +304,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             List<ProxyMessage> msgList =
                     (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
             if (msgList == null) {
-                commonAttrMap.put(MESSAGE_PROCESS_ERRCODE,
+                commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
                         DataProxyErrCode.EMPTY_MSG.getErrCodeStr());
                 MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
@@ -360,9 +357,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             String streamId = message.getStreamId();
             // get topic by groupId and streamId
             if (null == groupId) {
-                String num2name = commonAttrMap.get(AttributeConstants.NUM2NAME);
-                String groupIdNum = commonAttrMap.get(AttributeConstants.GROUPID_NUM);
-                String streamIdNum = commonAttrMap.get(AttributeConstants.STREAMID_NUM);
+                String num2name = commonAttrMap.get(AttrConstants.NUM2NAME);
+                String groupIdNum = commonAttrMap.get(AttrConstants.GROUPID_NUM);
+                String streamIdNum = commonAttrMap.get(AttrConstants.STREAMID_NUM);
                 // get configured groupId and steamId by numbers
                 if (configManager.getGroupIdMappingProperties() != null
                         && configManager.getStreamIdMappingProperties() != null) {
@@ -419,7 +416,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 if ("true".equalsIgnoreCase(acceptMsg)) {
                     configTopic = this.defaultTopic;
                 } else {
-                    commonAttrMap.put(MESSAGE_PROCESS_ERRCODE,
+                    commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
                             DataProxyErrCode.UNCONFIGURED_GROUPID_OR_STREAMID.getErrCodeStr());
                     logger.debug("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
                             groupId, streamId);
@@ -519,13 +516,13 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 if ("false".equals(commonAttrMap.get(AttributeConstants.MESSAGE_IS_ACK))) {
                     headers.put(AttributeConstants.MESSAGE_IS_ACK, "false");
                 }
-                String syncSend = commonAttrMap.get(MESSAGE_SYNC_SEND);
+                String syncSend = commonAttrMap.get(AttributeConstants.MESSAGE_SYNC_SEND);
                 if (StringUtils.isNotEmpty(syncSend)) {
-                    headers.put(MESSAGE_SYNC_SEND, syncSend);
+                    headers.put(AttributeConstants.MESSAGE_SYNC_SEND, syncSend);
                 }
-                String proxySend = commonAttrMap.get(MESSAGE_PROXY_SEND);
+                String proxySend = commonAttrMap.get(AttributeConstants.MESSAGE_PROXY_SEND);
                 if (StringUtils.isNotEmpty(proxySend)) {
-                    headers.put(MESSAGE_PROXY_SEND, proxySend);
+                    headers.put(AttributeConstants.MESSAGE_PROXY_SEND, proxySend);
                 }
                 String partitionKey = commonAttrMap.get(AttributeConstants.MESSAGE_PARTITION_KEY);
                 if (StringUtils.isNotEmpty(partitionKey)) {
@@ -533,9 +530,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 }
                 String sequenceId = commonAttrMap.get(AttributeConstants.SEQUENCE_ID);
                 if (StringUtils.isNotEmpty(sequenceId)) {
-                    strBuff.append(topicEntry.getKey()).append(SEPARATOR)
+                    strBuff.append(topicEntry.getKey()).append(AttributeConstants.SEPARATOR)
                             .append(streamIdEntry.getKey())
-                            .append(SEPARATOR).append(sequenceId);
+                            .append(AttributeConstants.SEPARATOR).append(sequenceId);
                     headers.put(ConfigConstants.SEQUENCE_ID, strBuff.toString());
                     strBuff.delete(0, strBuff.length());
                 }
@@ -551,13 +548,13 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 long longDataTime = Long.parseLong(strDataTime);
                 longDataTime = longDataTime / 1000 / 60 / 10;
                 longDataTime = longDataTime * 1000 * 60 * 10;
-                strBuff.append(protocolType).append(SEPARATOR)
-                        .append(topicEntry.getKey()).append(SEPARATOR)
-                        .append(streamIdEntry.getKey()).append(SEPARATOR)
-                        .append(strRemoteIP).append(SEPARATOR)
-                        .append(getLocalIp()).append(SEPARATOR)
-                        .append(evenProcType.getRight()).append(SEPARATOR)
-                        .append(DateTimeUtils.ms2yyyyMMddHHmm(longDataTime)).append(SEPARATOR)
+                strBuff.append(protocolType).append(AttrConstants.SEPARATOR)
+                        .append(topicEntry.getKey()).append(AttrConstants.SEPARATOR)
+                        .append(streamIdEntry.getKey()).append(AttrConstants.SEPARATOR)
+                        .append(strRemoteIP).append(AttrConstants.SEPARATOR)
+                        .append(getLocalIp()).append(AttrConstants.SEPARATOR)
+                        .append(evenProcType.getRight()).append(AttrConstants.SEPARATOR)
+                        .append(DateTimeUtils.ms2yyyyMMddHHmm(longDataTime)).append(AttrConstants.SEPARATOR)
                         .append(DateTimeUtils.ms2yyyyMMddHHmm(msgRcvTime));
                 try {
                     processor.processEvent(event);

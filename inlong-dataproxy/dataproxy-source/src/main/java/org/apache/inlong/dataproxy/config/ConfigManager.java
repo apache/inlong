@@ -38,7 +38,7 @@ import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.SourceReportConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.HttpUtils;
 import org.slf4j.Logger;
@@ -373,7 +373,7 @@ public class ConfigManager {
                     for (MQClusterInfo mqCluster : clusterSet) {
                         String key = MQClusterConfigHolder.URL_STORE_PREFIX + index;
                         String value =
-                                mqCluster.getUrl() + AttributeConstants.KEY_VALUE_SEPARATOR + mqCluster.getToken();
+                                mqCluster.getUrl() + AttrConstants.KEY_VALUE_SEPARATOR + mqCluster.getToken();
                         mqConfig.put(key, value);
                         ++index;
                     }
