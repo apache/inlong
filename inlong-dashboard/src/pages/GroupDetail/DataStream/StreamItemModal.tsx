@@ -46,10 +46,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
       ...(Entity?.FieldList || []),
       {
         type: 'inputnumber',
-        label: i18n.t('meta.Group.NumberOfAccess'),
+        label: i18n.t('meta.Group.TubeMq.NumberOfAccess'),
         name: 'dailyRecords',
         rules: [{ required: true }],
-        suffix: i18n.t('meta.Group.TenThousand/Day'),
+        suffix: i18n.t('meta.Group.TubeMq.TenThousand/Day'),
         props: {
           min: 1,
           precision: 0,
@@ -58,10 +58,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
       },
       {
         type: 'inputnumber',
-        label: i18n.t('meta.Group.AccessSize'),
+        label: i18n.t('meta.Group.TubeMq.AccessSize'),
         name: 'dailyStorage',
         rules: [{ required: true }],
-        suffix: i18n.t('meta.Group.GB/Day'),
+        suffix: i18n.t('meta.Group.TubeMq.GB/Day'),
         props: {
           min: 1,
           precision: 0,
@@ -70,10 +70,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
       },
       {
         type: 'inputnumber',
-        label: i18n.t('meta.Group.AccessPeakPerSecond'),
+        label: i18n.t('meta.Group.TubeMq.AccessPeakPerSecond'),
         name: 'peakRecords',
         rules: [{ required: true }],
-        suffix: i18n.t('meta.Group.Stripe/Second'),
+        suffix: i18n.t('meta.Group.TubeMq.Stripe/Second'),
         props: {
           min: 1,
           precision: 0,
@@ -82,7 +82,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
       },
       {
         type: 'inputnumber',
-        label: i18n.t('meta.Group.SingleStripMaximumLength'),
+        label: i18n.t('meta.Group.TubeMq.SingleStripMaximumLength'),
         name: 'maxLength',
         rules: [{ required: true }],
         suffix: 'Byte',
