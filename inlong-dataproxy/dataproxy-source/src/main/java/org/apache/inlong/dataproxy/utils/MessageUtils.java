@@ -15,18 +15,26 @@
 
 package org.apache.inlong.dataproxy.utils;
 
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROCESS_ERRCODE;
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROCESS_ERRMSG;
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROXY_SEND;
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_SYNC_SEND;
 import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flume.Event;
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.util.NetworkUtils;
+import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.source.MsgType;
@@ -42,24 +50,43 @@ public class MessageUtils {
 
     /**
      *  is or not sync send for order message
-     * @param syncSend syncSend
-     * @return true/false
-     */
-    public static boolean isSyncSendForOrder(String syncSend) {
-        if (StringUtils.isNotEmpty(syncSend) && "true".equalsIgnoreCase(syncSend)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     *  is or not sync send for order message
-     * @param event event
+     * @param event  event object
      * @return true/false
      */
     public static boolean isSyncSendForOrder(Event event) {
-        String syncSend = event.getHeaders().get(AttributeConstants.MESSAGE_SYNC_SEND);
-        return isSyncSendForOrder(syncSend);
+        String syncSend = event.getHeaders().get(MESSAGE_SYNC_SEND);
+        return StringUtils.isNotEmpty(syncSend) && "true".equalsIgnoreCase(syncSend);
+    }
+
+    public static boolean isSinkRspType(Event event) {
+        return isSinkRspType(event.getHeaders());
+    }
+
+    public static boolean isSinkRspType(Map<String, String> attrMap) {
+        String proxySend = attrMap.get(MESSAGE_PROXY_SEND);
+        String syncSend = attrMap.get(MESSAGE_SYNC_SEND);
+        return (StringUtils.isNotEmpty(proxySend) && "true".equalsIgnoreCase(proxySend))
+                || (StringUtils.isNotEmpty(syncSend) && "true".equalsIgnoreCase(syncSend));
+    }
+
+    public static Pair<Boolean, String> getEventProcType(Event event) {
+        String syncSend = event.getHeaders().get(MESSAGE_SYNC_SEND);
+        String proxySend = event.getHeaders().get(MESSAGE_PROXY_SEND);
+        return getEventProcType(syncSend, proxySend);
+    }
+
+    public static Pair<Boolean, String> getEventProcType(String syncSend, String proxySend) {
+        boolean isOrderOrProxy = false;
+        String msgProcType = "b2b";
+        if (StringUtils.isNotEmpty(syncSend) && "true".equalsIgnoreCase(syncSend)) {
+            isOrderOrProxy = true;
+            msgProcType = "order";
+        }
+        if (StringUtils.isNotEmpty(proxySend) && "true".equalsIgnoreCase(proxySend)) {
+            isOrderOrProxy = true;
+            msgProcType = "proxy";
+        }
+        return Pair.of(isOrderOrProxy, msgProcType);
     }
 
     /**
@@ -76,13 +103,19 @@ public class MessageUtils {
         ByteBuf binBuffer;
         String origAttrs = null;
         final StringBuilder strBuff = new StringBuilder(512);
-        // build message bytes
-        if (MsgType.MSG_UNKNOWN.equals(msgType)) {
+        // check channel and msg type
+        if (remoteChannel == null
+                || MsgType.MSG_UNKNOWN.equals(msgType)) {
             if (logCounter.shouldPrint()) {
-                logger.warn("Unknown msgType message from {}, discard it!", remoteChannel);
+                if (remoteChannel == null) {
+                    logger.warn("remoteChannel == null, discard it!", remoteChannel);
+                } else {
+                    logger.warn("Unknown msgType message from {}, discard it!", remoteChannel);
+                }
             }
             return;
         }
+        // build message bytes
         if (MsgType.MSG_HEARTBEAT.equals(msgType)) {
             binBuffer = buildHeartBeatMsgRspPackage();
         } else {
@@ -94,7 +127,7 @@ public class MessageUtils {
             origAttrs = (String) resultMap.get(ConfigConstants.DECODER_ATTRS);
             // check whether channel is writable
             if (!remoteChannel.isWritable()) {
-                strBuff.append("Send buffer is full1, so disconnect ")
+                strBuff.append("Send buffer is full1 by channel ")
                         .append(remoteChannel).append(", attr is ").append(origAttrs);
                 if (logCounter.shouldPrint()) {
                     logger.warn(strBuff.toString());
@@ -102,19 +135,19 @@ public class MessageUtils {
                 throw new Exception(strBuff.toString());
             }
             // build return attribute string
-            String errCode = commonAttrMap.get(AttributeConstants.MESSAGE_PROCESS_ERRCODE);
-            String errMsg = commonAttrMap.get(AttributeConstants.MESSAGE_PROCESS_ERRMSG);
             strBuff.append(ConfigConstants.DATAPROXY_IP_KEY)
                     .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(getLocalIp());
+            String errCode = commonAttrMap.get(MESSAGE_PROCESS_ERRCODE);
             if (StringUtils.isNotEmpty(errCode)) {
                 strBuff.append(AttributeConstants.SEPARATOR)
-                        .append(AttributeConstants.MESSAGE_PROCESS_ERRCODE)
+                        .append(MESSAGE_PROCESS_ERRCODE)
                         .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errCode);
-            }
-            if (StringUtils.isNotEmpty(errMsg)) {
-                strBuff.append(AttributeConstants.SEPARATOR)
-                        .append(AttributeConstants.MESSAGE_PROCESS_ERRMSG)
-                        .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errMsg);
+                String errMsg = commonAttrMap.get(MESSAGE_PROCESS_ERRMSG);
+                if (StringUtils.isNotEmpty(errMsg)) {
+                    strBuff.append(AttributeConstants.SEPARATOR)
+                            .append(MESSAGE_PROCESS_ERRMSG)
+                            .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errMsg);
+                }
             }
             if (StringUtils.isNotEmpty(origAttrs)) {
                 strBuff.append(AttributeConstants.SEPARATOR).append(origAttrs);
@@ -142,12 +175,102 @@ public class MessageUtils {
             // release allocated ByteBuf
             binBuffer.release();
             strBuff.delete(0, strBuff.length());
-            strBuff.append("Send buffer is full2, so disconnect ")
+            strBuff.append("Send buffer is full2 by channel ")
                     .append(remoteChannel).append(", attr is ").append(origAttrs);
             if (logCounter.shouldPrint()) {
                 logger.warn(strBuff.toString());
             }
             throw new Exception(strBuff.toString());
+        }
+    }
+
+    /**
+     *  Return response to client in sink
+     * @param event    the event need to response
+     * @param errCode  process error code
+     * @param errMsg   error message
+     */
+    public static void sinkReturnRspPackage(SinkRspEvent event,
+                                            DataProxyErrCode errCode,
+                                            String errMsg) {
+        ByteBuf binBuffer;
+        final StringBuilder strBuff = new StringBuilder(512);
+        // get and check channel context
+        ChannelHandlerContext ctx = event.getCtx();
+        if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {
+            return;
+        }
+        Channel remoteChannel = ctx.channel();
+        // check message type
+        MsgType msgType = event.getMsgType();
+        if (MsgType.MSG_UNKNOWN.equals(msgType)
+                || MsgType.MSG_ACK_SERVICE.equals(msgType)
+                || MsgType.MSG_HEARTBEAT.equals(msgType)
+                || MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
+            return;
+        }
+        // check whether return response message
+        Map<String, String> attrMap = event.getHeaders();
+        String isAck = attrMap.get(AttributeConstants.MESSAGE_IS_ACK);
+        if ("false".equalsIgnoreCase(isAck)) {
+            return;
+        }
+        String origAttrs = attrMap.get(ConfigConstants.DECODER_ATTRS);
+        // check whether channel is writable
+        if (!remoteChannel.isWritable()) {
+            if (logCounter.shouldPrint()) {
+                logger.warn(strBuff.append("Send buffer is full3 by channel ")
+                        .append(remoteChannel).append(", attr is ").append(origAttrs).toString());
+            }
+            return;
+        }
+        // build return attribute string
+        strBuff.append(ConfigConstants.DATAPROXY_IP_KEY)
+                .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(getLocalIp());
+        if (DataProxyErrCode.SUCCESS != errCode) {
+            strBuff.append(AttributeConstants.SEPARATOR)
+                    .append(MESSAGE_PROCESS_ERRCODE)
+                    .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errCode.getErrCode());
+            if (StringUtils.isNotEmpty(errMsg)) {
+                strBuff.append(AttributeConstants.SEPARATOR)
+                        .append(MESSAGE_PROCESS_ERRMSG)
+                        .append(AttributeConstants.KEY_VALUE_SEPARATOR).append(errMsg);
+            }
+        }
+        if (StringUtils.isNotEmpty(origAttrs)) {
+            strBuff.append(AttributeConstants.SEPARATOR).append(origAttrs);
+        }
+        String destAttrs = strBuff.toString();
+        // build response message bytes
+        if (MsgType.MSG_BIN_MULTI_BODY.equals(msgType)) {
+            binBuffer = buildBinMsgRspPackage(destAttrs,
+                    attrMap.get(AttributeConstants.UNIQ_ID));
+        } else {
+            // MsgType.MSG_ORIGINAL_RETURN.equals(msgType)
+            // MsgType.MSG_MULTI_BODY.equals(msgType)
+            // MsgType.MSG_MULTI_BODY_ATTR.equals(msgType)
+            binBuffer = buildDefMsgRspPackage(msgType, destAttrs);
+        }
+        // send response message
+        try {
+            if (remoteChannel.isWritable()) {
+                remoteChannel.writeAndFlush(binBuffer);
+            } else {
+                // release allocated ByteBuf
+                binBuffer.release();
+                if (logCounter.shouldPrint()) {
+                    strBuff.delete(0, strBuff.length());
+                    logger.warn(strBuff.append("Send buffer is full4 by channel ")
+                            .append(remoteChannel).append(", attr is ").append(origAttrs).toString());
+                }
+            }
+        } catch (Throwable e) {
+            // should release bin buffer?
+            if (logCounter.shouldPrint()) {
+                strBuff.delete(0, strBuff.length());
+                logger.error(strBuff.append("Write data to channel exception, channel=")
+                        .append(remoteChannel).append(", attr is ").append(origAttrs).toString());
+            }
         }
     }
 
@@ -196,7 +319,7 @@ public class MessageUtils {
      * @param sequenceId sequence Id
      * @return ByteBuf
      */
-    public static ByteBuf buildBinMsgRspPackage(String attrs, String sequenceId) {
+    private static ByteBuf buildBinMsgRspPackage(String attrs, String sequenceId) {
         // calculate total length
         // binTotalLen = mstType + uniq + attrsLen + attrs + magic
         int binTotalLen = 1 + 4 + 2 + 2;

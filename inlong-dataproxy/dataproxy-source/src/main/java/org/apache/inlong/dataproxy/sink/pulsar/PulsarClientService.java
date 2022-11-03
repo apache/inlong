@@ -17,8 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar;
 
-import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
-
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,16 +26,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
-import org.apache.inlong.dataproxy.base.OrderEvent;
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.EventStat;
+import org.apache.inlong.dataproxy.sink.PulsarSink;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
@@ -135,20 +133,22 @@ public class PulsarClientService {
     /**
      * send message
      */
-    public boolean sendMessage(int poolIndex, String topic, Event event,
-                               SendMessageCallBack sendMessageCallBack, EventStat es) {
-        TopicProducerInfo producerInfo = null;
+    public boolean sendMessage(int poolIndex, String topic,
+                               EventStat es, PulsarSink pulsarSink) {
         boolean result;
+        TopicProducerInfo producerInfo = null;
+        Event event = es.getEvent();
         final String pkgVersion =
                 event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER);
         final String inlongGroupId =
                 event.getHeaders().get(AttributeConstants.GROUP_ID);
         final String inlongStreamId =
                 event.getHeaders().get(AttributeConstants.STREAM_ID);
+        String errMsg = "";
         try {
             producerInfo = getProducerInfo(poolIndex, topic, inlongGroupId, inlongStreamId);
         } catch (Exception e) {
-            logger.error("get producer failed for topic=" + topic, e);
+            errMsg = "Get producer failed for topic=" + topic + ", reason is " + e.getMessage();
         }
         /*
          * If the producer is a null value,\ it means that the topic is not yet
@@ -161,95 +161,64 @@ public class PulsarClientService {
              * After 30s, reopen the topic check, if it is still a null value,
              *  put it back into the illegal map
              */
-            checkAndResponse(event, inlongGroupId, inlongStreamId);
-            sendMessageCallBack.handleMessageSendException(topic, es, new NotFoundException("producer info is null"));
-            return true;
+            pulsarSink.handleRequestProcError(topic, es,
+                    false, DataProxyErrCode.NO_AVAILABLE_PRODUCERINFO, errMsg);
+            return false;
         }
         TopicProducerInfo forCallBackP = producerInfo;
         Producer producer = producerInfo.getProducer(poolIndex);
         if (producer == null) {
-            logger.warn("get producer is null! topic = {}", topic);
-            checkAndResponse(event, inlongGroupId, inlongStreamId);
-            sendMessageCallBack.handleMessageSendException(topic, es, new NotFoundException("producer is null"));
-            return true;
+            errMsg = "get producer is null! topic = " + topic;
+            pulsarSink.handleRequestProcError(topic, es,
+                    false, DataProxyErrCode.PRODUCER_IS_NULL, errMsg);
+            return false;
         }
         // build and send message
         Map<String, String> proMap =
                 MessageUtils.getXfsAttrs(event.getHeaders(), pkgVersion);
         long startTime = System.currentTimeMillis();
+        pulsarSink.getCurrentInFlightCount().incrementAndGet();
         if (es.isOrderMessage()) {
-            String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
             try {
+                String partitionKey =
+                        event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
                 MessageId msgId = producer.newMessage()
                         .properties(proMap)
                         .key(partitionKey)
                         .value(event.getBody())
                         .send();
-                sendMessageCallBack.handleMessageSendSuccess(topic, msgId, es, startTime);
+                pulsarSink.handleMessageSendSuccess(topic, msgId, es, startTime);
                 forCallBackP.setCanUseSend(true);
                 result = true;
-            } catch (PulsarClientException ex) {
+            } catch (Throwable ex) {
                 forCallBackP.setCanUseSend(false);
-                sendMessageCallBack.handleMessageSendException(topic, es, ex);
+                pulsarSink.handleMessageSendException(topic, es, ex,
+                        DataProxyErrCode.MQ_RETURN_ERROR, ex.getMessage());
                 result = ex instanceof NotFoundException;
             }
-            /*
-             * avoid client timeout
-             */
-            logger.debug("es.getRetryCnt() = {}", es.getRetryCnt());
-            if (es.getRetryCnt() == 0 || es.getRetryCnt() == 1) {
-                sendResponse((OrderEvent) event, inlongGroupId, inlongStreamId);
-            }
         } else {
-            producer.newMessage().properties(proMap)
-                    .value(event.getBody())
-                    .sendAsync()
-                    .thenAccept((msgId) -> {
-                        forCallBackP.setCanUseSend(true);
-                        sendMessageCallBack.handleMessageSendSuccess(topic, msgId, es, startTime);
-                    })
-                    .exceptionally((e) -> {
-                        forCallBackP.setCanUseSend(false);
-                        sendMessageCallBack.handleMessageSendException(topic, es, e);
-                        return null;
-                    });
+            try {
+                producer.newMessage().properties(proMap)
+                        .value(event.getBody())
+                        .sendAsync()
+                        .thenAccept((msgId) -> {
+                            forCallBackP.setCanUseSend(true);
+                            pulsarSink.handleMessageSendSuccess(topic, msgId, es, startTime);
+                        })
+                        .exceptionally((e) -> {
+                            forCallBackP.setCanUseSend(false);
+                            pulsarSink.handleMessageSendException(topic, es, e,
+                                    DataProxyErrCode.MQ_RETURN_ERROR, e.toString());
+                            return null;
+                        });
+            } catch (Throwable ex) {
+                pulsarSink.getCurrentInFlightCount().decrementAndGet();
+                pulsarSink.handleRequestProcError(topic, es, true,
+                        DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, ex.getMessage());
+            }
             result = true;
         }
         return result;
-    }
-
-    private void checkAndResponse(Event event, String inlongGroupId, String inlongStreamId) {
-        if (MessageUtils.isSyncSendForOrder(event) && (event instanceof OrderEvent)) {
-            sendResponse((OrderEvent) event, inlongGroupId, inlongStreamId);
-        }
-    }
-
-    /**
-     * send Response
-     *
-     * @param orderEvent orderEvent
-     */
-    private void sendResponse(OrderEvent orderEvent, String inlongGroupId, String inlongStreamId) {
-        String sequenceId = orderEvent.getHeaders().get(AttributeConstants.UNIQ_ID);
-        if ("false".equals(orderEvent.getHeaders().get(AttributeConstants.MESSAGE_IS_ACK))) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("not need to rsp message: seqId = {}, inlongGroupId = {}, inlongStreamId = {}",
-                        sequenceId, inlongGroupId, inlongStreamId);
-            }
-            return;
-        }
-        if (orderEvent.getCtx() != null && orderEvent.getCtx().channel().isActive()) {
-            orderEvent.getCtx().channel().eventLoop().execute(() -> {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("order message rsp: seqId = {}, inlongGroupId = {}, inlongStreamId = {}", sequenceId,
-                            inlongGroupId, inlongStreamId);
-                }
-                String attrs = ConfigConstants.DATAPROXY_IP_KEY
-                        + AttributeConstants.KEY_VALUE_SEPARATOR + getLocalIp();
-                ByteBuf binBuffer = MessageUtils.buildBinMsgRspPackage(attrs, sequenceId);
-                orderEvent.getCtx().writeAndFlush(binBuffer);
-            });
-        }
     }
 
     /**

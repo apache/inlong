@@ -15,19 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.sink.pulsar;
+package org.apache.inlong.agent.message;
 
-import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.dataproxy.sink.EventStat;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public interface SendMessageCallBack {
+import java.util.List;
+import java.util.Map;
 
-    void handleMessageSendSuccess(String topic, Object msgId, EventStat es, long startTime);
+/**
+ * A batch of proxy messages used for batch sending, produced by PackProxyMessage
+ */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class BatchProxyMessage {
 
-    void handleRequestProcError(String topic, EventStat es,
-                                boolean needRetry, DataProxyErrCode errCode, String errMsg);
-
-    void handleMessageSendException(String topic, EventStat es, Object exception,
-                                    DataProxyErrCode errCode, String errMsg);
-
+    private String jobId;
+    private String groupId;
+    private String streamId;
+    private List<byte[]> dataList;
+    private long dataTime;
+    private Map<String, String> extraMap;
+    private boolean isSyncSend;
 }

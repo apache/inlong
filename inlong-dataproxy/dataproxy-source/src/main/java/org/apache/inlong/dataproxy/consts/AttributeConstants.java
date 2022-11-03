@@ -86,12 +86,6 @@ public class AttributeConstants {
 
     public static final String MESSAGE_PARTITION_KEY = "partitionKey";
 
-    public static final String MESSAGE_SYNC_SEND = "syncSend";
-
     public static final String MESSAGE_IS_ACK = "isAck";
-
-    public static final String MESSAGE_PROCESS_ERRCODE = "errCode";
-
-    public static final String MESSAGE_PROCESS_ERRMSG = "errMsg";
 
 }

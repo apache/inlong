@@ -454,6 +454,7 @@
   "pages.Clusters.Node.PortRule": "Please enter the port address correctly",
   "pages.Clusters.Node.ProtocolTypeRule": "Please enter the protocol type correctly",
   "pages.Clusters.Pulsar.Tenant": "Default Tenant",
+  "pages.Clusters.Kafka.ClusterUrl": "Cluster URL",
   "pages.Clusters.Pulsar.ServiceUrlHelper": "For producing and consuming data",
   "pages.Clusters.Pulsar.AdminUrlHelper": "Used to manage (e.g. create, modify) tenants, namespaces, topics and subscription groups",
   "pages.Clusters.Tube.MasterRpcUrlHelper": "Master RPC URL, used to produce and consume data",

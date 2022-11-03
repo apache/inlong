@@ -22,6 +22,7 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
+import org.apache.inlong.agent.message.BatchProxyMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
@@ -154,6 +155,14 @@ public class SenderManager {
         return this.metricItemSet.findMetricItem(dimensions);
     }
 
+    private AgentMetricItem getMetricItem(String groupId, String streamId) {
+        Map<String, String> dims = new HashMap<>();
+        dims.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
+        dims.put(KEY_INLONG_GROUP_ID, groupId);
+        dims.put(KEY_INLONG_STREAM_ID, streamId);
+        return getMetricItem(dims);
+    }
+
     /**
      * Select by group.
      *
@@ -214,30 +223,36 @@ public class SenderManager {
         senderList.add(sender);
     }
 
+    public void sendBatch(BatchProxyMessage batchMessage) {
+        if (batchMessage.isSyncSend()) {
+            sendBatchSync(batchMessage, 0);
+        } else {
+            sendBatchAsync(batchMessage, 0);
+        }
+    }
+
     /**
      * Send message to proxy by batch, use message cache.
-     *
-     * @param groupId groupId
-     * @param streamId streamId
-     * @param bodyList body list
-     * @param retry retry time
      */
-    public void sendBatchAsync(String jobId, String groupId, String streamId,
-            List<byte[]> bodyList, int retry, long dataTime) {
+    private void sendBatchAsync(BatchProxyMessage batchMessage, int retry) {
         if (retry > maxSenderRetry) {
             LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
         try {
-            selectSender(groupId).asyncSendMessage(
-                    new AgentSenderCallback(jobId, groupId, streamId, bodyList, retry, dataTime), bodyList,
-                    groupId, streamId, dataTime, SEQUENTIAL_ID.getNextUuid(), maxSenderTimeout, TimeUnit.SECONDS);
+            selectSender(batchMessage.getGroupId()).asyncSendMessage(
+                    new AgentSenderCallback(batchMessage, retry), batchMessage.getDataList(),
+                    batchMessage.getGroupId(), batchMessage.getStreamId(), batchMessage.getDataTime(),
+                    SEQUENTIAL_ID.getNextUuid(), maxSenderTimeout, TimeUnit.SECONDS, batchMessage.getExtraMap());
+            int msgCnt = batchMessage.getDataList().size();
+            getMetricItem(batchMessage.getGroupId(), batchMessage.getStreamId()).pluginSendCount.addAndGet(msgCnt);
+
         } catch (Exception exception) {
             LOGGER.error("Exception caught", exception);
             // retry time
             try {
                 TimeUnit.SECONDS.sleep(1);
-                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
+                sendBatchAsync(batchMessage, retry + 1);
             } catch (Exception ignored) {
                 // ignore it.
             }
@@ -246,50 +261,44 @@ public class SenderManager {
 
     /**
      * Send message to proxy by batch, use message cache.
-     *
-     * @param groupId groupId
-     * @param streamId streamId
-     * @param bodyList body list
-     * @param retry retry time
      */
-    public void sendBatchSync(String jobId, String groupId, String streamId,
-            List<byte[]> bodyList, int retry, long dataTime, Map<String, String> extraMap) {
+    private void sendBatchSync(BatchProxyMessage batchMessage, int retry) {
         if (retry > maxSenderRetry) {
             LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
-        Map<String, String> dims = new HashMap<>();
-        dims.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
-        dims.put(KEY_INLONG_GROUP_ID, groupId);
-        dims.put(KEY_INLONG_STREAM_ID, streamId);
+        int msgCnt = batchMessage.getDataList().size();
+        String groupId = batchMessage.getGroupId();
+        String streamId = batchMessage.getStreamId();
+        long dataTime = batchMessage.getDataTime();
+        AgentMetricItem metricItem = getMetricItem(groupId, streamId);
+
         try {
-            SendResult result = selectSender(groupId).sendMessage(bodyList, groupId, streamId, dataTime, "",
-                    maxSenderTimeout, TimeUnit.SECONDS, extraMap);
+            SendResult result = selectSender(groupId).sendMessage(batchMessage.getDataList(), groupId, streamId,
+                    dataTime, "", maxSenderTimeout, TimeUnit.SECONDS, batchMessage.getExtraMap());
+            metricItem.pluginSendCount.addAndGet(msgCnt);
+
             if (result == SendResult.OK) {
-                semaphore.release(bodyList.size());
-                getMetricItem(dims).pluginSendSuccessCount.addAndGet(bodyList.size());
-                getMetricItem(dims).pluginSendCount.addAndGet(bodyList.size());
-                long totalSize = bodyList.stream().mapToLong(body -> body.length).sum();
-                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size(),
-                        totalSize);
+                semaphore.release(msgCnt);
+                metricItem.pluginSendSuccessCount.addAndGet(msgCnt);
+                long totalSize = batchMessage.getDataList().stream().mapToLong(body -> body.length).sum();
+                AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, msgCnt, totalSize);
                 if (sourcePath != null) {
-                    taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
+                    taskPositionManager.updateSinkPosition(batchMessage.getJobId(), sourcePath, msgCnt);
                 }
             } else {
-                getMetricItem(dims).pluginSendFailCount.addAndGet(bodyList.size());
-                getMetricItem(dims).pluginSendCount.addAndGet(bodyList.size());
+                metricItem.pluginSendFailCount.addAndGet(msgCnt);
                 LOGGER.warn("send data to dataproxy error {}", result.toString());
-                sendBatchSync(jobId, groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
+                sendBatchSync(batchMessage, retry + 1);
             }
 
         } catch (Exception exception) {
             LOGGER.error("Exception caught", exception);
             // retry time
             try {
+                metricItem.pluginSendFailCount.addAndGet(msgCnt);
                 TimeUnit.SECONDS.sleep(1);
-                getMetricItem(dims).pluginSendFailCount.addAndGet(bodyList.size());
-                getMetricItem(dims).pluginSendCount.addAndGet(bodyList.size());
-                sendBatchSync(jobId, groupId, streamId, bodyList, retry + 1, dataTime, extraMap);
+                sendBatchSync(batchMessage, retry + 1);
             } catch (Exception ignored) {
                 // ignore it.
             }
@@ -302,48 +311,41 @@ public class SenderManager {
     private class AgentSenderCallback implements SendMessageCallback {
 
         private final int retry;
-        private final String groupId;
-        private final List<byte[]> bodyList;
-        private final String streamId;
-        private final long dataTime;
-        private final String jobId;
+        private final BatchProxyMessage batchMessage;
+        private final int msgCnt;
 
-        AgentSenderCallback(String jobId, String groupId, String streamId, List<byte[]> bodyList, int retry,
-                long dataTime) {
+        AgentSenderCallback(BatchProxyMessage batchMessage, int retry) {
+            this.batchMessage = batchMessage;
             this.retry = retry;
-            this.groupId = groupId;
-            this.streamId = streamId;
-            this.bodyList = bodyList;
-            this.jobId = jobId;
-            this.dataTime = dataTime;
+            this.msgCnt = batchMessage.getDataList().size();
         }
 
         @Override
         public void onMessageAck(SendResult result) {
+            String groupId = batchMessage.getGroupId();
+            String streamId = batchMessage.getStreamId();
+            String jobId = batchMessage.getJobId();
+            long dataTime = batchMessage.getDataTime();
             // if send result is not ok, retry again.
             if (result == null || !result.equals(SendResult.OK)) {
                 LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}, "
                         + "error {}", groupId, streamId, jobId, dataTime, retry, result);
-                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
+                getMetricItem(groupId, streamId).pluginSendFailCount.addAndGet(msgCnt);
+                sendBatchAsync(batchMessage, retry + 1);
                 return;
             }
-            semaphore.release(bodyList.size());
-            Map<String, String> dims = new HashMap<>();
-            dims.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
-            dims.put(KEY_INLONG_GROUP_ID, groupId);
-            dims.put(KEY_INLONG_STREAM_ID, streamId);
-            long totalSize = bodyList.stream().mapToLong(body -> body.length).sum();
-            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, bodyList.size(),
-                    totalSize);
-            getMetricItem(dims).pluginSendSuccessCount.addAndGet(bodyList.size());
-            getMetricItem(dims).pluginSendCount.addAndGet(bodyList.size());
+            semaphore.release(msgCnt);
+            long totalSize = batchMessage.getDataList().stream().mapToLong(body -> body.length).sum();
+            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS, groupId, streamId, dataTime, msgCnt, totalSize);
+            getMetricItem(groupId, streamId).pluginSendSuccessCount.addAndGet(msgCnt);
             if (sourcePath != null) {
-                taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
+                taskPositionManager.updateSinkPosition(jobId, sourcePath, msgCnt);
             }
         }
 
         @Override
         public void onException(Throwable e) {
+            getMetricItem(batchMessage.getGroupId(), batchMessage.getStreamId()).pluginSendFailCount.addAndGet(msgCnt);
             LOGGER.error("exception caught", e);
         }
     }

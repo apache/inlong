@@ -17,6 +17,9 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROCESS_ERRCODE;
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_PROXY_SEND;
+import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_SYNC_SEND;
 import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
 import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEPARATOR;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
@@ -37,6 +40,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
@@ -45,7 +49,7 @@ import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.dataproxy.base.OrderEvent;
+import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
@@ -293,7 +297,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             // reject unsupported messages
             if (commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                     || commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
-                commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
+                commonAttrMap.put(MESSAGE_PROCESS_ERRCODE,
                         DataProxyErrCode.UNSUPPORTED_EXTENDFIELD_VALUE.getErrCodeStr());
                 MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
@@ -303,7 +307,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             List<ProxyMessage> msgList =
                     (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
             if (msgList == null) {
-                commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
+                commonAttrMap.put(MESSAGE_PROCESS_ERRCODE,
                         DataProxyErrCode.EMPTY_MSG.getErrCodeStr());
                 MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
@@ -318,11 +322,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
             // send messages to channel
-            formatMessagesAndSend(ctx, commonAttrMap,
+            formatMessagesAndSend(ctx, commonAttrMap, resultMap,
                     messageMap, strRemoteIP, msgType, msgRcvTime);
             // return response
-            if (!MessageUtils.isSyncSendForOrder(
-                    commonAttrMap.get(AttributeConstants.MESSAGE_SYNC_SEND))) {
+            if (!MessageUtils.isSinkRspType(commonAttrMap)) {
                 MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
             }
@@ -416,7 +419,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 if ("true".equalsIgnoreCase(acceptMsg)) {
                     configTopic = this.defaultTopic;
                 } else {
-                    commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
+                    commonAttrMap.put(MESSAGE_PROCESS_ERRCODE,
                             DataProxyErrCode.UNCONFIGURED_GROUPID_OR_STREAMID.getErrCodeStr());
                     logger.debug("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
                             groupId, streamId);
@@ -445,12 +448,14 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
      *
      * @param ctx  client connect
      * @param commonAttrMap common attribute map
+     * @param resultMap    the result map
      * @param messageMap    message list
      * @param strRemoteIP   remote ip
      * @param msgType    the message type
      * @param msgRcvTime  the received time
      */
     private void formatMessagesAndSend(ChannelHandlerContext ctx, Map<String, String> commonAttrMap,
+                                       Map<String, Object> resultMap,
                                        Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
                                        String strRemoteIP, MsgType msgType, long msgRcvTime) throws MessageIDException {
 
@@ -506,15 +511,21 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 headers.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V0.getName());
                 headers.put(AttributeConstants.RCV_TIME,
                         commonAttrMap.get(AttributeConstants.RCV_TIME));
+                headers.put(ConfigConstants.DECODER_ATTRS,
+                        (String)resultMap.get(ConfigConstants.DECODER_ATTRS));
                 // add extra key-value information
                 headers.put(AttributeConstants.UNIQ_ID,
                         commonAttrMap.get(AttributeConstants.UNIQ_ID));
                 if ("false".equals(commonAttrMap.get(AttributeConstants.MESSAGE_IS_ACK))) {
                     headers.put(AttributeConstants.MESSAGE_IS_ACK, "false");
                 }
-                String syncSend = commonAttrMap.get(AttributeConstants.MESSAGE_SYNC_SEND);
+                String syncSend = commonAttrMap.get(MESSAGE_SYNC_SEND);
                 if (StringUtils.isNotEmpty(syncSend)) {
-                    headers.put(AttributeConstants.MESSAGE_SYNC_SEND, syncSend);
+                    headers.put(MESSAGE_SYNC_SEND, syncSend);
+                }
+                String proxySend = commonAttrMap.get(MESSAGE_PROXY_SEND);
+                if (StringUtils.isNotEmpty(proxySend)) {
+                    headers.put(MESSAGE_PROXY_SEND, proxySend);
                 }
                 String partitionKey = commonAttrMap.get(AttributeConstants.MESSAGE_PARTITION_KEY);
                 if (StringUtils.isNotEmpty(partitionKey)) {
@@ -531,12 +542,12 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 final byte[] data = inLongMsg.buildArray();
                 Event event = EventBuilder.withBody(data, headers);
                 inLongMsg.reset();
-                // build metric data item
-                String orderType = "non-order";
-                if (MessageUtils.isSyncSendForOrder(event)) {
-                    event = new OrderEvent(ctx, event);
-                    orderType = "order";
+                Pair<Boolean, String> evenProcType =
+                        MessageUtils.getEventProcType(syncSend, proxySend);
+                if (evenProcType.getLeft()) {
+                    event = new SinkRspEvent(event, msgType, ctx);
                 }
+                // build metric data item
                 long longDataTime = Long.parseLong(strDataTime);
                 longDataTime = longDataTime / 1000 / 60 / 10;
                 longDataTime = longDataTime * 1000 * 60 * 10;
@@ -545,7 +556,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         .append(streamIdEntry.getKey()).append(SEPARATOR)
                         .append(strRemoteIP).append(SEPARATOR)
                         .append(getLocalIp()).append(SEPARATOR)
-                        .append(orderType).append(SEPARATOR)
+                        .append(evenProcType.getRight()).append(SEPARATOR)
                         .append(DateTimeUtils.ms2yyyyMMddHHmm(longDataTime)).append(SEPARATOR)
                         .append(DateTimeUtils.ms2yyyyMMddHHmm(msgRcvTime));
                 try {
