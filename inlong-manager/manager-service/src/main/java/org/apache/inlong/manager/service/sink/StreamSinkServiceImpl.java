@@ -125,15 +125,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             sinkEntity.setStatus(nextStatus.getCode());
             sinkMapper.updateStatus(sinkEntity);
         }
-        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
-        if (streamSuccess) {
-            // To work around the circular reference check we manually instantiate and wire
-            if (streamProcessOperation == null) {
-                streamProcessOperation = new InlongStreamProcessService();
-                autowireCapableBeanFactory.autowireBean(streamProcessOperation);
-            }
-            streamProcessOperation.startProcess(groupId, streamId, operator, false);
-        }
         LOGGER.info("success to save sink info: {}", request);
         return id;
     }
@@ -253,16 +244,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
         sinkOperator.updateOpt(request, nextStatus, operator);
-
-        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
-        if (streamSuccess) {
-            // To work around the circular reference check we manually instantiate and wire
-            if (streamProcessOperation == null) {
-                streamProcessOperation = new InlongStreamProcessService();
-                autowireCapableBeanFactory.autowireBean(streamProcessOperation);
-            }
-            streamProcessOperation.startProcess(groupId, streamId, operator, false);
-        }
+        
         LOGGER.info("success to update sink by id: {}", request);
         return true;
     }

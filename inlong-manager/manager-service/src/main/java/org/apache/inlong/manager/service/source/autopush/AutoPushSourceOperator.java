@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.source.autopush;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -34,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -85,6 +88,30 @@ public class AutoPushSourceOperator extends AbstractSourceOperator {
         List<StreamField> sourceFields = super.getSourceFields(entity.getId());
         source.setFieldList(sourceFields);
         return source;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    public void restartOpt(SourceRequest request, String operator) {
+        StreamSourceEntity existEntity = sourceMapper.selectByIdForUpdate(request.getId());
+        SourceStatus curState = SourceStatus.forCode(existEntity.getStatus());
+        SourceStatus nextState = SourceStatus.SOURCE_NORMAL;
+        StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        curEntity.setPreviousStatus(curState.getCode());
+        curEntity.setStatus(nextState.getCode());
+        sourceMapper.updateByPrimaryKeySelective(curEntity);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
+    public void stopOpt(SourceRequest request, String operator) {
+        StreamSourceEntity existEntity = sourceMapper.selectByIdForUpdate(request.getId());
+        SourceStatus curState = SourceStatus.forCode(existEntity.getStatus());
+        SourceStatus nextState = SourceStatus.SOURCE_FROZEN;
+        StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
+        curEntity.setPreviousStatus(curState.getCode());
+        curEntity.setStatus(nextState.getCode());
+        sourceMapper.updateByPrimaryKeySelective(curEntity);
     }
 
 }
