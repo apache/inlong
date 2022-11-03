@@ -17,7 +17,7 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEP_HASHTAG;
+import static org.apache.inlong.dataproxy.consts.AttrConstants.SEP_HASHTAG;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -31,10 +31,11 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
@@ -106,14 +107,14 @@ public class SimpleMessageHandler implements MessageHandler {
         long longDataTime = NumberUtils.toLong(strDataTime, msgRcvTime);
         strDataTime = String.valueOf(longDataTime);
         // get char set
-        String charset = (String) context.get(AttributeConstants.CHARSET);
+        String charset = (String) context.get(AttrConstants.CHARSET);
         if (StringUtils.isBlank(charset)) {
-            charset = AttributeConstants.CHARSET;
+            charset = AttrConstants.CHARSET;
         }
-        String body = (String) context.get(AttributeConstants.BODY);
+        String body = (String) context.get(AttrConstants.BODY);
         if (StringUtils.isEmpty(body)) {
             throw new MessageProcessException(strBuff.append("Field ")
-                    .append(AttributeConstants.BODY)
+                    .append(AttrConstants.BODY)
                     .append(" must exist and not empty!").toString());
         }
         // get m attribute
@@ -124,7 +125,7 @@ public class SimpleMessageHandler implements MessageHandler {
         }
         // convert context to http request
         HttpServletRequest request =
-                (HttpServletRequest) context.get(AttributeConstants.HTTP_REQUEST);
+                (HttpServletRequest) context.get(AttrConstants.HTTP_REQUEST);
         // get report node ip
         String strRemoteIP = request.getRemoteAddr();
         // get message count

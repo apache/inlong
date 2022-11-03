@@ -18,8 +18,7 @@
 package org.apache.inlong.dataproxy.base;
 
 import java.util.Map;
-
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.common.msg.AttributeConstants;
 
 public class ProxyMessage {
 
