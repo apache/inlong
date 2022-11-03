@@ -80,11 +80,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkEntityMapper sinkMapper;
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
-    @Autowired
-    private AutowireCapableBeanFactory autowireCapableBeanFactory;
-
-    // To avoid circular dependencies, you cannot use @Autowired, it will be injected by AutowireCapableBeanFactory
-    private InlongStreamProcessService streamProcessOperation;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -244,7 +239,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
         sinkOperator.updateOpt(request, nextStatus, operator);
-        
+
         LOGGER.info("success to update sink by id: {}", request);
         return true;
     }
