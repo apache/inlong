@@ -18,8 +18,9 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { SinkMetaType } from '../types';
 
-export const allDefaultSinks: MetaExportWithBackendList = [
+export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
   {
     label: 'ALL',
     value: '',

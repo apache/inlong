@@ -17,11 +17,6 @@
  * under the License.
  */
 
-import { allDefaultConsumes } from './defaults';
-import { allExtendsConsumes } from './extends';
+import { ClusterInfo } from './common/ClusterInfo';
 
-export type { ConsumeMetaType } from './types';
-
-export const consumes = allDefaultConsumes.concat(allExtendsConsumes);
-
-export const defaultValue = consumes[0].value;
+export type ClusterMetaType = typeof ClusterInfo;

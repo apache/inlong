@@ -18,13 +18,19 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import { GroupInfo } from '../common/GroupInfo';
 
-const { I18n, FormField } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
 
-export default class PulsarGroup extends GroupInfo implements DataWithBackend {
-  @FormField({
+export default class PulsarGroup
+  extends GroupInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'radio',
     initialValue: 'SERIAL',
     rules: [{ required: true }],
@@ -44,7 +50,7 @@ export default class PulsarGroup extends GroupInfo implements DataWithBackend {
   @I18n('meta.Group.Pulsar.QueueModule')
   queueModule: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 3,
     rules: [{ required: true }],
@@ -58,7 +64,7 @@ export default class PulsarGroup extends GroupInfo implements DataWithBackend {
   @I18n('meta.Group.Pulsar.PartitionNum')
   partitionNum: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 3,
     suffix: i18n.t('meta.Group.Pulsar.EnsembleSuffix'),
@@ -86,7 +92,7 @@ export default class PulsarGroup extends GroupInfo implements DataWithBackend {
   @I18n('ensemble')
   ensemble: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 3,
     suffix: i18n.t('meta.Group.Pulsar.WriteQuorumSuffix'),
@@ -100,7 +106,7 @@ export default class PulsarGroup extends GroupInfo implements DataWithBackend {
   @I18n('Write Quorum')
   writeQuorum: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 2,
     suffix: i18n.t('meta.Group.Pulsar.AckQuorumSuffix'),
@@ -114,7 +120,7 @@ export default class PulsarGroup extends GroupInfo implements DataWithBackend {
   @I18n('ACK Quorum')
   ackQuorum: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 24,
     rules: [
@@ -155,7 +161,7 @@ export default class PulsarGroup extends GroupInfo implements DataWithBackend {
   @I18n('Time To Live')
   ttl: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 72,
     rules: [
@@ -204,7 +210,7 @@ export default class PulsarGroup extends GroupInfo implements DataWithBackend {
   @I18n('Retention Time')
   retentionTime: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: -1,
     suffix: {

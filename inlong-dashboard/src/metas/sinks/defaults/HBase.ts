@@ -15,13 +15,17 @@
  * limitations under the License.
  */
 
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
-import { DataWithBackend } from '@/metas/DataWithBackend';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
 const hbaseFieldTypes = [
   'int',
@@ -38,41 +42,41 @@ const hbaseFieldTypes = [
   value: item,
 }));
 
-export default class HBaseSink extends SinkInfo implements DataWithBackend {
-  @FormField({
+export default class HBaseSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.HBase.Namespace')
   namespace: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.HBase.TableName')
   tableName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.HBase.RowKey')
   rowKey: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -80,11 +84,11 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend {
       placeholder: '127.0.0.1:2181,127.0.0.2:2181',
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.HBase.ZkQuorum')
   zkQuorum: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     initialValue: '/hbase',
@@ -92,11 +96,11 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.HBase.ZkNodeParent')
   zkNodeParent: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
     initialValue: 2,
@@ -105,11 +109,11 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.HBase.BufferFlushMaxSize')
   bufferFlushMaxSize: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
     initialValue: 1000,
@@ -118,11 +122,11 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.HBase.BufferFlushMaxRows')
   bufferFlushMaxRows: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
     initialValue: 1,
@@ -132,11 +136,11 @@ export default class HBaseSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.HBase.BufferFlushInterval')
   bufferFlushInterval: number;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',

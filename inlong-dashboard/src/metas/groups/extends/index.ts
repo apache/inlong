@@ -18,7 +18,8 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { GroupMetaType } from '../types';
 
-export const allExtendsGroups: MetaExportWithBackendList = [
+export const allExtendsGroups: MetaExportWithBackendList<GroupMetaType> = [
   // You can extends at here...
 ];

@@ -18,7 +18,8 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { StreamMetaType } from '../types';
 
-export const allExtendsStreams: MetaExportWithBackendList = [
+export const allExtendsStreams: MetaExportWithBackendList<StreamMetaType> = [
   // You can extends at here...
 ];

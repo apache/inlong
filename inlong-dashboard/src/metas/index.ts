@@ -18,7 +18,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import type { MetaExportWithBackend, MetaExportWithBackendList } from '@/metas/types';
+import type { MetaExportWithBackendList } from '@/metas/types';
 import { consumes, defaultValue as defaultConsume } from './consumes';
 import { groups, defaultValue as defaultGroup } from './groups';
 import { clusters, defaultValue as defaultCluster } from './clusters';
@@ -27,14 +27,24 @@ import { streams, defaultValue as defaultStream } from './streams';
 import { sources, defaultValue as defaultSource } from './sources';
 import { sinks, defaultValue as defaultSink } from './sinks';
 
-export interface UseLoadMetaResult {
+export type {
+  ClusterMetaType,
+  ConsumeMetaType,
+  GroupMetaType,
+  NodeMetaType,
+  SourceMetaType,
+  SinkMetaType,
+  StreamMetaType,
+} from './types';
+
+export interface UseLoadMetaResult<T> {
   loading: boolean;
-  Entity: MetaExportWithBackend;
+  Entity: T;
 }
 
 export type MetaTypeKeys = 'consume' | 'group' | 'cluster' | 'node' | 'stream' | 'source' | 'sink';
 
-const metasMap: Record<MetaTypeKeys, [MetaExportWithBackendList, string?]> = {
+const metasMap: Record<MetaTypeKeys, [MetaExportWithBackendList<any>, string?]> = {
   consume: [consumes, defaultConsume],
   group: [groups, defaultGroup],
   cluster: [clusters, defaultCluster],
@@ -52,9 +62,9 @@ export const useDefaultMeta = (metaType: MetaTypeKeys) => {
   };
 };
 
-export const useLoadMeta = (metaType: MetaTypeKeys, subType: string): UseLoadMetaResult => {
+export const useLoadMeta = <T>(metaType: MetaTypeKeys, subType: string): UseLoadMetaResult<T> => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [Entity, setEntity] = useState<{ default: MetaExportWithBackend }>();
+  const [Entity, setEntity] = useState<{ default: T }>();
 
   const load = useCallback(
     async subType => {

@@ -17,11 +17,6 @@
  * under the License.
  */
 
-import { allDefaultConsumes } from './defaults';
-import { allExtendsConsumes } from './extends';
+import { GroupInfo } from './common/GroupInfo';
 
-export type { ConsumeMetaType } from './types';
-
-export const consumes = allDefaultConsumes.concat(allExtendsConsumes);
-
-export const defaultValue = consumes[0].value;
+export type GroupMetaType = typeof GroupInfo;

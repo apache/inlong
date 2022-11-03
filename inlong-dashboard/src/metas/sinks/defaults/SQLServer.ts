@@ -15,13 +15,17 @@
  * limitations under the License.
  */
 
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
-import { DataWithBackend } from '@/metas/DataWithBackend';
 import { sourceFields } from '../common/sourceFields';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
   CHAR: (m, d) => (1 <= m && m <= 8000 ? '' : '1 <= M <= 8000'),
@@ -59,8 +63,11 @@ const sqlserverFieldTypes = Object.keys(fieldTypesConf).reduce(
   [],
 );
 
-export default class SqlServerSink extends SinkInfo implements DataWithBackend {
-  @FormField({
+export default class SqlServerSink
+  extends SinkInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -68,22 +75,22 @@ export default class SqlServerSink extends SinkInfo implements DataWithBackend {
       placeholder: 'jdbc:sqlserver://127.0.0.1:1433;database=db_name',
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('JDBC URL')
   jdbcUrl: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.SQLServer.SchemaName')
   schemaName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     initialValue: 'UTC',
@@ -91,11 +98,11 @@ export default class SqlServerSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.SQLServer.ServerTimezone')
   serverTimezone: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     initialValue: 'UTC',
@@ -103,11 +110,11 @@ export default class SqlServerSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.SQLServer.TableName')
   tableName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     initialValue: 'UTC',
@@ -115,11 +122,11 @@ export default class SqlServerSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.SQLServer.PrimaryKey')
   primaryKey: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
     initialValue: 1,
@@ -141,7 +148,7 @@ export default class SqlServerSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
     initialValue: true,
@@ -162,7 +169,7 @@ export default class SqlServerSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.AllMigration')
   allMigration: boolean;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -172,7 +179,7 @@ export default class SqlServerSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.Username')
   username: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
@@ -182,7 +189,7 @@ export default class SqlServerSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.Password')
   password: string;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',

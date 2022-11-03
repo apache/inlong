@@ -18,24 +18,31 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import { SourceInfo } from '../common/SourceInfo';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
-export default class TubeMqSource extends SourceInfo implements DataWithBackend {
-  @FormField({
+export default class TubeMqSource
+  extends SourceInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sources.Db.Server')
   hostname: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 3306,
     rules: [{ required: true }],
@@ -45,11 +52,11 @@ export default class TubeMqSource extends SourceInfo implements DataWithBackend 
       max: 65535,
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sources.Db.Port')
   port: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -59,7 +66,7 @@ export default class TubeMqSource extends SourceInfo implements DataWithBackend 
   @I18n('meta.Sources.Db.User')
   user: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
@@ -69,7 +76,7 @@ export default class TubeMqSource extends SourceInfo implements DataWithBackend 
   @I18n('meta.Sources.Db.Password')
   password: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     initialValue: '/data/inlong-agent/.history',
@@ -80,7 +87,7 @@ export default class TubeMqSource extends SourceInfo implements DataWithBackend 
   @I18n('meta.Sources.Db.HistoryFilename')
   historyFilename: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     tooltip: 'UTC, UTC+8, Asia/Shanghai, ...',
     initialValue: 'UTC',
@@ -92,7 +99,7 @@ export default class TubeMqSource extends SourceInfo implements DataWithBackend 
   @I18n('meta.Sources.Db.ServerTimezone')
   serverTimezone: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 1000,
     rules: [{ required: true }],
@@ -106,7 +113,7 @@ export default class TubeMqSource extends SourceInfo implements DataWithBackend 
   @I18n('meta.Sources.Db.IntervalMs')
   intervalMs: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
     initialValue: false,
@@ -127,7 +134,7 @@ export default class TubeMqSource extends SourceInfo implements DataWithBackend 
   @I18n('meta.Sources.Db.AllMigration')
   allMigration: boolean;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sources.Db.TableWhiteListHelp'),
     rules: [{ required: true }],

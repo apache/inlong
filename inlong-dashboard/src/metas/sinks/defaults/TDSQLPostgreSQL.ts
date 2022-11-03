@@ -15,13 +15,17 @@
  * limitations under the License.
  */
 
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
-import { DataWithBackend } from '@/metas/DataWithBackend';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
 const tdsqlPostgreSQLFieldTypes = [
   'SMALLINT',
@@ -52,8 +56,11 @@ const tdsqlPostgreSQLFieldTypes = [
   value: item,
 }));
 
-export default class TDSQLPostgreSQLSink extends SinkInfo implements DataWithBackend {
-  @FormField({
+export default class TDSQLPostgreSQLSink
+  extends SinkInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -61,44 +68,44 @@ export default class TDSQLPostgreSQLSink extends SinkInfo implements DataWithBac
       placeholder: 'jdbc:sqlserver://127.0.0.1:1433;database=db_name',
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('JDBC URL')
   jdbcUrl: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.TDSQLPostgreSQL.SchemaName')
   schemaName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.TDSQLPostgreSQL.TableName')
   tableName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.TDSQLPostgreSQL.PrimaryKey')
   primaryKey: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
     initialValue: 1,
@@ -120,7 +127,7 @@ export default class TDSQLPostgreSQLSink extends SinkInfo implements DataWithBac
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -130,7 +137,7 @@ export default class TDSQLPostgreSQLSink extends SinkInfo implements DataWithBac
   @I18n('meta.Sinks.Username')
   username: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
@@ -140,7 +147,7 @@ export default class TDSQLPostgreSQLSink extends SinkInfo implements DataWithBac
   @I18n('meta.Sinks.Password')
   password: string;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',

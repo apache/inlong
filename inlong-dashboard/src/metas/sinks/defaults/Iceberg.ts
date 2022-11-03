@@ -17,13 +17,17 @@
  * under the License.
  */
 
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
-import { DataWithBackend } from '@/metas/DataWithBackend';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
 const icebergFieldTypes = [
   'string',
@@ -101,30 +105,33 @@ const matchPartitionStrategies = fieldType => {
   return data.filter(item => !item.disabled);
 };
 
-export default class IcebergSink extends SinkInfo implements DataWithBackend {
-  @FormField({
+export default class IcebergSink
+  extends SinkInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Iceberg.DbName')
   dbName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Iceberg.TableName')
   tableName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
     initialValue: 1,
@@ -146,7 +153,7 @@ export default class IcebergSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -154,11 +161,11 @@ export default class IcebergSink extends SinkInfo implements DataWithBackend {
       placeholder: 'thrift://127.0.0.1:9083',
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('Catalog URI')
   catalogUri: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -166,11 +173,11 @@ export default class IcebergSink extends SinkInfo implements DataWithBackend {
       placeholder: 'hdfs://127.0.0.1:9000/user/iceberg/warehouse',
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Iceberg.Warehouse')
   warehouse: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     rules: [{ required: true }],
     initialValue: 'Parquet',
@@ -192,11 +199,11 @@ export default class IcebergSink extends SinkInfo implements DataWithBackend {
       ],
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Iceberg.FileFormat')
   fileFormat: string;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     rules: [{ required: true }],
     initialValue: [],
@@ -220,11 +227,11 @@ export default class IcebergSink extends SinkInfo implements DataWithBackend {
       ],
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Iceberg.ExtList')
   extList: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     rules: [{ required: true }],
     initialValue: 'EXACTLY_ONCE',
@@ -243,11 +250,11 @@ export default class IcebergSink extends SinkInfo implements DataWithBackend {
       ],
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Iceberg.DataConsistency')
   dataConsistency: string;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',

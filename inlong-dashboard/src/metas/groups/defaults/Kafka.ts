@@ -18,13 +18,18 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
-import i18n from '@/i18n';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import { GroupInfo } from '../common/GroupInfo';
 
-const { I18n, FormField } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
 
-export default class KafkaGroup extends GroupInfo implements DataWithBackend {
-  @FormField({
+export default class KafkaGroup
+  extends GroupInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
     props: {
@@ -35,7 +40,7 @@ export default class KafkaGroup extends GroupInfo implements DataWithBackend {
   @I18n('meta.Group.Kafka.Partition')
   numPartitions: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     rules: [{ required: true }],
     initialValue: 1,

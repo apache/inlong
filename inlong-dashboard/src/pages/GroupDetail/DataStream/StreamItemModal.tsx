@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
@@ -41,70 +41,68 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
 
   const { Entity } = useLoadMeta('stream', defaultValue);
 
-  const genFormContent = useCallback(
-    (isCreate, mqType) => {
-      return [
-        ...(Entity?.FieldList || []),
-        {
-          type: 'inputnumber',
-          label: i18n.t('meta.Group.NumberOfAccess'),
-          name: 'dailyRecords',
-          rules: [{ required: true }],
-          suffix: i18n.t('meta.Group.TenThousand/Day'),
-          props: {
-            min: 1,
-            precision: 0,
-          },
-          visible: mqType === 'PULSAR',
+  const formContent = useMemo(() => {
+    return [
+      ...(Entity?.FieldList || []),
+      {
+        type: 'inputnumber',
+        label: i18n.t('meta.Group.NumberOfAccess'),
+        name: 'dailyRecords',
+        rules: [{ required: true }],
+        suffix: i18n.t('meta.Group.TenThousand/Day'),
+        props: {
+          min: 1,
+          precision: 0,
         },
-        {
-          type: 'inputnumber',
-          label: i18n.t('meta.Group.AccessSize'),
-          name: 'dailyStorage',
-          rules: [{ required: true }],
-          suffix: i18n.t('meta.Group.GB/Day'),
-          props: {
-            min: 1,
-            precision: 0,
-          },
-          visible: mqType === 'PULSAR',
+        visible: mqType === 'PULSAR',
+      },
+      {
+        type: 'inputnumber',
+        label: i18n.t('meta.Group.AccessSize'),
+        name: 'dailyStorage',
+        rules: [{ required: true }],
+        suffix: i18n.t('meta.Group.GB/Day'),
+        props: {
+          min: 1,
+          precision: 0,
         },
-        {
-          type: 'inputnumber',
-          label: i18n.t('meta.Group.AccessPeakPerSecond'),
-          name: 'peakRecords',
-          rules: [{ required: true }],
-          suffix: i18n.t('meta.Group.Stripe/Second'),
-          props: {
-            min: 1,
-            precision: 0,
-          },
-          visible: mqType === 'PULSAR',
+        visible: mqType === 'PULSAR',
+      },
+      {
+        type: 'inputnumber',
+        label: i18n.t('meta.Group.AccessPeakPerSecond'),
+        name: 'peakRecords',
+        rules: [{ required: true }],
+        suffix: i18n.t('meta.Group.Stripe/Second'),
+        props: {
+          min: 1,
+          precision: 0,
         },
-        {
-          type: 'inputnumber',
-          label: i18n.t('meta.Group.SingleStripMaximumLength'),
-          name: 'maxLength',
-          rules: [{ required: true }],
-          suffix: 'Byte',
-          props: {
-            min: 1,
-            precision: 0,
-          },
-          visible: mqType === 'PULSAR',
+        visible: mqType === 'PULSAR',
+      },
+      {
+        type: 'inputnumber',
+        label: i18n.t('meta.Group.SingleStripMaximumLength'),
+        name: 'maxLength',
+        rules: [{ required: true }],
+        suffix: 'Byte',
+        props: {
+          min: 1,
+          precision: 0,
         },
-      ].map(item => {
-        const obj = { ...item };
+        visible: mqType === 'PULSAR',
+      },
+    ].map(item => {
+      const obj = { ...item };
+      const isCreate = !inlongStreamId;
 
-        if (!isCreate && (obj.name === 'inlongStreamId' || obj.name === 'dataType')) {
-          obj.type = 'text';
-        }
+      if (!isCreate && (obj.name === 'inlongStreamId' || obj.name === 'dataType')) {
+        obj.type = 'text';
+      }
 
-        return obj;
-      });
-    },
-    [Entity?.FieldList],
-  );
+      return obj;
+    });
+  }, [Entity?.FieldList, mqType, inlongStreamId]);
 
   const { data: savedData, run: getStreamData } = useRequest(
     {
@@ -158,7 +156,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
       <FormGenerator
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 20 }}
-        content={genFormContent(!inlongStreamId, mqType)}
+        content={formContent}
         form={form}
         useMaxWidth
       />

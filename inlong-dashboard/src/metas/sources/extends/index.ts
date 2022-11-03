@@ -18,7 +18,8 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { SourceMetaType } from '../types';
 
-export const allExtendsSources: MetaExportWithBackendList = [
+export const allExtendsSources: MetaExportWithBackendList<SourceMetaType> = [
   // You can extends at here...
 ];

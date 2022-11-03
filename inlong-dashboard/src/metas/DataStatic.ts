@@ -20,7 +20,7 @@
 import i18n from '@/i18n';
 
 export abstract class DataStatic {
-  static I18nMap: Record<string, unknown> = {};
+  static I18nMap: Record<string, string> = {};
 
   static I18n(i18nkey: string): PropertyDecorator {
     return (target: any, propertyKey: string) => {

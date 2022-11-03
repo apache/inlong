@@ -18,8 +18,9 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { NodeMetaType } from '../types';
 
-export const allDefaultNodes: MetaExportWithBackendList = [
+export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
   {
     label: 'ALL',
     value: '',

@@ -20,6 +20,8 @@
 import { allDefaultStreams } from './defaults';
 import { allExtendsStreams } from './extends';
 
+export type { StreamMetaType } from './types';
+
 export const streams = allDefaultStreams.concat(allExtendsStreams);
 
 export const defaultValue = streams[0].value;

@@ -20,6 +20,8 @@
 import { allDefaultClusters } from './defaults';
 import { allExtendsClusters } from './extends';
 
+export type { ClusterMetaType } from './types';
+
 export const clusters = allDefaultClusters.concat(allExtendsClusters);
 
 export const defaultValue = clusters[0].value;

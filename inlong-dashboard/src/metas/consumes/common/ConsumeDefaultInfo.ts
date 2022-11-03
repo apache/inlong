@@ -17,9 +17,11 @@
  * under the License.
  */
 
-import UserSelect from '@/components/UserSelect';
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
+import UserSelect from '@/components/UserSelect';
 import { timestampFormat } from '@/utils';
 import {
   statusList,
@@ -28,12 +30,18 @@ import {
   genLastConsumerStatusTag,
 } from './status';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18nMap, I18n } = DataWithBackend;
+const { FieldList, FieldDecorator } = RenderRow;
+const { ColumnList, ColumnDecorator } = RenderList;
 
-export class ConsumeDefaultInfo extends DataWithBackend {
+export class ConsumeDefaultInfo implements DataWithBackend, RenderRow, RenderList {
+  static I18nMap = I18nMap;
+  static FieldList = FieldList;
+  static ColumnList = ColumnList;
+
   readonly id: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     extra: i18n.t('meta.Consume.ConsumerGroupNameRules'),
     rules: [
@@ -44,11 +52,11 @@ export class ConsumeDefaultInfo extends DataWithBackend {
       },
     ],
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Consume.ConsumerGroupName')
   consumerGroup: string;
 
-  @FormField({
+  @FieldDecorator({
     type: UserSelect,
     extra: i18n.t('meta.Consume.OwnersExtra'),
     rules: [{ required: true }],
@@ -57,11 +65,11 @@ export class ConsumeDefaultInfo extends DataWithBackend {
       currentUserClosable: false,
     },
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Consume.Owner')
   inCharges: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     extraNames: ['mqType'],
     rules: [{ required: true }],
@@ -95,15 +103,15 @@ export class ConsumeDefaultInfo extends DataWithBackend {
       }),
     },
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Consume.TargetInlongGroupID')
   inlongGroupId: string;
 
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Consume.MQType')
   mqType: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     rules: [{ required: true }],
     props: values => ({
@@ -136,11 +144,11 @@ export class ConsumeDefaultInfo extends DataWithBackend {
     }),
     visible: values => Boolean(values.inlongGroupId),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Consume.TopicName')
   topic: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     props: {
       allowClear: true,
@@ -149,19 +157,19 @@ export class ConsumeDefaultInfo extends DataWithBackend {
     },
     visible: false,
   })
-  @TableColumn({
+  @ColumnDecorator({
     render: text => genStatusTag(text),
   })
   @I18n('basic.Status')
   readonly status: string;
 
-  @TableColumn({
+  @ColumnDecorator({
     render: text => text && timestampFormat(text),
   })
   @I18n('pages.ConsumeDashboard.config.RecentConsumeTime')
   readonly lastConsumeTime: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     props: {
       allowClear: true,
@@ -170,13 +178,13 @@ export class ConsumeDefaultInfo extends DataWithBackend {
     },
     visible: false,
   })
-  @TableColumn({
+  @ColumnDecorator({
     render: text => text && genLastConsumerStatusTag(text),
   })
   @I18n('pages.ConsumeDashboard.config.OperatingStatus')
   readonly lastConsumeStatus: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'text',
   })
   @I18n('meta.Consume.MQAddress')
@@ -188,5 +196,15 @@ export class ConsumeDefaultInfo extends DataWithBackend {
 
   stringify(data) {
     return data;
+  }
+
+  renderRow() {
+    const constructor = this.constructor as typeof ConsumeDefaultInfo;
+    return constructor.FieldList;
+  }
+
+  renderList() {
+    const constructor = this.constructor as typeof ConsumeDefaultInfo;
+    return constructor.ColumnList;
   }
 }
