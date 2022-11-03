@@ -17,6 +17,9 @@
 
 package org.apache.inlong.common.enums;
 
+/**
+ * Enum of task type.
+ */
 public enum TaskTypeEnum {
 
     DATABASE_MIGRATION(0),
@@ -68,7 +71,7 @@ public enum TaskTypeEnum {
             case 12:
                 return MQTT;
             default:
-                throw new RuntimeException(String.format("Unsupported taskType=%s", taskType));
+                throw new RuntimeException("Unsupported task type " + taskType);
         }
     }
 

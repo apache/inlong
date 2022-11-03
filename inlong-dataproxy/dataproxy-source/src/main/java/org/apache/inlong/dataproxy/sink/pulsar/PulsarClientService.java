@@ -162,7 +162,7 @@ public class PulsarClientService {
              *  put it back into the illegal map
              */
             pulsarSink.handleRequestProcError(topic, es,
-                    false, DataProxyErrCode.NO_AVAILABLE_PRODUCERINFO, errMsg);
+                    false, DataProxyErrCode.NO_AVAILABLE_PRODUCER, errMsg);
             return false;
         }
         TopicProducerInfo forCallBackP = producerInfo;

@@ -88,7 +88,7 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         heartbeatMsg.setPort("46802");
         heartbeatMsg.setClusterTag("default_cluster");
         heartbeatMsg.setProtocolType(ProtocolType.HTTP);
-        heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getName());
+        heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getType());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         return heartbeatMsg;
     }

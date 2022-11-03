@@ -154,7 +154,7 @@ public class LoadNodeUtils {
         if (StringUtils.isNotEmpty(kafkaSink.getPartitionNum())) {
             sinkParallelism = Integer.parseInt(kafkaSink.getPartitionNum());
         }
-        DataTypeEnum dataType = DataTypeEnum.forName(kafkaSink.getSerializationType());
+        DataTypeEnum dataType = DataTypeEnum.forType(kafkaSink.getSerializationType());
         Format format;
         switch (dataType) {
             case CSV:
@@ -303,7 +303,7 @@ public class LoadNodeUtils {
         Format format = null;
         if (dorisSink.getSinkMultipleEnable() != null && dorisSink.getSinkMultipleEnable() && StringUtils.isNotBlank(
                 dorisSink.getSinkMultipleFormat())) {
-            DataTypeEnum dataType = DataTypeEnum.forName(dorisSink.getSinkMultipleFormat());
+            DataTypeEnum dataType = DataTypeEnum.forType(dorisSink.getSinkMultipleFormat());
             switch (dataType) {
                 case CANAL:
                     format = new CanalJsonFormat();

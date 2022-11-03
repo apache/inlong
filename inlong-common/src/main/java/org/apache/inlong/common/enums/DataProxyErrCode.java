@@ -18,31 +18,26 @@
 
 package org.apache.inlong.common.enums;
 
+/**
+ * Enum of data proxy error code.
+ */
 public enum DataProxyErrCode {
 
     SUCCESS(0, "Ok"),
 
-    UNSUPPORTED_MSGTYPE(1, "Unsupported msgType"),
+    UNSUPPORTED_MSG_TYPE(1, "Unsupported msgType"),
     EMPTY_MSG(2, "Empty message"),
-    UNSUPPORTED_EXTENDFIELD_VALUE(3,
-            "Unsupported extend field value"),
-    UNCONFIGURED_GROUPID_OR_STREAMID(4,
-            "Unconfigured groupId or streamId"),
-    PUT_EVENT_TO_CHANNEL_FAILURE(5,
-            "Put event to Channels failure"),
-    TOPIC_IS_BLANK(6,
-            "Topic is null"),
-    NO_AVAILABLE_PRODUCERINFO(7,
-            "No available producer info"),
-    PRODUCER_IS_NULL(8,
-            "Producer is null"),
-    SEND_REQUEST_TO_MQ_FAILURE(9,
-            "Send request to MQ failure"),
-    MQ_RETURN_ERROR(10,
-            "MQ client return error"),
-    DUPLICATED_MESSAGE(11,
-            "Duplicated message"),
+    UNSUPPORTED_EXTEND_FIELD_VALUE(3, "Unsupported extend field value"),
+    UNCONFIGURED_GROUPID_OR_STREAMID(4, "Unconfigured groupId or streamId"),
+    PUT_EVENT_TO_CHANNEL_FAILURE(5, "Put event to Channels failure"),
 
+    TOPIC_IS_BLANK(6, "Topic is null"),
+    NO_AVAILABLE_PRODUCER(7, "No available producer info"),
+    PRODUCER_IS_NULL(8, "Producer is null"),
+    SEND_REQUEST_TO_MQ_FAILURE(9, "Send request to MQ failure"),
+    MQ_RETURN_ERROR(10, "MQ client return error"),
+
+    DUPLICATED_MESSAGE(11, "Duplicated message"),
 
     UNKNOWN_ERROR(Integer.MAX_VALUE, "Unknown error");
 
@@ -55,9 +50,9 @@ public enum DataProxyErrCode {
     }
 
     public static DataProxyErrCode valueOf(int value) {
-        for (DataProxyErrCode msgErrCode : DataProxyErrCode.values()) {
-            if (msgErrCode.getErrCode() == value) {
-                return msgErrCode;
+        for (DataProxyErrCode errCode : DataProxyErrCode.values()) {
+            if (errCode.getErrCode() == value) {
+                return errCode;
             }
         }
 

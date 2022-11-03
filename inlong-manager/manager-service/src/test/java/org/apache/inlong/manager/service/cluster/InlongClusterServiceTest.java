@@ -322,10 +322,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
         // report heartbeat
         HeartbeatMsg msg1 = createHeartbeatMsg(clusterName, ip, String.valueOf(port1),
-                ComponentTypeEnum.DataProxy.getName());
+                ComponentTypeEnum.DataProxy.getType());
         heartbeatManager.reportHeartbeat(msg1);
         HeartbeatMsg msg2 = createHeartbeatMsg(clusterName, ip, String.valueOf(port2),
-                ComponentTypeEnum.DataProxy.getName());
+                ComponentTypeEnum.DataProxy.getType());
         heartbeatManager.reportHeartbeat(msg2);
 
         // create an inlong group which use the clusterTag
