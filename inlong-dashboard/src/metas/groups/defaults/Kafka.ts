@@ -27,7 +27,6 @@ export default class KafkaGroup extends GroupInfo implements DataWithBackend {
   @FormField({
     type: 'inputnumber',
     rules: [{ required: true }],
-    suffix: i18n.t('meta.Group.PartitionUnit'),
     props: {
       min: 1,
       precision: 0,
@@ -40,7 +39,6 @@ export default class KafkaGroup extends GroupInfo implements DataWithBackend {
     type: 'inputnumber',
     rules: [{ required: true }],
     initialValue: 1,
-    suffix: i18n.t('meta.Group.PartitionUnit'),
     props: {
       min: 1,
       precision: 0,

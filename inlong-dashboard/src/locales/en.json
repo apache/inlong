@@ -234,7 +234,6 @@
   "meta.Group.Stripe/Second": "Stripe / Second",
   "meta.Group.SingleStripMaximumLength": "Single Max Length",
   "meta.Group.Partition": "Number of partitions",
-  "meta.Group.PartitionUnit": "Indivual",
   "meta.Group.ReplicationFactor": "Replications",
   "meta.Group.Status.Approved": "Approved",
   "meta.Group.Status.Draft": "Draft",
