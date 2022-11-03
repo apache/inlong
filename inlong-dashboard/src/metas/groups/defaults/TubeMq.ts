@@ -27,37 +27,37 @@ export default class TubeMqGroup extends GroupInfo implements DataWithBackend {
   @FormField({
     type: 'inputnumber',
     rules: [{ required: true }],
-    suffix: i18n.t('meta.Group.TenThousand/Day'),
+    suffix: i18n.t('meta.Group.TubeMq.TenThousand/Day'),
     props: {
       min: 1,
       precision: 0,
     },
   })
-  @I18n('meta.Group.NumberOfAccess')
+  @I18n('meta.Group.TubeMq.NumberOfAccess')
   dailyRecords: number;
 
   @FormField({
     type: 'inputnumber',
     rules: [{ required: true }],
-    suffix: i18n.t('meta.Group.GB/Day'),
+    suffix: i18n.t('meta.Group.TubeMq.GB/Day'),
     props: {
       min: 1,
       precision: 0,
     },
   })
-  @I18n('meta.Group.AccessSize')
+  @I18n('meta.Group.TubeMq.AccessSize')
   dailyStorage: number;
 
   @FormField({
     type: 'inputnumber',
     rules: [{ required: true }],
-    suffix: i18n.t('meta.Group.Stripe/Second'),
+    suffix: i18n.t('meta.Group.TubeMq.Stripe/Second'),
     props: {
       min: 1,
       precision: 0,
     },
   })
-  @I18n('meta.Group.AccessPeakPerSecond')
+  @I18n('meta.Group.TubeMq.AccessPeakPerSecond')
   peakRecords: number;
 
   @FormField({
@@ -69,6 +69,6 @@ export default class TubeMqGroup extends GroupInfo implements DataWithBackend {
       precision: 0,
     },
   })
-  @I18n('meta.Group.SingleStripMaximumLength')
+  @I18n('meta.Group.TubeMq.SingleStripMaximumLength')
   maxLength: number;
 }

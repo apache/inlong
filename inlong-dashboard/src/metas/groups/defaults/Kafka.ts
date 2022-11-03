@@ -32,7 +32,7 @@ export default class KafkaGroup extends GroupInfo implements DataWithBackend {
       precision: 0,
     },
   })
-  @I18n('meta.Group.Partition')
+  @I18n('meta.Group.Kafka.Partition')
   numPartitions: number;
 
   @FormField({
@@ -44,6 +44,6 @@ export default class KafkaGroup extends GroupInfo implements DataWithBackend {
       precision: 0,
     },
   })
-  @I18n('meta.Group.ReplicationFactor')
+  @I18n('meta.Group.Kafka.ReplicationFactor')
   replicationFactor: number;
 }
