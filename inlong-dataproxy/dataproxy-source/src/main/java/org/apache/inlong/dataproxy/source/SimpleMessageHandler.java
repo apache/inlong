@@ -17,7 +17,6 @@
 
 package org.apache.inlong.dataproxy.source;
 
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.SEPARATOR;
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_DATA;
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_GROUPID;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
@@ -46,10 +45,11 @@ import org.apache.flume.ChannelException;
 import org.apache.flume.Event;
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.event.EventBuilder;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
@@ -256,9 +256,9 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
                 message.getAttributeMap().putAll(mapSplitter.split(this.defaultMXAttr));
             }
         } else {
-            String num2name = commonAttrMap.get(AttributeConstants.NUM2NAME);
-            String groupIdNum = commonAttrMap.get(AttributeConstants.GROUPID_NUM);
-            String streamIdNum = commonAttrMap.get(AttributeConstants.STREAMID_NUM);
+            String num2name = commonAttrMap.get(AttrConstants.NUM2NAME);
+            String groupIdNum = commonAttrMap.get(AttrConstants.GROUPID_NUM);
+            String streamIdNum = commonAttrMap.get(AttrConstants.STREAMID_NUM);
 
             if (configManager.getGroupIdMappingProperties() != null
                     && configManager.getStreamIdMappingProperties() != null) {
@@ -317,7 +317,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             }
 
             if (groupId != null && streamId != null) {
-                String tubeSwtichKey = groupId + SEPARATOR + streamId;
+                String tubeSwtichKey = groupId + AttrConstants.SEPARATOR + streamId;
                 if (configManager.getTubeSwitchProperties().get(tubeSwtichKey) != null
                         && "false".equals(configManager.getTubeSwitchProperties()
                                 .get(tubeSwtichKey).trim())) {
@@ -415,10 +415,10 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
 
                 String sequenceId = commonAttrMap.get(AttributeConstants.SEQUENCE_ID);
                 if (StringUtils.isNotEmpty(sequenceId)) {
-
-                    StringBuilder sidBuilder = new StringBuilder();
-                    sidBuilder.append(topicEntry.getKey()).append(SEPARATOR).append(streamIdEntry.getKey())
-                            .append(SEPARATOR).append(sequenceId);
+                    StringBuilder sidBuilder =
+                            new StringBuilder().append(topicEntry.getKey())
+                                    .append(AttributeConstants.SEPARATOR).append(streamIdEntry.getKey())
+                                    .append(AttributeConstants.SEPARATOR).append(sequenceId);
                     headers.put(ConfigConstants.SEQUENCE_ID, sidBuilder.toString());
                 }
 
@@ -468,8 +468,10 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
         headers.put(Constants.INLONG_GROUP_ID, proxyMessage.getGroupId());
         headers.put(Constants.INLONG_STREAM_ID, proxyMessage.getStreamId());
         headers.put(Constants.TOPIC, proxyMessage.getTopic());
-        headers.put(Constants.HEADER_KEY_MSG_TIME, commonHeaders.get(AttributeConstants.DATA_TIME));
-        headers.put(Constants.HEADER_KEY_SOURCE_IP, commonHeaders.get(AttributeConstants.NODE_IP));
+        headers.put(Constants.HEADER_KEY_MSG_TIME,
+                commonHeaders.get(AttributeConstants.DATA_TIME));
+        headers.put(Constants.HEADER_KEY_SOURCE_IP,
+                commonHeaders.get(AttributeConstants.NODE_IP));
         headers.put(ConfigConstants.MSG_ENCODE_VER, InLongMsgVer.INLONG_V1.getName());
         Event event = EventBuilder.withBody(proxyMessage.getData(), headers);
         return event;

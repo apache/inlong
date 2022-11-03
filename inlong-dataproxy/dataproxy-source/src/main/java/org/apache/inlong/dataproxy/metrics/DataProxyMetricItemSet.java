@@ -23,8 +23,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.common.metric.MetricDomain;
 import org.apache.inlong.common.metric.MetricItemSet;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 
 /**

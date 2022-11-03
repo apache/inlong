@@ -30,8 +30,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.exception.ErrorCode;
 import org.apache.inlong.dataproxy.exception.MessageIDException;
@@ -274,14 +275,14 @@ public class DefaultServiceDecoder implements ServiceDecoder {
             String groupId = commonAttrMap.get(AttributeConstants.GROUP_ID);
             String streamId = commonAttrMap.get(AttributeConstants.STREAM_ID);
             if ((groupId != null) && (streamId != null)) {
-                commonAttrMap.put(AttributeConstants.NUM2NAME, "FALSE");
+                commonAttrMap.put(AttrConstants.NUM2NAME, "FALSE");
                 dataBuf.putShort(BIN_MSG_EXTEND_OFFSET, (short) (extendField | 0x4));
             } else {
                 boolean hasNumGroupId = (((extendField & 0x4) >> 2) == 0x0);
                 if (hasNumGroupId && (0 != groupIdNum) && (0 != streamIdNum)) {
-                    commonAttrMap.put(AttributeConstants.NUM2NAME, "TRUE");
-                    commonAttrMap.put(AttributeConstants.GROUPID_NUM, String.valueOf(groupIdNum));
-                    commonAttrMap.put(AttributeConstants.STREAMID_NUM, String.valueOf(streamIdNum));
+                    commonAttrMap.put(AttrConstants.NUM2NAME, "TRUE");
+                    commonAttrMap.put(AttrConstants.GROUPID_NUM, String.valueOf(groupIdNum));
+                    commonAttrMap.put(AttrConstants.STREAMID_NUM, String.valueOf(streamIdNum));
                 }
             }
             // build ProxyMessage

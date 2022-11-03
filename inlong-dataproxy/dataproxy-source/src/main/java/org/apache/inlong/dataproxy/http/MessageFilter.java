@@ -19,7 +19,8 @@ package org.apache.inlong.dataproxy.http;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.ChannelException;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +71,7 @@ public class MessageFilter implements Filter {
         String groupId = req.getParameter(AttributeConstants.GROUP_ID);
         String streamId = req.getParameter(AttributeConstants.STREAM_ID);
         String dt = req.getParameter(AttributeConstants.DATA_TIME);
-        String body = req.getParameter(AttributeConstants.BODY);
+        String body = req.getParameter(AttrConstants.BODY);
 
         if (StringUtils.isEmpty(groupId)) {
             invalidKey = "groupId";

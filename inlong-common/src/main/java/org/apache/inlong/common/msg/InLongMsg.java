@@ -794,7 +794,7 @@ public class InLongMsg {
         boolean isUseNumGroupId = ((extField & 0x4) == 0x0);
         if (isUseNumGroupId) {
             commonAttrMap.put(AttributeConstants.GROUP_ID, String.valueOf(groupIdNum));
-            commonAttrMap.put(AttributeConstants.INTERFACE_ID, String.valueOf(streamIdNum));
+            commonAttrMap.put(AttributeConstants.STREAM_ID, String.valueOf(streamIdNum));
         }
 
         boolean hasOtherAttr = ((extField & 0x1) == 0x1);
