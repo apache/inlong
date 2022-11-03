@@ -191,7 +191,7 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
             binlogSplit.serializedFormCache = result;
             return result;
         } else {
-            final MysqlMetricSplit mysqlMetricSplit = split.asMetricSplit();
+            final MySqlMetricSplit mysqlMetricSplit = split.asMetricSplit();
             final DataOutputSerializer out = SERIALIZER_CACHE.get();
             out.writeInt(METRIC_SPLIT_FLAG);
             out.writeLong(mysqlMetricSplit.getNumBytesIn());
@@ -268,7 +268,7 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
         } else if (splitKind == METRIC_SPLIT_FLAG) {
             long numBytesIn = in.readLong();
             long numRecordsIn = in.readLong();
-            return new MysqlMetricSplit(numBytesIn, numRecordsIn);
+            return new MySqlMetricSplit(numBytesIn, numRecordsIn);
         } else {
             throw new IOException("Unknown split kind: " + splitKind);
         }

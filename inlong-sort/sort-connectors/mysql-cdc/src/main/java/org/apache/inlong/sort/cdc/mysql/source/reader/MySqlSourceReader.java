@@ -47,11 +47,11 @@ import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplitState;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlMetricSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplitState;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
-import org.apache.inlong.sort.cdc.mysql.source.split.MysqlMetricSplit;
 import org.apache.inlong.sort.cdc.mysql.source.utils.TableDiscoveryUtils;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
@@ -152,7 +152,7 @@ public class MySqlSourceReader<T>
         LOG.info("inlong-metric-states snapshot sourceMetricData:{}", sourceMetricData);
         if (sourceMetricData != null) {
             unfinishedSplits.add(
-                    new MysqlMetricSplit(sourceMetricData.getNumBytesIn().getCount(),
+                    new MySqlMetricSplit(sourceMetricData.getNumBytesIn().getCount(),
                             sourceMetricData.getNumRecordsIn().getCount()));
         }
         return unfinishedSplits;
@@ -185,7 +185,7 @@ public class MySqlSourceReader<T>
         for (MySqlSplit split : splits) {
             LOG.info("Add Split: " + split);
             if (split.isMetricSplit()) {
-                MysqlMetricSplit mysqlMetricSplit = (MysqlMetricSplit) split;
+                MySqlMetricSplit mysqlMetricSplit = (MySqlMetricSplit) split;
                 LOG.info("inlong-metric-states restore metricSplit:{}", mysqlMetricSplit);
                 sourceReaderMetrics.initMetrics(mysqlMetricSplit.getNumRecordsIn(),
                         mysqlMetricSplit.getNumBytesIn());

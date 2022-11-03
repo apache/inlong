@@ -23,7 +23,10 @@ import io.debezium.relational.history.TableChanges.TableChange;
 
 import java.util.Map;
 
-public class MysqlMetricSplit extends MySqlSplit {
+/**
+ * The split to describe a split of MySql metric.
+ */
+public class MySqlMetricSplit extends MySqlSplit {
 
     private Long numRecordsIn = 0L;
 
@@ -45,11 +48,11 @@ public class MysqlMetricSplit extends MySqlSplit {
         this.numBytesIn = numBytesIn;
     }
 
-    public MysqlMetricSplit(String splitId) {
+    public MySqlMetricSplit(String splitId) {
         super(splitId);
     }
 
-    public MysqlMetricSplit(Long numBytesIn, Long numRecordsIn) {
+    public MySqlMetricSplit(Long numBytesIn, Long numRecordsIn) {
         this("");
         this.numBytesIn = numBytesIn;
         this.numRecordsIn = numRecordsIn;
