@@ -149,9 +149,9 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
 
             // if the SerializationType is still null, set it to the CSV
             if (StringUtils.isEmpty(pulsarSource.getSerializationType())) {
-                pulsarSource.setSerializationType(DataTypeEnum.CSV.getName());
+                pulsarSource.setSerializationType(DataTypeEnum.CSV.getType());
             }
-            if (DataTypeEnum.CSV.getName().equalsIgnoreCase(pulsarSource.getSerializationType())) {
+            if (DataTypeEnum.CSV.getType().equalsIgnoreCase(pulsarSource.getSerializationType())) {
                 pulsarSource.setDataSeparator(streamInfo.getDataSeparator());
                 if (StringUtils.isEmpty(pulsarSource.getDataSeparator())) {
                     pulsarSource.setDataSeparator(String.valueOf((int) ','));

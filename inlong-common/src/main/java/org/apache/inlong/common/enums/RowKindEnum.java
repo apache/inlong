@@ -22,7 +22,9 @@ package org.apache.inlong.common.enums;
  */
 public enum RowKindEnum {
 
-    /** Insertion operation. */
+    /**
+     * Insertion operation.
+     */
     INSERT("+I", (byte) 0),
 
     /**
@@ -32,11 +34,12 @@ public enum RowKindEnum {
 
     /**
      * Update operation with new content of the updated row.
-     *
      */
     UPDATE_AFTER("+U", (byte) 2),
 
-    /** Deletion operation. */
+    /**
+     * Deletion operation.
+     */
     DELETE("-D", (byte) 3);
 
     private final String shortString;
@@ -50,6 +53,27 @@ public enum RowKindEnum {
     RowKindEnum(String shortString, byte value) {
         this.shortString = shortString;
         this.value = value;
+    }
+
+    /**
+     * Creates a {@link RowKindEnum} from the given byte value. Each {@link RowKindEnum} has a byte value
+     * representation.
+     *
+     * @see #toByteValue() for mapping of byte value and {@link RowKindEnum}.
+     */
+    public static RowKindEnum fromByteValue(byte value) {
+        switch (value) {
+            case 0:
+                return INSERT;
+            case 1:
+                return UPDATE_BEFORE;
+            case 2:
+                return UPDATE_AFTER;
+            case 3:
+                return DELETE;
+            default:
+                throw new UnsupportedOperationException("Unsupported byte value '" + value + "' for row kind.");
+        }
     }
 
     /**
@@ -81,28 +105,6 @@ public enum RowKindEnum {
      */
     public byte toByteValue() {
         return value;
-    }
-
-    /**
-     * Creates a {@link RowKindEnum} from the given byte value. Each {@link RowKindEnum} has a byte value
-     * representation.
-     *
-     * @see #toByteValue() for mapping of byte value and {@link RowKindEnum}.
-     */
-    public static RowKindEnum fromByteValue(byte value) {
-        switch (value) {
-            case 0:
-                return INSERT;
-            case 1:
-                return UPDATE_BEFORE;
-            case 2:
-                return UPDATE_AFTER;
-            case 3:
-                return DELETE;
-            default:
-                throw new UnsupportedOperationException(
-                    "Unsupported byte value '" + value + "' for row kind.");
-        }
     }
 
 }

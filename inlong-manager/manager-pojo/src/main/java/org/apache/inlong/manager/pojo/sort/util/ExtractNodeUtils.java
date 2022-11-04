@@ -172,7 +172,7 @@ public class ExtractNodeUtils {
         String topic = kafkaSource.getTopic();
         String bootstrapServers = kafkaSource.getBootstrapServers();
         Format format;
-        DataTypeEnum dataType = DataTypeEnum.forName(kafkaSource.getSerializationType());
+        DataTypeEnum dataType = DataTypeEnum.forType(kafkaSource.getSerializationType());
         switch (dataType) {
             case CSV:
                 format = new CsvFormat();
@@ -244,7 +244,7 @@ public class ExtractNodeUtils {
                 pulsarSource.getTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
 
         Format format;
-        DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
+        DataTypeEnum dataType = DataTypeEnum.forType(pulsarSource.getSerializationType());
         switch (dataType) {
             case CSV:
                 String separatorStr = pulsarSource.getDataSeparator();

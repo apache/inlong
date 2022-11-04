@@ -17,33 +17,36 @@
 
 package org.apache.inlong.common.enums;
 
-import lombok.Getter;
-
+/**
+ * Enum of inlong component type.
+ */
 public enum ComponentTypeEnum {
 
     Agent("AGENT"),
-
     DataProxy("DATAPROXY"),
-
     Cache("CACHE"),
-
     Sort("SORT"),
+    SDK("SDK"),
 
-    SDK("SDK");
+    ;
 
-    @Getter
-    private final String name;
+    private final String type;
 
-    ComponentTypeEnum(String name) {
-        this.name = name;
+    ComponentTypeEnum(String type) {
+        this.type = type;
     }
 
-    public static ComponentTypeEnum forName(String name) {
+    public static ComponentTypeEnum forType(String type) {
         for (ComponentTypeEnum componentType : values()) {
-            if (componentType.getName().equals(name)) {
+            if (componentType.getType().equals(type)) {
                 return componentType;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupport componentName for Inlong:%s", name));
+        throw new IllegalArgumentException("Unsupported component type for " + type);
     }
+
+    public String getType() {
+        return type;
+    }
+
 }

@@ -17,20 +17,21 @@
 
 package org.apache.inlong.common.enums;
 
-import static java.util.Objects.requireNonNull;
-
+/**
+ * Enum of operation type.
+ */
 public enum ManagerOpEnum {
+
     ADD(0), DEL(1), RETRY(2), BACKTRACK(3), FROZEN(4),
     ACTIVE(5), CHECK(6), REDOMETRIC(7), MAKEUP(8);
 
-    private int type;
+    private final int type;
 
     ManagerOpEnum(int type) {
         this.type = type;
     }
 
     public static ManagerOpEnum getOpType(int opType) {
-        requireNonNull(opType);
         switch (opType) {
             case 0:
                 return ADD;
@@ -51,7 +52,7 @@ public enum ManagerOpEnum {
             case 8:
                 return MAKEUP;
             default:
-                throw new RuntimeException("such op type doesn't exist");
+                throw new RuntimeException("Unsupported op type for " + opType);
         }
     }
 

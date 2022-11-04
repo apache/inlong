@@ -48,7 +48,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
     @Test
     void testGetComponent() {
         ComponentHeartbeatResponse response = ComponentHeartbeatResponse.builder()
-                .component(ComponentTypeEnum.Agent.getName())
+                .component(ComponentTypeEnum.Agent.getType())
                 .instance("127.0.0.1")
                 .build();
 
@@ -62,7 +62,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
         );
 
         HeartbeatQueryRequest request = new HeartbeatQueryRequest();
-        request.setComponent(ComponentTypeEnum.Agent.getName());
+        request.setComponent(ComponentTypeEnum.Agent.getType());
         request.setInstance("127.0.0.1");
         ComponentHeartbeatResponse result = heartbeatClient.getComponentHeartbeat(request);
         Assertions.assertEquals(request.getComponent(), result.getComponent());
@@ -72,7 +72,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
     @Test
     void testGetGroup() {
         GroupHeartbeatResponse response = new GroupHeartbeatResponse();
-        response.setComponent(ComponentTypeEnum.Agent.getName());
+        response.setComponent(ComponentTypeEnum.Agent.getType());
         response.setInstance("127.0.0.1");
         response.setInlongGroupId("test_group");
 
@@ -86,7 +86,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
         );
 
         HeartbeatQueryRequest request = new HeartbeatQueryRequest();
-        request.setComponent(ComponentTypeEnum.Agent.getName());
+        request.setComponent(ComponentTypeEnum.Agent.getType());
         request.setInstance("127.0.0.1");
         request.setInlongGroupId("test_group");
         GroupHeartbeatResponse result = heartbeatClient.getGroupHeartbeat(request);
@@ -98,7 +98,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
     @Test
     void testGetStream() {
         StreamHeartbeatResponse response = new StreamHeartbeatResponse();
-        response.setComponent(ComponentTypeEnum.Agent.getName());
+        response.setComponent(ComponentTypeEnum.Agent.getType());
         response.setInstance("127.0.0.1");
         response.setInlongGroupId("test_group");
         response.setInlongStreamId("test_stream");
@@ -113,7 +113,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
         );
 
         HeartbeatQueryRequest request = new HeartbeatQueryRequest();
-        request.setComponent(ComponentTypeEnum.Agent.getName());
+        request.setComponent(ComponentTypeEnum.Agent.getType());
         request.setInstance("127.0.0.1");
         request.setInlongGroupId("test_group");
         request.setInlongStreamId("test_stream");
@@ -128,7 +128,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
     void testListComponent() {
         List<ComponentHeartbeatResponse> responses = Lists.newArrayList(
                 ComponentHeartbeatResponse.builder()
-                        .component(ComponentTypeEnum.Agent.getName())
+                        .component(ComponentTypeEnum.Agent.getType())
                         .instance("127.0.0.1")
                         .build()
         );
@@ -144,7 +144,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
         );
 
         HeartbeatPageRequest request = new HeartbeatPageRequest();
-        request.setComponent(ComponentTypeEnum.Agent.getName());
+        request.setComponent(ComponentTypeEnum.Agent.getType());
         PageResult<ComponentHeartbeatResponse> pageResult = heartbeatClient.listComponentHeartbeat(request);
         Assertions.assertEquals(JsonUtils.toJsonString(responses),JsonUtils.toJsonString(pageResult.getList()));
     }
@@ -153,7 +153,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
     void testListGroup() {
         List<GroupHeartbeatResponse> responses = Lists.newArrayList(
                 GroupHeartbeatResponse.builder()
-                        .component(ComponentTypeEnum.Agent.getName())
+                        .component(ComponentTypeEnum.Agent.getType())
                         .instance("127.0.0.1")
                         .build()
         );
@@ -169,7 +169,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
         );
 
         HeartbeatPageRequest request = new HeartbeatPageRequest();
-        request.setComponent(ComponentTypeEnum.Agent.getName());
+        request.setComponent(ComponentTypeEnum.Agent.getType());
         PageResult<GroupHeartbeatResponse> pageResult = heartbeatClient.listGroupHeartbeat(request);
         Assertions.assertEquals(JsonUtils.toJsonString(responses),JsonUtils.toJsonString(pageResult.getList()));
     }
@@ -178,7 +178,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
     void testListStream() {
         List<StreamHeartbeatResponse> responses = Lists.newArrayList(
                 StreamHeartbeatResponse.builder()
-                        .component(ComponentTypeEnum.Agent.getName())
+                        .component(ComponentTypeEnum.Agent.getType())
                         .inlongGroupId("test_group")
                         .inlongStreamId("test_stream")
                         .instance("127.0.0.1")
@@ -196,7 +196,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
         );
 
         HeartbeatPageRequest request = new HeartbeatPageRequest();
-        request.setComponent(ComponentTypeEnum.Agent.getName());
+        request.setComponent(ComponentTypeEnum.Agent.getType());
         request.setInlongGroupId("test_group");
         PageResult<StreamHeartbeatResponse> pageResult = heartbeatClient.listStreamHeartbeat(request);
         Assertions.assertEquals(JsonUtils.toJsonString(responses),JsonUtils.toJsonString(pageResult.getList()));

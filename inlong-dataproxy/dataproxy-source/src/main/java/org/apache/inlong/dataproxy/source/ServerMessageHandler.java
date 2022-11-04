@@ -295,7 +295,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             if (commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                     || commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
                 commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
-                        DataProxyErrCode.UNSUPPORTED_EXTENDFIELD_VALUE.getErrCodeStr());
+                        DataProxyErrCode.UNSUPPORTED_EXTEND_FIELD_VALUE.getErrCodeStr());
                 MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
                 return;
