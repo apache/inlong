@@ -93,8 +93,7 @@ public enum OracleReadableMetaData {
             }),
 
     /**
-     * It indicates the time that the change was made in the database. If the record is read from
-     * snapshot of the table instead of the binlog, the value is always 0.
+     * It indicates the time that the change was made in the database.
      */
     OP_TS(
             "op_ts",
@@ -157,8 +156,7 @@ public enum OracleReadableMetaData {
             }),
 
     /**
-     * It indicates the time that the change was made in the database. If the record is read from
-     * snapshot of the table instead of the binlog, the value is always 0.
+     * It indicates the time that the change was made in the database.
      */
     META_OP_TS(
             "meta.op_ts",
@@ -357,17 +355,17 @@ public enum OracleReadableMetaData {
                     if (tableSchema == null) {
                         return null;
                     }
-                    Map<StringData, Integer> mysqlType = new HashMap<>();
+                    Map<StringData, Integer> sqlType = new HashMap<>();
                     final Table table = tableSchema.getTable();
                     table.columns()
                             .forEach(
                                     column -> {
-                                        mysqlType.put(
+                                        sqlType.put(
                                                 StringData.fromString(column.name()),
                                                 column.jdbcType());
                                     });
 
-                    return new GenericMapData(mysqlType);
+                    return new GenericMapData(sqlType);
                 }
             }),
 
@@ -488,16 +486,16 @@ public enum OracleReadableMetaData {
         if (tableSchema == null) {
             return null;
         }
-        Map<String, Integer> mysqlType = new LinkedHashMap<>();
+        Map<String, Integer> sqlType = new LinkedHashMap<>();
         final Table table = tableSchema.getTable();
         table.columns()
                 .forEach(
                         column -> {
-                            mysqlType.put(
+                            sqlType.put(
                                     column.name(),
                                     column.jdbcType());
                         });
-        return mysqlType;
+        return sqlType;
     }
 
     private static String getMetaData(SourceRecord record, String tableNameKey) {
