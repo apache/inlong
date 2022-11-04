@@ -48,7 +48,7 @@ import org.apache.kafka.connect.source.SourceRecord;
 public enum OracleReadableMetaData {
 
     /**
-     * Name of the table that contain the row. .
+     * Name of the table that contain the row.
      */
     META_TABLE_NAME(
             "meta.table_name",
@@ -63,7 +63,7 @@ public enum OracleReadableMetaData {
             }),
 
     /**
-     * Name of the schema that contain the row. .
+     * Name of the schema that contain the row.
      */
     META_SCHEMA_NAME(
             "meta.schema_name",
