@@ -163,4 +163,13 @@ public final class Constants {
                     .booleanType()
                     .defaultValue(true)
                     .withDescription("Whether ignore the single table erros when multiple sink writing scenario.");
+
+    public static final ConfigOption<Boolean> SINK_MULTIPLE_PK_AUTO_GENERATED =
+            ConfigOptions.key("sink.multiple.pk-auto-generated")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether generated pk fields as whole data when source table does not have a "
+                            + "primary key.");
+
+
 }
