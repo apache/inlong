@@ -30,7 +30,7 @@ export default class MySQLNode extends NodeInfo implements DataWithBackend, Rend
     type: 'input',
     rules: [{ required: true }],
   })
-  @I18n('meta.Nodes.MySQL.UserName')
+  @I18n('meta.Nodes.MySQL.Username')
   username: string;
 
   @FieldDecorator({

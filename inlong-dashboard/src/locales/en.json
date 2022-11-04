@@ -287,7 +287,7 @@
   "meta.Nodes.Hive.DataPathHelp": "Storage path of the DB, excluding the table name, such as: hdfs://127.0.0.1:9000/warehouse/inlong.db",
   "meta.Nodes.Hive.ConfDir": "ConfDir",
   "meta.Nodes.Hive.ConfDirHelp": "Upload the hive-site.xml file of the Hive cluster to a directory in HDFS, such as: /user/hive/conf",
-  "meta.Nodes.MySQL.UserName": "UserName",
+  "meta.Nodes.MySQL.Username": "Username",
   "meta.Nodes.MySQL.Password": "Password",
   "meta.Nodes.MySQL.Url": "URL",
   "meta.Nodes.MySQL.BackupUrl": "Backup URL",

@@ -287,7 +287,7 @@
   "meta.Nodes.Hive.DataPathHelp": "DB的存储路径，不包括表名，如：hdfs://127.0.0.1:9000/warehouse/inlong.db",
   "meta.Nodes.Hive.ConfDir": "配置路径",
   "meta.Nodes.Hive.ConfDirHelp": "将 Hive 集群的 hive-site.xml 文件上传到 HDFS 的某个目录下，如：/user/hive/conf",
-  "meta.Nodes.MySQL.UserName": "用户名",
+  "meta.Nodes.MySQL.Username": "用户名",
   "meta.Nodes.MySQL.Password": "密码",
   "meta.Nodes.MySQL.Url": "地址",
   "meta.Nodes.MySQL.BackupUrl": "备份地址",
