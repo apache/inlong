@@ -28,8 +28,10 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongStreamFieldEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity;
+import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceFieldEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -58,6 +60,8 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     protected StreamSourceEntityMapper sourceMapper;
     @Autowired
     protected StreamSourceFieldEntityMapper sourceFieldMapper;
+    @Autowired
+    protected InlongStreamFieldEntityMapper streamFieldMapper;
 
     /**
      * Getting the source type.
@@ -121,7 +125,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
 
         if (SourceType.AUTO_PUSH.equals(entity.getSourceType())) {
-            LOGGER.warn("auto push source {} can not be updated", entity.getSourceName());
+            updateFieldOpt(entity, request.getFieldList());
             return;
         }
 
@@ -238,12 +242,32 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             return;
         }
 
-        // First physically delete the existing fields
+        // Stream source fields
         sourceFieldMapper.deleteAll(sourceId);
-        // Then batch save the source fields
         this.saveFieldOpt(entity, fieldInfos);
 
+        // InLong stream fields
+        String groupId = entity.getInlongGroupId();
+        String streamId = entity.getInlongStreamId();
+        streamFieldMapper.deleteAllByIdentifier(groupId, streamId);
+        saveStreamField(groupId, streamId, fieldInfos);
+
         LOGGER.info("success to update source fields");
+    }
+
+    void saveStreamField(String groupId, String streamId, List<StreamField> infoList) {
+        if (CollectionUtils.isEmpty(infoList)) {
+            return;
+        }
+        infoList.forEach(streamField -> streamField.setId(null));
+        List<InlongStreamFieldEntity> list = CommonBeanUtils.copyListProperties(infoList,
+                InlongStreamFieldEntity::new);
+        for (InlongStreamFieldEntity entity : list) {
+            entity.setInlongGroupId(groupId);
+            entity.setInlongStreamId(streamId);
+            entity.setIsDeleted(InlongConstants.UN_DELETED);
+        }
+        streamFieldMapper.insertAll(list);
     }
 
     private void saveFieldOpt(StreamSourceEntity entity, List<StreamField> fieldInfos) {
