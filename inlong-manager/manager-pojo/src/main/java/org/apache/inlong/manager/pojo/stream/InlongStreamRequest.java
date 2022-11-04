@@ -20,6 +20,7 @@ package org.apache.inlong.manager.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -31,8 +32,9 @@ import java.util.List;
  * Inlong stream request.
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong stream request")
-public class InlongStreamRequest {
+public class InlongStreamRequest extends BaseInlongStream {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;

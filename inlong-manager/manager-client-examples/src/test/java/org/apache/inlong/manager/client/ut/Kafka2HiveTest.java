@@ -206,66 +206,43 @@ class Kafka2HiveTest extends BaseTest {
                         )
         );
 
+        InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
+        pulsarInfo.setId(8);
+        pulsarInfo.setInlongGroupId("test_group009");
+        pulsarInfo.setMqResource("test_namespace");
+        pulsarInfo.setEnableZookeeper(0);
+        pulsarInfo.setEnableCreateResource(1);
+        pulsarInfo.setLightweight(1);
+        pulsarInfo.setInlongClusterTag("default_cluster");
+        pulsarInfo.setInCharges("test_inCharges,admin");
+        pulsarInfo.setStatus(130);
+        pulsarInfo.setCreator("admin");
+        pulsarInfo.setModifier("admin");
+        pulsarInfo.setQueueModule("PARALLEL");
+        pulsarInfo.setPartitionNum(3);
+        pulsarInfo.setEnsemble(3);
+        pulsarInfo.setWriteQuorum(3);
+        pulsarInfo.setTtl(24);
+        pulsarInfo.setRetentionTime(72);
+        pulsarInfo.setRetentionSize(-1);
+
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/group/get/test_group009.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(
-                                        InlongPulsarInfo.builder()
-                                                .id(8)
-                                                .inlongGroupId("test_group009")
-                                                .mqType("PULSAR")
-                                                .mqResource("test_namespace")
-                                                .enableZookeeper(0)
-                                                .enableCreateResource(1)
-                                                .lightweight(1)
-                                                .inlongClusterTag("default_cluster")
-                                                .inCharges("test_inCharges,admin")
-                                                .dailyRecords(10000000)
-                                                .dailyStorage(10000)
-                                                .peakRecords(100000)
-                                                .maxLength(10000)
-                                                .status(120)
-                                                .creator("admin")
-                                                .modifier("admin")
-                                                .createTime(new Date())
-                                                .modifyTime(new Date())
-                                                .extList(new ArrayList<>())
-                                                .queueModule("PARALLEL")
-                                                .partitionNum(3)
-                                                .ensemble(3)
-                                                .writeQuorum(3)
-                                                .ttl(24)
-                                                .ttlUnit("hours")
-                                                .retentionTime(72)
-                                                .retentionTimeUnit("hours")
-                                                .retentionSize(-1)
-                                                .retentionSizeUnit("MB")
-                                                .build()
-                                )))
+                                okJson(JsonUtils.toJsonString(Response.success(pulsarInfo)))
                         )
         );
 
-        InlongStreamInfo streamInfo = InlongStreamInfo.builder()
-                .id(8)
-                .inlongGroupId(GROUP_ID)
-                .inlongStreamId(STREAM_ID)
-                .name(STREAM_ID)
-                .mqResource("test_topic")
-                .dataEncoding("UTF-8")
-                .dataSeparator("|")
-                .syncSend(1)
-                .dailyRecords(10)
-                .dailyStorage(10)
-                .peakRecords(1000)
-                .maxLength(10240)
-                .storagePeriod(1)
-                .status(120)
-                .creator("admin")
-                .modifier("admin")
-                .createTime(new Date())
-                .modifyTime(new Date())
-                .fieldList(createStreamFields())
-                .build();
+        InlongStreamInfo streamInfo = new InlongStreamInfo();
+        streamInfo.setId(8);
+        streamInfo.setInlongGroupId(GROUP_ID);
+        streamInfo.setInlongStreamId(STREAM_ID);
+        streamInfo.setMqResource("test_topic");
+        streamInfo.setSyncSend(1);
+        streamInfo.setStatus(130);
+        streamInfo.setCreator("admin");
+        streamInfo.setModifier("admin");
+        streamInfo.setFieldList(createStreamFields());
 
         ArrayList<StreamSource> kafkaSources = Lists.newArrayList(
                 KafkaSource.builder()
