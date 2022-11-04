@@ -47,9 +47,11 @@ import org.apache.kafka.connect.source.SourceRecord;
 /** Defines the supported metadata columns for {@link OracleTableSource}. */
 public enum OracleReadableMetaData {
 
-    /** Name of the table that contain the row. */
-    TABLE_NAME(
-            "table_name",
+    /**
+     * Name of the table that contain the row. .
+     */
+    META_TABLE_NAME(
+            "meta.table_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
                 private static final long serialVersionUID = 1L;
@@ -59,9 +61,12 @@ public enum OracleReadableMetaData {
                     return StringData.fromString(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
                 }
             }),
-    /** Name of the schema that contain the row. */
-    SCHEMA_NAME(
-            "schema_name",
+
+    /**
+     * Name of the schema that contain the row. .
+     */
+    META_SCHEMA_NAME(
+            "meta.schema_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
                 private static final long serialVersionUID = 1L;
@@ -72,9 +77,11 @@ public enum OracleReadableMetaData {
                 }
             }),
 
-    /** Name of the database that contain the row. */
-    DATABASE_NAME(
-            "database_name",
+    /**
+     * Name of the database that contain the row.
+     */
+    META_DATABASE_NAME(
+            "meta.database_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
                 private static final long serialVersionUID = 1L;
@@ -87,18 +94,18 @@ public enum OracleReadableMetaData {
 
     /**
      * It indicates the time that the change was made in the database. If the record is read from
-     * snapshot of the table instead of the change stream, the value is always 0.
+     * snapshot of the table instead of the binlog, the value is always 0.
      */
-    OP_TS(
-            "op_ts",
-            DataTypes.TIMESTAMP_LTZ(3).notNull(),
+    META_OP_TS(
+            "meta.op_ts",
+            DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
             new MetadataConverter() {
                 private static final long serialVersionUID = 1L;
 
                 @Override
                 public Object read(SourceRecord record) {
                     Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(Envelope.FieldName.SOURCE);
+                    Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
                     return TimestampData.fromEpochMillis(
                             (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
                 }
@@ -137,55 +144,6 @@ public enum OracleReadableMetaData {
                 public Object read(SourceRecord record,
                         @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
                     return getCanalData(record, tableSchema, (GenericRowData) rowData);
-                }
-            }),
-
-    /**
-     * Name of the table that contain the row. .
-     */
-    META_TABLE_NAME(
-            "meta.table_name",
-            DataTypes.STRING().notNull(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
-                }
-            }),
-
-    /**
-     * Name of the database that contain the row.
-     */
-    META_DATABASE_NAME(
-            "meta.database_name",
-            DataTypes.STRING().notNull(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY));
-                }
-            }),
-
-    /**
-     * It indicates the time that the change was made in the database. If the record is read from
-     * snapshot of the table instead of the binlog, the value is always 0.
-     */
-    META_OP_TS(
-            "meta.op_ts",
-            DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    Struct messageStruct = (Struct) record.value();
-                    Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
-                    return TimestampData.fromEpochMillis(
-                            (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
                 }
             }),
 
@@ -260,8 +218,8 @@ public enum OracleReadableMetaData {
                 }
             }),
 
-    MYSQL_TYPE(
-            "meta.mysql_type",
+    ORACLE_TYPE(
+            "meta.oracle_type",
             DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable(),
             new MetadataConverter() {
                 private static final long serialVersionUID = 1L;
@@ -274,24 +232,11 @@ public enum OracleReadableMetaData {
                 @Override
                 public Object read(
                         SourceRecord record, @Nullable TableChanges.TableChange tableSchema) {
-                    if (tableSchema == null) {
+                    Map<String, String> oracleType = getOracleType(tableSchema);
+                    if (oracleType == null) {
                         return null;
                     }
-                    Map<StringData, StringData> mysqlType = new HashMap<>();
-                    final Table table = tableSchema.getTable();
-                    table.columns()
-                            .forEach(
-                                    column -> {
-                                        mysqlType.put(
-                                                StringData.fromString(column.name()),
-                                                StringData.fromString(
-                                                        String.format(
-                                                                "%s(%d)",
-                                                                column.typeName(),
-                                                                column.length())));
-                                    });
-
-                    return new GenericMapData(mysqlType);
+                    return new GenericMapData(oracleType);
                 }
             }),
 
