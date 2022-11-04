@@ -95,6 +95,9 @@ public interface Metadata {
             case SQL_TYPE:
                 metadataType = "MAP<STRING, INT>";
                 break;
+            case MYSQL_TYPE:
+                metadataType = "MAP<STRING, STRING>";
+                break;
             case ORACLE_TYPE:
                 metadataType = "MAP<STRING, STRING>";
                 break;

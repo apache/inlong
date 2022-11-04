@@ -50,6 +50,70 @@ public enum OracleReadableMetaData {
     /**
      * Name of the table that contain the row.
      */
+    TABLE_NAME(
+            "table_name",
+            DataTypes.STRING().notNull(),
+            new MetadataConverter() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.TABLE_NAME_KEY));
+                }
+            }),
+
+    /**
+     * Name of the schema that contain the row.
+     */
+    SCHEMA_NAME(
+            "schema_name",
+            DataTypes.STRING().notNull(),
+            new MetadataConverter() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.SCHEMA_NAME_KEY));
+                }
+            }),
+
+    /**
+     * Name of the database that contain the row.
+     */
+    DATABASE_NAME(
+            "database_name",
+            DataTypes.STRING().notNull(),
+            new MetadataConverter() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    return StringData.fromString(getMetaData(record, AbstractSourceInfo.DATABASE_NAME_KEY));
+                }
+            }),
+
+    /**
+     * It indicates the time that the change was made in the database. If the record is read from
+     * snapshot of the table instead of the binlog, the value is always 0.
+     */
+    OP_TS(
+            "op_ts",
+            DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
+            new MetadataConverter() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Object read(SourceRecord record) {
+                    Struct messageStruct = (Struct) record.value();
+                    Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
+                    return TimestampData.fromEpochMillis(
+                            (Long) sourceStruct.get(AbstractSourceInfo.TIMESTAMP_KEY));
+                }
+            }),
+
+    /**
+     * Name of the table that contain the row.
+     */
     META_TABLE_NAME(
             "meta.table_name",
             DataTypes.STRING().notNull(),
