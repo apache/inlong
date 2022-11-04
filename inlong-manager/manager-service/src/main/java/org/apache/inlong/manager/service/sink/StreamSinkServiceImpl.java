@@ -47,9 +47,11 @@ import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
+import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,6 +80,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkEntityMapper sinkMapper;
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired
+    private AutowireCapableBeanFactory autowireCapableBeanFactory;
+
+    // To avoid circular dependencies, you cannot use @Autowired, it will be injected by AutowireCapableBeanFactory
+    private InlongStreamProcessService streamProcessOperation;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -117,6 +124,15 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             StreamSinkEntity sinkEntity = sinkMapper.selectByPrimaryKey(id);
             sinkEntity.setStatus(nextStatus.getCode());
             sinkMapper.updateStatus(sinkEntity);
+        }
+        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
+        if (streamSuccess) {
+            // To work around the circular reference check we manually instantiate and wire
+            if (streamProcessOperation == null) {
+                streamProcessOperation = new InlongStreamProcessService();
+                autowireCapableBeanFactory.autowireBean(streamProcessOperation);
+            }
+            streamProcessOperation.startProcess(groupId, streamId, operator, false);
         }
         LOGGER.info("success to save sink info: {}", request);
         return id;
@@ -238,6 +254,15 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
         sinkOperator.updateOpt(request, nextStatus, operator);
 
+        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
+        if (streamSuccess) {
+            // To work around the circular reference check we manually instantiate and wire
+            if (streamProcessOperation == null) {
+                streamProcessOperation = new InlongStreamProcessService();
+                autowireCapableBeanFactory.autowireBean(streamProcessOperation);
+            }
+            streamProcessOperation.startProcess(groupId, streamId, operator, false);
+        }
         LOGGER.info("success to update sink by id: {}", request);
         return true;
     }
