@@ -23,10 +23,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 
@@ -37,12 +36,12 @@ import java.util.List;
  * Inlong group info
  */
 @Data
-@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong group info")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
-public abstract class InlongGroupInfo {
+public abstract class InlongGroupInfo extends BaseInlongGroup {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -68,7 +67,6 @@ public abstract class InlongGroupInfo {
     private String mqResource;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
-    @Builder.Default
     private Integer enableZookeeper = 0;
 
     @ApiModelProperty(value = "Whether to enable create resource? 0: disable, 1: enable")
