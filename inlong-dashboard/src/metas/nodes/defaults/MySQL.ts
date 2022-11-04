@@ -17,10 +17,10 @@
  * under the License.
  */
 
+import { DataWithBackend } from '@/metas/DataWithBackend';
 import { RenderRow } from '@/metas/RenderRow';
 import { RenderList } from '@/metas/RenderList';
 import { NodeInfo } from '../common/NodeInfo';
-import { DataWithBackend } from '@/metas/DataWithBackend';
 
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
