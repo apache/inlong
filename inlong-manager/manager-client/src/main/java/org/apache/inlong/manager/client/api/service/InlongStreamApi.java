@@ -64,5 +64,5 @@ public interface InlongStreamApi {
     Call<Response<Boolean>> deleteProcess(@Path("groupId") String groupId, @Path("streamId") String streamId);
 
     @DELETE("stream/delete")
-    Call<Response<Boolean>> delete(@Path("groupId") String groupId, @Path("streamId") String streamId);
+    Call<Response<Boolean>> delete(@Query("groupId") String groupId, @Query("streamId") String streamId);
 }
