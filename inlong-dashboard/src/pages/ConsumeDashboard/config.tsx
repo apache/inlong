@@ -17,12 +17,12 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button } from 'antd';
 import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, ConsumeMetaType } from '@/metas';
 import { statusList, lastConsumerStatusList } from '@/metas/consumes/common/status';
 
 export const dashCardList = [
@@ -84,36 +84,42 @@ export const getFilterFormContent = defaultValues => [
 export const useColumns = ({ onDelete }) => {
   const { defaultValue } = useDefaultMeta('consume');
 
-  const { Entity } = useLoadMeta('consume', defaultValue);
+  const { Entity } = useLoadMeta<ConsumeMetaType>('consume', defaultValue);
+
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
 
   const genCreateUrl = record => `/consume/create/${record.id}`;
   const genDetailUrl = record =>
     [0, 10].includes(record.status) ? genCreateUrl(record) : `/consume/detail/${record.id}`;
 
-  return Entity?.ColumnList?.map(item => {
-    if (item.dataIndex === 'consumerGroup') {
-      return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
-    }
-    return item;
-  }).concat([
-    {
-      title: i18n.t('basic.Operating'),
-      dataIndex: 'action',
-      render: (text, record) => (
-        <>
-          <Button type="link">
-            <Link to={genDetailUrl(record)}>{i18n.t('basic.Detail')}</Link>
-          </Button>
-          {[20, 22].includes(record?.status) && (
+  return entityColumns
+    ?.map(item => {
+      if (item.dataIndex === 'consumerGroup') {
+        return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
+      }
+      return item;
+    })
+    .concat([
+      {
+        title: i18n.t('basic.Operating'),
+        dataIndex: 'action',
+        render: (text, record) => (
+          <>
             <Button type="link">
-              <Link to={genCreateUrl(record)}>{i18n.t('basic.Edit')}</Link>
+              <Link to={genDetailUrl(record)}>{i18n.t('basic.Detail')}</Link>
             </Button>
-          )}
-          <Button type="link" onClick={() => onDelete(record)}>
-            {i18n.t('basic.Delete')}
-          </Button>
-        </>
-      ),
-    },
-  ]);
+            {[20, 22].includes(record?.status) && (
+              <Button type="link">
+                <Link to={genCreateUrl(record)}>{i18n.t('basic.Edit')}</Link>
+              </Button>
+            )}
+            <Button type="link" onClick={() => onDelete(record)}>
+              {i18n.t('basic.Delete')}
+            </Button>
+          </>
+        ),
+      },
+    ]);
 };

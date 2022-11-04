@@ -23,7 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import i18n from '@/i18n';
-import { useLoadMeta, useDefaultMeta } from '@/metas';
+import { useLoadMeta, useDefaultMeta, StreamMetaType } from '@/metas';
 import request from '@/utils/request';
 import { dataToValues, valuesToData } from './helper';
 
@@ -39,11 +39,15 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
 
   const { defaultValue } = useDefaultMeta('stream');
 
-  const { Entity } = useLoadMeta('stream', defaultValue);
+  const { Entity } = useLoadMeta<StreamMetaType>('stream', defaultValue);
+
+  const entityFields = useMemo(() => {
+    return Entity ? new Entity().renderRow() : [];
+  }, [Entity]);
 
   const formContent = useMemo(() => {
     return [
-      ...(Entity?.FieldList || []),
+      ...(entityFields || []),
       {
         type: 'inputnumber',
         label: i18n.t('meta.Group.TubeMq.NumberOfAccess'),
@@ -102,7 +106,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
 
       return obj;
     });
-  }, [Entity?.FieldList, mqType, inlongStreamId]);
+  }, [entityFields, mqType, inlongStreamId]);
 
   const { data: savedData, run: getStreamData } = useRequest(
     {

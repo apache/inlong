@@ -17,15 +17,19 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Divider, Table } from 'antd';
 import i18n from '@/i18n';
-import { useLoadMeta } from '@/metas';
+import { useLoadMeta, GroupMetaType } from '@/metas';
 
 export const useGroupFormContent = ({ mqType = '', isFinished, isViwer }) => {
-  const { Entity } = useLoadMeta('group', mqType);
+  const { Entity } = useLoadMeta<GroupMetaType>('group', mqType);
 
-  return Entity?.FieldList?.map(item => {
+  const entityFields = useMemo(() => {
+    return Entity ? new Entity().renderRow() : [];
+  }, [Entity]);
+
+  return entityFields?.map(item => {
     const obj = { ...item };
 
     const canEditSet = new Set([

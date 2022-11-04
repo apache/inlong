@@ -22,7 +22,7 @@ import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, SourceMetaType } from '@/metas';
 import DetailModal from './DetailModal';
 import i18n from '@/i18n';
 import request from '@/utils/request';
@@ -108,7 +108,15 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     total: data?.total,
   };
 
-  const { Entity } = useLoadMeta('source', options.sourceType);
+  const { Entity } = useLoadMeta<SourceMetaType>('source', options.sourceType);
+
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
+
+  const entityFields = useMemo(() => {
+    return Entity ? new Entity().renderRow() : [];
+  }, [Entity]);
 
   const getFilterFormContent = useCallback(
     defaultValues =>
@@ -122,19 +130,17 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
           },
         },
       ].concat(
-        pickObjectArray(['sourceType', 'status'], Entity?.FieldList).map(item => ({
+        pickObjectArray(['sourceType', 'status'], entityFields).map(item => ({
           ...item,
           visible: true,
           initialValue: defaultValues[item.name],
         })),
       ),
-    [Entity?.FieldList],
+    [entityFields],
   );
 
   const columns = useMemo(() => {
-    if (!Entity) return [];
-
-    return Entity.ColumnList?.concat([
+    return entityColumns?.concat([
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
@@ -153,7 +159,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
           ),
       },
     ]);
-  }, [Entity, onDelete, onEdit, readonly]);
+  }, [entityColumns, onDelete, onEdit, readonly]);
 
   return (
     <>

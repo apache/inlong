@@ -23,7 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, SinkMetaType } from '@/metas';
 import request from '@/utils/request';
 
 export interface DetailModalProps extends ModalProps {
@@ -45,7 +45,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
   // A: Avoid the table of the fields triggering the monitoring of the column change.
   const [sinkType, setSinkType] = useState('');
 
-  const { Entity } = useLoadMeta('sink', sinkType);
+  const { Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
 
   const {
     data,
@@ -81,7 +81,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
   }, [modalProps.visible]);
 
   const formContent = useMemo(() => {
-    return Entity ? Entity.FieldList : [];
+    return Entity ? new Entity().renderRow() : [];
   }, [Entity]);
 
   const onOk = async () => {
