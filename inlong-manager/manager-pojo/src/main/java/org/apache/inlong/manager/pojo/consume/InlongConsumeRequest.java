@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 
@@ -32,11 +33,12 @@ import javax.validation.constraints.NotNull;
  * Base inlong consume request
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Base inlong consume request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
-public abstract class InlongConsumeRequest {
+public abstract class InlongConsumeRequest extends BaseInlongConsume {
 
     @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
