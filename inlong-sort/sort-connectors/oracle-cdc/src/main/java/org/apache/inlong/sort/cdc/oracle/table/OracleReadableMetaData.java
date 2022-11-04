@@ -225,23 +225,6 @@ public enum OracleReadableMetaData {
             }),
 
     /**
-     * Not important, a simple increment counter.
-     */
-    BATCH_ID(
-            "meta.batch_id",
-            DataTypes.BIGINT().nullable(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
-
-                private long id = 0;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    return id++;
-                }
-            }),
-
-    /**
      * Source does not emit ddl data.
      */
     IS_DDL(
@@ -253,30 +236,6 @@ public enum OracleReadableMetaData {
                 @Override
                 public Object read(SourceRecord record) {
                     return false;
-                }
-            }),
-
-    /**
-     * The update-before data for UPDATE record.
-     */
-    OLD(
-            "meta.update_before",
-            DataTypes.ARRAY(
-                            DataTypes.MAP(
-                                            DataTypes.STRING().nullable(),
-                                            DataTypes.STRING().nullable())
-                                    .nullable())
-                    .nullable(),
-            new MetadataConverter() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public Object read(SourceRecord record) {
-                    final Envelope.Operation op = Envelope.operationFor(record);
-                    if (op != Envelope.Operation.UPDATE) {
-                        return null;
-                    }
-                    return record;
                 }
             }),
 

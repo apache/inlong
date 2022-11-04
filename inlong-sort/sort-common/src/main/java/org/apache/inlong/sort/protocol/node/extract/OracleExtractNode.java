@@ -152,8 +152,7 @@ public class OracleExtractNode extends ExtractNode implements InlongMetric, Meta
         return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
                 MetaField.SCHEMA_NAME, MetaField.OP_TS, MetaField.OP_TYPE, MetaField.DATA, MetaField.DATA_BYTES,
                 MetaField.DATA_CANAL, MetaField.DATA_BYTES_CANAL, MetaField.IS_DDL, MetaField.TS,
-                MetaField.SQL_TYPE, MetaField.ORACLE_TYPE, MetaField.PK_NAMES, MetaField.BATCH_ID,
-                MetaField.UPDATE_BEFORE);
+                MetaField.SQL_TYPE, MetaField.ORACLE_TYPE, MetaField.PK_NAMES);
     }
 
     @Override
@@ -197,12 +196,6 @@ public class OracleExtractNode extends ExtractNode implements InlongMetric, Meta
                 break;
             case PK_NAMES:
                 metadataKey = "meta.pk_names";
-                break;
-            case BATCH_ID:
-                metadataKey = "meta.batch_id";
-                break;
-            case UPDATE_BEFORE:
-                metadataKey = "meta.update_before";
                 break;
             default:
                 throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",

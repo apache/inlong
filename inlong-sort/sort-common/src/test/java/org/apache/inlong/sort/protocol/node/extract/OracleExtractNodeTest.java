@@ -64,8 +64,6 @@ public class OracleExtractNodeTest extends SerializeBaseTest<OracleExtractNode> 
         formatMap.put(MetaField.SQL_TYPE, "MAP<STRING, INT> METADATA FROM 'meta.sql_type' VIRTUAL");
         formatMap.put(MetaField.ORACLE_TYPE, "MAP<STRING, STRING> METADATA FROM 'meta.oracle_type' VIRTUAL");
         formatMap.put(MetaField.PK_NAMES, "ARRAY<STRING> METADATA FROM 'meta.pk_names' VIRTUAL");
-        formatMap.put(MetaField.BATCH_ID, "BIGINT METADATA FROM 'meta.batch_id' VIRTUAL");
-        formatMap.put(MetaField.UPDATE_BEFORE, "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL");
         OracleExtractNode node = getTestObject();
         boolean formatEquals = true;
         for (MetaField metaField : node.supportedMetaFields()) {
