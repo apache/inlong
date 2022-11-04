@@ -29,6 +29,7 @@ import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
 import io.debezium.time.ZonedTimestamp;
+import java.time.ZonedDateTime;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericRowData;
@@ -81,6 +82,7 @@ public final class RowDataDebeziumDeserializeSchema
 
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
 
+    private static final ZoneId ZONE_UTC = ZoneId.of("UTC");
     /**
      * TypeInformation of the produced {@link RowData}. *
      */
@@ -634,12 +636,13 @@ public final class RowDataDebeziumDeserializeSchema
                 fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
                 break;
             case ZonedTimestamp.SCHEMA_NAME:
-                // by default the field value is zoned timestamp, no need to convert
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
+                fieldValue = zonedDateTime.withZoneSameInstant(serverTimeZone).toLocalDateTime()
+                    .atZone(ZONE_UTC).format(DateTimeFormatter.ISO_INSTANT);
                 break;
             case Timestamp.SCHEMA_NAME:
                 Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
-                fieldValue = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.ofInstant(instantTime,
-                        serverTimeZone));
+                fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
                 break;
             case Decimal.LOGICAL_NAME:
                 // no need to transfer decimal type since the value is already decimal
