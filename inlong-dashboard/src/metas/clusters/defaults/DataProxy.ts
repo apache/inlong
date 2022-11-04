@@ -18,6 +18,10 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import { ClusterInfo } from '../common/ClusterInfo';
 
-export default class DataProxyCluster extends ClusterInfo implements DataWithBackend {}
+export default class DataProxyCluster
+  extends ClusterInfo
+  implements DataWithBackend, RenderRow, RenderList {}

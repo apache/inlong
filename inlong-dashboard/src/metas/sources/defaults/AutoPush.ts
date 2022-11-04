@@ -18,6 +18,10 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import { SourceInfo } from '../common/SourceInfo';
 
-export default class AutoPushSource extends SourceInfo implements DataWithBackend {}
+export default class AutoPushSource
+  extends SourceInfo
+  implements DataWithBackend, RenderRow, RenderList {}

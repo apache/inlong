@@ -19,12 +19,18 @@
 
 import i18n from '@/i18n';
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import { ClusterInfo } from '../common/ClusterInfo';
 
-const { I18n, FormField } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
 
-export default class PulsarCluster extends ClusterInfo implements DataWithBackend {
-  @FormField({
+export default class PulsarCluster
+  extends ClusterInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('pages.Clusters.Pulsar.ServiceUrlHelper'),
     rules: [{ required: true }],
@@ -35,7 +41,7 @@ export default class PulsarCluster extends ClusterInfo implements DataWithBacken
   @I18n('Service URL')
   url: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('pages.Clusters.Pulsar.AdminUrlHelper'),
     rules: [{ required: true }],
@@ -46,7 +52,7 @@ export default class PulsarCluster extends ClusterInfo implements DataWithBacken
   @I18n('Admin URL')
   adminUrl: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     initialValue: 'public',
@@ -54,7 +60,7 @@ export default class PulsarCluster extends ClusterInfo implements DataWithBacken
   @I18n('pages.Clusters.Pulsar.Tenant')
   tenant: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     props: {
       placeholder: 'Required if the cluster is configured with Token',

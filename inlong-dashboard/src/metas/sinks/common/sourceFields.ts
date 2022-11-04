@@ -40,7 +40,7 @@ export const sourceFields: ColumnsItemProps[] = [
       },
     ],
     props: (text, record, idx, isNew) => ({
-      disabled: text && !isNew,
+      disabled: Boolean(record?.id),
     }),
   },
   {
@@ -50,7 +50,7 @@ export const sourceFields: ColumnsItemProps[] = [
     type: 'select',
     rules: [{ required: true }],
     props: (text, record, idx, isNew) => ({
-      disabled: text && !isNew,
+      disabled: Boolean(record?.id),
       options: fieldTypes,
     }),
   },

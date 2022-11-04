@@ -18,17 +18,25 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { fieldTypes as sourceFieldsTypes } from '@/metas/sinks/common/sourceFields';
 import { statusList, genStatusTag } from './status';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18nMap, I18n } = DataWithBackend;
+const { FieldList, FieldDecorator } = RenderRow;
+const { ColumnList, ColumnDecorator } = RenderList;
 
-export class StreamDefaultInfo extends DataWithBackend {
+export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList {
+  static I18nMap = I18nMap;
+  static FieldList = FieldList;
+  static ColumnList = ColumnList;
+
   readonly id: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     props: {
       maxLength: 32,
@@ -41,18 +49,18 @@ export class StreamDefaultInfo extends DataWithBackend {
       },
     ],
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Stream.StreamId')
   inlongStreamId: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Stream.StreamName')
   name: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'textarea',
     props: {
       showCount: true,
@@ -62,15 +70,15 @@ export class StreamDefaultInfo extends DataWithBackend {
   @I18n('meta.Stream.Description')
   description: string;
 
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('basic.Creator')
   readonly creator: string;
 
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('basic.CreateTime')
   readonly createTime: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     props: {
       allowClear: true,
@@ -79,13 +87,13 @@ export class StreamDefaultInfo extends DataWithBackend {
     },
     visible: false,
   })
-  @TableColumn({
+  @ColumnDecorator({
     render: text => genStatusTag(text),
   })
   @I18n('basic.Status')
   status: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     initialValue: 'CSV',
     tooltip: i18n.t('meta.Stream.DataTypeHelp'),
@@ -106,7 +114,7 @@ export class StreamDefaultInfo extends DataWithBackend {
   @I18n('meta.Stream.DataType')
   dataType: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     initialValue: 'UTF-8',
     props: {
@@ -126,7 +134,7 @@ export class StreamDefaultInfo extends DataWithBackend {
   @I18n('meta.Stream.DataEncoding')
   dataEncoding: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     initialValue: '124',
     props: {
@@ -176,7 +184,7 @@ export class StreamDefaultInfo extends DataWithBackend {
   @I18n('meta.Stream.DataSeparator')
   dataSeparator: string;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     props: {
       size: 'small',
@@ -218,5 +226,15 @@ export class StreamDefaultInfo extends DataWithBackend {
 
   stringify(data) {
     return data;
+  }
+
+  renderRow() {
+    const constructor = this.constructor as typeof StreamDefaultInfo;
+    return constructor.FieldList;
+  }
+
+  renderList() {
+    const constructor = this.constructor as typeof StreamDefaultInfo;
+    return constructor.ColumnList;
   }
 }

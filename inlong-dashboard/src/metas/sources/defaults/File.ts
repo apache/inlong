@@ -18,14 +18,21 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import rulesPattern from '@/utils/pattern';
 import { SourceInfo } from '../common/SourceInfo';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
-export default class PulsarSource extends SourceInfo implements DataWithBackend {
-  @FormField({
+export default class PulsarSource
+  extends SourceInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'input',
     rules: [
       {
@@ -38,11 +45,11 @@ export default class PulsarSource extends SourceInfo implements DataWithBackend 
       disabled: values?.status === 101,
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sources.File.DataSourceIP')
   agentIp: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sources.File.FilePathHelp'),
     rules: [{ required: true }],
@@ -50,11 +57,11 @@ export default class PulsarSource extends SourceInfo implements DataWithBackend 
       disabled: values?.status === 101,
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sources.File.FilePath')
   pattern: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     tooltip: i18n.t('meta.Sources.File.TimeOffsetHelp'),
     props: values => ({

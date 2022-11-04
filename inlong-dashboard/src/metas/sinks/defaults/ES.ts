@@ -17,13 +17,17 @@
  * under the License.
  */
 
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
-import { DataWithBackend } from '@/metas/DataWithBackend';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
 const esTypes = [
   'text',
@@ -43,19 +47,19 @@ const esTypes = [
   value: item,
 }));
 
-export default class EsSink extends SinkInfo implements DataWithBackend {
-  @FormField({
+export default class EsSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.ES.IndexName')
   indexName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
     initialValue: 1,
@@ -77,40 +81,40 @@ export default class EsSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Username')
   username: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Password')
   password: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.ES.Host')
   host: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 9200,
     rules: [{ required: true }],
@@ -120,11 +124,11 @@ export default class EsSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.ES.Port')
   port: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 1,
     rules: [{ required: true }],
@@ -134,11 +138,11 @@ export default class EsSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.ES.FlushInterval')
   flushInterval: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 1000,
     rules: [{ required: true }],
@@ -148,11 +152,11 @@ export default class EsSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.ES.FlushRecord')
   flushRecord: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 3,
     rules: [{ required: true }],
@@ -162,11 +166,11 @@ export default class EsSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.ES.RetryTimes')
   retryTime: number;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',

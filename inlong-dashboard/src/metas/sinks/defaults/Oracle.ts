@@ -15,13 +15,17 @@
  * limitations under the License.
  */
 
-import i18n from '@/i18n';
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
+import i18n from '@/i18n';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
 import EditableTable from '@/components/EditableTable';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
   BINARY_FLOAT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
@@ -54,8 +58,8 @@ const oracleFieldTypes = Object.keys(fieldTypesConf).reduce(
   [],
 );
 
-export default class OracleSink extends SinkInfo implements DataWithBackend {
-  @FormField({
+export default class OracleSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -63,33 +67,33 @@ export default class OracleSink extends SinkInfo implements DataWithBackend {
       placeholder: 'jdbc:oracle:thin://127.0.0.1:1521/db_name',
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('JDBC URL')
   jdbcUrl: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Oracle.TableName')
   tableName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Oracle.PrimaryKey')
   primaryKey: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
     initialValue: 1,
@@ -111,29 +115,29 @@ export default class OracleSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Username')
   username: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Password')
   password: string;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',

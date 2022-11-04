@@ -18,13 +18,19 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import { ConsumeInfo } from '../common/ConsumeInfo';
 
-const { I18n, FormField } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
 
-export default class TubeMqConsume extends ConsumeInfo implements DataWithBackend {
-  @FormField({
+export default class TubeMqConsume
+  extends ConsumeInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'radio',
     initialValue: 0,
     props: {
@@ -44,7 +50,7 @@ export default class TubeMqConsume extends ConsumeInfo implements DataWithBacken
   @I18n('meta.Consume.FilterEnabled')
   filterEnabled: 0 | 1;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     visible: values => values.filterEnabled,

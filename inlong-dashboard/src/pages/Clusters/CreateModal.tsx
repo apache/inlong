@@ -23,7 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import request from '@/utils/request';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, ClusterMetaType } from '@/metas';
 import i18n from '@/i18n';
 
 export interface Props extends ModalProps {
@@ -88,10 +88,10 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
     }
   }, [modalProps.visible]);
 
-  const { Entity } = useLoadMeta('cluster', type);
+  const { Entity } = useLoadMeta<ClusterMetaType>('cluster', type);
 
   const content = useMemo(() => {
-    return Entity ? Entity.FieldList : [];
+    return Entity ? new Entity().renderRow() : [];
   }, [Entity]);
 
   return (

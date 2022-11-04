@@ -18,12 +18,16 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
 const hiveFieldTypes = [
   'string',
@@ -47,30 +51,30 @@ const hiveFieldTypes = [
   value: item,
 }));
 
-export default class HiveSink extends SinkInfo implements DataWithBackend {
-  @FormField({
+export default class HiveSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Hive.DbName')
   dbName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Hive.TableName')
   tableName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
     initialValue: 1,
@@ -92,7 +96,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -102,7 +106,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.Username')
   username: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
@@ -112,7 +116,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.Password')
   password: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -123,7 +127,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend {
   @I18n('JDBC URL')
   jdbcUrl: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     tooltip: i18n.t('meta.Sinks.DataPathHelp'),
@@ -135,7 +139,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.Hive.DataPath')
   dataPath: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     tooltip: i18n.t('meta.Sinks.Hive.ConfDirHelp'),
@@ -147,7 +151,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.Hive.ConfDir')
   hiveConfDir: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     initialValue: 'TextFile',
     rules: [{ required: true }],
@@ -184,7 +188,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.Hive.FileFormat')
   fileFormat: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     initialValue: 'UTF-8',
     props: values => ({
@@ -205,7 +209,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.Hive.DataEncoding')
   dataEncoding: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     initialValue: '124',
     props: values => ({
@@ -257,7 +261,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.Hive.DataSeparator')
   dataSeparator: string;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',
@@ -267,7 +271,7 @@ export default class HiveSink extends SinkInfo implements DataWithBackend {
   })
   sinkFieldList: Record<string, unknown>[];
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     tooltip: i18n.t('meta.Sinks.Hive.PartitionFieldListHelp'),
     col: 24,

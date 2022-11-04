@@ -18,16 +18,24 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import { statusList, genStatusTag } from './status';
 import { sinks, defaultValue } from '..';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18nMap, I18n } = DataWithBackend;
+const { FieldList, FieldDecorator } = RenderRow;
+const { ColumnList, ColumnDecorator } = RenderList;
 
-export class SinkDefaultInfo extends DataWithBackend {
+export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
+  static I18nMap = I18nMap;
+  static FieldList = FieldList;
+  static ColumnList = ColumnList;
+
   readonly id: number;
 
-  @FormField({
+  @FieldDecorator({
     // This field is not visible or editable, but form value should exists.
     type: 'text',
     hidden: true,
@@ -35,7 +43,7 @@ export class SinkDefaultInfo extends DataWithBackend {
   @I18n('inlongGroupId')
   readonly inlongGroupId: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     props: values => ({
       disabled: Boolean(values.id),
@@ -60,11 +68,11 @@ export class SinkDefaultInfo extends DataWithBackend {
     }),
     rules: [{ required: true }],
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('pages.GroupDetail.Sink.DataStreams')
   inlongStreamId: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [
       { required: true },
@@ -78,11 +86,11 @@ export class SinkDefaultInfo extends DataWithBackend {
       maxLength: 128,
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.SinkName')
   sinkName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: sinks.length > 3 ? 'select' : 'radio',
     label: i18n.t('meta.Sinks.SinkType'),
     rules: [{ required: true }],
@@ -98,11 +106,11 @@ export class SinkDefaultInfo extends DataWithBackend {
         })),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.SinkType')
   sinkType: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'textarea',
     props: {
       showCount: true,
@@ -112,7 +120,7 @@ export class SinkDefaultInfo extends DataWithBackend {
   @I18n('meta.Sinks.Description')
   description: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     props: {
       allowClear: true,
@@ -121,7 +129,7 @@ export class SinkDefaultInfo extends DataWithBackend {
     },
     visible: false,
   })
-  @TableColumn({
+  @ColumnDecorator({
     render: text => genStatusTag(text),
   })
   @I18n('basic.Status')
@@ -133,5 +141,15 @@ export class SinkDefaultInfo extends DataWithBackend {
 
   stringify(data) {
     return data;
+  }
+
+  renderRow() {
+    const constructor = this.constructor as typeof SinkDefaultInfo;
+    return constructor.FieldList;
+  }
+
+  renderList() {
+    const constructor = this.constructor as typeof SinkDefaultInfo;
+    return constructor.ColumnList;
   }
 }

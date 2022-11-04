@@ -18,15 +18,23 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import { statusList, genStatusTag } from './status';
 import { sources, defaultValue } from '..';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18nMap, I18n } = DataWithBackend;
+const { FieldList, FieldDecorator } = RenderRow;
+const { ColumnList, ColumnDecorator } = RenderList;
 
-export class SourceDefaultInfo extends DataWithBackend {
+export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList {
+  static I18nMap = I18nMap;
+  static FieldList = FieldList;
+  static ColumnList = ColumnList;
+
   readonly id: number;
 
-  @FormField({
+  @FieldDecorator({
     // This field is not visible or editable, but form value should exists.
     type: 'text',
     hidden: true,
@@ -34,7 +42,7 @@ export class SourceDefaultInfo extends DataWithBackend {
   @I18n('inlongGroupId')
   readonly inlongGroupId: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     props: values => ({
       disabled: Boolean(values.id),
@@ -59,11 +67,11 @@ export class SourceDefaultInfo extends DataWithBackend {
     }),
     rules: [{ required: true }],
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('pages.GroupDetail.Sources.DataStreams')
   inlongStreamId: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -71,11 +79,11 @@ export class SourceDefaultInfo extends DataWithBackend {
       maxLength: 128,
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sources.Name')
   sourceName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: sources.length > 3 ? 'select' : 'radio',
     rules: [{ required: true }],
     initialValue: defaultValue,
@@ -89,11 +97,11 @@ export class SourceDefaultInfo extends DataWithBackend {
         })),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sources.Type')
   sourceType: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     props: {
       allowClear: true,
@@ -102,7 +110,7 @@ export class SourceDefaultInfo extends DataWithBackend {
     },
     visible: false,
   })
-  @TableColumn({
+  @ColumnDecorator({
     render: text => genStatusTag(text),
   })
   @I18n('basic.Status')
@@ -114,5 +122,15 @@ export class SourceDefaultInfo extends DataWithBackend {
 
   stringify(data) {
     return data;
+  }
+
+  renderRow() {
+    const constructor = this.constructor as typeof SourceDefaultInfo;
+    return constructor.FieldList;
+  }
+
+  renderList() {
+    const constructor = this.constructor as typeof SourceDefaultInfo;
+    return constructor.ColumnList;
   }
 }

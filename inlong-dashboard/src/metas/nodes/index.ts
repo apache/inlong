@@ -20,6 +20,8 @@
 import { allDefaultNodes } from './defaults';
 import { allExtendsNodes } from './extends';
 
+export type { NodeMetaType } from './types';
+
 export * as dao from './common/dao';
 
 export const nodes = allDefaultNodes.concat(allExtendsNodes);

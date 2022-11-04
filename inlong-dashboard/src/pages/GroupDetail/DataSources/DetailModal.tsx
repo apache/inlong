@@ -23,7 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, SourceMetaType } from '@/metas';
 import request from '@/utils/request';
 
 export interface Props extends ModalProps {
@@ -40,7 +40,7 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
 
   const [type, setType] = useState(defaultValue);
 
-  const { Entity } = useLoadMeta('source', type);
+  const { Entity } = useLoadMeta<SourceMetaType>('source', type);
 
   const { data, run: getData } = useRequest(
     id => ({
@@ -91,7 +91,7 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
   }, [modalProps.visible]);
 
   const formContent = useMemo(() => {
-    return Entity ? Entity.FieldList : [];
+    return Entity ? new Entity().renderRow() : [];
   }, [Entity]);
 
   return (

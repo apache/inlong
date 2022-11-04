@@ -18,8 +18,9 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { SourceMetaType } from '../types';
 
-export const allDefaultSources: MetaExportWithBackendList = [
+export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
   {
     label: 'ALL',
     value: '',

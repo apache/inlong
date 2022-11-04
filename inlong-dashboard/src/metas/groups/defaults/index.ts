@@ -18,8 +18,9 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { GroupMetaType } from '../types';
 
-export const allDefaultGroups: MetaExportWithBackendList = [
+export const allDefaultGroups: MetaExportWithBackendList<GroupMetaType> = [
   {
     label: 'ALL',
     value: '',

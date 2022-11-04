@@ -17,11 +17,6 @@
  * under the License.
  */
 
-import { allDefaultConsumes } from './defaults';
-import { allExtendsConsumes } from './extends';
+import { SinkInfo } from './common/SinkInfo';
 
-export type { ConsumeMetaType } from './types';
-
-export const consumes = allDefaultConsumes.concat(allExtendsConsumes);
-
-export const defaultValue = consumes[0].value;
+export type SinkMetaType = typeof SinkInfo;

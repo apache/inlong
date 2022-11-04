@@ -18,12 +18,16 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import { SinkInfo } from '../common/SinkInfo';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
-export default class KafkaSink extends SinkInfo implements DataWithBackend {
-  @FormField({
+export default class KafkaSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     initialValue: '127.0.0.1:9092',
@@ -31,22 +35,22 @@ export default class KafkaSink extends SinkInfo implements DataWithBackend {
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Kafka.Server')
   bootstrapServers: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('Topic')
   topicName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     initialValue: 'JSON',
     rules: [{ required: true }],
@@ -68,11 +72,11 @@ export default class KafkaSink extends SinkInfo implements DataWithBackend {
       ],
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Kafka.SerializationType')
   serializationType: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 3,
     props: values => ({
@@ -85,7 +89,7 @@ export default class KafkaSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.Kafka.PartitionNum')
   partitionNum: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     initialValue: 'earliest',
     rules: [{ required: true }],

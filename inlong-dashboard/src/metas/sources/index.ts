@@ -20,6 +20,8 @@
 import { allDefaultSources } from './defaults';
 import { allExtendsSources } from './extends';
 
+export type { SourceMetaType } from './types';
+
 export const sources = allDefaultSources.concat(allExtendsSources);
 
 export const defaultValue = sources[0].value;

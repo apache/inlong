@@ -18,7 +18,8 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { ConsumeMetaType } from '../types';
 
-export const allExtendsConsumes: MetaExportWithBackendList = [
+export const allExtendsConsumes: MetaExportWithBackendList<ConsumeMetaType> = [
   // You can extends at here...
 ];

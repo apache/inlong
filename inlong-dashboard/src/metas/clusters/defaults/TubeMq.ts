@@ -19,12 +19,18 @@
 
 import i18n from '@/i18n';
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import { ClusterInfo } from '../common/ClusterInfo';
 
-const { I18n, FormField } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
 
-export default class TubeMqCluster extends ClusterInfo implements DataWithBackend {
-  @FormField({
+export default class TubeMqCluster
+  extends ClusterInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     tooltip: i18n.t('pages.Clusters.Tube.MasterRpcUrlHelper'),
@@ -35,7 +41,7 @@ export default class TubeMqCluster extends ClusterInfo implements DataWithBacken
   @I18n('RPC URL')
   url: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     tooltip: i18n.t('pages.Clusters.Tube.MasterWebUrlHelper'),
@@ -46,7 +52,7 @@ export default class TubeMqCluster extends ClusterInfo implements DataWithBacken
   @I18n('Web URL')
   masterWebUrl: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     props: {
       placeholder: 'Required if the cluster is configured with Token',

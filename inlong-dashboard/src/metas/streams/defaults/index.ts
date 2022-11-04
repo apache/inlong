@@ -18,8 +18,9 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { StreamMetaType } from '../types';
 
-export const allDefaultStreams: MetaExportWithBackendList = [
+export const allDefaultStreams: MetaExportWithBackendList<StreamMetaType> = [
   {
     label: 'ALL',
     value: '',

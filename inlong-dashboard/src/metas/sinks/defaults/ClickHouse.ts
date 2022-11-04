@@ -18,12 +18,16 @@
  */
 
 import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { SinkInfo } from '../common/SinkInfo';
 import { sourceFields } from '../common/sourceFields';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
 const clickHouseTargetTypes = [
   'String',
@@ -40,30 +44,33 @@ const clickHouseTargetTypes = [
   value: item,
 }));
 
-export default class ClickHouseSink extends SinkInfo implements DataWithBackend {
-  @FormField({
+export default class ClickHouseSink
+  extends SinkInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.ClickHouse.DbName')
   dbName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.ClickHouse.TableName')
   tableName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
     initialValue: 1,
@@ -85,7 +92,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -95,7 +102,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.Username')
   username: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
@@ -105,7 +112,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.Password')
   password: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -116,7 +123,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('JDBC URL')
   jdbcUrl: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 1,
     props: values => ({
@@ -129,7 +136,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.ClickHouse.FlushInterval')
   flushInterval: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 1000,
     props: values => ({
@@ -142,7 +149,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.ClickHouse.FlushRecord')
   flushRecord: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'inputnumber',
     initialValue: 3,
     props: values => ({
@@ -155,7 +162,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.ClickHouse.RetryTimes')
   retryTime: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     initialValue: 0,
     props: values => ({
@@ -176,7 +183,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.ClickHouse.IsDistributed')
   isDistributed: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'select',
     initialValue: 'BALANCE',
     rules: [{ required: true }],
@@ -202,7 +209,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.ClickHouse.PartitionStrategy')
   partitionStrategy: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     visible: values => values.isDistributed && values.partitionStrategy === 'HASH',
@@ -213,7 +220,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.ClickHouse.PartitionFields')
   partitionFields: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     initialValue: 'Log',
     rules: [{ required: true }],
@@ -224,7 +231,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.ClickHouse.Engine')
   engine: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
@@ -233,7 +240,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.ClickHouse.OrderBy')
   orderBy: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
@@ -242,7 +249,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.ClickHouse.PartitionBy')
   partitionBy: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     props: values => ({
       disabled: [110, 130].includes(values?.status),
@@ -251,7 +258,7 @@ export default class ClickHouseSink extends SinkInfo implements DataWithBackend 
   @I18n('meta.Sinks.ClickHouse.PrimaryKey')
   primaryKey: string;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',

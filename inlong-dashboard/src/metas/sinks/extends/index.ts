@@ -18,7 +18,8 @@
  */
 
 import type { MetaExportWithBackendList } from '@/metas/types';
+import type { SinkMetaType } from '../types';
 
-export const allExtendsSinks: MetaExportWithBackendList = [
+export const allExtendsSinks: MetaExportWithBackendList<SinkMetaType> = [
   // You can extends at here...
 ];

@@ -24,7 +24,7 @@ import HighTable from '@/components/HighTable';
 import { PageContainer } from '@/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
 import { dao } from '@/metas/nodes';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, NodeMetaType } from '@/metas';
 import DetailModal from './DetailModal';
 
 const { useListNodeDao, useDeleteNodeDao } = dao;
@@ -107,32 +107,36 @@ const Comp: React.FC = () => {
     [nodes],
   );
 
-  const { Entity } = useLoadMeta('node', options.type);
+  const { Entity } = useLoadMeta<NodeMetaType>('node', options.type);
+
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
 
   const columns = useMemo(() => {
-    if (!Entity) return [];
-
-    return Entity.ColumnList?.map(item => ({
-      ...item,
-      ellipsisMulti: 2,
-    })).concat([
-      {
-        title: i18n.t('basic.Operating'),
-        dataIndex: 'action',
-        width: 200,
-        render: (text, record) => (
-          <>
-            <Button type="link" onClick={() => onEdit(record)}>
-              {i18n.t('basic.Edit')}
-            </Button>
-            <Button type="link" onClick={() => onDelete(record)}>
-              {i18n.t('basic.Delete')}
-            </Button>
-          </>
-        ),
-      } as any,
-    ]);
-  }, [Entity, onDelete]);
+    return entityColumns
+      ?.map(item => ({
+        ...item,
+        ellipsisMulti: 2,
+      }))
+      .concat([
+        {
+          title: i18n.t('basic.Operating'),
+          dataIndex: 'action',
+          width: 200,
+          render: (text, record) => (
+            <>
+              <Button type="link" onClick={() => onEdit(record)}>
+                {i18n.t('basic.Edit')}
+              </Button>
+              <Button type="link" onClick={() => onDelete(record)}>
+                {i18n.t('basic.Delete')}
+              </Button>
+            </>
+          ),
+        } as any,
+      ]);
+  }, [entityColumns, onDelete]);
 
   return (
     <PageContainer useDefaultBreadcrumb={false}>

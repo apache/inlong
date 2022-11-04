@@ -20,6 +20,8 @@
 import { allDefaultGroups } from './defaults';
 import { allExtendsGroups } from './extends';
 
+export type { GroupMetaType } from './types';
+
 export const groups = allDefaultGroups.concat(allExtendsGroups);
 
 export const defaultValue = groups[0].value;

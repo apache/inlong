@@ -24,7 +24,7 @@ import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import i18n from '@/i18n';
 import DetailModal from './DetailModal';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, SinkMetaType } from '@/metas';
 import request from '@/utils/request';
 import { pickObjectArray } from '@/utils';
 import { CommonInterface } from '../common';
@@ -108,7 +108,15 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     total: data?.total,
   };
 
-  const { Entity } = useLoadMeta('sink', options.sinkType);
+  const { Entity } = useLoadMeta<SinkMetaType>('sink', options.sinkType);
+
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
+
+  const entityFields = useMemo(() => {
+    return Entity ? new Entity().renderRow() : [];
+  }, [Entity]);
 
   const getFilterFormContent = useCallback(
     defaultValues => [
@@ -116,19 +124,17 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
         type: 'inputsearch',
         name: 'keyword',
       },
-      ...pickObjectArray(['sinkType', 'status'], Entity?.FieldList).map(item => ({
+      ...pickObjectArray(['sinkType', 'status'], entityFields).map(item => ({
         ...item,
         visible: true,
         initialValue: defaultValues[item.name],
       })),
     ],
-    [Entity?.FieldList],
+    [entityFields],
   );
 
   const columns = useMemo(() => {
-    if (!Entity) return [];
-
-    return Entity.ColumnList?.concat([
+    return entityColumns?.concat([
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
@@ -147,7 +153,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
           ),
       } as any,
     ]);
-  }, [Entity, onDelete, onEdit, readonly]);
+  }, [entityColumns, onDelete, onEdit, readonly]);
 
   return (
     <>

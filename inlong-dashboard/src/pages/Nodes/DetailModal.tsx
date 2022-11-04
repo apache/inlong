@@ -23,7 +23,7 @@ import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect } from '@/hooks';
 import { dao } from '@/metas/nodes';
-import { useDefaultMeta, useLoadMeta } from '@/metas';
+import { useDefaultMeta, useLoadMeta, NodeMetaType } from '@/metas';
 import i18n from '@/i18n';
 
 const { useFindNodeDao, useSaveNodeDao } = dao;
@@ -74,10 +74,10 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
     }
   }, [modalProps.visible]);
 
-  const { Entity } = useLoadMeta('node', type);
+  const { Entity } = useLoadMeta<NodeMetaType>('node', type);
 
   const content = useMemo(() => {
-    return Entity ? Entity.FieldList : [];
+    return Entity ? new Entity().renderRow() : [];
   }, [Entity]);
 
   return (

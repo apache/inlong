@@ -15,13 +15,17 @@
  * limitations under the License.
  */
 
+import { DataWithBackend } from '@/metas/DataWithBackend';
+import { RenderRow } from '@/metas/RenderRow';
+import { RenderList } from '@/metas/RenderList';
 import i18n from '@/i18n';
 import EditableTable from '@/components/EditableTable';
 import { sourceFields } from '../common/sourceFields';
 import { SinkInfo } from '../common/SinkInfo';
-import { DataWithBackend } from '@/metas/DataWithBackend';
 
-const { I18n, FormField, TableColumn } = DataWithBackend;
+const { I18n } = DataWithBackend;
+const { FieldDecorator } = RenderRow;
+const { ColumnDecorator } = RenderList;
 
 const fieldTypesConf = {
   SMALLINT: (m, d) => (1 <= m && m <= 6 ? '' : '1 <= M <= 6'),
@@ -58,8 +62,11 @@ const greenplumFieldTypes = Object.keys(fieldTypesConf).reduce(
   [],
 );
 
-export default class GreenplumSink extends SinkInfo implements DataWithBackend {
-  @FormField({
+export default class GreenplumSink
+  extends SinkInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
@@ -67,33 +74,33 @@ export default class GreenplumSink extends SinkInfo implements DataWithBackend {
       placeholder: 'jdbc:postgresql://127.0.0.1:5432/write',
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('JDBC URL')
   jdbcUrl: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Greenplum.TableName')
   tableName: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Greenplum.PrimaryKey')
   primaryKey: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'radio',
     rules: [{ required: true }],
     initialValue: 1,
@@ -115,29 +122,29 @@ export default class GreenplumSink extends SinkInfo implements DataWithBackend {
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
 
-  @FormField({
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Username')
   username: string;
 
-  @FormField({
+  @FieldDecorator({
     type: 'password',
     rules: [{ required: true }],
     props: values => ({
       disabled: [110, 130].includes(values?.status),
     }),
   })
-  @TableColumn()
+  @ColumnDecorator()
   @I18n('meta.Sinks.Password')
   password: string;
 
-  @FormField({
+  @FieldDecorator({
     type: EditableTable,
     props: values => ({
       size: 'small',
