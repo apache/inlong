@@ -528,7 +528,8 @@ public class FlinkSink {
                     .setParallelism(parallelism);
 
             IcebergProcessOperator streamWriter =
-                    new IcebergProcessOperator(new IcebergMultipleStreamWriter(appendMode, catalogLoader));
+                    new IcebergProcessOperator(new IcebergMultipleStreamWriter(
+                            appendMode, catalogLoader, inlongMetric, auditHostAndPorts));
             SingleOutputStreamOperator<MultipleWriteResult> writerStream = routeStream
                     .transform(operatorName(ICEBERG_MULTIPLE_STREAM_WRITER_NAME),
                             TypeInformation.of(IcebergProcessOperator.class),
