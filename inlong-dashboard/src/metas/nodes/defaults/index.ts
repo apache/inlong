@@ -31,4 +31,9 @@ export const allDefaultNodes: MetaExportWithBackendList<NodeMetaType> = [
     value: 'HIVE',
     LoadEntity: () => import('./Hive'),
   },
+  {
+    label: 'MySQL',
+    value: 'MYSQL',
+    LoadEntity: () => import('./MySQL'),
+  },
 ];
