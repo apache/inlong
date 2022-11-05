@@ -116,7 +116,7 @@ public class PulsarClientService {
         topicSendIndexMap = new ConcurrentHashMap<>();
     }
 
-    public void initCreateConnection(CreatePulsarClientCallBack callBack) {
+    public void initCreateConnection(CreatePulsarClientCallBack callBack, String sinkName) {
         pulsarUrl2token = ConfigManager.getInstance().getMqClusterUrl2Token();
         if (pulsarUrl2token == null || pulsarUrl2token.isEmpty()) {
             logger.warn("failed to get Pulsar Cluster, make sure register pulsar to manager successfully.");
@@ -124,6 +124,10 @@ public class PulsarClientService {
         }
         try {
             createConnection(callBack);
+            if (!ConfigManager.getInstance().isMqClusterReady()) {
+                ConfigManager.getInstance().updMqClusterStatus(true);
+                logger.info("[{}] MQ Cluster service status ready!", sinkName);
+            }
         } catch (FlumeException e) {
             logger.error("unable to create pulsar client: ", e);
             close();

@@ -284,6 +284,14 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             if (commonAttrMap == null) {
                 commonAttrMap = new HashMap<>();
             }
+            // check whether extract data failure
+            String errCode = commonAttrMap.get(AttributeConstants.MESSAGE_PROCESS_ERRCODE);
+            if (!StringUtils.isEmpty(errCode)
+                    && !DataProxyErrCode.SUCCESS.getErrCodeStr().equals(errCode)) {
+                MessageUtils.sourceReturnRspPackage(
+                        commonAttrMap, resultMap, remoteChannel, msgType);
+                return;
+            }
             // process heartbeat message
             if (MsgType.MSG_HEARTBEAT.equals(msgType)
                     || MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
@@ -310,7 +318,15 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         commonAttrMap, resultMap, remoteChannel, msgType);
                 return;
             }
-            // transfer message data
+            // check sink service status
+            if (!ConfigManager.getInstance().isMqClusterReady()) {
+                commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
+                        DataProxyErrCode.SINK_SERVICE_UNREADY.getErrCodeStr());
+                MessageUtils.sourceReturnRspPackage(
+                        commonAttrMap, resultMap, remoteChannel, msgType);
+                return;
+            }
+            // convert message data
             Map<String, HashMap<String, List<ProxyMessage>>> messageMap =
                     new HashMap<>(msgList.size());
             if (!convertMsgList(msgList, commonAttrMap, messageMap, strRemoteIP)) {
