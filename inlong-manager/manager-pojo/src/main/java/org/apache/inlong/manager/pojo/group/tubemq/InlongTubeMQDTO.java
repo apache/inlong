@@ -41,9 +41,7 @@ public class InlongTubeMQDTO extends BaseInlongGroup {
      * Get the dto instance from the request
      */
     public static InlongTubeMQDTO getFromRequest(InlongGroupRequest request) {
-        InlongTubeMQDTO dto = new InlongTubeMQDTO();
-        CommonBeanUtils.copyProperties(request, dto, true);
-        return dto;
+        return CommonBeanUtils.copyProperties(request, InlongTubeMQDTO::new, true);
     }
 
     /**

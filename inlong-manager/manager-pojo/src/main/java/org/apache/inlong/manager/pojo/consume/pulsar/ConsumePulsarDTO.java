@@ -57,9 +57,7 @@ public class ConsumePulsarDTO extends BaseInlongConsume {
      * Get the dto instance from the request
      */
     public static ConsumePulsarDTO getFromRequest(ConsumePulsarRequest request) {
-        ConsumePulsarDTO dto = new ConsumePulsarDTO();
-        CommonBeanUtils.copyProperties(request, dto, true);
-        return dto;
+        return CommonBeanUtils.copyProperties(request, ConsumePulsarDTO::new, true);
     }
 
     /**

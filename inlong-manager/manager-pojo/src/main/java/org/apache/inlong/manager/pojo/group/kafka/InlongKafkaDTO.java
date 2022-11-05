@@ -53,9 +53,7 @@ public class InlongKafkaDTO extends BaseInlongGroup {
      * Get the dto instance from the request
      */
     public static InlongKafkaDTO getFromRequest(InlongKafkaRequest request) {
-        InlongKafkaDTO dto = new InlongKafkaDTO();
-        CommonBeanUtils.copyProperties(request, dto, true);
-        return dto;
+        return CommonBeanUtils.copyProperties(request, InlongKafkaDTO::new, true);
     }
 
     /**

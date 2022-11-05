@@ -23,6 +23,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.consume.BaseInlongConsume;
 
@@ -43,7 +44,7 @@ public class ConsumeTubeMQDTO extends BaseInlongConsume {
      * Get the dto instance from the request
      */
     public static ConsumeTubeMQDTO getFromRequest(ConsumeTubeMQRequest request) {
-        return ConsumeTubeMQDTO.builder().build();
+        return CommonBeanUtils.copyProperties(request, ConsumeTubeMQDTO::new, true);
     }
 
     /**

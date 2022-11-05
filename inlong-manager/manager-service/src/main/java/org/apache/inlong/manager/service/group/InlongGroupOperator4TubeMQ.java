@@ -81,7 +81,6 @@ public class InlongGroupOperator4TubeMQ extends AbstractGroupOperator {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
-        LOGGER.info("success set entity for inlong group with TubeMQ");
     }
 
     @Override

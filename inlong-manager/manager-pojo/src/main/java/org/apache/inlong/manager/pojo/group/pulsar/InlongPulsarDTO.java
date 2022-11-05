@@ -79,9 +79,7 @@ public class InlongPulsarDTO extends BaseInlongGroup {
      * Get the dto instance from the request
      */
     public static InlongPulsarDTO getFromRequest(InlongPulsarRequest request) {
-        InlongPulsarDTO dto = new InlongPulsarDTO();
-        CommonBeanUtils.copyProperties(request, dto, true);
-        return dto;
+        return CommonBeanUtils.copyProperties(request, InlongPulsarDTO::new, true);
     }
 
     /**
