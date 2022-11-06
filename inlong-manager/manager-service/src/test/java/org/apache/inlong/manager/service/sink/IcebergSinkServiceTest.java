@@ -64,7 +64,7 @@ public class IcebergSinkServiceTest extends ServiceBaseTest {
     public void testSaveAndDelete() {
         Integer id = this.saveSink("default1");
         Assertions.assertNotNull(id);
-        boolean result = sinkService.delete(id, globalOperator);
+        boolean result = sinkService.delete(id, false, globalOperator);
         Assertions.assertTrue(result);
     }
 
@@ -73,7 +73,7 @@ public class IcebergSinkServiceTest extends ServiceBaseTest {
         Integer id = this.saveSink("default2");
         StreamSink sink = sinkService.get(id);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
-        sinkService.delete(id, globalOperator);
+        sinkService.delete(id, false, globalOperator);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class IcebergSinkServiceTest extends ServiceBaseTest {
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);
 
-        sinkService.delete(sinkId, globalOperator);
+        sinkService.delete(sinkId, false, globalOperator);
     }
 
 }

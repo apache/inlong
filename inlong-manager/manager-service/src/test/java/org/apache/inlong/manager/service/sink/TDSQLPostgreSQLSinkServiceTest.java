@@ -83,7 +83,7 @@ class TDSQLPostgreSQLSinkServiceTest extends ServiceBaseTest {
      * Delete sink info by sink id.
      */
     public void deleteSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, globalOperator);
+        boolean result = sinkService.delete(sinkId, false, globalOperator);
         Assertions.assertTrue(result);
     }
 

@@ -87,13 +87,13 @@ public class StreamSinkClient {
      * Update the stream sink info.
      */
     public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
-        Response<Boolean> responseBody = ClientUtils.executeHttpCall(streamSinkApi.updateById(sinkRequest));
-        ClientUtils.assertRespSuccess(responseBody);
+        Response<Boolean> response = ClientUtils.executeHttpCall(streamSinkApi.updateById(sinkRequest));
+        ClientUtils.assertRespSuccess(response);
 
-        if (responseBody.getData() != null) {
-            return Pair.of(responseBody.getData(), responseBody.getErrMsg());
+        if (response.getData() != null) {
+            return Pair.of(response.getData(), response.getErrMsg());
         } else {
-            return Pair.of(false, responseBody.getErrMsg());
+            return Pair.of(false, response.getErrMsg());
         }
     }
 
@@ -101,13 +101,13 @@ public class StreamSinkClient {
      * Update the stream sink by key
      */
     public Pair<UpdateResult, String> updateSinkByKey(SinkRequest sinkRequest) {
-        Response<UpdateResult> responseBody = ClientUtils.executeHttpCall(streamSinkApi.updateByKey(sinkRequest));
-        ClientUtils.assertRespSuccess(responseBody);
+        Response<UpdateResult> response = ClientUtils.executeHttpCall(streamSinkApi.updateByKey(sinkRequest));
+        ClientUtils.assertRespSuccess(response);
 
-        if (responseBody.getData() != null) {
-            return Pair.of(responseBody.getData(), responseBody.getErrMsg());
+        if (response.getData() != null) {
+            return Pair.of(response.getData(), response.getErrMsg());
         } else {
-            return Pair.of(new UpdateResult(), responseBody.getErrMsg());
+            return Pair.of(new UpdateResult(), response.getErrMsg());
         }
     }
 
