@@ -25,7 +25,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.consume.BaseInlongConsume;
 
 import javax.validation.constraints.NotNull;
 
@@ -37,7 +39,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong group dto of Pulsar")
-public class ConsumePulsarDTO {
+public class ConsumePulsarDTO extends BaseInlongConsume {
 
     @ApiModelProperty("Whether to configure the dead letter queue, 0: not configure, 1: configure")
     private Integer isDlq;
@@ -55,12 +57,7 @@ public class ConsumePulsarDTO {
      * Get the dto instance from the request
      */
     public static ConsumePulsarDTO getFromRequest(ConsumePulsarRequest request) {
-        return ConsumePulsarDTO.builder()
-                .isDlq(request.getIsDlq())
-                .deadLetterTopic(request.getDeadLetterTopic())
-                .isRlq(request.getIsRlq())
-                .retryLetterTopic(request.getRetryLetterTopic())
-                .build();
+        return CommonBeanUtils.copyProperties(request, ConsumePulsarDTO::new, true);
     }
 
     /**
