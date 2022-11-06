@@ -22,11 +22,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * The base parameter class of InlongGroup, support user extend their own business params.
+ * The base parameter class of InlongConsume, support user extend their own business params.
  */
 @Data
 @AllArgsConstructor
-@ApiModel("Base info of inlong group")
+@ApiModel("Base info of inlong consume")
 public class BaseInlongConsume {
 
     // you can add extend parameters in this class
