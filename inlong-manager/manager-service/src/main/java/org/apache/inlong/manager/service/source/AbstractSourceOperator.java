@@ -255,7 +255,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         LOGGER.info("success to update source fields");
     }
 
-    void saveStreamField(String groupId, String streamId, List<StreamField> infoList) {
+    protected void saveStreamField(String groupId, String streamId, List<StreamField> infoList) {
         if (CollectionUtils.isEmpty(infoList)) {
             return;
         }

@@ -46,6 +46,15 @@ public interface DataNodeService {
     DataNodeInfo get(Integer id);
 
     /**
+     * Get data node by name and type.
+     *
+     * @param name node name
+     * @param type node type
+     * @return node info
+     */
+    DataNodeInfo get(String name, String type);
+
+    /**
      * Paging query nodes according to conditions.
      *
      * @param request page request conditions
