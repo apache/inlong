@@ -35,16 +35,13 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.utils.TableSchemaUtils;
-import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 
 import java.time.Duration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_BATCH_SIZE_DEFAULT;
 import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_DESERIALIZE_ARROW_ASYNC_DEFAULT;
 import static org.apache.doris.flink.cfg.ConfigurationOptions.DORIS_DESERIALIZE_QUEUE_SIZE_DEFAULT;
@@ -332,8 +329,7 @@ public final class DorisDynamicTableFactory implements DynamicTableSourceFactory
                                 + "is not allowed blank when the option 'sink.multiple.enable' is 'true'");
             }
             DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
-            List<String> supportFormats = DynamicSchemaFormatFactory.SUPPORT_FORMATS.stream().map(
-                    AbstractDynamicSchemaFormat::identifier).collect(Collectors.toList());
+            Set<String> supportFormats = DynamicSchemaFormatFactory.SUPPORT_FORMATS.keySet();
             if (!supportFormats.contains(sinkMultipleFormat)) {
                 throw new ValidationException(String.format(
                         "Unsupported value '%s' for '%s'. "

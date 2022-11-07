@@ -37,6 +37,7 @@ import java.util.Map;
  * Test for {@link CanalJsonDynamicSchemaFormat}
  */
 public class CanalJsonDynamicSchemaFormatTest extends DynamicSchemaFormatBaseTest<JsonNode> {
+    private AbstractDynamicSchemaFormat schemaFormat = DynamicSchemaFormatFactory.getFormat("canal-json");
 
     @Override
     protected String getSource() {
@@ -91,6 +92,11 @@ public class CanalJsonDynamicSchemaFormatTest extends DynamicSchemaFormatBaseTes
         return expectedValues;
     }
 
+    @Override
+    protected AbstractDynamicSchemaFormat<JsonNode> getDynamicSchemaFormat() {
+        return schemaFormat;
+    }
+
     @Test
     @SuppressWarnings({"unchecked"})
     public void testExtractPrimaryKey() throws IOException {
@@ -118,11 +124,5 @@ public class CanalJsonDynamicSchemaFormatTest extends DynamicSchemaFormatBaseTes
                 BinaryStringData.fromString("Big 2-wheel scooter"),
                 5.18f));
         Assert.assertEquals(values, rowDataList);
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    @Override
-    protected AbstractDynamicSchemaFormat getDynamicSchemaFormat() {
-        return CanalJsonDynamicSchemaFormat.getInstance();
     }
 }

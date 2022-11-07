@@ -17,22 +17,22 @@
 
 package org.apache.inlong.sort.base.format;
 
-import org.apache.flink.formats.json.JsonToRowDataConverters.JsonToRowDataConverter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.format.JsonToRowDataConverters.JsonToRowDataConverter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Canal json dynamic format
  */
 public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
 
-    private static final String IDENTIFIER = "canal-json";
     private static final String DDL_FLAG = "ddl";
     private static final String DATA = "data";
     private static final String OLD = "old";
@@ -43,15 +43,8 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     private static final String OP_UPDATE = "UPDATE";
     private static final String OP_DELETE = "DELETE";
 
-    private static final CanalJsonDynamicSchemaFormat FORMAT = new CanalJsonDynamicSchemaFormat();
-
-    private CanalJsonDynamicSchemaFormat() {
-
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static AbstractDynamicSchemaFormat getInstance() {
-        return FORMAT;
+    protected CanalJsonDynamicSchemaFormat(Map<String, String> props) {
+        super(props);
     }
 
     @Override
@@ -169,15 +162,5 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
         }
 
         return rowDataList;
-    }
-
-    /**
-     * Get the identifier of this dynamic schema format
-     *
-     * @return The identifier of this dynamic schema format
-     */
-    @Override
-    public String identifier() {
-        return IDENTIFIER;
     }
 }

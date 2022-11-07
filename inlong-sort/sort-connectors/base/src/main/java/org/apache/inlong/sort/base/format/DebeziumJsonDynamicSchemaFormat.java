@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.base.format;
 
-import org.apache.flink.formats.json.JsonToRowDataConverters.JsonToRowDataConverter;
 import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
@@ -33,6 +32,7 @@ import org.apache.flink.table.types.logical.TinyIntType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.format.JsonToRowDataConverters.JsonToRowDataConverter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +44,6 @@ import java.util.Map;
  */
 public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
 
-    private static final String IDENTIFIER = "debezium-json";
     private static final String DDL_FLAG = "ddl";
     private static final String SCHEMA = "schema";
     private static final String SQL_TYPE = "sqlType";
@@ -87,15 +86,8 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
                     .put("BYTES", new VarBinaryType())
                     .build();
 
-    private static final DebeziumJsonDynamicSchemaFormat FORMAT = new DebeziumJsonDynamicSchemaFormat();
-
-    private DebeziumJsonDynamicSchemaFormat() {
-
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static AbstractDynamicSchemaFormat getInstance() {
-        return FORMAT;
+    protected DebeziumJsonDynamicSchemaFormat(Map<String, String> props) {
+        super(props);
     }
 
     @Override
@@ -287,16 +279,6 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
             return rowDataList;
         }
         return extractRowData(payload, rowType);
-    }
-
-    /**
-     * Get the identifier of this dynamic schema format
-     *
-     * @return The identifier of this dynamic schema format
-     */
-    @Override
-    public String identifier() {
-        return IDENTIFIER;
     }
 
     private LogicalType debeziumType2FlinkType(String debeziumType) {
