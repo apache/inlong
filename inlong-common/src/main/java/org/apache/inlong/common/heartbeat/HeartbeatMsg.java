@@ -93,10 +93,10 @@ public class HeartbeatMsg {
     /**
      * node load value
      */
-    private Integer loadValue = 0xffff;
+    private Integer load = 0xffff;
 
     public ComponentHeartbeat componentHeartbeat() {
         return new ComponentHeartbeat(nodeSrvStatus, clusterTag, clusterName,
-                componentType, ip, port, inCharges, protocolType, loadValue);
+                componentType, ip, port, inCharges, protocolType, load);
     }
 }

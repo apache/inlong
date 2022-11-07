@@ -44,7 +44,7 @@ public class ComponentHeartbeat {
     private String inCharges;
 
     // node load
-    private Integer loadValue;
+    private Integer load;
 
     public ComponentHeartbeat() {
     }
@@ -60,7 +60,7 @@ public class ComponentHeartbeat {
         this.port = port;
         this.protocolType = protocolType;
         this.inCharges = inCharges;
-        this.loadValue = 0xffff;
+        this.load = 0xffff;
     }
 
     public ComponentHeartbeat(NodeSrvStatus nodeSrvStatus,
@@ -75,6 +75,6 @@ public class ComponentHeartbeat {
         this.port = port;
         this.protocolType = protocolType;
         this.inCharges = inCharges;
-        this.loadValue = loadValue;
+        this.load = loadValue;
     }
 }

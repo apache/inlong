@@ -135,7 +135,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         heartbeatMsg.setProtocolType(reportInfo.getProtocolType());
         heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getType());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
-        heartbeatMsg.setLoadValue(0xffff);
+        heartbeatMsg.setLoad(0xffff);
         Map<String, String> commonProperties = configManager.getCommonProperties();
         heartbeatMsg.setClusterTag(commonProperties.getOrDefault(
                 ConfigConstants.PROXY_CLUSTER_TAG, DEFAULT_CLUSTER_TAG));
