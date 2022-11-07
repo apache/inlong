@@ -17,6 +17,7 @@
 
 package org.apache.inlong.common.heartbeat;
 
+import org.apache.inlong.common.enums.NodeSrvStatus;
 import lombok.Data;
 
 /**
@@ -24,6 +25,9 @@ import lombok.Data;
  */
 @Data
 public class ComponentHeartbeat {
+
+    // node service status
+    private NodeSrvStatus nodeSrvStatus;
 
     private String clusterTag;
 
@@ -39,11 +43,16 @@ public class ComponentHeartbeat {
 
     private String inCharges;
 
+    // node load
+    private Integer load;
+
     public ComponentHeartbeat() {
     }
 
-    public ComponentHeartbeat(String clusterTag, String clusterName, String componentType, String ip, String port,
-            String inCharges, String protocolType) {
+    public ComponentHeartbeat(String clusterTag, String clusterName,
+                              String componentType, String ip, String port,
+                              String inCharges, String protocolType) {
+        this.nodeSrvStatus = NodeSrvStatus.OK;
         this.clusterTag = clusterTag;
         this.clusterName = clusterName;
         this.componentType = componentType;
@@ -51,5 +60,21 @@ public class ComponentHeartbeat {
         this.port = port;
         this.protocolType = protocolType;
         this.inCharges = inCharges;
+        this.load = 0xffff;
+    }
+
+    public ComponentHeartbeat(NodeSrvStatus nodeSrvStatus,
+                              String clusterTag, String clusterName,
+                              String componentType, String ip, String port,
+                              String inCharges, String protocolType, int loadValue) {
+        this.nodeSrvStatus = nodeSrvStatus;
+        this.clusterTag = clusterTag;
+        this.clusterName = clusterName;
+        this.componentType = componentType;
+        this.ip = ip;
+        this.port = port;
+        this.protocolType = protocolType;
+        this.inCharges = inCharges;
+        this.load = loadValue;
     }
 }
