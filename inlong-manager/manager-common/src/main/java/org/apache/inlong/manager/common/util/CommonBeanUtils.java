@@ -36,9 +36,9 @@ public class CommonBeanUtils extends BeanUtils {
      * Usage scenario: Loop replication for each Java entity in the List
      *
      * @param sources Source entity list
-     * @param target  target entity list
-     * @param <S>     The type of the source entity list
-     * @param <T>     The type of the target entity list
+     * @param target target entity list
+     * @param <S> The type of the source entity list
+     * @param <T> The type of the target entity list
      * @return target entity list
      */
     public static <S, T> List<T> copyListProperties(List<S> sources, Supplier<T> target) {
@@ -59,8 +59,8 @@ public class CommonBeanUtils extends BeanUtils {
      *
      * @param source source data content
      * @param target target type
-     * @param <S>    source type
-     * @param <T>    target type
+     * @param <S> source type
+     * @param <T> target type
      * @return the target type object after copying
      */
     public static <S, T> T copyProperties(S source, Supplier<T> target) {
@@ -75,11 +75,11 @@ public class CommonBeanUtils extends BeanUtils {
     /**
      * Copy the content of the source instance to the target instance
      *
-     * @param source     source data content
-     * @param target     target data
+     * @param source source data content
+     * @param target target data
      * @param ignoreNull Whether to ignore null values
-     * @param <S>        source type
-     * @param <T>        target type
+     * @param <S> source type
+     * @param <T> target type
      * @apiNote If ignoreNull = false, non-null attributes in the target instance may be overwritten
      */
     public static <S, T> T copyProperties(S source, T target, boolean ignoreNull) {
@@ -93,6 +93,29 @@ public class CommonBeanUtils extends BeanUtils {
         }
 
         return target;
+    }
+
+    /**
+     * Copy the content of the source instance to the target instance, and return the result
+     *
+     * @param source source data content
+     * @param target target data
+     * @param ignoreNull Whether to ignore null values
+     * @param <S> source type
+     * @param <T> target type
+     * @apiNote If ignoreNull = false, non-null attributes in the target instance may be overwritten
+     */
+    public static <S, T> T copyProperties(S source, Supplier<T> target, boolean ignoreNull) {
+        T result = target.get();
+        if (source == null) {
+            return result;
+        }
+        if (ignoreNull) {
+            copyProperties(source, result, getNullPropertyNames(source));
+        } else {
+            copyProperties(source, result);
+        }
+        return result;
     }
 
     /**

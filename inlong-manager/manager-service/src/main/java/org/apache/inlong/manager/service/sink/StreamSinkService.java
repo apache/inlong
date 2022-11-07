@@ -130,10 +130,11 @@ public interface StreamSinkService {
      * Delete the stream sink by the given id and sink type.
      *
      * @param id stream sink id
+     * @param startProcess whether to start the process after saving or updating
      * @param operator name of operator
      * @return whether succeed
      */
-    Boolean delete(Integer id, String operator);
+    Boolean delete(Integer id, Boolean startProcess, String operator);
 
     /**
      * Delete the stream sink by given group id, stream id, and sink name.
@@ -141,9 +142,11 @@ public interface StreamSinkService {
      * @param groupId inlong group id
      * @param streamId inlong stream id
      * @param name stream sink name
+     * @param startProcess whether to start the process after saving or updating
+     * @param operator name of operator
      * @return whether succeed
      */
-    Boolean deleteByKey(String groupId, String streamId, String name, String operator);
+    Boolean deleteByKey(String groupId, String streamId, String name, Boolean startProcess, String operator);
 
     /**
      * Logically delete stream sink with the given conditions.

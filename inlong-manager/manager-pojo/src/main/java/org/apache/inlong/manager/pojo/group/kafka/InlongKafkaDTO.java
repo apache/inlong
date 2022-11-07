@@ -24,7 +24,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.group.BaseInlongGroup;
 
 import javax.validation.constraints.NotNull;
 
@@ -36,7 +38,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong group info for Kafka")
-public class InlongKafkaDTO {
+public class InlongKafkaDTO extends BaseInlongGroup {
 
     // partition number
     private Integer numPartitions;
@@ -51,12 +53,7 @@ public class InlongKafkaDTO {
      * Get the dto instance from the request
      */
     public static InlongKafkaDTO getFromRequest(InlongKafkaRequest request) {
-        return InlongKafkaDTO.builder()
-                .numPartitions(request.getNumPartitions())
-                .replicationFactor(request.getReplicationFactor())
-                .groupId(request.getGroupId())
-                .autoCommit(request.getAutoCommit())
-                .build();
+        return CommonBeanUtils.copyProperties(request, InlongKafkaDTO::new, true);
     }
 
     /**

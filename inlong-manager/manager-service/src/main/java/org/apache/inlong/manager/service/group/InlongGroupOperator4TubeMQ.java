@@ -27,7 +27,9 @@ import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQDTO;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQInfo;
+import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQRequest;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQTopicInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +63,10 @@ public class InlongGroupOperator4TubeMQ extends AbstractGroupOperator {
 
         InlongTubeMQInfo groupInfo = new InlongTubeMQInfo();
         CommonBeanUtils.copyProperties(entity, groupInfo);
-
+        if (StringUtils.isNotBlank(entity.getExtParams())) {
+            InlongTubeMQDTO dto = InlongTubeMQDTO.getFromJson(entity.getExtParams());
+            CommonBeanUtils.copyProperties(dto, groupInfo);
+        }
         // TODO get the cluster
         // groupInfo.setTubeMaster();
         return groupInfo;
@@ -69,7 +74,13 @@ public class InlongGroupOperator4TubeMQ extends AbstractGroupOperator {
 
     @Override
     protected void setTargetEntity(InlongGroupRequest request, InlongGroupEntity targetEntity) {
-        LOGGER.info("do nothing for inlong group with TubeMQ");
+        InlongTubeMQRequest tubeMQRequest = (InlongTubeMQRequest) request;
+        try {
+            InlongTubeMQDTO dto = InlongTubeMQDTO.getFromRequest(tubeMQRequest);
+            targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+        }
     }
 
     @Override

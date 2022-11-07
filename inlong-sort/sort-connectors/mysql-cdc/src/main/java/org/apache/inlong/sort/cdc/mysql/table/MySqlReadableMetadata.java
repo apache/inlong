@@ -166,7 +166,7 @@ public enum MySqlReadableMetadata {
                     .mysqlType(getMysqlType(tableSchema))
                     .build();
                 DebeziumJson debeziumJson = DebeziumJson.builder().after(field).source(source)
-                        .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getOpType(record))
+                        .tsMs(sourceStruct.getInt64(AbstractSourceInfo.TIMESTAMP_KEY)).op(getDebeziumOpType(record))
                     .tableChange(tableSchema).build();
 
                 try {
@@ -237,7 +237,7 @@ public enum MySqlReadableMetadata {
 
                 @Override
                 public Object read(SourceRecord record) {
-                    return StringData.fromString(getOpType(record));
+                    return StringData.fromString(getCanalOpType(record));
                 }
             }),
 
@@ -435,7 +435,7 @@ public enum MySqlReadableMetadata {
             .data(dataList).database(databaseName)
             .sql("").es(opTs).isDdl(false).pkNames(getPkNames(tableSchema))
             .mysqlType(getMysqlType(tableSchema)).table(tableName).ts(ts)
-            .type(getOpType(record)).sqlType(getSqlType(tableSchema)).build();
+            .type(getCanalOpType(record)).sqlType(getSqlType(tableSchema)).build();
 
         try {
             return StringData.fromString(OBJECT_MAPPER.writeValueAsString(canalJson));
@@ -455,7 +455,7 @@ public enum MySqlReadableMetadata {
         this.converter = converter;
     }
 
-    private static String getOpType(SourceRecord record) {
+    private static String getCanalOpType(SourceRecord record) {
         String opType;
         final Envelope.Operation op = Envelope.operationFor(record);
         if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
@@ -464,6 +464,19 @@ public enum MySqlReadableMetadata {
             opType = "DELETE";
         } else {
             opType = "UPDATE";
+        }
+        return opType;
+    }
+
+    private static String getDebeziumOpType(SourceRecord record) {
+        String opType;
+        final Envelope.Operation op = Envelope.operationFor(record);
+        if (op == Envelope.Operation.CREATE || op == Envelope.Operation.READ) {
+            opType = "c";
+        } else if (op == Envelope.Operation.DELETE) {
+            opType = "d";
+        } else {
+            opType = "u";
         }
         return opType;
     }
