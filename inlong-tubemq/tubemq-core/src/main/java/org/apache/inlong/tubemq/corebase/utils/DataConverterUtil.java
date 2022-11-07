@@ -149,8 +149,8 @@ public class DataConverterUtil {
         Map<Integer, BrokerInfo> brokerInfoMap =
                 new ConcurrentHashMap<>();
         if (strBrokerInfos != null) {
-            int brokerPort = enableTLS ?
-                    TBaseConstants.META_DEFAULT_BROKER_TLS_PORT : TBaseConstants.META_DEFAULT_BROKER_PORT;
+            int brokerPort = enableTLS
+                    ? TBaseConstants.META_DEFAULT_BROKER_TLS_PORT : TBaseConstants.META_DEFAULT_BROKER_PORT;
             for (String info : strBrokerInfos) {
                 if (info != null) {
                     BrokerInfo brokerInfo =
