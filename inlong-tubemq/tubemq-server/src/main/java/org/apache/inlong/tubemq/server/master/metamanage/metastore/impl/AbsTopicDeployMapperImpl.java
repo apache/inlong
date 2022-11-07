@@ -557,7 +557,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
         if (keySet != null) {
             keySet.remove(recordKey);
             if (keySet.isEmpty()) {
-                topicName2RecordCache.remove(curEntity.getTopicName());
+                topicName2RecordCache.remove(curEntity.getTopicName(), new ConcurrentHashSet<>());
             }
         }
         // delete brokerId index
@@ -565,7 +565,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
         if (keySet != null) {
             keySet.remove(recordKey);
             if (keySet.isEmpty()) {
-                brokerId2RecordCache.remove(curEntity.getBrokerId());
+                brokerId2RecordCache.remove(curEntity.getBrokerId(), new ConcurrentHashSet<>());
             }
         }
         // delete broker topic map
@@ -573,7 +573,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
         if (keySet != null) {
             keySet.remove(curEntity.getTopicName());
             if (keySet.isEmpty()) {
-                brokerId2TopicNameCache.remove(curEntity.getBrokerId());
+                brokerId2TopicNameCache.remove(curEntity.getBrokerId(), new ConcurrentHashSet<>());
             }
         }
     }
