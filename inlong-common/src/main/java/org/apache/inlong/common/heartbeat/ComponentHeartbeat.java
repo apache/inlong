@@ -49,6 +49,20 @@ public class ComponentHeartbeat {
     public ComponentHeartbeat() {
     }
 
+    public ComponentHeartbeat(String clusterTag, String clusterName,
+                              String componentType, String ip, String port,
+                              String inCharges, String protocolType) {
+        this.nodeSrvStatus = NodeSrvStatus.OK;
+        this.clusterTag = clusterTag;
+        this.clusterName = clusterName;
+        this.componentType = componentType;
+        this.ip = ip;
+        this.port = port;
+        this.protocolType = protocolType;
+        this.inCharges = inCharges;
+        this.loadValue = 0xffff;
+    }
+
     public ComponentHeartbeat(NodeSrvStatus nodeSrvStatus,
                               String clusterTag, String clusterName,
                               String componentType, String ip, String port,
