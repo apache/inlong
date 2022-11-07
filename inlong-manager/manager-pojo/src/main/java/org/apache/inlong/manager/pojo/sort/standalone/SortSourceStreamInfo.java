@@ -17,11 +17,34 @@
 
 package org.apache.inlong.manager.pojo.sort.standalone;
 
+import com.google.gson.Gson;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class SortSourceStreamInfo {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceStreamInfo.class);
+    private static final Gson GSON = new Gson();
+
     private String inlongGroupId;
     private String inlongStreamId;
     private String mqResource;
+    String extParams;
+    Map<String, String> extParamsMap = new ConcurrentHashMap<>();
+
+    public Map<String, String> getExtParamsMap() {
+        if (extParamsMap.isEmpty() && StringUtils.isNotBlank(extParams)) {
+            try {
+                extParamsMap = GSON.fromJson(extParams, Map.class);
+            } catch (Throwable t) {
+                LOGGER.error("fail to parse group ext params", t);
+            }
+        }
+        return extParamsMap;
+    }
 }

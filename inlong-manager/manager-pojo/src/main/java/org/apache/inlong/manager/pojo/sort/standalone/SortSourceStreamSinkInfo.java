@@ -35,6 +35,7 @@ public class SortSourceStreamSinkInfo {
     String sortClusterName;
     String sortTaskName;
     String groupId;
+    String streamId;
     String extParams;
     Map<String, String> extParamsMap;
 

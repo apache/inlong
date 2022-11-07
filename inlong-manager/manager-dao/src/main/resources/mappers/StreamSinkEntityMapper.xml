@@ -372,6 +372,7 @@
         select inlong_cluster_name as sortClusterName,
                sort_task_name,
                inlong_group_id     as groupId,
+               inlong_stream_id    as streamId,
                ext_params
         from stream_sink
         where is_deleted = 0

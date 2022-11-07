@@ -289,7 +289,8 @@
         select
                inlong_group_id,
                inlong_stream_id,
-               mq_resource
+               mq_resource,
+               ext_params
         from inlong_stream
         where is_deleted = 0
     </select>

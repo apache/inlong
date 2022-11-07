@@ -50,7 +50,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -95,11 +94,11 @@ public class SortSourceServiceImpl implements SortSourceService {
 
     private Map<String, List<SortSourceClusterInfo>> mqClusters;
     private Map<String, SortSourceGroupInfo> groupInfos;
-    private Map<String, SortSourceStreamInfo> allStreams;
+    private Map<String, Map<String, SortSourceStreamInfo>> allStreams;
     private Map<String, String> backupClusterTag;
     private Map<String, String> backupGroupMqResource;
-    private Map<String, String> backupStreamMqResource;
-    private Map<String, Map<String, List<String>>> groupMap;
+    private Map<String, Map<String, String>> backupStreamMqResource;
+    private Map<String, Map<String, List<SortSourceStreamSinkInfo>>> streamSinkMap;
 
     @Autowired
     private SortConfigLoader configLoader;
@@ -195,16 +194,16 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // reload all stream sinks, to Map<clusterName, Map<taskName, List<groupId>>> format
         List<SortSourceStreamSinkInfo> allStreamSinks = configLoader.loadAllStreamSinks();
-        groupMap = new HashMap<>();
+        streamSinkMap = new HashMap<>();
         allStreamSinks.stream()
                 .filter(sink -> sink.getSortClusterName() != null)
                 .filter(sink -> sink.getSortTaskName() != null)
                 .forEach(sink -> {
-                    Map<String, List<String>> task2groupsMap =
-                            groupMap.computeIfAbsent(sink.getSortClusterName(), k -> new ConcurrentHashMap<>());
-                    List<String> groupIdList =
+                    Map<String, List<SortSourceStreamSinkInfo>> task2groupsMap =
+                            streamSinkMap.computeIfAbsent(sink.getSortClusterName(), k -> new ConcurrentHashMap<>());
+                    List<SortSourceStreamSinkInfo> sinkInfoList =
                             task2groupsMap.computeIfAbsent(sink.getSortTaskName(), k -> new ArrayList<>());
-                    groupIdList.add(sink.getGroupId());
+                    sinkInfoList.add(sink);
                 });
 
         // reload all groups
@@ -225,12 +224,15 @@ public class SortSourceServiceImpl implements SortSourceService {
         // reload all streams
         allStreams = configLoader.loadAllStreams()
                 .stream()
-                .collect(Collectors.toMap(SortSourceStreamInfo::getInlongGroupId, stream -> stream));
+                .collect(Collectors.groupingBy(SortSourceStreamInfo::getInlongGroupId,
+                        Collectors.toMap(SortSourceStreamInfo::getInlongStreamId, info -> info)));
 
         // reload all back up stream mq resource
         backupStreamMqResource = configLoader.loadStreamBackupInfo(ClusterSwitch.BACKUP_MQ_RESOURCE)
                 .stream()
-                .collect(Collectors.toMap(InlongStreamExtEntity::getInlongGroupId, InlongStreamExtEntity::getKeyValue));
+                .collect(Collectors.groupingBy(InlongStreamExtEntity::getInlongGroupId,
+                        Collectors.toMap(InlongStreamExtEntity::getInlongStreamId,
+                                InlongStreamExtEntity::getKeyValue)));
     }
 
     private void parseAll() {
@@ -239,12 +241,12 @@ public class SortSourceServiceImpl implements SortSourceService {
         Map<String, Map<String, String>> newMd5Map = new ConcurrentHashMap<>();
         Map<String, Map<String, CacheZoneConfig>> newConfigMap = new ConcurrentHashMap<>();
 
-        groupMap.forEach((sortClusterName, task2GroupList) -> {
+        streamSinkMap.forEach((sortClusterName, task2SinkList) -> {
             // prepare the new config and md5
             Map<String, CacheZoneConfig> task2Config = new ConcurrentHashMap<>();
             Map<String, String> task2Md5 = new ConcurrentHashMap<>();
 
-            task2GroupList.forEach((taskName, groupList) -> {
+            task2SinkList.forEach((taskName, sinkList) -> {
                 try {
                     CacheZoneConfig cacheZoneConfig =
                             CacheZoneConfig.builder()
@@ -252,7 +254,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                                     .sortTaskId(taskName)
                                     .build();
                     Map<String, CacheZone> cacheZoneMap =
-                            this.parseCacheZones(sortClusterName, taskName, groupList);
+                            this.parseCacheZones(sinkList);
                     cacheZoneConfig.setCacheZones(cacheZoneMap);
 
                     // prepare md5
@@ -277,31 +279,33 @@ public class SortSourceServiceImpl implements SortSourceService {
         backupClusterTag = null;
         backupGroupMqResource = null;
         backupStreamMqResource = null;
-        groupMap = null;
+        streamSinkMap = null;
     }
 
     private Map<String, CacheZone> parseCacheZones(
-            String sortClusterName,
-            String taskName,
-            List<String> groupIdList) {
+            List<SortSourceStreamSinkInfo> sinkList) {
 
         // get group infos
-        List<SortSourceGroupInfo> groupInfoList = groupIdList.stream()
-                .filter(groupInfos::containsKey)
-                .map(groupInfos::get)
+        List<SortSourceStreamSinkInfo> sinkInfoList = sinkList.stream()
+                .filter(sinkInfo -> groupInfos.containsKey(sinkInfo.getGroupId())
+                                && allStreams.containsKey(sinkInfo.getGroupId())
+                                && allStreams.get(sinkInfo.getGroupId()).containsKey(sinkInfo.getStreamId()))
                 .collect(Collectors.toList());
 
         // group them by cluster tag.
-        Map<String, List<SortSourceGroupInfo>> tag2GroupInfos = groupInfoList.stream()
-                .collect(Collectors.groupingBy(SortSourceGroupInfo::getClusterTag));
+        Map<String, List<SortSourceStreamSinkInfo>> tag2SinkInfos = sinkInfoList.stream()
+                .collect(Collectors.groupingBy(sink -> {
+                    SortSourceGroupInfo groupInfo = groupInfos.get(sink.getGroupId());
+                    return groupInfo.getClusterTag();
+                }));
 
         // group them by second cluster tag.
-        Map<String, List<SortSourceGroupInfo>> backupTag2GroupInfos = groupInfoList.stream()
+        Map<String, List<SortSourceStreamSinkInfo>> backupTag2SinkInfos = sinkInfoList.stream()
                 .filter(info -> backupClusterTag.containsKey(info.getGroupId()))
                 .collect(Collectors.groupingBy(info -> backupClusterTag.get(info.getGroupId())));
 
-        List<CacheZone> cacheZones = this.parseCacheZonesByTag(tag2GroupInfos, false);
-        List<CacheZone> backupCacheZones = this.parseCacheZonesByTag(backupTag2GroupInfos, true);
+        List<CacheZone> cacheZones = this.parseCacheZonesByTag(tag2SinkInfos, false);
+        List<CacheZone> backupCacheZones = this.parseCacheZonesByTag(backupTag2SinkInfos, true);
 
         return Stream.of(cacheZones, backupCacheZones)
                 .flatMap(Collection::stream)
@@ -315,18 +319,20 @@ public class SortSourceServiceImpl implements SortSourceService {
                 );
     }
 
-    private List<CacheZone> parseCacheZonesByTag(Map<String, List<SortSourceGroupInfo>> tag2Groups, boolean isBackup) {
+    private List<CacheZone> parseCacheZonesByTag(
+            Map<String, List<SortSourceStreamSinkInfo>> tag2Sinks,
+            boolean isBackup) {
 
-        return tag2Groups.keySet().stream()
+        return tag2Sinks.keySet().stream()
                 .filter(mqClusters::containsKey)
                 .flatMap(tag -> {
-                    List<SortSourceGroupInfo> groups = tag2Groups.get(tag);
+                    List<SortSourceStreamSinkInfo> sinks = tag2Sinks.get(tag);
                     List<SortSourceClusterInfo> clusters = mqClusters.get(tag);
                     return clusters.stream()
                             .map(cluster -> {
                                 CacheZone zone = null;
                                 try {
-                                    zone = this.parseCacheZone(groups, cluster, isBackup);
+                                    zone = this.parseCacheZone(sinks, cluster, isBackup);
                                 } catch (IllegalStateException e) {
                                     LOGGER.error("fail to init cache zone for cluster " + cluster, e);
                                 }
@@ -337,11 +343,11 @@ public class SortSourceServiceImpl implements SortSourceService {
     }
 
     private CacheZone parseCacheZone(
-            List<SortSourceGroupInfo> groups,
+            List<SortSourceStreamSinkInfo> sinks,
             SortSourceClusterInfo cluster,
             boolean isBackupTag) {
         switch (cluster.getType()) {
-            case ClusterType.PULSAR: return parsePulsarZone(groups, cluster, isBackupTag);
+            case ClusterType.PULSAR: return parsePulsarZone(sinks, cluster, isBackupTag);
             default:
                 throw new BusinessException(String.format("do not support cluster type=%s of cluster=%s",
                         cluster.getType(), cluster));
@@ -349,24 +355,34 @@ public class SortSourceServiceImpl implements SortSourceService {
     }
 
     private CacheZone parsePulsarZone(
-            List<SortSourceGroupInfo> groups,
+            List<SortSourceStreamSinkInfo> sinks,
             SortSourceClusterInfo cluster,
             boolean isBackupTag) {
         Map<String, String> param = cluster.getExtParamsMap();
         String tenant = param.get(KEY_TENANT);
         String auth = param.get(KEY_AUTH);
-        List<Topic> sdkTopics = groups.stream()
-                .map(info -> {
-                    String namespace = info.getMqResource();
-                    String topic = allStreams.get(info.getGroupId()).getMqResource();
+        List<Topic> sdkTopics = sinks.stream()
+                .map(sink -> {
+                    String groupId = sink.getGroupId();
+                    String streamId = sink.getStreamId();
+                    SortSourceGroupInfo groupInfo = groupInfos.get(groupId);
+                    SortSourceStreamInfo streamInfo = allStreams.get(groupId).get(streamId);
+
+                    String namespace = groupInfo.getMqResource();
+                    String topic = streamInfo.getMqResource();
                     if (isBackupTag) {
-                        namespace = Optional.ofNullable(backupGroupMqResource.get(info.getGroupId())).orElse(namespace);
-                        topic = Optional.ofNullable(backupStreamMqResource.get(info.getGroupId())).orElse(topic);
+                        if (backupGroupMqResource.containsKey(groupId)) {
+                            namespace = backupGroupMqResource.get(groupId);
+                        }
+                        if (backupStreamMqResource.containsKey(groupId)
+                                && backupStreamMqResource.get(groupId).containsKey(streamId)) {
+                            topic = backupStreamMqResource.get(groupId).get(streamId);
+                        }
                     }
                     String fullTopic = tenant.concat("/").concat(namespace).concat("/").concat(topic);
                     return Topic.builder()
                             .topic(fullTopic)
-                            .topicProperties(info.getExtParamsMap())
+                            .topicProperties(streamInfo.getExtParamsMap())
                             .build();
                 })
                 .collect(Collectors.toList());
