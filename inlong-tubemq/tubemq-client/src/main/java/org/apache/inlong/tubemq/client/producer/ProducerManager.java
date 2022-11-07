@@ -567,8 +567,8 @@ public class ProducerManager {
                                       long pkgCheckSum, StringBuilder sBuilder) {
         if (pkgCheckSum != brokerInfoCheckSum) {
             if (pkgBrokerInfos != null) {
-                brokersMap =
-                        DataConverterUtil.convertBrokerInfo(pkgBrokerInfos);
+                brokersMap = DataConverterUtil.convertBrokerInfo(
+                        pkgBrokerInfos, tubeClientConfig.isTlsEnable());
                 brokerInfoCheckSum = pkgCheckSum;
                 lastBrokerUpdatedTime = System.currentTimeMillis();
                 if (pkgBrokerInfos.isEmpty()) {
