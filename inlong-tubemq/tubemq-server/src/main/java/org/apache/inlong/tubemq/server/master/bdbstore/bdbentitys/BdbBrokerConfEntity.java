@@ -526,7 +526,7 @@ public class BdbBrokerConfEntity implements Serializable {
                         String.valueOf(brokerWebPort));
     }
 
-    private void buildStrInfo() {
+    public void buildStrInfo() {
         StringBuilder sBuilder = new StringBuilder(512);
         this.brokerAddress = sBuilder.append(this.brokerIp)
                 .append(TokenConstants.ATTR_SEP)
