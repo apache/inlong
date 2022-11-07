@@ -254,9 +254,9 @@ public class TopicDeployEntity extends BaseEntity implements Cloneable {
             }
         }
         if (changed) {
-            updSerialId();
             this.brokerAddress =
                     KeyBuilderUtils.buildAddressInfo(this.brokerIp, this.brokerPort);
+            updSerialId();
         }
         return changed;
     }
