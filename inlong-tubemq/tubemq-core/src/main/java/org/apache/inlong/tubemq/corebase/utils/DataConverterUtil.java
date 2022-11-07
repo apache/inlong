@@ -142,15 +142,19 @@ public class DataConverterUtil {
      * convert string info to @link BrokerInfo
      *
      * @param strBrokerInfos return a BrokerInfo Map
+     * @param enableTLS   Whether to enable TLS
      */
-    public static Map<Integer, BrokerInfo> convertBrokerInfo(List<String> strBrokerInfos) {
+    public static Map<Integer, BrokerInfo> convertBrokerInfo(List<String> strBrokerInfos,
+                                                             boolean enableTLS) {
         Map<Integer, BrokerInfo> brokerInfoMap =
                 new ConcurrentHashMap<>();
         if (strBrokerInfos != null) {
+            int brokerPort = enableTLS
+                    ? TBaseConstants.META_DEFAULT_BROKER_TLS_PORT : TBaseConstants.META_DEFAULT_BROKER_PORT;
             for (String info : strBrokerInfos) {
                 if (info != null) {
                     BrokerInfo brokerInfo =
-                            new BrokerInfo(info, TBaseConstants.META_DEFAULT_BROKER_PORT);
+                            new BrokerInfo(info, brokerPort);
                     brokerInfoMap.put(brokerInfo.getBrokerId(), brokerInfo);
                 }
             }

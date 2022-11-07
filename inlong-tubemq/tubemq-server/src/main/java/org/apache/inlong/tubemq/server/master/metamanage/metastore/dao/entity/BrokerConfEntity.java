@@ -188,7 +188,7 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     }
 
     public String getSimpleTLSBrokerInfo() {
-        if (getBrokerTLSPort() == TBaseConstants.META_DEFAULT_BROKER_PORT) {
+        if (getBrokerTLSPort() == TBaseConstants.META_DEFAULT_BROKER_TLS_PORT) {
             return this.brokerTLSSimpleInfo;
         } else {
             return this.brokerTLSFullInfo;

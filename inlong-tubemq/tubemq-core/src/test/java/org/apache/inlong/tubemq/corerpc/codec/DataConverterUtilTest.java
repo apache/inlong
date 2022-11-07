@@ -44,7 +44,8 @@ public class DataConverterUtilTest {
         BrokerInfo broker = new BrokerInfo(0, "localhost", 1200);
         List<String> strInfoList = new ArrayList<>();
         strInfoList.add("0:localhost:1200");
-        Map<Integer, BrokerInfo> brokerMap = DataConverterUtil.convertBrokerInfo(strInfoList);
+        Map<Integer, BrokerInfo> brokerMap =
+                DataConverterUtil.convertBrokerInfo(strInfoList, false);
         assertEquals("broker should be equal", broker, brokerMap.get(broker.getBrokerId()));
 
         // partition convert
