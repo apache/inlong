@@ -128,14 +128,16 @@ public class TubeSink extends AbstractSink implements Configurable {
         tubeConfig = configManager.getMqClusterConfig();
         topicProperties = configManager.getTopicProperties();
         masterHostAndPortLists = configManager.getMqClusterUrl2Token().keySet();
-        // start message deduplication handler
-        MSG_DEDUP_HANDLER.start(tubeConfig.getClientIdCache(),
-                tubeConfig.getMaxSurvivedTime(), tubeConfig.getMaxSurvivedSize());
         // only use first cluster address now
         usedMasterAddr = getFirstClusterAddr(masterHostAndPortLists);
         // create producer holder
-        producerHolder = new TubeProducerHolder(getName(),
-                usedMasterAddr, configManager.getMqClusterConfig());
+        if (usedMasterAddr != null) {
+            producerHolder = new TubeProducerHolder(getName(),
+                    usedMasterAddr, configManager.getMqClusterConfig());
+        }
+        // start message deduplication handler
+        MSG_DEDUP_HANDLER.start(tubeConfig.getClientIdCache(),
+                tubeConfig.getMaxSurvivedTime(), tubeConfig.getMaxSurvivedSize());
         // get statistic configure items
         maxMonitorCnt = context.getInteger(MAX_MONITOR_CNT, 300000);
         statIntervalSec = tubeConfig.getStatIntervalSec();
@@ -196,17 +198,23 @@ public class TubeSink extends AbstractSink implements Configurable {
         this.metricItemSet = new DataProxyMetricItemSet(clusterId, this.getName());
         MetricRegister.register(metricItemSet);
         // create tube connection
-        try {
-            producerHolder.start(new HashSet<>(topicProperties.values()));
-        } catch (FlumeException e) {
-            logger.error("Unable to start TubeMQ client. Exception follows.", e);
-            super.stop();
-            return;
+        if (producerHolder != null) {
+            try {
+                producerHolder.start(new HashSet<>(topicProperties.values()));
+                ConfigManager.getInstance().updMqClusterStatus(true);
+                logger.info("[{}] MQ Cluster service status ready!", getName());
+            } catch (FlumeException e) {
+                logger.error("Unable to start TubeMQ client. Exception follows.", e);
+                super.stop();
+                return;
+            }
         }
         // start the cleaner thread
         super.start();
         this.canSend = true;
-        this.canTake = true;
+        if (ConfigManager.getInstance().isMqClusterReady()) {
+            this.canTake = true;
+        }
         for (int i = 0; i < sinkThreadPool.length; i++) {
             sinkThreadPool[i] = new Thread(new TubeSinkTask(),
                     getName() + "_tube_sink_sender-" + i);
@@ -610,10 +618,12 @@ public class TubeSink extends AbstractSink implements Configurable {
         }
         // publish them
         if (!addedTopics.isEmpty()) {
-            try {
-                producerHolder.createProducersByTopicSet(addedTopics);
-            } catch (Exception e) {
-                logger.info(getName() + "'s publish new topic set fail.", e);
+            if (producerHolder != null) {
+                try {
+                    producerHolder.createProducersByTopicSet(addedTopics);
+                } catch (Exception e) {
+                    logger.info(getName() + "'s publish new topic set fail.", e);
+                }
             }
             logger.info(getName() + "'s topics set has changed, trigger diff publish for {}",
                     addedTopics);
@@ -658,7 +668,17 @@ public class TubeSink extends AbstractSink implements Configurable {
         producerHolder = newProducerHolder;
         usedMasterAddr = newMasterAddr;
         // close old producer holder
-        tmpProducerHolder.stop();
+        if (tmpProducerHolder == null) {
+            diffSetPublish(new HashSet<>(),
+                    new HashSet<>(configManager.getTopicProperties().values()));
+        } else {
+            tmpProducerHolder.stop();
+        }
+        if (!ConfigManager.getInstance().isMqClusterReady()) {
+            this.canTake = true;
+            ConfigManager.getInstance().updMqClusterStatus(true);
+            logger.info("[{}] MQ Cluster service status ready!", getName());
+        }
         logger.info(getName() + " switch cluster from "
                 + tmpMasterAddr + " to " + usedMasterAddr);
     }

@@ -305,13 +305,18 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
                 new HashSet<>(topicProperties.values()));
 
         pulsarCluster = configManager.getMqClusterUrl2Token();
+        if (!ConfigManager.getInstance().isMqClusterReady()) {
+            this.canTake = true;
+            ConfigManager.getInstance().updMqClusterStatus(true);
+            logger.info("[{}] MQ Cluster service status ready!", getName());
+        }
     }
 
     @Override
     public void start() {
         logger.info("[{}] pulsar sink starting...", getName());
         sinkCounter.start();
-        pulsarClientService.initCreateConnection(this);
+        pulsarClientService.initCreateConnection(this, getName());
 
         int statIntervalSec = pulsarConfig.getStatIntervalSec();
         Preconditions.checkArgument(statIntervalSec >= 0, "statIntervalSec must be >= 0");
@@ -345,7 +350,9 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
                         ConfigConstants.DEFAULT_PROXY_CLUSTER_NAME);
         this.metricItemSet = new DataProxyMetricItemSet(clusterId, this.getName());
         MetricRegister.register(metricItemSet);
-        this.canTake = true;
+        if (ConfigManager.getInstance().isMqClusterReady()) {
+            this.canTake = true;
+        }
         logger.info("[{}] Pulsar sink started", getName());
     }
 

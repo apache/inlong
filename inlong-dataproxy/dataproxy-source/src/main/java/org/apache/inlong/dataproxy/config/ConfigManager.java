@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_INTERVAL;
 
@@ -77,6 +78,8 @@ public class ConfigManager {
     private final FileConfigHolder blackListConfig = new FileConfigHolder("blacklist.properties");
     // source report configure holder
     private final SourceReportConfigHolder sourceReportConfigHolder = new SourceReportConfigHolder();
+    // mq clusters ready
+    private final AtomicBoolean mqClusterReady = new AtomicBoolean(false);
 
     /**
      * get instance for config manager
@@ -146,6 +149,14 @@ public class ConfigManager {
 
     public SourceReportInfo getSourceReportInfo() {
         return sourceReportConfigHolder.getSourceReportInfo();
+    }
+
+    public boolean isMqClusterReady() {
+        return mqClusterReady.get();
+    }
+
+    public void updMqClusterStatus(boolean isStarted) {
+        mqClusterReady.set(isStarted);
     }
 
     /**

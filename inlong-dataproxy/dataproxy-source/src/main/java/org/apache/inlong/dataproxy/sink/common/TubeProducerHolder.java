@@ -211,7 +211,7 @@ public class TubeProducerHolder {
      *
      * @param cfgTopicSet  the configured topic set
      */
-    public void createProducersByTopicSet(Set<String> cfgTopicSet) throws Exception {
+    public synchronized void createProducersByTopicSet(Set<String> cfgTopicSet) throws Exception {
         if (cfgTopicSet == null || cfgTopicSet.isEmpty()) {
             return;
         }

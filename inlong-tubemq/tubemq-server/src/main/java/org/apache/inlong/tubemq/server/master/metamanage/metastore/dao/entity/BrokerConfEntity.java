@@ -119,6 +119,7 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         bdbEntity.setDftMemCacheFlushIntvl(topicProps.getMemCacheFlushIntvl());
         bdbEntity.setDftUnFlushDataHold(topicProps.getUnflushDataHold());
         bdbEntity.setDataStore(topicProps.getDataStoreType(), topicProps.getDataPath());
+        bdbEntity.buildStrInfo();
         return bdbEntity;
     }
 
@@ -188,7 +189,7 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     }
 
     public String getSimpleTLSBrokerInfo() {
-        if (getBrokerTLSPort() == TBaseConstants.META_DEFAULT_BROKER_PORT) {
+        if (getBrokerTLSPort() == TBaseConstants.META_DEFAULT_BROKER_TLS_PORT) {
             return this.brokerTLSSimpleInfo;
         } else {
             return this.brokerTLSFullInfo;
@@ -306,8 +307,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
             }
         }
         if (changed) {
-            updSerialId();
             buildStrInfo();
+            updSerialId();
         }
         return changed;
     }

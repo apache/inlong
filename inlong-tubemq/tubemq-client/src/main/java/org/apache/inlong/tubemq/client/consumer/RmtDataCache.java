@@ -443,8 +443,8 @@ public class RmtDataCache implements Closeable {
                                      StringBuilder sBuilder) {
         if (pkgCheckSum != lstBrokerConfigId.get()) {
             if (pkgBrokerInfos != null) {
-                brokersMap =
-                        DataConverterUtil.convertBrokerInfo(pkgBrokerInfos);
+                brokersMap = DataConverterUtil.convertBrokerInfo(
+                        pkgBrokerInfos, consumerConfig.isTlsEnable());
                 lstBrokerConfigId.set(pkgCheckSum);
                 lastBrokerUpdatedTime = System.currentTimeMillis();
                 if (pkgBrokerInfos.isEmpty()) {

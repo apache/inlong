@@ -288,9 +288,9 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
         // process removed topic info
         if (isTackRmvInfo) {
             metaDataService.delCleanedTopicDeployInfo(brokerId, removedTopics, sBuffer, result);
-            logger.info(sBuffer.append("[Broker Report] receive broker removed topics = ")
-                    .append(removedTopics.toString()).append(", removed result is ")
-                    .append(result.getErrMsg()).toString());
+            logger.info(sBuffer.append("[Broker Report] brokerId=").append(brokerId)
+                    .append(" removed topics = ").append(removedTopics)
+                    .append(", removed result is ").append(result.getErrMsg()).toString());
             sBuffer.delete(0, sBuffer.length());
         }
         brokerAbnHolder.updateBrokerReportStatus(brokerId, rptReadStatus, rptWriteStatus);
@@ -317,7 +317,7 @@ public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
         }
         boolean isOverTls = runStatusInfo.isOverTLS();
         releaseBrokerRunInfo(brokerId, runStatusInfo.getCreateId(), false);
-        logger.info(sBuffer.append("[Broker Closed]").append(brokerId)
+        logger.info(sBuffer.append("[Broker Closed] brokerId=").append(brokerId)
                 .append(" unregister success, isOverTLS=").append(isOverTls).toString());
         result.setSuccResult(null);
         return result.isSuccess();

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.dataproxy.http;
 
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
@@ -64,7 +65,7 @@ public class MessageProcessServlet extends HttpServlet {
             if (logCounter.shouldPrint()) {
                 LOG.error("Received bad request from client. ", e);
             }
-            req.setAttribute("code", StatusCode.SERVICE_ERR);
+            req.setAttribute("code", DataProxyErrCode.UNKNOWN_ERROR.getErrCode());
         }
     }
 }
