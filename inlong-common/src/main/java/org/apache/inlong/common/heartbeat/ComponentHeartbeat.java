@@ -44,7 +44,7 @@ public class ComponentHeartbeat {
     private String inCharges;
 
     // node load
-    private int loadValue;
+    private Integer loadValue;
 
     public ComponentHeartbeat() {
     }
