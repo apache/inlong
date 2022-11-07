@@ -23,8 +23,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
@@ -32,12 +32,12 @@ import java.util.Date;
  * Base inlong consume info
  */
 @Data
-@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Base inlong consume info")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
-public abstract class InlongConsumeInfo {
+public abstract class InlongConsumeInfo extends BaseInlongConsume {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;

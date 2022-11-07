@@ -80,6 +80,9 @@ public abstract class SinkRequest {
     @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1")
     private Integer enableCreateResource = 1;
 
+    @ApiModelProperty(value = "Whether to start the process after saving or updating. Default is false")
+    private Boolean startProcess = false;
+
     @ApiModelProperty("Sink field list")
     private List<SinkField> sinkFieldList;
 

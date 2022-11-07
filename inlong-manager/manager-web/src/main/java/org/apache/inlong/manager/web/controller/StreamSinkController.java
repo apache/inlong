@@ -89,23 +89,28 @@ public class StreamSinkController {
     @RequestMapping(value = "/sink/delete/{id}", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete stream sink")
-    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
-    public Response<Boolean> delete(@PathVariable Integer id) {
-        return Response.success(sinkService.delete(id, LoginUserUtils.getLoginUser().getName()));
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "startProcess", dataTypeClass = boolean.class),
+            @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    })
+    public Response<Boolean> delete(@PathVariable Integer id,
+            @RequestParam(required = false, defaultValue = "false") boolean startProcess) {
+        return Response.success(sinkService.delete(id, startProcess, LoginUserUtils.getLoginUser().getName()));
     }
 
     @RequestMapping(value = "/sink/deleteByKey", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete stream sink by key")
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "startProcess", dataTypeClass = boolean.class),
             @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
     })
-    public Response<Boolean> deleteByKey(@RequestParam String groupId, @RequestParam String streamId,
-            @RequestParam String name) {
-        boolean result = sinkService.deleteByKey(groupId, streamId, name, LoginUserUtils.getLoginUser().getName());
-        return Response.success(result);
+    public Response<Boolean> deleteByKey(@RequestParam(required = false, defaultValue = "false") boolean startProcess,
+            @RequestParam String groupId, @RequestParam String streamId, @RequestParam String name) {
+        String username = LoginUserUtils.getLoginUser().getName();
+        return Response.success(sinkService.deleteByKey(groupId, streamId, name, startProcess, username));
     }
 
 }

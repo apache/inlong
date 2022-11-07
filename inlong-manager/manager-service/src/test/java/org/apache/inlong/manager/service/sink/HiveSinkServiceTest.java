@@ -67,7 +67,7 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
         Integer id = this.saveSink();
         Assertions.assertNotNull(id);
 
-        boolean result = sinkService.delete(id, globalOperator);
+        boolean result = sinkService.delete(id, false, globalOperator);
         Assertions.assertTrue(result);
     }
 
@@ -76,7 +76,7 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
         Integer id = this.saveSink();
         Assertions.assertNotNull(id);
 
-        boolean result = sinkService.deleteByKey(globalGroupId, globalStreamId, sinkName, globalOperator);
+        boolean result = sinkService.deleteByKey(globalGroupId, globalStreamId, sinkName, false, globalOperator);
         Assertions.assertTrue(result);
     }
 
@@ -87,7 +87,7 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
         StreamSink sink = sinkService.get(id);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
 
-        sinkService.delete(id, globalOperator);
+        sinkService.delete(id, false, globalOperator);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);
 
-        sinkService.delete(sinkId, globalOperator);
+        sinkService.delete(sinkId, false, globalOperator);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class HiveSinkServiceTest extends ServiceBaseTest {
         Assertions.assertTrue(result.getSuccess());
         Assertions.assertEquals(request.getVersion() + 1, result.getVersion().intValue());
 
-        sinkService.delete(sinkId, globalOperator);
+        sinkService.delete(sinkId, false, globalOperator);
     }
 
 }
