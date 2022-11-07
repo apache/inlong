@@ -150,7 +150,58 @@ public class OracleExtractNode extends ExtractNode implements InlongMetric, Meta
     @Override
     public Set<MetaField> supportedMetaFields() {
         return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
-                MetaField.SCHEMA_NAME, MetaField.OP_TS, MetaField.DATA, MetaField.DATA_CANAL,
-                MetaField.DATA_BYTES, MetaField.DATA_BYTES_CANAL);
+                MetaField.SCHEMA_NAME, MetaField.OP_TS, MetaField.OP_TYPE, MetaField.DATA, MetaField.DATA_BYTES,
+                MetaField.DATA_CANAL, MetaField.DATA_BYTES_CANAL, MetaField.IS_DDL, MetaField.TS,
+                MetaField.SQL_TYPE, MetaField.ORACLE_TYPE, MetaField.PK_NAMES);
     }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case TABLE_NAME:
+                metadataKey = "meta.table_name";
+                break;
+            case DATABASE_NAME:
+                metadataKey = "meta.database_name";
+                break;
+            case SCHEMA_NAME:
+                metadataKey = "meta.schema_name";
+                break;
+            case OP_TS:
+                metadataKey = "meta.op_ts";
+                break;
+            case OP_TYPE:
+                metadataKey = "meta.op_type";
+                break;
+            case DATA:
+            case DATA_BYTES:
+                metadataKey = "meta.data";
+                break;
+            case DATA_CANAL:
+            case DATA_BYTES_CANAL:
+                metadataKey = "meta.data_canal";
+                break;
+            case IS_DDL:
+                metadataKey = "meta.is_ddl";
+                break;
+            case TS:
+                metadataKey = "meta.ts";
+                break;
+            case SQL_TYPE:
+                metadataKey = "meta.sql_type";
+                break;
+            case ORACLE_TYPE:
+                metadataKey = "meta.oracle_type";
+                break;
+            case PK_NAMES:
+                metadataKey = "meta.pk_names";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
 }

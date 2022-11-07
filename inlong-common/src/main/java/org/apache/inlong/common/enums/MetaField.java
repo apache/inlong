@@ -117,6 +117,11 @@ public enum MetaField {
     MYSQL_TYPE,
 
     /**
+     * The table structure. It is only used for Oracle database
+     */
+    ORACLE_TYPE,
+
+    /**
      * Primary key field name. Currently, it is used for MySQL database.
      */
     PK_NAMES,
