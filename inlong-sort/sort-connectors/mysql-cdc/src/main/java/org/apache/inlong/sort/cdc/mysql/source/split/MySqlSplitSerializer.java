@@ -56,6 +56,7 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
 
     private static final int SNAPSHOT_SPLIT_FLAG = 1;
     private static final int BINLOG_SPLIT_FLAG = 2;
+    private static final int METRIC_SPLIT_FLAG = 3;
 
     private static void writeTableSchemas(
             Map<TableId, TableChange> tableSchemas, DataOutputSerializer out) throws IOException {
@@ -167,7 +168,7 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
             // serialization
             snapshotSplit.serializedFormCache = result;
             return result;
-        } else {
+        } else if (split.isBinlogSplit()) {
             final MySqlBinlogSplit binlogSplit = split.asBinlogSplit();
             // optimization: the splits lazily cache their own serialized form
             if (binlogSplit.serializedFormCache != null) {
@@ -188,6 +189,15 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
             // optimization: cache the serialized from, so we avoid the byte work during repeated
             // serialization
             binlogSplit.serializedFormCache = result;
+            return result;
+        } else {
+            final MySqlMetricSplit mysqlMetricSplit = split.asMetricSplit();
+            final DataOutputSerializer out = SERIALIZER_CACHE.get();
+            out.writeInt(METRIC_SPLIT_FLAG);
+            out.writeLong(mysqlMetricSplit.getNumBytesIn());
+            out.writeLong(mysqlMetricSplit.getNumRecordsIn());
+            final byte[] result = out.getCopyOfBuffer();
+            out.clear();
             return result;
         }
     }
@@ -255,6 +265,10 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
                     tableChangeMap,
                     totalFinishedSplitSize,
                     isSuspended);
+        } else if (splitKind == METRIC_SPLIT_FLAG) {
+            long numBytesIn = in.readLong();
+            long numRecordsIn = in.readLong();
+            return new MySqlMetricSplit(numBytesIn, numRecordsIn);
         } else {
             throw new IOException("Unknown split kind: " + splitKind);
         }

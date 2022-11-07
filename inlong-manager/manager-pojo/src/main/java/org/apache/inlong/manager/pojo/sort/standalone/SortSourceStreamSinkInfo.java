@@ -18,11 +18,14 @@
 package org.apache.inlong.manager.pojo.sort.standalone;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,7 +47,16 @@ public class SortSourceStreamSinkInfo {
         }
         if (StringUtils.isNotBlank(extParams)) {
             try {
-                extParamsMap = GSON.fromJson(extParams, Map.class);
+                JsonObject jo = GSON.fromJson(extParams, JsonObject.class);
+                extParamsMap = new HashMap<>();
+                jo.keySet().forEach(k -> {
+                    JsonElement element = jo.get(k);
+                    if (element.isJsonPrimitive()) {
+                        extParamsMap.put(k, element.getAsString());
+                    } else {
+                        extParamsMap.put(k, element.toString());
+                    }
+                });
             } catch (Throwable t) {
                 LOGGER.error("fail to parse source stream ext params", t);
                 extParamsMap = new ConcurrentHashMap<>();
