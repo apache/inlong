@@ -98,4 +98,15 @@ public class MySqlSourceReaderMetrics {
             sourceMetricData.outputMetrics(rowCountSize, rowDataSize);
         }
     }
+
+    public void initMetrics(long rowCountSize, long rowDataSize) {
+        if (sourceMetricData != null) {
+            sourceMetricData.getNumBytesIn().inc(rowDataSize);
+            sourceMetricData.getNumRecordsIn().inc(rowCountSize);
+        }
+    }
+
+    public SourceMetricData getSourceMetricData() {
+        return sourceMetricData;
+    }
 }
