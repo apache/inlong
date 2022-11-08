@@ -172,17 +172,17 @@ public class KafkaResourceOperators implements QueueResourceOperator {
             throw new WorkflowListenerException("topic=" + topicName + " not exists in " + bootStrapServers);
         }
 
-        // 2. create a subscription for the kafka topic
-        kafkaOperator.createSubscription(kafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
-        String groupId = kafkaInfo.getInlongGroupId();
-        log.info("success to create kafka subscription for groupId={}, topic={}, consumeGroup={}",
-                groupId, topicName, topicName);
+        // Kafka consumers do not need to register in advance
+//        kafkaOperator.createSubscription(kafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
+//        String groupId = kafkaInfo.getInlongGroupId();
+//        log.info("success to create kafka subscription for groupId={}, topic={}, consumeGroup={}",
+//                groupId, topicName, topicName);
 
-        // 3. insert the consumer group info
+        // 2. insert the consumer group info
         String consumeGroup = String.format(KAFKA_CONSUMER_GROUP, kafkaInfo.getInlongClusterTag(), topicName);
         Integer id = consumeService.saveBySystem(kafkaInfo, topicName, consumeGroup);
         log.info("success to save inlong consume [{}] for consumerGroup={}, groupId={}, topic={}",
-                id, consumeGroup, groupId, topicName);
+                id, consumeGroup, kafkaInfo.getInlongGroupId(), topicName);
     }
 
     /**
