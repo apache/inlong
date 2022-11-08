@@ -51,7 +51,6 @@ import org.apache.flink.table.formats.raw.RawFormatSerializationSchema;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.VarBinaryType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
 import org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner;
@@ -66,7 +65,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FORMAT;
@@ -440,8 +438,7 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         if (valueEncodingFormat instanceof RawFormatSerializationSchema
                 && StringUtils.isNotBlank(sinkMultipleFormat)) {
             DynamicSchemaFormatFactory.getFormat(sinkMultipleFormat);
-            List<String> supportFormats = DynamicSchemaFormatFactory.SUPPORT_FORMATS.stream().map(
-                    AbstractDynamicSchemaFormat::identifier).collect(Collectors.toList());
+            Set<String> supportFormats = DynamicSchemaFormatFactory.SUPPORT_FORMATS.keySet();
             if (!supportFormats.contains(sinkMultipleFormat)) {
                 throw new ValidationException(String.format(
                         "Unsupported value '%s' for '%s'. "
