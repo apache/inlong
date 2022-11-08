@@ -15,19 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.consts;
+package org.apache.inlong.manager.pojo.node.cls;
 
-/**
- * Constants of data node.
- */
-public class DataNodeType {
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 
-    public static final String HIVE = "HIVE";
-    public static final String KAFKA = "KAFKA";
-    public static final String ICEBERG = "ICEBERG";
-    public static final String CLICKHOUSE = "CLICKHOUSE";
-    public static final String ELASTICSEARCH = "ELASTICSEARCH";
-    public static final String MYSQL = "MYSQL";
-    public static final String CLS = "CLS";
-
+public class ClsDataNodeInfo extends DataNodeInfo {
+    @Override
+    public DataNodeRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this,
+    }
 }
