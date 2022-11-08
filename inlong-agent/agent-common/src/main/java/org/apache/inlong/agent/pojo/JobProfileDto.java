@@ -59,7 +59,7 @@ public class JobProfileDto {
      */
     public static final String MQTT_SOURCE = "org.apache.inlong.agent.plugin.sources.MqttSource";
     /**
-     * mqtt source
+     * sqlserver source
      */
     public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SqlServerSource";
 
