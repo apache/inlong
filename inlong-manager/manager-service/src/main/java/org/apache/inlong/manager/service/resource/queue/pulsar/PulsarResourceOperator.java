@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Operator for create Pulsar Tenant, Namespace, Topic and Subscription
@@ -84,42 +85,51 @@ public class PulsarResourceOperator implements QueueResourceOperator {
 
         // get pulsar cluster via the inlong cluster tag from the inlong group
         String clusterTag = groupInfo.getInlongClusterTag();
-        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(clusterTag, null,
-                ClusterType.PULSAR);
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            // create pulsar tenant and namespace
-            String tenant = pulsarCluster.getTenant();
-            if (StringUtils.isEmpty(tenant)) {
-                tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
-            }
-            String namespace = groupInfo.getMqResource();
-            InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
-            // if the group was not successful, need create tenant and namespace
-            if (!Objects.equal(GroupStatus.CONFIG_SUCCESSFUL.getCode(), groupInfo.getStatus())) {
-                pulsarOperator.createTenant(pulsarAdmin, tenant);
-                log.info("success to create pulsar tenant for groupId={}, tenant={}", groupId, tenant);
-                pulsarOperator.createNamespace(pulsarAdmin, pulsarInfo, tenant, namespace);
-                log.info("success to create pulsar namespace for groupId={}, namespace={}", groupId, namespace);
-            }
+        List<PulsarClusterInfo> pulsarClusters =
+                clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR).stream()
+                        .map(clusterInfo -> (PulsarClusterInfo) clusterInfo)
+                        .collect(Collectors.toList());
+        pulsarClusters.forEach(pulsarCluster -> {
+            try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
+                String clusterName = pulsarCluster.getName();
+                // create pulsar tenant and namespace
+                String tenant = pulsarCluster.getTenant();
+                if (StringUtils.isEmpty(tenant)) {
+                    tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+                }
+                String namespace = groupInfo.getMqResource();
+                InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
+                // if the group was not successful, need create tenant and namespace
+                if (!Objects.equal(GroupStatus.CONFIG_SUCCESSFUL.getCode(), groupInfo.getStatus())) {
+                    pulsarOperator.createTenant(pulsarAdmin, tenant);
+                    log.info("success to create pulsar tenant for groupId={}, tenant={}, cluster={}",
+                            groupId, tenant, clusterName);
+                    pulsarOperator.createNamespace(pulsarAdmin, pulsarInfo, tenant, namespace);
+                    log.info("success to create pulsar namespace for groupId={}, namespace={}, cluster={}",
+                            groupId, namespace, clusterName);
+                }
 
-            // create pulsar topic - each Inlong Stream corresponds to a Pulsar topic
-            List<InlongStreamBriefInfo> streamInfoList = streamService.getTopicList(groupId);
-            if (streamInfoList == null || streamInfoList.isEmpty()) {
-                log.warn("skip to create pulsar topic and subscription as no streams for groupId={}", groupId);
-                return;
+                // create pulsar topic - each Inlong Stream corresponds to a Pulsar topic
+                List<InlongStreamBriefInfo> streamInfoList = streamService.getTopicList(groupId);
+                if (streamInfoList == null || streamInfoList.isEmpty()) {
+                    log.warn("skip to create pulsar topic and subscription as no streams for groupId={}, cluster={}",
+                            groupId, clusterName);
+                    return;
+                }
+                // create pulsar topic and subscription
+                for (InlongStreamBriefInfo stream : streamInfoList) {
+                    this.createTopic(pulsarInfo, pulsarCluster, stream.getMqResource());
+                    this.createSubscription(pulsarInfo, pulsarCluster, stream.getMqResource(), stream.getInlongStreamId());
+                }
+            } catch (Exception e) {
+                String msg = String.format("failed to create pulsar resource for groupId=%s, cluster=%s", groupId,
+                        pulsarCluster.toString());
+                log.error(msg, e);
+                throw new WorkflowListenerException(msg + ": " + e.getMessage());
             }
-            // create pulsar topic and subscription
-            for (InlongStreamBriefInfo stream : streamInfoList) {
-                this.createTopic(pulsarInfo, pulsarCluster, stream.getMqResource());
-                this.createSubscription(pulsarInfo, pulsarCluster, stream.getMqResource(), stream.getInlongStreamId());
-            }
-        } catch (Exception e) {
-            String msg = String.format("failed to create pulsar resource for groupId=%s", groupId);
-            log.error(msg, e);
-            throw new WorkflowListenerException(msg + ": " + e.getMessage());
-        }
+            log.info("success to create pulsar resource for groupId={}, cluster={}", groupId, pulsarCluster);
+        });
 
-        log.info("success to create pulsar resource for groupId={}, cluster={}", groupId, pulsarCluster);
     }
 
     @Override
