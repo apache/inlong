@@ -40,7 +40,7 @@ public class ProxyUtils {
         Collections.addAll(invalidAttr, "groupId", "streamId", "dt", "msgUUID", "cp",
                 "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "_file_status_check", "_secretId",
                 "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyAesKey",
-                "proxySend");
+                "proxySend", "errMsg", "errCode");
     }
 
     public static boolean isAttrKeysValid(Map<String, String> attrsMap) {
