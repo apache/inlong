@@ -18,7 +18,17 @@
 package org.apache.inlong.manager.service.node.cls;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.DataNodeEntity;
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeDTO;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeInfo;
+import org.apache.inlong.manager.pojo.node.cls.ClsDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +53,34 @@ public class ClsDataNodeOperator extends AbstractDataNodeOperator {
         return DataNodeType.CLS;
     }
 
+    @Override
+    public DataNodeInfo getFromEntity(DataNodeEntity entity) {
+        if (entity == null) {
+            throw new BusinessException(ErrorCodeEnum.DATA_NODE_NOT_FOUND);
+        }
 
+        ClsDataNodeInfo info = new ClsDataNodeInfo();
+        CommonBeanUtils.copyProperties(entity, info);
+        if (StringUtils.isNotBlank(entity.getExtParams())) {
+            ClsDataNodeDTO dto = ClsDataNodeDTO.getFromJson(entity.getExtParams());
+            CommonBeanUtils.copyProperties(dto, info);
+        }
+        LOGGER.debug("success to get cls data node from entity");
+        return info;
+    }
+
+    @Override
+    protected void setTargetEntity(DataNodeRequest request, DataNodeEntity targetEntity) {
+        ClsDataNodeRequest clsDataNodeRequest = (ClsDataNodeRequest) request;
+        CommonBeanUtils.copyProperties(clsDataNodeRequest, targetEntity, true);
+        try {
+            ClsDataNodeDTO dto = ClsDataNodeDTO.getFromRequest(clsDataNodeRequest);
+            targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
+            LOGGER.debug("success to set entity for cls data node");
+        } catch (Exception e) {
+            LOGGER.error("failed to set entity for cls data node: ", e);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+        }
+    }
 
 }

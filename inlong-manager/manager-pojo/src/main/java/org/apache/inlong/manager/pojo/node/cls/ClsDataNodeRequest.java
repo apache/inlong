@@ -37,28 +37,28 @@ import org.apache.inlong.manager.pojo.node.DataNodeRequest;
 public class ClsDataNodeRequest extends DataNodeRequest {
 
     @ApiModelProperty("Max send thread count, default is 50")
-    private Integer maxSendThreadCount;
+    private Integer maxSendThreadCount = 50;
 
     @ApiModelProperty("Max block time, default is 0 seconds")
-    private Integer maxBlockSec;
+    private Integer maxBlockSec = 0;
 
     @ApiModelProperty("Max message batch count, default is 4096")
-    private Integer maxBatchCount;
+    private Integer maxBatchCount = 4096;
 
     @ApiModelProperty("Linger, default is 2000ms")
-    private Integer lingerMs;
+    private Integer lingerMs = 2000;
 
     @ApiModelProperty("Retry times, default is 10")
-    private Integer retries;
+    private Integer retries = 10;
 
     @ApiModelProperty("Max reserve attempts, default is 11")
-    private Integer maxReservedAttempts;
+    private Integer maxReservedAttempts = 11;
 
     @ApiModelProperty("Base retry backoff time, default is 100ms")
-    private Integer baseRetryBackoffMs;
+    private Integer baseRetryBackoffMs = 100;
 
     @ApiModelProperty("Max retry backoff time, default is 50ms")
-    private Integer maxRetryBackoffMs;
+    private Integer maxRetryBackoffMs = 50;
 
     public ClsDataNodeRequest() {
         this.setType(DataNodeType.CLS);
