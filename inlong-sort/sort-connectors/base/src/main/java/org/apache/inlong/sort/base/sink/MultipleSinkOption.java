@@ -18,11 +18,14 @@
 
 package org.apache.inlong.sort.base.sink;
 
+import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.Map;
 
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE;
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE;
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.TRY_IT_BEST;
@@ -37,6 +40,8 @@ public class MultipleSinkOption implements Serializable {
 
     private String format;
 
+    private boolean sparkEngineEnable;
+
     private SchemaUpdateExceptionPolicy schemaUpdatePolicy;
 
     private String databasePattern;
@@ -44,10 +49,12 @@ public class MultipleSinkOption implements Serializable {
     private String tablePattern;
 
     public MultipleSinkOption(String format,
+            boolean sparkEngineEnable,
             SchemaUpdateExceptionPolicy schemaUpdatePolicy,
             String databasePattern,
             String tablePattern) {
         this.format = format;
+        this.sparkEngineEnable = sparkEngineEnable;
         this.schemaUpdatePolicy = schemaUpdatePolicy;
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
@@ -55,6 +62,15 @@ public class MultipleSinkOption implements Serializable {
 
     public String getFormat() {
         return format;
+    }
+
+    public boolean isSparkEngineEnable() {
+        return sparkEngineEnable;
+    }
+
+    public Map<String, String> getFormatOption() {
+        return ImmutableMap.of(
+                SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK.key(), String.valueOf(isSparkEngineEnable()));
     }
 
     public SchemaUpdateExceptionPolicy getSchemaUpdatePolicy() {
@@ -75,12 +91,18 @@ public class MultipleSinkOption implements Serializable {
 
     public static class Builder {
         private String format;
+        private boolean sparkEngineEnable;
         private SchemaUpdateExceptionPolicy schemaUpdatePolicy;
         private String databasePattern;
         private String tablePattern;
 
         public MultipleSinkOption.Builder withFormat(String format) {
             this.format = format;
+            return this;
+        }
+
+        public MultipleSinkOption.Builder withSparkEngineEnable(boolean sparkEngineEnable) {
+            this.sparkEngineEnable = sparkEngineEnable;
             return this;
         }
 
@@ -100,7 +122,7 @@ public class MultipleSinkOption implements Serializable {
         }
 
         public MultipleSinkOption build() {
-            return new MultipleSinkOption(format, schemaUpdatePolicy, databasePattern, tablePattern);
+            return new MultipleSinkOption(format, sparkEngineEnable, schemaUpdatePolicy, databasePattern, tablePattern);
         }
     }
 
