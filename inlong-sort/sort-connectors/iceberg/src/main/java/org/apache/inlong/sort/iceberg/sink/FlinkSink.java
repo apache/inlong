@@ -400,7 +400,6 @@ public class FlinkSink {
         }
 
 
-
         /**
          * Append the iceberg sink operators to write records to iceberg table.
          *
@@ -529,7 +528,7 @@ public class FlinkSink {
 
             IcebergProcessOperator streamWriter =
                     new IcebergProcessOperator(new IcebergMultipleStreamWriter(
-                            appendMode, catalogLoader, inlongMetric, auditHostAndPorts));
+                            appendMode, catalogLoader, inlongMetric, auditHostAndPorts, multipleSinkOption));
             SingleOutputStreamOperator<MultipleWriteResult> writerStream = routeStream
                     .transform(operatorName(ICEBERG_MULTIPLE_STREAM_WRITER_NAME),
                             TypeInformation.of(IcebergProcessOperator.class),
