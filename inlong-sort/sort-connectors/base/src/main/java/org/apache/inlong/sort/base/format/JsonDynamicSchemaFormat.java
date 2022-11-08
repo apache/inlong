@@ -52,7 +52,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_SPARK_ENGINE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
 
 /**
  * Json dynamic format class
@@ -129,7 +129,7 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
 
     public JsonDynamicSchemaFormat(Map<String, String> properties) {
         ReadableConfig config = Configuration.fromMap(properties);
-        this.adaptSparkEngine = config.get(SINK_MULTIPLE_TYPE_MAP_SPARK_ENGINE_ENABLE);
+        this.adaptSparkEngine = config.get(SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK);
         this.rowDataConverters =
                 new JsonToRowDataConverters(
                         false,

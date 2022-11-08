@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.Map;
 
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_SPARK_ENGINE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE;
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE;
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.TRY_IT_BEST;
@@ -69,7 +69,8 @@ public class MultipleSinkOption implements Serializable {
     }
 
     public Map<String, String> getFormatOption() {
-        return ImmutableMap.of(SINK_MULTIPLE_TYPE_MAP_SPARK_ENGINE_ENABLE.key(), String.valueOf(isSparkEngineEnable()));
+        return ImmutableMap.of(
+                SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK.key(), String.valueOf(isSparkEngineEnable()));
     }
 
     public SchemaUpdateExceptionPolicy getSchemaUpdatePolicy() {

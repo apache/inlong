@@ -164,8 +164,8 @@ public final class Constants {
                     .defaultValue(true)
                     .withDescription("Whether ignore the single table erros when multiple sink writing scenario.");
 
-    public static final ConfigOption<Boolean> SINK_MULTIPLE_TYPE_MAP_SPARK_ENGINE_ENABLE =
-            ConfigOptions.key("sink.multiple.typemap.spark.engine.enable")
+    public static final ConfigOption<Boolean> SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK =
+            ConfigOptions.key("sink.multiple.typemap-compatible-with-spark")
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Because spark do not support iceberg data type: `timestamp without time zone` and"
