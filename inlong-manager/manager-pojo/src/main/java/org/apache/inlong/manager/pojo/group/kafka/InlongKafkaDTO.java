@@ -44,10 +44,6 @@ public class InlongKafkaDTO extends BaseInlongGroup {
     private Integer numPartitions;
     // replicationFactor number
     private Short replicationFactor = 1;
-    //consumer grouping
-    private String groupId;
-    // autocommit interval
-    private String autoCommit;
 
     /**
      * Get the dto instance from the request
