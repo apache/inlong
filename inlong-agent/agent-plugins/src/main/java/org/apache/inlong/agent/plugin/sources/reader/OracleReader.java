@@ -256,28 +256,6 @@ public class OracleReader extends AbstractReader {
         LOGGER.info("get initial snapshot of job {}, snapshot {}", instanceId, getSnapshot());
     }
 
-    private String serializeOffset() {
-        Map<String, Object> sourceOffset = new HashMap<>();
-        Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,
-                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE + "shouldn't be null");
-        sourceOffset.put("file", specificOffsetFile);
-        Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,
-                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS + " shouldn't be null");
-        sourceOffset.put("pos", specificOffsetPos);
-        DebeziumOffset specificOffset = new DebeziumOffset();
-        specificOffset.setSourceOffset(sourceOffset);
-        Map<String, String> sourcePartition = new HashMap<>();
-        sourcePartition.put("server", instanceId);
-        specificOffset.setSourcePartition(sourcePartition);
-        byte[] serializedOffset = new byte[0];
-        try {
-            serializedOffset = DebeziumOffsetSerializer.INSTANCE.serialize(specificOffset);
-        } catch (IOException e) {
-            LOGGER.error("serialize offset message error", e);
-        }
-        return new String(serializedOffset, StandardCharsets.UTF_8);
-    }
-
     private Properties getEngineProps() {
         Properties props = new Properties();
         props.setProperty("name", "engine" + instanceId);
@@ -296,8 +274,13 @@ public class OracleReader extends AbstractReader {
         props.setProperty("offset.storage.file.filename", offsetStoreFileName);
         props.setProperty("database.history.file.filename", databaseStoreHistoryName);
         if (SnapshotModeConstants.SPECIFIC_OFFSETS.equals(snapshotMode)) {
+            Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,
+                    JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE + " cannot be null");
+            Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,
+                    JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS + " cannot be null");
             props.setProperty("offset.storage", InLongFileOffsetBackingStore.class.getCanonicalName());
-            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE, serializeOffset());
+            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE,
+                    serializeOffset(instanceId, specificOffsetFile, specificOffsetPos));
             props.setProperty("database.history", InLongDatabaseHistory.class.getCanonicalName());
         } else {
             props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());

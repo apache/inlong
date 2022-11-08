@@ -212,8 +212,13 @@ public class PostgreSQLReader extends AbstractReader {
         props.setProperty("snapshot.mode", snapshotMode);
         props.setProperty("offset.storage.file.filename", offsetStoreFileName);
         if (PostgreSQLConstants.CUSTOM.equals(snapshotMode)) {
+            Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,
+                    JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE + " cannot be null");
+            Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,
+                    JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS + " cannot be null");
             props.setProperty("offset.storage", InLongFileOffsetBackingStore.class.getCanonicalName());
-            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE, serializeOffset());
+            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE,
+                    serializeOffset(instanceId, specificOffsetFile, specificOffsetPos));
         } else {
             props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());
         }
@@ -227,28 +232,6 @@ public class PostgreSQLReader extends AbstractReader {
 
         LOGGER.info("PostgreSQL job {} start with props {}", jobProfile.getInstanceId(), props);
         return props;
-    }
-
-    private String serializeOffset() {
-        Map<String, Object> sourceOffset = new HashMap<>();
-        Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,
-                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE + " cannot be null");
-        sourceOffset.put("file", specificOffsetFile);
-        Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,
-                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS + " cannot be null");
-        sourceOffset.put("pos", specificOffsetPos);
-        DebeziumOffset specificOffset = new DebeziumOffset();
-        specificOffset.setSourceOffset(sourceOffset);
-        Map<String, String> sourcePartition = new HashMap<>();
-        sourcePartition.put("server", instanceId);
-        specificOffset.setSourcePartition(sourcePartition);
-        byte[] serializedOffset = new byte[0];
-        try {
-            serializedOffset = DebeziumOffsetSerializer.INSTANCE.serialize(specificOffset);
-        } catch (IOException e) {
-            LOGGER.error("serialize offset message error", e);
-        }
-        return new String(serializedOffset, StandardCharsets.UTF_8);
     }
 
     @Override
