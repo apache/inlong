@@ -47,6 +47,8 @@ export default class OracleSource
     rules: [{ required: true }],
     initialValue: 1521,
     props: values => ({
+      min: 1,
+      max: 65535,
       disabled: values?.status === 101,
     }),
   })
