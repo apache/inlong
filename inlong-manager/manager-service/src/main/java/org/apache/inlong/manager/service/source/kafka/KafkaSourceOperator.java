@@ -18,22 +18,33 @@
 package org.apache.inlong.manager.service.source.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSourceDTO;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSourceRequest;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * kafka stream source operator
@@ -43,6 +54,8 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private InlongClusterService clusterService;
 
     @Override
     public Boolean accept(String sourceType) {
@@ -82,4 +95,30 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
         return source;
     }
 
+    @Override
+    public Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos,
+            List<StreamSource> streamSources) {
+        ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.KAFKA);
+        KafkaClusterInfo kafkaClusterInfo = (KafkaClusterInfo) clusterInfo;
+        String bootstrapServers = kafkaClusterInfo.getUrl();
+
+        Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
+        streamInfos.forEach(streamInfo -> {
+            KafkaSource kafkaSource = new KafkaSource();
+            String streamId = streamInfo.getInlongStreamId();
+            kafkaSource.setSourceName(streamId);
+            kafkaSource.setBootstrapServers(bootstrapServers);
+            kafkaSource.setTopic(streamInfo.getMqResource());
+            for (StreamSource sourceInfo : streamSources) {
+                if (!Objects.equals(streamId, sourceInfo.getInlongStreamId())) {
+                    continue;
+                }
+                kafkaSource.setSerializationType(sourceInfo.getSerializationType());
+            }
+            kafkaSource.setAutoOffsetReset(KafkaOffset.EARLIEST.getName());
+            kafkaSource.setFieldList(streamInfo.getFieldList());
+            sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(kafkaSource);
+        });
+        return sourceMap;
+    }
 }
