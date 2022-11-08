@@ -17,15 +17,17 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.commons.lang3.StringUtils;
+import io.debezium.engine.ChangeEvent;
+import io.debezium.engine.DebeziumEngine;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.constant.SqlServerConstants;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.SQLServerReader;
-import org.apache.inlong.agent.utils.AgentDbUtils;
+import org.apache.inlong.agent.plugin.sources.snapshot.SqlServerSnapshotBase;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,11 +37,10 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Types;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
@@ -49,7 +50,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.field;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -60,7 +60,7 @@ import static org.powermock.api.mockito.PowerMockito.whenNew;
  * Test cases for {@link SQLServerReader}.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AgentDbUtils.class, MetricRegister.class, AuditUtils.class, SQLServerReader.class})
+@PrepareForTest({DebeziumEngine.class, Executors.class, MetricRegister.class, SQLServerReader.class})
 @PowerMockIgnore({"javax.management.*"})
 public class TestSQLServerReader {
 
@@ -70,28 +70,31 @@ public class TestSQLServerReader {
     private JobProfile jobProfile;
 
     @Mock
-    private Connection conn;
-
-    @Mock
-    private PreparedStatement preparedStatement;
-
-    @Mock
-    private ResultSet resultSet;
-
-    @Mock
-    private ResultSetMetaData metaData;
-
-    @Mock
     private AgentMetricItemSet agentMetricItemSet;
 
     @Mock
     private AgentMetricItem agentMetricItem;
 
+    @Mock
+    private SqlServerSnapshotBase sqlServerSnapshot;
+
+    @Mock
+    private DebeziumEngine.Builder builder;
+
+    @Mock
+    private ExecutorService executorService;
+
+    @Mock
+    private LinkedBlockingQueue<Pair<String, String>> sqlServerMessageQueue;
+
+    @Mock
+    private DebeziumEngine<ChangeEvent<String, String>> engine;
+
     private AtomicLong atomicLong;
 
     private AtomicLong atomicCountLong;
 
-    private String sql;
+    private final String instanceId = "s4bc475560b4444dbd4e9812ab1fd64d";
 
     @Before
     public void setUp() throws Exception {
@@ -99,44 +102,60 @@ public class TestSQLServerReader {
         final String password = "123456";
         final String hostname = "127.0.0.1";
         final String port = "1434";
-        final String dbname = "inlong";
-        final String typeName1 = "int";
-        final String typeName2 = "varchar";
         final String groupId = "group01";
         final String streamId = "stream01";
+        final String dbName = "inlong";
+        final String serverName = "server1";
+        final String offsetFlushIntervalMs = "1000";
+        final String offsetStoreFileName = "/opt/offset.dat";
+        final String snapshotMode = SqlServerConstants.INITIAL;
+        final int queueSize = 1000;
+        final String databaseStoreHistoryName = "/opt/history.dat";
+        final String offset = "111";
+        final String specificOffsetFile = "";
+        final String specificOffsetPos = "-1";
+
         atomicLong = new AtomicLong(0L);
         atomicCountLong = new AtomicLong(0L);
 
-        sql = "select * from dbo.test01";
-
+        when(jobProfile.getInstanceId()).thenReturn(instanceId);
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_GROUP_ID), anyString())).thenReturn(groupId);
         when(jobProfile.get(eq(CommonConstants.PROXY_INLONG_STREAM_ID), anyString())).thenReturn(streamId);
         when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_USER))).thenReturn(username);
         when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_PASSWORD))).thenReturn(password);
         when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_HOSTNAME))).thenReturn(hostname);
         when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_PORT))).thenReturn(port);
-        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_DBNAME))).thenReturn(dbname);
-        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_DRIVER_CLASS), anyString())).thenReturn(
-                SQLServerReader.DEFAULT_JOB_DATABASE_DRIVER_CLASS);
-        when(jobProfile.getInt(eq(SQLServerReader.JOB_DATABASE_BATCH_SIZE), anyInt())).thenReturn(
-                SQLServerReader.DEFAULT_JOB_DATABASE_BATCH_SIZE);
-        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_TYPE), anyString())).thenReturn(
-                SQLServerReader.SQLSERVER);
-        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_SEPARATOR), anyString())).thenReturn(
-                SQLServerReader.STD_FIELD_SEPARATOR_SHORT);
-        mockStatic(AgentDbUtils.class);
-        when(AgentDbUtils.getConnectionFailover(eq(SQLServerReader.DEFAULT_JOB_DATABASE_DRIVER_CLASS), anyString(),
-                eq(username), eq(password))).thenReturn(conn);
-        when(conn.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        when(resultSet.getMetaData()).thenReturn(metaData);
-        when(metaData.getColumnCount()).thenReturn(2);
-        when(metaData.getColumnName(1)).thenReturn("id");
-        when(metaData.getColumnName(2)).thenReturn("cell");
-        when(metaData.getColumnType(1)).thenReturn(Types.INTEGER);
-        when(metaData.getColumnType(2)).thenReturn(Types.VARCHAR);
-        when(metaData.getColumnTypeName(1)).thenReturn(typeName1);
-        when(metaData.getColumnTypeName(2)).thenReturn(typeName2);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_DBNAME))).thenReturn(dbName);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_SERVER_NAME))).thenReturn(serverName);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_STORE_OFFSET_INTERVAL_MS), anyString())).thenReturn(
+                offsetFlushIntervalMs);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_STORE_HISTORY_FILENAME), anyString())).thenReturn(
+                offsetStoreFileName);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_SNAPSHOT_MODE), anyString())).thenReturn(snapshotMode);
+        when(jobProfile.getInt(eq(SQLServerReader.JOB_DATABASE_QUEUE_SIZE), anyInt())).thenReturn(queueSize);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_STORE_HISTORY_FILENAME))).thenReturn(
+                databaseStoreHistoryName);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_OFFSETS), anyString())).thenReturn(offset);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE), anyString())).thenReturn(
+                specificOffsetFile);
+        when(jobProfile.get(eq(SQLServerReader.JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS), anyString())).thenReturn(
+                specificOffsetPos);
+        whenNew(SqlServerSnapshotBase.class).withAnyArguments().thenReturn(sqlServerSnapshot);
+
+        //mock sqlServerMessageQueue
+        whenNew(LinkedBlockingQueue.class).withAnyArguments().thenReturn(sqlServerMessageQueue);
+
+        //mock DebeziumEngine
+        mockStatic(DebeziumEngine.class);
+        when(DebeziumEngine.create(io.debezium.engine.format.Json.class)).thenReturn(builder);
+        when(builder.using(any(Properties.class))).thenReturn(builder);
+        when(builder.notifying(any(DebeziumEngine.ChangeConsumer.class))).thenReturn(builder);
+        when(builder.using(any(DebeziumEngine.CompletionCallback.class))).thenReturn(builder);
+        when(builder.build()).thenReturn(engine);
+
+        //mock executorService
+        mockStatic(Executors.class);
+        when(Executors.newSingleThreadExecutor()).thenReturn(executorService);
 
         //mock metrics
         whenNew(AgentMetricItemSet.class).withArguments(anyString()).thenReturn(agentMetricItemSet);
@@ -146,7 +165,7 @@ public class TestSQLServerReader {
 
         //init method
         mockStatic(MetricRegister.class);
-        (reader = new SQLServerReader(sql)).init(jobProfile);
+        (reader = new SQLServerReader()).init(jobProfile);
     }
 
     /**
@@ -154,23 +173,16 @@ public class TestSQLServerReader {
      */
     @Test
     public void testRead() throws Exception {
-        final String v11 = "11";
-        final String v12 = "12";
-        final String v21 = "aa";
-        final String v22 = "bb";
-
-        final String msg1 = String.join(SQLServerReader.STD_FIELD_SEPARATOR_SHORT, v11, v12);
-        final String msg2 = String.join(SQLServerReader.STD_FIELD_SEPARATOR_SHORT, v21, v22);
-
-        when(resultSet.next()).thenReturn(true, true, false);
-        when(resultSet.getString(1)).thenReturn(v11, v21);
-        when(resultSet.getString(2)).thenReturn(v12, v22);
-        Message message1 = reader.read();
-        assertEquals(msg1, message1.toString());
-        verify(preparedStatement, times(1)).setFetchSize(SQLServerReader.DEFAULT_JOB_DATABASE_BATCH_SIZE);
-        Message message2 = reader.read();
-        assertEquals(msg2, message2.toString());
-        assertEquals(2L, atomicLong.get());
+        final String right = "value";
+        final String left = "key";
+        final String dataKey = "dataKey";
+        when(sqlServerMessageQueue.isEmpty()).thenReturn(true);
+        assertEquals(null, reader.read());
+        when(sqlServerMessageQueue.isEmpty()).thenReturn(false);
+        when(sqlServerMessageQueue.poll()).thenReturn(Pair.of(left, right));
+        Message result = reader.read();
+        assertEquals(String.join(right, "\"", "\""), result.toString());
+        assertEquals(left, result.getHeader().get(dataKey));
     }
 
     /**
@@ -178,12 +190,11 @@ public class TestSQLServerReader {
      */
     @Test
     public void testDestroy() throws Exception {
-        assertFalse(reader.isFinished());
+        assertFalse(reader.isDestroyed());
         reader.destroy();
-        verify(resultSet).close();
-        verify(preparedStatement).close();
-        verify(conn).close();
-        assertTrue(reader.isFinished());
+        verify(executorService).shutdownNow();
+        verify(sqlServerSnapshot).close();
+        assertTrue(reader.isDestroyed());
     }
 
     /**
@@ -192,10 +203,7 @@ public class TestSQLServerReader {
     @Test
     public void testFinishRead() throws Exception {
         assertFalse(reader.isFinished());
-        reader.destroy();
-        verify(resultSet).close();
-        verify(preparedStatement).close();
-        verify(conn).close();
+        reader.finishRead();
         assertTrue(reader.isFinished());
     }
 
@@ -212,7 +220,9 @@ public class TestSQLServerReader {
      */
     @Test
     public void testGetSnapshot() {
-        assertEquals(StringUtils.EMPTY, reader.getSnapshot());
+        final String snapShort = "snapShort";
+        when(sqlServerSnapshot.getSnapshot()).thenReturn(snapShort);
+        assertEquals(snapShort, reader.getSnapshot());
     }
 
     /**
@@ -220,6 +230,6 @@ public class TestSQLServerReader {
      */
     @Test
     public void testGetReadSource() {
-        assertEquals(sql, reader.getReadSource());
+        assertEquals(instanceId, reader.getReadSource());
     }
 }

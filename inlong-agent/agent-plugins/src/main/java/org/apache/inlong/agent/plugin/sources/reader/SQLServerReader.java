@@ -17,114 +17,129 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.CharUtils;
+import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
+import io.debezium.connector.sqlserver.SqlServerConnector;
+import io.debezium.engine.ChangeEvent;
+import io.debezium.engine.DebeziumEngine;
+import io.debezium.relational.history.FileDatabaseHistory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.SnapshotModeConstants;
+import org.apache.inlong.agent.constant.SqlServerConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.utils.AgentDbUtils;
+import org.apache.inlong.agent.plugin.sources.snapshot.SqlServerSnapshotBase;
+import org.apache.inlong.agent.plugin.utils.InLongDatabaseHistory;
+import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
+import org.apache.inlong.agent.pojo.DebeziumFormat;
+import org.apache.inlong.agent.pojo.DebeziumOffset;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
+import org.apache.inlong.agent.utils.GsonUtil;
+import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
-import static java.sql.Types.BINARY;
-import static java.sql.Types.BLOB;
-import static java.sql.Types.LONGVARBINARY;
-import static java.sql.Types.VARBINARY;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 
 /**
- * Read data from SQLServer database by SQL
+ * Read data from SQLServer database by Debezium
  */
 public class SQLServerReader extends AbstractReader {
 
     public static final String SQLSERVER_READER_TAG_NAME = "AgentSQLServerMetric";
-    public static final String JOB_DATABASE_USER = "job.sqlserverJob.user";
-    public static final String JOB_DATABASE_PASSWORD = "job.sqlserverJob.password";
     public static final String JOB_DATABASE_HOSTNAME = "job.sqlserverJob.hostname";
     public static final String JOB_DATABASE_PORT = "job.sqlserverJob.port";
+    public static final String JOB_DATABASE_USER = "job.sqlserverJob.user";
+    public static final String JOB_DATABASE_PASSWORD = "job.sqlserverJob.password";
     public static final String JOB_DATABASE_DBNAME = "job.sqlserverJob.dbname";
-    public static final String JOB_DATABASE_BATCH_SIZE = "job.sqlserverJob.batchSize";
-    public static final int DEFAULT_JOB_DATABASE_BATCH_SIZE = 1000;
-    public static final String JOB_DATABASE_DRIVER_CLASS = "job.database.driverClass";
-    public static final String DEFAULT_JOB_DATABASE_DRIVER_CLASS = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-    public static final String STD_FIELD_SEPARATOR_SHORT = "\001";
-    public static final String JOB_DATABASE_SEPARATOR = "job.sql.separator";
-    // pre-set sql lines, commands like "set xxx=xx;"
-    public static final String JOB_DATABASE_TYPE = "job.database.type";
-    public static final String SQLSERVER = "sqlserver";
+    public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.sqlserverJob.snapshot.mode";
+    public static final String JOB_DATABASE_QUEUE_SIZE = "job.sqlserverJob.queueSize";
+    public static final String JOB_DATABASE_OFFSETS = "job.sqlserverJob.offsets";
+    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE = "job.sqlserverJob.offset.specificOffsetFile";
+    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS = "job.sqlserverJob.offset.specificOffsetPos";
+
+    public static final String JOB_DATABASE_SERVER_NAME = "job.sqlserverJob.serverName";
+
+    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.sqlserverJob.offset.intervalMs";
+    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.sqlserverJob.history.filename";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlReader.class);
-    private static final String[] NEW_LINE_CHARS = new String[]{String.valueOf(CharUtils.CR),
-            String.valueOf(CharUtils.LF)};
-    private static final String[] EMPTY_CHARS = new String[]{StringUtils.EMPTY, StringUtils.EMPTY};
+    private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
 
-    private final String sql;
+    private static final Gson GSON = new Gson();
 
-    private PreparedStatement preparedStatement;
-    private Connection conn;
-    private ResultSet resultSet;
-    private int columnCount;
+    private String databaseStoreHistoryName;
+    private String instanceId;
+    private String dbName;
+    private String serverName;
+    private String userName;
+    private String password;
+    private String hostName;
+    private String port;
+    private String offsetFlushIntervalMs;
+    private String offsetStoreFileName;
+    private String snapshotMode;
+    private String offset;
+    private String specificOffsetFile;
+    private String specificOffsetPos;
 
-    // column types
-    private String[] columnTypeNames;
-    private int[] columnTypeCodes;
+    private ExecutorService executor;
+    private SqlServerSnapshotBase sqlServerSnapshot;
     private boolean finished = false;
-    private String separator;
 
-    public SQLServerReader(String sql) {
-        this.sql = sql;
+    private LinkedBlockingQueue<Pair<String, String>> sqlServerMessageQueue;
+    private JobProfile jobProfile;
+    private boolean destroyed = false;
+
+    public SQLServerReader() {
+
     }
 
     @Override
     public Message read() {
-        try {
-            if (!resultSet.next()) {
-                finished = true;
-                return null;
-            }
-            final List<String> lineColumns = new ArrayList<>();
-            for (int i = 1; i <= columnCount; i++) {
-                final String dataValue;
-                /* handle special blob value, encode with base64, BLOB=2004 */
-                final int typeCode = columnTypeCodes[i - 1];
-                final String typeName = columnTypeNames[i - 1];
-
-                // binary type
-                if (typeCode == BLOB || typeCode == BINARY || typeCode == VARBINARY
-                        || typeCode == LONGVARBINARY || typeName.contains("BLOB")) {
-                    final byte[] data = resultSet.getBytes(i);
-                    dataValue = new String(Base64.encodeBase64(data, false), StandardCharsets.UTF_8);
-                } else {
-                    // non-binary type
-                    dataValue = StringUtils.replaceEachRepeatedly(resultSet.getString(i),
-                            NEW_LINE_CHARS, EMPTY_CHARS);
-                }
-                lineColumns.add(dataValue);
-            }
-            long dataSize = lineColumns.stream().mapToLong(column -> column.length()).sum();
-            AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
-                    System.currentTimeMillis(), 1, dataSize);
-            readerMetric.pluginReadSuccessCount.incrementAndGet();
-            readerMetric.pluginReadCount.incrementAndGet();
-            return generateMessage(lineColumns);
-        } catch (Exception ex) {
-            LOGGER.error("error while reading data", ex);
-            readerMetric.pluginReadFailCount.incrementAndGet();
-            readerMetric.pluginReadCount.incrementAndGet();
-            throw new RuntimeException(ex);
+        if (!sqlServerMessageQueue.isEmpty()) {
+            return getSqlServerMessage();
+        } else {
+            return null;
         }
     }
 
-    private Message generateMessage(List<String> lineColumns) {
-        return new DefaultMessage(StringUtils.join(lineColumns, separator).getBytes(StandardCharsets.UTF_8));
+    /**
+     * poll message from buffer pool
+     *
+     * @return org.apache.inlong.agent.plugin.Message
+     */
+    private DefaultMessage getSqlServerMessage() {
+        // Retrieves and removes the head of this queue,
+        // or returns null if this queue is empty.
+        Pair<String, String> message = sqlServerMessageQueue.poll();
+        if (Objects.isNull(message)) {
+            return null;
+        }
+        Map<String, String> header = new HashMap<>(DEFAULT_MAP_CAPACITY);
+        header.put(PROXY_KEY_DATA, message.getKey());
+        return new DefaultMessage(GsonUtil.toJson(message.getValue()).getBytes(StandardCharsets.UTF_8), header);
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
     }
 
     @Override
@@ -134,7 +149,7 @@ public class SQLServerReader extends AbstractReader {
 
     @Override
     public String getReadSource() {
-        return sql;
+        return instanceId;
     }
 
     @Override
@@ -149,12 +164,16 @@ public class SQLServerReader extends AbstractReader {
 
     @Override
     public String getSnapshot() {
-        return StringUtils.EMPTY;
+        if (sqlServerSnapshot != null) {
+            return sqlServerSnapshot.getSnapshot();
+        } else {
+            return StringUtils.EMPTY;
+        }
     }
 
     @Override
     public void finishRead() {
-        destroy();
+        this.finished = true;
     }
 
     @Override
@@ -162,59 +181,146 @@ public class SQLServerReader extends AbstractReader {
         return true;
     }
 
+    private String tryToInitAndGetHistoryPath() {
+        String historyPath = agentConf.get(
+                AgentConstants.AGENT_HISTORY_PATH, AgentConstants.DEFAULT_AGENT_HISTORY_PATH);
+        String parentPath = agentConf.get(
+                AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME);
+        return AgentUtils.makeDirsIfNotExist(historyPath, parentPath).getAbsolutePath();
+    }
+
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        int batchSize = jobConf.getInt(JOB_DATABASE_BATCH_SIZE, DEFAULT_JOB_DATABASE_BATCH_SIZE);
-        String userName = jobConf.get(JOB_DATABASE_USER);
-        String password = jobConf.get(JOB_DATABASE_PASSWORD);
-        String hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
-        String dbname = jobConf.get(JOB_DATABASE_DBNAME);
-        int port = jobConf.getInt(JOB_DATABASE_PORT);
-
-        String driverClass = jobConf.get(JOB_DATABASE_DRIVER_CLASS,
-                DEFAULT_JOB_DATABASE_DRIVER_CLASS);
-        separator = jobConf.get(JOB_DATABASE_SEPARATOR, STD_FIELD_SEPARATOR_SHORT);
+        jobProfile = jobConf;
+        LOGGER.info("init SqlServer reader with jobConf {}", jobConf.toJsonStr());
+        userName = jobConf.get(JOB_DATABASE_USER);
+        password = jobConf.get(JOB_DATABASE_PASSWORD);
+        hostName = jobConf.get(JOB_DATABASE_HOSTNAME);
+        port = jobConf.get(JOB_DATABASE_PORT);
+        dbName = jobConf.get(JOB_DATABASE_DBNAME);
+        serverName = jobConf.get(JOB_DATABASE_SERVER_NAME);
+        instanceId = jobConf.getInstanceId();
+        offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "100000");
+        offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
+                tryToInitAndGetHistoryPath()) + "/offset.dat" + instanceId;
+        snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, SqlServerConstants.INITIAL);
+        sqlServerMessageQueue = new LinkedBlockingQueue<>(jobConf.getInt(JOB_DATABASE_QUEUE_SIZE, 1000));
         finished = false;
-        try {
-            String databaseType = jobConf.get(JOB_DATABASE_TYPE, SQLSERVER);
-            String url = String.format("jdbc:%s://%s:%d;databaseName=%s;", databaseType, hostName, port, dbname);
-            conn = AgentDbUtils.getConnectionFailover(driverClass, url, userName, password);
-            preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setFetchSize(batchSize);
-            resultSet = preparedStatement.executeQuery();
 
-            initColumnMeta();
-        } catch (Exception ex) {
-            LOGGER.error("error create statement", ex);
-            destroy();
-            throw new RuntimeException(ex);
-        }
+        databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
+                tryToInitAndGetHistoryPath()) + "/history.dat" + jobConf.getInstanceId();
+        offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
+        specificOffsetFile = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "");
+        specificOffsetPos = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS, "-1");
+
+        sqlServerSnapshot = new SqlServerSnapshotBase(offsetStoreFileName);
+        sqlServerSnapshot.save(offset, sqlServerSnapshot.getFile());
+
+        Properties props = getEngineProps();
+
+        DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
+                        io.debezium.engine.format.Json.class)
+                .using(props)
+                .notifying((records, committer) -> {
+                    try {
+                        for (ChangeEvent<String, String> record : records) {
+                            DebeziumFormat debeziumFormat = GSON
+                                    .fromJson(record.value(), DebeziumFormat.class);
+                            sqlServerMessageQueue.put(Pair.of(debeziumFormat.getSource().getTable(), record.value()));
+                            committer.markProcessed(record);
+                        }
+                        committer.markBatchFinished();
+                        long dataSize = records.stream().mapToLong(c -> c.value().length()).sum();
+                        AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS, inlongGroupId, inlongStreamId,
+                                System.currentTimeMillis(), records.size(), dataSize);
+                        readerMetric.pluginReadSuccessCount.addAndGet(records.size());
+                        readerMetric.pluginReadCount.addAndGet(records.size());
+                    } catch (Exception e) {
+                        readerMetric.pluginReadFailCount.addAndGet(records.size());
+                        readerMetric.pluginReadCount.addAndGet(records.size());
+                        LOGGER.error("parse SqlServer message error", e);
+                    }
+                })
+                .using((success, message, error) -> {
+                    if (!success) {
+                        LOGGER.error("SqlServer job with jobConf {} has error {}", instanceId, message, error);
+                    }
+                }).build();
+
+        executor = Executors.newSingleThreadExecutor();
+        executor.execute(engine);
+
+        LOGGER.info("get initial snapshot of job {}, snapshot {}", instanceId, getSnapshot());
     }
 
-    /**
-     * Init column meta data.
-     *
-     * @throws Exception - sql exception
-     */
-    private void initColumnMeta() throws Exception {
-        columnCount = resultSet.getMetaData().getColumnCount();
-        columnTypeNames = new String[columnCount];
-        columnTypeCodes = new int[columnCount];
-        for (int i = 0; i < columnCount; i++) {
-            columnTypeCodes[i] = resultSet.getMetaData().getColumnType(i + 1);
-            String t = resultSet.getMetaData().getColumnTypeName(i + 1);
-            if (t != null) {
-                columnTypeNames[i] = t.toUpperCase();
-            }
+    private String serializeOffset() {
+        Map<String, Object> sourceOffset = new HashMap<>();
+        Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,
+                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE + "shouldn't be null");
+        sourceOffset.put("file", specificOffsetFile);
+        Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,
+                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS + " shouldn't be null");
+        sourceOffset.put("pos", specificOffsetPos);
+        DebeziumOffset specificOffset = new DebeziumOffset();
+        specificOffset.setSourceOffset(sourceOffset);
+        Map<String, String> sourcePartition = new HashMap<>();
+        sourcePartition.put("server", instanceId);
+        specificOffset.setSourcePartition(sourcePartition);
+        byte[] serializedOffset = new byte[0];
+        try {
+            serializedOffset = DebeziumOffsetSerializer.INSTANCE.serialize(specificOffset);
+        } catch (IOException e) {
+            LOGGER.error("serialize offset message error", e);
         }
+        return new String(serializedOffset, StandardCharsets.UTF_8);
+    }
+
+    private Properties getEngineProps() {
+        Properties props = new Properties();
+        props.setProperty("name", "engine" + instanceId);
+        props.setProperty("connector.class", SqlServerConnector.class.getCanonicalName());
+        props.setProperty("database.hostname", hostName);
+        props.setProperty("database.port", port);
+        props.setProperty("database.user", userName);
+        props.setProperty("database.password", password);
+        props.setProperty("database.dbname", dbName);
+        props.setProperty("database.server.name", serverName);
+        props.setProperty("offset.flush.interval.ms", offsetFlushIntervalMs);
+        props.setProperty("database.snapshot.mode", snapshotMode);
+        props.setProperty("key.converter.schemas.enable", "false");
+        props.setProperty("value.converter.schemas.enable", "false");
+        props.setProperty("snapshot.mode", snapshotMode);
+        props.setProperty("offset.storage.file.filename", offsetStoreFileName);
+        props.setProperty("database.history.file.filename", databaseStoreHistoryName);
+        if (SnapshotModeConstants.SPECIFIC_OFFSETS.equals(snapshotMode)) {
+            props.setProperty("offset.storage", InLongFileOffsetBackingStore.class.getCanonicalName());
+            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE, serializeOffset());
+            props.setProperty("database.history", InLongDatabaseHistory.class.getCanonicalName());
+        } else {
+            props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());
+            props.setProperty("database.history", FileDatabaseHistory.class.getCanonicalName());
+        }
+        props.setProperty("tombstones.on.delete", "false");
+        props.setProperty("converters", "datetime");
+        props.setProperty("datetime.type", "org.apache.inlong.agent.plugin.utils.BinlogTimeConverter");
+        props.setProperty("datetime.format.date", "yyyy-MM-dd");
+        props.setProperty("datetime.format.time", "HH:mm:ss");
+        props.setProperty("datetime.format.datetime", "yyyy-MM-dd HH:mm:ss");
+        props.setProperty("datetime.format.timestamp", "yyyy-MM-dd HH:mm:ss");
+
+        LOGGER.info("SqlServer job {} start with props {}", jobProfile.getInstanceId(), props);
+        return props;
     }
 
     @Override
     public void destroy() {
-        finished = true;
-        AgentUtils.finallyClose(resultSet);
-        AgentUtils.finallyClose(preparedStatement);
-        AgentUtils.finallyClose(conn);
+        synchronized (this) {
+            if (!destroyed) {
+                this.executor.shutdownNow();
+                this.sqlServerSnapshot.close();
+                this.destroyed = true;
+            }
+        }
     }
 }
