@@ -39,10 +39,6 @@ public class InlongKafkaRequest extends InlongGroupRequest {
     private Integer numPartitions;
     // replicationFactor number
     private Short replicationFactor = 1;
-    //consumer grouping
-    private String groupId;
-    // autocommit interval
-    private String autoCommit;
 
     public InlongKafkaRequest() {
         this.setMqType(MQType.KAFKA);
