@@ -251,7 +251,6 @@ public class SQLServerReader extends AbstractReader {
         LOGGER.info("get initial snapshot of job {}, snapshot {}", instanceId, getSnapshot());
     }
 
-
     private Properties getEngineProps() {
         Properties props = new Properties();
         props.setProperty("name", "engine" + instanceId);
