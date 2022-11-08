@@ -18,43 +18,47 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.SQLServerReader;
 import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.UUID;
 
-import static org.junit.Assert.assertNotNull;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 
 /**
  * Test cases for {@link SQLServerReader}.
  */
 public class TestSQLServerConnect {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestSQLServerConnect.class);
+
     /**
      * Just using in local test.
      */
+
     @Ignore
-    public void testSQLServerReader() {
-        JobProfile jobProfile = JobProfile.parseJsonStr("{}");
-        jobProfile.set(SQLServerReader.JOB_DATABASE_USER, "sa");
-        jobProfile.set(SQLServerReader.JOB_DATABASE_PASSWORD, "123456");
-        jobProfile.set(SQLServerReader.JOB_DATABASE_HOSTNAME, "127.0.0.1");
-        jobProfile.set(SQLServerReader.JOB_DATABASE_PORT, "1434");
-        jobProfile.set(SQLServerReader.JOB_DATABASE_DBNAME, "inlong");
-        final String sql = "select * from dbo.test01";
-        jobProfile.set(SQLServerSource.JOB_DATABASE_SQL, sql);
-        final SQLServerSource source = new SQLServerSource();
-        List<Reader> readers = source.split(jobProfile);
-        for (Reader reader : readers) {
-            reader.init(jobProfile);
-            while (!reader.isFinished()) {
-                Message message = reader.read();
-                if (Objects.nonNull(message)) {
-                    assertNotNull(message.getBody());
-                }
+    public void testSqlServer() {
+        JobProfile jobProfile = new JobProfile();
+        jobProfile.set("job.sqlserverJob.hostname", "localhost");
+        jobProfile.set("job.sqlserverJob.port", "1434");
+        jobProfile.set("job.sqlserverJob.user", "sa");
+        jobProfile.set("job.sqlserverJob.password", "123456");
+        jobProfile.set("job.sqlserverJob.dbname", "inlong");
+        jobProfile.set("job.sqlserverJob.serverName", "fullfillment");
+        jobProfile.set(JobConstants.JOB_INSTANCE_ID, UUID.randomUUID().toString());
+        jobProfile.set(PROXY_INLONG_GROUP_ID, UUID.randomUUID().toString());
+        jobProfile.set(PROXY_INLONG_STREAM_ID, UUID.randomUUID().toString());
+        SQLServerReader sqlServerReader = new SQLServerReader();
+        sqlServerReader.init(jobProfile);
+        while (true) {
+            Message message = sqlServerReader.read();
+            if (message != null) {
+                LOGGER.info("event content: {}", message);
             }
         }
     }

@@ -17,13 +17,13 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
 import { Button } from 'antd';
-import { groupForm, groupTable } from '@/metas/group';
-import { pickObjectArray } from '@/utils';
+import { useDefaultMeta, useLoadMeta, GroupMetaType } from '@/metas';
+import { statusList } from '@/metas/groups/common/status';
 
 export const dashCardList = [
   {
@@ -48,33 +48,45 @@ export const dashCardList = [
   },
 ];
 
-export const getFilterFormContent = defaultValues =>
-  [
-    {
-      type: 'inputsearch',
-      name: 'keyword',
-      initialValue: defaultValues.keyword,
-      props: {
-        allowClear: true,
-      },
+export const getFilterFormContent = defaultValues => [
+  {
+    type: 'inputsearch',
+    name: 'keyword',
+    initialValue: defaultValues.keyword,
+    props: {
+      allowClear: true,
     },
-  ].concat(
-    pickObjectArray(['status'], groupForm).map(item => ({
-      ...item,
-      visible: true,
-      initialValue: defaultValues[item.name],
-    })),
-  );
+  },
+  {
+    type: 'select',
+    name: 'status',
+    label: i18n.t('basic.Status'),
+    initialValue: defaultValues.status,
+    props: {
+      allowClear: true,
+      options: statusList,
+      dropdownMatchSelectWidth: false,
+    },
+  },
+];
 
-export const getColumns = ({ onDelete, openModal }) => {
+export const useColumns = ({ onDelete, openModal }) => {
+  const { defaultValue } = useDefaultMeta('group');
+
+  const { Entity } = useLoadMeta<GroupMetaType>('group', defaultValue);
+
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
+
   const genCreateUrl = record => `/group/create/${record.inlongGroupId}`;
   const genDetailUrl = record =>
     [0, 100].includes(record.status)
       ? genCreateUrl(record)
       : `/group/detail/${record.inlongGroupId}`;
 
-  return groupTable
-    .map(item => {
+  return entityColumns
+    ?.map(item => {
       if (item.dataIndex === 'inlongGroupId') {
         return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
       }

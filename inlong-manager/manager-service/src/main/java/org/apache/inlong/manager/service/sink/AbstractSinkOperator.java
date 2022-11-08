@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +25,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
@@ -41,7 +41,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -50,10 +52,9 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
+    protected static final String KEY_GROUP_ID = "inlongGroupId";
+    protected static final String KEY_STREAM_ID = "inlongStreamId";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSinkOperator.class);
-
-    @Autowired
-    protected ObjectMapper objectMapper;
     @Autowired
     protected StreamSinkEntityMapper sinkMapper;
     @Autowired
@@ -211,6 +212,27 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         sinkFieldMapper.logicDeleteAll(entity.getId());
+    }
+
+    @Override
+    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
+        Map<String, String> param;
+        try {
+            param = JsonUtils.parseObject(streamSink.getExtParams(), HashMap.class);
+            // put group and stream info
+            assert param != null;
+            param.put(KEY_GROUP_ID, streamSink.getInlongGroupId());
+            param.put(KEY_STREAM_ID, streamSink.getInlongStreamId());
+            return param;
+        } catch (Exception e) {
+            LOGGER.error(String.format(
+                            "cannot parse properties for groupId=%s, streamId=%s, sinkName=%s, the row properties: %s",
+                            streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
+                            streamSink.getSinkName(), streamSink.getExtParams()),
+                    e);
+
+            return null;
+        }
     }
 
     /**

@@ -167,7 +167,7 @@ public class MySqlSource<T>
                         sourceConfig.isIncludeSchemaChanges()),
                 readerContext.getConfiguration(),
                 mySqlSourceReaderContext,
-                sourceConfig);
+                sourceConfig, sourceReaderMetrics);
     }
 
     @Override

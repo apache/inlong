@@ -26,8 +26,6 @@ import org.apache.inlong.manager.plugin.listener.StartupSortListener;
 import org.apache.inlong.manager.plugin.listener.StartupStreamListener;
 import org.apache.inlong.manager.plugin.listener.SuspendSortListener;
 import org.apache.inlong.manager.plugin.listener.SuspendStreamListener;
-import org.apache.inlong.manager.plugin.poller.FlinkStatusPoller;
-import org.apache.inlong.manager.workflow.plugin.SortStatusPoller;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
@@ -36,7 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Plugin of flink sort process.
+ * Plugin of Flink Sort process.
  */
 @Slf4j
 public class FlinkSortProcessPlugin implements ProcessPlugin {
@@ -60,8 +58,4 @@ public class FlinkSortProcessPlugin implements ProcessPlugin {
         return listeners;
     }
 
-    @Override
-    public SortStatusPoller createSortStatusPoller() {
-        return new FlinkStatusPoller();
-    }
 }

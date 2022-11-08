@@ -28,7 +28,6 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
@@ -79,8 +78,8 @@ public class InlongStreamController {
             @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
-    public Response<InlongStreamResponse> get(@RequestParam String groupId, @RequestParam String streamId) {
-        return Response.success(streamService.get(groupId, streamId).genResponse());
+    public Response<InlongStreamInfo> get(@RequestParam String groupId, @RequestParam String streamId) {
+        return Response.success(streamService.get(groupId, streamId));
     }
 
     @RequestMapping(value = "/stream/list", method = RequestMethod.POST)

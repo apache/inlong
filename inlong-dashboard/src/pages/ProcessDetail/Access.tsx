@@ -20,7 +20,7 @@
 import React, { useMemo, forwardRef, useImperativeHandle, useEffect } from 'react';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { CommonInterface } from './common';
-import { getFormContent } from './AccessConfig';
+import { useGroupFormContent, getFormContent } from './AccessConfig';
 
 export type Props = CommonInterface;
 
@@ -57,6 +57,12 @@ const Comp = ({ defaultData, isViwer, suffixContent, noExtraForm, isFinished }: 
     onOk,
   }));
 
+  const groupFormContent = useGroupFormContent({
+    mqType: defaultData?.processInfo?.formData?.groupInfo?.mqType,
+    isViwer,
+    isFinished,
+  });
+
   // Easy to set some default values of the form
   const dataLoaded = useMemo(() => {
     return !!(defaultData && Object.keys(defaultData).length);
@@ -74,6 +80,7 @@ const Comp = ({ defaultData, isViwer, suffixContent, noExtraForm, isFinished }: 
           suffixContent,
           noExtraForm,
           isFinished,
+          groupFormContent,
         })}
       />
     )

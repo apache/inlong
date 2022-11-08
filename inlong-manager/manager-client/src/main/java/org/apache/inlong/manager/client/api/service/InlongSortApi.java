@@ -18,15 +18,17 @@
 package org.apache.inlong.manager.client.api.service;
 
 import org.apache.inlong.manager.pojo.common.Response;
-import org.apache.inlong.manager.pojo.sort.ListSortStatusRequest;
-import org.apache.inlong.manager.pojo.sort.ListSortStatusResponse;
+import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
+import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 
+import java.util.List;
+
 public interface InlongSortApi {
 
     @POST("sort/listStatus")
-    Call<Response<ListSortStatusResponse>> listSortStatus(@Body ListSortStatusRequest request);
+    Call<Response<List<SortStatusInfo>>> listStatus(@Body SortStatusRequest request);
 
 }

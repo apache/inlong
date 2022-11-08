@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.workflow.plugin;
 
+import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -42,10 +43,6 @@ public interface ProcessPlugin extends Plugin {
     }
 
     default List<SortOperateListener> createSortOperateListeners() {
-        return null;
-    }
-
-    default SortStatusPoller createSortStatusPoller() {
         return null;
     }
 

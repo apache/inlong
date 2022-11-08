@@ -85,7 +85,7 @@ if [ "${START_MODE}" = "all" ] || [ "${START_MODE}" = "proxy" ]; then
     bash +x ./bin/proxy-start.sh pulsar
   fi
   if [ "${MQ_TYPE}" = "tubemq" ]; then
-    bash +x ./bin/proxy-start.sh tube
+    bash +x ./bin/proxy-start.sh tubemq
   fi
 fi
 # start store

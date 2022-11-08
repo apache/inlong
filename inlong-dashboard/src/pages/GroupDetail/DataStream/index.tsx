@@ -17,14 +17,14 @@
  * under the License.
  */
 
-import React, { useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
-import { streamTable } from '@/metas/stream';
+import { useLoadMeta, useDefaultMeta, StreamMetaType } from '@/metas';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
 import { getFilterFormContent } from './config';
@@ -33,6 +33,8 @@ type Props = CommonInterface;
 
 const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
   const { t } = useTranslation();
+
+  const { defaultValue } = useDefaultMeta('stream');
 
   const [options, setOptions] = useState({
     pageSize: defaultSize,
@@ -123,7 +125,13 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     total: data?.total,
   };
 
-  const columns = streamTable.concat([
+  const { Entity } = useLoadMeta<StreamMetaType>('stream', defaultValue);
+
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
+
+  const columns = entityColumns?.concat([
     {
       title: t('basic.Operating'),
       dataIndex: 'action',

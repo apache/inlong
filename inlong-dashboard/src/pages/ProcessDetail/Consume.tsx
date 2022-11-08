@@ -20,7 +20,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { CommonInterface } from './common';
-import { getFormContent } from './ConsumeConfig';
+import { useConsumeFormContent, getFormContent } from './ConsumeConfig';
 
 type Props = CommonInterface;
 
@@ -53,6 +53,10 @@ const Comp = (
     onOk,
   }));
 
+  const consumeFormContent = useConsumeFormContent(
+    defaultData?.processInfo?.formData?.consumeInfo?.mqType,
+  );
+
   return (
     Object.keys(defaultData).length && (
       <FormGenerator
@@ -64,6 +68,7 @@ const Comp = (
           noExtraForm,
           defaultData?.processInfo?.formData,
           suffixContent,
+          consumeFormContent,
         )}
       />
     )

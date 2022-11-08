@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.common.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
@@ -25,14 +26,15 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum SortStatus {
 
     NOT_EXISTS(40, "job not exists"),
-    NEW(100, "job not started: draft, pending to run, etc"),
+    NEW(100, "job not started: draft, pending, etc."),
     RUNNING(110, "job is running"),
-    PAUSED(120, "job is paused"),
-    STOPPED(130, "job has stopped without error, e.g canceled"),
-    FAILED(140, "job failed with error"),
+    PAUSED(120, "job was paused"),
+    STOPPED(130, "job stopped without error, e.g canceled"),
+    FAILED(140, "job failed with an error"),
     FINISHED(200, "job finished successfully"),
-    OPERATING(300, "job in intermediate state such as restarting, canceling, etc"),
-    UNKNOWN(400, "job status unknown")
+    OPERATING(300, "job in an intermediate status such as restarting, canceling, etc."),
+    UNKNOWN(400, "job status unknown"),
+
     ;
 
     @JsonValue
@@ -50,6 +52,16 @@ public enum SortStatus {
 
     public String getDescription() {
         return description;
+    }
+
+    @JsonCreator
+    public static SortStatus forCode(int code) {
+        for (SortStatus status : values()) {
+            if (status.getCode() == code) {
+                return status;
+            }
+        }
+        throw new IllegalStateException(String.format("Illegal code=%s for SortStatus", code));
     }
 
 }

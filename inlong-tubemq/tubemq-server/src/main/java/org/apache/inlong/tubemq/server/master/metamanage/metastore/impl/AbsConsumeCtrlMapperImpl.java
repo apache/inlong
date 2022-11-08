@@ -450,7 +450,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
         if (keySet != null) {
             keySet.remove(recordKey);
             if (keySet.isEmpty()) {
-                topic2RecordCache.remove(curEntity.getTopicName());
+                topic2RecordCache.remove(curEntity.getTopicName(), new ConcurrentHashSet<>());
             }
         }
         // delete group index
@@ -458,7 +458,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
         if (keySet != null) {
             keySet.remove(recordKey);
             if (keySet.isEmpty()) {
-                group2RecordCache.remove(curEntity.getGroupName());
+                group2RecordCache.remove(curEntity.getGroupName(), new ConcurrentHashSet<>());
             }
         }
     }

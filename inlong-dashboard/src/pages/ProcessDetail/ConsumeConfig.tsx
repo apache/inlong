@@ -17,13 +17,19 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
-import { consumeForm } from '@/metas/consume';
+import { useLoadMeta, ConsumeMetaType } from '@/metas';
 
-const getContent = () => {
-  return consumeForm.map(item => {
+export const useConsumeFormContent = (mqType = '') => {
+  const { Entity } = useLoadMeta<ConsumeMetaType>('consume', mqType);
+
+  const entityFields = useMemo(() => {
+    return Entity ? new Entity().renderRow() : [];
+  }, [Entity]);
+
+  return entityFields?.map(item => {
     const obj = { ...item };
     if (typeof obj.suffix !== 'string') {
       delete obj.suffix;
@@ -45,6 +51,7 @@ export const getFormContent = (
   noExtraForm: boolean,
   formData: Record<string, any> = {},
   suffixContent,
+  consumeFormContent = [],
 ) => {
   const array = [
     {
@@ -54,7 +61,7 @@ export const getFormContent = (
         </Divider>
       ),
     },
-    ...(getContent() || []),
+    ...consumeFormContent,
   ];
 
   const extraForm =

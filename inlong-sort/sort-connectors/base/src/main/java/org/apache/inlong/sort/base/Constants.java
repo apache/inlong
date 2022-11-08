@@ -152,15 +152,15 @@ public final class Constants {
                     .withDescription("The option 'sink.multiple.enable' "
                             + "is used to determine whether to support multiple sink writing, default is 'false'.");
 
-    public static final ConfigOption<SchemaUpdateExceptionPolicy> SINK_MULTIPLE_ADD_COLUMN_POLICY =
-            ConfigOptions.key("sink.multiple.add-column.policy")
+    public static final ConfigOption<SchemaUpdateExceptionPolicy> SINK_MULTIPLE_SCHEMA_UPDATE_POLICY =
+            ConfigOptions.key("sink.multiple.schema-update.policy")
                     .enumType(SchemaUpdateExceptionPolicy.class)
                     .defaultValue(SchemaUpdateExceptionPolicy.TRY_IT_BEST)
-                    .withDescription("The action to deal with column add.");
+                    .withDescription("The action to deal with schema update in multiple sink.");
 
-    public static final ConfigOption<SchemaUpdateExceptionPolicy> SINK_MULTIPLE_DEL_COLUMN_POLICY =
-            ConfigOptions.key("sink.multiple.del-column.policy")
-                    .enumType(SchemaUpdateExceptionPolicy.class)
-                    .defaultValue(SchemaUpdateExceptionPolicy.TRY_IT_BEST)
-                    .withDescription("The action to deal with column delete.");
+    public static final ConfigOption<Boolean> SINK_MULTIPLE_IGNORE_SINGLE_TABLE_ERRORS =
+            ConfigOptions.key("sink.multiple.ignore-single-table-errors")
+                    .booleanType()
+                    .defaultValue(true)
+                    .withDescription("Whether ignore the single table erros when multiple sink writing scenario.");
 }

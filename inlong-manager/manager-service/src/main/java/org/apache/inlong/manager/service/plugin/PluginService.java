@@ -22,9 +22,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.workflow.plugin.Plugin;
-import org.apache.inlong.manager.workflow.plugin.PluginBinder;
-import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.plugin.Plugin;
+import org.apache.inlong.manager.common.plugin.PluginBinder;
+import org.apache.inlong.manager.common.plugin.PluginDefinition;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,8 +48,7 @@ import java.util.Map;
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class PluginService implements InitializingBean {
 
-
-    public static final String DEFAULT_PLUGIN_LOC = "plugins";
+    public static final String DEFAULT_PLUGIN_LOCATION = "plugins";
 
     @Getter
     private final List<Plugin> plugins = new ArrayList<>();
@@ -56,7 +56,7 @@ public class PluginService implements InitializingBean {
     @Setter
     @Getter
     @Value("${plugin.location?:}")
-    private String pluginLoc;
+    private String pluginLocation;
 
     @Getter
     @Autowired
@@ -67,10 +67,10 @@ public class PluginService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (StringUtils.isEmpty(pluginLoc)) {
-            pluginLoc = DEFAULT_PLUGIN_LOC;
+        if (StringUtils.isEmpty(pluginLocation)) {
+            pluginLocation = DEFAULT_PLUGIN_LOCATION;
         }
-        log.info("pluginLoc:{}", pluginLoc);
+        log.info("plugin location is {}", pluginLocation);
         pluginReload();
     }
 
@@ -78,36 +78,41 @@ public class PluginService implements InitializingBean {
      * Reload the plugin from the plugin path
      */
     public void pluginReload() {
-        Path path = Paths.get(pluginLoc).toAbsolutePath();
+        Path path = Paths.get(pluginLocation).toAbsolutePath();
         log.info("search for plugin in {}", path);
         if (!path.toFile().exists()) {
             log.warn("plugin directory not found");
             return;
         }
+
         PluginClassLoader pluginLoader = PluginClassLoader.getFromPluginUrl(path.toString(),
                 Thread.currentThread().getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitions = pluginLoader.getPluginDefinitions();
         if (MapUtils.isEmpty(pluginDefinitions)) {
-            log.warn("pluginDefinition not found in {}", pluginLoc);
+            log.warn("plugin definition not found in {}", pluginLocation);
             return;
         }
+
         List<Plugin> plugins = new ArrayList<>();
         for (PluginDefinition pluginDefinition : pluginDefinitions.values()) {
-            String pluginClassName = pluginDefinition.getPluginClass();
-            try {
-                Class<?> pluginClass = pluginLoader.loadClass(pluginClassName);
-                Object plugin = pluginClass.getDeclaredConstructor().newInstance();
-                plugins.add((Plugin) plugin);
-            } catch (Throwable e) {
-                throw new RuntimeException(e.getMessage());
+            List<String> classNames = pluginDefinition.getPluginClasses();
+            for (String name : classNames) {
+                try {
+                    Class<?> pluginClass = pluginLoader.loadClass(name);
+                    Object plugin = pluginClass.getDeclaredConstructor().newInstance();
+                    plugins.add((Plugin) plugin);
+                } catch (Throwable e) {
+                    log.error("create plugin instance error: ", e);
+                    throw new BusinessException("create plugin instance error: " + e.getMessage());
+                }
             }
         }
         this.plugins.addAll(plugins);
-        for (PluginBinder pluginBinder : pluginBinders) {
+
+        for (PluginBinder binder : pluginBinders) {
             for (Plugin plugin : plugins) {
-                log.info(String.format("PluginBinder:%s load Plugin:%s",
-                        pluginBinder.getClass().getSimpleName(), plugin.getClass().getSimpleName()));
-                pluginBinder.acceptPlugin(plugin);
+                binder.acceptPlugin(plugin);
+                log.info("plugin {} loaded by plugin binder {}", plugin.getClass(), binder.getClass());
             }
         }
     }

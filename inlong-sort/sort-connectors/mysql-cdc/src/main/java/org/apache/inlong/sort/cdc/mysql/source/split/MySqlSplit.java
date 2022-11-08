@@ -34,6 +34,14 @@ public abstract class MySqlSplit implements SourceSplit {
         this.splitId = splitId;
     }
 
+    public final boolean isMetricSplit() {
+        return getClass() == MySqlMetricSplit.class;
+    }
+
+    public final MySqlMetricSplit asMetricSplit() {
+        return (MySqlMetricSplit) this;
+    }
+
     /** Checks whether this split is a snapshot split. */
     public final boolean isSnapshotSplit() {
         return getClass() == MySqlSnapshotSplit.class;

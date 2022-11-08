@@ -36,7 +36,7 @@ if [ "${MQ_TYPE}" = "pulsar" ]; then
   bash +x ./bin/dataproxy-start.sh pulsar
 fi
 if [ "${MQ_TYPE}" = "tubemq" ]; then
-  bash +x ./bin/dataproxy-start.sh tube
+  bash +x ./bin/dataproxy-start.sh tubemq
 fi
 
 sleep 3

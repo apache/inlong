@@ -187,7 +187,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(agentIp);
         heartbeatMsg.setPort(String.valueOf(agentPort));
-        heartbeatMsg.setComponentType(ComponentTypeEnum.Agent.getName());
+        heartbeatMsg.setComponentType(ComponentTypeEnum.Agent.getType());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         if (StringUtils.isNotBlank(clusterName)) {
             heartbeatMsg.setClusterName(clusterName);

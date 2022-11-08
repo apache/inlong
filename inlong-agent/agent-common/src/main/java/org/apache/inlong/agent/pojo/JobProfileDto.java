@@ -62,6 +62,10 @@ public class JobProfileDto {
      * mqtt source
      */
     public static final String MQTT_SOURCE = "org.apache.inlong.agent.plugin.sources.MqttSource";
+    /**
+     * sqlserver source
+     */
+    public static final String SQLSERVER_SOURCE = "org.apache.inlong.agent.plugin.sources.SqlServerSource";
 
     private static final Gson GSON = new Gson();
 
@@ -258,6 +262,34 @@ public class JobProfileDto {
         return oracleJob;
     }
 
+    private static SqlServerJob getSqlServerJob(DataConfig dataConfigs) {
+        SqlServerJob.SqlserverJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                SqlServerJob.SqlserverJobConfig.class);
+        SqlServerJob sqlServerJob = new SqlServerJob();
+        sqlServerJob.setUser(config.getUser());
+        sqlServerJob.setHostname(config.getHostname());
+        sqlServerJob.setPassword(config.getPassword());
+        sqlServerJob.setPort(config.getPort());
+        sqlServerJob.setServerName(config.getServerName());
+        sqlServerJob.setDbname(config.getDbname());
+
+        SqlServerJob.Offset offset = new SqlServerJob.Offset();
+        offset.setFilename(config.getOffsetFilename());
+        offset.setSpecificOffsetFile(config.getSpecificOffsetFile());
+        offset.setSpecificOffsetPos(config.getSpecificOffsetPos());
+        sqlServerJob.setOffset(offset);
+
+        SqlServerJob.Snapshot snapshot = new SqlServerJob.Snapshot();
+        snapshot.setMode(config.getSnapshotMode());
+        sqlServerJob.setSnapshot(snapshot);
+
+        SqlServerJob.History history = new SqlServerJob.History();
+        history.setFilename(config.getHistoryFilename());
+        sqlServerJob.setHistory(history);
+
+        return sqlServerJob;
+    }
+
     public static MqttJob getMqttJob(DataConfig dataConfigs) {
         MqttJob.MqttJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
                 MqttJob.MqttJobConfig.class);
@@ -347,6 +379,12 @@ public class JobProfileDto {
                 job.setSource(ORACLE_SOURCE);
                 profileDto.setJob(job);
                 break;
+            case SQLSERVER:
+                SqlServerJob sqlserverJob = getSqlServerJob(dataConfig);
+                job.setSqlserverJob(sqlserverJob);
+                job.setSource(SQLSERVER_SOURCE);
+                profileDto.setJob(job);
+                break;
             case MONGODB:
                 MongoJob mongoJob = getMongoJob(dataConfig);
                 job.setMongoJob(mongoJob);
@@ -388,6 +426,7 @@ public class JobProfileDto {
         private OracleJob oracleJob;
         private MongoJob mongoJob;
         private MqttJob mqttJob;
+        private SqlServerJob sqlserverJob;
     }
 
     @Data

@@ -17,17 +17,18 @@
 
 package org.apache.inlong.manager.service.plugin;
 
+import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.workflow.plugin.Plugin;
-import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Test class for reload plugin.
@@ -43,15 +44,15 @@ public class PluginServiceTest extends ServiceBaseTest {
     public void testReloadPlugin() {
         String path = null;
         try {
-            path = Paths.get(this.getClass().getClassLoader().getResource("").toURI()).toString();
+            URI uri = Objects.requireNonNull(this.getClass().getClassLoader().getResource("")).toURI();
+            path = Paths.get(uri).toString();
         } catch (URISyntaxException e) {
             Assertions.fail(e.getMessage());
         }
-        pluginService.setPluginLoc(path + File.separator + PLUGIN_NAME);
+        pluginService.setPluginLocation(path + File.separator + PLUGIN_NAME);
         pluginService.pluginReload();
         List<Plugin> pluginList = pluginService.getPlugins();
         Assertions.assertTrue(pluginList.size() > 0);
-        Assertions.assertTrue(pluginList.get(0) instanceof ProcessPlugin);
     }
 
 }

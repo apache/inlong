@@ -24,6 +24,7 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
@@ -57,6 +58,15 @@ public class StreamSinkClient {
     }
 
     /**
+     * Delete stream sink by key
+     */
+    public boolean deleteSinkByKey(String groupId, String streamId, String name) {
+        Response<Boolean> response = ClientUtils.executeHttpCall(streamSinkApi.deleteByKey(groupId, streamId, name));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * List stream sinks by the given groupId and streamId.
      */
     public List<StreamSink> listSinks(String groupId, String streamId) {
@@ -77,13 +87,27 @@ public class StreamSinkClient {
      * Update the stream sink info.
      */
     public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
-        Response<Boolean> responseBody = ClientUtils.executeHttpCall(streamSinkApi.updateById(sinkRequest));
-        ClientUtils.assertRespSuccess(responseBody);
+        Response<Boolean> response = ClientUtils.executeHttpCall(streamSinkApi.updateById(sinkRequest));
+        ClientUtils.assertRespSuccess(response);
 
-        if (responseBody.getData() != null) {
-            return Pair.of(responseBody.getData(), responseBody.getErrMsg());
+        if (response.getData() != null) {
+            return Pair.of(response.getData(), response.getErrMsg());
         } else {
-            return Pair.of(false, responseBody.getErrMsg());
+            return Pair.of(false, response.getErrMsg());
+        }
+    }
+
+    /**
+     * Update the stream sink by key
+     */
+    public Pair<UpdateResult, String> updateSinkByKey(SinkRequest sinkRequest) {
+        Response<UpdateResult> response = ClientUtils.executeHttpCall(streamSinkApi.updateByKey(sinkRequest));
+        ClientUtils.assertRespSuccess(response);
+
+        if (response.getData() != null) {
+            return Pair.of(response.getData(), response.getErrMsg());
+        } else {
+            return Pair.of(new UpdateResult(), response.getErrMsg());
         }
     }
 

@@ -508,12 +508,12 @@ public class MasterConfig extends AbstractFileConfig {
         if (this.needBrokerVisitAuth) {
             if (TStringUtils.isBlank(masterConf.get("visitName"))) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("visitName is null or Blank in ").append(SECT_TOKEN_BROKER)
+                        .append("visitName is null or Blank in ").append(SECT_TOKEN_MASTER)
                         .append(" section!").toString());
             }
             if (TStringUtils.isBlank(masterConf.get("visitPassword"))) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                        .append("visitPassword is null or Blank in ").append(SECT_TOKEN_BROKER)
+                        .append("visitPassword is null or Blank in ").append(SECT_TOKEN_MASTER)
                         .append(" section!").toString());
             }
             this.visitName = masterConf.get("visitName").trim();

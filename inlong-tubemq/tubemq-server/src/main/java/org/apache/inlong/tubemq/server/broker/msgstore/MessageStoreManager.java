@@ -223,6 +223,7 @@ public class MessageStoreManager implements StoreService {
             if (targetTopics.isEmpty()) {
                 return removedTopics;
             }
+            logger.info("[Remove Topic] start remove topics : {}", targetTopics);
             for (String tmpTopic : targetTopics) {
                 ConcurrentHashMap<Integer, MessageStore> topicStores =
                         dataStores.get(tmpTopic);
@@ -246,14 +247,15 @@ public class MessageStoreManager implements StoreService {
                 if (tmpTopicConf != null) {
                     StringBuilder sBuilder = new StringBuilder(512);
                     for (int storeId = 0; storeId < tmpTopicConf.getNumTopicStores(); storeId++) {
-                        String storeDir = sBuilder.append(tmpTopicConf.getDataPath())
+                        String storeDir = sBuilder.append(tubeConfig.getPrimaryPath())
                                 .append(File.separator).append(tmpTopic).append("-")
                                 .append(storeId).toString();
                         sBuilder.delete(0, sBuilder.length());
+                        logger.info("[Remove Topic] remove topic files : {}", storeDir);
                         try {
                             delTopicFiles(storeDir);
                         } catch (Throwable e) {
-                            logger.error("[Remove Topic] Remove topic data error : ", e);
+                            logger.error("[Remove Topic] remove topic files error : ", e);
                         }
                         ThreadUtils.sleep(50);
                     }
@@ -262,6 +264,7 @@ public class MessageStoreManager implements StoreService {
                 }
                 ThreadUtils.sleep(100);
             }
+            logger.info("[Remove Topic] finished remove topics : {}", removedTopics);
             return removedTopics;
         } finally {
             this.isRemovingTopic.set(false);

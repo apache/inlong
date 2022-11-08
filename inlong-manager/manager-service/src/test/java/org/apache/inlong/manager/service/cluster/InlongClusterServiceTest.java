@@ -36,7 +36,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.core.heartbeat.HeartbeatManager;
+import org.apache.inlong.manager.service.heartbeat.HeartbeatManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,6 +173,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         heartbeatMsg.setIp(ip);
         heartbeatMsg.setPort(port);
+        heartbeatMsg.setClusterTag("default_cluster");
         heartbeatMsg.setProtocolType(ProtocolType.HTTP);
         heartbeatMsg.setComponentType(type);
         heartbeatMsg.setReportTime(System.currentTimeMillis());
@@ -321,10 +322,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
         // report heartbeat
         HeartbeatMsg msg1 = createHeartbeatMsg(clusterName, ip, String.valueOf(port1),
-                ComponentTypeEnum.DataProxy.getName());
+                ComponentTypeEnum.DataProxy.getType());
         heartbeatManager.reportHeartbeat(msg1);
         HeartbeatMsg msg2 = createHeartbeatMsg(clusterName, ip, String.valueOf(port2),
-                ComponentTypeEnum.DataProxy.getName());
+                ComponentTypeEnum.DataProxy.getType());
         heartbeatManager.reportHeartbeat(msg2);
 
         // create an inlong group which use the clusterTag

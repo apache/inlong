@@ -17,11 +17,17 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar;
 
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.dataproxy.sink.EventStat;
 
 public interface SendMessageCallBack {
 
     void handleMessageSendSuccess(String topic, Object msgId, EventStat es, long startTime);
 
-    void handleMessageSendException(String topic, EventStat es, Object exception);
+    void handleRequestProcError(String topic, EventStat es,
+                                boolean needRetry, DataProxyErrCode errCode, String errMsg);
+
+    void handleMessageSendException(String topic, EventStat es, Object exception,
+                                    DataProxyErrCode errCode, String errMsg);
+
 }

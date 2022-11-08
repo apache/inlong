@@ -30,6 +30,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
+import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
@@ -82,6 +83,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
     @Override
     public void reportHeartbeat(HeartbeatMsg heartbeat) {
+        if (null == heartbeat) {
+            return;
+        }
         ConfigManager configManager = ConfigManager.getInstance();
         final String managerHost = configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
         final String url =
@@ -121,11 +125,17 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         ConfigManager configManager = ConfigManager.getInstance();
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         SourceReportInfo reportInfo = configManager.getSourceReportInfo();
+        if (!validReportInfo(reportInfo)) {
+            return null;
+        }
+        heartbeatMsg.setNodeSrvStatus(ConfigManager.getInstance().isMqClusterReady()
+                ? NodeSrvStatus.OK : NodeSrvStatus.SERVICE_UNREADY);
         heartbeatMsg.setIp(reportInfo.getIp());
         heartbeatMsg.setPort(reportInfo.getPort());
         heartbeatMsg.setProtocolType(reportInfo.getProtocolType());
-        heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getName());
+        heartbeatMsg.setComponentType(ComponentTypeEnum.DataProxy.getType());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
+        heartbeatMsg.setLoad(0xffff);
         Map<String, String> commonProperties = configManager.getCommonProperties();
         heartbeatMsg.setClusterTag(commonProperties.getOrDefault(
                 ConfigConstants.PROXY_CLUSTER_TAG, DEFAULT_CLUSTER_TAG));
@@ -167,5 +177,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         }
         heartbeatMsg.setStreamHeartbeats(streamHeartbeats);
         return heartbeatMsg;
+    }
+
+    private boolean validReportInfo(SourceReportInfo reportInfo) {
+        return StringUtils.isNotBlank(reportInfo.getIp()) && StringUtils.isNotBlank(reportInfo.getPort());
     }
 }

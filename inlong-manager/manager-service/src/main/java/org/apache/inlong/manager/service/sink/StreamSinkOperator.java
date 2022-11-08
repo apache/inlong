@@ -27,6 +27,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface of the sink operator
@@ -98,4 +99,12 @@ public interface StreamSinkOperator {
      * @param operator name of the operator
      */
     void deleteOpt(StreamSinkEntity entity, String operator);
+
+    /**
+     * Parse stream sink to id params
+     *
+     * @param streamSink
+     * @return
+     */
+    Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields);
 }

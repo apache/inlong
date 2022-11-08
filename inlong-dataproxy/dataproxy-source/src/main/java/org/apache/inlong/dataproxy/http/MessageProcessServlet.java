@@ -17,8 +17,10 @@
 
 package org.apache.inlong.dataproxy.http;
 
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,17 +55,17 @@ public class MessageProcessServlet extends HttpServlet {
             context.put(AttributeConstants.GROUP_ID, req.getParameter(AttributeConstants.GROUP_ID));
             context.put(AttributeConstants.STREAM_ID, req.getParameter(AttributeConstants.STREAM_ID));
             context.put(AttributeConstants.DATA_TIME, req.getParameter(AttributeConstants.DATA_TIME));
-            context.put(AttributeConstants.BODY, req.getParameter(AttributeConstants.BODY));
+            context.put(AttrConstants.BODY, req.getParameter(AttrConstants.BODY));
 
-            context.put(AttributeConstants.HTTP_REQUEST, req);
-            context.put(AttributeConstants.HTTP_RESPONSE, resp);
+            context.put(AttrConstants.HTTP_REQUEST, req);
+            context.put(AttrConstants.HTTP_RESPONSE, resp);
 
             messageHandler.processMessage(context);
         } catch (MessageProcessException e) {
             if (logCounter.shouldPrint()) {
                 LOG.error("Received bad request from client. ", e);
             }
-            req.setAttribute("code", StatusCode.SERVICE_ERR);
+            req.setAttribute("code", DataProxyErrCode.UNKNOWN_ERROR.getErrCode());
         }
     }
 }

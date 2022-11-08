@@ -82,7 +82,6 @@ import org.apache.inlong.manager.pojo.source.file.FileSource;
 import org.apache.inlong.manager.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
@@ -167,31 +166,32 @@ class ClientFactoryTest {
     void testGetGroupInfo() {
         FlinkSortConf flinkSortConf = new FlinkSortConf();
         flinkSortConf.setAuthentication(new TokenAuthentication());
-        InlongPulsarInfo inlongGroupResponse = InlongPulsarInfo.builder()
-                .id(1)
-                .inlongGroupId("1")
-                .mqType("PULSAR")
-                .enableCreateResource(1)
-                .extList(
-                        Lists.newArrayList(InlongGroupExtInfo.builder()
-                                .id(1)
-                                .inlongGroupId("1")
-                                .keyName("keyName")
-                                .keyValue("keyValue")
-                                .build()
-                        )
-                ).sortConf(flinkSortConf).build();
+        InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
+        pulsarInfo.setId(1);
+        pulsarInfo.setInlongGroupId("1");
+        pulsarInfo.setMqType("PULSAR");
+        pulsarInfo.setEnableCreateResource(1);
+        pulsarInfo.setExtList(
+                Lists.newArrayList(InlongGroupExtInfo.builder()
+                        .id(1)
+                        .inlongGroupId("1")
+                        .keyName("keyName")
+                        .keyValue("keyValue")
+                        .build()
+                )
+        );
+        pulsarInfo.setSortConf(flinkSortConf);
 
         stubFor(
                 get(urlMatching("/inlong/manager/api/group/get/1.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(inlongGroupResponse)))
+                                okJson(JsonUtils.toJsonString(Response.success(pulsarInfo)))
                         )
         );
 
         InlongGroupInfo groupInfo = groupClient.getGroupInfo("1");
         Assertions.assertTrue(groupInfo instanceof InlongPulsarInfo);
-        Assertions.assertEquals(JsonUtils.toJsonString(inlongGroupResponse), JsonUtils.toJsonString(groupInfo));
+        Assertions.assertEquals(JsonUtils.toJsonString(pulsarInfo), JsonUtils.toJsonString(groupInfo));
     }
 
     @Test
@@ -531,36 +531,36 @@ class ClientFactoryTest {
 
     @Test
     void testGetStream() {
-        InlongStreamResponse streamResponse = InlongStreamResponse.builder()
-                .id(1)
-                .inlongGroupId("123")
-                .inlongStreamId("11")
-                .name("name")
-                .fieldList(
-                        Lists.newArrayList(
-                                StreamField.builder()
-                                        .id(1)
-                                        .inlongGroupId("123")
-                                        .fieldType("string")
-                                        .build(),
-                                StreamField.builder()
-                                        .id(2)
-                                        .inlongGroupId("123")
-                                        .inlongGroupId("11")
-                                        .isMetaField(1)
-                                        .build()
-                        )
-                ).build();
+        InlongStreamInfo streamInfo = new InlongStreamInfo();
+        streamInfo.setId(1);
+        streamInfo.setInlongGroupId("123");
+        streamInfo.setInlongStreamId("11");
+        streamInfo.setName("name");
+        streamInfo.setFieldList(
+                Lists.newArrayList(
+                        StreamField.builder()
+                                .id(1)
+                                .inlongGroupId("123")
+                                .fieldType("string")
+                                .build(),
+                        StreamField.builder()
+                                .id(2)
+                                .inlongGroupId("123")
+                                .inlongGroupId("11")
+                                .isMetaField(1)
+                                .build()
+                )
+        );
 
         stubFor(
                 get(urlMatching("/inlong/manager/api/stream/get.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(streamResponse)))
+                                okJson(JsonUtils.toJsonString(Response.success(streamInfo)))
                         )
         );
 
-        InlongStreamInfo inlongStreamInfo = streamClient.getStreamInfo("123", "11");
-        Assertions.assertNotNull(inlongStreamInfo);
+        InlongStreamInfo streamInfoResult = streamClient.getStreamInfo("123", "11");
+        Assertions.assertNotNull(streamInfoResult);
     }
 
     @Test
@@ -579,24 +579,24 @@ class ClientFactoryTest {
 
     @Test
     void testListStream4AllSink() {
-        InlongStreamInfo streamInfo = InlongStreamInfo.builder()
-                .id(1)
-                .inlongGroupId("11")
-                .inlongStreamId("11")
-                .fieldList(
-                        Lists.newArrayList(
-                                StreamField.builder()
-                                        .id(1)
-                                        .inlongGroupId("123")
-                                        .inlongGroupId("11")
-                                        .build(),
-                                StreamField.builder()
-                                        .id(2)
-                                        .isMetaField(1)
-                                        .fieldFormat("yyyy-MM-dd HH:mm:ss")
-                                        .build()
-                        )
-                ).build();
+        InlongStreamInfo streamInfo = new InlongStreamInfo();
+        streamInfo.setId(1);
+        streamInfo.setInlongGroupId("11");
+        streamInfo.setInlongStreamId("11");
+        streamInfo.setFieldList(
+                Lists.newArrayList(
+                        StreamField.builder()
+                                .id(1)
+                                .inlongGroupId("123")
+                                .inlongGroupId("11")
+                                .build(),
+                        StreamField.builder()
+                                .id(2)
+                                .isMetaField(1)
+                                .fieldFormat("yyyy-MM-dd HH:mm:ss")
+                                .build()
+                )
+        );
 
         ArrayList<StreamSource> sourceList = Lists.newArrayList(
                 AutoPushSource.builder()

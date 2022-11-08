@@ -34,13 +34,14 @@ public class InlongConsumeOperatorFactory {
     private List<InlongConsumeOperator> consumeOperatorList;
 
     /**
-     * Get a consumption operator instance via the given mqType
+     * Get an inlong consume operator instance via the given mqType
      */
     public InlongConsumeOperator getInstance(String mqType) {
         return consumeOperatorList.stream()
                 .filter(inst -> inst.accept(mqType))
                 .findFirst()
-                .orElseThrow(() -> new
-                        BusinessException(String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType)));
+                .orElseThrow(() -> new BusinessException(
+                        String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType))
+                );
     }
 }

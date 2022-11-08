@@ -17,13 +17,19 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Divider, Table } from 'antd';
 import i18n from '@/i18n';
-import { groupForm } from '@/metas/group';
+import { useLoadMeta, GroupMetaType } from '@/metas';
 
-const getContent = (isFinished, isViwer) =>
-  groupForm.map(item => {
+export const useGroupFormContent = ({ mqType = '', isFinished, isViwer }) => {
+  const { Entity } = useLoadMeta<GroupMetaType>('group', mqType);
+
+  const entityFields = useMemo(() => {
+    return Entity ? new Entity().renderRow() : [];
+  }, [Entity]);
+
+  return entityFields?.map(item => {
     const obj = { ...item };
 
     const canEditSet = new Set([
@@ -52,8 +58,16 @@ const getContent = (isFinished, isViwer) =>
 
     return obj;
   });
+};
 
-export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, isFinished }) => {
+export const getFormContent = ({
+  isViwer,
+  formData,
+  suffixContent,
+  noExtraForm,
+  isFinished,
+  groupFormContent = [],
+}) => {
   const array = [
     {
       type: (
@@ -62,7 +76,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, 
         </Divider>
       ),
     },
-    ...(getContent(isFinished, isViwer) || []),
+    ...groupFormContent,
     {
       type: (
         <Divider orientation="left">

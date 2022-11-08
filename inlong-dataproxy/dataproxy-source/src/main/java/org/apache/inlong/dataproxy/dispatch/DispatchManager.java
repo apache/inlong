@@ -20,7 +20,7 @@ package org.apache.inlong.dataproxy.dispatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;

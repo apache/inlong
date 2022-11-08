@@ -27,7 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { useRequest, useHistory } from '@/hooks';
 import { defaultSize } from '@/configs/pagination';
 import ExecutionLogModal from './ExecutionLogModal';
-import { dashCardList, getFilterFormContent, getColumns } from './config';
+import { dashCardList, getFilterFormContent, useColumns } from './config';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
@@ -108,6 +108,8 @@ const Comp: React.FC = () => {
     title: summary[item.dataIndex] || 0,
   }));
 
+  const columns = useColumns({ onDelete, openModal });
+
   return (
     <PageContainer useDefaultBreadcrumb={false} useDefaultContainer={false}>
       <Container>
@@ -127,7 +129,7 @@ const Comp: React.FC = () => {
               onFilter,
             }}
             table={{
-              columns: getColumns({ onDelete, openModal }),
+              columns,
               rowKey: 'id',
               dataSource: data?.list,
               pagination,

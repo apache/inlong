@@ -17,13 +17,16 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sort.standalone.SortIdInfo;
-import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
+import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamSinkInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo;
 import org.springframework.stereotype.Repository;
 
@@ -117,26 +120,32 @@ public interface StreamSinkEntityMapper {
      */
     List<SinkInfo> selectAllConfig(@Param("groupId") String groupId, @Param("idList") List<String> streamIdList);
 
+    @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
+    Cursor<StreamSinkEntity> selectAllStreamSinks();
+
     /**
      * Select all tasks for sort-standalone
      *
      * @return All tasks
      */
-    List<SortTaskInfo> selectAllTasks();
+    @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
+    Cursor<SortTaskInfo> selectAllTasks();
 
     /**
      * Select all id params for sort-standalone
      *
      * @return All id params
      */
-    List<SortIdInfo> selectAllIdParams();
+    @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
+    Cursor<SortIdInfo> selectAllIdParams();
 
     /**
      * Select all streams for sort sdk.
      *
      * @return All stream info
      */
-    List<SortSourceStreamInfo> selectAllStreams();
+    @Options(resultSetType = ResultSetType.FORWARD_ONLY, fetchSize = Integer.MIN_VALUE)
+    Cursor<SortSourceStreamSinkInfo> selectAllStreams();
 
     int updateByIdSelective(StreamSinkEntity record);
 

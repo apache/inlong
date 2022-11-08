@@ -19,6 +19,7 @@ package org.apache.inlong.sort.base.format;
 
 import org.apache.flink.formats.json.JsonToRowDataConverters.JsonToRowDataConverter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
@@ -112,6 +113,9 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     @Override
     public RowType extractSchema(JsonNode data, List<String> pkNames) {
         JsonNode schema = data.get(SCHEMA);
+        if (schema == null) {
+            throw new IllegalArgumentException(String.format("Not found schema from: %s", data));
+        }
         return extractSchemaNode(schema, pkNames);
     }
 
@@ -119,29 +123,51 @@ public class CanalJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
     public List<RowData> extractRowData(JsonNode data, RowType rowType) {
         JsonNode opNode = data.get(OP_TYPE);
         JsonNode dataNode = data.get(DATA);
+        JsonNode oldNode = data.get(OLD);
         if (opNode == null || dataNode == null || !dataNode.isArray()) {
             throw new IllegalArgumentException(String.format("Error opNode: %s, or dataNode: %s", opNode, dataNode));
         }
 
         String op = data.get(OP_TYPE).asText();
-        RowKind rowKind;
+        JsonToRowDataConverter rowDataConverter = rowDataConverters.createConverter(rowType);
+        List<RowData> rowDataList = new ArrayList<>();
         if (OP_INSERT.equals(op)) {
-            rowKind = RowKind.INSERT;
+            for (JsonNode row : dataNode) {
+                RowData rowData = (RowData) rowDataConverter.convert(row);
+                rowData.setRowKind(RowKind.INSERT);
+                rowDataList.add(rowData);
+            }
         } else if (OP_UPDATE.equals(op)) {
-            rowKind = RowKind.UPDATE_AFTER;
+            for (int i = 0; i < dataNode.size(); i++) {
+                GenericRowData after = (GenericRowData) rowDataConverter.convert(dataNode.get(i));
+
+                if (oldNode != null) {
+                    GenericRowData before = (GenericRowData) rowDataConverter.convert(oldNode.get(i));
+                    for (int f = 0; f < rowType.getFieldCount(); f++) {
+                        if (before.isNullAt(f) && oldNode.get(i).findValue(rowType.getFieldNames().get(f)) == null) {
+                            // fields in "old" (before) means the fields are changed
+                            // fields not in "old" (before) means the fields are not changed
+                            // so we just copy the not changed fields into before
+                            before.setField(f, after.getField(f));
+                        }
+                    }
+                    before.setRowKind(RowKind.UPDATE_BEFORE);
+                    rowDataList.add(before);
+                }
+
+                after.setRowKind(RowKind.UPDATE_AFTER);
+                rowDataList.add(after);
+            }
         } else if (OP_DELETE.equals(op)) {
-            rowKind = RowKind.DELETE;
+            for (JsonNode row : dataNode) {
+                RowData rowData = (RowData) rowDataConverter.convert(row);
+                rowData.setRowKind(RowKind.DELETE);
+                rowDataList.add(rowData);
+            }
         } else {
             throw new IllegalArgumentException("Unsupported op_type: " + op);
         }
-        JsonToRowDataConverter rowDataConverter = rowDataConverters.createConverter(rowType);
 
-        List<RowData> rowDataList = new ArrayList<>();
-        for (JsonNode row : dataNode) {
-            RowData rowData = (RowData) rowDataConverter.convert(row);
-            rowData.setRowKind(rowKind);
-            rowDataList.add(rowData);
-        }
         return rowDataList;
     }
 

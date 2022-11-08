@@ -220,7 +220,7 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public String getSimpleTLSBrokerInfo() {
-        if (getBrokerTLSPort() == TBaseConstants.META_DEFAULT_BROKER_PORT) {
+        if (getBrokerTLSPort() == TBaseConstants.META_DEFAULT_BROKER_TLS_PORT) {
             return this.brokerTLSSimpleInfo;
         } else {
             return this.brokerTLSFullInfo;
@@ -526,7 +526,7 @@ public class BdbBrokerConfEntity implements Serializable {
                         String.valueOf(brokerWebPort));
     }
 
-    private void buildStrInfo() {
+    public void buildStrInfo() {
         StringBuilder sBuilder = new StringBuilder(512);
         this.brokerAddress = sBuilder.append(this.brokerIp)
                 .append(TokenConstants.ATTR_SEP)

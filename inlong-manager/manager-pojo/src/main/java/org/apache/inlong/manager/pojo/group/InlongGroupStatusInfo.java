@@ -51,7 +51,7 @@ public class InlongGroupStatusInfo {
     @ApiModelProperty(value = "Stream sources in the inlong group")
     private List<StreamSource> streamSources;
 
-    @ApiModelProperty(value = "sort job status of the group")
+    @ApiModelProperty(value = "Sort job status of the group")
     private SortStatus sortStatus = SortStatus.UNKNOWN;
 
 }

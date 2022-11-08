@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-tubemq</artifactId>
-        <version>1.4.0-SNAPSHOT</version>
+        <version>1.5.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -30,7 +30,6 @@
     <name>Apache InLong - TubeMQ Manager</name>
 
     <properties>
-        <guava.version>21.0</guava.version>
         <docker.image.prefix>springboot-docker</docker.image.prefix>
     </properties>
 

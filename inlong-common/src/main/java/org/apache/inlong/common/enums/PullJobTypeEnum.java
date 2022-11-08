@@ -17,20 +17,20 @@
 
 package org.apache.inlong.common.enums;
 
-import static java.util.Objects.requireNonNull;
-
+/**
+ * Enum of pull job type.
+ */
 public enum PullJobTypeEnum {
 
     NEW(0), NEVER(1);
 
-    private int type;
+    private final int type;
 
     PullJobTypeEnum(int type) {
         this.type = type;
     }
 
     public static PullJobTypeEnum getPullJobType(int type) {
-        requireNonNull(type);
         switch (type) {
             case 0:
                 return NEW;

@@ -17,16 +17,14 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useUpdateEffect, useRequest } from '@/hooks';
 import i18n from '@/i18n';
-import { groupForm } from '@/metas/group';
-import { streamForm } from '@/metas/stream';
+import { useLoadMeta, useDefaultMeta, StreamMetaType } from '@/metas';
 import request from '@/utils/request';
-import { pickObjectArray } from '@/utils';
 import { dataToValues, valuesToData } from './helper';
 
 export interface Props extends ModalProps {
@@ -36,28 +34,79 @@ export interface Props extends ModalProps {
   mqType: string;
 }
 
-export const genFormContent = (isCreate, mqType) => {
-  return [
-    ...streamForm,
-    ...pickObjectArray(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength'], groupForm).map(
-      item => ({
-        ...item,
-        visible: mqType === 'PULSAR',
-      }),
-    ),
-  ].map(item => {
-    const obj = { ...item };
-
-    if (!isCreate && (obj.name === 'inlongStreamId' || obj.name === 'dataType')) {
-      obj.type = 'text';
-    }
-
-    return obj;
-  });
-};
-
 const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modalProps }) => {
   const [form] = useForm();
+
+  const { defaultValue } = useDefaultMeta('stream');
+
+  const { Entity } = useLoadMeta<StreamMetaType>('stream', defaultValue);
+
+  const entityFields = useMemo(() => {
+    return Entity ? new Entity().renderRow() : [];
+  }, [Entity]);
+
+  const formContent = useMemo(() => {
+    return [
+      ...(entityFields || []),
+      {
+        type: 'inputnumber',
+        label: i18n.t('meta.Group.TubeMq.NumberOfAccess'),
+        name: 'dailyRecords',
+        rules: [{ required: true }],
+        suffix: i18n.t('meta.Group.TubeMq.TenThousand/Day'),
+        props: {
+          min: 1,
+          precision: 0,
+        },
+        visible: mqType === 'PULSAR',
+      },
+      {
+        type: 'inputnumber',
+        label: i18n.t('meta.Group.TubeMq.AccessSize'),
+        name: 'dailyStorage',
+        rules: [{ required: true }],
+        suffix: i18n.t('meta.Group.TubeMq.GB/Day'),
+        props: {
+          min: 1,
+          precision: 0,
+        },
+        visible: mqType === 'PULSAR',
+      },
+      {
+        type: 'inputnumber',
+        label: i18n.t('meta.Group.TubeMq.AccessPeakPerSecond'),
+        name: 'peakRecords',
+        rules: [{ required: true }],
+        suffix: i18n.t('meta.Group.TubeMq.Stripe/Second'),
+        props: {
+          min: 1,
+          precision: 0,
+        },
+        visible: mqType === 'PULSAR',
+      },
+      {
+        type: 'inputnumber',
+        label: i18n.t('meta.Group.TubeMq.SingleStripMaximumLength'),
+        name: 'maxLength',
+        rules: [{ required: true }],
+        suffix: 'Byte',
+        props: {
+          min: 1,
+          precision: 0,
+        },
+        visible: mqType === 'PULSAR',
+      },
+    ].map(item => {
+      const obj = { ...item };
+      const isCreate = !inlongStreamId;
+
+      if (!isCreate && (obj.name === 'inlongStreamId' || obj.name === 'dataType')) {
+        obj.type = 'text';
+      }
+
+      return obj;
+    });
+  }, [entityFields, mqType, inlongStreamId]);
 
   const { data: savedData, run: getStreamData } = useRequest(
     {
@@ -111,7 +160,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
       <FormGenerator
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 20 }}
-        content={genFormContent(!inlongStreamId, mqType)}
+        content={formContent}
         form={form}
         useMaxWidth
       />

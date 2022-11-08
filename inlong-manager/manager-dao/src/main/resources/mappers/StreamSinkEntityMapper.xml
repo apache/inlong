@@ -368,7 +368,7 @@
         from stream_sink
         where is_deleted = 0
     </select>
-    <select id="selectAllStreams" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo">
+    <select id="selectAllStreams" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamSinkInfo">
         select inlong_cluster_name as sortClusterName,
                sort_task_name,
                inlong_group_id     as groupId,
@@ -376,7 +376,12 @@
         from stream_sink
         where is_deleted = 0
     </select>
-
+    <select id="selectAllStreamSinks" resultType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_sink
+        where is_deleted = 0
+    </select>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         update stream_sink
         <set>

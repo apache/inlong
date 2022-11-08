@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.heartbeat;
 
+import org.apache.inlong.common.enums.NodeSrvStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +34,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HeartbeatMsg {
+
+    /**
+     * Node service status
+     */
+    private NodeSrvStatus nodeSrvStatus = NodeSrvStatus.OK;
 
     /**
      * Ip of component
@@ -83,7 +90,13 @@ public class HeartbeatMsg {
      */
     private List<StreamHeartbeat> streamHeartbeats;
 
+    /**
+     * node load value
+     */
+    private Integer load = 0xffff;
+
     public ComponentHeartbeat componentHeartbeat() {
-        return new ComponentHeartbeat(clusterTag, clusterName, componentType, ip, port, inCharges, protocolType);
+        return new ComponentHeartbeat(nodeSrvStatus, clusterTag, clusterName,
+                componentType, ip, port, inCharges, protocolType, load);
     }
 }

@@ -29,11 +29,11 @@ public interface AttributeConstants {
     String GROUP_ID = "groupId";
 
     /**
-     * interface id
+     * stream id
      * unique string id for each interface of business
-     * An interface stand for a kind of data
+     * An steam stand for a kind of data
      */
-    String INTERFACE_ID = "streamId";
+    String STREAM_ID = "streamId";
 
     /**
      * iname is like a streamId but used in file protocol(m=xxx)
@@ -66,8 +66,27 @@ public interface AttributeConstants {
     /* from where */
     String FROM = "f";
 
+    // whether to return a response, false: not need, true or not exist: need
+    String MESSAGE_IS_ACK = "isAck";
+
+    // whether sync send message
+    String MESSAGE_SYNC_SEND = "syncSend";
+
+    // whether sent by partition key, use with MESSAGE_SYNC_SEND
+    String MESSAGE_PARTITION_KEY = "partitionKey";
+
+    // whether return response on sink
+    String MESSAGE_PROXY_SEND = "proxySend";
+
+    // message received time, add by receiver
     String RCV_TIME = "rt";
 
+    // message received node ip, add by receiver
     String NODE_IP = "NodeIP";
 
+    // error code, add by receiver
+    String MESSAGE_PROCESS_ERRCODE = "errCode";
+
+    // error message, add by receiver
+    String MESSAGE_PROCESS_ERRMSG = "errMsg";
 }

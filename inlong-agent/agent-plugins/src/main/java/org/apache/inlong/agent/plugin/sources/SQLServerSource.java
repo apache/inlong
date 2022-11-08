@@ -17,56 +17,32 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.SQLServerReader;
-import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
- * SQLServer SQL source, split SQLServer SQL source job into multi readers
+ * SQLServer source
  */
 public class SQLServerSource extends AbstractSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SQLServerSource.class);
 
-    public static final String JOB_DATABASE_SQL = "job.sql.command";
-
     public SQLServerSource() {
-    }
-
-    private List<Reader> splitSqlJob(String sqlPattern) {
-        final List<Reader> result = new ArrayList<>();
-        String[] sqlList = AgentDbUtils.replaceDynamicSeq(sqlPattern);
-        if (Objects.nonNull(sqlList)) {
-            Arrays.stream(sqlList).forEach(sql -> {
-                result.add(new SQLServerReader(sql));
-            });
-        }
-        return result;
     }
 
     @Override
     public List<Reader> split(JobProfile conf) {
         super.init(conf);
-        String sqlPattern = conf.get(JOB_DATABASE_SQL, StringUtils.EMPTY).toLowerCase();
-        List<Reader> readerList = null;
-        if (StringUtils.isNotEmpty(sqlPattern)) {
-            readerList = splitSqlJob(sqlPattern);
-        }
-        if (CollectionUtils.isNotEmpty(readerList)) {
-            sourceMetric.sourceSuccessCount.incrementAndGet();
-        } else {
-            sourceMetric.sourceFailCount.incrementAndGet();
-        }
+        Reader sqlServerReader = new SQLServerReader();
+        List<Reader> readerList = new ArrayList<>();
+        readerList.add(sqlServerReader);
+        sourceMetric.sourceSuccessCount.incrementAndGet();
         return readerList;
     }
 }

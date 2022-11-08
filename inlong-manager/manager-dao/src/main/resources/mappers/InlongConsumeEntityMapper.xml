@@ -74,6 +74,16 @@
           and (creator = #{username, jdbcType=VARCHAR} or FIND_IN_SET(#{username, jdbcType=VARCHAR}, in_charges))
         group by status
     </select>
+    <select id="selectExists" resultType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_consume
+        where is_deleted = 0
+        and consumer_group = #{consumerGroup, jdbcType=VARCHAR}
+        and topic = #{topic, jdbcType=VARCHAR}
+        and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+        limit 1
+    </select>
     <select id="selectByCondition" resultMap="BaseResultMap"
             parameterType="org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest">
         select
@@ -120,15 +130,51 @@
             </otherwise>
         </choose>
     </select>
-    <select id="selectExists" resultType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">
-        select
-        <include refid="Base_Column_List"/>
+    <select id="selectBriefList" parameterType="org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest"
+            resultType="org.apache.inlong.manager.pojo.consume.InlongConsumeBriefInfo">
+        select id, consumer_group, mq_type, topic, inlong_group_id,
+        in_charges, status, creator, modifier, create_time, modify_time
         from inlong_consume
-        where is_deleted = 0
-        and consumer_group = #{consumerGroup, jdbcType=VARCHAR}
-        and topic = #{topic, jdbcType=VARCHAR}
-        and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
-        limit 1
+        <where>
+            is_deleted = 0
+            <if test="isAdminRole == false">
+                and (
+                creator = #{currentUser, jdbcType=VARCHAR} or FIND_IN_SET(#{currentUser, jdbcType=VARCHAR}, in_charges)
+                )
+            </if>
+            <if test="keyword != null and keyword !=''">
+                and (consumer_group like CONCAT('%', #{keyword}, '%') or topic like CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="consumerGroup != null and consumerGroup != ''">
+                and consumer_group = #{consumerGroup, jdbcType=VARCHAR}
+            </if>
+            <if test="mqType != null and mqType != ''">
+                and mq_type = #{mqType, jdbcType=VARCHAR}
+            </if>
+            <if test="topic != null and topic != ''">
+                and topic = #{topic}
+            </if>
+            <if test="inlongGroupId != null and inlongGroupId != ''">
+                and inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
+            </if>
+            <if test="status != null">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+            <if test="statusList != null and statusList.size() > 0">
+                and status in
+                <foreach collection="statusList" item="status" index="index" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
+            </if>
+        </where>
+        <choose>
+            <when test="orderField != null and orderField != '' and orderType != null and orderType != ''">
+                order by ${orderField} ${orderType}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongConsumeEntity">

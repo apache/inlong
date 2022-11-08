@@ -19,11 +19,14 @@ package org.apache.inlong.manager.pojo.sort.standalone;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SortSourceClusterInfo {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceClusterInfo.class);
+    private static final Gson GSON = new Gson();
     private static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on("&").trimResults()
             .withKeyValueSeparator("=");
     private static final String KEY_IS_CONSUMABLE = "consumer";
@@ -38,6 +42,7 @@ public class SortSourceClusterInfo {
     private static final long serialVersionUID = 1L;
     String name;
     String type;
+    String url;
     String clusterTags;
     String extTag;
     String extParams;
@@ -47,8 +52,16 @@ public class SortSourceClusterInfo {
     public Map<String, String> getExtParamsMap() {
         if (extParamsMap.isEmpty() && extParams != null) {
             try {
-                Gson gson = new Gson();
-                extParamsMap = gson.fromJson(extParams, Map.class);
+                JsonObject jo = GSON.fromJson(extParams, JsonObject.class);
+                extParamsMap = new HashMap<>();
+                jo.keySet().forEach(k -> {
+                    JsonElement element = jo.get(k);
+                    if (element.isJsonPrimitive()) {
+                        extParamsMap.put(k, element.getAsString());
+                    } else {
+                        extParamsMap.put(k, element.toString());
+                    }
+                });
             } catch (Throwable t) {
                 LOGGER.error("fail to parse cluster ext params", t);
             }

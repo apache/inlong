@@ -19,7 +19,7 @@ package org.apache.inlong.dataproxy.config.holder;
 
 import com.google.common.base.Splitter;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.AttrConstants;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +47,7 @@ public class MQClusterConfigHolder extends PropertiesConfigHolder {
         Map<String, String> tmpUrl2token = new HashMap<>();
         for (Map.Entry<String, String> entry : getHolder().entrySet()) {
             if (entry.getKey().startsWith(URL_STORE_PREFIX)) {
-                List<String> kv = Splitter.on(AttributeConstants.KEY_VALUE_SEPARATOR)
+                List<String> kv = Splitter.on(AttrConstants.KEY_VALUE_SEPARATOR)
                         .trimResults().splitToList(entry.getValue());
                 tmpUrl2token.put(kv.get(0), kv.get(1));
             }

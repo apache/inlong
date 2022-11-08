@@ -17,38 +17,28 @@
  * under the License.
  */
 
-import React, { useState, useMemo, forwardRef } from 'react';
+import React, { useState, useMemo, forwardRef, useCallback } from 'react';
 import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import i18n from '@/i18n';
 import DetailModal from './DetailModal';
-import { sinks } from '@/metas/sinks';
+import { useDefaultMeta, useLoadMeta, SinkMetaType } from '@/metas';
 import request from '@/utils/request';
 import { pickObjectArray } from '@/utils';
 import { CommonInterface } from '../common';
 
 type Props = CommonInterface;
 
-const getFilterFormContent = defaultValues => [
-  {
-    type: 'inputsearch',
-    name: 'keyword',
-  },
-  ...pickObjectArray(['sinkType', 'status'], sinks[0].form).map(item => ({
-    ...item,
-    visible: true,
-    initialValue: defaultValues[item.name],
-  })),
-];
-
 const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
+  const { defaultValue } = useDefaultMeta('sink');
+
   const [options, setOptions] = useState({
     keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    sinkType: sinks[0].value,
+    sinkType: defaultValue,
   });
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
@@ -72,26 +62,29 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     },
   );
 
-  const onEdit = ({ id }) => {
+  const onEdit = useCallback(({ id }) => {
     setCreateModal({ visible: true, id });
-  };
+  }, []);
 
-  const onDelete = ({ id }) => {
-    Modal.confirm({
-      title: i18n.t('basic.DeleteConfirm'),
-      onOk: async () => {
-        await request({
-          url: `/sink/delete/${id}`,
-          method: 'DELETE',
-          params: {
-            sinkType: options.sinkType,
-          },
-        });
-        await getList();
-        message.success(i18n.t('basic.DeleteSuccess'));
-      },
-    });
-  };
+  const onDelete = useCallback(
+    ({ id }) => {
+      Modal.confirm({
+        title: i18n.t('basic.DeleteConfirm'),
+        onOk: async () => {
+          await request({
+            url: `/sink/delete/${id}`,
+            method: 'DELETE',
+            params: {
+              sinkType: options.sinkType,
+            },
+          });
+          await getList();
+          message.success(i18n.t('basic.DeleteSuccess'));
+        },
+      });
+    },
+    [getList, options.sinkType],
+  );
 
   const onChange = ({ current: pageNum, pageSize }) => {
     setOptions(prev => ({
@@ -115,26 +108,33 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     total: data?.total,
   };
 
-  const columnsMap = useMemo(
-    () =>
-      sinks.reduce(
-        (acc, cur) => ({
-          ...acc,
-          [cur.value]: cur.table,
-        }),
-        {},
-      ),
-    [],
+  const { Entity } = useLoadMeta<SinkMetaType>('sink', options.sinkType);
+
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
+
+  const entityFields = useMemo(() => {
+    return Entity ? new Entity().renderRow() : [];
+  }, [Entity]);
+
+  const getFilterFormContent = useCallback(
+    defaultValues => [
+      {
+        type: 'inputsearch',
+        name: 'keyword',
+      },
+      ...pickObjectArray(['sinkType', 'status'], entityFields).map(item => ({
+        ...item,
+        visible: true,
+        initialValue: defaultValues[item.name],
+      })),
+    ],
+    [entityFields],
   );
 
-  const columns = [
-    {
-      title: i18n.t('pages.GroupDetail.Sink.DataStreams'),
-      dataIndex: 'inlongStreamId',
-    },
-  ]
-    .concat(columnsMap[options.sinkType])
-    .concat([
+  const columns = useMemo(() => {
+    return entityColumns?.concat([
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
@@ -153,6 +153,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
           ),
       } as any,
     ]);
+  }, [entityColumns, onDelete, onEdit, readonly]);
 
   return (
     <>

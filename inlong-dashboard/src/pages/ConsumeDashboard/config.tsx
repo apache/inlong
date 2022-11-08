@@ -17,13 +17,13 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Button } from 'antd';
 import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import { DashTotal, DashToBeAssigned, DashPending, DashRejected } from '@/components/Icons';
-import { consumeForm, consumeTable } from '@/metas/consume';
-import { pickObjectArray } from '@/utils';
+import { useDefaultMeta, useLoadMeta, ConsumeMetaType } from '@/metas';
+import { statusList, lastConsumerStatusList } from '@/metas/consumes/common/status';
 
 export const dashCardList = [
   {
@@ -48,31 +48,54 @@ export const dashCardList = [
   },
 ];
 
-export const getFilterFormContent = defaultValues =>
-  [
-    {
-      type: 'inputsearch',
-      name: 'keyword',
-      initialValue: defaultValues.keyword,
-      props: {
-        allowClear: true,
-      },
+export const getFilterFormContent = defaultValues => [
+  {
+    type: 'inputsearch',
+    name: 'keyword',
+    initialValue: defaultValues.keyword,
+    props: {
+      allowClear: true,
     },
-  ].concat(
-    pickObjectArray(['status', 'lastConsumeStatus'], consumeForm).map(item => ({
-      ...item,
-      visible: true,
-      initialValue: defaultValues[item.name],
-    })),
-  );
+  },
+  {
+    type: 'select',
+    name: 'status',
+    label: i18n.t('basic.Status'),
+    initialValue: defaultValues.status,
+    props: {
+      allowClear: true,
+      options: statusList,
+      dropdownMatchSelectWidth: false,
+    },
+  },
+  {
+    type: 'select',
+    name: 'lastConsumeStatus',
+    label: i18n.t('pages.ConsumeDashboard.config.OperatingStatus'),
+    initialValue: defaultValues.lastConsumeStatus,
+    props: {
+      allowClear: true,
+      options: lastConsumerStatusList,
+      dropdownMatchSelectWidth: false,
+    },
+  },
+];
 
-export const getColumns = ({ onDelete }) => {
+export const useColumns = ({ onDelete }) => {
+  const { defaultValue } = useDefaultMeta('consume');
+
+  const { Entity } = useLoadMeta<ConsumeMetaType>('consume', defaultValue);
+
+  const entityColumns = useMemo(() => {
+    return Entity ? new Entity().renderList() : [];
+  }, [Entity]);
+
   const genCreateUrl = record => `/consume/create/${record.id}`;
   const genDetailUrl = record =>
     [0, 10].includes(record.status) ? genCreateUrl(record) : `/consume/detail/${record.id}`;
 
-  return consumeTable
-    .map(item => {
+  return entityColumns
+    ?.map(item => {
       if (item.dataIndex === 'consumerGroup') {
         return { ...item, render: (text, record) => <Link to={genDetailUrl(record)}>{text}</Link> };
       }

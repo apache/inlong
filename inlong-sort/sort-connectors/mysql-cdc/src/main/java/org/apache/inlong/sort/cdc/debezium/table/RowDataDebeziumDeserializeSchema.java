@@ -29,6 +29,7 @@ import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
 import io.debezium.time.ZonedTimestamp;
+import java.time.ZonedDateTime;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericRowData;
@@ -51,9 +52,9 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.nio.ByteBuffer;
 
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -81,6 +82,7 @@ public final class RowDataDebeziumDeserializeSchema
 
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
 
+    private static final ZoneId ZONE_UTC = ZoneId.of("UTC");
     /**
      * TypeInformation of the produced {@link RowData}. *
      */
@@ -596,9 +598,12 @@ public final class RowDataDebeziumDeserializeSchema
                     Schema fieldSchema = schema.field(fieldName).schema();
                     String schemaName = fieldSchema.name();
                     if (schemaName != null) {
-                        // normal type doesn't have schema name
-                        // schema names are time schemas
-                        fieldValue = getTimeValue(fieldValue, schemaName);
+                        fieldValue = getValueWithSchema(fieldValue, schemaName);
+                    }
+                    if (fieldValue instanceof ByteBuffer) {
+                        // binary data (blob or varbinary in mysql) are stored in bytebuffer
+                        // use utf-8 to decode as a string by default
+                        fieldValue = new String(((ByteBuffer) fieldValue).array());
                     }
                     data.put(fieldName, fieldValue);
                 }
@@ -612,13 +617,13 @@ public final class RowDataDebeziumDeserializeSchema
     }
 
     /**
-     * transform debezium time format to database format
+     * extract the data with the format provided by debezium
      *
      * @param fieldValue
      * @param schemaName
-     * @return
+     * @return the extracted data with schema
      */
-    private Object getTimeValue(Object fieldValue, String schemaName) {
+    private Object getValueWithSchema(Object fieldValue, String schemaName) {
         if (fieldValue == null) {
             return null;
         }
@@ -631,15 +636,19 @@ public final class RowDataDebeziumDeserializeSchema
                 fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
                 break;
             case ZonedTimestamp.SCHEMA_NAME:
-                // by default the field value is zoned timestamp, no need to convert
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
+                fieldValue = zonedDateTime.withZoneSameInstant(serverTimeZone).toLocalDateTime()
+                    .atZone(ZONE_UTC).format(DateTimeFormatter.ISO_INSTANT);
                 break;
             case Timestamp.SCHEMA_NAME:
                 Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
-                fieldValue = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.ofInstant(instantTime,
-                        serverTimeZone));
+                fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
+                break;
+            case Decimal.LOGICAL_NAME:
+                // no need to transfer decimal type since the value is already decimal
                 break;
             default:
-                LOG.error("parse schema {} error", schemaName);
+                LOG.debug("schema {} is not being supported", schemaName);
         }
         return fieldValue;
     }

@@ -125,15 +125,12 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             sinkEntity.setStatus(nextStatus.getCode());
             sinkMapper.updateStatus(sinkEntity);
         }
+
         // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
-        if (streamSuccess) {
-            // To work around the circular reference check we manually instantiate and wire
-            if (streamProcessOperation == null) {
-                streamProcessOperation = new InlongStreamProcessService();
-                autowireCapableBeanFactory.autowireBean(streamProcessOperation);
-            }
-            streamProcessOperation.startProcess(groupId, streamId, operator, false);
+        if (streamSuccess && request.getStartProcess()) {
+            this.startProcessForSink(groupId, streamId, operator);
         }
+
         LOGGER.info("success to save sink info: {}", request);
         return id;
     }
@@ -255,14 +252,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         sinkOperator.updateOpt(request, nextStatus, operator);
 
         // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
-        if (streamSuccess) {
-            // To work around the circular reference check we manually instantiate and wire
-            if (streamProcessOperation == null) {
-                streamProcessOperation = new InlongStreamProcessService();
-                autowireCapableBeanFactory.autowireBean(streamProcessOperation);
-            }
-            streamProcessOperation.startProcess(groupId, streamId, operator, false);
+        if (streamSuccess && request.getStartProcess()) {
+            this.startProcessForSink(groupId, streamId, operator);
         }
+
         LOGGER.info("success to update sink by id: {}", request);
         return true;
     }
@@ -303,7 +296,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Boolean delete(Integer id, String operator) {
+    public Boolean delete(Integer id, Boolean startProcess, String operator) {
         LOGGER.info("begin to delete sink by id={}", id);
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
@@ -313,13 +306,19 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
         sinkOperator.deleteOpt(entity, operator);
+
+        if (startProcess) {
+            this.deleteProcessForSink(entity.getInlongGroupId(), entity.getInlongStreamId(), operator);
+        }
+
         LOGGER.info("success to delete sink by id: {}", entity);
         return true;
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Boolean deleteByKey(String groupId, String streamId, String sinkName, String operator) {
+    public Boolean deleteByKey(String groupId, String streamId, String sinkName,
+            Boolean startProcess, String operator) {
         LOGGER.info("begin to delete sink by groupId={}, streamId={}, sinkName={}", groupId, streamId, sinkName);
 
         // Check whether the sink name exists with the same groupId and streamId
@@ -334,6 +333,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(entity.getSinkType());
         sinkOperator.deleteOpt(entity, operator);
+
+        if (startProcess) {
+            this.deleteProcessForSink(entity.getInlongGroupId(), entity.getInlongStreamId(), operator);
+        }
+
         LOGGER.info("success to delete sink by key: {}", entity);
         return true;
     }
@@ -457,5 +461,27 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(sinkType, ErrorCodeEnum.SINK_TYPE_IS_NULL.getMessage());
         String sinkName = request.getSinkName();
         Preconditions.checkNotNull(sinkName, ErrorCodeEnum.SINK_NAME_IS_NULL.getMessage());
+    }
+
+    private void startProcessForSink(String groupId, String streamId, String operator) {
+        // to work around the circular reference check, manually instantiate and wire
+        if (streamProcessOperation == null) {
+            streamProcessOperation = new InlongStreamProcessService();
+            autowireCapableBeanFactory.autowireBean(streamProcessOperation);
+        }
+
+        streamProcessOperation.startProcess(groupId, streamId, operator, false);
+        LOGGER.info("success to start the start-stream-process for groupId={} streamId={}", groupId, streamId);
+    }
+
+    private void deleteProcessForSink(String groupId, String streamId, String operator) {
+        // to work around the circular reference check, manually instantiate and wire
+        if (streamProcessOperation == null) {
+            streamProcessOperation = new InlongStreamProcessService();
+            autowireCapableBeanFactory.autowireBean(streamProcessOperation);
+        }
+
+        streamProcessOperation.deleteProcess(groupId, streamId, operator, false);
+        LOGGER.info("success to start the delete-stream-process for groupId={} streamId={}", groupId, streamId);
     }
 }

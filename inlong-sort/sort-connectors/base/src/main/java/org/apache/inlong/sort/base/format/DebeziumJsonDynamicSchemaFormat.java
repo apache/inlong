@@ -224,6 +224,9 @@ public class DebeziumJsonDynamicSchemaFormat extends JsonDynamicSchemaFormat {
             return extractSchemaFromExtractInfo(data, pkNames);
         } catch (IllegalArgumentException e) {
             JsonNode schema = data.get(SCHEMA);
+            if (schema == null) {
+                throw new IllegalArgumentException(String.format("Not found schema from: %s", data));
+            }
             for (JsonNode field : schema.get(FIELDS)) {
                 if (AFTER.equals(field.get(FIELD).asText())) {
                     return extractSchemaNode(field.get(FIELDS), pkNames);

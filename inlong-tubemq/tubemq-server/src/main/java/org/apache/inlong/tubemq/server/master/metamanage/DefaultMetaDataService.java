@@ -126,8 +126,8 @@ public class DefaultMetaDataService implements MetaDataService {
         // initial running data
         BrokerRunManager brokerRunManager = this.tMaster.getBrokerRunManager();
         brokerRunManager.updBrokerStaticInfo(this.metaConfigMapper.getBrokerConfInfo(null));
-        isStarted = true;
         serviceStartTime = System.currentTimeMillis();
+        isStarted = true;
         logger.info("DefaultMetaDataService Started");
     }
 
@@ -363,17 +363,19 @@ public class DefaultMetaDataService implements MetaDataService {
         if (!metaConfigMapper.addOrUpdBrokerConfig(isAddOp, entity, strBuff, result)) {
             return new BrokerProcessResult(entity.getBrokerId(), entity.getBrokerIp(), result);
         }
+        BrokerConfEntity curEntity =
+                metaConfigMapper.getBrokerConfByBrokerId(entity.getBrokerId());
         // update broker static information
-        this.tMaster.getBrokerRunManager().updBrokerStaticInfo(entity);
+        this.tMaster.getBrokerRunManager().updBrokerStaticInfo(curEntity);
         if (isAddOp) {
             // add system topic if absent
-            metaConfigMapper.addSystemTopicDeploy(entity.getBrokerId(),
-                    entity.getBrokerPort(), entity.getBrokerIp(), strBuff);
+            metaConfigMapper.addSystemTopicDeploy(curEntity.getBrokerId(),
+                    curEntity.getBrokerPort(), curEntity.getBrokerIp(), strBuff);
         }
         // auto trigger configure sync
-        triggerBrokerConfDataSync(entity.getBrokerId(), strBuff, result);
+        triggerBrokerConfDataSync(curEntity.getBrokerId(), strBuff, result);
         // return result
-        return new BrokerProcessResult(entity.getBrokerId(), entity.getBrokerIp(), result);
+        return new BrokerProcessResult(curEntity.getBrokerId(), curEntity.getBrokerIp(), result);
     }
 
     @Override
@@ -502,7 +504,7 @@ public class DefaultMetaDataService implements MetaDataService {
             return result.isSuccess();
         }
         runStatusInfo.notifyDataChanged();
-        logger.info(strBuff.append("[Meta data] trigger broker syncStatus info, brokerId is ")
+        logger.info(strBuff.append("[Meta data] trigger broker syncStatus info, brokerId=")
                 .append(brokerId).toString());
         strBuff.delete(0, strBuff.length());
         result.setSuccResult(null);
