@@ -69,10 +69,12 @@ public class SortServiceImplTest extends ServiceBaseTest {
     private static final String TEST_CLUSTER = "testCluster";
     private static final String TEST_TASK = "testTask";
     private static final String TEST_GROUP = "testGroup";
-    private static final String TEST_STREAM = "1";
+    private static final String TEST_STREAM_1 = "1";
+    private static final String TEST_STREAM_2 = "2";
     private static final String TEST_TAG = "testTag";
     private static final String BACK_UP_TAG = "testBackupTag";
-    private static final String TEST_TOPIC = "testTopic";
+    private static final String TEST_TOPIC_1 = "testTopic";
+    private static final String TEST_TOPIC_2 = "testTopic2";
     private static final String TEST_SINK_TYPE = "testSinkType";
     private static final String TEST_CREATOR = "testUser";
 
@@ -204,11 +206,13 @@ public class SortServiceImplTest extends ServiceBaseTest {
     private void prepareAll() {
         this.prepareCluster(TEST_CLUSTER);
         this.preparePulsar("testPulsar", true, TEST_TAG);
-        this.preparePulsar("testPulsar2", true, BACK_UP_TAG);
+        this.preparePulsar("backupPulsar", true, BACK_UP_TAG);
         this.prepareDataNode(TEST_TASK);
         this.prepareGroupId(TEST_GROUP);
-        this.prepareStreamId(TEST_GROUP, TEST_STREAM);
-        this.prepareTask(TEST_TASK, TEST_GROUP, TEST_CLUSTER);
+        this.prepareStreamId(TEST_GROUP, TEST_STREAM_1, TEST_TOPIC_1);
+        this.prepareStreamId(TEST_GROUP, TEST_STREAM_2, TEST_TOPIC_2);
+        this.prepareTask(TEST_TASK, TEST_GROUP, TEST_CLUSTER, TEST_STREAM_1);
+        this.prepareTask(TEST_TASK, TEST_GROUP, TEST_CLUSTER, TEST_STREAM_2);
     }
 
     private void prepareDataNode(String taskName) {
@@ -255,12 +259,12 @@ public class SortServiceImplTest extends ServiceBaseTest {
         groupService.save(request, "test operator");
     }
 
-    private void prepareStreamId(String groupId, String streamId) {
+    private void prepareStreamId(String groupId, String streamId, String topic) {
         InlongStreamRequest request = new InlongStreamRequest();
         request.setInlongGroupId(groupId);
         request.setInlongStreamId(streamId);
         request.setName("test_stream_name");
-        request.setMqResource(TEST_TOPIC);
+        request.setMqResource(topic);
         request.setVersion(InlongConstants.INITIAL_VERSION);
         List<InlongStreamExtInfo> extInfos = new ArrayList<>();
         InlongStreamExtInfo ext = new InlongStreamExtInfo();
@@ -268,7 +272,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         ext.setInlongStreamId(streamId);
         ext.setInlongGroupId(groupId);
         ext.setKeyName(ClusterSwitch.BACKUP_MQ_RESOURCE);
-        ext.setKeyValue("backup_topic");
+        ext.setKeyValue("backup_" + topic);
         request.setExtList(extInfos);
         streamService.save(request, "test_operator");
     }
@@ -305,7 +309,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         clusterService.save(request, "test operator");
     }
 
-    private void prepareTask(String taskName, String groupId, String clusterName) {
+    private void prepareTask(String taskName, String groupId, String clusterName, String streamId) {
         SinkRequest request = new HiveSinkRequest();
         request.setDataNodeName(taskName);
         request.setSinkType(SinkType.HIVE);
@@ -313,7 +317,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         request.setSinkName(taskName);
         request.setSortTaskName(taskName);
         request.setInlongGroupId(groupId);
-        request.setInlongStreamId("1");
+        request.setInlongStreamId(streamId);
         Map<String, Object> properties = new HashMap<>();
         properties.put("delimiter", "|");
         properties.put("dataType", "text");
