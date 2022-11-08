@@ -173,11 +173,6 @@ public class KafkaResourceOperators implements QueueResourceOperator {
         }
 
         // Kafka consumers do not need to register in advance
-//        kafkaOperator.createSubscription(kafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
-//        String groupId = kafkaInfo.getInlongGroupId();
-//        log.info("success to create kafka subscription for groupId={}, topic={}, consumeGroup={}",
-//                groupId, topicName, topicName);
-
         // 2. insert the consumer group info
         String consumeGroup = String.format(KAFKA_CONSUMER_GROUP, kafkaInfo.getInlongClusterTag(), topicName);
         Integer id = consumeService.saveBySystem(kafkaInfo, topicName, consumeGroup);
