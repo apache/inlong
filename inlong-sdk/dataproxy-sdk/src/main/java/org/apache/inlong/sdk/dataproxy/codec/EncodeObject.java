@@ -18,12 +18,21 @@
 
 package org.apache.inlong.sdk.dataproxy.codec;
 
-import java.util.List;
-
+import com.google.common.base.Splitter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class EncodeObject {
-    private static final String MESSAGE_ID_PREFIX = "messageId=";
+
+    private static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(AttributeConstants.SEPARATOR).trimResults()
+            .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
     private byte[] bodyBytes;
     private String attributes;
@@ -54,25 +63,24 @@ public class EncodeObject {
     private String msgUUID = null;
     private EncryptConfigEntry encryptEntry = null;
 
-    private boolean isException = false;
-    private ErrorCode exceptionError = null;
+    private SendResult sendResult = SendResult.OK;
+    private String errMsg;
+    private String dpIp;
 
-    /* Used by de_serialization. msgtype=7/8*/
+    /* Used by de_serialization. msgtype=8*/
     public EncodeObject() {
+    }
+
+    /* Used by de_serialization. msgtype=7*/
+    public EncodeObject(String attributes) {
+        handleAttr(attributes);
     }
 
     /* Used by de_serialization. */
     public EncodeObject(byte[] bodyBytes, String attributes) {
         this.bodyBytes = bodyBytes;
         this.attributes = attributes;
-        this.messageId = "";
-        String[] tokens = attributes.split("&");
-        for (int i = 0; i < tokens.length; i++) {
-            if (tokens[i].startsWith("messageId=")) {
-                this.messageId = tokens[i].substring(MESSAGE_ID_PREFIX.length(), tokens[i].length());
-                break;
-            }
-        }
+        handleAttr(attributes);
     }
 
     /* Used by serialization.But never used */
@@ -85,7 +93,7 @@ public class EncodeObject {
 
     // used for bytes initializtion,msgtype=3/5
     public EncodeObject(byte[] bodyBytes, String attributes, String messageId,
-                        int msgtype, boolean isCompress, final String groupId) {
+            int msgtype, boolean isCompress, final String groupId) {
         this.bodyBytes = bodyBytes;
         this.messageId = messageId;
         this.attributes = attributes + "&messageId=" + messageId;
@@ -96,7 +104,7 @@ public class EncodeObject {
 
     // used for bodylist initializtion,msgtype=3/5
     public EncodeObject(List<byte[]> bodyList, String attributes, String messageId,
-                        int msgtype, boolean isCompress, final String groupId) {
+            int msgtype, boolean isCompress, final String groupId) {
         this.bodylist = bodyList;
         this.messageId = messageId;
         this.attributes = attributes + "&messageId=" + messageId;
@@ -107,8 +115,8 @@ public class EncodeObject {
 
     // used for bytes initializtion,msgtype=7/8
     public EncodeObject(byte[] bodyBytes, int msgtype, boolean isCompress, boolean isReport,
-                        boolean isGroupIdTransfer, long dt, long seqId, String groupId,
-                        String streamId, String commonattr) {
+            boolean isGroupIdTransfer, long dt, long seqId, String groupId,
+            String streamId, String commonattr) {
         this.bodyBytes = bodyBytes;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
@@ -123,8 +131,8 @@ public class EncodeObject {
 
     // used for bodylist initializtion,msgtype=7/8
     public EncodeObject(List<byte[]> bodyList, int msgtype, boolean isCompress,
-                        boolean isReport, boolean isGroupIdTransfer, long dt,
-                        long seqId, String groupId, String streamId, String commonattr) {
+            boolean isReport, boolean isGroupIdTransfer, long dt,
+            long seqId, String groupId, String streamId, String commonattr) {
         this.bodylist = bodyList;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
@@ -139,9 +147,9 @@ public class EncodeObject {
 
     // file agent, used for bytes initializtion,msgtype=7/8
     public EncodeObject(byte[] bodyBytes, int msgtype, boolean isCompress,
-                        boolean isReport, boolean isGroupIdTransfer, long dt,
-                        long seqId, String groupId, String streamId, String commonattr,
-                        String messageKey, String proxyIp) {
+            boolean isReport, boolean isGroupIdTransfer, long dt,
+            long seqId, String groupId, String streamId, String commonattr,
+            String messageKey, String proxyIp) {
         this.bodyBytes = bodyBytes;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
@@ -158,9 +166,9 @@ public class EncodeObject {
 
     // file agent, used for bodylist initializtion,msgtype=7/8
     public EncodeObject(List<byte[]> bodyList, int msgtype, boolean isCompress,
-                        boolean isReport, boolean isGroupIdTransfer, long dt,
-                        long seqId, String groupId, String streamId, String commonattr,
-                        String messageKey, String proxyIp) {
+            boolean isReport, boolean isGroupIdTransfer, long dt,
+            long seqId, String groupId, String streamId, String commonattr,
+            String messageKey, String proxyIp) {
         this.bodylist = bodyList;
         this.msgtype = msgtype;
         this.isCompress = isCompress;
@@ -173,6 +181,60 @@ public class EncodeObject {
         this.streamId = streamId;
         this.messageKey = messageKey;
         this.proxyIp = proxyIp;
+    }
+
+    private void handleAttr(String attributes) {
+        if (StringUtils.isBlank(attributes)) {
+            return;
+        }
+        Map<String, String> backAttrs = new HashMap<>(MAP_SPLITTER.split(attributes));
+        if (backAttrs.containsKey(AttributeConstants.MESSAGE_ID)) {
+            this.messageId = backAttrs.get(AttributeConstants.MESSAGE_ID);
+        }
+        dpIp = backAttrs.get(AttributeConstants.MESSAGE_DP_IP);
+
+        String errCode = backAttrs.get(AttributeConstants.MESSAGE_PROCESS_ERRCODE);
+        // errCode is empty or equals 0 -> success
+        if (StringUtils.isBlank(errCode) || Integer.parseInt(errCode) == 0) {
+            this.sendResult = SendResult.OK;
+        } else {
+            // get errMsg
+            this.errMsg = backAttrs.get(AttributeConstants.MESSAGE_PROCESS_ERRMSG);
+            if (StringUtils.isBlank(errMsg)) {
+                this.errMsg = DataProxyErrCode.valueOf(Integer.parseInt(errCode)).getErrMsg();
+            }
+            //sendResult
+            this.sendResult = convertToSendResult(Integer.parseInt(errCode));
+        }
+    }
+
+    private SendResult convertToSendResult(int errCode) {
+        DataProxyErrCode dpErrCode = DataProxyErrCode.valueOf(errCode);
+        switch (dpErrCode) {
+            case SINK_SERVICE_UNREADY:
+                return SendResult.SINK_SERVICE_UNREADY;
+            case MISS_REQUIRED_GROUPID_ARGUMENT:
+            case MISS_REQUIRED_STREAMID_ARGUMENT:
+            case MISS_REQUIRED_DT_ARGUMENT:
+            case UNSUPPORTED_EXTEND_FIELD_VALUE:
+                return SendResult.INVALID_ATTRIBUTES;
+            case MISS_REQUIRED_BODY_ARGUMENT:
+            case EMPTY_MSG:
+                return SendResult.INVALID_DATA;
+            case BODY_EXCEED_MAX_LEN:
+                return SendResult.BODY_EXCEED_MAX_LEN;
+            case UNCONFIGURED_GROUPID_OR_STREAMID:
+                return SendResult.UNCONFIGURED_GROUPID_OR_STREAMID;
+            case PUT_EVENT_TO_CHANNEL_FAILURE:
+            case NO_AVAILABLE_PRODUCER:
+            case PRODUCER_IS_NULL:
+            case SEND_REQUEST_TO_MQ_FAILURE:
+            case MQ_RETURN_ERROR:
+            case DUPLICATED_MESSAGE:
+                return SendResult.DATAPROXY_FAIL_TO_RECEIVE;
+            default:
+                return SendResult.UNKOWN_ERROR;
+        }
     }
 
     public String getMsgUUID() {
@@ -213,14 +275,6 @@ public class EncodeObject {
 
     public void setStreamId(String streamId) {
         this.streamId = streamId;
-    }
-
-    public void setMsgtype(int msgtype) {
-        this.msgtype = msgtype;
-    }
-
-    public void setBodyBytes(byte[] bodyBytes) {
-        this.bodyBytes = bodyBytes;
     }
 
     public boolean isReport() {
@@ -317,8 +371,16 @@ public class EncodeObject {
         return msgtype;
     }
 
+    public void setMsgtype(int msgtype) {
+        this.msgtype = msgtype;
+    }
+
     public byte[] getBodyBytes() {
         return bodyBytes;
+    }
+
+    public void setBodyBytes(byte[] bodyBytes) {
+        this.bodyBytes = bodyBytes;
     }
 
     public String getAttributes() {
@@ -361,6 +423,10 @@ public class EncodeObject {
         return cnt;
     }
 
+    public void setCnt(int cnt) {
+        this.cnt = cnt;
+    }
+
     public int getRealCnt() {
         if (bodylist != null) {
             return bodylist.size();
@@ -368,23 +434,15 @@ public class EncodeObject {
         return 1;
     }
 
-    public void setCnt(int cnt) {
-        this.cnt = cnt;
+    public String getDpIp() {
+        return dpIp;
     }
 
-    public boolean isException() {
-        return isException;
+    public String getErrMsg() {
+        return errMsg;
     }
 
-    public void setException(boolean exception) {
-        isException = exception;
-    }
-
-    public ErrorCode getExceptionError() {
-        return exceptionError;
-    }
-
-    public void setExceptionError(ErrorCode exceptionError) {
-        this.exceptionError = exceptionError;
+    public SendResult getSendResult() {
+        return sendResult;
     }
 }

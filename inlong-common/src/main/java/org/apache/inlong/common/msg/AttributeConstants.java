@@ -89,4 +89,9 @@ public interface AttributeConstants {
 
     // error message, add by receiver
     String MESSAGE_PROCESS_ERRMSG = "errMsg";
+
+    String MESSAGE_ID = "messageId";
+
+    // dataproxy IP from dp response ack
+    String MESSAGE_DP_IP = "dpIP";
 }
