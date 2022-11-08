@@ -3,7 +3,7 @@ InLong DataProxy is available for development and experience.
 
 ##### Pull Image
 ```
-docker pull inlong/dataproxy:latest
+docker pull inlong/dataproxy:1.4.0
 ```
 
 ##### Start Container
