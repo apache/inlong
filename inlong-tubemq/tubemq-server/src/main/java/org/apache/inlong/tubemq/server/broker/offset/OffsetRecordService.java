@@ -79,7 +79,7 @@ public class OffsetRecordService extends AbstractDaemonService {
         // check topic writable status
         TopicMetadata topicMetadata = storeManager.getMetadataManager()
                 .getTopicMetadata(TServerConstants.OFFSET_HISTORY_NAME);
-        if (!topicMetadata.isAcceptPublish()) {
+        if (topicMetadata == null || !topicMetadata.isAcceptPublish()) {
             return;
         }
         // get group offset information

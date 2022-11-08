@@ -575,6 +575,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         final String groupName = (String) paramCheckResult.checkData;
+        checkNodeStatus(consumerId, strBuffer);
         if (!PBParameterUtils.checkConsumerTopicList(defMetaDataService.getDeployedTopicSet(),
                 request.getTopicListList(), result, strBuffer)) {
             builder.setErrCode(result.getErrCode());
@@ -626,7 +627,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         ConsumerInfo inConsumerInfo2 = (ConsumerInfo) paramCheckResult.checkData;
-        checkNodeStatus(consumerId, strBuffer);
         CertifiedResult authorizeResult =
                 serverAuthHandler.validConsumerAuthorizeInfo(certResult.userName,
                         groupName, reqTopicSet, reqTopicConditions, rmtAddress);
@@ -1258,6 +1258,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         final String groupName = (String) paramCheckResult.checkData;
+        // check master current status
+        checkNodeStatus(consumerId, sBuffer);
         if (!PBParameterUtils.checkConsumerTopicList(defMetaDataService.getDeployedTopicSet(),
                 request.getTopicListList(), result, sBuffer)) {
             builder.setErrCode(result.getErrCode());
@@ -1283,8 +1285,6 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         if (request.hasOpsTaskInfo()) {
             opsTaskInfo.updOpsSyncInfo(request.getOpsTaskInfo());
         }
-        // check master current status
-        checkNodeStatus(consumerId, sBuffer);
         ClientSyncInfo clientSyncInfo = new ClientSyncInfo();
         if (request.hasSubRepInfo()) {
             clientSyncInfo.updSubRepInfo(brokerRunManager, request.getSubRepInfo());
