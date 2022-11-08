@@ -15,34 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.sources;
+package org.apache.inlong.agent.plugin.sources.snapshot;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.sources.reader.SQLServerReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
 /**
- * SQLServer source
+ * SqlServer Snapshot
  */
-public class SQLServerSource extends AbstractSource {
+public class SqlServerSnapshotBase extends AbstractSnapshot {
 
-    private static final Logger logger = LoggerFactory.getLogger(SQLServerSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqlServerSnapshotBase.class);
+    private final File file;
 
-    public SQLServerSource() {
+    public SqlServerSnapshotBase(String filePath) {
+        file = new File(filePath);
     }
 
     @Override
-    public List<Reader> split(JobProfile conf) {
-        super.init(conf);
-        Reader sqlServerReader = new SQLServerReader();
-        List<Reader> readerList = new ArrayList<>();
-        readerList.add(sqlServerReader);
-        sourceMetric.sourceSuccessCount.incrementAndGet();
-        return readerList;
+    public String getSnapshot() {
+        byte[] offset = this.load(this.file);
+        return ENCODER.encodeToString(offset);
     }
+
+    @Override
+    public void close() {
+
+    }
+
+    public File getFile() {
+        return file;
+    }
+
 }
