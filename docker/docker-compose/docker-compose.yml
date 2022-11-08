@@ -120,7 +120,9 @@ services:
     image: apache/flink:1.13-scala_2.11
     container_name: jobmanager
     environment:
-      FLINK_PROPERTIES: "jobmanager.rpc.address: jobmanager"
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
     ports:
       - "8081:8081"
     command: jobmanager
@@ -130,5 +132,8 @@ services:
     image: apache/flink:1.13-scala_2.11
     container_name: taskmanager
     environment:
-      FLINK_PROPERTIES: "jobmanager.rpc.address: jobmanager"
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
     command: taskmanager
