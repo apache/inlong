@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SQLServer SQL source, split SQLServer SQL source job into multi readers
+ * SQLServer source
  */
 public class SQLServerSource extends AbstractSource {
 

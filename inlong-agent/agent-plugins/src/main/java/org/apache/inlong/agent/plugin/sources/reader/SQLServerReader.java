@@ -59,7 +59,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPAC
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 
 /**
- * Read data from SQLServer database by SQL
+ * Read data from SQLServer database by Debezium
  */
 public class SQLServerReader extends AbstractReader {
 
