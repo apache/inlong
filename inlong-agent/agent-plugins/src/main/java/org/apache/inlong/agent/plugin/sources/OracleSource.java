@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Oracle SQL source, split Oracle SQL source job into multi readers
+ * Oracle SQL source
  */
 public class OracleSource extends AbstractSource {
 

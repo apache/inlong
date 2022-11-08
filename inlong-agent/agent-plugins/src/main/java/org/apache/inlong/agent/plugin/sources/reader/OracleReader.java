@@ -59,7 +59,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPAC
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 
 /**
- * Read data from Oracle database by SQL
+ * Read data from Oracle database by Debezium
  */
 public class OracleReader extends AbstractReader {
 
