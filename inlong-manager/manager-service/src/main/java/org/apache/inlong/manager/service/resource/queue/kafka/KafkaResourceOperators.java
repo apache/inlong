@@ -79,7 +79,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
                 return;
             }
             for (InlongStreamBriefInfo streamInfo : streamInfoList) {
-                this.createKafkaTopic(inlongKafkaInfo, streamInfo.getInlongStreamId());
+                this.createKafkaTopic(inlongKafkaInfo, streamInfo.getMqResource());
             }
         } catch (Exception e) {
             String msg = String.format("failed to create kafka resource for groupId=%s", groupId);
@@ -126,7 +126,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
         try {
             InlongKafkaInfo inlongKafkaInfo = (InlongKafkaInfo) groupInfo;
             // create kafka topic
-            this.createKafkaTopic(inlongKafkaInfo, streamInfo.getInlongStreamId());
+            this.createKafkaTopic(inlongKafkaInfo, streamInfo.getMqResource());
         } catch (Exception e) {
             String msg = String.format("failed to create kafka topic for groupId=%s, streamId=%s", groupId, streamId);
             log.error(msg, e);
@@ -159,10 +159,9 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     /**
      * Create Kafka Topic and Subscription, and save the consumer group info.
      */
-    private void createKafkaTopic(InlongKafkaInfo kafkaInfo, String streamId) throws Exception {
+    private void createKafkaTopic(InlongKafkaInfo kafkaInfo, String topicName) throws Exception {
         // 1. create kafka topic
         ClusterInfo clusterInfo = clusterService.getOne(kafkaInfo.getInlongClusterTag(), null, ClusterType.KAFKA);
-        String topicName = kafkaInfo.getInlongGroupId() + "_" + streamId;
         kafkaOperator.createTopic(kafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
 
         boolean exist = kafkaOperator.topicIsExists((KafkaClusterInfo) clusterInfo, topicName);

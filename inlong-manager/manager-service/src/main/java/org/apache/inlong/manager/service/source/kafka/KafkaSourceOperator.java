@@ -106,11 +106,9 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
         streamInfos.forEach(streamInfo -> {
             KafkaSource kafkaSource = new KafkaSource();
             String streamId = streamInfo.getInlongStreamId();
-            String groupId = groupInfo.getInlongGroupId();
-            String topicName = groupId + "_" + streamId;
             kafkaSource.setSourceName(streamId);
             kafkaSource.setBootstrapServers(bootstrapServers);
-            kafkaSource.setTopic(topicName);
+            kafkaSource.setTopic(streamInfo.getMqResource());
             for (StreamSource sourceInfo : streamSources) {
                 if (!Objects.equals(streamId, sourceInfo.getInlongStreamId())) {
                     continue;
