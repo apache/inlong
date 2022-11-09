@@ -50,6 +50,7 @@ public class ClientFactory {
 
     private final WorkflowApproverClient workflowApproverClient;
     private final WorkflowEventClient workflowEventClient;
+    private final InlongConsumeClient consumeClient;
 
     public ClientFactory(ClientConfiguration configuration) {
         groupClient = new InlongGroupClient(configuration);
@@ -65,5 +66,6 @@ public class ClientFactory {
         heartbeatClient = new HeartbeatClient(configuration);
         workflowApproverClient = new WorkflowApproverClient(configuration);
         workflowEventClient = new WorkflowEventClient(configuration);
+        consumeClient = new InlongConsumeClient(configuration);
     }
 }
