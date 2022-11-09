@@ -263,7 +263,11 @@ public class TubeProducerHolder {
                 lastProducer = sessionFactory.createProducer();
                 lastPubTopicCnt.set(0);
             }
-            lastProducer.publish(subTopicSet);
+            try {
+                lastProducer.publish(subTopicSet);
+            } catch (Throwable e) {
+                logger.info(sinkName + " meta sink publish fail.", e);
+            }
             lastPubTopicCnt.addAndGet(subTopicSet.size());
             for (String topicItem : subTopicSet) {
                 producerMap.put(topicItem, lastProducer);

@@ -76,7 +76,6 @@ public class TubeSink extends AbstractSink implements Configurable {
     private static final Logger logger = LoggerFactory.getLogger(TubeSink.class);
     private static final MsgDedupHandler MSG_DEDUP_HANDLER = new MsgDedupHandler();
     private TubeProducerHolder producerHolder = null;
-    private volatile boolean canTake = false;
     private volatile boolean canSend = false;
     private volatile boolean isOverFlow = false;
     private ConfigManager configManager;
@@ -212,9 +211,6 @@ public class TubeSink extends AbstractSink implements Configurable {
         // start the cleaner thread
         super.start();
         this.canSend = true;
-        if (ConfigManager.getInstance().isMqClusterReady()) {
-            this.canTake = true;
-        }
         for (int i = 0; i < sinkThreadPool.length; i++) {
             sinkThreadPool[i] = new Thread(new TubeSinkTask(),
                     getName() + "_tube_sink_sender-" + i);
@@ -229,7 +225,6 @@ public class TubeSink extends AbstractSink implements Configurable {
             logger.info("Duplicated call, " + getName() + " has stopped!");
             return;
         }
-        this.canTake = false;
         // waiting inflight message processed
         int waitCount = 0;
         while (takenMsgCnt.get() > 0 && waitCount++ < 10) {
@@ -269,7 +264,7 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     @Override
     public Status process() throws EventDeliveryException {
-        if (!this.canTake) {
+        if (!this.started.get()) {
             return Status.BACKOFF;
         }
         Status status = Status.READY;
@@ -319,6 +314,10 @@ public class TubeSink extends AbstractSink implements Configurable {
             logger.info("sink task {} started.", Thread.currentThread().getName());
             while (canSend) {
                 try {
+                    if (!started.get() && cachedMsgCnt.get() <= 0) {
+                        logger.info("Found started is false and taken message count is zero, braek!");
+                        break;
+                    }
                     if (isOverFlow) {
                         isOverFlow = false;
                         Thread.sleep(30);
@@ -327,10 +326,6 @@ public class TubeSink extends AbstractSink implements Configurable {
                     if (resendQueue.isEmpty()) {
                         event = eventQueue.poll(2000, TimeUnit.MILLISECONDS);
                         if (event == null) {
-                            if (!canTake && takenMsgCnt.get() <= 0) {
-                                logger.info("Found canTake is false and taken message count is zero, braek!");
-                                break;
-                            }
                             continue;
                         }
                         cachedMsgCnt.decrementAndGet();
@@ -534,7 +529,7 @@ public class TubeSink extends AbstractSink implements Configurable {
 
         @Override
         public void run() {
-            if (!canTake && takenMsgCnt.get() <= 0) {
+            if (!started.get()) {
                 return;
             }
             logger.info(getName() + "[TubeSink Stats] cachedMsgCnt=" + cachedMsgCnt.get()
@@ -621,7 +616,7 @@ public class TubeSink extends AbstractSink implements Configurable {
             if (producerHolder != null) {
                 try {
                     producerHolder.createProducersByTopicSet(addedTopics);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     logger.info(getName() + "'s publish new topic set fail.", e);
                 }
             }
@@ -675,7 +670,6 @@ public class TubeSink extends AbstractSink implements Configurable {
             tmpProducerHolder.stop();
         }
         if (!ConfigManager.getInstance().isMqClusterReady()) {
-            this.canTake = true;
             ConfigManager.getInstance().updMqClusterStatus(true);
             logger.info("[{}] MQ Cluster service status ready!", getName());
         }
