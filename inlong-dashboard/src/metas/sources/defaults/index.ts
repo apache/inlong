@@ -51,4 +51,9 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     value: 'ORACLE',
     LoadEntity: () => import('./Oracle'),
   },
+  {
+    label: 'PostgreSQL',
+    value: 'POSTGRESQL',
+    LoadEntity: () => import('./PostgreSQL'),
+  },
 ];
