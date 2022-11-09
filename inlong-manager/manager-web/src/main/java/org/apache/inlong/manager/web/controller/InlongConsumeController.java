@@ -99,9 +99,8 @@ public class InlongConsumeController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete inlong consume by ID")
     @ApiImplicitParam(name = "id", value = "Inlong consume ID", dataTypeClass = Integer.class, required = true)
-    public Response<Object> delete(@PathVariable(name = "id") Integer id) {
-        consumeService.delete(id, LoginUserUtils.getLoginUser().getName());
-        return Response.success();
+    public Response<Boolean> delete(@PathVariable(name = "id") Integer id) {
+        return Response.success(consumeService.delete(id, LoginUserUtils.getLoginUser().getName()));
     }
 
     @PostMapping("/consume/startProcess/{id}")
