@@ -107,20 +107,6 @@ public class PulsarResourceOperator implements QueueResourceOperator {
                     log.info("success to create pulsar namespace for groupId={}, namespace={}, cluster={}",
                             groupId, namespace, clusterName);
                 }
-
-                // create pulsar topic - each Inlong Stream corresponds to a Pulsar topic
-                List<InlongStreamBriefInfo> streamInfoList = streamService.getTopicList(groupId);
-                if (streamInfoList == null || streamInfoList.isEmpty()) {
-                    log.warn("skip to create pulsar topic and subscription as no streams for groupId={}, cluster={}",
-                            groupId, clusterName);
-                    return;
-                }
-                // create pulsar topic and subscription
-                for (InlongStreamBriefInfo stream : streamInfoList) {
-                    this.createTopic(pulsarInfo, pulsarCluster, stream.getMqResource());
-                    this.createSubscription(pulsarInfo, pulsarCluster, stream.getMqResource(),
-                            stream.getInlongStreamId());
-                }
             } catch (Exception e) {
                 String msg = String.format("failed to create pulsar resource for groupId=%s, cluster=%s", groupId,
                         pulsarCluster.toString());
@@ -184,7 +170,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
                         streamInfo.getMqResource(), streamId);
             } catch (Exception e) {
                 String msg = String.format("failed to create pulsar topic for groupId=%s, streamId=%s, cluster=%s",
-                        groupId, streamId,pulsarCluster.getName());
+                        groupId, streamId, pulsarCluster.getName());
                 log.error(msg, e);
                 throw new WorkflowListenerException(msg + ": " + e.getMessage());
             }
