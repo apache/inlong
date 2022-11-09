@@ -210,6 +210,9 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
         if (multipleWriters.get(tableId) != null) {
             for (RowData data : recordWithSchema.getData()) {
                 multipleWriters.get(tableId).processElement(data);
+                if (metricData != null) {
+                    metricData.invokeWithEstimate(data);
+                }
             }
         } else {
             LOG.error("Unregistered table schema for {}.", recordWithSchema.getTableId());
