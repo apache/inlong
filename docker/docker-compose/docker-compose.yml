@@ -55,7 +55,7 @@ services:
       - USERNAME=root
       - PASSWORD=inlong
       - ZK_URL=tubemq-server:2181
-      - FLINK_HOST=localhost
+      - FLINK_HOST=jobmanager
       - FLINK_PORT=8081
       - AUDIT_PROXY_URL=audit:10081
 
@@ -114,3 +114,26 @@ services:
       - MQ_TYPE=pulsar
     ports:
       - "10081:10081"
+
+  # flink jobmanager
+  jobmanager:
+    image: apache/flink:1.13-scala_2.11
+    container_name: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+    ports:
+      - "8081:8081"
+    command: jobmanager
+
+  # flink taskmanager
+  taskmanager:
+    image: apache/flink:1.13-scala_2.11
+    container_name: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+    command: taskmanager
