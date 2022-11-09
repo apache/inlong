@@ -93,6 +93,8 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
         deleteSortTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(deleteSortTask);
 
+        // No need to delete the sink because we should not affect the existing data in the sink
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);

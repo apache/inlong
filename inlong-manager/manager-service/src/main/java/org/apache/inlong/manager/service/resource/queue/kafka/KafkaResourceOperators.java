@@ -30,7 +30,6 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.consume.InlongConsumeService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,8 +51,6 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     @Autowired
     private InlongClusterService clusterService;
     @Autowired
-    private InlongStreamService streamService;
-    @Autowired
     private KafkaOperator kafkaOperator;
     @Autowired
     private InlongConsumeService consumeService;
@@ -65,12 +62,12 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Override
     public void createQueueForGroup(@NotNull InlongGroupInfo groupInfo, @NotBlank String operator) {
-        log.info("skip to create kafka topic and subscription for groupId={}", groupInfo.getInlongGroupId());
+        log.info("skip to create kafka topic for groupId={}", groupInfo.getInlongGroupId());
     }
 
     @Override
     public void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
-        log.info("skip to delete kafka topic and subscription for groupId={}", groupInfo.getInlongGroupId());
+        log.info("skip to delete kafka topic for groupId={}", groupInfo.getInlongGroupId());
     }
 
     @Override

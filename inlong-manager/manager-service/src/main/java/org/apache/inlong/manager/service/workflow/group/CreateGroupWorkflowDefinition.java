@@ -89,7 +89,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        // Task dependency order: 1.MQ -> 2.Sort
+        // Task dependency order: 1.MQ -> 2.Sink-in-Stream -> 3.Sort -> 4.Source-in-Stream
         // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
         startEvent.addNext(initMQTask);
         initMQTask.addNext(initSortTask);

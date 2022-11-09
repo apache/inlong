@@ -75,6 +75,7 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         }
         InlongGroupInfo groupInfo = form.getGroupInfo();
         groupService.update(groupInfo.genRequest(), operator);
+
         // if the inlong group is lightweight mode, the stream source needs to be processed.
         if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
             changeSource4Lightweight(groupId, operateType, operator);

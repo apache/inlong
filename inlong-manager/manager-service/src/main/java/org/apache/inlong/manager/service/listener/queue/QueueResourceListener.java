@@ -21,7 +21,6 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -49,6 +48,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.manager.common.enums.GroupOperateType.INIT;
+import static org.apache.inlong.manager.common.enums.ProcessName.CREATE_STREAM_RESOURCE;
+
 /**
  * Create message queue resources,
  * such as Pulsar Topic and Subscription, TubeMQ Topic and ConsumerGroup, etc.
@@ -57,11 +59,11 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class QueueResourceListener implements QueueOperateListener {
 
-    private final ExecutorService executorService = new ThreadPoolExecutor(
+    private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
             20,
             40,
-            0L,
-            TimeUnit.MILLISECONDS,
+            10L,
+            TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(),
             new ThreadFactoryBuilder().setNameFormat("inlong-stream-process-%s").build(),
             new CallerRunsPolicy());
@@ -109,39 +111,10 @@ public class QueueResourceListener implements QueueOperateListener {
         String operator = context.getOperator();
         switch (operateType) {
             case INIT:
+                // create queue resource for inlong group
                 queueOperator.createQueueForGroup(groupInfo, operator);
-                List<InlongStreamInfo> streamList = groupProcessForm.getStreamInfos();
-                for (InlongStreamInfo streamInfo : streamList) {
-                    StreamResourceProcessForm processForm = genStreamProcessForm(groupInfo, streamInfo, operateType);
-                    CompletableFuture<WorkflowResult> future = CompletableFuture.supplyAsync(
-                            () -> workflowService.start(ProcessName.CREATE_STREAM_RESOURCE, operator, processForm),
-                            executorService);
-                    future.exceptionally((e) -> {
-                        String errMsg = String.format("failed to execute stream workflow for groupId=%s, streamId=%s",
-                                groupId, streamInfo.getInlongStreamId());
-                        log.error(errMsg);
-                        throw new WorkflowListenerException(errMsg, e);
-                    });
-                    String streamId = streamInfo.getInlongStreamId();
-                    try {
-                        WorkflowResult result = future.get();
-                        List<TaskResponse> taskResponse = result.getNewTasks();
-                        int len = taskResponse.size();
-                        if (taskResponse.get(len - 1).getStatus().equals(TaskStatus.FAILED)) {
-                            String errMsg = String.format(
-                                    "failed to execute stream workflow for groupId=%s, streamId=%s",
-                                    groupId, streamId);
-                            log.error(errMsg);
-                            throw new WorkflowListenerException(errMsg);
-                        }
-                    } catch (Exception e) {
-                        String errMsg = String.format("failed to execute stream workflow for groupId=%s, streamId=%s",
-                                groupId, streamId);
-                        log.error(errMsg);
-                        throw new WorkflowListenerException(errMsg, e);
-                    }
-                }
-                log.info("success to execute stream workflow for groupId={}", groupId);
+                // create queue resource for all inlong streams under the inlong group
+                this.createQueueForStreams(groupInfo, groupProcessForm.getStreamInfos(), operator);
                 break;
             case DELETE:
                 queueOperator.deleteQueueForGroup(groupInfo, operator);
@@ -155,13 +128,45 @@ public class QueueResourceListener implements QueueOperateListener {
         return ListenerResult.success("success");
     }
 
-    private StreamResourceProcessForm genStreamProcessForm(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            GroupOperateType operateType) {
-        StreamResourceProcessForm processForm = new StreamResourceProcessForm();
-        processForm.setGroupInfo(groupInfo);
-        processForm.setStreamInfo(streamInfo);
-        processForm.setGroupOperateType(operateType);
-        return processForm;
+    private void createQueueForStreams(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, String operator) {
+        String groupId = groupInfo.getInlongGroupId();
+        log.info("success to start stream process for groupId={}", groupId);
+
+        for (InlongStreamInfo stream : streamInfos) {
+            StreamResourceProcessForm form = StreamResourceProcessForm.getProcessForm(groupInfo, stream, INIT);
+            String streamId = stream.getInlongStreamId();
+            final String errMsg = "failed to start stream process for groupId=" + groupId + " streamId=" + streamId;
+
+            CompletableFuture<WorkflowResult> future = CompletableFuture
+                    .supplyAsync(() -> workflowService.start(CREATE_STREAM_RESOURCE, operator, form), EXECUTOR_SERVICE)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error(errMsg + ": " + ex.getMessage());
+                            throw new WorkflowListenerException(errMsg, ex);
+                        } else {
+                            List<TaskResponse> tasks = result.getNewTasks();
+                            if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
+                                log.error(errMsg);
+                                throw new WorkflowListenerException(errMsg);
+                            }
+                        }
+                    });
+            try {
+                future.get(180, TimeUnit.SECONDS);
+                /*WorkflowResult result = future.get(180, TimeUnit.SECONDS);
+                List<TaskResponse> tasks = result.getNewTasks();
+                if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
+                    log.error(errMsg);
+                    throw new WorkflowListenerException(errMsg);
+                }*/
+            } catch (Exception e) {
+                String msg = "failed to execute stream process in asynchronously ";
+                log.error(msg, e);
+                throw new WorkflowListenerException(msg + ": " + e.getMessage());
+            }
+        }
+
+        log.info("success to start stream process for groupId={}", groupId);
     }
 
 }

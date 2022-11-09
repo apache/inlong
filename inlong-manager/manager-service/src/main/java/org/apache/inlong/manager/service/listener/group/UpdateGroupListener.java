@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.listener.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
@@ -26,7 +25,6 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
@@ -42,8 +40,6 @@ public class UpdateGroupListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
@@ -71,11 +67,6 @@ public class UpdateGroupListener implements ProcessEventListener {
                 groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), operator);
                 break;
             case DELETE:
-                int count = streamService.selectCountByGroupId(groupId);
-                if (count >= 1) {
-                    log.error("groupId={} have [{}] inlong streams, deleted failed", groupId, count);
-                    throw new BusinessException(ErrorCodeEnum.GROUP_HAS_STREAM);
-                }
                 groupService.updateStatus(groupId, GroupStatus.DELETING.getCode(), operator);
                 break;
             default:

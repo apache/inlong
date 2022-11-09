@@ -50,7 +50,7 @@ public class InitGroupCompleteListener implements ProcessEventListener {
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
-    private InlongStreamProcessService streamProcessOperation;
+    private InlongStreamProcessService streamProcessService;
 
     @Override
     public ProcessEvent event() {
@@ -83,7 +83,7 @@ public class InitGroupCompleteListener implements ProcessEventListener {
 
         List<InlongStreamInfo> streamList = form.getStreamInfos();
         for (InlongStreamInfo streamInfo : streamList) {
-            streamProcessOperation.startProcess(groupId, streamInfo.getInlongStreamId(), operator, false);
+            streamProcessService.startProcess(groupId, streamInfo.getInlongStreamId(), operator, false);
         }
 
         log.info("success to execute InitGroupCompleteListener for groupId={}", groupId);
