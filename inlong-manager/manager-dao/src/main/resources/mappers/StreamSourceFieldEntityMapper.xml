@@ -258,6 +258,12 @@
         from stream_source_field
         where source_id = #{sourceId,jdbcType=INTEGER}
     </delete>
+    <delete id="deleteByGroupIdAndStreamId">
+        delete
+        from stream_source_field
+        where inlong_group_id = #{groupId,jdbcType=VARCHAR}
+          and inlong_stream_id = #{streamId,jdbcType=VARCHAR}
+    </delete>
     <delete id="deleteByInlongGroupIds">
         delete
         from stream_source_field
