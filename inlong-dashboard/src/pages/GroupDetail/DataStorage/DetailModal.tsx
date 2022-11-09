@@ -113,13 +113,13 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
       width={1200}
       {...modalProps}
       footer={[
-        <Button key="back" onClick={modalProps.onCancel}>
+        <Button key="cancel" onClick={modalProps.onCancel}>
           {t('pages.GroupDetail.Sink.Cancel')}
         </Button>,
-        <Button key="submit" type="primary" onClick={() => onOk(false)}>
+        <Button key="save" type="primary" onClick={() => onOk(false)}>
           {t('pages.GroupDetail.Sink.Save')}
         </Button>,
-        <Button type="primary" onClick={() => onOk(true)}>
+        <Button key="run" type="primary" onClick={() => onOk(true)}>
           {t('pages.GroupDetail.Sink.SaveAndRun')}
         </Button>,
       ]}
