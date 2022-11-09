@@ -306,7 +306,6 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
 
         pulsarCluster = configManager.getMqClusterUrl2Token();
         if (!ConfigManager.getInstance().isMqClusterReady()) {
-            this.canTake = true;
             ConfigManager.getInstance().updMqClusterStatus(true);
             logger.info("[{}] MQ Cluster service status ready!", getName());
         }
@@ -350,9 +349,7 @@ public class PulsarSink extends AbstractSink implements Configurable, SendMessag
                         ConfigConstants.DEFAULT_PROXY_CLUSTER_NAME);
         this.metricItemSet = new DataProxyMetricItemSet(clusterId, this.getName());
         MetricRegister.register(metricItemSet);
-        if (ConfigManager.getInstance().isMqClusterReady()) {
-            this.canTake = true;
-        }
+        this.canTake = true;
         logger.info("[{}] Pulsar sink started", getName());
     }
 
