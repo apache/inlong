@@ -88,7 +88,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
                 clusterService.listByTagAndType(clusterTag, ClusterType.PULSAR).stream()
                         .map(clusterInfo -> (PulsarClusterInfo) clusterInfo)
                         .collect(Collectors.toList());
-        for(PulsarClusterInfo pulsarCluster : pulsarClusters) {
+        for (PulsarClusterInfo pulsarCluster : pulsarClusters) {
             try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
                 String clusterName = pulsarCluster.getName();
                 // create pulsar tenant and namespace
@@ -118,7 +118,8 @@ public class PulsarResourceOperator implements QueueResourceOperator {
                 // create pulsar topic and subscription
                 for (InlongStreamBriefInfo stream : streamInfoList) {
                     this.createTopic(pulsarInfo, pulsarCluster, stream.getMqResource());
-                    this.createSubscription(pulsarInfo, pulsarCluster, stream.getMqResource(), stream.getInlongStreamId());
+                    this.createSubscription(pulsarInfo, pulsarCluster, stream.getMqResource(),
+                            stream.getInlongStreamId());
                 }
             } catch (Exception e) {
                 String msg = String.format("failed to create pulsar resource for groupId=%s, cluster=%s", groupId,
