@@ -37,7 +37,7 @@ export const allDefaultGroups: MetaExportWithBackendList<GroupMetaType> = [
     LoadEntity: () => import('./Pulsar'),
   },
   {
-    label: 'TubeMq',
+    label: 'TubeMQ',
     value: 'TUBEMQ',
     LoadEntity: () => import('./TubeMq'),
   },
