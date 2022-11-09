@@ -55,6 +55,10 @@ public class JobProfileDto {
      */
     public static final String MONGO_SOURCE = "org.apache.inlong.agent.plugin.sources.MongoDBSource";
     /**
+     * oracle source
+     */
+    public static final String ORACLE_SOURCE = "org.apache.inlong.agent.plugin.sources.OracleSource";
+    /**
      * mqtt source
      */
     public static final String MQTT_SOURCE = "org.apache.inlong.agent.plugin.sources.MqttSource";
@@ -230,10 +234,10 @@ public class JobProfileDto {
         return mongoJob;
     }
 
-    private static SqlServerJob getSqlServerJob(DataConfig dataConfigs) {
-        SqlServerJob.SqlserverJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
-                SqlServerJob.SqlserverJobConfig.class);
-        SqlServerJob oracleJob = new SqlServerJob();
+    private static OracleJob getOracleJob(DataConfig dataConfigs) {
+        OracleJob.OracleJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                OracleJob.OracleJobConfig.class);
+        OracleJob oracleJob = new OracleJob();
         oracleJob.setUser(config.getUser());
         oracleJob.setHostname(config.getHostname());
         oracleJob.setPassword(config.getPassword());
@@ -241,21 +245,49 @@ public class JobProfileDto {
         oracleJob.setServerName(config.getServerName());
         oracleJob.setDbname(config.getDbname());
 
-        SqlServerJob.Offset offset = new SqlServerJob.Offset();
+        OracleJob.Offset offset = new OracleJob.Offset();
         offset.setFilename(config.getOffsetFilename());
         offset.setSpecificOffsetFile(config.getSpecificOffsetFile());
         offset.setSpecificOffsetPos(config.getSpecificOffsetPos());
         oracleJob.setOffset(offset);
 
-        SqlServerJob.Snapshot snapshot = new SqlServerJob.Snapshot();
+        OracleJob.Snapshot snapshot = new OracleJob.Snapshot();
         snapshot.setMode(config.getSnapshotMode());
         oracleJob.setSnapshot(snapshot);
 
-        SqlServerJob.History history = new SqlServerJob.History();
+        OracleJob.History history = new OracleJob.History();
         history.setFilename(config.getHistoryFilename());
         oracleJob.setHistory(history);
 
         return oracleJob;
+    }
+
+    private static SqlServerJob getSqlServerJob(DataConfig dataConfigs) {
+        SqlServerJob.SqlserverJobConfig config = GSON.fromJson(dataConfigs.getExtParams(),
+                SqlServerJob.SqlserverJobConfig.class);
+        SqlServerJob sqlServerJob = new SqlServerJob();
+        sqlServerJob.setUser(config.getUser());
+        sqlServerJob.setHostname(config.getHostname());
+        sqlServerJob.setPassword(config.getPassword());
+        sqlServerJob.setPort(config.getPort());
+        sqlServerJob.setServerName(config.getServerName());
+        sqlServerJob.setDbname(config.getDbname());
+
+        SqlServerJob.Offset offset = new SqlServerJob.Offset();
+        offset.setFilename(config.getOffsetFilename());
+        offset.setSpecificOffsetFile(config.getSpecificOffsetFile());
+        offset.setSpecificOffsetPos(config.getSpecificOffsetPos());
+        sqlServerJob.setOffset(offset);
+
+        SqlServerJob.Snapshot snapshot = new SqlServerJob.Snapshot();
+        snapshot.setMode(config.getSnapshotMode());
+        sqlServerJob.setSnapshot(snapshot);
+
+        SqlServerJob.History history = new SqlServerJob.History();
+        history.setFilename(config.getHistoryFilename());
+        sqlServerJob.setHistory(history);
+
+        return sqlServerJob;
     }
 
     public static MqttJob getMqttJob(DataConfig dataConfigs) {
@@ -341,6 +373,12 @@ public class JobProfileDto {
                 job.setSource(KAFKA_SOURCE);
                 profileDto.setJob(job);
                 break;
+            case ORACLE:
+                OracleJob oracleJob = getOracleJob(dataConfig);
+                job.setOracleJob(oracleJob);
+                job.setSource(ORACLE_SOURCE);
+                profileDto.setJob(job);
+                break;
             case SQLSERVER:
                 SqlServerJob sqlserverJob = getSqlServerJob(dataConfig);
                 job.setSqlserverJob(sqlserverJob);
@@ -385,6 +423,7 @@ public class JobProfileDto {
         private FileJob fileJob;
         private BinlogJob binlogJob;
         private KafkaJob kafkaJob;
+        private OracleJob oracleJob;
         private MongoJob mongoJob;
         private MqttJob mqttJob;
         private SqlServerJob sqlserverJob;
