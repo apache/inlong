@@ -105,7 +105,7 @@ public interface StreamSourceEntityMapper {
 
     int updateByPrimaryKeySelective(StreamSourceEntity record);
 
-    int updateByGroupIdAndStreamId(@Param("groupId") String groupId, @Param("streamId") String streamId,
+    int updateByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("status") Integer status);
 
     int updateByPrimaryKey(StreamSourceEntity record);

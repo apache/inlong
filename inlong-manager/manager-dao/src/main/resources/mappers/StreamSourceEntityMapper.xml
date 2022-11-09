@@ -271,12 +271,13 @@
         </where>
     </select>
 
-    <update id="updateByGroupIdAndStreamId">
+    <update id="updateByRelatedId">
         update stream_source
         <set>
             is_deleted = id,
             previous_status = status,
             status = #{status, jdbcType=INTEGER},
+            version = version + 1
         </set>
         where is_deleted = 0
         and inlong_group_id = #{groupId, jdbcType=VARCHAR}

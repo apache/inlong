@@ -274,8 +274,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
-        sourceMapper.updateByGroupIdAndStreamId(groupId, streamId, SourceStatus.SOURCE_DISABLE.getCode());
-        sourceFieldMapper.deleteByGroupIdAndStreamId(groupId, streamId);
+        sourceMapper.updateByRelatedId(groupId, streamId, SourceStatus.SOURCE_DISABLE.getCode());
+        sourceFieldMapper.deleteByRelatedId(groupId, streamId);
 
         LOGGER.info("success to force delete source for groupId={} and streamId={} by user={}",
                 groupId, streamId, operator);

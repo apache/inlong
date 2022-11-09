@@ -60,11 +60,11 @@ public interface StreamSourceFieldEntityMapper {
     int deleteAll(@Param("sourceId") Integer sourceId);
 
     /**
-     * Physically delete all stream source fields based on inlong group ids
+     * Physically delete all stream source fields based on inlong group id and inlong stream id
      *
      * @return rows deleted
      */
-    int deleteByGroupIdAndStreamId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
      * Physically delete all stream source fields based on inlong group ids
