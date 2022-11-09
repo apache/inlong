@@ -87,6 +87,11 @@
 
         <dependency>
             <groupId>io.debezium</groupId>
+            <artifactId>debezium-connector-oracle</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-sqlserver</artifactId>
         </dependency>
 

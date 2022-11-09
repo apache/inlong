@@ -35,15 +35,12 @@ import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.snapshot.MongoDBSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
-import org.apache.inlong.agent.pojo.DebeziumOffset;
-import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
 import org.apache.inlong.agent.utils.GsonUtil;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -305,8 +302,13 @@ public class MongoDBReader extends AbstractReader {
 
         String snapshotMode = props.getOrDefault(JOB_MONGO_SNAPSHOT_MODE, "").toString();
         if (Objects.equals(SnapshotModeConstants.INITIAL, snapshotMode)) {
+            Preconditions.checkNotNull(JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE,
+                    JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE + " cannot be null");
+            Preconditions.checkNotNull(JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS,
+                    JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS + " cannot be null");
             props.setProperty("offset.storage", InLongFileOffsetBackingStore.class.getCanonicalName());
-            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE, serializeOffset());
+            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE,
+                    serializeOffset(instanceId, specificOffsetFile, specificOffsetPos));
         } else {
             props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());
         }
@@ -323,28 +325,6 @@ public class MongoDBReader extends AbstractReader {
             return;
         }
         builder.with(field, value);
-    }
-
-    private String serializeOffset() {
-        Map<String, Object> sourceOffset = new HashMap<>();
-        Preconditions.checkNotNull(JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE,
-                JOB_MONGO_OFFSET_SPECIFIC_OFFSET_FILE + " cannot be null");
-        sourceOffset.put("file", specificOffsetFile);
-        Preconditions.checkNotNull(JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS,
-                JOB_MONGO_OFFSET_SPECIFIC_OFFSET_POS + " cannot be null");
-        sourceOffset.put("pos", specificOffsetPos);
-        DebeziumOffset specificOffset = new DebeziumOffset();
-        specificOffset.setSourceOffset(sourceOffset);
-        Map<String, String> sourcePartition = new HashMap<>();
-        sourcePartition.put("server", instanceId);
-        specificOffset.setSourcePartition(sourcePartition);
-        byte[] serializedOffset = new byte[0];
-        try {
-            serializedOffset = DebeziumOffsetSerializer.INSTANCE.serialize(specificOffset);
-        } catch (IOException e) {
-            LOGGER.error("serialize offset message error", e);
-        }
-        return new String(serializedOffset, StandardCharsets.UTF_8);
     }
 
     /**
