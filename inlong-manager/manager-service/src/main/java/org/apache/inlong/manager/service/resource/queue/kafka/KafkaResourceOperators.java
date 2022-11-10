@@ -52,13 +52,13 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     private static final String KAFKA_CONSUMER_GROUP = "%s_%s_consumer_group";
 
     @Autowired
-    private InlongClusterService clusterService;
-    @Autowired
     private KafkaOperator kafkaOperator;
     @Autowired
     private InlongStreamService streamService;
     @Autowired
     private InlongConsumeService consumeService;
+    @Autowired
+    private InlongClusterService clusterService;
 
     @Override
     public boolean accept(String mqType) {
@@ -67,7 +67,8 @@ public class KafkaResourceOperators implements QueueResourceOperator {
 
     @Override
     public void createQueueForGroup(@NotNull InlongGroupInfo groupInfo, @NotBlank String operator) {
-        log.info("skip to create kafka topic for groupId={}", groupInfo.getInlongGroupId());
+        log.info("skip to create kafka topic for groupId={}, just create in each inlong stream",
+                groupInfo.getInlongGroupId());
     }
 
     @Override
@@ -84,7 +85,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
                 return;
             }
             for (InlongStreamBriefInfo streamInfo : streamInfoList) {
-                this.deleteKafkaTopic(groupInfo, streamInfo.getInlongStreamId());
+                this.deleteKafkaTopic(groupInfo, streamInfo.getMqResource());
             }
         } catch (Exception e) {
             log.error("failed to delete kafka resource for groupId=" + groupId, e);
@@ -94,8 +95,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     }
 
     @Override
-    public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            String operator) {
+    public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
         Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
         Preconditions.checkNotNull(operator, "operator cannot be null");
@@ -117,8 +117,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     }
 
     @Override
-    public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            String operator) {
+    public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
         Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
 
@@ -141,7 +140,7 @@ public class KafkaResourceOperators implements QueueResourceOperator {
      * Create Kafka Topic and Subscription, and save the consumer group info.
      */
     private void createKafkaTopic(InlongKafkaInfo kafkaInfo, String topicName) throws Exception {
-        // 1. create kafka topic
+        // create Kafka topic
         ClusterInfo clusterInfo = clusterService.getOne(kafkaInfo.getInlongClusterTag(), null, ClusterType.KAFKA);
         kafkaOperator.createTopic(kafkaInfo, (KafkaClusterInfo) clusterInfo, topicName);
 
@@ -153,7 +152,8 @@ public class KafkaResourceOperators implements QueueResourceOperator {
         }
 
         // Kafka consumers do not need to register in advance
-        // 2. insert the consumer group info
+
+        // save the consumer group info for the Kafka topic
         String consumeGroup = String.format(KAFKA_CONSUMER_GROUP, kafkaInfo.getInlongClusterTag(), topicName);
         Integer id = consumeService.saveBySystem(kafkaInfo, topicName, consumeGroup);
         log.info("success to save inlong consume [{}] for consumerGroup={}, groupId={}, topic={}",
@@ -163,9 +163,8 @@ public class KafkaResourceOperators implements QueueResourceOperator {
     /**
      * Delete Kafka Topic and Subscription, and delete the consumer group info.
      */
-    private void deleteKafkaTopic(InlongGroupInfo groupInfo, String streamId) {
+    private void deleteKafkaTopic(InlongGroupInfo groupInfo, String topicName) {
         ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.KAFKA);
-        String topicName = groupInfo.getInlongGroupId() + "_" + streamId;
         kafkaOperator.forceDeleteTopic((KafkaClusterInfo) clusterInfo, topicName);
     }
 }

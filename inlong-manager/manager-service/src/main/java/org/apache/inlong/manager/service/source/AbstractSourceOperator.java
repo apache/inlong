@@ -236,7 +236,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         }
     }
 
-    private void updateFieldOpt(StreamSourceEntity entity, List<StreamField> fieldInfos) {
+    protected void updateFieldOpt(StreamSourceEntity entity, List<StreamField> fieldInfos) {
         Integer sourceId = entity.getId();
         if (CollectionUtils.isEmpty(fieldInfos)) {
             return;
@@ -270,7 +270,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         streamFieldMapper.insertAll(list);
     }
 
-    private void saveFieldOpt(StreamSourceEntity entity, List<StreamField> fieldInfos) {
+    protected void saveFieldOpt(StreamSourceEntity entity, List<StreamField> fieldInfos) {
         LOGGER.info("begin to save source fields={}", fieldInfos);
         if (CollectionUtils.isEmpty(fieldInfos)) {
             return;

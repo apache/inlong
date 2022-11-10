@@ -48,6 +48,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
 import static org.apache.inlong.manager.common.enums.GroupOperateType.INIT;
 import static org.apache.inlong.manager.common.enums.ProcessName.CREATE_STREAM_RESOURCE;
 
@@ -59,21 +63,23 @@ import static org.apache.inlong.manager.common.enums.ProcessName.CREATE_STREAM_R
 @Service
 public class QueueResourceListener implements QueueOperateListener {
 
+    private static final Integer TIMEOUT_SECONDS = 180;
+
     private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
-            20,
-            40,
-            10L,
-            TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder().setNameFormat("inlong-stream-process-%s").build(),
+            CORE_POOL_SIZE,
+            MAX_POOL_SIZE,
+            ALIVE_TIME_MS,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(QUEUE_SIZE),
+            new ThreadFactoryBuilder().setNameFormat("inlong-mq-process-%s").build(),
             new CallerRunsPolicy());
 
     @Autowired
     private InlongGroupService groupService;
     @Autowired
-    private QueueResourceOperatorFactory queueOperatorFactory;
-    @Autowired
     private WorkflowService workflowService;
+    @Autowired
+    private QueueResourceOperatorFactory queueOperatorFactory;
 
     @Override
     public TaskEvent event() {
@@ -152,7 +158,9 @@ public class QueueResourceListener implements QueueOperateListener {
                         }
                     });
             try {
-                future.get(180, TimeUnit.SECONDS);
+                // wait for the current process complete before starting the next stream,
+                // otherwise, an exception is thrown and the next stream process will not be started.
+                future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
             } catch (Exception e) {
                 String msg = "failed to execute stream process in asynchronously ";
                 log.error(msg, e);

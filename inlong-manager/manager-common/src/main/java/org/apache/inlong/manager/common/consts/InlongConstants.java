@@ -23,6 +23,14 @@ package org.apache.inlong.manager.common.consts;
 public class InlongConstants {
 
     /**
+     * Thread pool related config.
+     */
+    public static final int CORE_POOL_SIZE = 10;
+    public static final int MAX_POOL_SIZE = 20;
+    public static final long ALIVE_TIME_MS = 100L;
+    public static final int QUEUE_SIZE = 10000;
+
+    /**
      * Group config
      */
     public static final String COMMA = ",";

@@ -145,25 +145,24 @@ public class MySQLSinkDTO {
         }
 
         String connUri = jdbcUrl.substring(pos1 + 1);
-        int pos;
         if (connUri.startsWith("//")) {
-            if ((pos = connUri.indexOf('/', 2)) != -1) {
+            int pos = connUri.indexOf('/', 2);
+            if (pos != -1) {
                 database = connUri.substring(pos + 1);
             }
         } else {
             database = connUri;
         }
 
+        if (Strings.isNullOrEmpty(database)) {
+            throw new IllegalArgumentException("Invalid JDBC URL: " + jdbcUrl);
+        }
+
         if (database.contains("?")) {
             database = database.substring(0, database.indexOf("?"));
         }
-
         if (database.contains(";")) {
             database = database.substring(0, database.indexOf(";"));
-        }
-
-        if (Strings.isNullOrEmpty(database)) {
-            throw new IllegalArgumentException("Invalid JDBC url.");
         }
         return database;
     }

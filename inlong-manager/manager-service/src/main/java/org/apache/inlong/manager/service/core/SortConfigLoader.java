@@ -34,64 +34,76 @@ import java.util.List;
  * Loader for sort service to load configs thought Cursor
  */
 public interface SortConfigLoader {
+
     /**
      * Load all clusters by cursor
-     * @return List of clusters, including MQ cluster and DataNode cluster.
+     *
+     * @return list of clusters, including MQ cluster and DataProxy cluster
      */
     List<SortSourceClusterInfo> loadAllClusters();
 
     /**
      * Load stream sinks by cursor
-     * @return List of Stream sinks.
+     *
+     * @return list of stream sinks
      */
     List<SortSourceStreamSinkInfo> loadAllStreamSinks();
 
     /**
      * Load groups by cursor
-     * @return List of group info
+     *
+     * @return list of group info
      */
     List<SortSourceGroupInfo> loadAllGroup();
 
     /**
-     * Load group backup info by cursor
-     * @param keyName Key name
-     * @return List of group backup info
+     * Load backup group info by cursor
+     *
+     * # @param keyName key name
+     *
+     * @return list of backup group info
      */
     List<InlongGroupExtEntity> loadGroupBackupInfo(String keyName);
 
     /**
-     * Load stream backup info by cursor
-     * @param keyName Key name
-     * @return List of stream backup info
+     * Load backup stream info by cursor
+     *
+     * @param keyName key name
+     * @return list of backup stream info
      */
     List<InlongStreamExtEntity> loadStreamBackupInfo(String keyName);
 
     /**
      * Load all inlong stream info by cursor
-     * @return List of stream info
+     *
+     * @return list of stream info
      */
     List<SortSourceStreamInfo> loadAllStreams();
 
     /**
      * Load all inlong stream sink entity by cursor
+     *
      * @return List of stream sink entity
      */
     List<StreamSinkEntity> loadAllStreamSinkEntity();
 
     /**
      * Load all task info
+     *
      * @return List of tasks
      */
     List<SortTaskInfo> loadAllTask();
 
     /**
      * Load all data node entity
+     *
      * @return List of data node
      */
     List<DataNodeEntity> loadAllDataNodeEntity();
 
     /**
      * Load all fields info
+     *
      * @return List of fields info
      */
     List<SortFieldInfo> loadAllFields();

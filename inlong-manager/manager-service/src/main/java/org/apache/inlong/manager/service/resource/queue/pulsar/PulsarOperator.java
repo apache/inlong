@@ -353,7 +353,7 @@ public class PulsarOperator {
                 LOGGER.error("check if the subscription exists for topic={} error, continue retry", topic, e);
                 if (count == RETRY_TIMES) {
                     LOGGER.error("after {} times retry, still check subscription exception for topic {}", count, topic);
-                    throw new BusinessException("check if the subscription exists error");
+                    throw new BusinessException("check if the subscription exists error: " + e.getMessage());
                 }
             }
         }
