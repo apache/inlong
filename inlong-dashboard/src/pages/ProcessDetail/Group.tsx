@@ -20,7 +20,7 @@
 import React, { useMemo, forwardRef, useImperativeHandle, useEffect } from 'react';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { CommonInterface } from './common';
-import { useGroupFormContent, getFormContent } from './AccessConfig';
+import { useGroupFormContent, getFormContent } from './GroupConfig';
 
 export type Props = CommonInterface;
 
