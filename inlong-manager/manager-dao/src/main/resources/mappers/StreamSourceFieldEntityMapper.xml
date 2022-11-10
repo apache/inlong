@@ -259,10 +259,13 @@
         where source_id = #{sourceId,jdbcType=INTEGER}
     </delete>
     <delete id="deleteByRelatedId">
-        delete
-        from stream_source_field
-        where inlong_group_id = #{groupId,jdbcType=VARCHAR}
-          and inlong_stream_id = #{streamId,jdbcType=VARCHAR}
+        update stream_source_field
+        <set>
+            is_deleted = id
+        </set>
+        where is_deleted = 0
+        and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
     </delete>
     <delete id="deleteByInlongGroupIds">
         delete
