@@ -153,12 +153,6 @@ public class QueueResourceListener implements QueueOperateListener {
                     });
             try {
                 future.get(180, TimeUnit.SECONDS);
-                /*WorkflowResult result = future.get(180, TimeUnit.SECONDS);
-                List<TaskResponse> tasks = result.getNewTasks();
-                if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
-                    log.error(errMsg);
-                    throw new WorkflowListenerException(errMsg);
-                }*/
             } catch (Exception e) {
                 String msg = "failed to execute stream process in asynchronously ";
                 log.error(msg, e);
