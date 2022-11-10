@@ -42,7 +42,7 @@ import java.util.Map;
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
 
 /**
- * Listener of delete sort.
+ * Listener of delete Sort task or config.
  */
 @Slf4j
 public class DeleteSortListener implements SortOperateListener {
@@ -57,17 +57,17 @@ public class DeleteSortListener implements SortOperateListener {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add delete group listener, not GroupResourceProcessForm for groupId [{}]", groupId);
+            log.info("not add delete group listener, not GroupResourceProcessForm for groupId={}", groupId);
             return false;
         }
 
         GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
         if (groupProcessForm.getGroupOperateType() != GroupOperateType.DELETE) {
-            log.info("not add delete group listener, as the operate was not DELETE for groupId [{}]", groupId);
+            log.info("not add delete group listener, as the operate was not DELETE for groupId={}", groupId);
             return false;
         }
 
-        log.info("add delete group listener for groupId [{}]", groupId);
+        log.info("add delete group listener for groupId={}", groupId);
         return true;
     }
 
@@ -76,7 +76,7 @@ public class DeleteSortListener implements SortOperateListener {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            String message = String.format("process form was not GroupResourceProcessForm for groupId [%s]", groupId);
+            String message = String.format("process form was not GroupResourceProcessForm for groupId=%s", groupId);
             log.error(message);
             return ListenerResult.fail(message);
         }
@@ -90,10 +90,8 @@ public class DeleteSortListener implements SortOperateListener {
         extList.forEach(groupExtInfo -> kvConf.put(groupExtInfo.getKeyName(), groupExtInfo.getKeyValue()));
         String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
-            String message = String.format("delete sort failed for groupId [%s], as the sort properties is empty",
-                    groupId);
-            log.error(message);
-            return ListenerResult.fail(message);
+            log.warn("no need to delete sort for groupId={}, as the sort properties is empty", groupId);
+            return ListenerResult.success();
         }
 
         Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(
@@ -102,7 +100,7 @@ public class DeleteSortListener implements SortOperateListener {
         kvConf.putAll(result);
         String jobId = kvConf.get(InlongConstants.SORT_JOB_ID);
         if (StringUtils.isBlank(jobId)) {
-            String message = String.format("sort job id is empty for groupId [%s]", groupId);
+            String message = String.format("sort job id is empty for groupId=%s", groupId);
             return ListenerResult.fail(message);
         }
 
@@ -115,16 +113,16 @@ public class DeleteSortListener implements SortOperateListener {
         FlinkOperation flinkOperation = new FlinkOperation(flinkService);
         try {
             flinkOperation.delete(flinkInfo);
-            log.info("job delete success for [{}]", jobId);
+            log.info("job delete success for jobId={}", jobId);
             return ListenerResult.success();
         } catch (Exception e) {
             flinkInfo.setException(true);
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
             flinkOperation.pollJobStatus(flinkInfo);
 
-            String message = String.format("delete sort failed for groupId [%s] ", groupId);
+            String message = String.format("delete sort failed for groupId=%s", groupId);
             log.error(message, e);
-            return ListenerResult.fail(message + e.getMessage());
+            return ListenerResult.fail(message + ": " + e.getMessage());
         }
     }
 
