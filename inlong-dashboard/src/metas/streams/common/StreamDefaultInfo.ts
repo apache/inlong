@@ -38,9 +38,10 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
 
   @FieldDecorator({
     type: 'input',
-    props: {
-      maxLength: 32,
-    },
+    props: values => ({
+      disabled: Boolean(values?.status),
+      maxLength: 64,
+    }),
     rules: [
       { required: true },
       {
@@ -97,7 +98,8 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
     type: 'radio',
     initialValue: 'CSV',
     tooltip: i18n.t('meta.Stream.DataTypeHelp'),
-    props: {
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
       options: [
         {
           label: 'CSV',
@@ -108,7 +110,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           value: 'RAW_CSV',
         },
       ],
-    },
+    }),
     rules: [{ required: true }],
   })
   @I18n('meta.Stream.DataType')
@@ -117,7 +119,8 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   @FieldDecorator({
     type: 'radio',
     initialValue: 'UTF-8',
-    props: {
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
       options: [
         {
           label: 'UTF-8',
@@ -128,7 +131,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           value: 'GBK',
         },
       ],
-    },
+    }),
     rules: [{ required: true }],
   })
   @I18n('meta.Stream.DataEncoding')
@@ -137,7 +140,8 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
   @FieldDecorator({
     type: 'select',
     initialValue: '124',
-    props: {
+    props: values => ({
+      disabled: [110, 130].includes(values?.status),
       dropdownMatchSelectWidth: false,
       options: [
         {
@@ -170,7 +174,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
         placeholder: 'ASCII',
       },
       style: { width: 100 },
-    },
+    }),
     rules: [
       {
         required: true,
@@ -186,8 +190,9 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
 
   @FieldDecorator({
     type: EditableTable,
-    props: {
+    props: values => ({
       size: 'small',
+      canDelete: record => !(record.id && [110, 130].includes(values?.status)),
       columns: [
         {
           title: i18n.t('meta.Stream.FieldName'),
@@ -199,15 +204,19 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
               message: i18n.t('meta.Stream.FieldNameRule'),
             },
           ],
+          props: (text, record) => ({
+            disabled: record.id && [110, 130].includes(values?.status),
+          }),
         },
         {
           title: i18n.t('meta.Stream.FieldType'),
           dataIndex: 'fieldType',
           type: 'select',
           initialValue: sourceFieldsTypes[0].value,
-          props: {
+          props: (text, record) => ({
+            disabled: record.id && [110, 130].includes(values?.status),
             options: sourceFieldsTypes,
-          },
+          }),
           rules: [{ required: true }],
         },
         {
@@ -215,7 +224,7 @@ export class StreamDefaultInfo implements DataWithBackend, RenderRow, RenderList
           dataIndex: 'fieldComment',
         },
       ],
-    },
+    }),
   })
   @I18n('meta.Stream.SourceDataField')
   rowTypeFields: Record<string, string>[];
