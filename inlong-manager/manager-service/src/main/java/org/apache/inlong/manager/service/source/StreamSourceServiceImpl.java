@@ -275,9 +275,9 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         int sourceCount = sourceMapper.updateByRelatedId(groupId, streamId, SourceStatus.SOURCE_DISABLE.getCode());
-        int fieldCount = sourceFieldMapper.deleteByRelatedId(groupId, streamId);
-        LOGGER.info("success to force delete source for groupId={} and streamId={} by user={}, update {} sources and delete {} fields",
-                groupId, streamId, operator, sourceCount, fieldCount);
+        int fieldCount = sourceFieldMapper.updateByRelatedId(groupId, streamId);
+        LOGGER.info("success to force delete source for groupId={} and streamId={} by user={},"
+                        + " update {} sources and {} fields", groupId, streamId, operator, sourceCount, fieldCount);
         return true;
     }
 
