@@ -42,6 +42,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+
 /**
  * Operation related to inlong stream process
  */
@@ -49,12 +54,12 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class InlongStreamProcessService {
 
-    private final ExecutorService executorService = new ThreadPoolExecutor(
-            20,
-            40,
-            0L,
+    private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
+            CORE_POOL_SIZE,
+            MAX_POOL_SIZE,
+            ALIVE_TIME_MS,
             TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
+            new LinkedBlockingQueue<>(QUEUE_SIZE),
             new ThreadFactoryBuilder().setNameFormat("inlong-stream-process-%s").build(),
             new CallerRunsPolicy());
 
@@ -100,7 +105,7 @@ public class InlongStreamProcessService {
             ProcessStatus processStatus = workflowResult.getProcessInfo().getStatus();
             return processStatus == ProcessStatus.COMPLETED;
         } else {
-            executorService.execute(() -> workflowService.start(processName, operator, processForm));
+            EXECUTOR_SERVICE.execute(() -> workflowService.start(processName, operator, processForm));
             return true;
         }
     }
@@ -143,7 +148,7 @@ public class InlongStreamProcessService {
             ProcessStatus processStatus = workflowResult.getProcessInfo().getStatus();
             return processStatus == ProcessStatus.COMPLETED;
         } else {
-            executorService.execute(() -> workflowService.start(processName, operator, processForm));
+            EXECUTOR_SERVICE.execute(() -> workflowService.start(processName, operator, processForm));
             return true;
         }
     }
@@ -158,8 +163,7 @@ public class InlongStreamProcessService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL
-                && groupStatus != GroupStatus.RESTARTED) {
+        if (groupStatus != GroupStatus.CONFIG_SUCCESSFUL && groupStatus != GroupStatus.RESTARTED) {
             throw new BusinessException(
                     String.format("group status=%s not support restart stream for groupId=%s", groupStatus, groupId));
         }
@@ -185,7 +189,7 @@ public class InlongStreamProcessService {
             ProcessStatus processStatus = workflowResult.getProcessInfo().getStatus();
             return processStatus == ProcessStatus.COMPLETED;
         } else {
-            executorService.execute(() -> workflowService.start(processName, operator, processForm));
+            EXECUTOR_SERVICE.execute(() -> workflowService.start(processName, operator, processForm));
             return true;
         }
     }
@@ -235,7 +239,7 @@ public class InlongStreamProcessService {
                 return false;
             }
         } else {
-            executorService.execute(() -> {
+            EXECUTOR_SERVICE.execute(() -> {
                 WorkflowResult workflowResult = workflowService.start(processName, operator, processForm);
                 ProcessStatus processStatus = workflowResult.getProcessInfo().getStatus();
                 if (processStatus == ProcessStatus.COMPLETED) {
