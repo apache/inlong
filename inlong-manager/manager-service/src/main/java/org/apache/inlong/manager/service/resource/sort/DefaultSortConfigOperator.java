@@ -78,16 +78,16 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     public void buildConfig(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, boolean isStream)
             throws Exception {
         if (isStream) {
-            LOGGER.warn("stream workflow no need to build sort config for disable zk");
+            LOGGER.warn("no need to build sort config for stream process when disable zk");
             return;
         }
         if (groupInfo == null || CollectionUtils.isEmpty(streamInfos)) {
-            LOGGER.warn("group info is null or stream infos is empty, no need to build sort config for disable zk");
+            LOGGER.warn("no need to build sort config as the group is null or streams is empty when disable zk");
             return;
         }
 
-        GroupInfo configInfo = this.getGroupInfo(groupInfo, streamInfos);
-        String dataflow = OBJECT_MAPPER.writeValueAsString(configInfo);
+        GroupInfo sortConfigInfo = this.getGroupInfo(groupInfo, streamInfos);
+        String dataflow = OBJECT_MAPPER.writeValueAsString(sortConfigInfo);
         this.addToGroupExt(groupInfo, dataflow);
 
         if (LOGGER.isDebugEnabled()) {
@@ -127,9 +127,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             if (InlongConstants.STANDARD_MODE.equals(groupInfo.getLightweight())) {
                 if (CollectionUtils.isNotEmpty(transformResponses)) {
                     relations = NodeRelationUtils.createNodeRelations(inlongStream);
-
-                    // in standard mode, replace upstream source node and transform input fields node to mq node
-                    // mq node name, which is inlong stream id
+                    // in standard mode, replace upstream source node and transform input fields node
+                    // to MQ node (which is inlong stream id)
                     String mqNodeName = sources.get(0).getSourceName();
                     Set<String> nodeNameSet = getInputNodeNames(sources, transformResponses);
                     adjustTransformField(transformResponses, nodeNameSet, mqNodeName);

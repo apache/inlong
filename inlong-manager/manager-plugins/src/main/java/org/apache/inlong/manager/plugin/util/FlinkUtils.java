@@ -101,7 +101,7 @@ public class FlinkUtils {
 
         File baseDir = new File(baseDirName);
         if (!baseDir.exists() || !baseDir.isDirectory()) {
-            log.error("baseDirName find fail :{}", baseDirName);
+            log.error("baseDirName find fail: {}", baseDirName);
             return result;
         }
         String tempName;

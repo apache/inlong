@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.workflow.processor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
-import org.apache.inlong.manager.common.exceptions.JsonException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
@@ -40,11 +40,10 @@ import java.util.Date;
 /**
  * Start event handler
  */
+@Slf4j
 @Service
 public class StartEventProcessor extends AbstractNextableElementProcessor<StartEvent> {
 
-    @Autowired
-    private ObjectMapper objectMapper;
     @Autowired
     private ProcessEventNotifier processEventNotifier;
     @Autowired
@@ -61,13 +60,16 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
         WorkflowProcess process = context.getProcess();
         ProcessForm form = context.getProcessForm();
         if (process.getFormClass() != null) {
-            Preconditions.checkNotNull(form, "form cannot be null");
+            Preconditions.checkNotNull(form, "process form cannot be null");
             Preconditions.checkTrue(form.getClass().isAssignableFrom(process.getFormClass()),
-                    "form type not match, should be class " + process.getFormClass());
+                    String.format("form type %s should match the process form type %s",
+                            form.getClass(), process.getFormClass()));
             form.validate();
         } else {
-            Preconditions.checkNull(form, "no form required");
+            log.warn("not need to provide the form info");
+            context.setProcessForm(null);
         }
+
         WorkflowProcessEntity processEntity = saveProcessEntity(applicant, process, form);
         context.setProcessEntity(processEntity);
         context.setActionContext(new WorkflowContext.ActionContext().setAction(WorkflowAction.START));
@@ -91,18 +93,16 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
         processEntity.setDisplayName(process.getDisplayName());
         processEntity.setType(process.getType());
         processEntity.setTitle(form.getTitle());
+
         processEntity.setInlongGroupId(form.getInlongGroupId());
         if (form instanceof StreamResourceProcessForm) {
             StreamResourceProcessForm streamForm = (StreamResourceProcessForm) form;
             processEntity.setInlongStreamId(streamForm.getStreamInfo().getInlongStreamId());
         }
+
         processEntity.setApplicant(applicant);
         processEntity.setStatus(ProcessStatus.PROCESSING.name());
-        try {
-            processEntity.setFormData(objectMapper.writeValueAsString(form));
-        } catch (Exception e) {
-            throw new JsonException("write form to json error: ", e);
-        }
+        processEntity.setFormData(JsonUtils.toJsonString(form));
         processEntity.setStartTime(new Date());
         processEntity.setHidden(process.getHidden());
 

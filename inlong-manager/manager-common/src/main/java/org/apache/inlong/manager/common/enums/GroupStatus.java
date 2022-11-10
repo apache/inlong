@@ -49,7 +49,7 @@ public enum GroupStatus {
     DELETING(41, "deleting"),
     DELETED(40, "deleted"),
 
-    // GROUP_FINISH is used for batch task.
+    // FINISH is used for batch task.
     FINISH(131, "finish");
 
     private static final Map<GroupStatus, Set<GroupStatus>> GROUP_STATE_AUTOMATON = Maps.newHashMap();
@@ -60,8 +60,7 @@ public enum GroupStatus {
     static {
         GROUP_STATE_AUTOMATON.put(DRAFT, Sets.newHashSet(DRAFT, TO_BE_SUBMIT, DELETING));
         GROUP_STATE_AUTOMATON.put(TO_BE_SUBMIT, Sets.newHashSet(TO_BE_SUBMIT, TO_BE_APPROVAL, DELETING));
-        GROUP_STATE_AUTOMATON.put(TO_BE_APPROVAL,
-                Sets.newHashSet(TO_BE_APPROVAL, APPROVE_REJECTED, APPROVE_PASSED, DELETING));
+        GROUP_STATE_AUTOMATON.put(TO_BE_APPROVAL, Sets.newHashSet(TO_BE_APPROVAL, APPROVE_REJECTED, APPROVE_PASSED));
 
         GROUP_STATE_AUTOMATON.put(APPROVE_REJECTED, Sets.newHashSet(APPROVE_REJECTED, TO_BE_APPROVAL, DELETING));
         GROUP_STATE_AUTOMATON.put(APPROVE_PASSED, Sets.newHashSet(APPROVE_PASSED, CONFIG_ING, DELETING));
@@ -149,6 +148,7 @@ public enum GroupStatus {
 
     @Override
     public String toString() {
-        return name().toLowerCase(Locale.ROOT).replace("group_", "");
+        return name().toLowerCase(Locale.ROOT);
     }
+
 }

@@ -17,17 +17,14 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.Data;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -36,6 +33,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Elasticsearch config information, including host, port, etc.
  */
@@ -43,6 +43,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ElasticsearchConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConfig.class);
+    private static RestHighLevelClient highLevelClient;
     @Value("${es.index.search.hostname}")
     private String host;
     @Value("${es.index.search.port}")
@@ -53,10 +55,6 @@ public class ElasticsearchConfig {
     private String username;
     @Value("${es.auth.password}")
     private String password;
-
-    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConfig.class);
-
-    private static RestHighLevelClient highLevelClient;
 
     /**
      * highLevelClient
@@ -75,7 +73,7 @@ public class ElasticsearchConfig {
                     for (String host : hostArrays) {
                         if (StringUtils.isNotBlank(host)) {
                             host = host.trim();
-                            hosts.add(new HttpHost(host, port, "http"));
+                            hosts.add(new HttpHost(host, port, ProtocolType.HTTP));
                         }
                     }
                     RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[0]));

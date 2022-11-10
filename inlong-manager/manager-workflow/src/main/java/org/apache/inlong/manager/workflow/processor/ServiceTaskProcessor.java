@@ -105,21 +105,23 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         WorkflowContext.ActionContext actionContext = context.getActionContext();
         if (actionContext == null) {
             resetActionContext(context);
+            actionContext = context.getActionContext();
         }
-        WorkflowTaskEntity workflowTaskEntity = actionContext.getTaskEntity();
-        Preconditions.checkTrue(ALLOW_COMPLETE_STATE.contains(TaskStatus.valueOf(workflowTaskEntity.getStatus())),
-                "task status should allow complete");
+        WorkflowTaskEntity taskEntity = actionContext.getTaskEntity();
+        Preconditions.checkTrue(ALLOW_COMPLETE_STATE.contains(TaskStatus.valueOf(taskEntity.getStatus())),
+                String.format("task status %s not allowed to complete", taskEntity.getStatus()));
+
         try {
             ListenerResult listenerResult = this.taskEventNotifier.notify(TaskEvent.COMPLETE, context);
             if (!listenerResult.isSuccess()) {
-                failedTask(context, workflowTaskEntity);
+                failedTask(context, taskEntity);
             } else {
-                completeTaskEntity(context, workflowTaskEntity, TaskStatus.COMPLETED);
+                completeTaskEntity(context, taskEntity, TaskStatus.COMPLETED);
             }
             return listenerResult.isSuccess();
         } catch (Exception e) {
-            log.error("Complete service task failed", e);
-            failedTask(context, workflowTaskEntity);
+            log.error("failed to complete service task: " + taskEntity, e);
+            failedTask(context, taskEntity);
             return false;
         }
     }
@@ -139,12 +141,14 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         taskQuery.setProcessId(processId);
         taskQuery.setName(serviceName);
         List<WorkflowTaskEntity> taskEntities = taskEntityMapper.selectByQuery(taskQuery);
+
         WorkflowTaskEntity taskEntity;
         if (CollectionUtils.isEmpty(taskEntities)) {
             taskEntity = saveTaskEntity(serviceTask, context);
         } else {
             taskEntity = taskEntities.get(0);
         }
+
         ActionContext actionContext = new WorkflowContext.ActionContext()
                 .setTask((WorkflowTask) context.getCurrentElement())
                 .setAction(WorkflowAction.COMPLETE)

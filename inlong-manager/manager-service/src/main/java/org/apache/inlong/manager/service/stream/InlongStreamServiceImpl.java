@@ -504,7 +504,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
     /**
      * Update field information
-     * <p/>First physically delete the existing field information, and then add the field information of this batch
+     * <p/>
+     * First physically delete the existing field information, and then add the field information of this batch
      */
     @Transactional(rollbackFor = Throwable.class)
     void updateField(String groupId, String streamId, List<StreamField> fieldList) {
@@ -525,7 +526,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         if (CollectionUtils.isEmpty(infoList)) {
             return;
         }
-        infoList.stream().forEach(streamField -> streamField.setId(null));
+        infoList.forEach(streamField -> streamField.setId(null));
         List<InlongStreamFieldEntity> list = CommonBeanUtils.copyListProperties(infoList,
                 InlongStreamFieldEntity::new);
         for (InlongStreamFieldEntity entity : list) {

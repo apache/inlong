@@ -36,6 +36,9 @@ import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+
 /**
  * Operation log thread pool
  */
@@ -43,24 +46,23 @@ import java.util.stream.IntStream;
 @Component
 public class OperationLogPool {
 
-    private static final int BUFFER_SIZE = 500;
-    private static final int MAX_WAIT_TIME_SECOND = 30;
-    private static final int MAX_QUEUE_SIZE = 10000;
+    private static final int TIMEOUT_SECOND = 30;
     private static final int THREAD_NUM = 3;
-    private static final ArrayBlockingQueue<OperationLogEntity> OPERATION_POOL = new ArrayBlockingQueue<>(
-            MAX_QUEUE_SIZE);
+    private static final int BUFFER_SIZE = 500;
 
-    private final ExecutorService executorService = new ThreadPoolExecutor(
+    private static final ArrayBlockingQueue<OperationLogEntity> OPERATION_POOL = new ArrayBlockingQueue<>(QUEUE_SIZE);
+
+    private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
             THREAD_NUM,
             THREAD_NUM,
-            0L,
+            ALIVE_TIME_MS,
             TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder().setNameFormat("async-operation-log-%s").build(),
+            new LinkedBlockingQueue<>(QUEUE_SIZE),
+            new ThreadFactoryBuilder().setNameFormat("inlong-operation-log-%s").build(),
             new CallerRunsPolicy());
 
     @Autowired
-    private OperationLogEntityMapper operationLogEntityMapper;
+    private OperationLogEntityMapper operationLogMapper;
 
     public static void publish(OperationLogEntity operation) {
         if (!OPERATION_POOL.offer(operation)) {
@@ -71,7 +73,7 @@ public class OperationLogPool {
     @PostConstruct
     public void init() {
         IntStream.range(0, THREAD_NUM).forEach(
-                i -> executorService.submit(this::saveOperationLog)
+                i -> EXECUTOR_SERVICE.submit(this::saveOperationLog)
         );
     }
 
@@ -79,14 +81,13 @@ public class OperationLogPool {
         List<OperationLogEntity> buffer = new ArrayList<>(BUFFER_SIZE);
         while (true) {
             buffer.clear();
-            int size = 0;
             try {
-                size = Queues.drain(OPERATION_POOL, buffer, BUFFER_SIZE, MAX_WAIT_TIME_SECOND, TimeUnit.SECONDS);
+                int size = Queues.drain(OPERATION_POOL, buffer, BUFFER_SIZE, TIMEOUT_SECOND, TimeUnit.SECONDS);
                 if (buffer.isEmpty()) {
                     continue;
                 }
                 long startTime = System.currentTimeMillis();
-                operationLogEntityMapper.insertBatch(buffer);
+                operationLogMapper.insertBatch(buffer);
                 log.info("receive {} logs and saved cost {} ms", size, System.currentTimeMillis() - startTime);
             } catch (InterruptedException e) {
                 log.error("save operation log interrupted", e);
