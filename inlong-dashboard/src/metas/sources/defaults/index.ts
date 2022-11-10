@@ -56,4 +56,9 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     value: 'POSTGRESQL',
     LoadEntity: () => import('./PostgreSQL'),
   },
+  {
+    label: 'SQLServer',
+    value: 'SQLSERVER',
+    LoadEntity: () => import('./SQLServer'),
+  },
 ];
