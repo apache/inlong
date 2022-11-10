@@ -26,14 +26,12 @@ import java.util.List;
 @Repository
 public interface StreamSourceFieldEntityMapper {
 
-    int deleteByPrimaryKey(Integer id);
-
     int insert(StreamSourceFieldEntity record);
 
     int insertSelective(StreamSourceFieldEntity record);
 
     /**
-     * Selete undeleted source field by source id.
+     * Select undeleted source field by source id.
      *
      * @param sourceId source id
      * @return stream source field list
@@ -43,6 +41,13 @@ public interface StreamSourceFieldEntityMapper {
     int updateByPrimaryKeySelective(StreamSourceFieldEntity record);
 
     int updateByPrimaryKey(StreamSourceFieldEntity record);
+
+    /**
+     * Logically delete all stream source fields based on inlong group id and inlong stream id
+     *
+     * @return rows deleted
+     */
+    int updateByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
      * Insert all field list

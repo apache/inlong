@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -83,6 +85,17 @@ public class StreamSourceController {
     public Response<Boolean> delete(@PathVariable Integer id) {
         boolean result = sourceService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
+    }
+
+    @RequestMapping(value = "/source/forceDelete", method = RequestMethod.DELETE)
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiOperation(value = "Force delete stream source by groupId and streamId")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> forceDelete(@RequestParam String groupId, @RequestParam String streamId) {
+        return Response.success(sourceService.forceDelete(groupId, streamId, LoginUserUtils.getLoginUser().getName()));
     }
 
 }
