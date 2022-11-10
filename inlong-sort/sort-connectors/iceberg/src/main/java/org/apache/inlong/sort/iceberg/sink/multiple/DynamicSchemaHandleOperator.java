@@ -186,6 +186,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                 output.collect(new StreamRecord<>(recordWithSchema));
             } else {
                 handldAlterSchemaEventFromOperator(tableId, latestSchema, dataSchema);
+                break;
             }
         }
     }
