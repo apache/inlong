@@ -63,6 +63,9 @@ public class ProcessRequest extends PageRequest {
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
+    @ApiModelProperty("Inlong stream id")
+    private String inlongStreamId;
+
     @ApiModelProperty("Start time-lower limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTimeBegin;

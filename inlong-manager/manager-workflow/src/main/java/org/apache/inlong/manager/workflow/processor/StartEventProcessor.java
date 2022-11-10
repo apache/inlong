@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
@@ -91,6 +92,10 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
         processEntity.setType(process.getType());
         processEntity.setTitle(form.getTitle());
         processEntity.setInlongGroupId(form.getInlongGroupId());
+        if (form instanceof StreamResourceProcessForm) {
+            StreamResourceProcessForm streamForm = (StreamResourceProcessForm) form;
+            processEntity.setInlongStreamId(streamForm.getStreamInfo().getInlongStreamId());
+        }
         processEntity.setApplicant(applicant);
         processEntity.setStatus(ProcessStatus.PROCESSING.name());
         try {

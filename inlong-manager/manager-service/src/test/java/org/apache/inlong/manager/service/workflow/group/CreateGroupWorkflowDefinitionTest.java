@@ -37,11 +37,9 @@ public class CreateGroupWorkflowDefinitionTest extends ServiceBaseTest {
         WorkflowProcess cloneProcess1 = process.clone();
         WorkflowProcess cloneProcess2 = cloneProcess1.clone();
         Assertions.assertNotSame(cloneProcess2, cloneProcess1);
-        Assertions.assertNotNull(process.getTaskByName("InitSource"));
         Assertions.assertNotNull(process.getTaskByName("InitMQ"));
         Assertions.assertNotNull(process.getTaskByName("InitSort"));
-        Assertions.assertNotNull(process.getTaskByName("InitSink"));
-        Assertions.assertEquals(4, process.getNameToTaskMap().size());
+        Assertions.assertEquals(2, process.getNameToTaskMap().size());
     }
 
 }
