@@ -39,6 +39,18 @@ public class StreamResourceProcessForm extends BaseProcessForm {
 
     private GroupOperateType groupOperateType = GroupOperateType.INIT;
 
+    /**
+     * Get stream resource process form info.
+     */
+    public static StreamResourceProcessForm getProcessForm(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
+            GroupOperateType operateType) {
+        StreamResourceProcessForm processForm = new StreamResourceProcessForm();
+        processForm.setGroupInfo(groupInfo);
+        processForm.setStreamInfo(streamInfo);
+        processForm.setGroupOperateType(operateType);
+        return processForm;
+    }
+
     @Override
     public void validate() throws FormValidateException {
 
@@ -53,4 +65,5 @@ public class StreamResourceProcessForm extends BaseProcessForm {
     public String getInlongGroupId() {
         return groupInfo.getInlongGroupId();
     }
+
 }

@@ -17,21 +17,39 @@
 
 package org.apache.inlong.manager.service.listener.queue;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
+import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.workflow.TaskResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperatorFactory;
+import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.manager.common.enums.GroupOperateType.INIT;
+import static org.apache.inlong.manager.common.enums.ProcessName.CREATE_STREAM_RESOURCE;
 
 /**
  * Create message queue resources,
@@ -41,10 +59,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class QueueResourceListener implements QueueOperateListener {
 
+    private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
+            20,
+            40,
+            10L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(),
+            new ThreadFactoryBuilder().setNameFormat("inlong-stream-process-%s").build(),
+            new CallerRunsPolicy());
+
     @Autowired
     private InlongGroupService groupService;
     @Autowired
     private QueueResourceOperatorFactory queueOperatorFactory;
+    @Autowired
+    private WorkflowService workflowService;
 
     @Override
     public TaskEvent event() {
@@ -82,7 +111,10 @@ public class QueueResourceListener implements QueueOperateListener {
         String operator = context.getOperator();
         switch (operateType) {
             case INIT:
+                // create queue resource for inlong group
                 queueOperator.createQueueForGroup(groupInfo, operator);
+                // create queue resource for all inlong streams under the inlong group
+                this.createQueueForStreams(groupInfo, groupProcessForm.getStreamInfos(), operator);
                 break;
             case DELETE:
                 queueOperator.deleteQueueForGroup(groupInfo, operator);
@@ -94,6 +126,41 @@ public class QueueResourceListener implements QueueOperateListener {
 
         log.info("success to execute QueueResourceListener for groupId={}, operateType={}", groupId, operateType);
         return ListenerResult.success("success");
+    }
+
+    private void createQueueForStreams(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, String operator) {
+        String groupId = groupInfo.getInlongGroupId();
+        log.info("success to start stream process for groupId={}", groupId);
+
+        for (InlongStreamInfo stream : streamInfos) {
+            StreamResourceProcessForm form = StreamResourceProcessForm.getProcessForm(groupInfo, stream, INIT);
+            String streamId = stream.getInlongStreamId();
+            final String errMsg = "failed to start stream process for groupId=" + groupId + " streamId=" + streamId;
+
+            CompletableFuture<WorkflowResult> future = CompletableFuture
+                    .supplyAsync(() -> workflowService.start(CREATE_STREAM_RESOURCE, operator, form), EXECUTOR_SERVICE)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error(errMsg + ": " + ex.getMessage());
+                            throw new WorkflowListenerException(errMsg, ex);
+                        } else {
+                            List<TaskResponse> tasks = result.getNewTasks();
+                            if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
+                                log.error(errMsg);
+                                throw new WorkflowListenerException(errMsg);
+                            }
+                        }
+                    });
+            try {
+                future.get(180, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                String msg = "failed to execute stream process in asynchronously ";
+                log.error(msg, e);
+                throw new WorkflowListenerException(msg + ": " + e.getMessage());
+            }
+        }
+
+        log.info("success to start stream process for groupId={}", groupId);
     }
 
 }

@@ -18,26 +18,25 @@
 package org.apache.inlong.manager.service.listener.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
-import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupUtils;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.apache.inlong.manager.service.stream.InlongStreamService;
+import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * The listener of InlongGroup when created resources successfully.
@@ -49,11 +48,9 @@ public class InitGroupCompleteListener implements ProcessEventListener {
     @Autowired
     private InlongGroupService groupService;
     @Autowired
-    private InlongStreamService streamService;
-    @Autowired
-    private StreamSourceService sourceService;
-    @Autowired
     private InlongGroupEntityMapper groupMapper;
+    @Autowired
+    private InlongStreamProcessService streamProcessService;
 
     @Override
     public ProcessEvent event() {
@@ -84,12 +81,9 @@ public class InitGroupCompleteListener implements ProcessEventListener {
         updateGroupRequest.setVersion(existGroup.getVersion());
         groupService.update(updateGroupRequest, operator);
 
-        // update status of other related configs
-        streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
-        if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
-            sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
-        } else {
-            sourceService.updateStatus(groupId, null, SourceStatus.TO_BE_ISSUED_ADD.getCode(), operator);
+        List<InlongStreamInfo> streamList = form.getStreamInfos();
+        for (InlongStreamInfo streamInfo : streamList) {
+            streamProcessService.startProcess(groupId, streamInfo.getInlongStreamId(), operator, false);
         }
 
         log.info("success to execute InitGroupCompleteListener for groupId={}", groupId);

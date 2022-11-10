@@ -77,6 +77,10 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     @Override
     public void buildConfig(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, boolean isStream)
             throws Exception {
+        if (isStream) {
+            LOGGER.warn("stream workflow no need to build sort config for disable zk");
+            return;
+        }
         if (groupInfo == null || CollectionUtils.isEmpty(streamInfos)) {
             LOGGER.warn("group info is null or stream infos is empty, no need to build sort config for disable zk");
             return;
@@ -84,11 +88,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
 
         GroupInfo configInfo = this.getGroupInfo(groupInfo, streamInfos);
         String dataflow = OBJECT_MAPPER.writeValueAsString(configInfo);
-        if (isStream) {
-            this.addToStreamExt(streamInfos, dataflow);
-        } else {
-            this.addToGroupExt(groupInfo, dataflow);
-        }
+        this.addToGroupExt(groupInfo, dataflow);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("success to build sort config, isStream={}, dataflow={}", isStream, dataflow);

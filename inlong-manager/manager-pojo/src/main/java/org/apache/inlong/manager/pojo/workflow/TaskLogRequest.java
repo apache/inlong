@@ -36,6 +36,9 @@ public class TaskLogRequest extends PageRequest {
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
+    @ApiModelProperty("Inlong stream id")
+    private String inlongStreamId;
+
     @ApiModelProperty("Process name list")
     private List<String> processNames;
 

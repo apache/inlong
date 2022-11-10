@@ -189,6 +189,7 @@ public class WorkflowServiceImpl implements WorkflowService {
 
         ProcessRequest processRequest = new ProcessRequest();
         processRequest.setInlongGroupId(groupId);
+        processRequest.setInlongStreamId(query.getInlongStreamId());
         processRequest.setNameList(processNameList);
         processRequest.setHidden(1);
 
