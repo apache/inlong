@@ -268,6 +268,20 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
+    public Boolean forceDelete(String groupId, String streamId, String operator) {
+        LOGGER.info("begin to force delete source for groupId={} and streamId={} by user={}",
+                groupId, streamId, operator);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+
+        int sourceCount = sourceMapper.updateByRelatedId(groupId, streamId, SourceStatus.SOURCE_DISABLE.getCode());
+        int fieldCount = sourceFieldMapper.updateByRelatedId(groupId, streamId);
+        LOGGER.info("success to force delete source for groupId={} and streamId={} by user={},"
+                        + " update {} sources and {} fields", groupId, streamId, operator, sourceCount, fieldCount);
+        return true;
+    }
+
+    @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
             isolation = Isolation.READ_COMMITTED)
     public Boolean restart(Integer id, String operator) {
