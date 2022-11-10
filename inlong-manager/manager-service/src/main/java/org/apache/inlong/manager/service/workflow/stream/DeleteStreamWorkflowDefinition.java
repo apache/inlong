@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.common.enums.ProcessName;
-import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
+import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.listener.StreamTaskListenerFactory;
 import org.apache.inlong.manager.service.listener.stream.UpdateStreamCompleteListener;
 import org.apache.inlong.manager.service.listener.stream.UpdateStreamFailedListener;
 import org.apache.inlong.manager.service.listener.stream.UpdateStreamListener;
+import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -85,13 +85,22 @@ public class DeleteStreamWorkflowDefinition implements WorkflowDefinition {
         deleteMQTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(deleteMQTask);
 
+        // Delete Sort
+        ServiceTask deleteSortTask = new ServiceTask();
+        deleteSortTask.setName("DeleteSort");
+        deleteSortTask.setDisplayName("Stream-DeleteSort");
+        deleteSortTask.setServiceTaskType(ServiceTaskType.DELETE_SORT);
+        deleteSortTask.setListenerFactory(streamTaskListenerFactory);
+        process.addTask(deleteSortTask);
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
         startEvent.addNext(deleteDataSourceTask);
         deleteDataSourceTask.addNext(deleteMQTask);
-        deleteMQTask.addNext(endEvent);
+        deleteMQTask.addNext(deleteSortTask);
+        deleteSortTask.addNext(endEvent);
 
         return process;
     }

@@ -88,11 +88,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
 
         GroupInfo configInfo = this.getGroupInfo(groupInfo, streamInfos);
         String dataflow = OBJECT_MAPPER.writeValueAsString(configInfo);
-        if (isStream) {
-            this.addToStreamExt(streamInfos, dataflow);
-        } else {
-            this.addToGroupExt(groupInfo, dataflow);
-        }
+        this.addToGroupExt(groupInfo, dataflow);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("success to build sort config, isStream={}, dataflow={}", isStream, dataflow);

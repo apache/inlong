@@ -83,7 +83,7 @@ public class SortConfigListener implements SortOperateListener {
         InlongGroupInfo groupInfo = form.getGroupInfo();
         List<InlongStreamInfo> streamInfos = form.getStreamInfos();
         if (CollectionUtils.isEmpty(streamInfos)) {
-            LOGGER.warn("not build sort config for groupId={}, as the stream is empty", groupId);
+            LOGGER.warn("do not build sort config for groupId={}, as the stream is empty", groupId);
             return ListenerResult.success();
         }
         int sinkCount = streamInfos.stream()
