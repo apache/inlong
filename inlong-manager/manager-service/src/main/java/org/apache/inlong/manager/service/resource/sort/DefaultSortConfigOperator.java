@@ -77,6 +77,10 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     @Override
     public void buildConfig(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, boolean isStream)
             throws Exception {
+        if (isStream) {
+            LOGGER.warn("stream workflow no need to build sort config for disable zk");
+            return;
+        }
         if (groupInfo == null || CollectionUtils.isEmpty(streamInfos)) {
             LOGGER.warn("group info is null or stream infos is empty, no need to build sort config for disable zk");
             return;
