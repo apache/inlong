@@ -31,6 +31,7 @@ import io.debezium.time.MicroTimestamp;
 import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
+import io.debezium.time.ZonedTimestamp;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
@@ -38,6 +39,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -81,8 +83,7 @@ public final class RowDataDebeziumDeserializeSchema
 
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_TIME;
 
-    private static final DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern(
-            "yyyy-MM-dd HH:mm:ss");
+    private static final ZoneId ZONE_UTC = ZoneId.of("UTC");
 
     private static final String shadedPatternPrefix = "org.apache.inlong.sort.cdc.oracle.shaded.";
 
@@ -772,10 +773,17 @@ public final class RowDataDebeziumDeserializeSchema
             case Date.SCHEMA_NAME:
                 fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
                 break;
+            case ZonedTimestamp.SCHEMA_NAME:
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
+                fieldValue = zonedDateTime.withZoneSameInstant(serverTimeZone).toLocalDateTime()
+                        .atZone(ZONE_UTC).format(DateTimeFormatter.ISO_INSTANT);
+                break;
             case Timestamp.SCHEMA_NAME:
                 Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
-                fieldValue = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.ofInstant(instantTime,
-                        serverTimeZone));
+                fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
+                break;
+            case Decimal.LOGICAL_NAME:
+                // no need to transfer decimal type since the value is already decimal
                 break;
             default:
                 LOG.debug("schema {} is not being supported", schemaName);
