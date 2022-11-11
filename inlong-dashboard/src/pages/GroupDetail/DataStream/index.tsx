@@ -120,7 +120,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
 
   const onWorkflow = record => {
     Modal.confirm({
-      title: t('basic.ExecuteConfirm'),
+      title: t('meta.Stream.ExecuteConfirm'),
       onOk: async () => {
         await request({
           url: `/stream/startProcess/${inlongGroupId}/${record?.inlongStreamId}`,
@@ -130,7 +130,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
           },
         });
         await getList();
-        message.success(t('basic.ExecuteSuccess'));
+        message.success(t('meta.Stream.ExecuteSuccess'));
       },
     });
   };
