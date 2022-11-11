@@ -39,7 +39,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +84,8 @@ public final class RowDataDebeziumDeserializeSchema
 
     private static final DateTimeFormatter timestampFormatter = DateTimeFormatter.ofPattern(
             "yyyy-MM-dd HH:mm:ss");
+
+    private static final String shadedPatternPrefix = "org.apache.inlong.sort.cdc.oracle.shaded.";
 
     /**
      * TypeInformation of the produced {@link RowData}. *
@@ -691,7 +692,7 @@ public final class RowDataDebeziumDeserializeSchema
                     if (schemaName != null) {
                         // normal type doesn't have schema name
                         // schema names are time schemas
-                        fieldValue = getTimeValue(fieldValue, schemaName);
+                        fieldValue = getValueWithSchema(fieldValue, schemaName);
                     }
                     data.put(fieldName, fieldValue);
                 }
@@ -714,6 +715,7 @@ public final class RowDataDebeziumDeserializeSchema
                     String fieldName = field.name();
                     Object fieldValue = struct.getWithoutDefault(fieldName);
                     Schema fieldSchema = schema.field(fieldName).schema();
+                    String schemaName = fieldSchema.name();
 
                     // struct type convert normal type
                     if (fieldValue instanceof Struct) {
@@ -732,6 +734,9 @@ public final class RowDataDebeziumDeserializeSchema
                             fieldValue = ((TimestampData) fieldValue).toTimestamp();
                         }
                     }
+                    if (schemaName != null) {
+                        fieldValue = getValueWithSchema(fieldValue, schemaName);
+                    }
                     if (fieldValue instanceof ByteBuffer) {
                         fieldValue = new String(((ByteBuffer) fieldValue).array());
                     }
@@ -748,13 +753,18 @@ public final class RowDataDebeziumDeserializeSchema
     }
 
     /**
-     * transform debezium time format to database format
+     * extract the data with the format provided by debezium
      *
      * @param fieldValue
      * @param schemaName
-     * @return
+     * @return the extracted data with schema
      */
-    private Object getTimeValue(Object fieldValue, String schemaName) {
+    private Object getValueWithSchema(Object fieldValue, String schemaName) {
+        if (fieldValue == null) {
+            return null;
+        }
+        // Remove shaded pattern prefix of package name
+        schemaName = schemaName.replace(shadedPatternPrefix, "");
         switch (schemaName) {
             case MicroTime.SCHEMA_NAME:
                 Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
@@ -763,18 +773,13 @@ public final class RowDataDebeziumDeserializeSchema
             case Date.SCHEMA_NAME:
                 fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
                 break;
-            case ZonedTimestamp.SCHEMA_NAME:
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
-                fieldValue = timestampFormatter.format(zonedDateTime
-                        .withZoneSameInstant(serverTimeZone).toLocalDateTime());
-                break;
             case Timestamp.SCHEMA_NAME:
                 Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
-                fieldValue = timestampFormatter.format(LocalDateTime.ofInstant(instantTime,
+                fieldValue = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.ofInstant(instantTime,
                         serverTimeZone));
                 break;
             default:
-                LOG.error("parse schema {} error", schemaName);
+                LOG.debug("schema {} is not being supported", schemaName);
         }
         return fieldValue;
     }
