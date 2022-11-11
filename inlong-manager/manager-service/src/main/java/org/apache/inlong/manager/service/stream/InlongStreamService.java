@@ -44,6 +44,15 @@ public interface InlongStreamService {
     Integer save(InlongStreamRequest request, String operator);
 
     /**
+     * Query whether the inlong stream ID exists
+     *
+     * @param groupId inlong group id
+     * @param streamId inlong stream id
+     * @return true: exists, false: does not exist
+     */
+    Boolean exist(String groupId, String streamId);
+
+    /**
      * Query the details of the specified inlong stream
      *
      * @param groupId Inlong group id
@@ -59,15 +68,6 @@ public interface InlongStreamService {
      * @return Inlong stream info list
      */
     List<InlongStreamInfo> list(String groupId);
-
-    /**
-     * Query whether the inlong stream ID exists
-     *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
-     * @return true: exists, false: does not exist
-     */
-    Boolean exist(String groupId, String streamId);
 
     /**
      * Paging query inlong stream brief info list
@@ -103,7 +103,10 @@ public interface InlongStreamService {
     Boolean update(InlongStreamRequest request, String operator);
 
     /**
-     * Delete the specified inlong stream
+     * Delete the specified inlong stream.
+     * <p/>
+     * When deleting an inlong stream, you need to check whether there are some related
+     * stream_sources or stream_sinks
      *
      * @param groupId Inlong group id
      * @param streamId Inlong stream id

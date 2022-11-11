@@ -185,36 +185,34 @@ public class InlongGroupProcessService {
      * @return inlong group id
      */
     public String deleteProcessAsync(String groupId, String operator) {
-        LOGGER.info("begin to delete process asynchronously for groupId={} by operator={}", groupId, operator);
+        LOGGER.info("begin to delete group asynchronously for groupId={} by user={}", groupId, operator);
         EXECUTOR_SERVICE.execute(() -> {
             try {
                 invokeDeleteProcess(groupId, operator);
-            } catch (Exception ex) {
-                LOGGER.error("exception while delete process for groupId={} by operator={}", groupId, operator, ex);
-                throw ex;
+            } catch (Exception e) {
+                LOGGER.error(String.format("failed to async delete group for groupId=%s by %s", groupId, operator), e);
+                throw e;
             }
-            groupService.delete(groupId, operator);
         });
 
-        LOGGER.info("success to delete process asynchronously for groupId={} by operator={}", groupId, operator);
+        LOGGER.info("success to delete group asynchronously for groupId={} by user={}", groupId, operator);
         return groupId;
     }
 
     /**
-     * Delete InlongGroup logically and delete related resource in an asynchronous way.
+     * Delete InlongGroup logically and delete related resource in a synchronous way.
      */
-    public boolean deleteProcess(String groupId, String operator) {
-        LOGGER.info("begin to delete process for groupId={} by operator={}", groupId, operator);
+    public Boolean deleteProcess(String groupId, String operator) {
+        LOGGER.info("begin to delete group for groupId={} by user={}", groupId, operator);
         try {
             invokeDeleteProcess(groupId, operator);
-        } catch (Exception ex) {
-            LOGGER.error("exception while delete process for groupId={} by operator={}", groupId, operator, ex);
-            throw ex;
+        } catch (Exception e) {
+            LOGGER.error(String.format("failed to delete group for groupId=%s by user=%s", groupId, operator), e);
+            throw e;
         }
 
-        boolean result = groupService.delete(groupId, operator);
-        LOGGER.info("success to delete process for groupId={} by operator={}", groupId, operator);
-        return result;
+        LOGGER.info("success to delete group for groupId={} by user={}", groupId, operator);
+        return true;
     }
 
     /**
@@ -287,7 +285,9 @@ public class InlongGroupProcessService {
     }
 
     private void invokeDeleteProcess(String groupId, String operator) {
-        InlongGroupInfo groupInfo = groupService.get(groupId);
+        // check can be deleted
+        InlongGroupInfo groupInfo = groupService.doDeleteCheck(groupId, operator);
+        // start to delete group process
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.DELETE);
         workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
     }

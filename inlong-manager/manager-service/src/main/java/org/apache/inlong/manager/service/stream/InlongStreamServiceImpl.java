@@ -127,6 +127,14 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
+    public Boolean exist(String groupId, String streamId) {
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
+        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        return streamEntity != null;
+    }
+
+    @Override
     public InlongStreamInfo get(String groupId, String streamId) {
         LOGGER.debug("begin to get inlong stream by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
@@ -181,14 +189,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             streamInfo.setSourceList(sourceList);
         });
         return streamList;
-    }
-
-    @Override
-    public Boolean exist(String groupId, String streamId) {
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
-        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-        return streamEntity != null;
     }
 
     /**
@@ -307,7 +307,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         // Check whether the current inlong group status supports modification
-        this.checkCanUpdate(inlongGroupEntity.getStatus(), streamEntity, request);
+        this.doUpdateCheck(inlongGroupEntity.getStatus(), streamEntity, request);
 
         CommonBeanUtils.copyProperties(request, streamEntity, true);
         streamEntity.setModifier(operator);
@@ -326,8 +326,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         return true;
     }
 
-    @Transactional(rollbackFor = Throwable.class)
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public Boolean delete(String groupId, String streamId, String operator) {
         LOGGER.debug("begin to delete inlong stream, groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
@@ -580,7 +580,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
      * @param streamEntity Original inlong stream entity
      * @param request New inlong stream information
      */
-    private void checkCanUpdate(Integer groupStatus, InlongStreamEntity streamEntity, InlongStreamRequest request) {
+    private void doUpdateCheck(Integer groupStatus, InlongStreamEntity streamEntity, InlongStreamRequest request) {
         if (streamEntity == null || request == null) {
             return;
         }

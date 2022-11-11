@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -58,23 +59,26 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
         log.info("begin to execute UpdateGroupCompleteListener for groupId={}, operateType={}", groupId, operateType);
 
         // update inlong group status and other configs
+        InlongGroupInfo groupInfo = form.getGroupInfo();
+        InlongGroupRequest groupRequest = groupInfo.genRequest();
         String operator = context.getOperator();
         switch (operateType) {
             case SUSPEND:
                 groupService.updateStatus(groupId, GroupStatus.SUSPENDED.getCode(), operator);
+                groupService.update(groupRequest, operator);
                 break;
             case RESTART:
                 groupService.updateStatus(groupId, GroupStatus.RESTARTED.getCode(), operator);
+                groupService.update(groupRequest, operator);
                 break;
             case DELETE:
-                groupService.updateStatus(groupId, GroupStatus.DELETED.getCode(), operator);
+                // delete process completed, then delete the group info
+                groupService.delete(groupId, operator);
                 break;
             default:
                 log.warn("unsupported operate={} for inlong group", operateType);
                 break;
         }
-        InlongGroupInfo groupInfo = form.getGroupInfo();
-        groupService.update(groupInfo.genRequest(), operator);
 
         // if the inlong group is lightweight mode, the stream source needs to be processed.
         if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
