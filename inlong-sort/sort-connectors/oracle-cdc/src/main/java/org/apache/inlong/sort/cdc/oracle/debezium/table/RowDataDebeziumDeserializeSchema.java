@@ -31,7 +31,6 @@ import io.debezium.time.MicroTimestamp;
 import io.debezium.time.NanoTime;
 import io.debezium.time.NanoTimestamp;
 import io.debezium.time.Timestamp;
-import io.debezium.time.ZonedTimestamp;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
