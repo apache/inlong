@@ -180,7 +180,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
             </Button>
             {record?.status && (record?.status === 120 || record?.status === 130) && (
               <Button type="link" onClick={() => onWorkflow(record)}>
-                {t('basic.ExecuteWorkflow')}
+                {t('meta.Stream.ExecuteWorkflow')}
               </Button>
             )}
             {record?.status && (record?.status === 120 || record?.status === 130) && (
