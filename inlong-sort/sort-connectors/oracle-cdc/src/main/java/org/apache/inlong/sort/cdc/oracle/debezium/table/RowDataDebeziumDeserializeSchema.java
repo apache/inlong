@@ -760,33 +760,18 @@ public final class RowDataDebeziumDeserializeSchema
      * @return the extracted data with schema
      */
     private Object getValueWithSchema(Object fieldValue, String schemaName) {
-        if (fieldValue == null) {
-            return null;
-        }
-        // Remove shaded pattern prefix of package name
-        schemaName = schemaName.replace(shadedPatternPrefix, "");
-        switch (schemaName) {
-            case MicroTime.SCHEMA_NAME:
-                Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
-                fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, serverTimeZone));
-                break;
-            case Date.SCHEMA_NAME:
-                fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
-                break;
-            case ZonedTimestamp.SCHEMA_NAME:
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
-                fieldValue = zonedDateTime.withZoneSameInstant(serverTimeZone).toLocalDateTime()
-                        .atZone(ZONE_UTC).format(DateTimeFormatter.ISO_INSTANT);
-                break;
-            case Timestamp.SCHEMA_NAME:
-                Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
-                fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
-                break;
-            case Decimal.LOGICAL_NAME:
-                // no need to transfer decimal type since the value is already decimal
-                break;
-            default:
-                LOG.debug("schema {} is not being supported", schemaName);
+        if (MicroTime.SCHEMA_NAME.equals(schemaName)) {
+            Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
+            fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, serverTimeZone));
+        } else if (Date.SCHEMA_NAME.equals(schemaName)) {
+            fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
+        } else if (ZonedTimestamp.SCHEMA_NAME.equals(schemaName)) {
+            ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
+            fieldValue = zonedDateTime.withZoneSameInstant(serverTimeZone).toLocalDateTime()
+                    .atZone(ZONE_UTC).format(DateTimeFormatter.ISO_INSTANT);
+        } else if (Timestamp.SCHEMA_NAME.equals(schemaName)) {
+            Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
+            fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
         }
         return fieldValue;
     }
