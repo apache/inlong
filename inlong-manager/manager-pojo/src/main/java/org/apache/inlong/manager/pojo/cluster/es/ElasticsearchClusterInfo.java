@@ -35,12 +35,12 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 @SuperBuilder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.ES)
+@JsonTypeDefine(value = ClusterType.ELASTICSEARCH)
 @ApiModel("Inlong cluster info for Elasticsearch")
 public class ElasticsearchClusterInfo extends ClusterInfo {
 
     public ElasticsearchClusterInfo() {
-        this.setType(ClusterType.ES);
+        this.setType(ClusterType.ELASTICSEARCH);
     }
 
     @Override

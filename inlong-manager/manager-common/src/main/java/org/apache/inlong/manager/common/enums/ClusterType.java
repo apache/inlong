@@ -32,7 +32,7 @@ public class ClusterType {
     public static final String PULSAR = "PULSAR";
     public static final String DATAPROXY = "DATAPROXY";
     public static final String KAFKA = "KAFKA";
-    public static final String ES = "ES";
+    public static final String ELASTICSEARCH = "ES";
 
     private static final Set<String> TYPE_SET = new HashSet<String>() {
         {
@@ -41,7 +41,7 @@ public class ClusterType {
             add(ClusterType.PULSAR);
             add(ClusterType.DATAPROXY);
             add(ClusterType.KAFKA);
-            add(ClusterType.ES);
+            add(ClusterType.ELASTICSEARCH);
         }
     };
 
