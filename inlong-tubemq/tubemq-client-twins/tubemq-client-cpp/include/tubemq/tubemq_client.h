@@ -23,11 +23,12 @@
 #include <stdint.h>
 #include <map>
 #include <string>
+#include <functional>
 #include "tubemq/tubemq_atomic.h"
 #include "tubemq/tubemq_config.h"
 #include "tubemq/tubemq_message.h"
 #include "tubemq/tubemq_return.h"
-
+#include "tubemq/tubemq_errcode.h"
 
 namespace tubemq {
 
@@ -62,8 +63,24 @@ class TubeMQConsumer {
   AtomicInteger status_;
 };
 
+class TubeMQProducer {
+ public:
+  TubeMQProducer();
+  ~TubeMQProducer();
+
+  bool Start(string& err_info, const ProducerConfig& config);
+  void ShutDown();
+
+  bool Publish(string& err_info, const std::set<std::string>& topic_list);
+
+  bool SendMessage(string& err_info, const Message& message);
+  void SendMessage(const Message& message, const std::function<void(const ErrorCode&)>& callback);
+
+ private:
+  int32_t client_id_;
+  AtomicInteger status_;
+};
 
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_HEADER_H_
-

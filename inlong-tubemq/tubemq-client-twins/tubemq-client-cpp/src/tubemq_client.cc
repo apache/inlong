@@ -25,6 +25,7 @@
 #include <sstream>
 
 #include "baseconsumer.h"
+#include "baseproducer.h"
 #include "client_service.h"
 #include "const_config.h"
 #include "tubemq/tubemq_config.h"
@@ -174,5 +175,99 @@ bool TubeMQConsumer::GetCurConsumedInfo(map<string, ConsumeOffsetInfo>& consume_
   return rmt_client->GetCurConsumedInfo(consume_info_map);
 }
 
-}  // namespace tubemq
+TubeMQProducer::TubeMQProducer() {
+  client_id_ = tb_config::kInvalidValue;
+  status_.Set(0);
+}
 
+TubeMQProducer::~TubeMQProducer() {
+  ShutDown();
+}
+
+bool TubeMQProducer::Start(string& err_info, const ProducerConfig& config) {
+  if (!TubeMQService::Instance()->IsRunning()) {
+    err_info = "TubeMQ Service not started!";
+    return false;
+  }
+
+  if (!status_.CompareAndSet(0, 1)) {
+    err_info = "Duplicated call on TubeMQProducer!";
+    return false;
+  }
+
+  BaseProducerPtr rmt_client = std::make_shared<BaseProducer>();
+  if (rmt_client == nullptr) {
+    err_info = "No memory for create PRODUCER remote object!";
+    status_.CompareAndSet(1, 0);
+    return false;
+  }
+
+  if (!rmt_client->Start(err_info, config)) {
+    // rmt_client->ShutDown();
+    status_.CompareAndSet(1, 0);
+    return false;
+  }
+
+  client_id_ = rmt_client->GetClientIndex();
+  status_.Set(2);
+  err_info = "Ok!";
+  return true;
+}
+
+void TubeMQProducer::ShutDown() {
+  if (!status_.CompareAndSet(2, 0)) {
+    return;
+  }
+  if (client_id_ != tb_config::kInvalidValue) {
+    BaseProducerPtr rmt_client = std::dynamic_pointer_cast<BaseProducer>(
+        TubeMQService::Instance()->GetClientObj(client_id_));
+    if ((rmt_client != nullptr) && (rmt_client->GetClientIndex() == client_id_)) {
+      rmt_client->ShutDown();
+    }
+    client_id_ = tb_config::kInvalidValue;
+  }
+}
+
+bool TubeMQProducer::Publish(string& err_info, const std::set<std::string>& topic_list) {
+  // if (!status_.CompareAndSet(2, 0)) {
+  //   return false;
+  // }
+  if (client_id_ != tb_config::kInvalidValue) {
+    BaseProducerPtr rmt_client = std::dynamic_pointer_cast<BaseProducer>(
+        TubeMQService::Instance()->GetClientObj(client_id_));
+    if ((rmt_client != nullptr) && (rmt_client->GetClientIndex() == client_id_)) {
+      rmt_client->Publish(err_info, topic_list);
+    }
+    // client_id_ = tb_config::kInvalidValue;
+  }
+  err_info = "OK";
+  return true;
+}
+
+bool TubeMQProducer::SendMessage(string& err_info, const Message& message) {
+  // if (!status_.CompareAndSet(2, 0)) {
+  //   return false;
+  // }
+  if (client_id_ != tb_config::kInvalidValue) {
+    BaseProducerPtr rmt_client = std::dynamic_pointer_cast<BaseProducer>(
+        TubeMQService::Instance()->GetClientObj(client_id_));
+    if ((rmt_client != nullptr) && (rmt_client->GetClientIndex() == client_id_)) {
+      rmt_client->SendMessage(err_info, message, true, [](const ErrorCode&) {});
+    }
+    // client_id_ = tb_config::kInvalidValue;
+  }
+  return true;
+}
+
+void TubeMQProducer::SendMessage(const Message& message, const std::function<void(const ErrorCode&)>& callback) {
+  if (client_id_ != tb_config::kInvalidValue) {
+    BaseProducerPtr rmt_client = std::dynamic_pointer_cast<BaseProducer>(
+        TubeMQService::Instance()->GetClientObj(client_id_));
+    if ((rmt_client != nullptr) && (rmt_client->GetClientIndex() == client_id_)) {
+      string err_info;
+      rmt_client->SendMessage(err_info, message, false, callback);
+    }
+  }
+}
+
+}  // namespace tubemq
