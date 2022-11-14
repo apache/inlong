@@ -136,8 +136,8 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         request.setName("esDataNodeName");
         request.setInCharges(GLOBAL_OPERATOR);
         int id = dataNodeService.save(request, GLOBAL_OPERATOR);
-        Assertions.assertEquals(1, id);
         DataNodeInfo info = dataNodeService.get(id);
+        Assertions.assertEquals(DataNodeType.ELASTICSEARCH, info.getType());
         DataNodeOperator operator = dataNodeOperatorFactory.getInstance(info.getType());
         Map<String, String> params = operator.parse2SinkParams(info);
         System.out.println(params);
