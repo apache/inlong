@@ -91,11 +91,12 @@ public class StreamSourceController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Force delete stream source by groupId and streamId")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
-            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
+            @ApiImplicitParam(name = "inlongGroupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "inlongStreamId", dataTypeClass = String.class, required = true)
     })
-    public Response<Boolean> forceDelete(@RequestParam String groupId, @RequestParam String streamId) {
-        return Response.success(sourceService.forceDelete(groupId, streamId, LoginUserUtils.getLoginUser().getName()));
+    public Response<Boolean> forceDelete(@RequestParam String inlongGroupId, @RequestParam String inlongStreamId) {
+        return Response.success(
+                sourceService.forceDelete(inlongGroupId, inlongStreamId, LoginUserUtils.getLoginUser().getName()));
     }
 
 }
