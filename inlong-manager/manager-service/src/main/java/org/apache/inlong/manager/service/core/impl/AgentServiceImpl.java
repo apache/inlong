@@ -283,12 +283,14 @@ public class AgentServiceImpl implements AgentService {
 
     private List<DataConfig> fetchIssuedTasks(TaskRequest taskRequest) {
         final String agentIp = taskRequest.getAgentIp();
+        final String agentClusterName = taskRequest.getAgentIp();
         final String uuid = taskRequest.getUuid();
         List<Integer> statusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_DELETE.getCode(),
                 SourceStatus.TO_BE_ISSUED_RETRY.getCode(), SourceStatus.TO_BE_ISSUED_BACKTRACK.getCode(),
                 SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), SourceStatus.TO_BE_ISSUED_CHECK.getCode(),
                 SourceStatus.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceStatus.TO_BE_ISSUED_MAKEUP.getCode());
-        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndIpAndCluster(statusList, agentIp,
+                agentClusterName, uuid);
         List<DataConfig> issuedTasks = Lists.newArrayList();
         for (StreamSourceEntity issuedTask : sourceEntities) {
             int op = getOp(issuedTask.getStatus());

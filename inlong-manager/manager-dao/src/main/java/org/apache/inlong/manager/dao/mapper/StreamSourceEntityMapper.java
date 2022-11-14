@@ -85,8 +85,8 @@ public interface StreamSourceEntityMapper {
      *
      * @apiNote Sources with is_deleted > 0 should also be returned to agents to clear their local tasks.
      */
-    List<StreamSourceEntity> selectByStatusAndIp(@Param("statusList") List<Integer> statusList,
-            @Param("agentIp") String agentIp, @Param("uuid") String uuid);
+    List<StreamSourceEntity> selectByStatusAndIpAndCluster(@Param("statusList") List<Integer> statusList,
+            @Param("agentIp") String agentIp, @Param("clusterName") String clusterName, @Param("uuid") String uuid);
 
     /**
      * Select all sources by groupIds
