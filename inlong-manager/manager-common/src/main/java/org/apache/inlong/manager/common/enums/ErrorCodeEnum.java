@@ -39,17 +39,17 @@ public enum ErrorCodeEnum {
     GROUP_NOT_FOUND(1001, "Inlong group does not exist/no operation authority"),
     GROUP_DUPLICATE(1002, "Inlong group already exists"),
     GROUP_INFO_INCORRECT(1003, "Group info was incorrect"),
-    GROUP_SAVE_FAILED(1003, "Failed to save/update inlong group"),
-    GROUP_PERMISSION_DENIED(1004, "No permission to access this inlong group"),
-    GROUP_HAS_STREAM(1005, "There are some valid inlong stream for this inlong group"),
+    GROUP_SAVE_FAILED(1004, "Failed to save/update inlong group"),
+    GROUP_PERMISSION_DENIED(1005, "No permission to access this inlong group"),
     GROUP_UPDATE_NOT_ALLOWED(1006, "The current inlong group status does not support modification"),
     GROUP_DELETE_NOT_ALLOWED(1007, "The current inlong group status does not support deletion"),
-    GROUP_ID_UPDATE_NOT_ALLOWED(1008, "The current inlong group status does not support modifying the group id"),
-    GROUP_MIDDLEWARE_UPDATE_NOT_ALLOWED(1011,
-            "The current inlong group status does not support modifying the MQ type"),
+    GROUP_DELETE_HAS_STREAM(1008, "The inlong group contains inlong streams and is not allowed to be deleted"),
+
+    GROUP_ID_UPDATE_NOT_ALLOWED(1010, "The current status does not support modifying the inlong group id"),
+    GROUP_MIDDLEWARE_UPDATE_NOT_ALLOWED(1011, "The current status does not support modifying the MQ type"),
     GROUP_NAME_UPDATE_NOT_ALLOWED(1012, "The current inlong group status does not support modifying the name"),
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
-    GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support lightweight, standard"),
+    GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support lightweight or standard"),
 
     OPT_NOT_ALLOWED_BY_STATUS(1021, "InlongGroup status %s was not allowed to add/update/delete related info"),
 
@@ -74,7 +74,7 @@ public enum ErrorCodeEnum {
     STREAM_EXT_SAVE_FAILED(1207, "Failed to save/update inlong stream extension information"),
     STREAM_FIELD_SAVE_FAILED(1208, "Failed to save/update inlong stream field"),
     STREAM_DELETE_HAS_SOURCE(1209, "The inlong stream contains source info and is not allowed to be deleted"),
-    STREAM_DELETE_HAS_SINK(1210, "The inlong stream contains data sink info and is not allowed to be deleted"),
+    STREAM_DELETE_HAS_SINK(1210, "The inlong stream contains sink info and is not allowed to be deleted"),
 
     SOURCE_TYPE_IS_NULL(1300, "Source type is null"),
     SOURCE_TYPE_NOT_SUPPORT(1301, "Source type '%s' not support"),
