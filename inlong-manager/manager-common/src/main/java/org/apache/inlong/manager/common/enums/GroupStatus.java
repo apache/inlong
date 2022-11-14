@@ -161,9 +161,11 @@ public enum GroupStatus {
      * Temporary group status, adding, deleting and modifying operations are not allowed
      */
     public static boolean isTempStatus(GroupStatus status) {
-        return status == TO_BE_APPROVAL || status == CONFIG_ING
-                || status == SUSPENDING || status == RESTARTING
-                ;
+        return status == TO_BE_APPROVAL
+                || status == CONFIG_ING
+                || status == SUSPENDING
+                || status == RESTARTING
+                || status == DELETING;
     }
 
     public Integer getCode() {
