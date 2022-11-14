@@ -154,7 +154,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         String groupId = request.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity != null) {
-            LOGGER.error("groupId {} has already exists", groupId);
+            LOGGER.error("groupId={} has already exists", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
         }
 
@@ -435,7 +435,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // If the status allowed logic delete, all associated info will be logically deleted.
         // In other status, you need to delete the related "inlong_stream" first.
-        if (!GroupStatus.allowedLogicDelete(curState)) {
+        if (!GroupStatus.notAllowedDelete(curState)) {
             int count = streamService.selectCountByGroupId(groupId);
             if (count >= 1) {
                 LOGGER.error("groupId={} have [{}] inlong streams, deleted failed", groupId, count);
@@ -465,7 +465,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);
 
-        if (GroupStatus.allowedLogicDelete(GroupStatus.forCode(entity.getStatus()))) {
+        if (GroupStatus.notAllowedDelete(GroupStatus.forCode(entity.getStatus()))) {
             streamService.logicDeleteAll(groupId, operator);
         }
 

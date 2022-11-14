@@ -106,19 +106,34 @@ public enum GroupStatus {
     }
 
     /**
-     * Checks whether the given status allows the update.
+     * Checks whether the given status allows updating operate.
      */
     public static boolean notAllowedUpdate(GroupStatus status) {
-        return status == GroupStatus.CONFIG_ING || status == GroupStatus.SUSPENDING
-                || status == GroupStatus.RESTARTING || status == GroupStatus.DELETING;
+        return status == GroupStatus.TO_BE_APPROVAL
+                || status == GroupStatus.CONFIG_ING
+                || status == GroupStatus.SUSPENDING
+                || status == GroupStatus.RESTARTING
+                || status == GroupStatus.DELETING;
     }
 
     /**
-     * Checks whether the given status allows the logical delete
+     * Checks whether the given status allows suspending operate.
      */
-    public static boolean allowedLogicDelete(GroupStatus status) {
-        return status == GroupStatus.DRAFT || status == GroupStatus.TO_BE_SUBMIT
-                || status == GroupStatus.DELETED || status == GroupStatus.FINISH;
+    public static boolean notAllowedSuspend(GroupStatus status) {
+        return !(status == GroupStatus.CONFIG_SUCCESSFUL
+                || status == GroupStatus.RESTARTED
+                || status == GroupStatus.SUSPENDED
+        );
+    }
+
+    /**
+     * Checks whether the given status allows deleting operate.
+     */
+    public static boolean notAllowedDelete(GroupStatus status) {
+        return status == GroupStatus.TO_BE_APPROVAL
+                || status == GroupStatus.CONFIG_ING
+                || status == GroupStatus.SUSPENDING
+                || status == GroupStatus.RESTARTING;
     }
 
     /**

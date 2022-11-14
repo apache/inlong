@@ -47,11 +47,20 @@ public enum StreamStatus {
     }
 
     /**
-     * Checks whether the given status allows the update.
+     * Checks whether the given status allows updating.
      */
     public static boolean notAllowedUpdate(StreamStatus status) {
         return status == StreamStatus.CONFIG_ING || status == StreamStatus.SUSPENDING
                 || status == StreamStatus.RESTARTING || status == StreamStatus.DELETING;
+    }
+
+    /**
+     * Checks whether the given status allows deleting.
+     */
+    public static boolean notAllowedDelete(StreamStatus status) {
+        return status == StreamStatus.CONFIG_ING
+                || status == StreamStatus.RESTARTING
+                || status == StreamStatus.SUSPENDING;
     }
 
     public static StreamStatus forCode(int code) {
