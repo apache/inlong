@@ -47,7 +47,7 @@ public class ElasticsearchClusterOperator extends AbstractClusterOperator {
 
     @Override
     public Boolean accept(String clusterType) {
-        return getClusterType().equals(ClusterType.ELASTICSEARCH);
+        return getClusterType().equals(clusterType);
     }
 
     @Override
