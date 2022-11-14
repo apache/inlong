@@ -75,6 +75,9 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
      */
     private static final Integer FIRST = 0;
 
+    private static final int DEFAULT_DECIMAL_PRECISION = 15;
+    private static final int DEFAULT_DECIMAL_SCALE = 5;
+
     private static final Map<Integer, LogicalType> SQL_TYPE_2_FLINK_TYPE_MAPPING =
             ImmutableMap.<Integer, LogicalType>builder()
                     .put(java.sql.Types.CHAR, new CharType())
@@ -85,8 +88,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
                     .put(java.sql.Types.REAL, new FloatType())
                     .put(java.sql.Types.DOUBLE, new DoubleType())
                     .put(java.sql.Types.FLOAT, new FloatType())
-                    .put(java.sql.Types.DECIMAL, new DecimalType())
-                    .put(java.sql.Types.NUMERIC, new DecimalType())
+                    .put(java.sql.Types.DECIMAL, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
+                    .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
                     .put(java.sql.Types.BIT, new BooleanType())
                     .put(java.sql.Types.TIME, new TimeType())
                     .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
@@ -109,8 +112,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
                     .put(java.sql.Types.REAL, new FloatType())
                     .put(java.sql.Types.DOUBLE, new DoubleType())
                     .put(java.sql.Types.FLOAT, new FloatType())
-                    .put(java.sql.Types.DECIMAL, new DecimalType())
-                    .put(java.sql.Types.NUMERIC, new DecimalType())
+                    .put(java.sql.Types.DECIMAL, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
+                    .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
                     .put(java.sql.Types.BIT, new BooleanType())
                     .put(java.sql.Types.TIME, new VarCharType())
                     .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
