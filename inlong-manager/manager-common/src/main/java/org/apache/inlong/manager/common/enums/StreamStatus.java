@@ -47,7 +47,7 @@ public enum StreamStatus {
     }
 
     /**
-     * Checks whether the given status allows updating.
+     * Checks whether the given status allows updating operate.
      */
     public static boolean notAllowedUpdate(StreamStatus status) {
         return status == StreamStatus.CONFIG_ING || status == StreamStatus.SUSPENDING
@@ -55,7 +55,7 @@ public enum StreamStatus {
     }
 
     /**
-     * Checks whether the given status allows deleting.
+     * Checks whether the given status allows deleting operate.
      */
     public static boolean notAllowedDelete(StreamStatus status) {
         return status == StreamStatus.CONFIG_ING

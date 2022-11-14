@@ -117,16 +117,6 @@ public enum GroupStatus {
     }
 
     /**
-     * Checks whether the given status allows suspending operate.
-     */
-    public static boolean notAllowedSuspend(GroupStatus status) {
-        return !(status == GroupStatus.CONFIG_SUCCESSFUL
-                || status == GroupStatus.RESTARTED
-                || status == GroupStatus.SUSPENDED
-        );
-    }
-
-    /**
      * Checks whether the given status allows deleting operate.
      */
     public static boolean notAllowedDelete(GroupStatus status) {
@@ -134,6 +124,16 @@ public enum GroupStatus {
                 || status == GroupStatus.CONFIG_ING
                 || status == GroupStatus.SUSPENDING
                 || status == GroupStatus.RESTARTING;
+    }
+
+    /**
+     * Checks whether the given status allows suspending operate.
+     */
+    public static boolean allowedSuspend(GroupStatus status) {
+        return status == GroupStatus.CONFIG_SUCCESSFUL
+                || status == GroupStatus.RESTARTED
+                || status == GroupStatus.SUSPENDED
+                || status == GroupStatus.FINISH;
     }
 
     /**

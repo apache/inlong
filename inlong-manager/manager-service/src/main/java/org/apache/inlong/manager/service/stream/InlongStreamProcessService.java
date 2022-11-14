@@ -121,7 +121,7 @@ public class InlongStreamProcessService {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (GroupStatus.notAllowedSuspend(groupStatus)) {
+        if (!GroupStatus.allowedSuspend(groupStatus)) {
             throw new BusinessException(String.format("group status=%s not support suspend stream"
                     + " for groupId=%s", groupStatus, groupId));
         }
