@@ -131,6 +131,9 @@ if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
   cp ${tubemq_all_tarball} ${tubemq_all_dockerfile_path}/target/${tubemq_all_tarball_name}
 fi
 
+echo "=== Start to build ============"
+echo "=== Build docker tag:${tag} ==="
+
 docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/manager:${tag}        inlong-manager/manager-docker/      --build-arg VERSION=${version}
 docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/dataproxy:${tag}      inlong-dataproxy/dataproxy-docker/  --build-arg DATAPROXY_TARBALL=${DATAPROXY_TARBALL}
 docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/audit:${tag}          inlong-audit/audit-docker/          --build-arg AUDIT_TARBALL=${AUDIT_TARBALL}
@@ -142,6 +145,11 @@ if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
   docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-cpp:${tag}    inlong-tubemq/tubemq-docker/tubemq-cpp/
   docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-build:${tag}  inlong-tubemq/tubemq-docker/tubemq-build/
 fi
+
+echo "=== Build images result ======="
+docker images | grep inlong
+
+echo "=== Start to tag =============="
 
 docker tag inlong/manager:${tag}         inlong/manager:latest${POSTFIX}
 docker tag inlong/dataproxy:${tag}       inlong/dataproxy:latest${POSTFIX}
