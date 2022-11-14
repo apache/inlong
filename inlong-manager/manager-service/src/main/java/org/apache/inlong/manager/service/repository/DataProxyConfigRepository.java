@@ -68,6 +68,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -299,6 +300,10 @@ public class DataProxyConfigRepository implements IRepository {
         Map<String, String> mapObj = new HashMap<>();
         try {
             JsonObject obj = gson.fromJson(jsonString, JsonObject.class);
+            // when jsonString is null or empty str, The return value parameter will become null
+            if (Objects.isNull(obj)) {
+                return mapObj;
+            }
             for (String key : obj.keySet()) {
                 JsonElement child = obj.get(key);
                 if (child.isJsonPrimitive()) {
