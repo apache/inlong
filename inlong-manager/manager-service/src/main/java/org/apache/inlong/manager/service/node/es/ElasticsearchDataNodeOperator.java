@@ -45,7 +45,7 @@ public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {
 
     @Override
     public Boolean accept(String dataNodeType) {
-        return getDataNodeType().equals(DataNodeType.ELASTICSEARCH);
+        return getDataNodeType().equals(dataNodeType);
     }
 
     @Override
