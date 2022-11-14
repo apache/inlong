@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.node;
 
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
-import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
@@ -26,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Test for data node
