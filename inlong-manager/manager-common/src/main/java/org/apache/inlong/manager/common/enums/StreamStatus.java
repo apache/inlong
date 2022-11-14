@@ -22,8 +22,6 @@ package org.apache.inlong.manager.common.enums;
  */
 public enum StreamStatus {
 
-    DRAFT(0, "draft"),
-
     NEW(100, "new"),
     CONFIG_ING(110, "in configure"),
     CONFIG_FAILED(120, "configuration failed"),

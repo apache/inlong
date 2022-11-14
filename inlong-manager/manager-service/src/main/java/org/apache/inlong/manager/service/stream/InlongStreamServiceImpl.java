@@ -389,7 +389,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         }
 
         for (InlongStreamEntity entity : entityList) {
-            entity.setIsDeleted(1);
+            entity.setIsDeleted(entity.getId());
             entity.setModifier(operator);
 
             int rowCount = streamMapper.updateByIdentifierSelective(entity);

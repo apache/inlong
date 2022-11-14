@@ -130,7 +130,7 @@ public class InlongStreamProcessService {
         Preconditions.checkNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.SUSPENDED || status == StreamStatus.SUSPENDING) {
-            log.warn("GroupId={}, StreamId={} is already in {}", groupId, streamId, status);
+            log.warn("groupId={}, streamId={} is already in {}", groupId, streamId, status);
             return true;
         }
 
@@ -201,7 +201,7 @@ public class InlongStreamProcessService {
         InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
         GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
-        if (GroupStatus.notAllowedDelete(groupStatus)) {
+        if (GroupStatus.notAllowedTransition(groupStatus, GroupStatus.DELETING)) {
             throw new BusinessException(String.format("group status=%s not support delete stream"
                     + " for groupId=%s", groupStatus, groupId));
         }
@@ -210,7 +210,7 @@ public class InlongStreamProcessService {
         Preconditions.checkNotNull(streamInfo, ErrorCodeEnum.STREAM_NOT_FOUND.getMessage());
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.DELETED || status == StreamStatus.DELETING) {
-            log.warn("GroupId={}, StreamId={} is already in {}", groupId, streamId, status);
+            log.warn("groupId={}, streamId={} is already in {}", groupId, streamId, status);
             return true;
         }
 

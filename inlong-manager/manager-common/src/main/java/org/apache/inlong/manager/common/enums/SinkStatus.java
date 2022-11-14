@@ -22,9 +22,6 @@ package org.apache.inlong.manager.common.enums;
  */
 public enum SinkStatus {
 
-    DRAFT(0, "draft"),
-    DELETED(10, "deleted"),
-
     // Stream sink related status
     NEW(100, "new"),
     CONFIG_ING(110, "in configure"),
