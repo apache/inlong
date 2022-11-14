@@ -201,6 +201,15 @@ class ConsumerConfig : public BaseConfig {
   int32_t shutdown_reb_wait_period_ms_;
 };
 
+class ProducerConfig : public BaseConfig {
+ public:
+  ProducerConfig();
+  ~ProducerConfig();
+
+ private:
+  set<string> pub_topics;
+};
+
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_CONFIGURE_H_

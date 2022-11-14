@@ -706,4 +706,12 @@ const string ConsumerConfig::ToString() const {
   return ss.str();
 }
 
+ProducerConfig::ProducerConfig() {
+
+}
+
+ProducerConfig::~ProducerConfig() {
+
+}
+
 }  // namespace tubemq

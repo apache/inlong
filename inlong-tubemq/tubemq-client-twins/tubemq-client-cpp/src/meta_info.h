@@ -24,8 +24,10 @@
 
 #include <list>
 #include <string>
+#include <chrono>
 
 #include "flowctrl_def.h"
+#include "const_config.h"
 
 namespace tubemq {
 
@@ -79,6 +81,10 @@ class Partition {
   const NodeInfo& GetBrokerInfo() const;
   const uint32_t GetPartitionId() const;
   const string& ToString() const;
+  void IncreRetries(int retries);
+  void ResetRetries();
+  int GetRetries() const;
+  int64_t GetDelayTimestamp() const;
 
  private:
   void buildPartitionKey();
@@ -89,6 +95,8 @@ class Partition {
   uint32_t partition_id_;
   string partition_key_;
   string partition_info_;
+  int retries_ = 0;
+  int64_t delay_timestamp_ = tb_config::kInvalidValue;
 };
 
 class PartitionExt : public Partition {
@@ -182,6 +190,25 @@ class ConsumerEvent {
   list<SubscribeInfo> subscribe_list_;
 };
 
+class TopicInfo {
+ public:
+  TopicInfo(const NodeInfo& broker, const string& topic,
+            int partition_num, int topic_store_num,
+            bool accept_publish, bool accept_subscribe);
+
+  const std::string& GetTopic() const;
+  int GetPartitionNum() const;
+  int GetTopicStoreNum() const;
+  const NodeInfo& GetBroker() const;
+
+ private:
+  NodeInfo broker_;
+  std::string topic_;
+  int partition_num_;
+  int topic_store_num_;
+  bool accept_publish_;
+  bool accept_subscribe_;
+};
 
 }  // namespace tubemq
 

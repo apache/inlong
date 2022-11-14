@@ -63,6 +63,7 @@ class Utils {
     map<string, string>& target_addr_map);
   static bool NeedDnsXfs(const string& masteraddr);
   static string GenBrokerAuthenticateToken(const string& username, const string& usrpassword);
+  static int64_t CurrentTimeMillis();
 };
 
 }  // namespace tubemq

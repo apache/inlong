@@ -103,6 +103,8 @@ static const uint32_t kBrokerTlsPortDef = 8124;
 // invalid value
 static const int32_t kInvalidValue = -2;
 
+static const uint32_t kMetaStoreInsBase = 10000;
+
 // message flag's properties settings
 static const int32_t kMsgFlagIncProperties = 0x01;
 

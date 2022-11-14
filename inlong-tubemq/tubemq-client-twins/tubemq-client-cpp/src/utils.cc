@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <sstream>
 #include <vector>
+#include <chrono>
 #include "const_config.h"
 #include "const_rpc.h"
 
@@ -518,6 +519,10 @@ string Utils::GenBrokerAuthenticateToken(const string& username,
   return "";
 }
 
+int64_t Utils::CurrentTimeMillis() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()).count();
+}
 
 }  // namespace tubemq
 
