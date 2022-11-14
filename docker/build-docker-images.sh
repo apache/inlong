@@ -162,3 +162,7 @@ if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
   docker tag inlong/tubemq-build:${tag} inlong/tubemq-build:latest${POSTFIX}
   docker tag inlong/tubemq-all:${tag}   inlong/tubemq-all:latest${POSTFIX}
 fi
+
+echo "=== Tag images result ========="
+docker images | grep inlong
+echo "=== End to tag ================"
