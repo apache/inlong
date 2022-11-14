@@ -85,8 +85,6 @@ public final class RowDataDebeziumDeserializeSchema
 
     private static final ZoneId ZONE_UTC = ZoneId.of("UTC");
 
-    private static final String shadedPatternPrefix = "org.apache.inlong.sort.cdc.oracle.shaded.";
-
     /**
      * TypeInformation of the produced {@link RowData}. *
      */
