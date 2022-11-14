@@ -17,19 +17,27 @@
 
 package org.apache.inlong.manager.service.node;
 
+import org.apache.inlong.manager.pojo.node.DataNodeInfo;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Map;
+import java.util.logging.Logger;
+
 /**
- * Test for data node}
+ * Test for data node
  */
 public class DataNodeTest extends ServiceBaseTest {
 
     @Autowired
     private DataNodeService dataNodeService;
+
+    @Autowired
+    private DataNodeOperatorFactory dataNodeOperatorFactory;
 
     @Test
     public void testEsDataNode() {
@@ -38,6 +46,10 @@ public class DataNodeTest extends ServiceBaseTest {
         request.setInCharges(GLOBAL_OPERATOR);
         int id = dataNodeService.save(request, GLOBAL_OPERATOR);
         Assertions.assertEquals(1, id);
+        DataNodeInfo info = dataNodeService.get(id);
+        DataNodeOperator operator = dataNodeOperatorFactory.getInstance(info.getType());
+        Map<String, String> params = operator.parse2SinkParams(info);
+        System.out.println(params);
     }
 
 }

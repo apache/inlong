@@ -78,7 +78,7 @@ public class ElasticsearchDataNodeInfo extends DataNodeInfo {
     @ApiModelProperty("audit set name")
     private String auditSetName;
 
-    public ElasticsearchDataNodeInfo () {
+    public ElasticsearchDataNodeInfo() {
         setType(DataNodeType.ELASTICSEARCH);
     }
 
