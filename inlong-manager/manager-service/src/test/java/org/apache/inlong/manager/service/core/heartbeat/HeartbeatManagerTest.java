@@ -66,6 +66,7 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         nodeRequest.setIp(msg.getIp());
         nodeRequest.setPort(Integer.valueOf(msg.getPort()));
         nodeRequest.setProtocolType(ProtocolType.HTTP);
+        nodeRequest.setNodeLoad(0xFFFF);
         InlongClusterNodeEntity clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
         Assertions.assertNotNull(clusterNode);
         Assertions.assertEquals((int) clusterNode.getStatus(), NodeStatus.NORMAL.getStatus());

@@ -44,4 +44,9 @@ public class DataProxyNodeInfo {
      * Node protocol type
      */
     private String protocolType;
+
+    /**
+     * Node last report load
+     */
+    private Integer nodeLoad;
 }
