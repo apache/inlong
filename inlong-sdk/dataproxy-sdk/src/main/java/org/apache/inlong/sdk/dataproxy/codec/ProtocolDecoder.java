@@ -95,7 +95,7 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
         } else if (msgType == 8) {
             // dataTime(4) + body_ver(1) + body_len(4) + body + attr_len(2) + attr + magic(2)
             buffer.skipBytes(4 + 1 + 4); // skip datatime, body_ver and body_len
-            short load = buffer.readShort(); // read from body
+            final short load = buffer.readShort(); // read from body
             int attrLen = buffer.readShort();
             byte[] attrBytes = null;
             if (attrLen > 0) {
