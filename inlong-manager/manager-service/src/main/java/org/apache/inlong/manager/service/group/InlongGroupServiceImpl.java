@@ -138,7 +138,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
 
         // mq type cannot be changed
-        if (!entity.getMqType().equals(request.getMqType()) && GroupStatus.notAllowedUpdateMQ(curStatus)) {
+        if (!entity.getMqType().equals(request.getMqType()) && !GroupStatus.allowedUpdateMQ(curStatus)) {
             String errMsg = String.format("Current status=%s is not allowed to update MQ type", curStatus);
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_NOT_ALLOWED, errMsg);
@@ -154,7 +154,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         String groupId = request.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         if (entity != null) {
-            LOGGER.error("groupId {} has already exists", groupId);
+            LOGGER.error("groupId={} has already exists", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_DUPLICATE);
         }
 
@@ -433,9 +433,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED, errMsg);
         }
 
-        // If the status allowed logic delete, all associated info will be logically deleted.
-        // In other status, you need to delete the related "inlong_stream" first.
-        if (!GroupStatus.allowedLogicDelete(curState)) {
+        // If the status not allowed deleting directly, you need to delete the related "inlong_stream" first,
+        // otherwise, all associated info will be logically deleted.
+        if (GroupStatus.deleteStreamFirst(curState)) {
             int count = streamService.selectCountByGroupId(groupId);
             if (count >= 1) {
                 LOGGER.error("groupId={} have [{}] inlong streams, deleted failed", groupId, count);
@@ -464,8 +464,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);
-
-        if (GroupStatus.allowedLogicDelete(GroupStatus.forCode(entity.getStatus()))) {
+        if (GroupStatus.allowedDeleteSubInfos(GroupStatus.forCode(entity.getStatus()))) {
             streamService.logicDeleteAll(groupId, operator);
         }
 

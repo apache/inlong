@@ -22,8 +22,6 @@ package org.apache.inlong.manager.common.enums;
  */
 public enum StreamStatus {
 
-    DRAFT(0, "draft"),
-
     NEW(100, "new"),
     CONFIG_ING(110, "in configure"),
     CONFIG_FAILED(120, "configuration failed"),
@@ -47,11 +45,20 @@ public enum StreamStatus {
     }
 
     /**
-     * Checks whether the given status allows the update.
+     * Checks whether the given status allows updating operate.
      */
     public static boolean notAllowedUpdate(StreamStatus status) {
         return status == StreamStatus.CONFIG_ING || status == StreamStatus.SUSPENDING
                 || status == StreamStatus.RESTARTING || status == StreamStatus.DELETING;
+    }
+
+    /**
+     * Checks whether the given status allows deleting operate.
+     */
+    public static boolean notAllowedDelete(StreamStatus status) {
+        return status == StreamStatus.CONFIG_ING
+                || status == StreamStatus.RESTARTING
+                || status == StreamStatus.SUSPENDING;
     }
 
     public static StreamStatus forCode(int code) {
