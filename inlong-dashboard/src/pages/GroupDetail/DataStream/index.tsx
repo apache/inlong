@@ -54,6 +54,8 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     inlongStreamId: '',
   });
 
+  const [groupStatus, setGroupStatus] = useState();
+
   const {
     data,
     loading,
@@ -71,6 +73,10 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
       refreshDeps: [options],
     },
   );
+
+  const groupInfo = useRequest(`/group/get/${inlongGroupId}`, {
+    onSuccess: result => setGroupStatus(result.status),
+  });
 
   const onOk = () => {
     return Promise.resolve();
@@ -178,11 +184,14 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
             <Button type="link" onClick={() => onDelete(record)}>
               {t('basic.Delete')}
             </Button>
-            {record?.status && (record?.status === 120 || record?.status === 130) && (
-              <Button type="link" onClick={() => onWorkflow(record)}>
-                {t('meta.Stream.ExecuteWorkflow')}
-              </Button>
-            )}
+            {record?.status &&
+              ((groupStatus === 130 && record?.status === 100) ||
+                groupStatus === 120 ||
+                groupStatus === 130) && (
+                <Button type="link" onClick={() => onWorkflow(record)}>
+                  {t('meta.Stream.ExecuteWorkflow')}
+                </Button>
+              )}
             {record?.status && (record?.status === 120 || record?.status === 130) && (
               <Button type="link" onClick={() => openModal(record)}>
                 {t('pages.GroupDashboard.config.ExecuteLog')}
