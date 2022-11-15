@@ -20,14 +20,13 @@ package org.apache.inlong.sort.doris.table;
 import org.apache.doris.flink.cfg.DorisExecutionOptions;
 import org.apache.doris.flink.cfg.DorisOptions;
 import org.apache.doris.flink.cfg.DorisReadOptions;
-import org.apache.doris.flink.table.DorisDynamicOutputFormat;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
-import org.apache.flink.table.connector.sink.OutputFormatProvider;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.doris.internal.GenericDorisSinkFunction;
+import org.apache.inlong.sort.doris.table.DorisSingleTableFormat.SingleTableFormatBuilder;
 
 /**
  * DorisDynamicTableSink copy from {@link org.apache.doris.flink.table.DorisDynamicTableSink}
@@ -87,7 +86,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
         if (!multipleSink) {
-            DorisDynamicOutputFormat.Builder builder = DorisDynamicOutputFormat.builder()
+            SingleTableFormatBuilder builder = DorisSingleTableFormat.builder()
                     .setFenodes(options.getFenodes())
                     .setUsername(options.getUsername())
                     .setPassword(options.getPassword())
@@ -95,8 +94,11 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                     .setReadOptions(readOptions)
                     .setExecutionOptions(executionOptions)
                     .setFieldDataTypes(tableSchema.getFieldDataTypes())
-                    .setFieldNames(tableSchema.getFieldNames());
-            return OutputFormatProvider.of(builder.build());
+                    .setFieldNames(tableSchema.getFieldNames())
+                    .setInlongMetric(inlongMetric)
+                    .setAuditHostAndPorts(auditHostAndPorts);
+            return SinkFunctionProvider.of(
+                    new GenericDorisSinkFunction<>(builder.build()), parallelism);
         }
         DorisDynamicSchemaOutputFormat.Builder builder = DorisDynamicSchemaOutputFormat.builder()
                 .setFenodes(options.getFenodes())

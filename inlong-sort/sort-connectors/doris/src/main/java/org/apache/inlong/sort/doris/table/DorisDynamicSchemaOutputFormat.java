@@ -70,7 +70,7 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
  * It is used in the multiple sink scenario, in this scenario, we directly convert the data format by
  * 'sink.multiple.format' in the data stream to doris json that is used to load
  */
-public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
+public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> implements DorisOutputFormat<T> {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(DorisDynamicSchemaOutputFormat.class);
