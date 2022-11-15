@@ -56,7 +56,7 @@ public class ClusterNodeRequest {
     @ApiModelProperty(value = "Cluster protocol type")
     private String protocolType;
 
-    @ApiModelProperty(value = "Node current load")
+    @ApiModelProperty(value = "Current load value of the node")
     private Integer nodeLoad;
 
     @ApiModelProperty(value = "Extended params")
