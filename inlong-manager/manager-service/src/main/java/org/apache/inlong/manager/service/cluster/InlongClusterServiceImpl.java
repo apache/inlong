@@ -733,6 +733,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             nodeInfo.setIp(nodeEntity.getIp());
             nodeInfo.setPort(nodeEntity.getPort());
             nodeInfo.setProtocolType(nodeEntity.getProtocolType());
+            nodeInfo.setNodeLoad(nodeEntity.getNodeLoad());
             nodeList.add(nodeInfo);
         }
         response.setNodeList(nodeList);

@@ -192,6 +192,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         nodeRequest.setIp(heartbeat.getIp());
         nodeRequest.setPort(Integer.valueOf(heartbeat.getPort()));
         nodeRequest.setProtocolType(heartbeat.getProtocolType());
+        nodeRequest.setNodeLoad(heartbeat.getLoad());
         return clusterNodeMapper.selectByUniqueKey(nodeRequest);
     }
 
@@ -202,6 +203,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setIp(heartbeat.getIp());
         clusterNode.setPort(Integer.valueOf(heartbeat.getPort()));
         clusterNode.setProtocolType(heartbeat.getProtocolType());
+        clusterNode.setNodeLoad(heartbeat.getLoad());
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setCreator(creator);
         clusterNode.setModifier(creator);
