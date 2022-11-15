@@ -83,7 +83,7 @@ public class OffsetRecordService extends AbstractDaemonService {
             return;
         }
         // get group offset information
-        Map<String, OffsetRecordInfo> groupOffsetMap =
+        Map<String, OffsetHistoryInfo> groupOffsetMap =
                 offsetManager.getOnlineGroupOffsetInfo();
         if (groupOffsetMap == null || groupOffsetMap.isEmpty()) {
             return;
