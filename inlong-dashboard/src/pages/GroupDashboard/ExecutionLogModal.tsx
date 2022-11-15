@@ -47,7 +47,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
       params: {
         ...options,
         inlongGroupId: inlongGroupId,
-        processNames: 'CREATE_GROUP_RESOURCE,CREATE_STREAM_RESOURCE',
+        processNames: 'CREATE_GROUP_RESOURCE',
         taskType: 'ServiceTask',
       },
     },
