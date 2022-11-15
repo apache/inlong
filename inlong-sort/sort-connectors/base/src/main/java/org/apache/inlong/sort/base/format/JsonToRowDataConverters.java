@@ -180,7 +180,9 @@ public class JsonToRowDataConverters implements Serializable {
             // avoid redundant toString and parseBoolean, for better performance
             return jsonNode.asBoolean();
         } else {
-            return Boolean.parseBoolean(jsonNode.asText().trim());
+            String boolStr = jsonNode.asText().trim();
+            // Compatible with tinyint data and bool conversion
+            return (boolStr != null) && ("true".equalsIgnoreCase(boolStr) || "1".equalsIgnoreCase(boolStr));
         }
     }
 
