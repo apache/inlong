@@ -51,8 +51,8 @@ import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
 import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
-import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
-import org.apache.inlong.tubemq.server.broker.offset.RecordItem;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetCsmRecord;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
@@ -462,17 +462,17 @@ public class MessageStoreManager implements StoreService {
      *
      */
     @Override
-    public void getTopicPublishInfos(Map<String, OffsetRecordInfo> groupOffsetMap) {
+    public void getTopicPublishInfos(Map<String, OffsetHistoryInfo> groupOffsetMap) {
         MessageStore store = null;
         Map<Integer, MessageStore> storeMap;
-        Map<String, Map<Integer, RecordItem>> topicOffsetMap;
-        for (Map.Entry<String, OffsetRecordInfo> entry : groupOffsetMap.entrySet()) {
+        Map<String, Map<Integer, OffsetCsmRecord>> topicOffsetMap;
+        for (Map.Entry<String, OffsetHistoryInfo> entry : groupOffsetMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
             topicOffsetMap = entry.getValue().getOffsetMap();
             // Get offset records by topic
-            for (Map.Entry<String, Map<Integer, RecordItem>> entryTopic
+            for (Map.Entry<String, Map<Integer, OffsetCsmRecord>> entryTopic
                     : topicOffsetMap.entrySet()) {
                 if (entryTopic == null
                         || entryTopic.getKey() == null
@@ -484,7 +484,7 @@ public class MessageStoreManager implements StoreService {
                 if (storeMap == null) {
                     continue;
                 }
-                for (Map.Entry<Integer, RecordItem> entryRcd
+                for (Map.Entry<Integer, OffsetCsmRecord> entryRcd
                         : entryTopic.getValue().entrySet()) {
                     store = storeMap.get(entryRcd.getValue().getStoreId());
                     if (store == null) {

@@ -64,7 +64,7 @@ import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
-import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficStatsService;
@@ -719,7 +719,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      * @param waitRetryMs  wait duration on overflow
      * @param strBuff    string buffer
      */
-    public void appendGroupOffsetInfo(Map<String, OffsetRecordInfo> groupOffsetMap,
+    public void appendGroupOffsetInfo(Map<String, OffsetHistoryInfo> groupOffsetMap,
                                       int brokerAddrId, long storeTime, int retryCnt,
                                       long waitRetryMs, StringBuilder strBuff) {
         if (groupOffsetMap == null || groupOffsetMap.isEmpty()) {
@@ -739,7 +739,7 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
         AppendResult appendResult = new AppendResult();
         // get store time
         String sendTime = DateTimeConvertUtils.ms2yyyyMMddHHmm(storeTime);
-        for (Map.Entry<String, OffsetRecordInfo> entry : groupOffsetMap.entrySet()) {
+        for (Map.Entry<String, OffsetHistoryInfo> entry : groupOffsetMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }

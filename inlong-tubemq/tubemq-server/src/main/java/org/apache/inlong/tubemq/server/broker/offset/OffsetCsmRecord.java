@@ -17,33 +17,51 @@
 
 package org.apache.inlong.tubemq.server.broker.offset;
 
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The offset snapshot of the consumer group on the partition.
  */
-public class RecordItem {
+public class OffsetCsmRecord {
     protected int storeId;
-    protected int partitionId;
-    // consume group confirmed offset
-    protected long offsetCfm = 0L;
-    // partition min index offset
+    // store min index offset
     protected long offsetMin = 0L;
-    // partition max index offset
+    // store max index offset
     protected long offsetMax = 0L;
-    // consume lag
-    protected long offsetLag = 0L;
-    // partition min data offset
+    // store min data offset
     protected long dataMin = 0L;
-    // partition max data offset
+    // store max data offset
     protected long dataMax = 0L;
-    // consume data offset
-    protected long dataLag = -1L;
+    // partition consume record
+    protected final Map<Integer, OffsetCsmItem> partitionCsmMap = new HashMap<>();
 
-    public RecordItem(int partitionId, long offsetCfm) {
-        this.partitionId = partitionId % TBaseConstants.META_STORE_INS_BASE;
-        this.offsetCfm = offsetCfm;
-        this.storeId = partitionId / TBaseConstants.META_STORE_INS_BASE;
+    public OffsetCsmRecord(int storeId) {
+        this.storeId = storeId;
+    }
+
+    public void addOffsetCfmInfo(int partitionId, long offsetCfm) {
+        OffsetCsmItem offsetCsmItem = partitionCsmMap.get(partitionId);
+        if (offsetCsmItem == null) {
+            OffsetCsmItem tmpItem = new OffsetCsmItem(partitionId);
+            offsetCsmItem = partitionCsmMap.putIfAbsent(partitionId, tmpItem);
+            if (offsetCsmItem == null) {
+                offsetCsmItem = tmpItem;
+            }
+        }
+        offsetCsmItem.addCfmOffset(offsetCfm);
+    }
+
+    public void addOffsetFetchInfo(int partitionId, long offsetFetch) {
+        OffsetCsmItem offsetCsmItem = partitionCsmMap.get(partitionId);
+        if (offsetCsmItem == null) {
+            OffsetCsmItem tmpItem = new OffsetCsmItem(partitionId);
+            offsetCsmItem = partitionCsmMap.putIfAbsent(partitionId, tmpItem);
+            if (offsetCsmItem == null) {
+                offsetCsmItem = tmpItem;
+            }
+        }
+        offsetCsmItem.addFetchOffset(offsetFetch);
     }
 
     public void addStoreInfo(long offsetMin, long offsetMax,
@@ -52,10 +70,6 @@ public class RecordItem {
         this.offsetMax = offsetMax;
         this.dataMin = dataMin;
         this.dataMax = dataMax;
-        if (offsetMax != TBaseConstants.META_VALUE_UNDEFINED
-                && offsetCfm != TBaseConstants.META_VALUE_UNDEFINED) {
-            offsetLag = offsetMax - offsetCfm;
-        }
     }
 
     public int getStoreId() {

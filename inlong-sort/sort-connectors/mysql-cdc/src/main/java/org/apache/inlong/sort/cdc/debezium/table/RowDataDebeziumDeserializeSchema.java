@@ -630,7 +630,7 @@ public final class RowDataDebeziumDeserializeSchema
         switch (schemaName) {
             case MicroTime.SCHEMA_NAME:
                 Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
-                fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, serverTimeZone));
+                fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, ZONE_UTC));
                 break;
             case Date.SCHEMA_NAME:
                 fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
