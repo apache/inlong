@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -86,7 +85,7 @@ public class KafkaExtractNodeTest extends SerializeBaseTest<KafkaExtractNode> {
         formatMap.put(MetaField.PROCESS_TIME, "AS PROCTIME()");
         formatMap.put(MetaField.TABLE_NAME, "STRING METADATA FROM 'value.table'");
         formatMap.put(MetaField.DATABASE_NAME, "STRING METADATA FROM 'value.database'");
-        formatMap.put(MetaField.OP_TYPE, "STRING METADATA FROM 'value.op-type'");
+        formatMap.put(MetaField.OP_TYPE, "STRING METADATA FROM 'value.type'");
         formatMap.put(MetaField.OP_TS, "TIMESTAMP_LTZ(3) METADATA FROM 'value.event-timestamp'");
         formatMap.put(MetaField.IS_DDL, "BOOLEAN METADATA FROM 'value.is-ddl'");
         formatMap.put(MetaField.TS, "TIMESTAMP_LTZ(3) METADATA FROM 'value.ingestion-timestamp'");

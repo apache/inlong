@@ -55,18 +55,17 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
 
     private static final StringData OP_INSERT = StringData.fromString("INSERT");
     private static final StringData OP_DELETE = StringData.fromString("DELETE");
-
-    private transient GenericRowData reuse;
-
-    /** The serializer to serialize Canal JSON data. */
+    /**
+     * The serializer to serialize Canal JSON data.
+     */
     private final JsonRowDataSerializationSchema jsonSerializer;
-
     private final RowData.FieldGetter[] physicalFieldGetter;
-
     private final RowData.FieldGetter[] wirteableMetadataFieldGetter;
-
-    /** row schema that json serializer can parse output row to json format */
+    /**
+     * row schema that json serializer can parse output row to json format
+     */
     private final RowType jsonRowType;
+    private transient GenericRowData reuse;
 
     /**
      * Constructor of CanalJsonEnhancedSerializationSchema.
@@ -105,6 +104,23 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
                         encodeDecimalAsPlainNumber);
     }
 
+    private static RowType createJsonRowType(DataType physicalDataType, List<WriteableMetadata> writeableMetadata) {
+        // Canal JSON contains other information, e.g. "database", "ts"
+        // but we don't need them
+        // and we don't need "old" , because can not support UPDATE_BEFORE,UPDATE_AFTER
+        DataType root =
+                DataTypes.ROW(
+                        DataTypes.FIELD("data", DataTypes.ARRAY(physicalDataType)),
+                        WriteableMetadata.TYPE.requiredJsonField);
+        // append fields that are required for reading metadata in the root
+        final List<DataTypes.Field> metadataFields =
+                writeableMetadata.stream().filter(m -> m != WriteableMetadata.TYPE)
+                        .map(m -> m.requiredJsonField)
+                        .distinct()
+                        .collect(Collectors.toList());
+        return (RowType) DataTypeUtils.appendRowFields(root, metadataFields).getLogicalType();
+    }
+
     @Override
     public void open(InitializationContext context) {
         reuse = new GenericRowData(2 + wirteableMetadataFieldGetter.length);
@@ -118,7 +134,7 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
             IntStream.range(0, physicalFieldGetter.length)
                     .forEach(targetField ->
                             physicalData.setField(targetField, physicalFieldGetter[targetField].getFieldOrNull(row)));
-            ArrayData arrayData = new GenericArrayData(new RowData[] {physicalData});
+            ArrayData arrayData = new GenericArrayData(new RowData[]{physicalData});
             reuse.setField(0, arrayData);
 
             // mete data injection
@@ -165,23 +181,6 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
         }
     }
 
-    private static RowType createJsonRowType(DataType physicalDataType, List<WriteableMetadata> writeableMetadata) {
-        // Canal JSON contains other information, e.g. "database", "ts"
-        // but we don't need them
-        // and we don't need "old" , because can not support UPDATE_BEFORE,UPDATE_AFTER
-        DataType root =
-                DataTypes.ROW(
-                                DataTypes.FIELD("data", DataTypes.ARRAY(physicalDataType)),
-                                DataTypes.FIELD("type", DataTypes.STRING()));
-        // append fields that are required for reading metadata in the root
-        final List<DataTypes.Field> metadataFields =
-                writeableMetadata.stream()
-                        .map(m -> m.requiredJsonField)
-                        .distinct()
-                        .collect(Collectors.toList());
-        return (RowType) DataTypeUtils.appendRowFields(root, metadataFields).getLogicalType();
-    }
-
     // --------------------------------------------------------------------------------------------
 
     /**
@@ -189,6 +188,7 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
      * Finally all metadata field will splice into a GenericRowData, then json Serializer serialize it into json string.
      */
     interface MetadataConverter extends Serializable {
+
         Object convert(RowData inputRow, int pos);
     }
 }

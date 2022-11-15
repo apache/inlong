@@ -225,10 +225,29 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                     }
                 }),
         // additional metadata
+        /**
+         * It is deprecated, please use {@link this#TYPE} instead
+         */
+        @Deprecated
         OP_TYPE(
                 "op-type",
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("opType", DataTypes.STRING()),
+                new MetadataConverter() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Object convert(GenericRowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
+                        return row.getString(pos);
+                    }
+                }),
+        TYPE(
+                "type",
+                DataTypes.STRING().nullable(),
+                DataTypes.FIELD("type", DataTypes.STRING()),
                 new MetadataConverter() {
                     private static final long serialVersionUID = 1L;
 
