@@ -760,7 +760,7 @@ public final class RowDataDebeziumDeserializeSchema
     private Object getValueWithSchema(Object fieldValue, String schemaName) {
         if (MicroTime.SCHEMA_NAME.equals(schemaName)) {
             Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
-            fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, serverTimeZone));
+            fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, ZONE_UTC));
         } else if (Date.SCHEMA_NAME.equals(schemaName)) {
             fieldValue = dateFormatter.format(LocalDate.ofEpochDay((Integer) fieldValue));
         } else if (ZonedTimestamp.SCHEMA_NAME.equals(schemaName)) {
