@@ -71,6 +71,18 @@ public class AgentServiceImpl implements AgentService {
     private static final int MODULUS_100 = 100;
     private static final int TASK_FETCH_SIZE = 2;
 
+    /**
+     * Need issued status list, not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
+     */
+    private static final List<Integer> NEED_ISSUED_STATUS = Arrays.asList(
+            SourceStatus.TO_BE_ISSUED_DELETE.getCode(),
+            SourceStatus.TO_BE_ISSUED_RETRY.getCode(),
+            SourceStatus.TO_BE_ISSUED_BACKTRACK.getCode(),
+            SourceStatus.TO_BE_ISSUED_FROZEN.getCode(),
+            SourceStatus.TO_BE_ISSUED_CHECK.getCode(),
+            SourceStatus.TO_BE_ISSUED_REDO_METRIC.getCode(),
+            SourceStatus.TO_BE_ISSUED_MAKEUP.getCode());
+
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -153,20 +165,17 @@ public class AgentServiceImpl implements AgentService {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
             propagation = Propagation.REQUIRES_NEW)
     public TaskResult getTaskResult(TaskRequest request) {
-        if (request == null || StringUtils.isBlank(request.getAgentIp())) {
+        if (StringUtils.isBlank(request.getClusterName()) || StringUtils.isBlank(request.getAgentIp())) {
             throw new BusinessException("agent request or agent ip was empty, just return");
         }
 
         List<DataConfig> tasks = Lists.newArrayList();
         // Query the tasks that needed to add or active - without agentIp and uuid
-        List<DataConfig> nonFileTasks = fetchNonFileTasks(request);
-        tasks.addAll(nonFileTasks);
+        tasks.addAll(fetchNonFileTasks(request));
         // Query file collecting tasks
-        List<DataConfig> fileTasks = fetchFileTasks(request);
-        tasks.addAll(fileTasks);
-        // Query other tasks by agentIp and uuid - not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
-        List<DataConfig> needIssuedTasks = fetchIssuedTasks(request);
-        tasks.addAll(needIssuedTasks);
+        tasks.addAll(fetchFileTasks(request));
+        // Query other tasks by agentIp and uuid
+        tasks.addAll(fetchNeedIssuedTasks(request));
 
         // Query pending special commands
         List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
@@ -281,14 +290,9 @@ public class AgentServiceImpl implements AgentService {
         return null;
     }
 
-    private List<DataConfig> fetchIssuedTasks(TaskRequest taskRequest) {
-        final String agentIp = taskRequest.getAgentIp();
-        final String uuid = taskRequest.getUuid();
-        List<Integer> statusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_DELETE.getCode(),
-                SourceStatus.TO_BE_ISSUED_RETRY.getCode(), SourceStatus.TO_BE_ISSUED_BACKTRACK.getCode(),
-                SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), SourceStatus.TO_BE_ISSUED_CHECK.getCode(),
-                SourceStatus.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceStatus.TO_BE_ISSUED_MAKEUP.getCode());
-        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
+    private List<DataConfig> fetchNeedIssuedTasks(TaskRequest taskRequest) {
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndCluster(NEED_ISSUED_STATUS,
+                taskRequest.getClusterName(), taskRequest.getAgentIp(), taskRequest.getUuid());
         List<DataConfig> issuedTasks = Lists.newArrayList();
         for (StreamSourceEntity issuedTask : sourceEntities) {
             int op = getOp(issuedTask.getStatus());

@@ -81,12 +81,12 @@ public interface StreamSourceEntityMapper {
             @Param("clusterName") String clusterName);
 
     /**
-     * Query the sources with status 20x by the given agent IP and agent UUID.
+     * Query the sources by the given status and Agent cluster info.
      *
      * @apiNote Sources with is_deleted > 0 should also be returned to agents to clear their local tasks.
      */
-    List<StreamSourceEntity> selectByStatusAndIp(@Param("statusList") List<Integer> statusList,
-            @Param("agentIp") String agentIp, @Param("uuid") String uuid);
+    List<StreamSourceEntity> selectByStatusAndCluster(@Param("statusList") List<Integer> statusList,
+            @Param("clusterName") String clusterName, @Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
     /**
      * Select all sources by groupIds

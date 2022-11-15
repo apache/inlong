@@ -224,18 +224,17 @@
             and (agent_ip = #{agentIp, jdbcType=VARCHAR} or inlong_cluster_name = #{clusterName, jdbcType=VARCHAR})
         </where>
     </select>
-    <select id="selectByStatusAndIp" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+    <select id="selectByStatusAndCluster" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>
         from stream_source
         <where>
-            agent_ip = #{agentIp, jdbcType=VARCHAR}
-            <if test="statusList != null and statusList.size()>0">
-                and status in
-                <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
-            </if>
+            inlong_cluster_name = #{clusterName, jdbcType=VARCHAR}
+            and agent_ip = #{agentIp, jdbcType=VARCHAR}
+            and `status` in
+            <foreach item="item" index="index" collection="statusList" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
             <if test="uuid != null and uuid != ''">
                 and uuid = #{uuid, jdbcType=VARCHAR}
             </if>
