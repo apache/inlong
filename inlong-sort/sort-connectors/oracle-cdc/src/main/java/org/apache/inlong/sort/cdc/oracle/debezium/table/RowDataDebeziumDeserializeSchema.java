@@ -758,6 +758,9 @@ public final class RowDataDebeziumDeserializeSchema
      * @return the extracted data with schema
      */
     private Object getValueWithSchema(Object fieldValue, String schemaName) {
+        if (fieldValue == null) {
+            return null;
+        }
         if (MicroTime.SCHEMA_NAME.equals(schemaName)) {
             Instant instant = Instant.ofEpochMilli((Long) fieldValue / 1000);
             fieldValue = timeFormatter.format(LocalDateTime.ofInstant(instant, ZONE_UTC));
