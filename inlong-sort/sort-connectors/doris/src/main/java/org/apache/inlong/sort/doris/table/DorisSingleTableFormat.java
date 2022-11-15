@@ -194,7 +194,7 @@ public class DorisSingleTableFormat<T> extends DorisDynamicOutputFormat<T> imple
         @SuppressWarnings({"rawtypes"})
         public DorisSingleTableFormat build() {
             LogicalType[] logicalTypes = Arrays.stream(this.fieldDataTypes)
-                    .map(DataType::getLogicalType).toArray((x$0) -> new LogicalType[x$0]);
+                    .map(DataType::getLogicalType).toArray(LogicalType[]::new);
             return new DorisSingleTableFormat(
                     this.optionsBuilder.build(),
                     this.readOptions,
