@@ -104,7 +104,8 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
             }
             buffer.skipBytes(2); // skip magic
 
-            EncodeObject object = new EncodeObject(new String(attrBytes, StandardCharsets.UTF_8));
+            String attrs = (attrBytes == null ? "" : new String(attrBytes, StandardCharsets.UTF_8));
+            EncodeObject object = new EncodeObject(attrs);
             object.setMsgtype(8);
             object.setLoad(load);
             out.add(object);
