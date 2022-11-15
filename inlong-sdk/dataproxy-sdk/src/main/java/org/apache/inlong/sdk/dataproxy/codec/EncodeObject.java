@@ -67,11 +67,7 @@ public class EncodeObject {
     private String errMsg;
     private String dpIp;
 
-    /* Used by de_serialization. msgtype=8*/
-    public EncodeObject() {
-    }
-
-    /* Used by de_serialization. msgtype=7*/
+    /* Used by de_serialization. msgtype=7/8 */
     public EncodeObject(String attributes) {
         handleAttr(attributes);
     }
