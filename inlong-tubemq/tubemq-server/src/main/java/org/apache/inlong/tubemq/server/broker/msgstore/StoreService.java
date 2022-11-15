@@ -21,7 +21,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.inlong.tubemq.server.broker.offset.OffsetRecordInfo;
+
+import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 
 /**
@@ -44,5 +45,5 @@ public interface StoreService {
     // Add the current storage offset values to
     //  the consumption partition records of the specified consumption group
     //  include maximum and minimum, and consume lag
-    void getTopicPublishInfos(Map<String, OffsetRecordInfo> groupOffsetMap);
+    void getTopicPublishInfos(Map<String, OffsetHistoryInfo> groupOffsetMap);
 }
