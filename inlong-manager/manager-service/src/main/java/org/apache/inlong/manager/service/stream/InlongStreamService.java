@@ -94,13 +94,22 @@ public interface InlongStreamService {
     List<InlongStreamBriefInfo> listBriefWithSink(String groupId);
 
     /**
-     * InlongStream info that needs to be modified
+     * Update the InlongStream info
      *
      * @param request inlong stream info that needs to be modified
      * @param operator Edit person's name
      * @return whether succeed
      */
     Boolean update(InlongStreamRequest request, String operator);
+
+    /**
+     * Update the InlongStream - not check the InlongGroup status to which the stream belongs.
+     *
+     * @param request inlong stream info that needs to be modified
+     * @param operator Edit person's name
+     * @return whether succeed
+     */
+    Boolean updateWithoutCheck(InlongStreamRequest request, String operator);
 
     /**
      * Delete the specified inlong stream.
