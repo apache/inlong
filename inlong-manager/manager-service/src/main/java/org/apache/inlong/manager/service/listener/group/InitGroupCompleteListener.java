@@ -76,8 +76,8 @@ public class InitGroupCompleteListener implements ProcessEventListener {
             // update inlong group status and other info
             InlongGroupInfo groupInfo = form.getGroupInfo();
             String operator = context.getOperator();
-            Integer nextStatus = InlongGroupUtils.isBatchTask(form.getGroupInfo()) ?
-                    GroupStatus.FINISH.getCode() : GroupStatus.CONFIG_SUCCESSFUL.getCode();
+            Integer nextStatus = InlongGroupUtils.isBatchTask(form.getGroupInfo())
+                    ? GroupStatus.FINISH.getCode() : GroupStatus.CONFIG_SUCCESSFUL.getCode();
             groupService.updateStatus(groupId, nextStatus, operator);
 
             InlongGroupEntity existGroup = groupMapper.selectByGroupId(groupId);
