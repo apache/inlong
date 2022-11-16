@@ -129,7 +129,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 if (clusterNode == null) {
                     handlerNum += insertClusterNode(clusterInfo, heartbeatMsg, clusterInfo.getCreator());
                 } else {
-                    handlerNum += updateClusterNode(clusterNode);
+                    handlerNum += updateClusterNode(clusterNode, heartbeatMsg);
                 }
             }
         }
@@ -192,7 +192,6 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         nodeRequest.setIp(heartbeat.getIp());
         nodeRequest.setPort(Integer.valueOf(heartbeat.getPort()));
         nodeRequest.setProtocolType(heartbeat.getProtocolType());
-        nodeRequest.setNodeLoad(heartbeat.getLoad());
         return clusterNodeMapper.selectByUniqueKey(nodeRequest);
     }
 
@@ -211,8 +210,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         return clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
     }
 
-    private int updateClusterNode(InlongClusterNodeEntity clusterNode) {
+    private int updateClusterNode(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
+        clusterNode.setNodeLoad(heartbeat.getLoad());
         return clusterNodeMapper.updateById(clusterNode);
     }
 

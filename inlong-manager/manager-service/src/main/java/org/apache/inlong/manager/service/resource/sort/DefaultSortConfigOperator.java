@@ -28,7 +28,6 @@ import org.apache.inlong.manager.pojo.sort.util.LoadNodeUtils;
 import org.apache.inlong.manager.pojo.sort.util.NodeRelationUtils;
 import org.apache.inlong.manager.pojo.sort.util.TransformNodeUtils;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
@@ -240,26 +239,6 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
 
         groupInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
-    }
-
-    /**
-     * Add config into inlong stream ext info
-     */
-    private void addToStreamExt(List<InlongStreamInfo> streamInfos, String value) {
-        streamInfos.forEach(streamInfo -> {
-            if (streamInfo.getExtList() == null) {
-                streamInfo.setExtList(new ArrayList<>());
-            }
-
-            InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
-            extInfo.setInlongGroupId(streamInfo.getInlongGroupId());
-            extInfo.setInlongStreamId(streamInfo.getInlongStreamId());
-            extInfo.setKeyName(InlongConstants.DATAFLOW);
-            extInfo.setKeyValue(value);
-
-            streamInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
-            streamInfo.getExtList().add(extInfo);
-        });
     }
 
 }
