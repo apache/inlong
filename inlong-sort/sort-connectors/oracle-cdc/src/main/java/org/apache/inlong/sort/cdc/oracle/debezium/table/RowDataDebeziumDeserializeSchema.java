@@ -773,6 +773,9 @@ public final class RowDataDebeziumDeserializeSchema
         } else if (Timestamp.SCHEMA_NAME.equals(schemaName)) {
             Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
             fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
+        } else if (MicroTimestamp.SCHEMA_NAME.equals(schemaName)) {
+            Instant instantTime = Instant.ofEpochMilli((Long) fieldValue / 1000);
+            fieldValue = LocalDateTime.ofInstant(instantTime, ZONE_UTC).toString();
         }
         return fieldValue;
     }
