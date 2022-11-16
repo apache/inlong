@@ -74,7 +74,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     },
   );
 
-  const groupInfo = useRequest(`/group/get/${inlongGroupId}`, {
+  useRequest(`/group/get/${inlongGroupId}`, {
     onSuccess: result => setGroupStatus(result.status),
   });
 
@@ -184,14 +184,11 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
             <Button type="link" onClick={() => onDelete(record)}>
               {t('basic.Delete')}
             </Button>
-            {record?.status &&
-              ((groupStatus === 130 && record?.status === 100) ||
-                groupStatus === 120 ||
-                groupStatus === 130) && (
-                <Button type="link" onClick={() => onWorkflow(record)}>
-                  {t('meta.Stream.ExecuteWorkflow')}
-                </Button>
-              )}
+            {record?.status && (groupStatus === 120 || groupStatus === 130) && (
+              <Button type="link" onClick={() => onWorkflow(record)}>
+                {t('meta.Stream.ExecuteWorkflow')}
+              </Button>
+            )}
             {record?.status && (record?.status === 120 || record?.status === 130) && (
               <Button type="link" onClick={() => openModal(record)}>
                 {t('pages.GroupDashboard.config.ExecuteLog')}
