@@ -146,10 +146,12 @@ if [ "$BUILD_ARCH" = "$ARCH_X86" ]; then
   docker ${USE_BUILDX} build ${USE_PLATFORM} ${TYPE} -t inlong/tubemq-build:${tag}  inlong-tubemq/tubemq-docker/tubemq-build/
 fi
 
+echo "=== End build ================="
 echo "=== Build images result ======="
 docker images | grep inlong
 
 echo "=== Start to tag =============="
+echo "=== Tag postfix:${POSTFIX} ===="
 
 docker tag inlong/manager:${tag}         inlong/manager:latest${POSTFIX}
 docker tag inlong/dataproxy:${tag}       inlong/dataproxy:latest${POSTFIX}
@@ -165,4 +167,4 @@ fi
 
 echo "=== Tag images result ========="
 docker images | grep inlong
-echo "=== End to tag ================"
+echo "=== End tag ==================="
