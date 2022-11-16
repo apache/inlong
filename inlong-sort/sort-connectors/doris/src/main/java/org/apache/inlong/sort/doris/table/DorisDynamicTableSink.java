@@ -26,7 +26,6 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.doris.internal.GenericDorisSinkFunction;
-import org.apache.inlong.sort.doris.table.DorisSingleTableFormat.SingleTableFormatBuilder;
 
 /**
  * DorisDynamicTableSink copy from {@link org.apache.doris.flink.table.DorisDynamicTableSink}
@@ -86,7 +85,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
         if (!multipleSink) {
-            SingleTableFormatBuilder builder = DorisSingleTableFormat.builder()
+            DorisDynamicSchemaOutputFormat.Builder builder =  DorisDynamicSchemaOutputFormat.builder()
                     .setFenodes(options.getFenodes())
                     .setUsername(options.getUsername())
                     .setPassword(options.getPassword())
@@ -96,7 +95,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                     .setFieldDataTypes(tableSchema.getFieldDataTypes())
                     .setFieldNames(tableSchema.getFieldNames())
                     .setInlongMetric(inlongMetric)
-                    .setAuditHostAndPorts(auditHostAndPorts);
+                    .setAuditHostAndPorts(auditHostAndPorts)
+                    .setIsSingle(true);
             return SinkFunctionProvider.of(
                     new GenericDorisSinkFunction<>(builder.build()), parallelism);
         }
@@ -111,7 +111,9 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 .setDynamicSchemaFormat(sinkMultipleFormat)
                 .setIgnoreSingleTableErrors(ignoreSingleTableErrors)
                 .setInlongMetric(inlongMetric)
-                .setAuditHostAndPorts(auditHostAndPorts);
+                .setAuditHostAndPorts(auditHostAndPorts)
+                .setIsSingle(false);
+
         return SinkFunctionProvider.of(
                 new GenericDorisSinkFunction<>(builder.build()), parallelism);
     }

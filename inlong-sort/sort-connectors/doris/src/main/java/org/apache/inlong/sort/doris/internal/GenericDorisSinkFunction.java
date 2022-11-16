@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sort.doris.internal;
 
+import org.apache.doris.flink.table.DorisDynamicOutputFormat;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -26,7 +27,7 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.doris.table.DorisOutputFormat;
+import org.apache.inlong.sort.doris.table.DorisDynamicSchemaOutputFormat;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -40,9 +41,9 @@ import java.io.IOException;
 public class GenericDorisSinkFunction<T> extends RichSinkFunction<T>
         implements CheckpointedFunction {
 
-    private final DorisOutputFormat<T> outputFormat;
+    private final DorisDynamicSchemaOutputFormat<T> outputFormat;
 
-    public GenericDorisSinkFunction(@Nonnull DorisOutputFormat<T> outputFormat) {
+    public GenericDorisSinkFunction(@Nonnull DorisDynamicSchemaOutputFormat<T> outputFormat) {
         this.outputFormat = Preconditions.checkNotNull(outputFormat);
     }
 

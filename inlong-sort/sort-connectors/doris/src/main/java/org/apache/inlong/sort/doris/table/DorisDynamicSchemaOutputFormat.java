@@ -24,6 +24,7 @@ import org.apache.doris.flink.cfg.DorisReadOptions;
 import org.apache.doris.flink.exception.DorisException;
 import org.apache.doris.flink.exception.StreamLoadException;
 import org.apache.doris.flink.rest.RestService;
+import org.apache.doris.flink.rest.models.Schema;
 import org.apache.doris.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.api.common.state.ListState;
@@ -36,6 +37,8 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
@@ -51,16 +54,24 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static org.apache.flink.table.data.RowData.createFieldGetter;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -92,10 +103,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
     private final DorisOptions options;
     private final DorisReadOptions readOptions;
     private final DorisExecutionOptions executionOptions;
-    private final String databasePattern;
-    private final String tablePattern;
-    private final String dynamicSchemaFormat;
-    private final boolean ignoreSingleTableErrors;
+    private volatile String tableIdentifier;
+    private volatile String databasePattern;
+    private volatile String tablePattern;
+    private volatile String dynamicSchemaFormat;
+    private volatile boolean ignoreSingleTableErrors;
     private final Map<String, Exception> flushExceptionMap = new HashMap<>();
     private final AtomicLong readInNum = new AtomicLong(0);
     private final AtomicLong writeOutNum = new AtomicLong(0);
@@ -103,6 +115,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
     private final AtomicLong ddlNum = new AtomicLong(0);
     private final String inlongMetric;
     private final String auditHostAndPorts;
+    private final boolean isSingle;
     private long batchBytes = 0L;
     private int size;
     private DorisStreamLoad dorisStreamLoad;
@@ -114,6 +127,22 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
     private transient SinkMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
+    private volatile String[] fieldNames;
+    private volatile boolean jsonFormat;
+    private static final String FORMAT_JSON_VALUE = "json";
+    private static final String FORMAT_KEY = "format";
+    private String keysType;
+    private volatile RowData.FieldGetter[] fieldGetters;
+    private static final String FIELD_DELIMITER_KEY = "column_separator";
+    private static final String FIELD_DELIMITER_DEFAULT = "\t";
+    private static final String LINE_DELIMITER_KEY = "line_delimiter";
+    private static final String LINE_DELIMITER_DEFAULT = "\n";
+    private static final String NULL_VALUE = "\\N";
+    private static final String ESCAPE_DELIMITERS_KEY = "escape_delimiters";
+    private static final String ESCAPE_DELIMITERS_DEFAULT = "false";
+    private static final String UNIQUE_KEYS_TYPE = "UNIQUE_KEYS";
+    private String fieldDelimiter;
+    private String lineDelimiter;
 
     public DorisDynamicSchemaOutputFormat(DorisOptions option,
             DorisReadOptions readOptions,
@@ -123,7 +152,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
             String tablePattern,
             boolean ignoreSingleTableErrors,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts,
+            boolean isSingle) {
         this.options = option;
         this.readOptions = readOptions;
         this.executionOptions = executionOptions;
@@ -131,8 +161,90 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
         this.databasePattern = databasePattern;
         this.tablePattern = tablePattern;
         this.ignoreSingleTableErrors = ignoreSingleTableErrors;
+        this.isSingle = isSingle;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+    }
+
+    public DorisDynamicSchemaOutputFormat(DorisOptions option,
+            DorisReadOptions readOptions,
+            DorisExecutionOptions executionOptions,
+            String tableIdentifier,
+            LogicalType[] logicalTypes,
+            String[] fieldNames,
+            String inlongMetric,
+            String auditHostAndPorts,
+            boolean isSingle) {
+        this.options = option;
+        this.readOptions = readOptions;
+        this.executionOptions = executionOptions;
+        this.tableIdentifier = tableIdentifier;
+        this.fieldNames = fieldNames;
+        this.isSingle = isSingle;
+        this.inlongMetric = inlongMetric;
+        this.auditHostAndPorts = auditHostAndPorts;
+
+        this.jsonFormat = FORMAT_JSON_VALUE.equals(executionOptions.getStreamLoadProp().getProperty(FORMAT_KEY));
+        this.keysType = parseKeysType();
+
+
+        handleStreamloadProp();
+        this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
+        for (int i = 0; i < logicalTypes.length; i++) {
+            fieldGetters[i] = createFieldGetter(logicalTypes[i], i);
+        }
+    }
+
+    private String parseKeysType() {
+        try {
+            Schema schema = RestService.getSchema(options, readOptions, LOG);
+            return schema.getKeysType();
+        } catch (DorisException e) {
+            throw new RuntimeException("Failed fetch doris table schema: " + options.getTableIdentifier());
+        }
+    }
+
+    private void handleStreamloadProp() {
+        Properties streamLoadProp = executionOptions.getStreamLoadProp();
+        boolean ifEscape = Boolean.parseBoolean(streamLoadProp.getProperty(ESCAPE_DELIMITERS_KEY, ESCAPE_DELIMITERS_DEFAULT));
+        if (ifEscape) {
+            this.fieldDelimiter = escapeString(streamLoadProp.getProperty(FIELD_DELIMITER_KEY,
+                    FIELD_DELIMITER_DEFAULT));
+            this.lineDelimiter = escapeString(streamLoadProp.getProperty(LINE_DELIMITER_KEY,
+                    LINE_DELIMITER_DEFAULT));
+
+            if (streamLoadProp.contains(ESCAPE_DELIMITERS_KEY)) {
+                streamLoadProp.remove(ESCAPE_DELIMITERS_KEY);
+            }
+        } else {
+            this.fieldDelimiter = streamLoadProp.getProperty(FIELD_DELIMITER_KEY,
+                    FIELD_DELIMITER_DEFAULT);
+            this.lineDelimiter = streamLoadProp.getProperty(LINE_DELIMITER_KEY,
+                    LINE_DELIMITER_DEFAULT);
+        }
+
+        //add column key when fieldNames is not empty
+        if (!streamLoadProp.containsKey(COLUMNS_KEY) && fieldNames != null && fieldNames.length > 0) {
+            String columns = String.join(",", Arrays.stream(fieldNames)
+                    .map(item -> String.format("`%s`", item.trim().replace("`", "")))
+                    .collect(Collectors.toList()));
+            if (enableBatchDelete()) {
+                columns = String.format("%s,%s", columns, DORIS_DELETE_SIGN);
+            }
+            streamLoadProp.put(COLUMNS_KEY, columns);
+        }
+    }
+
+    private String escapeString(String s) {
+        Pattern p = Pattern.compile("\\\\x(\\d{2})");
+        Matcher m = p.matcher(s);
+
+        StringBuffer buf = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(buf, String.format("%s", (char) Integer.parseInt(m.group(1))));
+        }
+        m.appendTail(buf);
+        return buf.toString();
     }
 
     /**
@@ -159,8 +271,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
                 options.getUsername(),
                 options.getPassword(),
                 executionOptions.getStreamLoadProp());
-        jsonDynamicSchemaFormat = (JsonDynamicSchemaFormat)
-                DynamicSchemaFormatFactory.getFormat(dynamicSchemaFormat);
+        // Only support dynamic topic when the topicPattern is specified
+        // and the valueSerialization is RawFormatSerializationSchema
+        if (!isSingle && StringUtils.isNotBlank(dynamicSchemaFormat)) {
+            jsonDynamicSchemaFormat =
+                    (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(dynamicSchemaFormat);
+        }
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(inlongMetric)
                 .withInlongAudit(auditHostAndPorts)
@@ -205,8 +321,63 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
         }
     }
 
+
+    public void addSingle(T row) throws IOException {
+        if (row instanceof RowData) {
+            RowData rowData = (RowData) row;
+            Map<String, String> valueMap = new HashMap<>();
+            StringJoiner value = new StringJoiner(this.fieldDelimiter);
+            for (int i = 0; i < rowData.getArity() && i < fieldGetters.length; ++i) {
+                Object field = fieldGetters[i].getFieldOrNull(rowData);
+                if (jsonFormat) {
+                    String data = field != null ? field.toString() : null;
+                    valueMap.put(this.fieldNames[i], data);
+                    batchBytes += this.fieldNames[i].getBytes(StandardCharsets.UTF_8).length;
+                    if (data != null) {
+                        batchBytes += data.getBytes(StandardCharsets.UTF_8).length;
+                    }
+                } else {
+                    String data = field != null ? field.toString() : NULL_VALUE;
+                    value.add(data);
+                    batchBytes += data.getBytes(StandardCharsets.UTF_8).length;
+                }
+            }
+            // add doris delete sign
+            if (enableBatchDelete()) {
+                if (jsonFormat) {
+                    valueMap.put(DORIS_DELETE_SIGN, parseDeleteSign(rowData.getRowKind()));
+                } else {
+                    value.add(parseDeleteSign(rowData.getRowKind()));
+                }
+            }
+            Object data = jsonFormat ? valueMap : value.toString();
+            batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
+                    .add(data);
+        } else if (row instanceof String) {
+            batchBytes += ((String) row).getBytes(StandardCharsets.UTF_8).length;
+            batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
+                    .add(row);
+        } else {
+            throw new RuntimeException("The type of element should be 'RowData' or 'String' only.");
+        }
+    }
+
+    private String parseDeleteSign(RowKind rowKind) {
+        if (RowKind.INSERT.equals(rowKind) || RowKind.UPDATE_AFTER.equals(rowKind)) {
+            return "0";
+        } else if (RowKind.DELETE.equals(rowKind) || RowKind.UPDATE_BEFORE.equals(rowKind)) {
+            return "1";
+        } else {
+            throw new RuntimeException("Unrecognized row kind:" + rowKind.toString());
+        }
+    }
+
     @SuppressWarnings({"unchecked"})
     private void addBatch(T row) throws IOException {
+        if (isSingle) {
+            addSingle(row);
+            return;
+        }
         if (row instanceof RowData) {
             RowData rowData = (RowData) row;
             JsonNode rootNode = jsonDynamicSchemaFormat.deserialize(rowData.getBinary(0));
@@ -273,7 +444,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
                             break;
                         default:
                             errorNum.incrementAndGet();
-                            throw new RuntimeException("Unrecognized row kind:" + rowKind.toString());
+                            throw new RuntimeException("Unrecognized row kind:" + rowKind);
                     }
                 }
             }
@@ -352,6 +523,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
         }
     }
 
+
     @SuppressWarnings({"rawtypes"})
     public synchronized void flush() {
         flushing = true;
@@ -359,7 +531,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
             flushing = false;
             return;
         }
+
+        //String, list<Map<String,String>>
         for (Entry<String, List> kvs : batchMap.entrySet()) {
+            LOG.info("flushing table {} with batch {}",kvs.getKey(),kvs.getValue());
             flushSingleTable(kvs.getKey(), kvs.getValue());
         }
         if (!errorTables.isEmpty()) {
@@ -374,11 +549,25 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
         flushing = false;
     }
 
+
+
     @SuppressWarnings({"rawtypes"})
     private void flushSingleTable(String tableIdentifier, List values) {
         if (checkFlushException(tableIdentifier) || values == null || values.isEmpty()) {
             return;
         }
+
+        //for each entry in batchmap,print it
+        try{
+            for(Object map1:values){
+                Map<String, String> map = (Map<String, String>) map1;
+                map.forEach((k,v) -> LOG.info("flushing to table {} with values {} : {}",
+                        tableIdentifier,k,v));
+            }
+        } catch(Exception e) {
+            LOG.warn("print batch map failed, error is", e);
+        }
+
         String loadValue = null;
         try {
             loadValue = OBJECT_MAPPER.writeValueAsString(values);
@@ -493,8 +682,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
         private String databasePattern;
         private String tablePattern;
         private boolean ignoreSingleTableErrors;
+        private boolean isSingle;
         private String inlongMetric;
         private String auditHostAndPorts;
+        private String tableIdentifier;
+        private DataType[] fieldDataTypes;
+        private String[] fieldNames;
 
         public Builder() {
             this.optionsBuilder = DorisOptions.builder().setTableIdentifier("");
@@ -512,6 +705,21 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
 
         public DorisDynamicSchemaOutputFormat.Builder setPassword(String password) {
             this.optionsBuilder.setPassword(password);
+            return this;
+        }
+
+        public DorisDynamicSchemaOutputFormat.Builder setTableIdentifier(String tableIdentifier) {
+            this.tableIdentifier = tableIdentifier;
+            return this;
+        }
+
+        public DorisDynamicSchemaOutputFormat.Builder setFieldDataTypes(DataType[] fieldDataTypes) {
+            this.fieldDataTypes = fieldDataTypes;
+            return this;
+        }
+
+        public DorisDynamicSchemaOutputFormat.Builder setFieldNames(String[] fieldNames) {
+            this.fieldNames = fieldNames;
             return this;
         }
 
@@ -546,6 +754,11 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
             return this;
         }
 
+        public DorisDynamicSchemaOutputFormat.Builder setIsSingle(boolean isSingle) {
+            this.isSingle = isSingle;
+            return this;
+        }
+
         public DorisDynamicSchemaOutputFormat.Builder setInlongMetric(String inlongMetric) {
             this.inlongMetric = inlongMetric;
             return this;
@@ -558,10 +771,19 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
 
         @SuppressWarnings({"rawtypes"})
         public DorisDynamicSchemaOutputFormat build() {
+            if (this.isSingle) {
+                LogicalType[] logicalTypes = Arrays.stream(fieldDataTypes)
+                        .map(DataType::getLogicalType).toArray(LogicalType[]::new);
+
+                return new DorisDynamicSchemaOutputFormat(
+                        optionsBuilder.build(), readOptions, executionOptions, tableIdentifier,
+                        logicalTypes, fieldNames,
+                        inlongMetric, auditHostAndPorts, isSingle);
+            }
             return new DorisDynamicSchemaOutputFormat(
                     optionsBuilder.build(), readOptions, executionOptions,
                     dynamicSchemaFormat, databasePattern, tablePattern,
-                    ignoreSingleTableErrors, inlongMetric, auditHostAndPorts);
+                    ignoreSingleTableErrors, inlongMetric, auditHostAndPorts, isSingle);
         }
     }
 }
