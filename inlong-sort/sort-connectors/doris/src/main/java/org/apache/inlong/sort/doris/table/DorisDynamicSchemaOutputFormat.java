@@ -72,6 +72,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.table.data.RowData.createFieldGetter;
+
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -81,7 +82,7 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
  * It is used in the multiple sink scenario, in this scenario, we directly convert the data format by
  * 'sink.multiple.format' in the data stream to doris json that is used to load
  */
-public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> implements DorisOutputFormat<T> {
+public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(DorisDynamicSchemaOutputFormat.class);
@@ -300,7 +301,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
 
     private boolean checkFlushException(String tableIdentifier) {
         Exception flushException = flushExceptionMap.get(tableIdentifier);
-        if (flushException == null) {
+        if (isSingle || flushException == null) {
             return false;
         }
         if (!ignoreSingleTableErrors) {
@@ -531,8 +532,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
             flushing = false;
             return;
         }
-
-        //String, list<Map<String,String>>
         for (Entry<String, List> kvs : batchMap.entrySet()) {
             LOG.info("flushing table {} with batch {}",kvs.getKey(),kvs.getValue());
             flushSingleTable(kvs.getKey(), kvs.getValue());
@@ -557,20 +556,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
             return;
         }
 
-        //for each entry in batchmap,print it
-        try{
-            for(Object map1:values){
-                Map<String, String> map = (Map<String, String>) map1;
-                map.forEach((k,v) -> LOG.info("flushing to table {} with values {} : {}",
-                        tableIdentifier,k,v));
-            }
-        } catch(Exception e) {
-            LOG.warn("print batch map failed, error is", e);
-        }
-
         String loadValue = null;
         try {
             loadValue = OBJECT_MAPPER.writeValueAsString(values);
+            LOG.info("loading value:{}", loadValue);
             RespContent respContent = load(tableIdentifier, loadValue);
             try {
                 if (null != metricData && null != respContent) {
@@ -772,11 +761,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> imple
         @SuppressWarnings({"rawtypes"})
         public DorisDynamicSchemaOutputFormat build() {
             if (this.isSingle) {
+                LOG.info("single table identifier:{}", tableIdentifier);
                 LogicalType[] logicalTypes = Arrays.stream(fieldDataTypes)
                         .map(DataType::getLogicalType).toArray(LogicalType[]::new);
 
                 return new DorisDynamicSchemaOutputFormat(
-                        optionsBuilder.build(), readOptions, executionOptions, tableIdentifier,
+                        optionsBuilder.setTableIdentifier(tableIdentifier).build(), readOptions, executionOptions, tableIdentifier,
                         logicalTypes, fieldNames,
                         inlongMetric, auditHostAndPorts, isSingle);
             }
