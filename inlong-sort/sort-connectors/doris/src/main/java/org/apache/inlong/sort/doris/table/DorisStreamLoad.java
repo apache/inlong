@@ -109,6 +109,7 @@ public class DorisStreamLoad implements Serializable {
     }
 
     private LoadResponse loadBatch(String db, String tbl, String value) {
+        LOG.info("load batch start");
         String label = streamLoadProp.getProperty("label");
         if (StringUtils.isBlank(label)) {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
@@ -119,6 +120,7 @@ public class DorisStreamLoad implements Serializable {
 
         try {
             final String loadUrlStr = String.format(LOAD_URL_PATTERN, hostPort, db, tbl);
+            LOG.info("load batch start, loadURL:{}", loadUrlStr);
             HttpPut put = new HttpPut(loadUrlStr);
             put.setHeader(HttpHeaders.EXPECT, "100-continue");
             put.setHeader(HttpHeaders.AUTHORIZATION, this.authEncoding);
