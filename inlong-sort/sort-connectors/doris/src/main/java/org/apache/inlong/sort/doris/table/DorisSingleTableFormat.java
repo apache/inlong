@@ -58,7 +58,7 @@ public class DorisSingleTableFormat<T> extends DorisDynamicOutputFormat<T> imple
     private transient SinkMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
-    private volatile long datasize;
+    private volatile long dataSize;
 
     public DorisSingleTableFormat(DorisOptions option,
             DorisReadOptions readOptions,
@@ -99,8 +99,8 @@ public class DorisSingleTableFormat<T> extends DorisDynamicOutputFormat<T> imple
         try {
             if (metricData != null) {
                 metricData.invokeWithEstimate(row);
-                datasize++;
-                LOG.info("written {} rows with {} bites", datasize,
+                dataSize++;
+                LOG.info("written {} rows with {} bites", dataSize,
                         row.toString().getBytes(StandardCharsets.UTF_8).length);
             }
         } catch (Exception e) {
