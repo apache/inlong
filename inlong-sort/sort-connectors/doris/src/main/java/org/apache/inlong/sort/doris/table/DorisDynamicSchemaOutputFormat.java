@@ -121,7 +121,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final String inlongMetric;
     private final String auditHostAndPorts;
     private final boolean multipleSink;
-    private final List batch = new ArrayList<>();
     private volatile String tableIdentifier;
     private volatile String databasePattern;
     private volatile String tablePattern;
@@ -738,7 +737,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
         @SuppressWarnings({"rawtypes"})
         public DorisDynamicSchemaOutputFormat build() {
-            if (this.multipleSink) {
+            if (!multipleSink) {
                 LogicalType[] logicalTypes = Arrays.stream(fieldDataTypes)
                         .map(DataType::getLogicalType).toArray(LogicalType[]::new);
 
