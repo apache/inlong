@@ -453,6 +453,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
 
+        // before deleting an inlong group, delete all inlong streams, sources, sinks, and other info under it
+        if (GroupStatus.allowedDeleteSubInfos(GroupStatus.forCode(entity.getStatus()))) {
+            streamService.logicDeleteAll(groupId, operator);
+        }
+
         entity.setIsDeleted(entity.getId());
         entity.setStatus(GroupStatus.DELETED.getCode());
         entity.setModifier(operator);
@@ -464,9 +469,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);
-        if (GroupStatus.allowedDeleteSubInfos(GroupStatus.forCode(entity.getStatus()))) {
-            streamService.logicDeleteAll(groupId, operator);
-        }
 
         LOGGER.info("success to delete group and group ext property for groupId={} by user={}", groupId, operator);
         return true;
