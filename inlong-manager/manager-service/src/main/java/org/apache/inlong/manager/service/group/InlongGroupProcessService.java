@@ -22,6 +22,8 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
+import org.apache.inlong.manager.common.enums.TaskStatus;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -29,6 +31,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -289,7 +292,13 @@ public class InlongGroupProcessService {
         InlongGroupInfo groupInfo = groupService.doDeleteCheck(groupId, operator);
         // start to delete group process
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.DELETE);
-        workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
+        WorkflowResult result = workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
+        List<TaskResponse> tasks = result.getNewTasks();
+        if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
+            String errMsg = String.format("failed to delete inlong group for groupId=%s", groupId);
+            LOGGER.error(errMsg);
+            throw new WorkflowListenerException(errMsg);
+        }
     }
 
     /**
