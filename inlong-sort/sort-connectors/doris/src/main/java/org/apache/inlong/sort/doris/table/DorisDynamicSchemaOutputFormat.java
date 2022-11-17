@@ -48,6 +48,7 @@ import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.doris.model.RespContent;
+import org.apache.inlong.sort.doris.utils.DorisParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,14 +68,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.table.data.RowData.createFieldGetter;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import static org.apache.inlong.sort.doris.utils.DorisParseUtils.escapeString;
 
 /**
  * DorisDynamicSchemaOutputFormat, copy from {@link org.apache.doris.flink.table.DorisDynamicOutputFormat}
@@ -238,18 +238,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
     }
 
-    private String escapeString(String s) {
-        Pattern p = Pattern.compile("\\\\x(\\d{2})");
-        Matcher m = p.matcher(s);
-
-        StringBuffer buf = new StringBuffer();
-        while (m.find()) {
-            m.appendReplacement(buf, String.format("%s", (char) Integer.parseInt(m.group(1))));
-        }
-        m.appendTail(buf);
-        return buf.toString();
-    }
-
     private boolean enableBatchDelete() {
         return executionOptions.getEnableDelete();
     }
@@ -347,44 +335,22 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             // add doris delete sign
             if (enableBatchDelete()) {
                 if (jsonFormat) {
-                    valueMap.put(DORIS_DELETE_SIGN, parseDeleteSign(rowData.getRowKind()));
+                    valueMap.put(DORIS_DELETE_SIGN, DorisParseUtils.parseDeleteSign(rowData.getRowKind()));
                 } else {
-                    value.add(parseDeleteSign(rowData.getRowKind()));
+                    value.add(DorisParseUtils.parseDeleteSign(rowData.getRowKind()));
                 }
             }
-            Map<String,String> data = jsonFormat ? valueMap : parsetoMap(value.toString());
+            Map<String, String> data = jsonFormat ? valueMap : DorisParseUtils.parsetoMap(value.toString());
             List<Map<String, String>> mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
             mapData.add(data);
             batchMap.putIfAbsent(tableIdentifier, mapData);
         } else if (row instanceof String) {
             batchBytes += ((String) row).getBytes(StandardCharsets.UTF_8).length;
             List mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
-            mapData.add(parsetoMap(row));
+            mapData.add(DorisParseUtils.parsetoMap(row));
             batchMap.putIfAbsent(tableIdentifier, mapData);
         } else {
             throw new RuntimeException("The type of element should be 'RowData' or 'String' only.");
-        }
-    }
-
-    Map<String, String> parsetoMap(Object data) {
-        String[] toParse = data.toString().split("\\s+");
-        Map<String, String> ret = new HashMap<>();
-        if (toParse.length < 2) {
-            LOG.warn("parse length insufficient! string is :{}", Arrays.toString(toParse));
-            return ret;
-        }
-        ret.put("id", toParse[0]);
-        ret.put("__DORIS_DELETE_SIGN__", toParse[1]);
-        return ret;
-    }
-
-    private String parseDeleteSign(RowKind rowKind) {
-        if (RowKind.INSERT.equals(rowKind) || RowKind.UPDATE_AFTER.equals(rowKind)) {
-            return "0";
-        } else if (RowKind.DELETE.equals(rowKind) || RowKind.UPDATE_BEFORE.equals(rowKind)) {
-            return "1";
-        } else {
-            throw new RuntimeException("Unrecognized row kind:" + rowKind.toString());
         }
     }
 
