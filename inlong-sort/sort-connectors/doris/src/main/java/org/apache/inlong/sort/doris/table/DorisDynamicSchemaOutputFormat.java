@@ -144,6 +144,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private volatile RowData.FieldGetter[] fieldGetters;
     private String fieldDelimiter;
     private String lineDelimiter;
+    private volatile LogicalType[] logicalTypes;
 
     public DorisDynamicSchemaOutputFormat(DorisOptions option,
             DorisReadOptions readOptions,
@@ -184,15 +185,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         this.isSingle = isSingle;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
-
-        this.jsonFormat = FORMAT_JSON_VALUE.equals(executionOptions.getStreamLoadProp().getProperty(FORMAT_KEY));
-        this.keysType = parseKeysType();
-
-        handleStreamloadProp();
-        this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
-        for (int i = 0; i < logicalTypes.length; i++) {
-            fieldGetters[i] = createFieldGetter(logicalTypes[i], i);
-        }
+        this.logicalTypes = logicalTypes;
     }
 
     /**
@@ -274,6 +267,18 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 executionOptions.getStreamLoadProp());
         // Only support dynamic topic when the topicPattern is specified
         // and the valueSerialization is RawFormatSerializationSchema
+
+        if (isSingle) {
+            this.jsonFormat = FORMAT_JSON_VALUE.equals(executionOptions.getStreamLoadProp().getProperty(FORMAT_KEY));
+            this.keysType = parseKeysType();
+
+            handleStreamloadProp();
+            this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
+            for (int i = 0; i < logicalTypes.length; i++) {
+                fieldGetters[i] = createFieldGetter(logicalTypes[i], i);
+            }
+        }
+
         if (!isSingle && StringUtils.isNotBlank(dynamicSchemaFormat)) {
             jsonDynamicSchemaFormat =
                     (JsonDynamicSchemaFormat) DynamicSchemaFormatFactory.getFormat(dynamicSchemaFormat);
@@ -325,7 +330,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
     }
 
-
     public void addSingle(T row) {
         if (row instanceof RowData) {
             RowData rowData = (RowData) row;
@@ -357,7 +361,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             Object data = jsonFormat ? valueMap : value.toString();
             LOG.info("appending data object {} with jsonformat {}", data, jsonFormat);
             LOG.info("parsed data {}", parsetoMap(data));
-            //appending data object 12345	0
+            //appending data object 12345 0
             //should be {"id":"12345","__DORIS_DELETE_SIGN__":"0"}
             List<Map<String, String>> mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
             mapData.add(parsetoMap(data));
@@ -385,7 +389,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         ret.put("__DORIS_DELETE_SIGN__", toParse[1]);
         return ret;
     }
-
 
     private String parseDeleteSign(RowKind rowKind) {
         if (RowKind.INSERT.equals(rowKind) || RowKind.UPDATE_AFTER.equals(rowKind)) {
@@ -548,7 +551,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
     }
 
-
     @SuppressWarnings({"rawtypes"})
     public synchronized void flush() {
         flushing = true;
@@ -573,7 +575,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 readInNum.get(), writeOutNum.get(), errorNum.get(), ddlNum.get());
         flushing = false;
     }
-
 
     @SuppressWarnings({"rawtypes"})
     private void flushSingleTable(String tableIdentifier, List values) {
