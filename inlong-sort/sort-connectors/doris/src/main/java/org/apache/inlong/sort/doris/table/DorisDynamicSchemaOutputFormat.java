@@ -72,7 +72,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.apache.flink.table.data.RowData.createFieldGetter;
-
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -97,6 +96,16 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
      * Mark the record for not delete
      */
     private static final String DORIS_DELETE_FALSE = "0";
+    private static final String FORMAT_JSON_VALUE = "json";
+    private static final String FORMAT_KEY = "format";
+    private static final String FIELD_DELIMITER_KEY = "column_separator";
+    private static final String FIELD_DELIMITER_DEFAULT = "\t";
+    private static final String LINE_DELIMITER_KEY = "line_delimiter";
+    private static final String LINE_DELIMITER_DEFAULT = "\n";
+    private static final String NULL_VALUE = "\\N";
+    private static final String ESCAPE_DELIMITERS_KEY = "escape_delimiters";
+    private static final String ESCAPE_DELIMITERS_DEFAULT = "false";
+    private static final String UNIQUE_KEYS_TYPE = "UNIQUE_KEYS";
     @SuppressWarnings({"rawtypes"})
     private final Map<String, List> batchMap = new HashMap<>();
     private final Map<String, String> columnsMap = new HashMap<>();
@@ -104,11 +113,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final DorisOptions options;
     private final DorisReadOptions readOptions;
     private final DorisExecutionOptions executionOptions;
-    private volatile String tableIdentifier;
-    private volatile String databasePattern;
-    private volatile String tablePattern;
-    private volatile String dynamicSchemaFormat;
-    private volatile boolean ignoreSingleTableErrors;
     private final Map<String, Exception> flushExceptionMap = new HashMap<>();
     private final AtomicLong readInNum = new AtomicLong(0);
     private final AtomicLong writeOutNum = new AtomicLong(0);
@@ -117,6 +121,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private final String inlongMetric;
     private final String auditHostAndPorts;
     private final boolean isSingle;
+    private final List batch = new ArrayList<>();
+    private volatile String tableIdentifier;
+    private volatile String databasePattern;
+    private volatile String tablePattern;
+    private volatile String dynamicSchemaFormat;
+    private volatile boolean ignoreSingleTableErrors;
     private long batchBytes = 0L;
     private int size;
     private DorisStreamLoad dorisStreamLoad;
@@ -130,19 +140,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private transient MetricState metricState;
     private volatile String[] fieldNames;
     private volatile boolean jsonFormat;
-    private static final String FORMAT_JSON_VALUE = "json";
-    private static final String FORMAT_KEY = "format";
     private String keysType;
     private volatile RowData.FieldGetter[] fieldGetters;
-    private static final String FIELD_DELIMITER_KEY = "column_separator";
-    private static final String FIELD_DELIMITER_DEFAULT = "\t";
-    private static final String LINE_DELIMITER_KEY = "line_delimiter";
-    private static final String LINE_DELIMITER_DEFAULT = "\n";
-    private static final String NULL_VALUE = "\\N";
-    private static final String ESCAPE_DELIMITERS_KEY = "escape_delimiters";
-    private static final String ESCAPE_DELIMITERS_DEFAULT = "false";
-    private static final String UNIQUE_KEYS_TYPE = "UNIQUE_KEYS";
-    private final List batch = new ArrayList<>();
     private String fieldDelimiter;
     private String lineDelimiter;
 
@@ -189,12 +188,20 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         this.jsonFormat = FORMAT_JSON_VALUE.equals(executionOptions.getStreamLoadProp().getProperty(FORMAT_KEY));
         this.keysType = parseKeysType();
 
-
         handleStreamloadProp();
         this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
         for (int i = 0; i < logicalTypes.length; i++) {
             fieldGetters[i] = createFieldGetter(logicalTypes[i], i);
         }
+    }
+
+    /**
+     * A builder used to set parameters to the output format's configuration in a fluent way.
+     *
+     * @return builder
+     */
+    public static DorisDynamicSchemaOutputFormat.Builder builder() {
+        return new DorisDynamicSchemaOutputFormat.Builder();
     }
 
     private String parseKeysType() {
@@ -208,7 +215,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     private void handleStreamloadProp() {
         Properties streamLoadProp = executionOptions.getStreamLoadProp();
-        boolean ifEscape = Boolean.parseBoolean(streamLoadProp.getProperty(ESCAPE_DELIMITERS_KEY, ESCAPE_DELIMITERS_DEFAULT));
+        boolean ifEscape = Boolean.parseBoolean(
+                streamLoadProp.getProperty(ESCAPE_DELIMITERS_KEY, ESCAPE_DELIMITERS_DEFAULT));
         if (ifEscape) {
             this.fieldDelimiter = escapeString(streamLoadProp.getProperty(FIELD_DELIMITER_KEY,
                     FIELD_DELIMITER_DEFAULT));
@@ -247,15 +255,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
         m.appendTail(buf);
         return buf.toString();
-    }
-
-    /**
-     * A builder used to set parameters to the output format's configuration in a fluent way.
-     *
-     * @return builder
-     */
-    public static DorisDynamicSchemaOutputFormat.Builder builder() {
-        return new DorisDynamicSchemaOutputFormat.Builder();
     }
 
     private boolean enableBatchDelete() {
@@ -316,7 +315,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     @Override
     public synchronized void writeRecord(T row) throws IOException {
         addBatch(row);
-        if(isSingle){
+        if (isSingle) {
             size = batch.size();
         }
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
@@ -360,13 +359,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             LOG.info("parsed data {}", parsetoMap(data));
             //appending data object 12345	0
             //should be {"id":"12345","__DORIS_DELETE_SIGN__":"0"}
-            List<Map<String, String>> mapData = batchMap.getOrDefault(tableIdentifier,new ArrayList<String>());
+            List<Map<String, String>> mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
             mapData.add(parsetoMap(data));
             batchMap.putIfAbsent(tableIdentifier, mapData);
         } else if (row instanceof String) {
             batchBytes += ((String) row).getBytes(StandardCharsets.UTF_8).length;
             LOG.info("appending row {}", row);
-            List mapData = batchMap.getOrDefault(tableIdentifier,new ArrayList<String>());
+            List mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
             mapData.add(parsetoMap(row));
             batchMap.putIfAbsent(tableIdentifier, mapData);
         } else {
@@ -374,14 +373,14 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
     }
 
-    Map<String, String> parsetoMap(Object data){
+    Map<String, String> parsetoMap(Object data) {
         String[] toParse = data.toString().split("\\s+");
         Map<String, String> ret = new HashMap<>();
-        if(toParse.length<2){
+        if (toParse.length < 2) {
             LOG.warn("parse length insufficient! string is :{}", Arrays.toString(toParse));
             return ret;
         }
-        LOG.info("String to parse id: {} delete: {}", toParse[0],toParse[1]);
+        LOG.info("String to parse id: {} delete: {}", toParse[0], toParse[1]);
         ret.put("id", toParse[0]);
         ret.put("__DORIS_DELETE_SIGN__", toParse[1]);
         return ret;
@@ -560,7 +559,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
         //sample batchmap: [{"id":"543","__DORIS_DELETE_SIGN__":"0"},{"id":"555","__DORIS_DELETE_SIGN__":"0"}]
         for (Entry<String, List> kvs : batchMap.entrySet()) {
-            LOG.info("flushing table {} with batch {}",kvs.getKey(),kvs.getValue());
+            LOG.info("flushing table {} with batch {}", kvs.getKey(), kvs.getValue());
             flushSingleTable(kvs.getKey(), kvs.getValue());
         }
         if (!errorTables.isEmpty()) {
@@ -574,7 +573,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 readInNum.get(), writeOutNum.get(), errorNum.get(), ddlNum.get());
         flushing = false;
     }
-
 
 
     @SuppressWarnings({"rawtypes"})
@@ -632,7 +630,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         String[] tableWithDb = tableIdentifier.split("\\.");
         RespContent respContent = null;
         // Dynamic set COLUMNS_KEY for tableIdentifier every time for whole db migration
-        if(!isSingle) {
+        if (!isSingle) {
             executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
         }
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
@@ -795,7 +793,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                         .map(DataType::getLogicalType).toArray(LogicalType[]::new);
 
                 return new DorisDynamicSchemaOutputFormat(
-                        optionsBuilder.setTableIdentifier(tableIdentifier).build(), readOptions, executionOptions, tableIdentifier,
+                        optionsBuilder.setTableIdentifier(tableIdentifier).build(), readOptions, executionOptions,
+                        tableIdentifier,
                         logicalTypes, fieldNames,
                         inlongMetric, auditHostAndPorts, isSingle);
             }

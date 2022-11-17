@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sort.doris.internal;
 
-import org.apache.doris.flink.table.DorisDynamicOutputFormat;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;

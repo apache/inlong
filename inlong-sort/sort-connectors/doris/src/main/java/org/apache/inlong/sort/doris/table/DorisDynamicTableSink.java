@@ -85,7 +85,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
         if (!multipleSink) {
-            DorisDynamicSchemaOutputFormat.Builder builder =  DorisDynamicSchemaOutputFormat.builder()
+            DorisDynamicSchemaOutputFormat.Builder builder = DorisDynamicSchemaOutputFormat.builder()
                     .setFenodes(options.getFenodes())
                     .setUsername(options.getUsername())
                     .setPassword(options.getPassword())
