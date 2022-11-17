@@ -19,6 +19,7 @@ package org.apache.inlong.sort.doris.table;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.doris.flink.exception.StreamLoadException;
+import org.apache.doris.flink.table.DorisStreamLoad.LoadResponse;
 import org.apache.doris.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.doris.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.doris.shaded.org.apache.commons.codec.binary.Base64;
@@ -63,6 +64,7 @@ public class DorisStreamLoad implements Serializable {
     private final Properties streamLoadProp;
     private final CloseableHttpClient httpClient;
     private String hostPort;
+    private String loadUrlStr;
 
     public DorisStreamLoad(String hostPort, String user, String passwd,
             Properties streamLoadProp) {

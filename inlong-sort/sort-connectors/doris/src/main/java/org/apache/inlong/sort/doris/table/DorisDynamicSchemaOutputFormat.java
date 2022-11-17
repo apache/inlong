@@ -142,6 +142,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private static final String ESCAPE_DELIMITERS_KEY = "escape_delimiters";
     private static final String ESCAPE_DELIMITERS_DEFAULT = "false";
     private static final String UNIQUE_KEYS_TYPE = "UNIQUE_KEYS";
+    private final List batch = new ArrayList<>();
     private String fieldDelimiter;
     private String lineDelimiter;
 
@@ -315,6 +316,9 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     @Override
     public synchronized void writeRecord(T row) throws IOException {
         addBatch(row);
+        if(isSingle){
+            size = batch.size();
+        }
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
         if (valid && !flushing) {
@@ -323,7 +327,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
 
-    public void addSingle(T row) throws IOException {
+    public void addSingle(T row) {
         if (row instanceof RowData) {
             RowData rowData = (RowData) row;
             Map<String, String> valueMap = new HashMap<>();
@@ -352,16 +356,36 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 }
             }
             Object data = jsonFormat ? valueMap : value.toString();
-            batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
-                    .add(data);
+            LOG.info("appending data object {} with jsonformat {}", data, jsonFormat);
+            LOG.info("parsed data {}", parsetoMap(data));
+            //appending data object 12345	0
+            //should be {"id":"12345","__DORIS_DELETE_SIGN__":"0"}
+            List<Map<String, String>> mapData = batchMap.getOrDefault(tableIdentifier,new ArrayList<String>());
+            mapData.add(parsetoMap(data));
+            batchMap.putIfAbsent(tableIdentifier, mapData);
         } else if (row instanceof String) {
             batchBytes += ((String) row).getBytes(StandardCharsets.UTF_8).length;
-            batchMap.computeIfAbsent(tableIdentifier, k -> new ArrayList<>())
-                    .add(row);
+            LOG.info("appending row {}", row);
+            List mapData = batchMap.getOrDefault(tableIdentifier,new ArrayList<String>());
+            mapData.add(parsetoMap(row));
+            batchMap.putIfAbsent(tableIdentifier, mapData);
         } else {
             throw new RuntimeException("The type of element should be 'RowData' or 'String' only.");
         }
     }
+
+    Map<String, String> parsetoMap(Object data){
+        String[] toParse = data.toString().split("\\s+");
+        Map<String, String> ret = new HashMap<>();
+        if(toParse.length<2){
+            LOG.warn("parse length insufficient! string is :{}", toParse);
+        }
+        LOG.info("String to parse id: {} delete: {}", toParse[0],toParse[1]);
+        ret.put("id", toParse[0]);
+        ret.put("__DORIS_DELETE_SIGN__", toParse[1]);
+        return ret;
+    }
+
 
     private String parseDeleteSign(RowKind rowKind) {
         if (RowKind.INSERT.equals(rowKind) || RowKind.UPDATE_AFTER.equals(rowKind)) {
@@ -532,6 +556,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             flushing = false;
             return;
         }
+
+        //sample batchmap: [{"id":"543","__DORIS_DELETE_SIGN__":"0"},{"id":"555","__DORIS_DELETE_SIGN__":"0"}]
         for (Entry<String, List> kvs : batchMap.entrySet()) {
             LOG.info("flushing table {} with batch {}",kvs.getKey(),kvs.getValue());
             flushSingleTable(kvs.getKey(), kvs.getValue());
@@ -604,8 +630,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private RespContent load(String tableIdentifier, String result) throws IOException {
         String[] tableWithDb = tableIdentifier.split("\\.");
         RespContent respContent = null;
-        // Dynamic set COLUMNS_KEY for tableIdentifier every time
-        executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
+        // Dynamic set COLUMNS_KEY for tableIdentifier every time for whole db migration
+        if(!isSingle) {
+            executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
+        }
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
                 respContent = dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result);
