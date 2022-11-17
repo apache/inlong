@@ -265,9 +265,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 options.getUsername(),
                 options.getPassword(),
                 executionOptions.getStreamLoadProp());
-        // Only support dynamic topic when the topicPattern is specified
-        // and the valueSerialization is RawFormatSerializationSchema
-
         if (!multipleSink) {
             this.jsonFormat = FORMAT_JSON_VALUE.equals(executionOptions.getStreamLoadProp().getProperty(FORMAT_KEY));
             this.keysType = parseKeysType();
