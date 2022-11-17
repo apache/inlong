@@ -76,7 +76,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
             method: 'DELETE',
             params: {
               sinkType: options.sinkType,
-              startProcess: true,
+              startProcess: false,
             },
           });
           await getList();
