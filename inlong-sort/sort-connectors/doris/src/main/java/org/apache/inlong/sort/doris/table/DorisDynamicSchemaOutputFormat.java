@@ -320,9 +320,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     @Override
     public synchronized void writeRecord(T row) throws IOException {
         addBatch(row);
-        if (isSingle) {
-            size = batch.size();
-        }
         boolean valid = (executionOptions.getBatchSize() > 0 && size >= executionOptions.getBatchSize())
                 || batchBytes >= executionOptions.getMaxBatchBytes();
         if (valid && !flushing) {
@@ -358,13 +355,9 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                     value.add(parseDeleteSign(rowData.getRowKind()));
                 }
             }
-            Object data = jsonFormat ? valueMap : value.toString();
-            LOG.info("appending data object {} with jsonformat {}", data, jsonFormat);
-            LOG.info("parsed data {}", parsetoMap(data));
-            //appending data object 12345 0
-            //should be {"id":"12345","__DORIS_DELETE_SIGN__":"0"}
+            Map<String,String> data = jsonFormat ? valueMap : parsetoMap(value.toString());
             List<Map<String, String>> mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
-            mapData.add(parsetoMap(data));
+            mapData.add(data);
             batchMap.putIfAbsent(tableIdentifier, mapData);
         } else if (row instanceof String) {
             batchBytes += ((String) row).getBytes(StandardCharsets.UTF_8).length;
@@ -559,7 +552,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             return;
         }
 
-        //sample batchmap: [{"id":"543","__DORIS_DELETE_SIGN__":"0"},{"id":"555","__DORIS_DELETE_SIGN__":"0"}]
         for (Entry<String, List> kvs : batchMap.entrySet()) {
             LOG.info("flushing table {} with batch {}", kvs.getKey(), kvs.getValue());
             flushSingleTable(kvs.getKey(), kvs.getValue());
@@ -585,7 +577,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         String loadValue = null;
         try {
             loadValue = OBJECT_MAPPER.writeValueAsString(values);
-            LOG.info("loading value:{}", loadValue);
             RespContent respContent = load(tableIdentifier, loadValue);
             try {
                 if (null != metricData && null != respContent) {
@@ -789,7 +780,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         @SuppressWarnings({"rawtypes"})
         public DorisDynamicSchemaOutputFormat build() {
             if (this.isSingle) {
-                LOG.info("single table identifier:{}", tableIdentifier);
                 LogicalType[] logicalTypes = Arrays.stream(fieldDataTypes)
                         .map(DataType::getLogicalType).toArray(LogicalType[]::new);
 
