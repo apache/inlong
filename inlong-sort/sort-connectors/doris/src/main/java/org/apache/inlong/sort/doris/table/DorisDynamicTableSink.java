@@ -91,22 +91,17 @@ public class DorisDynamicTableSink implements DynamicTableSink {
                 .setReadOptions(readOptions)
                 .setExecutionOptions(executionOptions)
                 .setInlongMetric(inlongMetric)
-                .setAuditHostAndPorts(auditHostAndPorts);
-
-        if (!multipleSink) {
-            builder.setTableIdentifier(options.getTableIdentifier())
-                    .setFieldDataTypes(tableSchema.getFieldDataTypes())
-                    .setFieldNames(tableSchema.getFieldNames())
-                    .setInlongMetric(inlongMetric)
-                    .setAuditHostAndPorts(auditHostAndPorts)
-                    .setIsSingle(true);
-        } else {
-            builder.setDatabasePattern(databasePattern)
-                    .setTablePattern(tablePattern)
-                    .setDynamicSchemaFormat(sinkMultipleFormat)
-                    .setIgnoreSingleTableErrors(ignoreSingleTableErrors)
-                    .setIsSingle(false);
-        }
+                .setAuditHostAndPorts(auditHostAndPorts)
+                .setTableIdentifier(options.getTableIdentifier())
+                .setFieldDataTypes(tableSchema.getFieldDataTypes())
+                .setFieldNames(tableSchema.getFieldNames())
+                .setInlongMetric(inlongMetric)
+                .setAuditHostAndPorts(auditHostAndPorts)
+                .setMultipleSink(multipleSink)
+                .setDatabasePattern(databasePattern)
+                .setTablePattern(tablePattern)
+                .setDynamicSchemaFormat(sinkMultipleFormat)
+                .setIgnoreSingleTableErrors(ignoreSingleTableErrors);
 
         return SinkFunctionProvider.of(
                 new GenericDorisSinkFunction<>(builder.build()), parallelism);
