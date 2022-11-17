@@ -379,7 +379,8 @@
         set previous_status = status,
         status = #{nextStatus, jdbcType=INTEGER}
         <where>
-            inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            is_deleted = 0
+            and inlong_group_id = #{groupId, jdbcType=VARCHAR}
             <if test="streamId != null">
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
