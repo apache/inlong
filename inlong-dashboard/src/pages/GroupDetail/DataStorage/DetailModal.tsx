@@ -47,6 +47,12 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
 
   const { Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
 
+  const { data: groupData, run: getGroupData } = useRequest(`/group/get/${inlongGroupId}`, {
+    manual: true,
+    ready: Boolean(inlongGroupId),
+    refreshDeps: [inlongGroupId],
+  });
+
   const {
     data,
     loading,
@@ -68,6 +74,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
+      getGroupData();
       if (id) {
         getData(id);
       } else {
@@ -119,9 +126,11 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
         <Button key="save" type="primary" onClick={() => onOk(false)}>
           {t('pages.GroupDetail.Sink.Save')}
         </Button>,
-        <Button key="run" type="primary" onClick={() => onOk(true)}>
-          {t('pages.GroupDetail.Sink.SaveAndRun')}
-        </Button>,
+        groupData?.status === 130 && (
+          <Button key="run" type="primary" onClick={() => onOk(true)}>
+            {t('pages.GroupDetail.Sink.SaveAndRefresh')}
+          </Button>
+        ),
       ]}
     >
       {loading ? (
