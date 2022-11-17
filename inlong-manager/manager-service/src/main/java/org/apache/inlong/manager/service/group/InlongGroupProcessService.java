@@ -294,7 +294,7 @@ public class InlongGroupProcessService {
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.DELETE);
         WorkflowResult result = workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
         List<TaskResponse> tasks = result.getNewTasks();
-        if (TaskStatus.FAILED.equals(tasks.get(tasks.size() - 1).getStatus())) {
+        if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
             String errMsg = String.format("failed to delete group process for groupId=%s", groupId);
             LOGGER.error(errMsg);
             throw new WorkflowListenerException(errMsg);
