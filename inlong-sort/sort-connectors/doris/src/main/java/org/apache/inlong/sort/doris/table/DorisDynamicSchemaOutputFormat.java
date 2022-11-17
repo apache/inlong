@@ -378,7 +378,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         String[] toParse = data.toString().split("\\s+");
         Map<String, String> ret = new HashMap<>();
         if(toParse.length<2){
-            LOG.warn("parse length insufficient! string is :{}", toParse);
+            LOG.warn("parse length insufficient! string is :{}", Arrays.toString(toParse));
+            return ret;
         }
         LOG.info("String to parse id: {} delete: {}", toParse[0],toParse[1]);
         ret.put("id", toParse[0]);
