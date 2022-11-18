@@ -579,7 +579,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private RespContent load(String tableIdentifier, String result) throws IOException {
         String[] tableWithDb = tableIdentifier.split("\\.");
         RespContent respContent = null;
-        // Dynamic set COLUMNS_KEY for tableIdentifier every time for whole db migration
+        // Dynamic set COLUMNS_KEY for tableIdentifier every time for multiple sink scenario
         if (multipleSink) {
             executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
         }
