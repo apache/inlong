@@ -29,8 +29,6 @@ import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.es.ElasticsearchClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.es.ElasticsearchClusterRequest;
 import org.apache.inlong.manager.pojo.cluster.es.ElasticsearchClusterDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +37,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ElasticsearchClusterOperator extends AbstractClusterOperator {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchClusterOperator.class);
 
     @Autowired
     private ObjectMapper mapper;
@@ -62,7 +58,6 @@ public class ElasticsearchClusterOperator extends AbstractClusterOperator {
         try {
             ElasticsearchClusterDTO dto = ElasticsearchClusterDTO.getFromRequest(esRequest);
             targetEntity.setExtParams(mapper.writeValueAsString(dto));
-            LOGGER.info("success to set entity for es cluster");
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
@@ -79,7 +74,6 @@ public class ElasticsearchClusterOperator extends AbstractClusterOperator {
             ElasticsearchClusterDTO dto = ElasticsearchClusterDTO.getFromJson(entity.getExtParams());
             CommonBeanUtils.copyProperties(dto, info);
         }
-        LOGGER.info("success to get es cluster info from entity");
         return info;
     }
 }
