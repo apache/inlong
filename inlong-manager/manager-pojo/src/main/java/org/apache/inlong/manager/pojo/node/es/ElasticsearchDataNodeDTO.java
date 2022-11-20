@@ -25,6 +25,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,20 +84,7 @@ public class ElasticsearchDataNodeDTO {
      * Get the dto instance from the request
      */
     public static ElasticsearchDataNodeDTO getFromRequest(ElasticsearchDataNodeRequest request) {
-        return ElasticsearchDataNodeDTO.builder()
-                .auditSetName(request.getAuditSetName())
-                .concurrentRequests(request.getConcurrentRequests())
-                .bulkAction(request.getBulkAction())
-                .bulkSizeMb(request.getBulkSizeMb())
-                .httpHosts(request.getHttpHosts())
-                .maxThreads(request.getMaxThreads())
-                .maxConnect(request.getMaxConnect())
-                .isUseIndexId(request.getIsUseIndexId())
-                .username(request.getUsername())
-                .password(request.getPassword())
-                .keywordMaxLength(request.getKeywordMaxLength())
-                .flushInterval(request.getFlushInterval())
-                .build();
+        return CommonBeanUtils.copyProperties(request, ElasticsearchDataNodeDTO::new, true);
     }
 
     /**
