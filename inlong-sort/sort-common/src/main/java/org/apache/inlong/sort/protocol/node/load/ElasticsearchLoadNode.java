@@ -106,6 +106,10 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
         options.put("connector", "elasticsearch-7-inlong");
+        if (version == 5) {
+            options.put("connector", "elasticsearch-5-inlong");
+            options.put("document-type", documentType);
+        }
         if (version == 6) {
             options.put("connector", "elasticsearch-6-inlong");
             options.put("document-type", documentType);

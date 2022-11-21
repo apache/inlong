@@ -48,6 +48,7 @@
         <module>sqlserver-cdc</module>
         <module>oracle-cdc</module>
         <module>elasticsearch-base</module>
+        <module>elasticsearch-5</module>
         <module>elasticsearch-6</module>
         <module>elasticsearch-7</module>
         <module>redis</module>
