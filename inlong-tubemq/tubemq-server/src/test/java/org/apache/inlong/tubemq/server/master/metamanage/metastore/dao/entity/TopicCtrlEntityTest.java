@@ -67,7 +67,7 @@ public class TopicCtrlEntityTest {
         long dataVerId2 = 555;
         int topicId2 = 222;
         String topicName2 = "test_1";
-        boolean enableAuthControl2 = true;
+        EnableStatus enableAuthControl2 = EnableStatus.STATUS_ENABLE;
         String attributes2 = "";
         String createUser2 = "creater2";
         Date createDate2 = new Date();
@@ -119,5 +119,4 @@ public class TopicCtrlEntityTest {
         Assert.assertEquals(ctrlEntity4.getModifyDateStr(), ctrlEntity2.getModifyDateStr());
         Assert.assertEquals(ctrlEntity4.getDataVerId(), ctrlEntity2.getDataVerId());
     }
-
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.ConfigObserver;
@@ -64,7 +65,7 @@ public interface MetaConfigMapper extends KeepAliveService {
     boolean addOrUpdClusterDefSetting(BaseEntity opEntity, int brokerPort,
                                       int brokerTlsPort, int brokerWebPort,
                                       int maxMsgSizeMB, int qryPriorityId,
-                                      Boolean flowCtrlEnable, int flowRuleCnt,
+                                      EnableStatus flowCtrlEnable, int flowRuleCnt,
                                       String flowCtrlInfo, TopicPropGroup topicProps,
                                       StringBuilder strBuff, ProcessResult result);
 
@@ -178,7 +179,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean insertTopicCtrlConf(BaseEntity opEntity,
-                                String topicName, Boolean enableTopicAuth,
+                                String topicName, EnableStatus enableTopicAuth,
                                 StringBuilder strBuff, ProcessResult result);
 
     /**
@@ -408,7 +409,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                int qryPriorityId, Boolean flowCtrlEnable,
+                                int qryPriorityId, EnableStatus flowCtrlEnable,
                                 int flowRuleCnt, String flowCtrlRuleInfo,
                                 StringBuilder strBuff, ProcessResult result);
 
@@ -424,7 +425,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                Boolean resChkEnable, int allowedB2CRate,
+                                EnableStatus resChkEnable, int allowedB2CRate,
                                 StringBuilder strBuff, ProcessResult result);
 
     /**
@@ -497,8 +498,8 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return    process result
      */
     boolean insertConsumeCtrlInfo(BaseEntity opEntity, String groupName,
-                                  String topicName, Boolean enableCsm,
-                                  String disReason, Boolean enableFlt,
+                                  String topicName, EnableStatus enableCsm,
+                                  String disReason, EnableStatus enableFlt,
                                   String fltCondStr, StringBuilder strBuff,
                                   ProcessResult result);
 

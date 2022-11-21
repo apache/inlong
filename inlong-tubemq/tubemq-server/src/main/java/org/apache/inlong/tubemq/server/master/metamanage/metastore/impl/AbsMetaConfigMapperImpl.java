@@ -120,7 +120,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     public boolean addOrUpdClusterDefSetting(BaseEntity opEntity,
                                              int brokerPort, int brokerTlsPort,
                                              int brokerWebPort, int maxMsgSizeMB,
-                                             int qryPriorityId, Boolean flowCtrlEnable,
+                                             int qryPriorityId, EnableStatus flowCtrlEnable,
                                              int flowRuleCnt, String flowCtrlInfo,
                                              TopicPropGroup topicProps,
                                              StringBuilder strBuff, ProcessResult result) {
@@ -372,7 +372,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
 
     @Override
     public boolean insertTopicCtrlConf(BaseEntity opEntity,
-                                       String topicName, Boolean enableTopicAuth,
+                                       String topicName, EnableStatus enableTopicAuth,
                                        StringBuilder strBuff, ProcessResult result) {
         TopicCtrlEntity entity =
                 new TopicCtrlEntity(opEntity, topicName);
@@ -868,7 +868,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
 
     @Override
     public boolean insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                       int qryPriorityId, Boolean flowCtrlEnable,
+                                       int qryPriorityId, EnableStatus flowCtrlEnable,
                                        int flowRuleCnt, String flowCtrlRuleInfo,
                                        StringBuilder strBuff, ProcessResult result) {
         GroupResCtrlEntity newEntity = new GroupResCtrlEntity(opEntity, groupName);
@@ -881,7 +881,7 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
 
     @Override
     public boolean insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                       Boolean resChkEnable, int allowedB2CRate,
+                                       EnableStatus resChkEnable, int allowedB2CRate,
                                        StringBuilder strBuff, ProcessResult result) {
         GroupResCtrlEntity newEntity = new GroupResCtrlEntity(opEntity, groupName);
         newEntity.updModifyInfo(opEntity.getDataVerId(), resChkEnable, allowedB2CRate,
@@ -1059,8 +1059,8 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
 
     @Override
     public boolean insertConsumeCtrlInfo(BaseEntity opEntity, String groupName,
-                                         String topicName, Boolean enableCsm,
-                                         String disReason, Boolean enableFlt,
+                                         String topicName, EnableStatus enableCsm,
+                                         String disReason, EnableStatus enableFlt,
                                          String fltCondStr, StringBuilder strBuff,
                                          ProcessResult result) {
         GroupConsumeCtrlEntity entity =

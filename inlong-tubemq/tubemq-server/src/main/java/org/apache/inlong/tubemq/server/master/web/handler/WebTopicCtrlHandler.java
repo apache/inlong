@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -227,12 +228,12 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
             topicNameId = (int) result.getRetData();
         }
         // get authCtrlStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.AUTHCTRLENABLE,
-                false, (isAddOp ? false : null), sBuffer, result)) {
+        if (!WebParameterUtils.getEnableStatusValue(req, WebFieldDef.AUTHCTRLENABLE,
+                false, (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean enableTopicAuth = (Boolean) result.getRetData();
+        EnableStatus enableTopicAuth = (EnableStatus) result.getRetData();
         // check and get max message size
         ClusterSettingEntity defClusterSetting =
                 defMetaDataService.getClusterDefSetting(false);
@@ -323,11 +324,11 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
             }
             int itemTopicNameId = (int) result.getRetData();
             // get authCtrlStatus info
-            if (!WebParameterUtils.getBooleanParamValue(itemConfMap, WebFieldDef.AUTHCTRLENABLE,
-                    false, (isAddOp ? false : null), sBuffer, result)) {
+            if (!WebParameterUtils.getEnableStatusValue(itemConfMap, WebFieldDef.AUTHCTRLENABLE,
+                    false, (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
                 return result.isSuccess();
             }
-            Boolean enableTopicAuth = (Boolean) result.getRetData();
+            EnableStatus enableTopicAuth = (EnableStatus) result.getRetData();
             itemConf = new TopicCtrlEntity(itemOpEntity, topicName);
             itemConf.updModifyInfo(itemOpEntity.getDataVerId(),
                     itemTopicNameId, itemMaxMsgSizeMB, enableTopicAuth);

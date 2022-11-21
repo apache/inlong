@@ -79,7 +79,7 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
         newEntity.updBaseModifyInfo(entity);
         if (!newEntity.updModifyInfo(entity.getDataVerId(),
                 entity.getTopicId(), entity.getMaxMsgSizeInMB(),
-                entity.isAuthCtrlEnable())) {
+                entity.getAuthCtrlStatus())) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                     "Topic control configure not changed!");
             return result.isSuccess();

@@ -73,8 +73,8 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
         GroupResCtrlEntity newEntity = curEntity.clone();
         newEntity.updBaseModifyInfo(entity);
         if (!newEntity.updModifyInfo(entity.getDataVerId(),
-                entity.isEnableResCheck(), entity.getAllowedBrokerClientRate(),
-                entity.getQryPriorityId(), entity.isFlowCtrlEnable(),
+                entity.getResCheckStatus(), entity.getAllowedBrokerClientRate(),
+                entity.getQryPriorityId(), entity.getFlowCtrlStatus(),
                 entity.getRuleCnt(), entity.getFlowCtrlInfo())) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                     "Group control configure not changed!");

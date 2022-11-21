@@ -84,8 +84,8 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
         GroupConsumeCtrlEntity newEntity = curEntity.clone();
         newEntity.updBaseModifyInfo(entity);
         if (!newEntity.updModifyInfo(entity.getDataVerId(),
-                entity.isEnableConsume(), entity.getDisableReason(),
-                entity.isEnableFilterConsume(), entity.getFilterCondStr())) {
+                entity.getConsumeEnable(), entity.getDisableReason(),
+                entity.getFilterEnable(), entity.getFilterCondStr())) {
             result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),
                     "Consume control configure not changed!");
             return result.isSuccess();
