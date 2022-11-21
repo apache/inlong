@@ -146,11 +146,11 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                 Arrays.stream(conditionFields)
                         .map(f -> format("%s = :%s", quoteIdentifier(f), f))
                         .collect(Collectors.joining(" AND "));
-        Pair<String, String> pair = getDatabaseAndTableName(tableName);
+        Pair<String, String> databaseAndTableName = getDatabaseAndTableName(tableName);
         return "ALTER TABLE "
-                + quoteIdentifier(pair.getLeft())
+                + quoteIdentifier(databaseAndTableName.getLeft())
                 + POINT
-                + quoteIdentifier(pair.getRight())
+                + quoteIdentifier(databaseAndTableName.getRight())
                 + " UPDATE "
                 + setClause
                 + " WHERE "
@@ -164,7 +164,7 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
             databaseName = tableNameArray[0];
             tableName = tableNameArray[1];
         } else {
-            LOG.warn("tableName don't include database name, So use default as database name");
+            LOG.warn("TableName doesn't include database name, so using default as database name");
         }
         return Pair.of(databaseName, tableName);
     }
@@ -178,11 +178,11 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                 Arrays.stream(conditionFields)
                         .map(f -> format("%s = :%s", quoteIdentifier(f), f))
                         .collect(Collectors.joining(" AND "));
-        Pair<String, String> pair = getDatabaseAndTableName(tableName);
+        Pair<String, String> databaseAndTableName = getDatabaseAndTableName(tableName);
         return "ALTER TABLE "
-                + quoteIdentifier(pair.getLeft())
+                + quoteIdentifier(databaseAndTableName.getLeft())
                 + POINT
-                + quoteIdentifier(pair.getRight())
+                + quoteIdentifier(databaseAndTableName.getRight())
                 + " DELETE WHERE " + conditionClause;
     }
 
@@ -194,11 +194,11 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                         .collect(Collectors.joining(", "));
         String placeholders =
                 Arrays.stream(fieldNames).map(f -> ":" + f).collect(Collectors.joining(", "));
-        Pair<String, String> pair = getDatabaseAndTableName(tableName);
+        Pair<String, String> databaseAndTableName = getDatabaseAndTableName(tableName);
         return "INSERT INTO "
-                + quoteIdentifier(pair.getLeft())
+                + quoteIdentifier(databaseAndTableName.getLeft())
                 + POINT
-                + quoteIdentifier(pair.getRight())
+                + quoteIdentifier(databaseAndTableName.getRight())
                 + "("
                 + columns
                 + ")"
@@ -218,13 +218,13 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                 Arrays.stream(conditionFields)
                         .map(f -> format("%s = :%s", quoteIdentifier(f), f))
                         .collect(Collectors.joining(" AND "));
-        Pair<String, String> pair = getDatabaseAndTableName(tableName);
+        Pair<String, String> databaseAndTableName = getDatabaseAndTableName(tableName);
         return "SELECT "
                 + selectExpressions
                 + " FROM "
-                + quoteIdentifier(pair.getLeft())
+                + quoteIdentifier(databaseAndTableName.getLeft())
                 + POINT
-                + quoteIdentifier(pair.getRight())
+                + quoteIdentifier(databaseAndTableName.getRight())
                 + (conditionFields.length > 0 ? " WHERE " + fieldExpressions : "");
     }
 
