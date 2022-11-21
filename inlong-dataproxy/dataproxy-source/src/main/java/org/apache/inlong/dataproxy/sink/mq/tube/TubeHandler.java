@@ -25,8 +25,6 @@ import org.apache.inlong.dataproxy.sink.common.EventHandler;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
-import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
-import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
@@ -180,13 +178,7 @@ public class TubeHandler implements MessageQueueHandler {
                 return false;
             }
             // send
-            if (event instanceof SimpleBatchPackProfileV0) {
-                this.sendSimpleProfileV0((SimpleBatchPackProfileV0) event, idConfig, topic);
-            } else if (event instanceof OrderBatchPackProfileV0) {
-                this.sendOrderProfileV0((OrderBatchPackProfileV0) event, idConfig, topic);
-            } else {
-                this.sendProfileV1(event, idConfig, topic);
-            }
+            this.sendProfileV1(event, idConfig, topic);
             return true;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -220,79 +212,6 @@ public class TubeHandler implements MessageQueueHandler {
                 sinkContext.addSendResultMetric(event, topic, true, sendTime);
                 sinkContext.getDispatchQueue().release(event.getSize());
                 event.ack();
-            }
-
-            @Override
-            public void onException(Throwable ex) {
-                LOG.error("Send fail:{}", ex.getMessage());
-                LOG.error(ex.getMessage(), ex);
-                sinkContext.processSendFail(event, topic, sendTime);
-            }
-        };
-        producer.sendMessage(message, callback);
-    }
-
-    /**
-     * sendSimpleProfileV0
-     */
-    private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
-            String topic) throws Exception {
-        // headers
-        Map<String, String> headers = event.getSimpleProfile().getHeaders();
-        // compress
-        byte[] bodyBytes = event.getSimpleProfile().getBody();
-        // sendAsync
-        Message message = new Message(topic, bodyBytes);
-        // add headers
-        headers.forEach((key, value) -> {
-            message.setAttrKeyVal(key, value);
-        });
-        // callback
-        long sendTime = System.currentTimeMillis();
-        MessageSentCallback callback = new MessageSentCallback() {
-
-            @Override
-            public void onMessageSent(MessageSentResult result) {
-                sinkContext.addSendResultMetric(event, topic, true, sendTime);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.ack();
-            }
-
-            @Override
-            public void onException(Throwable ex) {
-                LOG.error("Send fail:{}", ex.getMessage());
-                LOG.error(ex.getMessage(), ex);
-                sinkContext.processSendFail(event, topic, sendTime);
-            }
-        };
-        producer.sendMessage(message, callback);
-    }
-
-    /**
-     * sendOrderProfileV0
-     */
-    private void sendOrderProfileV0(OrderBatchPackProfileV0 event, IdTopicConfig idConfig, String topic)
-            throws Exception {
-        // headers
-        Map<String, String> headers = event.getOrderProfile().getHeaders();
-        // compress
-        byte[] bodyBytes = event.getOrderProfile().getBody();
-        // sendAsync
-        Message message = new Message(topic, bodyBytes);
-        // add headers
-        headers.forEach((key, value) -> {
-            message.setAttrKeyVal(key, value);
-        });
-        // callback
-        long sendTime = System.currentTimeMillis();
-        MessageSentCallback callback = new MessageSentCallback() {
-
-            @Override
-            public void onMessageSent(MessageSentResult result) {
-                sinkContext.addSendResultMetric(event, topic, true, sendTime);
-                sinkContext.getDispatchQueue().release(event.getSize());
-                event.ack();
-                event.ackOrder();
             }
 
             @Override

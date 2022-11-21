@@ -24,8 +24,6 @@ import org.apache.inlong.dataproxy.sink.common.EventHandler;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
-import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
-import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -123,13 +121,7 @@ public class KafkaHandler implements MessageQueueHandler {
                 return false;
             }
             // send
-            if (event instanceof SimpleBatchPackProfileV0) {
-                this.sendSimpleProfileV0((SimpleBatchPackProfileV0) event, idConfig, topic);
-            } else if (event instanceof OrderBatchPackProfileV0) {
-                this.sendOrderProfileV0((OrderBatchPackProfileV0) event, idConfig, topic);
-            } else {
-                this.sendProfileV1(event, idConfig, topic);
-            }
+            this.sendProfileV1(event, idConfig, topic);
             return true;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -148,90 +140,6 @@ public class KafkaHandler implements MessageQueueHandler {
                 sinkContext.getCompressType());
         // compress
         byte[] bodyBytes = this.handler.parseBody(idConfig, event, sinkContext.getCompressType());
-        // sendAsync
-        long sendTime = System.currentTimeMillis();
-
-        // prepare ProducerRecord
-        ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(topic, bodyBytes);
-        // add headers
-        headers.forEach((key, value) -> {
-            producerRecord.headers().add(key, value.getBytes());
-        });
-
-        // callback
-        Callback callback = new Callback() {
-
-            @Override
-            public void onCompletion(RecordMetadata arg0, Exception ex) {
-                if (ex != null) {
-                    LOG.error("Send fail:{}", ex.getMessage());
-                    LOG.error(ex.getMessage(), ex);
-                    if (event.isResend()) {
-                        sinkContext.processSendFail(event, topic, sendTime);
-                    } else {
-                        event.fail();
-                    }
-                } else {
-                    sinkContext.addSendResultMetric(event, topic, true, sendTime);
-                    sinkContext.getDispatchQueue().release(event.getSize());
-                    event.ack();
-                }
-            }
-        };
-        producer.send(producerRecord, callback);
-    }
-
-    /**
-     * sendSimpleProfileV0
-     */
-    private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
-            String topic) throws Exception {
-        // headers
-        Map<String, String> headers = event.getSimpleProfile().getHeaders();
-        // compress
-        byte[] bodyBytes = event.getSimpleProfile().getBody();
-        // sendAsync
-        long sendTime = System.currentTimeMillis();
-
-        // prepare ProducerRecord
-        ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>(topic, bodyBytes);
-        // add headers
-        headers.forEach((key, value) -> {
-            producerRecord.headers().add(key, value.getBytes());
-        });
-
-        // callback
-        Callback callback = new Callback() {
-
-            @Override
-            public void onCompletion(RecordMetadata arg0, Exception ex) {
-                if (ex != null) {
-                    LOG.error("Send fail:{}", ex.getMessage());
-                    LOG.error(ex.getMessage(), ex);
-                    if (event.isResend()) {
-                        sinkContext.processSendFail(event, topic, sendTime);
-                    } else {
-                        event.fail();
-                    }
-                } else {
-                    sinkContext.addSendResultMetric(event, topic, true, sendTime);
-                    sinkContext.getDispatchQueue().release(event.getSize());
-                    event.ack();
-                }
-            }
-        };
-        producer.send(producerRecord, callback);
-    }
-
-    /**
-     * sendOrderProfileV0
-     */
-    private void sendOrderProfileV0(OrderBatchPackProfileV0 event, IdTopicConfig idConfig,
-            String topic) throws Exception {
-        // headers
-        Map<String, String> headers = event.getOrderProfile().getHeaders();
-        // compress
-        byte[] bodyBytes = event.getOrderProfile().getBody();
         // sendAsync
         long sendTime = System.currentTimeMillis();
 
