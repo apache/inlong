@@ -19,7 +19,7 @@ package org.apache.inlong.dataproxy.sink.mq;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Event;
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 
 import java.util.Map;
