@@ -56,8 +56,8 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     private final String auditHostAndPorts;
     private final Integer parallelism;
     private static final String UNIQUE_KEYS_TYPE = "UNIQUE_KEYS";
-    public static final String COLUMNS_KEY = "columns";
-    public static final String DORIS_DELETE_SIGN = "__DORIS_DELETE_SIGN__";
+    private static final String COLUMNS_KEY = "columns";
+    private static final String DORIS_DELETE_SIGN = "__DORIS_DELETE_SIGN__";
 
     public DorisDynamicTableSink(DorisOptions options,
             DorisReadOptions readOptions,
@@ -149,7 +149,7 @@ public class DorisDynamicTableSink implements DynamicTableSink {
             Schema schema = RestService.getSchema(options, readOptions, LOG);
             return executionOptions.getEnableDelete() || UNIQUE_KEYS_TYPE.equals(schema.getKeysType());
         } catch (DorisException e) {
-            throw new RuntimeException("Failed fetch doris table schema: " + options.getTableIdentifier());
+            throw new RuntimeException("Failed fetch doris table schema: " + options.getTableIdentifier(), e);
         }
     }
 }
