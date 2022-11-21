@@ -24,6 +24,7 @@ import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.metrics.SimpleCounter;
 
 import java.util.Map;
+import org.apache.inlong.sort.base.MetricType;
 
 import static org.apache.inlong.sort.base.Constants.GROUP_ID;
 import static org.apache.inlong.sort.base.Constants.NODE_ID;
@@ -84,9 +85,23 @@ public interface MetricData {
      * @return Counter of registered
      */
     default Counter registerCounter(String metricName, Counter counter) {
+        return registerCounter(metricName, counter, MetricType.NODE);
+    }
+
+    /**
+     * Register a counter metric
+     *
+     * @param metricName The metric name
+     * @param counter The counter of metric
+     * @param metricType The type of metric
+     * @return Counter of registered
+     */
+    default Counter registerCounter(String metricName, Counter counter, MetricType metricType) {
         MetricGroup inlongMetricGroup = getMetricGroup();
-        for (Map.Entry<String, String> label : getLabels().entrySet()) {
-            inlongMetricGroup = inlongMetricGroup.addGroup(label.getKey(), label.getValue());
+        if (MetricType.NODE.equals(metricType)) {
+            for (Map.Entry<String, String> label : getLabels().entrySet()) {
+                inlongMetricGroup = inlongMetricGroup.addGroup(label.getKey(), label.getValue());
+            }
         }
         return inlongMetricGroup.counter(metricName, counter);
     }
@@ -105,14 +120,28 @@ public interface MetricData {
      * Register a meter metric
      *
      * @param metricName The metric name
+     * @param counter The counter of metric
      * @return Meter of registered
      */
     default Meter registerMeter(String metricName, Counter counter) {
+        return registerMeter(metricName, counter, MetricType.NODE);
+    }
+
+    /**
+     * Register a meter metric
+     *
+     * @param metricName The metric name
+     * @param counter The counter of metric
+     * @param metricType The type of metric
+     * @return Meter of registered
+     */
+    default Meter registerMeter(String metricName, Counter counter, MetricType metricType) {
         MetricGroup inlongMetricGroup = getMetricGroup();
-        for (Map.Entry<String, String> label : getLabels().entrySet()) {
-            inlongMetricGroup = inlongMetricGroup.addGroup(label.getKey(), label.getValue());
+        if (MetricType.NODE.equals(metricType)) {
+            for (Map.Entry<String, String> label : getLabels().entrySet()) {
+                inlongMetricGroup = inlongMetricGroup.addGroup(label.getKey(), label.getValue());
+            }
         }
         return inlongMetricGroup.meter(metricName, new MeterView(counter, TIME_SPAN_IN_SECONDS));
     }
-
 }

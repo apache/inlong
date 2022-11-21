@@ -35,6 +35,7 @@ import static org.apache.inlong.sort.base.Constants.GROUP_ID;
 import static org.apache.inlong.sort.base.Constants.STREAM_ID;
 
 public class MetricOption implements Serializable {
+
     private static final long serialVersionUID = 1L;
     private static final String IP_OR_HOST_PORT = "^(.*):([0-9]|[1-9]\\d|[1-9]\\d{"
             + "2}|[1-9]\\d{"
@@ -49,18 +50,21 @@ public class MetricOption implements Serializable {
     private RegisteredMetric registeredMetric;
     private long initRecords;
     private long initBytes;
+    private long readPhase;
 
     private MetricOption(
             String inlongLabels,
             @Nullable String inlongAudit,
             RegisteredMetric registeredMetric,
             long initRecords,
-            long initBytes) {
+            long initBytes,
+            long readPhase) {
         Preconditions.checkArgument(!StringUtils.isNullOrWhitespaceOnly(inlongLabels),
                 "Inlong labels must be set for register metric.");
 
         this.initRecords = initRecords;
         this.initBytes = initBytes;
+        this.readPhase = readPhase;
         this.labels = new LinkedHashMap<>();
         String[] inLongLabelArray = inlongLabels.split(DELIMITER);
         Preconditions.checkArgument(Stream.of(inLongLabelArray).allMatch(label -> label.contains("=")),
@@ -113,6 +117,10 @@ public class MetricOption implements Serializable {
         return initBytes;
     }
 
+    public Long getReadPhase() {
+        return readPhase;
+    }
+
     public void setInitRecords(long initRecords) {
         this.initRecords = initRecords;
     }
@@ -132,11 +140,13 @@ public class MetricOption implements Serializable {
     }
 
     public static class Builder {
+
         private String inlongLabels;
         private String inlongAudit;
         private RegisteredMetric registeredMetric = RegisteredMetric.ALL;
         private long initRecords = 0L;
         private long initBytes = 0L;
+        private long readPhase = 0L;
 
         private Builder() {
         }
@@ -166,11 +176,16 @@ public class MetricOption implements Serializable {
             return this;
         }
 
+        public MetricOption.Builder withReadPhase(long readPhase) {
+            this.readPhase = readPhase;
+            return this;
+        }
+
         public MetricOption build() {
             if (inlongLabels == null && inlongAudit == null) {
                 return null;
             }
-            return new MetricOption(inlongLabels, inlongAudit, registeredMetric, initRecords, initBytes);
+            return new MetricOption(inlongLabels, inlongAudit, registeredMetric, initRecords, initBytes, readPhase);
         }
     }
 }

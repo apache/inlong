@@ -57,6 +57,9 @@ public final class Constants {
     public static final String NUM_BYTES_IN_PER_SECOND = "numBytesInPerSecond";
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";
+
+    public static final String READ_PHASE = "readPhase";
+
     /**
      * Time span in seconds
      */
@@ -74,9 +77,42 @@ public final class Constants {
      */
     public static final String NODE_ID = "nodeId";
     /**
+     * Database Name used in inlong metric
+     */
+    public static final String DATABASE_NAME = "database";
+    /**
+     * Table Name used in inlong metric
+     */
+    public static final String TABLE_NAME = "table";
+    /**
+     * Schema Name used in inlong metric
+     */
+    public static final String SCHEMA_NAME = "schema";
+
+    /**
      * It is used for inlong.metric
      */
     public static final String DELIMITER = "&";
+
+    /**
+     * It is used for inlong.metric
+     */
+    public static final String SEMICOLON = ".";
+
+    /**
+     * It is used for inlong.metric
+     */
+    public static final String SPILT_SEMICOLON = "\\.";
+
+    /**
+     * It is used for inlong.metric
+     */
+    public static final Long SNAPSHOT_PHASE = 1L;
+
+    /**
+     * It is used for inlong.metric
+     */
+    public static final Long INCREASE_PHASE = 2L;
 
     // sort received successfully
     public static final Integer AUDIT_SORT_INPUT = 7;

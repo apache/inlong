@@ -18,6 +18,12 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import com.google.common.collect.Maps;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MetricGroup;
@@ -27,36 +33,68 @@ import org.apache.inlong.sort.base.Constants;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import org.apache.inlong.sort.base.MetricType;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import static org.apache.inlong.sort.base.Constants.INCREASE_PHASE;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
+import static org.apache.inlong.sort.base.Constants.READ_PHASE;
+import static org.apache.inlong.sort.base.Constants.SNAPSHOT_PHASE;
 
 /**
  * A collection class for handling metrics
  */
 public class SourceMetricData implements MetricData {
 
+    public static final Logger LOGGER = LoggerFactory.getLogger(SourceMetricData.class);
+
     private final MetricGroup metricGroup;
     private final Map<String, String> labels;
     private Counter numRecordsIn;
     private Counter numBytesIn;
+    private Counter readPhase;
     private Counter numRecordsInForMeter;
     private Counter numBytesInForMeter;
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
     private AuditOperator auditOperator;
+    private final MetricType metricType;
+    private final Map<String, SourceMetricData> subSourceMetricMap = Maps.newHashMap();
 
     public SourceMetricData(MetricOption option, MetricGroup metricGroup) {
+        this(option, metricGroup, MetricType.NODE);
+    }
+
+    public SourceMetricData(MetricOption option, MetricGroup metricGroup, MetricType metricType) {
         this.metricGroup = metricGroup;
         this.labels = option.getLabels();
+        this.metricType = metricType;
 
         ThreadSafeCounter recordsInCounter = new ThreadSafeCounter();
         ThreadSafeCounter bytesInCounter = new ThreadSafeCounter();
+
         switch (option.getRegisteredMetric()) {
+            case ALL:
+                ThreadSafeCounter readPhaseCounter = new ThreadSafeCounter();
+                readPhaseCounter.inc(option.getReadPhase());
+                recordsInCounter.inc(option.getInitRecords());
+                bytesInCounter.inc(option.getInitBytes());
+                registerMetricsForReadPhase(readPhaseCounter);
+                registerMetricsForNumRecordsIn(recordsInCounter);
+                registerMetricsForNumBytesIn(bytesInCounter);
+                registerMetricsForNumBytesInForMeter(new ThreadSafeCounter());
+                registerMetricsForNumRecordsInForMeter(new ThreadSafeCounter());
+                registerMetricsForNumBytesInPerSecond();
+                registerMetricsForNumRecordsInPerSecond();
+                break;
             default:
                 recordsInCounter.inc(option.getInitRecords());
                 bytesInCounter.inc(option.getInitBytes());
@@ -90,7 +128,16 @@ public class SourceMetricData implements MetricData {
      * prometheus
      */
     public void registerMetricsForNumRecordsInForMeter(Counter counter) {
-        numRecordsInForMeter = registerCounter(NUM_RECORDS_IN_FOR_METER, counter);
+        numRecordsInForMeter = registerCounter(NUM_RECORDS_IN_FOR_METER, counter, this.metricType);
+    }
+
+    /**
+     * User can use custom counter that extends from {@link Counter}
+     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * prometheus
+     */
+    private void registerMetricsForReadPhase(Counter counter) {
+        readPhase = registerCounter(READ_PHASE, counter, this.metricType);
     }
 
     /**
@@ -108,7 +155,7 @@ public class SourceMetricData implements MetricData {
      * prometheus
      */
     public void registerMetricsForNumBytesInForMeter(Counter counter) {
-        numBytesInForMeter = registerCounter(NUM_BYTES_IN_FOR_METER, counter);
+        numBytesInForMeter = registerCounter(NUM_BYTES_IN_FOR_METER, counter, this.metricType);
     }
 
     /**
@@ -126,7 +173,7 @@ public class SourceMetricData implements MetricData {
      * prometheus
      */
     public void registerMetricsForNumRecordsIn(Counter counter) {
-        numRecordsIn = registerCounter(NUM_RECORDS_IN, counter);
+        numRecordsIn = registerCounter(NUM_RECORDS_IN, counter, this.metricType);
     }
 
     /**
@@ -144,11 +191,11 @@ public class SourceMetricData implements MetricData {
      * prometheus
      */
     public void registerMetricsForNumBytesIn(Counter counter) {
-        numBytesIn = registerCounter(NUM_BYTES_IN, counter);
+        numBytesIn = registerCounter(NUM_BYTES_IN, counter, this.metricType);
     }
 
     public void registerMetricsForNumRecordsInPerSecond() {
-        numRecordsInPerSecond = registerMeter(NUM_RECORDS_IN_PER_SECOND, this.numRecordsInForMeter);
+        numRecordsInPerSecond = registerMeter(NUM_RECORDS_IN_PER_SECOND, this.numRecordsInForMeter, this.metricType);
     }
 
     public void registerMetricsForNumBytesInPerSecond() {
@@ -161,6 +208,10 @@ public class SourceMetricData implements MetricData {
 
     public Counter getNumBytesIn() {
         return numBytesIn;
+    }
+
+    public Counter getReadPhase() {
+        return readPhase;
     }
 
     public Meter getNumRecordsInPerSecond() {
@@ -179,6 +230,10 @@ public class SourceMetricData implements MetricData {
         return numBytesInForMeter;
     }
 
+    public Map<String, SourceMetricData> getSubSourceMetricMap() {
+        return subSourceMetricMap;
+    }
+
     @Override
     public MetricGroup getMetricGroup() {
         return metricGroup;
@@ -189,9 +244,121 @@ public class SourceMetricData implements MetricData {
         return labels;
     }
 
+    /**
+     * register sub metrics group from metric state
+     *
+     * @param metricState MetricState
+     */
+    public void registerSubMetricsGroup(MetricState metricState) {
+        if (metricState == null || metricState.getSubMetricStateMap() == null
+                || metricState.getSubMetricStateMap().isEmpty()) {
+            return;
+        }
+        // judge current if snapshot phase
+        Long readPhase = metricState.getMetricValue(READ_PHASE);
+        boolean isSnapshot = (readPhase != null && readPhase.intValue() == SNAPSHOT_PHASE);
+
+        Map<String, MetricState> subMetricStateMap = metricState.getSubMetricStateMap();
+        for (Entry<String, MetricState> subMetricStateEntry : subMetricStateMap.entrySet()) {
+            String schemaIdentify = subMetricStateEntry.getKey();
+            SourceRecordSchemaInfo sourceRecordSchemaInfo = new SourceRecordSchemaInfo(schemaIdentify, isSnapshot);
+            final MetricState subMetricState = subMetricStateEntry.getValue();
+            SourceMetricData subSourceMetricData = buildSubSourceMetricData(sourceRecordSchemaInfo,
+                    subMetricState, this);
+            subSourceMetricMap.put(subMetricStateEntry.getKey(), subSourceMetricData);
+        }
+        LOGGER.info("register subMetricsGroup from metricState,sub metric map size:{}", subSourceMetricMap.size());
+    }
+
+    /**
+     * build sub source metric data
+     *
+     * @param recordSchemaInfo source record schema info
+     * @param subMetricState sub metric state
+     * @param sourceMetricData source metric data
+     * @return sub source metric data
+     */
+    private SourceMetricData buildSubSourceMetricData(SourceRecordSchemaInfo recordSchemaInfo,
+            MetricState subMetricState, SourceMetricData sourceMetricData) {
+        if (sourceMetricData == null || recordSchemaInfo == null) {
+            return null;
+        }
+        final MetricGroup metricGroup = sourceMetricData.getMetricGroup();
+
+        // build sub metricGroup
+        MetricGroup databaseMetricGroup = metricGroup
+                .addGroup(Constants.GROUP_ID, sourceMetricData.getGroupId())
+                .addGroup(Constants.STREAM_ID, sourceMetricData.getStreamId())
+                .addGroup(Constants.NODE_ID, sourceMetricData.getNodeId())
+                .addGroup(Constants.DATABASE_NAME, recordSchemaInfo.getDatabaseName());
+        String schemaName = recordSchemaInfo.getSchemaName();
+        String tableName = recordSchemaInfo.getTableName();
+        MetricGroup subMetricGroup;
+        if (StringUtils.isNotBlank(schemaName)) {
+            subMetricGroup = databaseMetricGroup.addGroup(Constants.SCHEMA_NAME, schemaName)
+                    .addGroup(Constants.TABLE_NAME, tableName);
+        } else {
+            subMetricGroup = databaseMetricGroup.addGroup(Constants.TABLE_NAME, tableName);
+        }
+        // build option labels
+        String subLabels = this.labels.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining(DELIMITER));
+
+        MetricOption metricOption = MetricOption.builder()
+                .withInitRecords(subMetricState != null ? subMetricState.getMetricValue(NUM_RECORDS_IN) : 0L)
+                .withInitBytes(subMetricState != null ? subMetricState.getMetricValue(NUM_BYTES_IN) : 0L)
+                .withReadPhase(subMetricState != null ? subMetricState.getMetricValue(READ_PHASE) : 0L)
+                .withInlongLabels(subLabels)
+                .withRegisterMetric(RegisteredMetric.NORMAL)
+                .build();
+
+        return new SourceMetricData(metricOption, subMetricGroup, MetricType.TABLE);
+    }
+
+    /**
+     * build record schema identify
+     *
+     * @param recordSchemaInfo source record schema info
+     * @return record schema identify
+     */
+    public String buildSchemaIdentify(SourceRecordSchemaInfo recordSchemaInfo) {
+        String table = recordSchemaInfo.getTableName();
+        String schema = recordSchemaInfo.getSchemaName();
+        String database = recordSchemaInfo.getDatabaseName();
+
+        StringBuilder identifyBuilder = new StringBuilder();
+        identifyBuilder.append(database).append(Constants.SEMICOLON);
+        if (StringUtils.isNotBlank(schema)) {
+            identifyBuilder.append(schema).append(Constants.SEMICOLON);
+        }
+        identifyBuilder.append(table);
+        return identifyBuilder.toString();
+    }
+
     public void outputMetricsWithEstimate(Object o) {
         long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
         outputMetrics(1, size);
+    }
+
+    public void outputMetricsWithEstimate(SourceRecordSchemaInfo recordSchemaInfo, Object o) {
+        if (recordSchemaInfo == null) {
+            LOGGER.warn("record schema info is null when outputting metrics with estimate");
+            outputMetricsWithEstimate(o);
+            return;
+        }
+        String identify = buildSchemaIdentify(recordSchemaInfo);
+        SourceMetricData subSourceMetricData;
+        if (subSourceMetricMap.containsKey(identify)) {
+            subSourceMetricData = subSourceMetricMap.get(identify);
+        } else {
+            subSourceMetricData = buildSubSourceMetricData(recordSchemaInfo, null, this);
+            subSourceMetricMap.put(identify, subSourceMetricData);
+        }
+        // sourceMetric and subSourceMetric output metrics
+        long rowCountSize = 1L;
+        long rowDataSize = o.toString().getBytes(StandardCharsets.UTF_8).length;
+        this.outputMetrics(rowCountSize, rowDataSize, recordSchemaInfo.getSnapshotRecord());
+        subSourceMetricData.outputMetrics(rowCountSize, rowDataSize, recordSchemaInfo.getSnapshotRecord());
     }
 
     public void outputMetrics(long rowCountSize, long rowDataSize) {
@@ -222,11 +389,30 @@ public class SourceMetricData implements MetricData {
         }
     }
 
+    public void outputMetrics(long rowCountSize, long rowDataSize, boolean isSnapshotRecord) {
+
+        outputMetrics(rowCountSize, rowDataSize);
+
+        if (readPhase == null) {
+            return;
+        }
+        long count = this.readPhase.getCount();
+        if (isSnapshotRecord && count != SNAPSHOT_PHASE) {
+            this.readPhase.dec(count);
+            this.readPhase.inc(SNAPSHOT_PHASE);
+        } else if (!isSnapshotRecord && count != INCREASE_PHASE) {
+            this.readPhase.dec(count);
+            this.readPhase.inc(INCREASE_PHASE);
+        }
+    }
+
     @Override
     public String toString() {
         return "SourceMetricData{"
                 + "metricGroup=" + metricGroup
                 + ", labels=" + labels
+                + ", metricType=" + metricType
+                + ", readPhase=" + (readPhase != null ? readPhase.getCount() : null)
                 + ", numRecordsIn=" + numRecordsIn.getCount()
                 + ", numBytesIn=" + numBytesIn.getCount()
                 + ", numRecordsInForMeter=" + numRecordsInForMeter.getCount()
@@ -234,6 +420,88 @@ public class SourceMetricData implements MetricData {
                 + ", numRecordsInPerSecond=" + numRecordsInPerSecond.getRate()
                 + ", numBytesInPerSecond=" + numBytesInPerSecond.getRate()
                 + ", auditOperator=" + auditOperator
+                + ", subSourceMetricMap=" + subSourceMetricMap
                 + '}';
+    }
+
+    /**
+     * Source Record Schema Info
+     */
+    public static class SourceRecordSchemaInfo {
+
+        @NonNull
+        private String databaseName;
+        private String schemaName;
+        @NonNull
+        private String tableName;
+        private Boolean snapshotRecord;
+
+        public SourceRecordSchemaInfo(String databaseName, String schemaName, String tableName,
+                Boolean snapshotRecord) {
+            this.databaseName = databaseName;
+            this.schemaName = schemaName;
+            this.tableName = tableName;
+            this.snapshotRecord = snapshotRecord;
+        }
+
+        public SourceRecordSchemaInfo(String databaseName, String tableName, Boolean snapshotRecord) {
+            this.databaseName = databaseName;
+            this.tableName = tableName;
+            this.snapshotRecord = snapshotRecord;
+        }
+
+        public SourceRecordSchemaInfo(String metricStateSchemaIdentify, Boolean snapshotRecord) {
+            String[] identifyArr = metricStateSchemaIdentify.split(Constants.SPILT_SEMICOLON);
+            this.databaseName = identifyArr[0];
+            this.snapshotRecord = snapshotRecord;
+            if (identifyArr.length == 3) {
+                this.schemaName = identifyArr[1];
+                this.tableName = identifyArr[2];
+            } else {
+                this.tableName = identifyArr[1];
+            }
+        }
+
+        public String getDatabaseName() {
+            return databaseName;
+        }
+
+        public void setDatabaseName(String databaseName) {
+            this.databaseName = databaseName;
+        }
+
+        public String getSchemaName() {
+            return schemaName;
+        }
+
+        public void setSchemaName(String schemaName) {
+            this.schemaName = schemaName;
+        }
+
+        public String getTableName() {
+            return tableName;
+        }
+
+        public void setTableName(String tableName) {
+            this.tableName = tableName;
+        }
+
+        public Boolean getSnapshotRecord() {
+            return snapshotRecord != null && snapshotRecord;
+        }
+
+        public void setSnapshotRecord(Boolean snapshotRecord) {
+            this.snapshotRecord = snapshotRecord;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this)
+                    .append("databaseName", databaseName)
+                    .append("schemaName", schemaName)
+                    .append("tableName", tableName)
+                    .append("snapshotRecord", snapshotRecord)
+                    .toString();
+        }
     }
 }

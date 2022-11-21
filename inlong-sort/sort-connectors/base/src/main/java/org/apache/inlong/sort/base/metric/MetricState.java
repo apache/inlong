@@ -32,6 +32,8 @@ public class MetricState implements Serializable {
 
     private Map<String, Long> metrics;
 
+    private Map<String, MetricState> subMetricStateMap;
+
     public MetricState() {
     }
 
@@ -63,11 +65,20 @@ public class MetricState implements Serializable {
         return 0L;
     }
 
+    public Map<String, MetricState> getSubMetricStateMap() {
+        return subMetricStateMap;
+    }
+
+    public void setSubMetricStateMap(Map<String, MetricState> subMetricStateMap) {
+        this.subMetricStateMap = subMetricStateMap;
+    }
+
     @Override
     public String toString() {
         return "MetricState{"
                 + "subtaskIndex=" + subtaskIndex
                 + ", metrics=" + metrics.toString()
+                + ", subMetricStateMap=" + subMetricStateMap
                 + '}';
     }
 }
