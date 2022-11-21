@@ -95,22 +95,22 @@ public final class Constants {
     public static final String DELIMITER = "&";
 
     /**
-     * It is used for inlong.metric
+     * It is used for metric data to build schema identify
      */
     public static final String SEMICOLON = ".";
 
     /**
-     * It is used for inlong.metric
+     * It is used for metric data to spilt schema identify
      */
     public static final String SPILT_SEMICOLON = "\\.";
 
     /**
-     * It is used for inlong.metric
+     * This indicator represents the snapshot phase during the read phase
      */
     public static final Long SNAPSHOT_PHASE = 1L;
 
     /**
-     * It is used for inlong.metric
+     * This indicator represents the incremental phase during the read phase
      */
     public static final Long INCREASE_PHASE = 2L;
 
