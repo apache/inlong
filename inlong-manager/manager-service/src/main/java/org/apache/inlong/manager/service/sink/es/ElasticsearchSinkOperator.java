@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Elasticsearch sink operator, such as save or update Elasticsearch field, etc.
@@ -45,6 +46,7 @@ import java.util.List;
 public class ElasticsearchSinkOperator extends AbstractSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchSinkOperator.class);
+    private static final String KEY_FIELDS = "fieldNames";
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -86,6 +88,17 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
         List<SinkField> sinkFields = super.getSinkFields(entity.getId());
         sink.setSinkFieldList(sinkFields);
         return sink;
+    }
+
+    @Override
+    public Map<String, String> parse2IdParams(StreamSinkEntity streamSink, List<String> fields) {
+        Map<String, String> idParams = super.parse2IdParams(streamSink, fields);
+        StringBuilder sb = new StringBuilder();
+        for (String field : fields) {
+            sb.append(field).append(" ");
+        }
+        idParams.put(KEY_FIELDS, sb.toString());
+        return idParams;
     }
 
 }
