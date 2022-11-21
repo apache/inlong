@@ -21,12 +21,17 @@ import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeRequest;
 import org.apache.inlong.manager.pojo.node.hive.HiveDataNodeRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.service.node.DataNodeOperator;
+import org.apache.inlong.manager.service.node.DataNodeOperatorFactory;
 import org.apache.inlong.manager.service.node.DataNodeService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
 
 /**
  * Data node service test for {@link DataNodeService}
@@ -35,6 +40,9 @@ public class DataNodeServiceTest extends ServiceBaseTest {
 
     @Autowired
     private DataNodeService dataNodeService;
+
+    @Autowired
+    private DataNodeOperatorFactory dataNodeOperatorFactory;
 
     /**
      * Save data node info.
@@ -120,6 +128,19 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         // test delete data node
         Boolean deleteSuccess = this.deleteOpt(id);
         Assertions.assertTrue(deleteSuccess);
+    }
+
+    @Test
+    public void testEsDataNode() {
+        ElasticsearchDataNodeRequest request = new ElasticsearchDataNodeRequest();
+        request.setName("esDataNodeName");
+        request.setInCharges(GLOBAL_OPERATOR);
+        int id = dataNodeService.save(request, GLOBAL_OPERATOR);
+        DataNodeInfo info = dataNodeService.get(id);
+        Assertions.assertEquals(DataNodeType.ELASTICSEARCH, info.getType());
+        DataNodeOperator operator = dataNodeOperatorFactory.getInstance(info.getType());
+        Map<String, String> params = operator.parse2SinkParams(info);
+        System.out.println(params);
     }
 
 }
