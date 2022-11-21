@@ -55,6 +55,8 @@ import org.apache.inlong.sort.protocol.MetaFieldInfo;
 
 import java.util.List;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
+
 /**
  * Util for sort field info.
  */
@@ -172,7 +174,7 @@ public class FieldInfoUtils {
      */
     public static FormatInfo convertFieldFormat(String type, String format) {
         FormatInfo formatInfo;
-        FieldType fieldType = FieldType.forName(type);
+        FieldType fieldType = FieldType.forName(StringUtils.substringBefore(type, LEFT_BRACKET));
         switch (fieldType) {
             case BOOLEAN:
                 formatInfo = new BooleanFormatInfo();
@@ -267,6 +269,7 @@ public class FieldInfoUtils {
             case STRUCT:
                 formatInfo = createRowFormatInfo(format);
                 break;
+            case VARCHAR:
             default: // default is string
                 formatInfo = new StringFormatInfo();
         }
