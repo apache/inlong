@@ -53,7 +53,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
             if (!newEntity.updModifyInfo(entity.getDataVerId(),
                     entity.getBrokerPort(), entity.getBrokerTLSPort(),
                     entity.getBrokerWebPort(), entity.getMaxMsgSizeInMB(),
-                    entity.getQryPriorityId(), entity.enableFlowCtrl(),
+                    entity.getQryPriorityId(), entity.getGloFlowCtrlStatus(),
                     entity.getGloFlowCtrlRuleCnt(), entity.getGloFlowCtrlRuleInfo(),
                     entity.getClsDefTopicProps())) {
                 result.setFailResult(DataOpErrCode.DERR_UNCHANGED.getCode(),

@@ -36,6 +36,7 @@ import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStsChgType;
@@ -319,7 +320,7 @@ public class DefaultMetaDataService implements MetaDataService {
     public boolean addOrUpdClusterDefSetting(BaseEntity opEntity, int brokerPort,
                                              int brokerTlsPort, int brokerWebPort,
                                              int maxMsgSizeMB, int qryPriorityId,
-                                             Boolean flowCtrlEnable, int flowRuleCnt,
+                                             EnableStatus flowCtrlEnable, int flowRuleCnt,
                                              String flowCtrlInfo, TopicPropGroup topicProps,
                                              StringBuilder strBuff, ProcessResult result) {
         // check current status
@@ -854,7 +855,7 @@ public class DefaultMetaDataService implements MetaDataService {
     @Override
     public List<TopicProcessResult> addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
                                                           Set<String> topicNameSet, int topicNameId,
-                                                          Boolean enableTopicAuth, int maxMsgSizeInMB,
+                                                          EnableStatus enableTopicAuth, int maxMsgSizeInMB,
                                                           StringBuilder strBuff, ProcessResult result) {
         TopicCtrlEntity entity;
         Map<String, TopicCtrlEntity> topicCtrlEntityMap = new HashMap<>();
@@ -906,7 +907,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public TopicProcessResult insertTopicCtrlConf(BaseEntity opEntity, String topicName,
-                                                  Boolean enableTopicAuth, StringBuilder strBuff,
+                                                  EnableStatus enableTopicAuth, StringBuilder strBuff,
                                                   ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
@@ -971,9 +972,9 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult addOrUpdGroupCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                                    String groupName, Boolean resCheckEnable,
+                                                    String groupName, EnableStatus resCheckEnable,
                                                     int allowedBClientRate, int qryPriorityId,
-                                                    Boolean flowCtrlEnable, int flowRuleCnt,
+                                                    EnableStatus flowCtrlEnable, int flowRuleCnt,
                                                     String flowCtrlInfo, StringBuilder strBuff,
                                                     ProcessResult result) {
         GroupResCtrlEntity entity =
@@ -998,7 +999,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                                  int qryPriorityId, Boolean flowCtrlEnable,
+                                                  int qryPriorityId, EnableStatus flowCtrlEnable,
                                                   int flowRuleCnt, String flowCtrlRuleInfo,
                                                   StringBuilder strBuff, ProcessResult result) {
         // check current status
@@ -1012,7 +1013,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                                  Boolean resChkEnable, int allowedB2CRate,
+                                                  EnableStatus resChkEnable, int allowedB2CRate,
                                                   StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
@@ -1077,8 +1078,8 @@ public class DefaultMetaDataService implements MetaDataService {
     @Override
     public GroupProcessResult addOrUpdConsumeCtrlInfo(boolean isAddOp, BaseEntity opEntity,
                                                       String groupName, String topicName,
-                                                      Boolean enableCsm, String disableRsn,
-                                                      Boolean enableFlt, String fltCondStr,
+                                                      EnableStatus enableCsm, String disableRsn,
+                                                      EnableStatus enableFlt, String fltCondStr,
                                                       StringBuilder strBuff, ProcessResult result) {
         GroupConsumeCtrlEntity entity =
                 new GroupConsumeCtrlEntity(opEntity, groupName, topicName);
@@ -1100,8 +1101,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult insertConsumeCtrlInfo(BaseEntity opEntity, String groupName,
-                                                    String topicName, Boolean enableCsm,
-                                                    String disReason, Boolean enableFlt,
+                                                    String topicName, EnableStatus enableCsm,
+                                                    String disReason, EnableStatus enableFlt,
                                                     String fltCondStr, StringBuilder strBuff,
                                                     ProcessResult result) {
         // check current status

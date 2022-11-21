@@ -25,6 +25,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
 /*
@@ -327,14 +328,15 @@ public class BdbClusterSettingEntity implements Serializable {
                         String.valueOf(enableGloFlowCtrl));
     }
 
-    public Boolean getEnableGloFlowCtrl() {
+    public EnableStatus getEnableGloFlowCtrl() {
         String atrVal =
                 TStringUtils.getAttrValFrmAttributes(this.attributes,
                         TStoreConstants.TOKEN_ENABLE_FLOW_CTRL);
         if (atrVal != null) {
-            return Boolean.parseBoolean(atrVal);
+            return Boolean.parseBoolean(atrVal)
+                    ? EnableStatus.STATUS_ENABLE : EnableStatus.STATUS_DISABLE;
         }
-        return null;
+        return EnableStatus.STATUS_UNDEFINE;
     }
 
     public void setGloFlowCtrlCnt(int flowCtrlCnt) {

@@ -99,7 +99,7 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean flowCtrlEnable = (Boolean) result.getRetData();
+        EnableStatus flowCtrlEnable = (EnableStatus) result.getRetData();
         qryEntity.updModifyInfo(qryEntity.getDataVerId(), null,
                 TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId,
                 flowCtrlEnable, TBaseConstants.META_VALUE_UNDEFINED, null);
@@ -181,7 +181,7 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
             if (ctrlEntity != null
                     && ctrlEntity.getFlowCtrlStatus() != EnableStatus.STATUS_DISABLE) {
                 retInfoList.add(defMetaDataService.insertGroupCtrlConf(opEntity, groupName,
-                        TServerConstants.QRY_PRIORITY_DEF_VALUE, Boolean.FALSE,
+                        TServerConstants.QRY_PRIORITY_DEF_VALUE, EnableStatus.STATUS_DISABLE,
                         0, TServerConstants.BLANK_FLOWCTRL_RULES, sBuffer, result));
             } else {
                 result.setFullInfo(true, DataOpErrCode.DERR_SUCCESS.getCode(), "Ok");
@@ -230,7 +230,7 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean flowCtrlEnable = (Boolean) result.getRetData();
+        EnableStatus flowCtrlEnable = (EnableStatus) result.getRetData();
         // get and flow control rule info
         int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
                 (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
