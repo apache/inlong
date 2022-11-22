@@ -157,6 +157,12 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                 + conditionClause;
     }
 
+    /**
+     * ClickHouse throw exception "Table default.test_user doesn't exist". But jdbc-url have database name.
+     * So we specify database when exec query. This method parse tableName to database and table.
+     * @param tableName include database.table
+     * @return pair left is database, right is table
+     */
     private Pair<String, String> getDatabaseAndTableName(String tableName) {
         String databaseName = "default";
         if (tableName.contains(POINT)) {
