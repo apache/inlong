@@ -33,8 +33,10 @@ import static org.apache.inlong.common.metric.MetricObserver.LOG;
  */
 public class DorisParseUtils {
 
-    private static final String ESCAPE = "\\\\x(\\d{2})";
-    private static final Pattern p = Pattern.compile(ESCAPE);
+    /**
+     * Pattern of escape mode for hexadecimal characters, such as "hi\\x33hi\\x44hello".
+     */
+    private static final Pattern PATTERN = Pattern.compile("\\\\x(\\d{2})");
 
     /**
      * A utility function used to split the given string which represents a captured row,
