@@ -238,7 +238,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     private boolean enableBatchDelete() {
-        return executionOptions.getEnableDelete();
+        try {
+            Schema schema = RestService.getSchema(options, readOptions, LOG);
+            return executionOptions.getEnableDelete() || UNIQUE_KEYS_TYPE.equals(schema.getKeysType());
+        } catch (DorisException e) {
+            throw new RuntimeException("Failed fetch doris table schema: " + options.getTableIdentifier(), e);
+        }
     }
 
     @Override
@@ -253,6 +258,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 options.getPassword(),
                 executionOptions.getStreamLoadProp());
         if (!multipleSink) {
+            Properties loadProperties = executionOptions.getStreamLoadProp();
+            // if enable batch delete, the columns must add tag '__DORIS_DELETE_SIGN__'
+            String columns = (String) loadProperties.get(COLUMNS_KEY);
+            if (loadProperties.containsKey(COLUMNS_KEY) && !columns.contains(DORIS_DELETE_SIGN)
+                    && enableBatchDelete()) {
+                loadProperties.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
+            }
             this.jsonFormat = FORMAT_JSON_VALUE.equals(executionOptions.getStreamLoadProp().getProperty(FORMAT_KEY));
             this.keysType = parseKeysType();
 
