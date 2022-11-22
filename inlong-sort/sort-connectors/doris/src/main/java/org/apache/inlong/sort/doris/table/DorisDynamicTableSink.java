@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.doris.table;
 
+import org.apache.doris.flink.exception.DorisException;
+import org.apache.doris.flink.rest.RestService;
+import org.apache.doris.flink.rest.models.Schema;
+import org.apache.doris.flink.table.DorisDynamicOutputFormat;
 import org.apache.doris.flink.cfg.DorisExecutionOptions;
 import org.apache.doris.flink.cfg.DorisOptions;
 import org.apache.doris.flink.cfg.DorisReadOptions;

@@ -63,7 +63,6 @@ public class DorisStreamLoad implements Serializable {
     private final Properties streamLoadProp;
     private final CloseableHttpClient httpClient;
     private String hostPort;
-    private String loadUrlStr;
 
     public DorisStreamLoad(String hostPort, String user, String passwd,
             Properties streamLoadProp) {
