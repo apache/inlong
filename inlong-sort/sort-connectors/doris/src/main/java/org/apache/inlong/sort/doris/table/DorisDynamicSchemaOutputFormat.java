@@ -235,6 +235,13 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             }
             streamLoadProp.put(COLUMNS_KEY, columns);
         }
+
+        // if enable batch delete, the columns must add tag '__DORIS_DELETE_SIGN__'
+        String columns = (String) streamLoadProp.get(COLUMNS_KEY);
+        if (streamLoadProp.containsKey(COLUMNS_KEY) && !columns.contains(DORIS_DELETE_SIGN)
+                && enableBatchDelete()) {
+            streamLoadProp.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
+        }
     }
 
     private boolean enableBatchDelete() {
@@ -259,15 +266,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 executionOptions.getStreamLoadProp());
         if (!multipleSink) {
             Properties loadProperties = executionOptions.getStreamLoadProp();
-            // if enable batch delete, the columns must add tag '__DORIS_DELETE_SIGN__'
-            String columns = (String) loadProperties.get(COLUMNS_KEY);
-            if (loadProperties.containsKey(COLUMNS_KEY) && !columns.contains(DORIS_DELETE_SIGN)
-                    && enableBatchDelete()) {
-                loadProperties.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
-            }
-            this.jsonFormat = FORMAT_JSON_VALUE.equals(executionOptions.getStreamLoadProp().getProperty(FORMAT_KEY));
-            this.keysType = parseKeysType();
-
+            this.jsonFormat = FORMAT_JSON_VALUE.equals(loadProperties.getProperty(FORMAT_KEY));
             handleStreamloadProp();
             this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
             for (int i = 0; i < logicalTypes.length; i++) {
@@ -592,9 +591,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         String[] tableWithDb = tableIdentifier.split("\\.");
         RespContent respContent = null;
         // Dynamic set COLUMNS_KEY for tableIdentifier every time for multiple sink scenario
-        if (multipleSink) {
-            executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
-        }
+        executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
                 respContent = dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result);

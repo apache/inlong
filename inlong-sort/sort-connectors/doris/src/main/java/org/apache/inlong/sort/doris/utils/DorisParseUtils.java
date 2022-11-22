@@ -29,7 +29,6 @@ import org.apache.inlong.sort.doris.table.DorisDynamicSchemaOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * A utility class primarily serving DorisDynamaicSchemaOutputFormat
  * extracts some common utility methods out.
