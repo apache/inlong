@@ -27,8 +27,20 @@ import java.util.regex.Pattern;
 
 import static org.apache.inlong.common.metric.MetricObserver.LOG;
 
+/**
+ * A utility class primarily serving DorisDynamaicSchemaOutputFormat
+ * extracts some common utility methods out.
+ */
 public class DorisParseUtils {
 
+    private static String ESCAPE = "\\\\x(\\d{2})";
+
+    /**
+     * A utility function used to split the given string which represents a captured row,
+     * containing whitespace or tab and parse it to a hashmap.
+     * @param data an object which is created by stringify row data
+     * @return Map<String, String>
+     */
     public static Map<String, String> parsetoMap(Object data) {
         String[] toParse = data.toString().split("\\s+");
         Map<String, String> ret = new HashMap<>();
@@ -41,6 +53,12 @@ public class DorisParseUtils {
         return ret;
     }
 
+    /**
+     * A utility function used to determine the DORIS_DELETE_SIGN for a row change.
+     *
+     * @param  rowKind the row change
+     * @return the doris delete sign corresponding to the change
+     */
     public static String parseDeleteSign(RowKind rowKind) {
         if (RowKind.INSERT.equals(rowKind) || RowKind.UPDATE_AFTER.equals(rowKind)) {
             return "0";
@@ -51,16 +69,24 @@ public class DorisParseUtils {
         }
     }
 
+    /**
+     * A utility function used to parse a string according to the given hexadecimal escape sequence.
+     * example input: "hi\\x33hi" , where \x33 is '!'
+     * example output: "hi!hi"
+     *
+     * @param  s string before parsing
+     * @return the parsed string
+     */
     public static String escapeString(String s) {
-        Pattern p = Pattern.compile("\\\\x(\\d{2})");
+        Pattern p = Pattern.compile(ESCAPE);
         Matcher m = p.matcher(s);
-
-        StringBuffer buf = new StringBuffer();
-        while (m.find()) {
-            m.appendReplacement(buf, String.format("%s", (char) Integer.parseInt(m.group(1))));
+        String out;
+        if(m.find()){
+            out = m.replaceAll(String.format("%s", (char) Integer.parseInt(m.group(1))));
+        } else{
+            out = s;
         }
-        m.appendTail(buf);
-        return buf.toString();
+        return out;
     }
 
 }
