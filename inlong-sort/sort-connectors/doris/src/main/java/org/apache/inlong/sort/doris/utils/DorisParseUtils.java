@@ -71,8 +71,8 @@ public class DorisParseUtils {
 
     /**
      * A utility function used to parse a string according to the given hexadecimal escape sequence.
-     * example input: "hi\\x33hi" , where \x33 is '!'
-     * example output: "hi!hi"
+     * example input: ""hi\\x33hi\\x44hello"" , where \x33 is '!', \x44 is ','
+     * example output: "hi!hi,hello"
      *
      * @param  s string before parsing
      * @return the parsed string
@@ -80,13 +80,14 @@ public class DorisParseUtils {
     public static String escapeString(String s) {
         Pattern p = Pattern.compile(ESCAPE);
         Matcher m = p.matcher(s);
-        String out;
-        if(m.find()){
-            out = m.replaceAll(String.format("%s", (char) Integer.parseInt(m.group(1))));
-        } else{
-            out = s;
+
+        StringBuffer buf = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(buf, String.format("%s", (char) Integer.parseInt(m.group(1))));
         }
-        return out;
+        m.appendTail(buf);
+
+        return buf.toString();
     }
 
 }
