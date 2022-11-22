@@ -33,13 +33,14 @@ import static org.apache.inlong.common.metric.MetricObserver.LOG;
  */
 public class DorisParseUtils {
 
-    private static String ESCAPE = "\\\\x(\\d{2})";
+    private static final String ESCAPE = "\\\\x(\\d{2})";
 
     /**
      * A utility function used to split the given string which represents a captured row,
      * containing whitespace or tab and parse it to a hashmap.
+     *
      * @param data an object which is created by stringify row data
-     * @return Map<String, String>
+     * @return Map a hashmap which can be used to load the data
      */
     public static Map<String, String> parsetoMap(Object data) {
         String[] toParse = data.toString().split("\\s+");
@@ -56,7 +57,7 @@ public class DorisParseUtils {
     /**
      * A utility function used to determine the DORIS_DELETE_SIGN for a row change.
      *
-     * @param  rowKind the row change
+     * @param rowKind the row change
      * @return the doris delete sign corresponding to the change
      */
     public static String parseDeleteSign(RowKind rowKind) {
@@ -74,7 +75,7 @@ public class DorisParseUtils {
      * example input: ""hi\\x33hi\\x44hello"" , where \x33 is '!', \x44 is ','
      * example output: "hi!hi,hello"
      *
-     * @param  s string before parsing
+     * @param s string before parsing
      * @return the parsed string
      */
     public static String escapeString(String s) {
