@@ -22,6 +22,9 @@ package org.apache.inlong.sort.iceberg;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
+/**
+ * Iceberg unique flink configuration
+ */
 public class FlinkConfigOptions {
 
     public static final ConfigOption<Boolean> TABLE_EXEC_ICEBERG_INFER_SOURCE_PARALLELISM =

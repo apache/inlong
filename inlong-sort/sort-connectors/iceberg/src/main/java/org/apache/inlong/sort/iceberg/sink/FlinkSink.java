@@ -40,6 +40,7 @@ import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.SerializableTable;
 import org.apache.iceberg.Table;
+import org.apache.iceberg.actions.ActionsProvider;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
@@ -82,6 +83,7 @@ import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES_DE
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
+ * Add a table property `write.compact.enable` to support small file compact.
  * Add option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect inlong metrics and audit.
  */
 public class FlinkSink {
@@ -151,6 +153,7 @@ public class FlinkSink {
         private TableLoader tableLoader;
         private Table table;
         private TableSchema tableSchema;
+        private ActionsProvider actionProvider;
         private boolean overwrite = false;
         private boolean appendMode = false;
         private DistributionMode distributionMode = null;
@@ -254,6 +257,17 @@ public class FlinkSink {
          */
         public FlinkSink.Builder appendMode(boolean appendMode) {
             this.appendMode = appendMode;
+            return this;
+        }
+
+        /**
+         * The action properties is used to do some iceberg action like datafile rewrite action in flink runtime.
+         *
+         * @param actionProvider auto compact properties.
+         * @return {@link FlinkSink.Builder} to connect the iceberg table.
+         */
+        public FlinkSink.Builder action(ActionsProvider actionProvider) {
+            this.actionProvider = actionProvider;
             return this;
         }
 
@@ -441,7 +455,8 @@ public class FlinkSink {
 
         private SingleOutputStreamOperator<Void> appendCommitter(SingleOutputStreamOperator<WriteResult> writerStream) {
             IcebergProcessOperator<WriteResult, Void> filesCommitter = new IcebergProcessOperator<>(
-                    new IcebergSingleFileCommiter(TableIdentifier.of(table.name()), tableLoader, overwrite));
+                    new IcebergSingleFileCommiter(
+                            TableIdentifier.of(table.name()), tableLoader, overwrite, actionProvider));
             SingleOutputStreamOperator<Void> committerStream = writerStream
                     .transform(operatorName(ICEBERG_FILES_COMMITTER_NAME), Types.VOID, filesCommitter)
                     .setParallelism(1)

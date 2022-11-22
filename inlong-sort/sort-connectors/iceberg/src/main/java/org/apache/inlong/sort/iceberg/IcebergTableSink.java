@@ -31,6 +31,7 @@ import org.apache.flink.table.connector.sink.abilities.SupportsOverwrite;
 import org.apache.flink.table.connector.sink.abilities.SupportsPartitioning;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
+import org.apache.iceberg.actions.ActionsProvider;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
@@ -56,6 +57,7 @@ import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_A
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
+ * Add a table property `write.compact.enable` to support small file compact.
  * Add option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect inlong metrics and audit
  */
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
@@ -68,6 +70,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
     private final CatalogTable catalogTable;
     private final CatalogLoader catalogLoader;
 
+    private final ActionsProvider actionsProvider;
+
     private boolean overwrite = false;
 
     private IcebergTableSink(IcebergTableSink toCopy) {
@@ -76,14 +80,19 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
         this.overwrite = toCopy.overwrite;
         this.catalogTable = toCopy.catalogTable;
         this.catalogLoader = toCopy.catalogLoader;
+        this.actionsProvider = toCopy.actionsProvider;
     }
 
-    public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable,
-            CatalogLoader catalogLoader) {
+    public IcebergTableSink(TableLoader tableLoader,
+            TableSchema tableSchema,
+            CatalogTable catalogTable,
+            CatalogLoader catalogLoader,
+            ActionsProvider actionsProvider) {
         this.tableLoader = tableLoader;
         this.tableSchema = tableSchema;
         this.catalogTable = catalogTable;
         this.catalogLoader = catalogLoader;
+        this.actionsProvider = actionsProvider;
     }
 
     @Override
@@ -121,6 +130,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
                     .overwrite(overwrite)
                     .appendMode(tableOptions.get(ICEBERG_IGNORE_ALL_CHANGELOG))
                     .metric(tableOptions.get(INLONG_METRIC), tableOptions.get(INLONG_AUDIT))
+                    .action(actionsProvider)
                     .append();
         }
     }

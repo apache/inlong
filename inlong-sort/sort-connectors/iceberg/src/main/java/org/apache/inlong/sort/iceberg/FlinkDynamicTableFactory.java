@@ -36,6 +36,7 @@ import org.apache.flink.table.factories.DynamicTableSinkFactory;
 import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.util.Preconditions;
+import org.apache.iceberg.actions.ActionsProvider;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.common.DynMethods;
 import org.apache.iceberg.exceptions.AlreadyExistsException;
@@ -64,36 +65,42 @@ import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_A
  *
  * <p>
  * Factory for creating configured instances of {@link IcebergTableSource} and {@link
- * IcebergTableSink}.We modify KafkaDynamicTableSink to support append-mode .
+ * IcebergTableSink}.We modify IcebergDynamicTableSink to support append-mode .
  * </p>
  */
 public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, DynamicTableSourceFactory {
 
     static final String FACTORY_IDENTIFIER = "iceberg-inlong";
 
-    private static final ConfigOption<String> CATALOG_NAME =
+    public static final ConfigOption<String> CATALOG_NAME =
             ConfigOptions.key("catalog-name")
                     .stringType()
                     .noDefaultValue()
                     .withDescription("Catalog name");
 
-    private static final ConfigOption<String> CATALOG_TYPE =
+    public static final ConfigOption<String> CATALOG_TYPE =
             ConfigOptions.key(FlinkCatalogFactory.ICEBERG_CATALOG_TYPE)
                     .stringType()
                     .noDefaultValue()
                     .withDescription("Catalog type, the optional types are: custom, hadoop, hive.");
 
-    private static final ConfigOption<String> CATALOG_DATABASE =
+    public static final ConfigOption<String> CATALOG_DATABASE =
             ConfigOptions.key("catalog-database")
                     .stringType()
                     .defaultValue(FlinkCatalogFactory.DEFAULT_DATABASE_NAME)
                     .withDescription("Database name managed in the iceberg catalog.");
 
-    private static final ConfigOption<String> CATALOG_TABLE =
+    public static final ConfigOption<String> CATALOG_TABLE =
             ConfigOptions.key("catalog-table")
                     .stringType()
                     .noDefaultValue()
                     .withDescription("Table name managed in the underlying iceberg catalog and database.");
+
+    public static final ConfigOption<String> ACTION_IMPL =
+            ConfigOptions.key("action-impl")
+                    .stringType()
+                    .defaultValue("org.apache.inlong.sort.iceberg.FlinkActions$FlinkDefaultActions")
+                    .withDescription("Iceberg action provider implement.");
 
     // Flink 1.13.x change the return type from CatalogTable interface to ResolvedCatalogTable which extends the
     // CatalogTable. Here we use the dynamic method loading approach to avoid adding explicit CatalogTable or
@@ -179,6 +186,19 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         return TableLoader.fromCatalog(catalog.getCatalogLoader(), catalog.toIdentifier(objectPath));
     }
 
+    private static ActionsProvider createActionLoader(ClassLoader cl, Map<String, String> tableProps) {
+        String actionClass = tableProps.getOrDefault(ACTION_IMPL.key(), ACTION_IMPL.defaultValue());
+        try {
+            FlinkActions actionsProvider = (FlinkActions) cl.loadClass(actionClass).newInstance();
+            actionsProvider.init(tableProps);
+            return actionsProvider;
+        } catch (ClassNotFoundException
+                | IllegalAccessException
+                | InstantiationException e) {
+            throw new RuntimeException("Can not new instance for custom class from " + actionClass, e);
+        }
+    }
+
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
         ObjectIdentifier objectIdentifier = context.getObjectIdentifier();
@@ -203,12 +223,13 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         CatalogTable catalogTable = loadCatalogTable(context);
         Map<String, String> tableProps = catalogTable.getOptions();
         TableSchema tableSchema = TableSchemaUtils.getPhysicalSchema(catalogTable.getSchema());
+        ActionsProvider actionsLoader = createActionLoader(context.getClassLoader(), tableProps);
 
         boolean multipleSink = Boolean.parseBoolean(
                 tableProps.getOrDefault(SINK_MULTIPLE_ENABLE.key(), SINK_MULTIPLE_ENABLE.defaultValue().toString()));
         if (multipleSink) {
             CatalogLoader catalogLoader = createCatalogLoader(tableProps);
-            return new IcebergTableSink(null, tableSchema, catalogTable, catalogLoader);
+            return new IcebergTableSink(null, tableSchema, catalogTable, catalogLoader, actionsLoader);
         } else {
             TableLoader tableLoader;
             if (catalog != null) {
@@ -217,7 +238,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                 tableLoader = createTableLoader(catalogTable, tableProps, objectPath.getDatabaseName(),
                         objectPath.getObjectName());
             }
-            return new IcebergTableSink(tableLoader, tableSchema, catalogTable, null);
+            return new IcebergTableSink(tableLoader, tableSchema, catalogTable, null, actionsLoader);
         }
     }
 
@@ -234,6 +255,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         Set<ConfigOption<?>> options = Sets.newHashSet();
         options.add(CATALOG_DATABASE);
         options.add(CATALOG_TABLE);
+        options.add(ACTION_IMPL);
         options.add(ICEBERG_IGNORE_ALL_CHANGELOG);
         options.add(INLONG_METRIC);
         options.add(INLONG_AUDIT);
