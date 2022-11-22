@@ -230,15 +230,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             String columns = String.join(",", Arrays.stream(fieldNames)
                     .map(item -> String.format("`%s`", item.trim().replace("`", "")))
                     .collect(Collectors.toList()));
-            if (enableBatchDelete()) {
-                columns = String.format("%s,%s", columns, DORIS_DELETE_SIGN);
-            }
             streamLoadProp.put(COLUMNS_KEY, columns);
         }
 
         // if enable batch delete, the columns must add tag '__DORIS_DELETE_SIGN__'
         String columns = (String) streamLoadProp.get(COLUMNS_KEY);
-        if (streamLoadProp.containsKey(COLUMNS_KEY) && !columns.contains(DORIS_DELETE_SIGN)
+        if (!columns.contains(DORIS_DELETE_SIGN)
                 && enableBatchDelete()) {
             streamLoadProp.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
         }
