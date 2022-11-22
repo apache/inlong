@@ -17,9 +17,13 @@
 
 package org.apache.inlong.sort.doris.table;
 
+import java.util.Properties;
 import org.apache.doris.flink.cfg.DorisExecutionOptions;
 import org.apache.doris.flink.cfg.DorisOptions;
 import org.apache.doris.flink.cfg.DorisReadOptions;
+import org.apache.doris.flink.exception.DorisException;
+import org.apache.doris.flink.rest.RestService;
+import org.apache.doris.flink.rest.models.Schema;
 import org.apache.doris.flink.table.DorisDynamicOutputFormat;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -28,12 +32,16 @@ import org.apache.flink.table.connector.sink.OutputFormatProvider;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.doris.internal.GenericDorisSinkFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DorisDynamicTableSink copy from {@link org.apache.doris.flink.table.DorisDynamicTableSink}
  * It supports both single table sink and multiple table sink
  **/
 public class DorisDynamicTableSink implements DynamicTableSink {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DorisDynamicTableSink.class);
 
     private final DorisOptions options;
     private final DorisReadOptions readOptions;
@@ -47,6 +55,9 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     private final String inlongMetric;
     private final String auditHostAndPorts;
     private final Integer parallelism;
+    private static final String UNIQUE_KEYS_TYPE = "UNIQUE_KEYS";
+    private static final String COLUMNS_KEY = "columns";
+    private static final String DORIS_DELETE_SIGN = "__DORIS_DELETE_SIGN__";
 
     public DorisDynamicTableSink(DorisOptions options,
             DorisReadOptions readOptions,
@@ -87,6 +98,13 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
         if (!multipleSink) {
+            Properties loadProperties = executionOptions.getStreamLoadProp();
+            // if enable batch delete, the columns must add tag '__DORIS_DELETE_SIGN__'
+            String columns = (String) loadProperties.get(COLUMNS_KEY);
+            if (loadProperties.containsKey(COLUMNS_KEY) && !columns.contains(DORIS_DELETE_SIGN)
+                    && enableBatchDelete()) {
+                loadProperties.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
+            }
             DorisDynamicOutputFormat.Builder builder = DorisDynamicOutputFormat.builder()
                     .setFenodes(options.getFenodes())
                     .setUsername(options.getUsername())
@@ -124,6 +142,15 @@ public class DorisDynamicTableSink implements DynamicTableSink {
     @Override
     public String asSummaryString() {
         return "Doris Table Sink Of InLong";
+    }
+
+    private boolean enableBatchDelete() {
+        try {
+            Schema schema = RestService.getSchema(options, readOptions, LOG);
+            return executionOptions.getEnableDelete() || UNIQUE_KEYS_TYPE.equals(schema.getKeysType());
+        } catch (DorisException e) {
+            throw new RuntimeException("Failed fetch doris table schema: " + options.getTableIdentifier(), e);
+        }
     }
 }
 
