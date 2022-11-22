@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
@@ -282,19 +283,19 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         }
         final Set<String> topicNameSet = (Set<String>) result.getRetData();
         // get consumeEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
+        if (!WebParameterUtils.getEnableStatusValue(req,
                 WebFieldDef.CONSUMEENABLE, false, null, strBuff, result)) {
             WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
             return strBuff;
         }
-        final Boolean consumeEnable = (Boolean) result.getRetData();
+        final EnableStatus consumeEnable = (EnableStatus) result.getRetData();
         // get filterEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
+        if (!WebParameterUtils.getEnableStatusValue(req,
                 WebFieldDef.FILTERENABLE, false, null, strBuff, result)) {
             WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
             return strBuff;
         }
-        Boolean filterEnable = (Boolean) result.getRetData();
+        EnableStatus filterEnable = (EnableStatus) result.getRetData();
         // get filterConds info
         if (!WebParameterUtils.getFilterCondSet(req, false, true, strBuff, result)) {
             WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
@@ -366,13 +367,13 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         }
         final Set<String> groupNameSet = (Set<String>) result.getRetData();
         // get consumeEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
+        if (!WebParameterUtils.getEnableStatusValue(req,
                 WebFieldDef.CONSUMEENABLE, false,
-                (isAddOp ? true : null), sBuffer, result)) {
+                (isAddOp ? EnableStatus.STATUS_ENABLE : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean consumeEnable = (Boolean) result.getRetData();
+        EnableStatus consumeEnable = (EnableStatus) result.getRetData();
         // get disableCsmRsn info
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.DSBCSMREASON, false,
@@ -382,13 +383,13 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         }
         String disableRsn = (String) result.getRetData();
         // get filterEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
+        if (!WebParameterUtils.getEnableStatusValue(req,
                 WebFieldDef.FILTERENABLE, false,
-                (isAddOp ? false : null), sBuffer, result)) {
+                (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean filterEnable = (Boolean) result.getRetData();
+        EnableStatus filterEnable = (EnableStatus) result.getRetData();
         // get filterConds info
         if (!WebParameterUtils.getFilterCondString(req, false, isAddOp, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -494,12 +495,12 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                 return result.isSuccess();
             }
             // get consumeEnable info
-            if (!WebParameterUtils.getBooleanParamValue(itemsMap,
+            if (!WebParameterUtils.getEnableStatusValue(itemsMap,
                     WebFieldDef.CONSUMEENABLE, false,
-                    (isAddOp ? true : null), sBuffer, result)) {
+                    (isAddOp ? EnableStatus.STATUS_ENABLE : null), sBuffer, result)) {
                 return result.isSuccess();
             }
-            final Boolean consumeEnable = (Boolean) result.getRetData();
+            final EnableStatus consumeEnable = (EnableStatus) result.getRetData();
             // get disableCsmRsn info
             if (!WebParameterUtils.getStringParamValue(itemsMap,
                     WebFieldDef.DSBCSMREASON, false, (isAddOp ? "" : null), sBuffer, result)) {
@@ -507,12 +508,12 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             }
             final String disableRsn = (String) result.getRetData();
             // get filterEnable info
-            if (!WebParameterUtils.getBooleanParamValue(itemsMap,
+            if (!WebParameterUtils.getEnableStatusValue(itemsMap,
                     WebFieldDef.FILTERENABLE, false,
-                    (isAddOp ? false : null), sBuffer, result)) {
+                    (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
                 return result.isSuccess();
             }
-            Boolean filterEnable = (Boolean) result.getRetData();
+            EnableStatus filterEnable = (EnableStatus) result.getRetData();
             // get filterConds info
             if (!WebParameterUtils.getFilterCondString(
                     itemsMap, false, isAddOp, sBuffer, result)) {

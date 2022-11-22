@@ -42,6 +42,7 @@ import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
@@ -234,6 +235,35 @@ public class WebParameterUtils {
             return false;
         }
         result.setSuccResult(qryPriorityId);
+        return result.isSuccess();
+    }
+
+    /**
+     * Parse the parameter value from an object value to a EnableStatus value
+     *
+     * @param paramCntr   parameter container object
+     * @param required   a boolean value represent whether the parameter is must required
+     * @param defValue   a default value returned if failed to parse value from the given object
+     * @param sBuffer     string buffer
+     * @param result     process result of parameter value
+     * @return the process result
+     */
+    public static <T> boolean getEnableStatusValue(T paramCntr, WebFieldDef fieldDef,
+                                                   boolean required, EnableStatus defValue,
+                                                   StringBuilder sBuffer,
+                                                   ProcessResult result) {
+        if (!WebParameterUtils.getBooleanParamValue(paramCntr, fieldDef,
+                required, null, sBuffer, result)) {
+            return result.isSuccess();
+        }
+        Boolean enableValue = (Boolean) result.getRetData();
+        if (enableValue == null) {
+            result.setSuccResult(defValue);
+        } else if (enableValue) {
+            result.setSuccResult(EnableStatus.STATUS_ENABLE);
+        } else {
+            result.setSuccResult(EnableStatus.STATUS_DISABLE);
+        }
         return result.isSuccess();
     }
 
@@ -534,7 +564,7 @@ public class WebParameterUtils {
      * @return process result
      */
     public static <T> boolean getFlowCtrlStatusParamValue(T paramCntr, boolean required,
-                                                          Boolean defValue, StringBuilder sBuffer,
+                                                          EnableStatus defValue, StringBuilder sBuffer,
                                                           ProcessResult result) {
         // check and get statusId field
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.STATUSID, required,
@@ -546,9 +576,9 @@ public class WebParameterUtils {
             result.setSuccResult(defValue);
         } else {
             if (paramValue == 1) {
-                result.setSuccResult(Boolean.TRUE);
+                result.setSuccResult(EnableStatus.STATUS_ENABLE);
             } else {
-                result.setSuccResult(Boolean.FALSE);
+                result.setSuccResult(EnableStatus.STATUS_DISABLE);
             }
         }
         return result.isSuccess();
