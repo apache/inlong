@@ -17,7 +17,7 @@
 #
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
-local_ip=$(ifconfig | grep inet | grep -v inet6 | grep -v "127.0.0.1" | awk '{print $2}' | grep -v "30.*")
+local_ip=$(ifconfig | grep inet | grep -v inet6 | grep -v "127.0.0.1" | awk '{print $2}' | grep -v "^30.*")
 # config
 cd "${file_path}/"
 common_conf_file=./conf/common.properties
