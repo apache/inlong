@@ -34,6 +34,7 @@ import static org.apache.inlong.common.metric.MetricObserver.LOG;
 public class DorisParseUtils {
 
     private static final String ESCAPE = "\\\\x(\\d{2})";
+    private static final Pattern p = Pattern.compile(ESCAPE);
 
     /**
      * A utility function used to split the given string which represents a captured row,
@@ -79,7 +80,6 @@ public class DorisParseUtils {
      * @return the parsed string
      */
     public static String escapeString(String s) {
-        Pattern p = Pattern.compile(ESCAPE);
         Matcher m = p.matcher(s);
 
         StringBuffer buf = new StringBuffer();
