@@ -25,7 +25,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.inlong.common.metric.MetricObserver.LOG;
+import org.apache.inlong.sort.doris.table.DorisDynamicSchemaOutputFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * A utility class primarily serving DorisDynamaicSchemaOutputFormat
@@ -34,7 +37,8 @@ import static org.apache.inlong.common.metric.MetricObserver.LOG;
 public class DorisParseUtils {
 
     private static final String ESCAPE = "\\\\x(\\d{2})";
-    private static final Pattern p = Pattern.compile(ESCAPE);
+    private static final Pattern PATTERN = Pattern.compile(ESCAPE);
+    private static final Logger LOG = LoggerFactory.getLogger(DorisDynamicSchemaOutputFormat.class);
 
     /**
      * A utility function used to split the given string which represents a captured row,
@@ -80,7 +84,7 @@ public class DorisParseUtils {
      * @return the parsed string
      */
     public static String escapeString(String s) {
-        Matcher m = p.matcher(s);
+        Matcher m = PATTERN.matcher(s);
 
         StringBuffer buf = new StringBuffer();
         while (m.find()) {
