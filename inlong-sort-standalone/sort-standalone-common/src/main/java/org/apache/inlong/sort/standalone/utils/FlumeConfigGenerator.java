@@ -34,6 +34,8 @@ public class FlumeConfigGenerator {
     public static final String KEY_SORT_SINK_TYPE = "sortSink.type";
     public static final String KEY_SORT_SOURCE_TYPE = "sortSource.type";
     public static final String KEY_SORT_INTERCEPTOR_TYPE = "interceptor.type";
+    public static final String DEFAULT_SORT_INTERCEPTOR_TYPE 
+        = "org.apache.inlong.sort.standalone.rollback.TimeBasedFilterInterceptor$Builder";
     public static final String KEY_ROLLBACK_START_TIME = "rollback.startTime";
     public static final String KEY_ROLLBACK_STOP_TIME = "rollback.stopTime";
 
@@ -138,8 +140,7 @@ public class FlumeConfigGenerator {
      */
     private static void appendSources(
             Map<String, String> flumeConf,
-            String name, Map<String,
-            String> sinkParams) {
+            String name, Map<String, String> sinkParams) {
         // sources
         String sourceName = name + "Source";
         flumeConf.put(name + ".sources", sourceName);
@@ -169,8 +170,8 @@ public class FlumeConfigGenerator {
         builder.setLength(0);
         String interceptorType = builder.append(prefix).append("interceptors.").append(interceptorName)
                 .append(".type").toString();
-        Optional.ofNullable(CommonPropertiesHolder.getString(KEY_SORT_INTERCEPTOR_TYPE))
-                .map(type -> flumeConf.put(interceptorType, type));
+        flumeConf.put(interceptorType,
+                CommonPropertiesHolder.getString(KEY_SORT_INTERCEPTOR_TYPE, DEFAULT_SORT_INTERCEPTOR_TYPE));
         builder.setLength(0);
         String startTimeKey = builder.append(prefix).append("interceptors.").append(interceptorName).append(".")
                 .append(KEY_ROLLBACK_START_TIME).toString();

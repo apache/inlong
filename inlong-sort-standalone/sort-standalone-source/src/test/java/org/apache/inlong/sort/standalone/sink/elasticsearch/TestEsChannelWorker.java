@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.flume.Transaction;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.sink.SinkContext;
+import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +47,7 @@ public class TestEsChannelWorker {
      */
     @Before
     public void before() throws Exception {
-        LinkedBlockingQueue<EsIndexRequest> dispatchQueue = new LinkedBlockingQueue<>();
+        BufferQueue<EsIndexRequest> dispatchQueue = SinkContext.createBufferQueue();
         this.context = TestEsSinkContext.mock(dispatchQueue);
     }
 
