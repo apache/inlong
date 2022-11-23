@@ -17,7 +17,9 @@
 #
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
-local_ip=$(ifconfig | grep inet | grep -v inet6 | grep -v "127.0.0.1" | awk '{print $2}' | grep -v "30.*")
+# Obtain the local ip by specifying the network card name according to the environment variable and
+# it should be noted that this is a single network card IP acquisition method.
+local_ip=$(ifconfig $ETH_NAME | grep inet | grep -v inet6 | grep -v "127.0.0.1" | awk '{print $2}')
 # config
 cd "${file_path}/"
 common_conf_file=./conf/common.properties
