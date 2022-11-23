@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.pojo.sink;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -32,10 +33,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Sink field info")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sinkType", defaultImpl = SinkField.class)
 public class SinkField {
 
     @ApiModelProperty("Field index")
     private Integer id;
+
+    @ApiModelProperty("sink type")
+    private String sinkType;
 
     @ApiModelProperty(value = "inlong group id", required = true)
     private String inlongGroupId;
