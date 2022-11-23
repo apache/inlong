@@ -22,10 +22,10 @@ import io.netty.channel.Channel;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.FileCallback;
-import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
+import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.threads.MetricWorkerThread;
@@ -36,11 +36,11 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,7 +48,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Sender {
 
-    private static final Logger logger = LoggerFactory.getLogger(Sender.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Sender.class);
 
     /* Store the callback used by asynchronously message sending. */
     private final ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks =
@@ -104,12 +104,12 @@ public class Sender {
 
         metricWorker = new MetricWorkerThread(configure, this);
         metricWorker.start();
-        logger.info("proxy sdk is starting!");
+        LOGGER.info("proxy sdk is starting!");
     }
 
     private void checkCallbackList() {
         // max wait for 1 min
-        logger.info("checking call back list before close, current size is {}",
+        LOGGER.info("checking call back list before close, current size is {}",
                 currentBufferSize.get());
         int count = 0;
         try {
@@ -118,10 +118,10 @@ public class Sender {
                 count += 1;
             }
             if (currentBufferSize.get() > 0) {
-                logger.warn("callback not empty {}, please check it", currentBufferSize.get());
+                LOGGER.warn("callback not empty {}, please check it", currentBufferSize.get());
             }
         } catch (Exception ex) {
-            logger.error("exception while checking callback list", ex);
+            LOGGER.error("exception while checking callback list", ex);
         }
     }
 
@@ -141,13 +141,13 @@ public class Sender {
             e.printStackTrace(pw);
             exceptStr = sw.toString();
         } catch (Exception ex) {
-            logger.error(getExceptionStack(ex));
+            LOGGER.error(getExceptionStack(ex));
         } finally {
             try {
                 pw.close();
                 sw.close();
             } catch (Exception ex) {
-                logger.error(getExceptionStack(ex));
+                LOGGER.error(getExceptionStack(ex));
             }
         }
         return exceptStr;
@@ -155,7 +155,7 @@ public class Sender {
 
     /*Used for asynchronously message sending.*/
     public void notifyCallback(Channel channel, String messageId, SendResult result) {
-        logger.debug("Channel = {} , ack messageId = {}", channel, messageId);
+        LOGGER.debug("Channel = {} , ack messageId = {}", channel, messageId);
         if (channel == null) {
             return;
         }
@@ -178,16 +178,13 @@ public class Sender {
         }
     }
 
-    private SendResult syncSendInternalMessage(NettyClient client,
-                                               EncodeObject encodeObject, String msgUUID,
-                                               long timeout, TimeUnit timeUnit)
-            throws ExecutionException, InterruptedException, TimeoutException {
-
+    private SendResult syncSendInternalMessage(NettyClient client, EncodeObject encodeObject, String msgUUID,
+            long timeout, TimeUnit timeUnit) throws ExecutionException, InterruptedException, TimeoutException {
         if (client == null) {
             return SendResult.NO_CONNECTION;
         }
         if (isNotValidateAttr(encodeObject.getCommonattr(), encodeObject.getAttributes())) {
-            logger.error("error attr format {} {}", encodeObject.getCommonattr(),
+            LOGGER.error("error attr format {} {}", encodeObject.getCommonattr(),
                     encodeObject.getAttributes());
             return SendResult.INVALID_ATTRIBUTES;
         }
@@ -237,17 +234,17 @@ public class Sender {
             message = syncSendInternalMessage(client, encodeObject, msgUUID, timeout, timeUnit);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
-            logger.error("send message error {} ", getExceptionStack(e));
+            LOGGER.error("send message error {} ", getExceptionStack(e));
             syncCallables.remove(encodeObject.getMessageId());
             return SendResult.THREAD_INTERRUPT;
         } catch (ExecutionException e) {
             // TODO Auto-generated catch block
-            logger.error("ExecutionException {} ", getExceptionStack(e));
+            LOGGER.error("ExecutionException {} ", getExceptionStack(e));
             syncCallables.remove(encodeObject.getMessageId());
             return SendResult.UNKOWN_ERROR;
         } catch (TimeoutException e) {
             // TODO Auto-generated catch block
-            logger.error("TimeoutException {} ", getExceptionStack(e));
+            LOGGER.error("TimeoutException {} ", getExceptionStack(e));
             //e.printStackTrace();
             SyncMessageCallable syncMessageCallable = syncCallables.remove(encodeObject.getMessageId());
             if (syncMessageCallable != null) {
@@ -255,14 +252,14 @@ public class Sender {
                 if (tmpClient != null) {
                     Channel curChannel = tmpClient.getChannel();
                     if (curChannel != null) {
-                        logger.error("channel maybe busy {}", curChannel);
+                        LOGGER.error("channel maybe busy {}", curChannel);
                         scanThread.addTimeoutChannel(curChannel);
                     }
                 }
             }
             return SendResult.TIMEOUT;
         } catch (Throwable e) {
-            logger.error("syncSendMessage exception {} ", getExceptionStack(e));
+            LOGGER.error("syncSendMessage exception {} ", getExceptionStack(e));
             syncCallables.remove(encodeObject.getMessageId());
             return SendResult.UNKOWN_ERROR;
         }
@@ -280,8 +277,7 @@ public class Sender {
     }
 
     private SendResult syncSendMessageIndexInternal(NettyClient client, EncodeObject encodeObject, String msgUUID,
-                                                    long timeout, TimeUnit timeUnit)
-            throws ExecutionException, InterruptedException, TimeoutException {
+            long timeout, TimeUnit timeUnit) throws ExecutionException, InterruptedException, TimeoutException {
         if (client == null || !client.isActive()) {
             chooseProxy.remove(encodeObject.getMessageId());
             client = clientMgr.getClientByRoundRobin();
@@ -336,7 +332,7 @@ public class Sender {
                 client = clientMgr.getContainProxy(proxyip);
             }
             if (isNotValidateAttr(encodeObject.getCommonattr(), encodeObject.getAttributes())) {
-                logger.error("error attr format {} {}", encodeObject.getCommonattr(),
+                LOGGER.error("error attr format {} {}", encodeObject.getCommonattr(),
                         encodeObject.getAttributes());
                 return SendResult.INVALID_ATTRIBUTES.toString();
             }
@@ -345,17 +341,17 @@ public class Sender {
                         msgUUID, timeout, timeUnit);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
-                logger.error("send message error {}", getExceptionStack(e));
+                LOGGER.error("send message error {}", getExceptionStack(e));
                 syncCallables.remove(encodeObject.getMessageId());
                 return SendResult.THREAD_INTERRUPT.toString();
             } catch (ExecutionException e) {
                 // TODO Auto-generated catch block
-                logger.error("ExecutionException {}", getExceptionStack(e));
+                LOGGER.error("ExecutionException {}", getExceptionStack(e));
                 syncCallables.remove(encodeObject.getMessageId());
                 return SendResult.UNKOWN_ERROR.toString();
             } catch (TimeoutException e) {
                 // TODO Auto-generated catch block
-                logger.error("TimeoutException {}", getExceptionStack(e));
+                LOGGER.error("TimeoutException {}", getExceptionStack(e));
                 //e.printStackTrace();
                 SyncMessageCallable syncMessageCallable = syncCallables.remove(encodeObject.getMessageId());
                 if (syncMessageCallable != null) {
@@ -363,21 +359,21 @@ public class Sender {
                     if (tmpClient != null) {
                         Channel curChannel = tmpClient.getChannel();
                         if (curChannel != null) {
-                            logger.error("channel maybe busy {}", curChannel);
+                            LOGGER.error("channel maybe busy {}", curChannel);
                             scanThread.addTimeoutChannel(curChannel);
                         }
                     }
                 }
                 return SendResult.TIMEOUT.toString();
             } catch (Throwable e) {
-                logger.error("syncSendMessage exception {}", getExceptionStack(e));
+                LOGGER.error("syncSendMessage exception {}", getExceptionStack(e));
                 syncCallables.remove(encodeObject.getMessageId());
                 return SendResult.UNKOWN_ERROR.toString();
             }
             scanThread.resetTimeoutChannel(client.getChannel());
             return message.toString() + "=" + client.getServerIP();
         } catch (Exception e) {
-            logger.error("agent send error {}", getExceptionStack(e));
+            LOGGER.error("agent send error {}", getExceptionStack(e));
             syncCallables.remove(encodeObject.getMessageId());
             return SendResult.UNKOWN_ERROR.toString();
         }
@@ -394,7 +390,7 @@ public class Sender {
      * @throws ProxysdkException
      */
     public void asyncSendMessageIndex(EncodeObject encodeObject, FileCallback callback, String msgUUID, long timeout,
-                                      TimeUnit timeUnit) throws ProxysdkException {
+            TimeUnit timeUnit) throws ProxysdkException {
         NettyClient client = chooseProxy.get(encodeObject.getMessageId());
         String proxyip = encodeObject.getProxyIp();
         if (proxyip != null && proxyip.length() != 0) {
@@ -510,7 +506,7 @@ public class Sender {
      * Following methods used by asynchronously message sending.
      */
     public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback, String msgUUID,
-                                 long timeout, TimeUnit timeUnit) throws ProxysdkException {
+            long timeout, TimeUnit timeUnit) throws ProxysdkException {
         metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
                 encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getPackageTime(),
                 encodeObject.getDt(), encodeObject.getRealCnt());
@@ -525,7 +521,7 @@ public class Sender {
             throw new ProxysdkException("ASYNC_CALLBACK_BUFFER_FULL");
         }
         if (isNotValidateAttr(encodeObject.getCommonattr(), encodeObject.getAttributes())) {
-            logger.error("error attr format {} {}", encodeObject.getCommonattr(),
+            LOGGER.error("error attr format {} {}", encodeObject.getCommonattr(),
                     encodeObject.getAttributes());
             throw new ProxysdkException(SendResult.INVALID_ATTRIBUTES.toString());
         }
@@ -554,7 +550,7 @@ public class Sender {
         QueueObject queueObject = msgQueueMap.putIfAbsent(encodeObject.getMessageId(),
                 new QueueObject(System.currentTimeMillis(), callback, size, timeout, timeUnit));
         if (queueObject != null) {
-            logger.warn("message id {} has existed.", encodeObject.getMessageId());
+            LOGGER.warn("message id {} has existed.", encodeObject.getMessageId());
         }
         if (encodeObject.getMsgtype() == 7) {
             int groupIdnum = 0;
@@ -584,16 +580,14 @@ public class Sender {
         String messageId = response.getMessageId();
         chooseProxy.remove(messageId);
         SyncMessageCallable callable = syncCallables.remove(messageId);
-        SendResult result = response.isException() ? SendResult.INVALID_ATTRIBUTES : SendResult.OK;
+        SendResult result = response.getSendResult();
         if (result == SendResult.OK) {
             metricWorker.recordSuccessByMessageId(messageId);
+        } else {
+            LOGGER.error("{} exception happens, error message {}", channel, response.getErrMsg());
         }
         if (callable != null) { // for syncSend
             callable.update(result);
-        }
-        if (response.isException()) {
-            logger.error("{} exception happens, error message {}", channel,
-                    response.getExceptionError());
         }
         notifyCallback(channel, messageId, result); // for asyncSend
     }
@@ -606,7 +600,7 @@ public class Sender {
         if (channel == null) {
             return;
         }
-        logger.info("channel {} connection is disconnected!", channel);
+        LOGGER.info("channel {} connection is disconnected!", channel);
         try {
             ConcurrentHashMap<String, QueueObject> msgQueueMap = callbacks.remove(channel);
             if (msgQueueMap != null) {
@@ -627,7 +621,7 @@ public class Sender {
                 msgQueueMap.clear();
             }
         } catch (Throwable e2) {
-            logger.info("process channel {} disconnected callbacks throw error,", channel, e2);
+            LOGGER.info("process channel {} disconnected callbacks throw error,", channel, e2);
         }
 
         try {
@@ -654,7 +648,7 @@ public class Sender {
                 }
             }
         } catch (Throwable e) {
-            logger.info("process channel {} disconnected syncCallables throw error,", channel, e);
+            LOGGER.info("process channel {} disconnected syncCallables throw error,", channel, e);
         }
     }
 
@@ -663,28 +657,28 @@ public class Sender {
         if (channel == null) {
             return;
         }
-        logger.info("wait for ack for channel {}", channel);
+        LOGGER.info("wait for ack for channel {}", channel);
         try {
             ConcurrentHashMap<String, QueueObject> queueObjMap = callbacks.get(channel);
             if (queueObjMap != null) {
                 while (true) {
                     if (queueObjMap.isEmpty()) {
-                        logger.info("this channel {} is empty!", channel);
+                        LOGGER.info("this channel {} is empty!", channel);
                         break;
                     }
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         // TODO Auto-generated catch block
-                        logger.error("wait for ack for channel {}, error {}",
+                        LOGGER.error("wait for ack for channel {}, error {}",
                                 channel, e.getMessage());
                         e.printStackTrace();
                     }
                 }
             }
-            logger.info("waitForAckForChannel finished , channel is {}", channel);
+            LOGGER.info("waitForAckForChannel finished , channel is {}", channel);
         } catch (Throwable e) {
-            logger.error("waitForAckForChannel exception, channel is {}", channel, e);
+            LOGGER.error("waitForAckForChannel exception, channel is {}", channel, e);
         }
     }
 

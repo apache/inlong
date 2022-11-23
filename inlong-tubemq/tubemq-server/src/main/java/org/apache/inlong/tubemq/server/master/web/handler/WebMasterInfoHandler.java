@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -414,7 +415,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         if (!defMetaDataService.addOrUpdClusterDefSetting(opEntity,
                 TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
                 TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
-                TBaseConstants.META_VALUE_UNDEFINED, Boolean.FALSE, 0,
+                TBaseConstants.META_VALUE_UNDEFINED, EnableStatus.STATUS_DISABLE, 0,
                 TServerConstants.BLANK_FLOWCTRL_RULES, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
@@ -495,7 +496,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         int inQryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable info
         if (isNewVer) {
-            if (!WebParameterUtils.getBooleanParamValue(req,
+            if (!WebParameterUtils.getEnableStatusValue(req,
                     WebFieldDef.FLOWCTRLENABLE, false, null, sBuffer, result)) {
                 WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
@@ -507,7 +508,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 return sBuffer;
             }
         }
-        Boolean flowCtrlEnable = (Boolean) result.getRetData();
+        EnableStatus flowCtrlEnable = (EnableStatus) result.getRetData();
         // get and flow control rule info
         int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
                 (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);

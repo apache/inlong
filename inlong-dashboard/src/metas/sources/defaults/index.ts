@@ -46,4 +46,19 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     value: 'MONGODB',
     LoadEntity: () => import('./Mongodb'),
   },
+  {
+    label: 'Oracle',
+    value: 'ORACLE',
+    LoadEntity: () => import('./Oracle'),
+  },
+  {
+    label: 'PostgreSQL',
+    value: 'POSTGRESQL',
+    LoadEntity: () => import('./PostgreSQL'),
+  },
+  {
+    label: 'SQLServer',
+    value: 'SQLSERVER',
+    LoadEntity: () => import('./SQLServer'),
+  },
 ];

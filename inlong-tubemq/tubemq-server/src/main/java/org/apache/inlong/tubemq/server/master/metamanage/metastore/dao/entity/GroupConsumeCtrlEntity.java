@@ -123,11 +123,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return consumeEnable.isEnable();
     }
 
-    public void setConsumeEnable(boolean enableConsume) {
-        if (enableConsume) {
-            this.consumeEnable = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.consumeEnable = EnableStatus.STATUS_DISABLE;
+    public void setConsumeEnable(EnableStatus consumeEnable) {
+        if (consumeEnable != null) {
+            this.consumeEnable = consumeEnable;
         }
     }
 
@@ -143,11 +141,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return filterEnable == EnableStatus.STATUS_ENABLE;
     }
 
-    private void setFilterEnable(boolean enableFilter) {
-        if (enableFilter) {
-            this.filterEnable = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.filterEnable = EnableStatus.STATUS_DISABLE;
+    public void setFilterEnable(EnableStatus filterEnable) {
+        if (filterEnable != null) {
+            this.filterEnable = filterEnable;
         }
     }
 
@@ -174,8 +170,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      *
      * @return    whether data is changed
      */
-    public boolean updModifyInfo(long dataVerId, Boolean consumeEnable,
-                                 String disableRsn, Boolean filterEnable,
+    public boolean updModifyInfo(long dataVerId, EnableStatus consumeEnable,
+                                 String disableRsn, EnableStatus filterEnable,
                                  String filterCondStr) {
         boolean changed = false;
         // check and set brokerPort info
@@ -186,8 +182,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set consumeEnable info
         if (consumeEnable != null
-                && (this.consumeEnable == EnableStatus.STATUS_UNDEFINE
-                || this.consumeEnable.isEnable() != consumeEnable)) {
+                && consumeEnable != EnableStatus.STATUS_UNDEFINE
+                && this.consumeEnable != consumeEnable) {
             changed = true;
             setConsumeEnable(consumeEnable);
         }
@@ -197,10 +193,10 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
             changed = true;
             disableReason = disableRsn;
         }
-        // check and set consumeEnable info
+        // check and set filterEnable info
         if (filterEnable != null
-                && (this.filterEnable == EnableStatus.STATUS_UNDEFINE
-                || this.filterEnable.isEnable() != filterEnable)) {
+                && filterEnable != EnableStatus.STATUS_UNDEFINE
+                && this.filterEnable != filterEnable) {
             changed = true;
             setFilterEnable(filterEnable);
         }
@@ -332,8 +328,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     @Override
     public GroupConsumeCtrlEntity clone() {
         GroupConsumeCtrlEntity copy = (GroupConsumeCtrlEntity) super.clone();
-        copy.setConsumeEnable(getConsumeEnable().isEnable());
-        copy.setFilterEnable(getFilterEnable().isEnable());
+        copy.setConsumeEnable(getConsumeEnable());
+        copy.setFilterEnable(getFilterEnable());
         return copy;
     }
 }

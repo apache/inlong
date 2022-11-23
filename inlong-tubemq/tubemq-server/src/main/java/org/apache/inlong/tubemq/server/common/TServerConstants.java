@@ -109,4 +109,5 @@ public final class TServerConstants {
     public static final int META_MAX_STATSTYPE_LENGTH = 256;
 
     public static final int OFFSET_HISTORY_RECORD_VERSION = 1;
+    public static final int OFFSET_HISTORY_RECORD_SHORT_VERSION = 2;
 }

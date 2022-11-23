@@ -206,6 +206,25 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                     }
                 }),
         // additional metadata
+        TYPE(
+                "type",
+                DataTypes.STRING().nullable(),
+                DataTypes.FIELD("type", DataTypes.STRING()),
+                new MetadataConverter() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
+                        return row.getString(pos);
+                    }
+                }),
+        /**
+         * It is deprecated, please use {@link this#TYPE} instead
+         */
+        @Deprecated
         OP_TYPE(
                 "op-type",
                 DataTypes.STRING().nullable(),

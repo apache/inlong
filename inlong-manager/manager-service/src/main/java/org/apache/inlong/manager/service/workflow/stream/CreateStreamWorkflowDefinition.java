@@ -18,13 +18,13 @@
 package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.common.enums.ProcessName;
-import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
+import org.apache.inlong.manager.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.listener.StreamTaskListenerFactory;
 import org.apache.inlong.manager.service.listener.stream.InitStreamCompleteListener;
 import org.apache.inlong.manager.service.listener.stream.InitStreamFailedListener;
 import org.apache.inlong.manager.service.listener.stream.InitStreamListener;
+import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;

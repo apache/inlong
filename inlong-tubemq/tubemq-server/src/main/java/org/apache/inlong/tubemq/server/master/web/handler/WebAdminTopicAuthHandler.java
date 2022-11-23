@@ -167,12 +167,12 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // get authCtrlStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.ISENABLE,
-                false, false, sBuffer, result)) {
+        if (!WebParameterUtils.getEnableStatusValue(req, WebFieldDef.ISENABLE,
+                false, EnableStatus.STATUS_DISABLE, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean enableTopicAuth = (Boolean) result.getRetData();
+        EnableStatus enableTopicAuth = (EnableStatus) result.getRetData();
         // add or update records
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (String topicName : topicNameSet) {
@@ -245,7 +245,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
             if (ctrlEntity != null
                     && ctrlEntity.getAuthCtrlStatus() != EnableStatus.STATUS_DISABLE) {
                 retInfo.add(defMetaDataService.insertTopicCtrlConf(opEntity,
-                        topicName, Boolean.FALSE, sBuffer, result));
+                        topicName, EnableStatus.STATUS_DISABLE, sBuffer, result));
             } else {
                 result.setFullInfo(true, DataOpErrCode.DERR_SUCCESS.getCode(), "Ok");
                 retInfo.add(new TopicProcessResult(0, topicName, result));
@@ -279,11 +279,11 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
             }
             String topicName = (String) result.getRetData();
             // get authCtrlStatus info
-            if (!WebParameterUtils.getBooleanParamValue(confMap, WebFieldDef.ISENABLE,
-                    false, false, sBuffer, result)) {
+            if (!WebParameterUtils.getEnableStatusValue(confMap, WebFieldDef.ISENABLE,
+                    false, EnableStatus.STATUS_DISABLE, sBuffer, result)) {
                 return result.isSuccess();
             }
-            Boolean enableTopicAuth = (Boolean) result.getRetData();
+            EnableStatus enableTopicAuth = (EnableStatus) result.getRetData();
             itemConf = new TopicCtrlEntity(itemOpEntity, topicName);
             itemConf.updModifyInfo(itemOpEntity.getDataVerId(),
                     TBaseConstants.META_VALUE_UNDEFINED,

@@ -28,6 +28,7 @@ import { useLoadMeta, useDefaultMeta, StreamMetaType } from '@/metas';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
 import { getFilterFormContent } from './config';
+import ExecutionLogModal from './ExecutionLogModal';
 
 type Props = CommonInterface;
 
@@ -47,6 +48,14 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     inlongGroupId,
   });
 
+  const [executionLogModal, setExecutionLogModal] = useState({
+    visible: false,
+    inlongGroupId,
+    inlongStreamId: '',
+  });
+
+  const [groupStatus, setGroupStatus] = useState();
+
   const {
     data,
     loading,
@@ -64,6 +73,10 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
       refreshDeps: [options],
     },
   );
+
+  useRequest(`/group/get/${inlongGroupId}`, {
+    onSuccess: result => setGroupStatus(result.status),
+  });
 
   const onOk = () => {
     return Promise.resolve();
@@ -85,6 +98,14 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     setStreamItemModal(prev => ({ ...prev, visible: true, inlongStreamId: record.inlongStreamId }));
   };
 
+  const openModal = record => {
+    setExecutionLogModal({
+      visible: true,
+      inlongGroupId: inlongGroupId,
+      inlongStreamId: record.inlongStreamId,
+    });
+  };
+
   const onDelete = record => {
     Modal.confirm({
       title: t('basic.DeleteConfirm'),
@@ -99,6 +120,23 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
         });
         await getList();
         message.success(t('basic.DeleteSuccess'));
+      },
+    });
+  };
+
+  const onWorkflow = record => {
+    Modal.confirm({
+      title: t('meta.Stream.ExecuteConfirm'),
+      onOk: async () => {
+        await request({
+          url: `/stream/startProcess/${inlongGroupId}/${record?.inlongStreamId}`,
+          method: 'POST',
+          params: {
+            sync: false,
+          },
+        });
+        await getList();
+        message.success(t('meta.Stream.ExecuteSuccess'));
       },
     });
   };
@@ -146,6 +184,16 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
             <Button type="link" onClick={() => onDelete(record)}>
               {t('basic.Delete')}
             </Button>
+            {record?.status && (groupStatus === 120 || groupStatus === 130) && (
+              <Button type="link" onClick={() => onWorkflow(record)}>
+                {t('meta.Stream.ExecuteWorkflow')}
+              </Button>
+            )}
+            {record?.status && (record?.status === 120 || record?.status === 130) && (
+              <Button type="link" onClick={() => openModal(record)}>
+                {t('pages.GroupDashboard.config.ExecuteLog')}
+              </Button>
+            )}
           </>
         ),
     },
@@ -183,6 +231,14 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
           setStreamItemModal(prev => ({ ...prev, visible: false }));
         }}
         onCancel={() => setStreamItemModal(prev => ({ ...prev, visible: false }))}
+      />
+
+      <ExecutionLogModal
+        {...executionLogModal}
+        onOk={() => setExecutionLogModal({ visible: false, inlongGroupId: '', inlongStreamId: '' })}
+        onCancel={() =>
+          setExecutionLogModal({ visible: false, inlongGroupId: '', inlongStreamId: '' })
+        }
       />
     </>
   );

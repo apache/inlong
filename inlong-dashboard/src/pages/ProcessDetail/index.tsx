@@ -26,7 +26,7 @@ import i18n from '@/i18n';
 import { timestampFormat } from '@/utils';
 import request from '@/utils/request';
 import Steps from './Steps';
-import Access from './Access';
+import Group from './Group';
 import Consume from './Consume';
 
 const workflowFormat = (applicant, startEvent, taskHistory = []) => {
@@ -174,7 +174,7 @@ const Comp: React.FC = () => {
 
   const Form = useMemo(() => {
     return {
-      APPLY_GROUP_PROCESS: Access,
+      APPLY_GROUP_PROCESS: Group,
       APPLY_CONSUME_PROCESS: Consume,
     }[processInfo?.name];
   }, [processInfo]);

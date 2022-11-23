@@ -29,6 +29,7 @@ import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.inner.client.DataNodeClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
+import org.apache.inlong.manager.client.api.inner.client.InlongConsumeClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
 import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
@@ -121,6 +122,7 @@ class ClientFactoryTest {
     private static DataNodeClient dataNodeClient;
     private static UserClient userClient;
     private static WorkflowClient workflowClient;
+    private static InlongConsumeClient consumeClient;
 
     @BeforeAll
     static void setup() {
@@ -143,6 +145,7 @@ class ClientFactoryTest {
         dataNodeClient = clientFactory.getDataNodeClient();
         userClient = clientFactory.getUserClient();
         workflowClient = clientFactory.getWorkflowClient();
+        consumeClient = clientFactory.getConsumeClient();
     }
 
     @AfterAll

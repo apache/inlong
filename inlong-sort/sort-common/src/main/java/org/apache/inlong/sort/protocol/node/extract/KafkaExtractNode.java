@@ -215,7 +215,7 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
                 metadataKey = "value.event-timestamp";
                 break;
             case OP_TYPE:
-                metadataKey = "value.op-type";
+                metadataKey = "value.type";
                 break;
             case IS_DDL:
                 metadataKey = "value.is-ddl";

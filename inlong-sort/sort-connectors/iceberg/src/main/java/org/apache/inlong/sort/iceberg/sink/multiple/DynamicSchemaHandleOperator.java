@@ -94,7 +94,9 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         this.catalog = catalogLoader.loadCatalog();
         this.asNamespaceCatalog =
                 catalog instanceof SupportsNamespaces ? (SupportsNamespaces) catalog : null;
-        this.dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat(multipleSinkOption.getFormat());
+        this.dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat(
+                multipleSinkOption.getFormat(), multipleSinkOption.getFormatOption());
+
         this.processingTimeService = getRuntimeContext().getProcessingTimeService();
         processingTimeService.registerTimer(
                 processingTimeService.getCurrentProcessingTime() + HELPER_DEBUG_INTERVEL, this);
@@ -184,6 +186,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
                 output.collect(new StreamRecord<>(recordWithSchema));
             } else {
                 handldAlterSchemaEventFromOperator(tableId, latestSchema, dataSchema);
+                break;
             }
         }
     }

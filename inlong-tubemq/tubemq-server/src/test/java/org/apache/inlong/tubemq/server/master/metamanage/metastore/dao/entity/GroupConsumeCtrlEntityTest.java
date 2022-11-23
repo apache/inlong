@@ -19,6 +19,8 @@ package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Calendar;
 import java.util.Date;
+
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,9 +55,9 @@ public class GroupConsumeCtrlEntityTest {
         Assert.assertEquals(ctrlEntry1.getRecordKey(), bdbEntity1.getRecordKey());
         // case 2
         final long newDataVerId = 5555;
-        final boolean consumeEnable = true;
+        final EnableStatus consumeEnable = EnableStatus.STATUS_ENABLE;
         final String disableRsn = "disable";
-        final boolean filterEnable = true;
+        final EnableStatus filterEnable = EnableStatus.STATUS_ENABLE;
         final String newFilterCondStr = "[1,2,4]";
         Date newDate = new Date();
         Calendar c = Calendar.getInstance();
@@ -84,7 +86,5 @@ public class GroupConsumeCtrlEntityTest {
         Assert.assertEquals(ctrlEntry2.getAttributes(), bdbEntity3.getAttributes());
         Assert.assertEquals(ctrlEntry2.getDisableReason(), bdbEntity3.getDisableConsumeReason());
         Assert.assertEquals(ctrlEntry2.getRecordKey(), bdbEntity3.getRecordKey());
-
     }
-
 }

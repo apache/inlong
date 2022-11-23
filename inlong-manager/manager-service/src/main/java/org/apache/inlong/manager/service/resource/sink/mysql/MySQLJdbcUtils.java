@@ -38,10 +38,8 @@ import java.util.Objects;
 public class MySQLJdbcUtils {
 
     private static final String MYSQL_JDBC_PREFIX = "jdbc:mysql";
-
     private static final String MYSQL_DRIVER_CLASS = "com.mysql.cj.jdbc.Driver";
-
-    private static final Logger LOG = LoggerFactory.getLogger(MySQLJdbcUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySQLJdbcUtils.class);
 
     /**
      * Get MySQL connection from the url and user.
@@ -52,46 +50,46 @@ public class MySQLJdbcUtils {
      * @return {@link Connection}
      * @throws Exception on get connection error
      */
-    public static Connection getConnection(final String url, final String user, final String password)
-            throws Exception {
+    public static Connection getConnection(String url, String user, String password) throws Exception {
         if (StringUtils.isBlank(url) || !url.startsWith(MYSQL_JDBC_PREFIX)) {
-            throw new Exception("MySQL server URL was invalid, it should start with jdbc:mysql");
+            throw new Exception("MySQL JDBC URL was invalid, it should start with jdbc:mysql");
         }
+
         Connection conn;
         try {
             Class.forName(MYSQL_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            final String errorMsg = "get MySQL connection error, please check MySQL JDBC url, username or password!";
-            LOG.error(errorMsg, e);
+            String errorMsg = "get MySQL connection error, please check MySQL JDBC url, username or password!";
+            LOGGER.error(errorMsg, e);
             throw new Exception(errorMsg + " other error msg: " + e.getMessage());
         }
         if (Objects.isNull(conn)) {
             throw new Exception("get MySQL connection failed, please contact administrator.");
         }
-        LOG.info("get MySQL connection success, url={}", url);
+        LOGGER.info("get MySQL connection success for url={}", url);
         return conn;
     }
 
     /**
      * Execute SQL command on MySQL.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param sql SQL string to be executed
+     * @param conn JDBC {@link Connection}
+     * @param sql SQL to be executed
      * @throws Exception on execute SQL error
      */
     public static void executeSql(final Connection conn, final String sql) throws Exception {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
-            LOG.info("execute sql [{}] success", sql);
+            LOGGER.info("execute sql [{}] success", sql);
         }
     }
 
     /**
      * Execute batch query SQL on MySQL.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param sqls SQL string to be executed
+     * @param conn JDBC {@link Connection}
+     * @param sqls SQL to be executed
      * @throws Exception on get execute SQL batch error
      */
     public static void executeSqlBatch(final Connection conn, final List<String> sqls) throws Exception {
@@ -101,7 +99,7 @@ public class MySQLJdbcUtils {
                 stmt.execute(entry);
             }
             conn.commit();
-            LOG.info("execute sql [{}] success", sqls);
+            LOGGER.info("execute sql [{}] success", sqls);
         } finally {
             conn.setAutoCommit(true);
         }
@@ -110,7 +108,7 @@ public class MySQLJdbcUtils {
     /**
      * Create MySQL database
      *
-     * @param conn JDBC Connection  {@link Connection}
+     * @param conn JDBC {@link Connection}
      * @param dbName database name
      * @throws Exception on create database error
      */
@@ -118,58 +116,58 @@ public class MySQLJdbcUtils {
         if (!checkDbExist(conn, dbName)) {
             final String createDbSql = MySQLSqlBuilder.buildCreateDbSql(dbName);
             executeSql(conn, createDbSql);
-            LOG.info("execute sql [{}] success", createDbSql);
+            LOGGER.info("execute sql [{}] success", createDbSql);
         } else {
-            LOG.info("The database [{}] are exists", dbName);
+            LOGGER.info("The database [{}] are exists", dbName);
         }
     }
 
     /**
      * Check database from the MySQL information_schema.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param dbName MySQL database name
+     * @param conn JDBC {@link Connection}
+     * @param dbName database name
      * @return true if table exist, otherwise false
      * @throws Exception on check database exist error
      */
     public static boolean checkDbExist(final Connection conn, final String dbName) throws Exception {
-        boolean result = false;
         final String checkDbSql = MySQLSqlBuilder.getCheckDatabase(dbName);
         try (Statement stmt = conn.createStatement();
                 ResultSet resultSet = stmt.executeQuery(checkDbSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
+                    LOGGER.info("check db exist for db={}, result=true", dbName);
                     return true;
                 }
             }
         }
-        LOG.info("check db exist for db={}, result={}", dbName, result);
-        return result;
+        LOGGER.info("check db exist for db={}, result=false", dbName);
+        return false;
     }
 
     /**
      * Create MySQL table by MySQLTableInfo
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param tableInfo MySQL table info  {@link MySQLTableInfo}
+     * @param conn JDBC {@link Connection}
+     * @param tableInfo table info  {@link MySQLTableInfo}
      * @throws Exception on create table error
      */
     public static void createTable(final Connection conn, final MySQLTableInfo tableInfo) throws Exception {
         if (checkTablesExist(conn, tableInfo.getDbName(), tableInfo.getTableName())) {
-            LOG.info("The table [{}] are exists", tableInfo.getTableName());
+            LOGGER.info("The table [{}] are exists", tableInfo.getTableName());
         } else {
             final String createTableSql = MySQLSqlBuilder.buildCreateTableSql(tableInfo);
             executeSql(conn, createTableSql);
-            LOG.info("execute sql [{}] success", createTableSql);
+            LOGGER.info("execute sql [{}] success", createTableSql);
         }
     }
 
     /**
      * Check tables from the MySQL information_schema.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param dbName MySQL database name
-     * @param tableName MySQL table name
+     * @param conn JDBC {@link Connection}
+     * @param dbName database name
+     * @param tableName table name
      * @return true if table exist, otherwise false
      * @throws Exception on check table exist error
      */
@@ -185,23 +183,22 @@ public class MySQLJdbcUtils {
                 }
             }
         }
-        LOG.info("check table exist for db={} table={}, result={}", dbName, tableName, result);
+        LOGGER.info("check table exist for db={} table={}, result={}", dbName, tableName, result);
         return result;
     }
 
     /**
-     * Check whether the column exists in the table.
+     * Check whether the column exists in the MySQL table.
      *
      * @param conn JDBC Connection  {@link Connection}
-     * @param dbName MySQL database name
-     * @param tableName MySQL table name
-     * @param column MySQL table column name
+     * @param dbName database name
+     * @param tableName table name
+     * @param column table column name
      * @return true if column exist in the table, otherwise false
      * @throws Exception on check column exist error
      */
     public static boolean checkColumnExist(final Connection conn, final String dbName, final String tableName,
-            final String column)
-            throws Exception {
+            final String column) throws Exception {
         boolean result = false;
         final String checkTableSql = MySQLSqlBuilder.getCheckColumn(dbName, tableName, column);
         try (Statement stmt = conn.createStatement();
@@ -212,16 +209,16 @@ public class MySQLJdbcUtils {
                 }
             }
         }
-        LOG.info("check column exist for db={} table={}, result={} column={}", dbName, tableName, result, column);
+        LOGGER.info("check column exist for db={} table={}, result={} column={}", dbName, tableName, result, column);
         return result;
     }
 
     /**
-     * Query all columns of the tableName.
+     * Query all MySQL table columns by the given tableName.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param dbName MySQL database name
-     * @param tableName MySQL table name
+     * @param conn JDBC {@link Connection}
+     * @param dbName database name
+     * @param tableName table name
      * @return {@link List}
      * @throws Exception on get columns error
      */
@@ -247,9 +244,9 @@ public class MySQLJdbcUtils {
      * Add columns for MySQL table.
      *
      * @param conn JDBC Connection  {@link Connection}
-     * @param dbName MySQL database name
-     * @param tableName MySQL table name
-     * @param columns MySQL columns to be added
+     * @param dbName database name
+     * @param tableName table name
+     * @param columns columns to be added
      * @throws Exception on add columns error
      */
     public static void addColumns(final Connection conn, final String dbName, final String tableName,
@@ -264,4 +261,5 @@ public class MySQLJdbcUtils {
         final List<String> addColumnSql = MySQLSqlBuilder.buildAddColumnsSql(dbName, tableName, columnInfos);
         executeSqlBatch(conn, addColumnSql);
     }
+
 }

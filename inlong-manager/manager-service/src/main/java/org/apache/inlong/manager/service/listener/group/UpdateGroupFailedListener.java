@@ -51,6 +51,7 @@ public class UpdateGroupFailedListener implements ProcessEventListener {
 
         // update inlong group status and other info
         String operator = context.getOperator();
+        // delete process failed, then change the group status to [CONFIG_FAILED]
         groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
         groupService.update(form.getGroupInfo().genRequest(), operator);
 

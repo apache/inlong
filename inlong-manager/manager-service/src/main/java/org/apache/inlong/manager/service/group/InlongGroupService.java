@@ -46,12 +46,45 @@ public interface InlongGroupService {
     String save(InlongGroupRequest groupInfo, String operator);
 
     /**
+     * Query whether the specified group id exists
+     *
+     * @param groupId the group id to be queried
+     * @return does it exist
+     */
+    Boolean exist(String groupId);
+
+    /**
      * Get inlong group info based on inlong group id
      *
      * @param groupId inlong group id
      * @return detail of inlong group
      */
     InlongGroupInfo get(String groupId);
+
+    /**
+     * Query the group information of each status of the current user
+     *
+     * @param operator name of operator
+     * @return inlong group status statistics
+     */
+    InlongGroupCountResponse countGroupByUser(String operator);
+
+    /**
+     * According to the group id, query the topic to which it belongs
+     *
+     * @param groupId Inlong group id
+     * @return Topic information
+     * @apiNote TubeMQ corresponds to the group, only 1 topic
+     */
+    InlongGroupTopicInfo getTopic(String groupId);
+
+    /**
+     * According to the group id, query the backup topic to which it belongs
+     *
+     * @param groupId inlong group id
+     * @return backup topic info
+     */
+    InlongGroupTopicInfo getBackupTopic(String groupId);
 
     /**
      * Paging query inlong group brief info list
@@ -79,7 +112,16 @@ public interface InlongGroupService {
      * @param operator name of operator
      * @return whether succeed
      */
-    boolean updateStatus(String groupId, Integer status, String operator);
+    Boolean updateStatus(String groupId, Integer status, String operator);
+
+    /**
+     * Check whether deletion is supported for the specified group.
+     *
+     * @param groupId inlong group id
+     * @param operator name of operator
+     * @return inlong group info
+     */
+    InlongGroupInfo doDeleteCheck(String groupId, String operator);
 
     /**
      * Delete the group information of the specified group id
@@ -87,40 +129,9 @@ public interface InlongGroupService {
      * @param groupId The group id that needs to be deleted
      * @param operator name of operator
      * @return whether succeed
+     * @apiNote Before invoking this delete method, you must
      */
-    boolean delete(String groupId, String operator);
-
-    /**
-     * Query whether the specified group id exists
-     *
-     * @param groupId the group id to be queried
-     * @return does it exist
-     */
-    Boolean exist(String groupId);
-
-    /**
-     * Query the group information of each status of the current user
-     *
-     * @param operator name of operator
-     * @return inlong group status statistics
-     */
-    InlongGroupCountResponse countGroupByUser(String operator);
-
-    /**
-     * According to the group id, query the topic to which it belongs
-     *
-     * @param groupId inlong group id
-     * @return topic info
-     */
-    InlongGroupTopicInfo getTopic(String groupId);
-
-    /**
-     * According to the group id, query the backup topic to which it belongs
-     *
-     * @param groupId inlong group id
-     * @return backup topic info
-     */
-    InlongGroupTopicInfo getBackupTopic(String groupId);
+    Boolean delete(String groupId, String operator);
 
     /**
      * Save the group modified when the approval is passed

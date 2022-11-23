@@ -41,12 +41,7 @@ export const useGroupFormContent = ({ mqType = '', isFinished, isViwer }) => {
       'retentionSize',
     ]);
 
-    if (
-      (typeof obj.type === 'string' && !canEditSet.has(obj.name as string)) ||
-      obj.name === 'inCharges' ||
-      isFinished ||
-      isViwer
-    ) {
+    if (!canEditSet.has(obj.name as string) || isFinished || isViwer) {
       obj.type = 'text';
       delete obj.rules;
       delete obj.extra;
@@ -72,7 +67,7 @@ export const getFormContent = ({
     {
       type: (
         <Divider orientation="left">
-          {i18n.t('pages.ApprovalDetail.AccessConfig.BasicInformation')}
+          {i18n.t('pages.ApprovalDetail.GroupConfig.BasicInformation')}
         </Divider>
       ),
     },
@@ -80,7 +75,7 @@ export const getFormContent = ({
     {
       type: (
         <Divider orientation="left">
-          {i18n.t('pages.ApprovalDetail.AccessConfig.DataFlowInformation')}
+          {i18n.t('pages.ApprovalDetail.GroupConfig.DataFlowInformation')}
         </Divider>
       ),
     },
@@ -91,7 +86,7 @@ export const getFormContent = ({
           columns={[
             { title: 'ID', dataIndex: 'inlongStreamId' },
             {
-              title: i18n.t('pages.ApprovalDetail.AccessConfig.DataStorages'),
+              title: i18n.t('pages.ApprovalDetail.GroupConfig.DataStorages'),
               dataIndex: 'sinkList',
               render: text => text.map(item => item.sinkType).join(','),
             },
@@ -108,7 +103,7 @@ export const getFormContent = ({
     : [
         {
           type: 'select',
-          label: i18n.t('pages.ApprovalDetail.AccessConfig.BindClusterTag'),
+          label: i18n.t('pages.ApprovalDetail.GroupConfig.BindClusterTag'),
           name: ['inlongClusterTag'],
           rules: [{ required: true }],
           props: {
@@ -144,7 +139,7 @@ export const getFormContent = ({
         {
           type: (
             <Divider orientation="left">
-              {i18n.t('pages.ApprovalDetail.AccessConfig.ApprovalInformation')}
+              {i18n.t('pages.ApprovalDetail.GroupConfig.ApprovalInformation')}
             </Divider>
           ),
         },

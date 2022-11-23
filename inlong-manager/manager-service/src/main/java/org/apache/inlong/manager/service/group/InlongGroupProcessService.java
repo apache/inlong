@@ -22,6 +22,8 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;
+import org.apache.inlong.manager.common.enums.TaskStatus;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -29,6 +31,7 @@ import org.apache.inlong.manager.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -48,6 +51,11 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+
 /**
  * Operation to the inlong group process
  */
@@ -56,12 +64,12 @@ public class InlongGroupProcessService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupProcessService.class);
 
-    private final ExecutorService executorService = new ThreadPoolExecutor(
-            20,
-            40,
-            0L,
+    private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
+            CORE_POOL_SIZE,
+            MAX_POOL_SIZE,
+            ALIVE_TIME_MS,
             TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
+            new LinkedBlockingQueue<>(QUEUE_SIZE),
             new ThreadFactoryBuilder().setNameFormat("inlong-group-process-%s").build(),
             new CallerRunsPolicy());
 
@@ -107,7 +115,7 @@ public class InlongGroupProcessService {
         groupService.updateStatus(groupId, GroupStatus.SUSPENDING.getCode(), operator);
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.SUSPEND);
-        executorService.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
+        EXECUTOR_SERVICE.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
 
         LOGGER.info("success to suspend process asynchronously for groupId={} by operator={}", groupId, operator);
         return groupId;
@@ -147,7 +155,7 @@ public class InlongGroupProcessService {
         groupService.updateStatus(groupId, GroupStatus.RESTARTING.getCode(), operator);
         InlongGroupInfo groupInfo = groupService.get(groupId);
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.RESTART);
-        executorService.execute(() -> workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form));
+        EXECUTOR_SERVICE.execute(() -> workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form));
 
         LOGGER.info("success to restart process asynchronously for groupId={} by operator={}", groupId, operator);
         return groupId;
@@ -180,36 +188,34 @@ public class InlongGroupProcessService {
      * @return inlong group id
      */
     public String deleteProcessAsync(String groupId, String operator) {
-        LOGGER.info("begin to delete process asynchronously for groupId={} by operator={}", groupId, operator);
-        executorService.execute(() -> {
+        LOGGER.info("begin to delete group asynchronously for groupId={} by user={}", groupId, operator);
+        EXECUTOR_SERVICE.execute(() -> {
             try {
                 invokeDeleteProcess(groupId, operator);
-            } catch (Exception ex) {
-                LOGGER.error("exception while delete process for groupId={} by operator={}", groupId, operator, ex);
-                throw ex;
+            } catch (Exception e) {
+                LOGGER.error(String.format("failed to async delete group for groupId=%s by %s", groupId, operator), e);
+                throw e;
             }
-            groupService.delete(groupId, operator);
         });
 
-        LOGGER.info("success to delete process asynchronously for groupId={} by operator={}", groupId, operator);
+        LOGGER.info("success to delete group asynchronously for groupId={} by user={}", groupId, operator);
         return groupId;
     }
 
     /**
-     * Delete InlongGroup logically and delete related resource in an asynchronous way.
+     * Delete InlongGroup logically and delete related resource in a synchronous way.
      */
-    public boolean deleteProcess(String groupId, String operator) {
-        LOGGER.info("begin to delete process for groupId={} by operator={}", groupId, operator);
+    public Boolean deleteProcess(String groupId, String operator) {
+        LOGGER.info("begin to delete group for groupId={} by user={}", groupId, operator);
         try {
             invokeDeleteProcess(groupId, operator);
-        } catch (Exception ex) {
-            LOGGER.error("exception while delete process for groupId={} by operator={}", groupId, operator, ex);
-            throw ex;
+        } catch (Exception e) {
+            LOGGER.error(String.format("failed to delete group for groupId=%s by user=%s", groupId, operator), e);
+            throw e;
         }
 
-        boolean result = groupService.delete(groupId, operator);
-        LOGGER.info("success to delete process for groupId={} by operator={}", groupId, operator);
-        return result;
+        LOGGER.info("success to delete group for groupId={} by user={}", groupId, operator);
+        return true;
     }
 
     /**
@@ -255,7 +261,7 @@ public class InlongGroupProcessService {
             List<WorkflowProcessEntity> entities = workflowQueryService.listProcessEntity(processQuery);
             entities.sort(Comparator.comparingInt(WorkflowProcessEntity::getId));
             WorkflowProcessEntity lastProcess = entities.get(entities.size() - 1);
-            executorService.execute(() -> {
+            EXECUTOR_SERVICE.execute(() -> {
                 workflowService.continueProcess(lastProcess.getId(), operator, "Reset group status");
             });
             return true;
@@ -282,9 +288,17 @@ public class InlongGroupProcessService {
     }
 
     private void invokeDeleteProcess(String groupId, String operator) {
-        InlongGroupInfo groupInfo = groupService.get(groupId);
+        // check can be deleted
+        InlongGroupInfo groupInfo = groupService.doDeleteCheck(groupId, operator);
+        // start to delete group process
         GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, GroupOperateType.DELETE);
-        workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
+        WorkflowResult result = workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
+        List<TaskResponse> tasks = result.getNewTasks();
+        if (TaskStatus.FAILED == tasks.get(tasks.size() - 1).getStatus()) {
+            String errMsg = String.format("failed to delete inlong group for groupId=%s", groupId);
+            LOGGER.error(errMsg);
+            throw new WorkflowListenerException(errMsg);
+        }
     }
 
     /**

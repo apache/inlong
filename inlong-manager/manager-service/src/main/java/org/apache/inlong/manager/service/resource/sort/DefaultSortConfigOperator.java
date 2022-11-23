@@ -28,7 +28,6 @@ import org.apache.inlong.manager.pojo.sort.util.LoadNodeUtils;
 import org.apache.inlong.manager.pojo.sort.util.NodeRelationUtils;
 import org.apache.inlong.manager.pojo.sort.util.TransformNodeUtils;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
@@ -77,18 +76,18 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     @Override
     public void buildConfig(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, boolean isStream)
             throws Exception {
+        if (isStream) {
+            LOGGER.warn("no need to build sort config for stream process when disable zk");
+            return;
+        }
         if (groupInfo == null || CollectionUtils.isEmpty(streamInfos)) {
-            LOGGER.warn("group info is null or stream infos is empty, no need to build sort config for disable zk");
+            LOGGER.warn("no need to build sort config as the group is null or streams is empty when disable zk");
             return;
         }
 
-        GroupInfo configInfo = this.getGroupInfo(groupInfo, streamInfos);
-        String dataflow = OBJECT_MAPPER.writeValueAsString(configInfo);
-        if (isStream) {
-            this.addToStreamExt(streamInfos, dataflow);
-        } else {
-            this.addToGroupExt(groupInfo, dataflow);
-        }
+        GroupInfo sortConfigInfo = this.getGroupInfo(groupInfo, streamInfos);
+        String dataflow = OBJECT_MAPPER.writeValueAsString(sortConfigInfo);
+        this.addToGroupExt(groupInfo, dataflow);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("success to build sort config, isStream={}, dataflow={}", isStream, dataflow);
@@ -127,9 +126,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             if (InlongConstants.STANDARD_MODE.equals(groupInfo.getLightweight())) {
                 if (CollectionUtils.isNotEmpty(transformResponses)) {
                     relations = NodeRelationUtils.createNodeRelations(inlongStream);
-
-                    // in standard mode, replace upstream source node and transform input fields node to mq node
-                    // mq node name, which is inlong stream id
+                    // in standard mode, replace upstream source node and transform input fields node
+                    // to MQ node (which is inlong stream id)
                     String mqNodeName = sources.get(0).getSourceName();
                     Set<String> nodeNameSet = getInputNodeNames(sources, transformResponses);
                     adjustTransformField(transformResponses, nodeNameSet, mqNodeName);
@@ -241,26 +239,6 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
 
         groupInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
-    }
-
-    /**
-     * Add config into inlong stream ext info
-     */
-    private void addToStreamExt(List<InlongStreamInfo> streamInfos, String value) {
-        streamInfos.forEach(streamInfo -> {
-            if (streamInfo.getExtList() == null) {
-                streamInfo.setExtList(new ArrayList<>());
-            }
-
-            InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
-            extInfo.setInlongGroupId(streamInfo.getInlongGroupId());
-            extInfo.setInlongStreamId(streamInfo.getInlongStreamId());
-            extInfo.setKeyName(InlongConstants.DATAFLOW);
-            extInfo.setKeyValue(value);
-
-            streamInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
-            streamInfo.getExtList().add(extInfo);
-        });
     }
 
 }

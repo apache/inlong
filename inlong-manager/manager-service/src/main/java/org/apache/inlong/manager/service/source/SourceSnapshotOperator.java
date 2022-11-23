@@ -36,13 +36,17 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
 
 /**
  * Operate the source snapshot
@@ -51,14 +55,15 @@ import java.util.concurrent.TimeUnit;
 public class SourceSnapshotOperator implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SourceSnapshotOperator.class);
-    private final ExecutorService executorService = new ThreadPoolExecutor(
-            1,
-            1,
-            10L,
-            TimeUnit.SECONDS,
-            new ArrayBlockingQueue<>(100),
+    private static final ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
+            CORE_POOL_SIZE,
+            MAX_POOL_SIZE,
+            ALIVE_TIME_MS,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(QUEUE_SIZE),
             new ThreadFactoryBuilder().setNameFormat("stream-source-snapshot-%s").build(),
             new CallerRunsPolicy());
+
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
 
@@ -101,7 +106,7 @@ public class SourceSnapshotOperator implements AutoCloseable {
             snapshotQueue = new LinkedBlockingQueue<>(queueSize);
         }
         SaveSnapshotTaskRunnable taskRunnable = new SaveSnapshotTaskRunnable();
-        this.executorService.execute(taskRunnable);
+        EXECUTOR_SERVICE.execute(taskRunnable);
         LOGGER.info("source snapshot operate thread started successfully");
     }
 

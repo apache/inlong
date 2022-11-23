@@ -40,6 +40,7 @@ import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.CliArgDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.utils.HttpUtils;
@@ -407,12 +408,14 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 int flowRuleCnt = jsonItem.get("flowCtrlRuleCount").getAsInt();
                 JsonArray flowCtrlInfoArray = jsonItem.get("flowCtrlInfo").getAsJsonArray();
                 String flowCtrlInfoStr = flowCtrlInfoArray.toString();
+                EnableStatus flowCtrlStatus =
+                        flowCtrlEnable ? EnableStatus.STATUS_ENABLE : EnableStatus.STATUS_DISABLE;
                 // build cluster setting entity
                 ClusterSettingEntity settingEntity =
                         new ClusterSettingEntity(baseEntity);
                 settingEntity.updModifyInfo(baseEntity.getDataVerId(),
                         brokerPort, brokerTlsPort, brokerWebPort, maxMsgSizeInMB,
-                        qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfoStr, defTopicProps);
+                        qryPriorityId, flowCtrlStatus, flowRuleCnt, flowCtrlInfoStr, defTopicProps);
                 clusterSettingMap.put(settingEntity.getRecordKey(), settingEntity);
             } catch (Throwable e) {
                 logger.error(strBuff.append("Parse cluster configurations(")
@@ -801,10 +804,12 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 int topicNameId = jsonItem.get("topicNameId").getAsInt();
                 boolean enableAuthCtrl = jsonItem.get("enableAuthControl").getAsBoolean();
                 int maxMsgSizeInMB = jsonItem.get("maxMsgSizeInMB").getAsInt();
+                EnableStatus authCtrlStatus =
+                        enableAuthCtrl ? EnableStatus.STATUS_ENABLE : EnableStatus.STATUS_DISABLE;
                 // build topic control entity
                 TopicCtrlEntity topicCtrlEntity = new TopicCtrlEntity(baseEntity, topicName);
                 topicCtrlEntity.updModifyInfo(baseEntity.getDataVerId(),
-                        topicNameId, maxMsgSizeInMB, enableAuthCtrl);
+                        topicNameId, maxMsgSizeInMB, authCtrlStatus);
                 topicCtrlMap.put(topicCtrlEntity.getTopicName(), topicCtrlEntity);
             } catch (Throwable e) {
                 logger.error(strBuff.append("Parse topic control configurations(")
@@ -1284,12 +1289,16 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 int flowCtrlRuleCount = jsonItem.get("flowCtrlRuleCount").getAsInt();
                 JsonArray flowCtrlInfoArray = jsonItem.get("flowCtrlInfo").getAsJsonArray();
                 String flowCtrlInfoStr = flowCtrlInfoArray.toString();
+                EnableStatus resChkStatus =
+                        resCheckEnable ? EnableStatus.STATUS_ENABLE : EnableStatus.STATUS_DISABLE;
+                EnableStatus flowCtrlStatus =
+                        flowCtrlEnable ? EnableStatus.STATUS_ENABLE : EnableStatus.STATUS_DISABLE;
                 // build group resource control entity
                 GroupResCtrlEntity groupResCtrlEntity =
                         new GroupResCtrlEntity(baseEntity, groupName);
                 groupResCtrlEntity.updModifyInfo(baseEntity.getDataVerId(),
-                        resCheckEnable, alwdBCRate, qryPriorityId,
-                        flowCtrlEnable, flowCtrlRuleCount, flowCtrlInfoStr);
+                        resChkStatus, alwdBCRate, qryPriorityId,
+                        flowCtrlStatus, flowCtrlRuleCount, flowCtrlInfoStr);
                 groupResCtrlMap.put(groupResCtrlEntity.getGroupName(), groupResCtrlEntity);
             } catch (Throwable e) {
                 logger.error(strBuff.append("Parse group resource control configurations(")
@@ -1471,11 +1480,15 @@ public class CliMetaDataBRU extends CliAbstractBase {
                 String disableCsmRsn = jsonItem.get("disableCsmRsn").getAsString();
                 boolean filterEnable = jsonItem.get("filterEnable").getAsBoolean();
                 String filterConds = jsonItem.get("filterConds").getAsString();
+                EnableStatus csmStatus =
+                        consumeEnable ? EnableStatus.STATUS_ENABLE : EnableStatus.STATUS_DISABLE;
+                EnableStatus filterStatus =
+                        filterEnable ? EnableStatus.STATUS_ENABLE : EnableStatus.STATUS_DISABLE;
                 // build group consume control entity
                 GroupConsumeCtrlEntity groupCsmCtrlEntity =
                         new GroupConsumeCtrlEntity(baseEntity, groupName, topicName);
                 groupCsmCtrlEntity.updModifyInfo(baseEntity.getDataVerId(),
-                        consumeEnable, disableCsmRsn, filterEnable, filterConds);
+                        csmStatus, disableCsmRsn, filterStatus, filterConds);
                 groupCsmCtrlMap.put(groupCsmCtrlEntity.getRecordKey(), groupCsmCtrlEntity);
             } catch (Throwable e) {
                 logger.error(strBuff.append("Parse group consume control configurations(")

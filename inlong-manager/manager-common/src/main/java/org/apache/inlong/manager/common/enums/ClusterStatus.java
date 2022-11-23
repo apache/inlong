@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import org.apache.inlong.manager.common.exceptions.WorkflowException;
-
 /**
  * Status enum of cluster
  */
@@ -28,7 +26,7 @@ public enum ClusterStatus {
 
     INITING(2);
 
-    int status;
+    final int status;
 
     ClusterStatus(int status) {
         this.status = status;
@@ -36,16 +34,5 @@ public enum ClusterStatus {
 
     public int getStatus() {
         return status;
-    }
-
-    public static ClusterStatus fromStatus(int status) {
-        switch (status) {
-            case 1:
-                return NORMAL;
-            case 2:
-                return INITING;
-            default:
-                throw new WorkflowException("unknown status: " + status);
-        }
     }
 }

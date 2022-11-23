@@ -142,7 +142,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      */
     public boolean updModifyInfo(long dataVerId, int brokerPort, int brokerTLSPort,
                                  int brokerWebPort, int maxMsgSizeMB,
-                                 int qryPriorityId, Boolean flowCtrlEnable,
+                                 int qryPriorityId, EnableStatus flowCtrlEnable,
                                  int flowRuleCnt, String flowCtrlRuleInfo,
                                  TopicPropGroup defTopicProps) {
         boolean changed = false;
@@ -186,10 +186,10 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         }
         // check and set flowCtrl info
         if (flowCtrlEnable != null
-                && (this.gloFlowCtrlStatus == EnableStatus.STATUS_UNDEFINE
-                || this.gloFlowCtrlStatus.isEnable() != flowCtrlEnable)) {
+                && flowCtrlEnable != EnableStatus.STATUS_UNDEFINE
+                && this.gloFlowCtrlStatus != flowCtrlEnable) {
+            this.gloFlowCtrlStatus = flowCtrlEnable;
             changed = true;
-            setEnableFlowCtrl(flowCtrlEnable);
         }
         if (TStringUtils.isNotBlank(flowCtrlRuleInfo)
                 && !flowCtrlRuleInfo.equals(gloFlowCtrlRuleInfo)) {
@@ -416,20 +416,14 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     }
 
     private void setGloFlowCtrlStatus(EnableStatus gloFlowCtrlStatus) {
-        this.gloFlowCtrlStatus = gloFlowCtrlStatus;
+        if (gloFlowCtrlStatus != null) {
+            this.gloFlowCtrlStatus = gloFlowCtrlStatus;
+        }
     }
 
     private void setGloFlowCtrlInfo(int flowCtrlCnt, String flowCtrlInfo) {
         this.gloFlowCtrlRuleCnt = flowCtrlCnt;
         this.gloFlowCtrlRuleInfo = flowCtrlInfo;
-    }
-
-    private void setEnableFlowCtrl(boolean enableFlowCtrl) {
-        if (enableFlowCtrl) {
-            this.gloFlowCtrlStatus = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.gloFlowCtrlStatus = EnableStatus.STATUS_DISABLE;
-        }
     }
 
     private void setClsDefTopicProps(TopicPropGroup clsDefTopicProps) {

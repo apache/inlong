@@ -17,12 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
@@ -30,11 +24,13 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.DeleteTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * kafka operator, supports creating topics and creating subscription.
@@ -75,25 +71,6 @@ public class KafkaOperator {
         AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
         Set<String> topicList = adminClient.listTopics().names().get();
         return topicList.contains(topic);
-    }
-
-    public void createSubscription(InlongKafkaInfo inlongKafkaInfo, KafkaClusterInfo kafkaClusterInfo,
-            String subscription) {
-        KafkaConsumer kafkaConsumer = KafkaUtils.createKafkaConsumer(inlongKafkaInfo, kafkaClusterInfo);
-        kafkaConsumer.subscribe(Collections.singletonList(subscription));
-    }
-
-    public boolean subscriptionIsExists(InlongKafkaInfo inlongKafkaInfo, KafkaClusterInfo kafkaClusterInfo,
-            String topic) {
-        try (KafkaConsumer consumer = KafkaUtils.createKafkaConsumer(inlongKafkaInfo, kafkaClusterInfo)) {
-            Map<String, List<PartitionInfo>> topics = consumer.listTopics();
-            List<PartitionInfo> partitions = topics.get(topic);
-            if (partitions == null) {
-                LOGGER.info("subscription is not exist");
-                return false;
-            }
-            return true;
-        }
     }
 
 }

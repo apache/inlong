@@ -179,26 +179,14 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     public void setResCheckStatus(EnableStatus resCheckStatus) {
-        this.resCheckStatus = resCheckStatus;
-    }
-
-    private void setResCheckStatus(boolean enableResChk) {
-        if (enableResChk) {
-            this.resCheckStatus = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.resCheckStatus = EnableStatus.STATUS_DISABLE;
+        if (resCheckStatus != null) {
+            this.resCheckStatus = resCheckStatus;
         }
     }
 
     public void setFlowCtrlStatus(EnableStatus flowCtrlStatus) {
-        this.flowCtrlStatus = flowCtrlStatus;
-    }
-
-    private void setFlowCtrlStatus(boolean enableFlowCtrl) {
-        if (enableFlowCtrl) {
-            this.flowCtrlStatus = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.flowCtrlStatus = EnableStatus.STATUS_DISABLE;
+        if (flowCtrlStatus != null) {
+            this.flowCtrlStatus = flowCtrlStatus;
         }
     }
 
@@ -221,8 +209,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      * @return  whether changed
      */
     public boolean updModifyInfo(long dataVerId,
-                                 Boolean resChkEnable, int allowedB2CRate,
-                                 int qryPriorityId, Boolean flowCtrlEnable,
+                                 EnableStatus resChkEnable, int allowedB2CRate,
+                                 int qryPriorityId, EnableStatus flowCtrlEnable,
                                  int flowRuleCnt, String flowCtrlRuleInfo) {
         boolean changed = false;
         // check and set dataVerId info
@@ -233,8 +221,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set resCheckStatus info
         if (resChkEnable != null
-                && (this.resCheckStatus == EnableStatus.STATUS_UNDEFINE
-                || this.resCheckStatus.isEnable() != resChkEnable)) {
+                && resChkEnable != EnableStatus.STATUS_UNDEFINE
+                && this.resCheckStatus != resChkEnable) {
             changed = true;
             setResCheckStatus(resChkEnable);
         }
@@ -252,8 +240,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set flowCtrl info
         if (flowCtrlEnable != null
-                && (this.flowCtrlStatus == EnableStatus.STATUS_UNDEFINE
-                || this.flowCtrlStatus.isEnable() != flowCtrlEnable)) {
+                && flowCtrlEnable != EnableStatus.STATUS_UNDEFINE
+                && this.flowCtrlStatus != flowCtrlEnable) {
             changed = true;
             setFlowCtrlStatus(flowCtrlEnable);
         }

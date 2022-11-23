@@ -62,7 +62,7 @@ public class OpenAPIFilter implements Filter {
             SecretToken token = parseBasicAuth(httpServletRequest);
             subject.login(token);
         } catch (Exception ex) {
-            LOGGER.error("login error, msg: {}", ex.getMessage());
+            LOGGER.error("login error: {}", ex.getMessage());
             ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_FORBIDDEN, ex.getMessage());
             return;
         }

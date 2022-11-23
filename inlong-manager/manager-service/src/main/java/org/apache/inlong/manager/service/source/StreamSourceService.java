@@ -117,6 +117,16 @@ public interface StreamSourceService {
     Boolean delete(Integer id, String operator);
 
     /**
+     * Force deletes the stream source by groupId and streamId
+     *
+     * @param groupId The belongs group id.
+     * @param streamId The belongs stream id.
+     * @param operator Operator's name
+     * @return Whether succeed
+     */
+    Boolean forceDelete(String groupId, String streamId, String operator);
+
+    /**
      * Delete the stream source by the given id and source type.
      *
      * @param id The primary key of the source.

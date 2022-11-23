@@ -20,6 +20,7 @@
 import React, { useEffect, useState } from 'react';
 import { AutoComplete, Button, Table, Input, InputNumber, Form } from 'antd';
 import { FormItemProps } from 'antd/lib/form';
+import { TableProps } from 'antd/lib/table';
 import { useTranslation } from 'react-i18next';
 import HighSelect from '@/components/HighSelect';
 import { useUpdateEffect } from '@/hooks';
@@ -51,12 +52,12 @@ export interface ColumnsItemProps {
   visible?: (val: unknown, rowVal: RowValueType) => boolean | boolean;
 }
 
-export interface EditableTableProps {
+export interface EditableTableProps
+  extends Omit<TableProps<any>, 'value' | 'onChange' | 'columns'> {
   // id comes from FormItem, like name
   id?: string;
   value?: RowValueType[];
   onChange?: (value: RowValueType[]) => void;
-  size?: string;
   columns: ColumnsItemProps[];
   // Can Edit(Can be changed to read-only)? Default: true.
   editing?: boolean;
@@ -102,7 +103,7 @@ const Comp = ({
   required = true,
   canDelete = true,
   canAdd = true,
-  size,
+  ...rest
 }: EditableTableProps) => {
   if (!id) {
     console.error(
@@ -243,15 +244,12 @@ const Comp = ({
         // Use div to wrap input, select, etc. so that the value and onChange events are not taken over by FormItem
         // So the actual value change must be changed by onChange itself and then exposed to the outer component
         <Form.Item
-          rules={
-            id
-              ? item.rules
-              : item.rules?.map(rule =>
-                  typeof rule === 'function' ? rule : { ...rule, transform: () => text ?? '' },
-                )
-          }
+          rules={item.rules?.map(rule =>
+            typeof rule === 'function' ? rule : { ...rule, transform: () => text ?? '' },
+          )}
           messageVariables={{ label: item.title }}
-          name={id ? [id, idx, item.dataIndex] : ['__proto__', 'editableRow', idx, item.dataIndex]}
+          // If the `name=[id, idx, item.dataIndex]` is used, the array value error will occur when the select/autocomplete input is entered, and the setValue will be automatically reset.
+          name={['__proto__', 'editableRow', idx, item.dataIndex]}
           className={styles.formItem}
         >
           <div>{formCompObj[item.type || 'input']}</div>
@@ -279,10 +277,10 @@ const Comp = ({
 
   return (
     <Table
+      {...rest}
       dataSource={data}
       columns={tableColumns}
       rowKey="_etid"
-      size={size as any}
       footer={
         editing && canAdd
           ? () => (

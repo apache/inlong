@@ -18,7 +18,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { Skeleton, Modal, message } from 'antd';
+import { Button, Skeleton, Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
@@ -47,6 +47,12 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
 
   const { Entity } = useLoadMeta<SinkMetaType>('sink', sinkType);
 
+  const { data: groupData, run: getGroupData } = useRequest(`/group/get/${inlongGroupId}`, {
+    manual: true,
+    ready: Boolean(inlongGroupId),
+    refreshDeps: [inlongGroupId],
+  });
+
   const {
     data,
     loading,
@@ -68,6 +74,7 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
+      getGroupData();
       if (id) {
         getData(id);
       } else {
@@ -84,13 +91,16 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
     return Entity ? new Entity().renderRow() : [];
   }, [Entity]);
 
-  const onOk = async () => {
+  const onOk = async (startProcess = false) => {
     const values = await form.validateFields();
     const submitData = new Entity()?.stringify(values) || values;
     const isUpdate = Boolean(id);
     if (isUpdate) {
       submitData.id = id;
       submitData.version = data?.version;
+    }
+    if (startProcess) {
+      submitData.startProcess = true;
     }
     await request({
       url: isUpdate ? '/sink/update' : '/sink/save',
@@ -105,7 +115,24 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
   };
 
   return (
-    <Modal title="Sink" width={1200} {...modalProps} onOk={onOk}>
+    <Modal
+      title="Sink"
+      width={1200}
+      {...modalProps}
+      footer={[
+        <Button key="cancel" onClick={modalProps.onCancel}>
+          {t('pages.GroupDetail.Sink.Cancel')}
+        </Button>,
+        <Button key="save" type="primary" onClick={() => onOk(false)}>
+          {t('pages.GroupDetail.Sink.Save')}
+        </Button>,
+        groupData?.status === 130 && (
+          <Button key="run" type="primary" onClick={() => onOk(true)}>
+            {t('pages.GroupDetail.Sink.SaveAndRefresh')}
+          </Button>
+        ),
+      ]}
+    >
       {loading ? (
         <Skeleton active />
       ) : (

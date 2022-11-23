@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.web.config;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import lombok.Data;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,6 +29,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
+import org.apache.inlong.common.constant.ProtocolType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -42,6 +41,9 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Data
 @Configuration
@@ -84,8 +86,8 @@ public class RestTemplateConfig {
     public PoolingHttpClientConnectionManager httpClientConnectionManager() {
         // Support HTTP, HTTPS
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                .register("https", SSLConnectionSocketFactory.getSocketFactory())
+                .register(ProtocolType.HTTP, PlainConnectionSocketFactory.getSocketFactory())
+                .register(ProtocolType.HTTPS, SSLConnectionSocketFactory.getSocketFactory())
                 .build();
         PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(
                 registry);

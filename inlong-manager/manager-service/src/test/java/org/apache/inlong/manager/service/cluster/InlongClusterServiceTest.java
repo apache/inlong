@@ -175,6 +175,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         heartbeatMsg.setPort(port);
         heartbeatMsg.setClusterTag("default_cluster");
         heartbeatMsg.setProtocolType(ProtocolType.HTTP);
+        heartbeatMsg.setLoad(0xFFFF);
         heartbeatMsg.setComponentType(type);
         heartbeatMsg.setReportTime(System.currentTimeMillis());
         heartbeatMsg.setClusterName(clusterName);

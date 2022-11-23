@@ -79,7 +79,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                     }
                 }).build();
 
-        // The expire time of cluster info cache must be greater than heartbeat cache
+        // The expiry time of cluster info cache must be greater than heartbeat cache
         // because the eviction handler needs to query cluster info cache
         clusterInfoCache = Caffeine.newBuilder()
                 .expireAfterAccess(expireTime * 2L, TimeUnit.SECONDS)
@@ -129,7 +129,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
                 if (clusterNode == null) {
                     handlerNum += insertClusterNode(clusterInfo, heartbeatMsg, clusterInfo.getCreator());
                 } else {
-                    handlerNum += updateClusterNode(clusterNode);
+                    handlerNum += updateClusterNode(clusterNode, heartbeatMsg);
                 }
             }
         }
@@ -202,6 +202,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         clusterNode.setIp(heartbeat.getIp());
         clusterNode.setPort(Integer.valueOf(heartbeat.getPort()));
         clusterNode.setProtocolType(heartbeat.getProtocolType());
+        clusterNode.setNodeLoad(heartbeat.getLoad());
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
         clusterNode.setCreator(creator);
         clusterNode.setModifier(creator);
@@ -209,8 +210,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         return clusterNodeMapper.insertOnDuplicateKeyUpdate(clusterNode);
     }
 
-    private int updateClusterNode(InlongClusterNodeEntity clusterNode) {
+    private int updateClusterNode(InlongClusterNodeEntity clusterNode, HeartbeatMsg heartbeat) {
         clusterNode.setStatus(ClusterStatus.NORMAL.getStatus());
+        clusterNode.setNodeLoad(heartbeat.getLoad());
         return clusterNodeMapper.updateById(clusterNode);
     }
 

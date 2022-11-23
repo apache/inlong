@@ -96,17 +96,8 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
         },
         visible: mqType === 'PULSAR',
       },
-    ].map(item => {
-      const obj = { ...item };
-      const isCreate = !inlongStreamId;
-
-      if (!isCreate && (obj.name === 'inlongStreamId' || obj.name === 'dataType')) {
-        obj.type = 'text';
-      }
-
-      return obj;
-    });
-  }, [entityFields, mqType, inlongStreamId]);
+    ];
+  }, [entityFields, mqType]);
 
   const { data: savedData, run: getStreamData } = useRequest(
     {
@@ -160,6 +151,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, inlongStreamId, mqType, ...modal
       <FormGenerator
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 20 }}
+        initialValues={inlongStreamId ? savedData : {}}
         content={formContent}
         form={form}
         useMaxWidth

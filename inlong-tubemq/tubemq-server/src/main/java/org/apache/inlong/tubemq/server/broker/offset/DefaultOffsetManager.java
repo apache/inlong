@@ -460,10 +460,10 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
      * @return group offset info in memory or zk
      */
     @Override
-    public Map<String, OffsetRecordInfo> getOnlineGroupOffsetInfo() {
-        OffsetRecordInfo recordInfo;
+    public Map<String, OffsetHistoryInfo> getOnlineGroupOffsetInfo() {
+        OffsetHistoryInfo recordInfo;
         Map<String, OffsetStorageInfo> storeMap;
-        Map<String, OffsetRecordInfo> result = new HashMap<>();
+        Map<String, OffsetHistoryInfo> result = new HashMap<>();
         for (Map.Entry<String,
                 ConcurrentHashMap<String, OffsetStorageInfo>> entry : cfmOffsetMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
@@ -480,7 +480,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 }
                 recordInfo = result.get(entry.getKey());
                 if (recordInfo == null) {
-                    recordInfo = new OffsetRecordInfo(
+                    recordInfo = new OffsetHistoryInfo(
                             brokerConfig.getBrokerId(), entry.getKey());
                     result.put(entry.getKey(), recordInfo);
                 }
