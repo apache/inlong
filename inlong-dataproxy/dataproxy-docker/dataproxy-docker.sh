@@ -17,9 +17,8 @@
 #
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
-# You need to pay attention to obtaining the local IP. The int6 network segment starting with 30 is excluded here.
-# When your business needs a network segment starting with 30, you need to modify this to avoid not getting it.
-local_ip=$(ifconfig | grep inet | grep -v inet6 | grep -v "127.0.0.1" | awk '{print $2}' | grep -v "^30.*")
+# Obtain the local ip by specifying the network card name according to the environment variable
+local_ip=$(ifconfig $ETH_NAME | grep inet | grep -v inet6 | grep -v "127.0.0.1" | awk '{print $2}')
 # config
 cd "${file_path}/"
 common_conf_file=./conf/common.properties
