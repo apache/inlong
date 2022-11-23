@@ -58,6 +58,9 @@ public final class Constants {
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";
 
+    /**
+     * Identifies the current stage in the full database data migration snapshot and incremental data stages.
+     */
     public static final String READ_PHASE = "readPhase";
 
     /**
