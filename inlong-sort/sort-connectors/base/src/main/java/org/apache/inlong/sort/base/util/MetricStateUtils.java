@@ -22,14 +22,16 @@ import org.apache.flink.api.common.state.ListState;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
@@ -67,7 +69,7 @@ public class MetricStateUtils {
         if (currentSubtaskNum >= previousSubtaskNum) {
             currentMetricState = map.get(subtaskIndex);
         } else {
-            Map<String, Long> metrics = new HashMap<>(4);
+            Map<String, Long> metrics = new HashMap<>(16);
             currentMetricState = new MetricState(subtaskIndex, metrics);
             List<Integer> indexList = computeIndexList(subtaskIndex, currentSubtaskNum, previousSubtaskNum);
             for (Integer index : indexList) {
@@ -147,6 +149,8 @@ public class MetricStateUtils {
         Map<String, Long> metricDataMap = new HashMap<>();
         metricDataMap.put(NUM_RECORDS_OUT, sinkMetricData.getNumRecordsOut().getCount());
         metricDataMap.put(NUM_BYTES_OUT, sinkMetricData.getNumBytesOut().getCount());
+        metricDataMap.put(DIRTY_RECORDS_OUT, sinkMetricData.getDirtyRecordsOut().getCount());
+        metricDataMap.put(DIRTY_BYTES_OUT, sinkMetricData.getDirtyBytesOut().getCount());
         MetricState metricState = new MetricState(subtaskIndex, metricDataMap);
         metricStateListState.add(metricState);
     }

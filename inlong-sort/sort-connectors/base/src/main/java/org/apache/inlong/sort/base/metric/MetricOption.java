@@ -49,18 +49,24 @@ public class MetricOption implements Serializable {
     private RegisteredMetric registeredMetric;
     private long initRecords;
     private long initBytes;
+    private long initDirtyRecords;
+    private long initDirtyBytes;
 
     private MetricOption(
             String inlongLabels,
             @Nullable String inlongAudit,
             RegisteredMetric registeredMetric,
             long initRecords,
-            long initBytes) {
+            long initBytes,
+            Long initDirtyRecords,
+            Long initDirtyBytes) {
         Preconditions.checkArgument(!StringUtils.isNullOrWhitespaceOnly(inlongLabels),
                 "Inlong labels must be set for register metric.");
 
         this.initRecords = initRecords;
         this.initBytes = initBytes;
+        this.initDirtyRecords = initDirtyRecords;
+        this.initDirtyBytes = initDirtyBytes;
         this.labels = new LinkedHashMap<>();
         String[] inLongLabelArray = inlongLabels.split(DELIMITER);
         Preconditions.checkArgument(Stream.of(inLongLabelArray).allMatch(label -> label.contains("=")),
@@ -121,6 +127,22 @@ public class MetricOption implements Serializable {
         this.initBytes = initBytes;
     }
 
+    public long getInitDirtyRecords() {
+        return initDirtyRecords;
+    }
+
+    public void setInitDirtyRecords(long initDirtyRecords) {
+        this.initDirtyRecords = initDirtyRecords;
+    }
+
+    public long getInitDirtyBytes() {
+        return initDirtyBytes;
+    }
+
+    public void setInitDirtyBytes(long initDirtyBytes) {
+        this.initDirtyBytes = initDirtyBytes;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -137,6 +159,8 @@ public class MetricOption implements Serializable {
         private RegisteredMetric registeredMetric = RegisteredMetric.ALL;
         private long initRecords = 0L;
         private long initBytes = 0L;
+        private Long initDirtyRecords = 0L;
+        private Long initDirtyBytes = 0L;
 
         private Builder() {
         }
@@ -166,11 +190,22 @@ public class MetricOption implements Serializable {
             return this;
         }
 
+        public MetricOption.Builder withInitDirtyRecords(Long initDirtyRecords) {
+            this.initDirtyRecords = initDirtyRecords;
+            return this;
+        }
+
+        public MetricOption.Builder withInitDirtyBytes(Long initDirtyBytes) {
+            this.initDirtyBytes = initDirtyBytes;
+            return this;
+        }
+
         public MetricOption build() {
             if (inlongLabels == null && inlongAudit == null) {
                 return null;
             }
-            return new MetricOption(inlongLabels, inlongAudit, registeredMetric, initRecords, initBytes);
+            return new MetricOption(inlongLabels, inlongAudit, registeredMetric, initRecords, initBytes,
+                    initDirtyRecords, initDirtyBytes);
         }
     }
 }

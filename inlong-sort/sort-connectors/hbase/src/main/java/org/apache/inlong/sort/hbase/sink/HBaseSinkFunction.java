@@ -57,6 +57,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -139,6 +142,8 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                     .withInlongAudit(inlongAudit)
                     .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                     .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                    .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                    .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                     .withRegisterMetric(RegisteredMetric.ALL)
                     .build();
             if (metricOption != null) {
@@ -168,21 +173,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                                     if (closed) {
                                         return;
                                     }
-                                    try {
-                                        flush();
-                                        if (sinkMetricData != null) {
-                                            sinkMetricData.invoke(rowSize, dataSize);
-                                        }
-                                        resetStateAfterFlush();
-                                    } catch (Exception e) {
-                                        if (sinkMetricData != null) {
-                                            sinkMetricData.invokeDirty(rowSize, dataSize);
-                                        }
-                                        resetStateAfterFlush();
-                                        // fail the sink and skip the rest of the items
-                                        // if the failure handler decides to throw an exception
-                                        failureThrowable.compareAndSet(null, e);
-                                    }
+                                    reportMetricAfterFlush();
                                 },
                                 bufferFlushIntervalMillis,
                                 bufferFlushIntervalMillis,
@@ -225,34 +216,48 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     private void checkErrorAndRethrow() {
         Throwable cause = failureThrowable.get();
         if (cause != null) {
-            throw new RuntimeException("An error occurred in HBaseSink.", cause);
+            LOG.error("An error occurred in HBaseSink.", cause);
+            failureThrowable.compareAndSet(cause, null);
         }
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void invoke(T value, Context context) throws Exception {
+    public void invoke(T value, Context context) {
         checkErrorAndRethrow();
+        try {
+            mutator.mutate(mutationConverter.convertToMutation(value));
+            rowSize++;
+            dataSize = dataSize + value.toString().getBytes(StandardCharsets.UTF_8).length;
+        } catch (Exception e) {
+            if (sinkMetricData != null) {
+                sinkMetricData.invokeDirty(1, value.toString().getBytes(StandardCharsets.UTF_8).length);
+            }
+            failureThrowable.compareAndSet(null, e);
+        }
 
-        mutator.mutate(mutationConverter.convertToMutation(value));
-        rowSize++;
-        dataSize = dataSize + value.toString().getBytes(StandardCharsets.UTF_8).length;
         // flush when the buffer number of mutations greater than the configured max size.
         if (bufferFlushMaxMutations > 0
                 && numPendingRequests.incrementAndGet() >= bufferFlushMaxMutations) {
-            try {
-                flush();
-                if (sinkMetricData != null) {
-                    sinkMetricData.invoke(rowSize, dataSize);
-                }
-                resetStateAfterFlush();
-            } catch (Exception e) {
-                if (sinkMetricData != null) {
-                    sinkMetricData.invokeDirty(rowSize, dataSize);
-                }
-                resetStateAfterFlush();
-                throw e;
+            reportMetricAfterFlush();
+        }
+    }
+
+    private void reportMetricAfterFlush() {
+        try {
+            flush();
+            if (sinkMetricData != null) {
+                sinkMetricData.invoke(rowSize, dataSize);
             }
+            resetStateAfterFlush();
+        } catch (Exception e) {
+            if (sinkMetricData != null) {
+                sinkMetricData.invokeDirty(rowSize, dataSize);
+            }
+            resetStateAfterFlush();
+            // fail the sink and skip the rest of the items
+            // if the failure handler decides to throw an exception
+            failureThrowable.compareAndSet(null, e);
         }
     }
 
@@ -301,7 +306,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
         while (numPendingRequests.get() != 0) {
-            flush();
+            reportMetricAfterFlush();
         }
         if (sinkMetricData != null && metricStateListState != null) {
             MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, sinkMetricData,
