@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
@@ -67,6 +68,14 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
         if (StringUtils.isEmpty(entity.getMqResource())) {
             entity.setMqResource(groupId);
         }
+        //  check reportDataTo value
+        Integer reportDataTo = entity.getReportDataTo();
+        if (reportDataTo != null) {
+            if (reportDataTo > 2 || reportDataTo < 0) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED,
+                        "Illegal reportDataTo value, value range in [0, 2]");
+            }
+        }
         // set the ext params
         setTargetEntity(request, entity);
 
@@ -91,7 +100,14 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void updateOpt(InlongGroupRequest request, String operator) {
         InlongGroupEntity entity = CommonBeanUtils.copyProperties(request, InlongGroupEntity::new);
-
+        //  check reportDataTo value
+        Integer reportDataTo = entity.getReportDataTo();
+        if (reportDataTo != null) {
+            if (reportDataTo > 2 || reportDataTo < 0) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED,
+                        "Illegal reportDataTo value, value range in [0, 2]");
+            }
+        }
         // set the ext params
         setTargetEntity(request, entity);
 

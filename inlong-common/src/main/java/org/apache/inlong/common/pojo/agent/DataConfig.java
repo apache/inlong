@@ -17,6 +17,9 @@
 
 package org.apache.inlong.common.pojo.agent;
 
+import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
+import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+import java.util.List;
 import lombok.Data;
 
 /**
@@ -45,6 +48,23 @@ public class DataConfig {
      * The task delivery time, format is 'yyyy-MM-dd HH:mm:ss'.
      */
     private String deliveryTime;
+    /**
+     * The reporting position of the collection task corresponding to the groupId.
+     *   0: to DataProxy with source response;
+     *   1: to DataProxy with sink response;
+     *   2: to MQ directly
+     */
+    private Integer reportDataTo;
+    /**
+     * MQ cluster information. valid when reportDataTo is 2.
+     *
+     */
+    private List<MQClusterInfo> mqClusterInfos;
+    /**
+     * MQ's topic information. valid when reportDataTo is 2.
+     *
+     */
+    private DataProxyTopicInfo topicInfo;
 
     public boolean isValid() {
         return true;

@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,17 +32,26 @@ import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
+import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
@@ -52,10 +63,12 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -83,6 +96,8 @@ public class AgentServiceImpl implements AgentService {
             SourceStatus.TO_BE_ISSUED_REDO_METRIC.getCode(),
             SourceStatus.TO_BE_ISSUED_MAKEUP.getCode());
 
+    private static final Gson GSON = new Gson();
+
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -91,6 +106,10 @@ public class AgentServiceImpl implements AgentService {
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
+    @Autowired
+    private InlongClusterEntityMapper clusterMapper;
+    @Autowired
+    private InlongGroupEntityMapper groupMapper;
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -350,6 +369,49 @@ public class AgentServiceImpl implements AgentService {
             LOGGER.warn("set syncSend=[0] as the stream not exists for groupId={}, streamId={}", groupId, streamId);
         }
         dataConfig.setExtParams(extParams);
+        int reportDataTo = 0;
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity != null) {
+            reportDataTo = groupEntity.getReportDataTo();
+        }
+        dataConfig.setReportDataTo(reportDataTo);
+        if (reportDataTo == 2) {
+            // add mq cluster setting
+            List<MQClusterInfo> mqSet = new ArrayList<>();
+            List<InlongClusterEntity> mqClusterList =
+                    clusterMapper.selectByClusterTag(groupEntity.getInlongClusterTag());
+            for (InlongClusterEntity cluster : mqClusterList) {
+                MQClusterInfo clusterInfo = new MQClusterInfo();
+                clusterInfo.setUrl(cluster.getUrl());
+                clusterInfo.setToken(cluster.getToken());
+                clusterInfo.setMqType(cluster.getType());
+                clusterInfo.setParams(GSON.fromJson(cluster.getExtParams(), Map.class));
+                mqSet.add(clusterInfo);
+            }
+            dataConfig.setMqClusterInfos(mqSet);
+            // add topic setting
+            InlongClusterEntity cluster = mqClusterList.get(0);
+            String mqResource = groupEntity.getMqResource();
+            String mqType = groupEntity.getMqType();
+            if (MQType.PULSAR.equals(mqType) || MQType.TDMQ_PULSAR.equals(mqType)) {
+                PulsarClusterDTO pulsarCluster = PulsarClusterDTO.getFromJson(cluster.getExtParams());
+                String tenant = pulsarCluster.getTenant();
+                if (StringUtils.isBlank(tenant)) {
+                    tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+                }
+                String topic = String.format(InlongConstants.PULSAR_TOPIC_FORMAT,
+                        tenant, mqResource, streamEntity.getMqResource());
+                DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
+                topicConfig.setInlongGroupId(groupId + "/" + streamId);
+                topicConfig.setTopic(topic);
+                dataConfig.setTopicInfo(topicConfig);
+            } else if (MQType.TUBEMQ.equals(mqType)) {
+                DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
+                topicConfig.setInlongGroupId(groupId);
+                topicConfig.setTopic(mqResource);
+                dataConfig.setTopicInfo(topicConfig);
+            }
+        }
         return dataConfig;
     }
 

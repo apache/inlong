@@ -78,6 +78,11 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: no, 1: yes")
     private Integer lightweight = 0;
 
+    @ApiModelProperty(value = "The reporting position of the collection task "
+            + "corresponding to the groupId, 0: to DataProxy with source response, "
+            + "1: to DataProxy with sink response, 2: to MQ directly")
+    private Integer reportDataTo = 0;
+
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
     private String inlongClusterTag;
 

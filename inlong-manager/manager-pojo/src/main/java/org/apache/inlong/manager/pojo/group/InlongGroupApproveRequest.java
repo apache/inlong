@@ -77,4 +77,9 @@ public class InlongGroupApproveRequest {
     @ApiModelProperty(value = "The unit of message size")
     private String retentionSizeUnit;
 
+    @ApiModelProperty(value = "The reporting position of the collection task "
+            + "corresponding to the groupId, 0: to DataProxy with source response, "
+            + "1: to DataProxy with sink response, 2: to MQ directly")
+    private Integer reportDataTo = 0;
+
 }
