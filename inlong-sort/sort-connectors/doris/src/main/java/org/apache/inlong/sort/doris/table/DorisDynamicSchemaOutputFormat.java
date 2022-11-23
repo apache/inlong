@@ -48,7 +48,7 @@ import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.doris.model.RespContent;
-import org.apache.inlong.sort.doris.utils.DorisParseUtils;
+import org.apache.inlong.sort.doris.util.DorisParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,11 +70,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import static org.apache.flink.table.data.RowData.createFieldGetter;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
-import static org.apache.inlong.sort.doris.utils.DorisParseUtils.escapeString;
+import static org.apache.inlong.sort.doris.util.DorisParseUtils.DORIS_DELETE_SIGN;
 
 /**
  * DorisDynamicSchemaOutputFormat, copy from {@link org.apache.doris.flink.table.DorisDynamicOutputFormat}
@@ -87,7 +86,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private static final Logger LOG = LoggerFactory.getLogger(DorisDynamicSchemaOutputFormat.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String COLUMNS_KEY = "columns";
-    private static final String DORIS_DELETE_SIGN = "__DORIS_DELETE_SIGN__";
     /**
      * Mark the record for delete
      */
@@ -106,8 +104,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private static final String ESCAPE_DELIMITERS_KEY = "escape_delimiters";
     private static final String ESCAPE_DELIMITERS_DEFAULT = "false";
     private static final String UNIQUE_KEYS_TYPE = "UNIQUE_KEYS";
-    @SuppressWarnings({"rawtypes"})
-    private final Map<String, List> batchMap = new HashMap<>();
+    private final Map<String, List<Map<String, String>>> batchMap = new HashMap<>();
     private final Map<String, String> columnsMap = new HashMap<>();
     private final List<String> errorTables = new ArrayList<>();
     private final DorisOptions options;
@@ -139,7 +136,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private transient MetricState metricState;
     private volatile String[] fieldNames;
     private volatile boolean jsonFormat;
-    private String keysType;
     private volatile RowData.FieldGetter[] fieldGetters;
     private String fieldDelimiter;
     private String lineDelimiter;
@@ -205,39 +201,30 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
     }
 
-    private void handleStreamloadProp() {
-        Properties streamLoadProp = executionOptions.getStreamLoadProp();
-        boolean ifEscape = Boolean.parseBoolean(
-                streamLoadProp.getProperty(ESCAPE_DELIMITERS_KEY, ESCAPE_DELIMITERS_DEFAULT));
-        if (ifEscape) {
-            this.fieldDelimiter = escapeString(streamLoadProp.getProperty(FIELD_DELIMITER_KEY,
-                    FIELD_DELIMITER_DEFAULT));
-            this.lineDelimiter = escapeString(streamLoadProp.getProperty(LINE_DELIMITER_KEY,
-                    LINE_DELIMITER_DEFAULT));
+    private void handleStreamLoadProp() {
+        Properties props = executionOptions.getStreamLoadProp();
+        boolean ifEscape = Boolean.parseBoolean(props.getProperty(ESCAPE_DELIMITERS_KEY, ESCAPE_DELIMITERS_DEFAULT));
+        this.fieldDelimiter = props.getProperty(FIELD_DELIMITER_KEY, FIELD_DELIMITER_DEFAULT);
+        this.lineDelimiter = props.getProperty(LINE_DELIMITER_KEY, LINE_DELIMITER_DEFAULT);
 
-            if (streamLoadProp.contains(ESCAPE_DELIMITERS_KEY)) {
-                streamLoadProp.remove(ESCAPE_DELIMITERS_KEY);
-            }
-        } else {
-            this.fieldDelimiter = streamLoadProp.getProperty(FIELD_DELIMITER_KEY,
-                    FIELD_DELIMITER_DEFAULT);
-            this.lineDelimiter = streamLoadProp.getProperty(LINE_DELIMITER_KEY,
-                    LINE_DELIMITER_DEFAULT);
+        if (ifEscape) {
+            this.fieldDelimiter = DorisParseUtils.escapeString(fieldDelimiter);
+            this.lineDelimiter = DorisParseUtils.escapeString(lineDelimiter);
+            props.remove(ESCAPE_DELIMITERS_KEY);
         }
 
-        //add column key when fieldNames is not empty
-        if (!streamLoadProp.containsKey(COLUMNS_KEY) && fieldNames != null && fieldNames.length > 0) {
-            String columns = String.join(",", Arrays.stream(fieldNames)
+        // add column key when fieldNames is not empty
+        if (!props.containsKey(COLUMNS_KEY) && fieldNames != null && fieldNames.length > 0) {
+            String columns = Arrays.stream(fieldNames)
                     .map(item -> String.format("`%s`", item.trim().replace("`", "")))
-                    .collect(Collectors.toList()));
-            streamLoadProp.put(COLUMNS_KEY, columns);
+                    .collect(Collectors.joining(","));
+            props.put(COLUMNS_KEY, columns);
         }
 
         // if enable batch delete, the columns must add tag '__DORIS_DELETE_SIGN__'
-        String columns = (String) streamLoadProp.get(COLUMNS_KEY);
-        if (!columns.contains(DORIS_DELETE_SIGN)
-                && enableBatchDelete()) {
-            streamLoadProp.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
+        String columns = (String) props.get(COLUMNS_KEY);
+        if (!columns.contains(DORIS_DELETE_SIGN) && enableBatchDelete()) {
+            props.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
         }
     }
 
@@ -256,18 +243,15 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     @Override
     public void open(int taskNumber, int numTasks) throws IOException {
-        dorisStreamLoad = new DorisStreamLoad(
-                getBackend(),
-                options.getUsername(),
-                options.getPassword(),
+        dorisStreamLoad = new DorisStreamLoad(getBackend(), options.getUsername(), options.getPassword(),
                 executionOptions.getStreamLoadProp());
         if (!multipleSink) {
             Properties loadProperties = executionOptions.getStreamLoadProp();
             this.jsonFormat = FORMAT_JSON_VALUE.equals(loadProperties.getProperty(FORMAT_KEY));
-            handleStreamloadProp();
+            this.handleStreamLoadProp();
             this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
             for (int i = 0; i < logicalTypes.length; i++) {
-                fieldGetters[i] = createFieldGetter(logicalTypes[i], i);
+                fieldGetters[i] = RowData.createFieldGetter(logicalTypes[i], i);
             }
         }
 
@@ -347,14 +331,14 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                     value.add(DorisParseUtils.parseDeleteSign(rowData.getRowKind()));
                 }
             }
-            Map<String, String> data = jsonFormat ? valueMap : DorisParseUtils.parsetoMap(value.toString());
-            List<Map<String, String>> mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
+            Map<String, String> data = jsonFormat ? valueMap : DorisParseUtils.parseToMap(value.toString());
+            List<Map<String, String>> mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<>());
             mapData.add(data);
             batchMap.putIfAbsent(tableIdentifier, mapData);
         } else if (row instanceof String) {
             batchBytes += ((String) row).getBytes(StandardCharsets.UTF_8).length;
-            List mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
-            mapData.add(DorisParseUtils.parsetoMap(row));
+            List<Map<String, String>> mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<>());
+            mapData.add(DorisParseUtils.parseToMap(row));
             batchMap.putIfAbsent(tableIdentifier, mapData);
         } else {
             throw new RuntimeException("The type of element should be 'RowData' or 'String' only.");
@@ -512,7 +496,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
     }
 
-    @SuppressWarnings({"rawtypes"})
     public synchronized void flush() {
         flushing = true;
         if (!hasRecords()) {
@@ -520,7 +503,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             return;
         }
 
-        for (Entry<String, List> kvs : batchMap.entrySet()) {
+        for (Entry<String, List<Map<String, String>>> kvs : batchMap.entrySet()) {
             flushSingleTable(kvs.getKey(), kvs.getValue());
         }
         if (!errorTables.isEmpty()) {
@@ -535,7 +518,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         flushing = false;
     }
 
-    @SuppressWarnings({"rawtypes"})
     private void flushSingleTable(String tableIdentifier, List values) {
         if (checkFlushException(tableIdentifier) || values == null || values.isEmpty()) {
             return;
@@ -569,13 +551,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private boolean hasRecords() {
         if (batchMap.isEmpty()) {
             return false;
         }
         boolean hasRecords = false;
-        for (List value : batchMap.values()) {
+        for (List<Map<String, String>> value : batchMap.values()) {
             if (!value.isEmpty()) {
                 hasRecords = true;
                 break;
@@ -604,7 +585,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                     dorisStreamLoad.setHostPort(getBackend());
                     LOG.warn("streamload error,switch be: {}",
                             dorisStreamLoad.getLoadUrlStr(tableWithDb[0], tableWithDb[1]), e);
-                    Thread.sleep(1000 * i);
+                    Thread.sleep(1000L * i);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                     throw new IOException("unable to flush; interrupted while doing another attempt", e);
@@ -616,7 +597,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     private String getBackend() throws IOException {
         try {
-            //get be url from fe
+            // get be url from fe
             return RestService.randomBackend(options, readOptions, LOG);
         } catch (IOException | DorisException e) {
             LOG.error("get backends info fail");

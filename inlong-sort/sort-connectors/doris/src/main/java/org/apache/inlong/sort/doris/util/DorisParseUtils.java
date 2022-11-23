@@ -15,9 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.doris.utils;
+package org.apache.inlong.sort.doris.util;
 
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.doris.table.DorisDynamicSchemaOutputFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,21 +28,20 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.inlong.sort.doris.table.DorisDynamicSchemaOutputFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * A utility class primarily serving DorisDynamaicSchemaOutputFormat
- * extracts some common utility methods out.
+ * A utility class primarily serving DorisDynamicSchemaOutputFormat
  */
 public class DorisParseUtils {
+
+    public static final String ID = "id";
+    public static final String DORIS_DELETE_SIGN = "__DORIS_DELETE_SIGN__";
+
+    private static final Logger LOG = LoggerFactory.getLogger(DorisDynamicSchemaOutputFormat.class);
 
     /**
      * Pattern of escape mode for hexadecimal characters, such as "hi\\x33hi\\x44hello".
      */
-    private static final Pattern PATTERN = Pattern.compile("\\\\x(\\d{2})");
-    private static final Logger LOG = LoggerFactory.getLogger(DorisDynamicSchemaOutputFormat.class);
+    private static final Pattern HEX_PATTERN = Pattern.compile("\\\\x(\\d{2})");
 
     /**
      * A utility function used to split the given string which represents a captured row,
@@ -48,15 +50,15 @@ public class DorisParseUtils {
      * @param data an object which is created by stringify row data
      * @return Map a hashmap which can be used to load the data
      */
-    public static Map<String, String> parsetoMap(Object data) {
+    public static Map<String, String> parseToMap(Object data) {
         String[] toParse = data.toString().split("\\s+");
         Map<String, String> ret = new HashMap<>();
         if (toParse.length < 2) {
-            LOG.warn("parse length insufficient! string is :{}", Arrays.toString(toParse));
+            LOG.warn("parsed length of string {} is not 2", Arrays.toString(toParse));
             return ret;
         }
-        ret.put("id", toParse[0]);
-        ret.put("__DORIS_DELETE_SIGN__", toParse[1]);
+        ret.put(ID, toParse[0]);
+        ret.put(DORIS_DELETE_SIGN, toParse[1]);
         return ret;
     }
 
@@ -72,26 +74,26 @@ public class DorisParseUtils {
         } else if (RowKind.DELETE.equals(rowKind) || RowKind.UPDATE_BEFORE.equals(rowKind)) {
             return "1";
         } else {
-            throw new RuntimeException("Unrecognized row kind:" + rowKind.toString());
+            throw new RuntimeException("Unrecognized row kind: " + rowKind.toString());
         }
     }
 
     /**
-     * A utility function used to parse a string according to the given hexadecimal escape sequence.
-     * example input: ""hi\\x33hi\\x44hello"" , where \x33 is '!', \x44 is ','
-     * example output: "hi!hi,hello"
+     * A utility used to parse a string according to the given hexadecimal escape sequence.
+     * <p/>
+     * Example input: ""hi\\x33hi\\x44hello"" , where \x33 is '!', \x44 is ','
+     * Example output: "hi!hi,hello"
      *
-     * @param s string before parsing
+     * @param hexStr hex string before parsing
      * @return the parsed string
      */
-    public static String escapeString(String s) {
-        Matcher m = PATTERN.matcher(s);
-
+    public static String escapeString(String hexStr) {
+        Matcher matcher = HEX_PATTERN.matcher(hexStr);
         StringBuffer buf = new StringBuffer();
-        while (m.find()) {
-            m.appendReplacement(buf, String.format("%s", (char) Integer.parseInt(m.group(1))));
+        while (matcher.find()) {
+            matcher.appendReplacement(buf, String.format("%s", (char) Integer.parseInt(matcher.group(1))));
         }
-        m.appendTail(buf);
+        matcher.appendTail(buf);
 
         return buf.toString();
     }
