@@ -88,6 +88,10 @@ public final class Constants {
      * Schema Name used in inlong metric
      */
     public static final String SCHEMA_NAME = "schema";
+    /**
+     * Topic Name used in inlong metric
+     */
+    public static final String TOPIC_NAME = "topic";
 
     /**
      * It is used for inlong.metric

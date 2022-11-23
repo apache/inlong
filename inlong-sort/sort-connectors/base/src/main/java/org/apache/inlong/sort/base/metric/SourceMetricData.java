@@ -283,20 +283,29 @@ public class SourceMetricData implements MetricData {
         final MetricGroup metricGroup = sourceMetricData.getMetricGroup();
 
         // build sub metricGroup
-        MetricGroup databaseMetricGroup = metricGroup
+        MetricGroup nodeMetricGroup = metricGroup
                 .addGroup(Constants.GROUP_ID, sourceMetricData.getGroupId())
                 .addGroup(Constants.STREAM_ID, sourceMetricData.getStreamId())
-                .addGroup(Constants.NODE_ID, sourceMetricData.getNodeId())
-                .addGroup(Constants.DATABASE_NAME, recordSchemaInfo.getDatabaseName());
-        String schemaName = recordSchemaInfo.getSchemaName();
-        String tableName = recordSchemaInfo.getTableName();
+                .addGroup(Constants.NODE_ID, sourceMetricData.getNodeId());
+
         MetricGroup subMetricGroup;
-        if (StringUtils.isNotBlank(schemaName)) {
-            subMetricGroup = databaseMetricGroup.addGroup(Constants.SCHEMA_NAME, schemaName)
-                    .addGroup(Constants.TABLE_NAME, tableName);
+        String topicName = recordSchemaInfo.getTopicName();
+        if (StringUtils.isNotBlank(topicName)) {
+            // judging only the topic
+            subMetricGroup = nodeMetricGroup.addGroup(Constants.TOPIC_NAME, topicName);
         } else {
-            subMetricGroup = databaseMetricGroup.addGroup(Constants.TABLE_NAME, tableName);
+            String databaseName = recordSchemaInfo.getDatabaseName();
+            MetricGroup databaseMetricGroup = nodeMetricGroup.addGroup(Constants.DATABASE_NAME, databaseName);
+            String schemaName = recordSchemaInfo.getSchemaName();
+            String tableName = recordSchemaInfo.getTableName();
+            if (StringUtils.isNotBlank(schemaName)) {
+                subMetricGroup = databaseMetricGroup.addGroup(Constants.SCHEMA_NAME, schemaName)
+                        .addGroup(Constants.TABLE_NAME, tableName);
+            } else {
+                subMetricGroup = databaseMetricGroup.addGroup(Constants.TABLE_NAME, tableName);
+            }
         }
+
         // build option labels
         String subLabels = this.labels.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining(DELIMITER));
