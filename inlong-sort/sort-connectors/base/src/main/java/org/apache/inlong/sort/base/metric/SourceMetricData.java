@@ -254,14 +254,11 @@ public class SourceMetricData implements MetricData {
                 || metricState.getSubMetricStateMap().isEmpty()) {
             return;
         }
-        // judge current if snapshot phase
-        Long readPhase = metricState.getMetricValue(READ_PHASE);
-        boolean isSnapshot = (readPhase != null && readPhase.intValue() == SNAPSHOT_PHASE);
 
         Map<String, MetricState> subMetricStateMap = metricState.getSubMetricStateMap();
         for (Entry<String, MetricState> subMetricStateEntry : subMetricStateMap.entrySet()) {
             String schemaIdentify = subMetricStateEntry.getKey();
-            SourceRecordSchemaInfo sourceRecordSchemaInfo = new SourceRecordSchemaInfo(schemaIdentify, isSnapshot);
+            SourceRecordSchemaInfo sourceRecordSchemaInfo = new SourceRecordSchemaInfo(schemaIdentify);
             final MetricState subMetricState = subMetricStateEntry.getValue();
             SourceMetricData subSourceMetricData = buildSubSourceMetricData(sourceRecordSchemaInfo,
                     subMetricState, this);
@@ -322,10 +319,15 @@ public class SourceMetricData implements MetricData {
      * @return record schema identify
      */
     public String buildSchemaIdentify(SourceRecordSchemaInfo recordSchemaInfo) {
+        String database = recordSchemaInfo.getDatabaseName();
+        String topicName = recordSchemaInfo.getTopicName();
+        // Judging only the topic
+        if (StringUtils.isBlank(database) && StringUtils.isNotBlank(topicName)) {
+            return topicName;
+        }
+
         String table = recordSchemaInfo.getTableName();
         String schema = recordSchemaInfo.getSchemaName();
-        String database = recordSchemaInfo.getDatabaseName();
-
         StringBuilder identifyBuilder = new StringBuilder();
         identifyBuilder.append(database).append(Constants.SEMICOLON);
         if (StringUtils.isNotBlank(schema)) {
@@ -429,36 +431,46 @@ public class SourceMetricData implements MetricData {
      */
     public static class SourceRecordSchemaInfo {
 
-        @NonNull
         private String databaseName;
         private String schemaName;
-        @NonNull
         private String tableName;
+        private String topicName;
         private Boolean snapshotRecord;
 
-        public SourceRecordSchemaInfo(String databaseName, String schemaName, String tableName,
-                Boolean snapshotRecord) {
+        public SourceRecordSchemaInfo(@NonNull String databaseName, @NonNull String schemaName,
+                @NonNull String tableName, Boolean snapshotRecord) {
             this.databaseName = databaseName;
             this.schemaName = schemaName;
             this.tableName = tableName;
             this.snapshotRecord = snapshotRecord;
         }
 
-        public SourceRecordSchemaInfo(String databaseName, String tableName, Boolean snapshotRecord) {
+        public SourceRecordSchemaInfo(@NonNull String databaseName, @NonNull String tableName, Boolean snapshotRecord) {
             this.databaseName = databaseName;
             this.tableName = tableName;
             this.snapshotRecord = snapshotRecord;
         }
 
-        public SourceRecordSchemaInfo(String metricStateSchemaIdentify, Boolean snapshotRecord) {
-            String[] identifyArr = metricStateSchemaIdentify.split(Constants.SPILT_SEMICOLON);
-            this.databaseName = identifyArr[0];
+        public SourceRecordSchemaInfo(@NonNull String topicName, Boolean snapshotRecord) {
+            this.topicName = topicName;
             this.snapshotRecord = snapshotRecord;
-            if (identifyArr.length == 3) {
-                this.schemaName = identifyArr[1];
-                this.tableName = identifyArr[2];
+        }
+
+        public SourceRecordSchemaInfo(String metricStateSchemaIdentify) {
+            String[] identifyArr = metricStateSchemaIdentify.split(Constants.SPILT_SEMICOLON);
+            int identifyLength = identifyArr.length;
+            if (identifyLength == 1) {
+                // judge The case of topic
+                this.topicName = identifyArr[0];
             } else {
-                this.tableName = identifyArr[1];
+                // judge The case of database.schema.table or database.table
+                this.databaseName = identifyArr[0];
+                if (identifyArr.length == 3) {
+                    this.schemaName = identifyArr[1];
+                    this.tableName = identifyArr[2];
+                } else {
+                    this.tableName = identifyArr[1];
+                }
             }
         }
 
@@ -494,12 +506,21 @@ public class SourceMetricData implements MetricData {
             this.snapshotRecord = snapshotRecord;
         }
 
+        public String getTopicName() {
+            return topicName;
+        }
+
+        public void setTopicName(String topicName) {
+            this.topicName = topicName;
+        }
+
         @Override
         public String toString() {
             return new ToStringBuilder(this)
                     .append("databaseName", databaseName)
                     .append("schemaName", schemaName)
                     .append("tableName", tableName)
+                    .append("topicName", topicName)
                     .append("snapshotRecord", snapshotRecord)
                     .toString();
         }
