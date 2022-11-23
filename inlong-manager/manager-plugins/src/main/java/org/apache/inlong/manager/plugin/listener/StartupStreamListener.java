@@ -35,13 +35,12 @@ public class StartupStreamListener implements SortOperateListener {
     }
 
     /**
-     * Currently, the process of starting Sort tasks has been initiated in {@link StartupSortListener},
-     * Because Sort tasks are only associated with InlongGroup, it is unnecessary to start Sort tasks for InlongStream,
-     * this is a meaningless repetitive operation.
+     * Currently, the process of starting Sort tasks has been initiated in {@link StartupSortListener}.
+     * <p/>Because the Sort task is only associated with InlongGroup, no need to start it for InlongStream.
      */
     @Override
     public boolean accept(WorkflowContext workflowContext) {
-        log.info("it is unnecessary to start Sort tasks in InlongStream");
+        log.info("not need to start the sort task for InlongStream");
         return false;
     }
 
