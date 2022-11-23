@@ -48,7 +48,7 @@ import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.doris.model.RespContent;
-import org.apache.inlong.sort.doris.utils.DorisParseUtils;
+import org.apache.inlong.sort.doris.util.DorisParseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +74,7 @@ import static org.apache.flink.table.data.RowData.createFieldGetter;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
-import static org.apache.inlong.sort.doris.utils.DorisParseUtils.escapeString;
+import static org.apache.inlong.sort.doris.util.DorisParseUtils.escapeString;
 
 /**
  * DorisDynamicSchemaOutputFormat, copy from {@link org.apache.doris.flink.table.DorisDynamicOutputFormat}
@@ -231,7 +231,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                     .map(item -> String.format("`%s`", item.trim().replace("`", "")))
                     .collect(Collectors.toList()));
             streamLoadProp.put(COLUMNS_KEY, columns);
-            LOG.info("debugging open columns {}", columns);
         }
 
         // if enable batch delete, the columns must add tag '__DORIS_DELETE_SIGN__'
@@ -239,7 +238,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         if (!columns.contains(DORIS_DELETE_SIGN)
                 && enableBatchDelete()) {
             streamLoadProp.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
-            LOG.info("debugging open property {}", streamLoadProp.getProperty(COLUMNS_KEY));
         }
     }
 
@@ -266,7 +264,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         if (!multipleSink) {
             Properties loadProperties = executionOptions.getStreamLoadProp();
             this.jsonFormat = true;
-            LOG.info("json format is {}", loadProperties.getProperty(FORMAT_KEY));
             handleStreamloadProp();
             this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
             for (int i = 0; i < logicalTypes.length; i++) {
@@ -325,7 +322,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     public void addSingle(T row) {
         if (row instanceof RowData) {
             RowData rowData = (RowData) row;
-            LOG.info("debug row data {}", rowData);
             Map<String, String> valueMap = new HashMap<>();
             StringJoiner value = new StringJoiner(this.fieldDelimiter);
             for (int i = 0; i < rowData.getArity() && i < fieldGetters.length; ++i) {
@@ -352,14 +348,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                 }
             }
             Object data = jsonFormat ? valueMap :value.toString();
-            LOG.info("debug map data:{}", data);
             List mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
             mapData.add(data);
             batchMap.putIfAbsent(tableIdentifier, mapData);
         } else if (row instanceof String) {
             batchBytes += ((String) row).getBytes(StandardCharsets.UTF_8).length;
             List mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
-            LOG.info("debug map data 2:{}", mapData.toArray().toString());
             mapData.add(row);
             batchMap.putIfAbsent(tableIdentifier, mapData);
         } else {
@@ -550,7 +544,6 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         String loadValue = null;
         try {
             loadValue = OBJECT_MAPPER.writeValueAsString(values);
-            LOG.info("flushing data {} into {}", loadValue, tableIdentifier);
             RespContent respContent = load(tableIdentifier, loadValue);
             try {
                 if (null != metricData && null != respContent) {

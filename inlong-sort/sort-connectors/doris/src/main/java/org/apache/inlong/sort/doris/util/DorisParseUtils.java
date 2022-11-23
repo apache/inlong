@@ -18,13 +18,6 @@
 package org.apache.inlong.sort.doris.util;
 
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.doris.table.DorisDynamicSchemaOutputFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,11 +25,6 @@ import java.util.regex.Pattern;
  * A utility class primarily serving DorisDynamicSchemaOutputFormat
  */
 public class DorisParseUtils {
-
-    public static final String ID = "id";
-    public static final String DORIS_DELETE_SIGN = "__DORIS_DELETE_SIGN__";
-
-    private static final Logger LOG = LoggerFactory.getLogger(DorisDynamicSchemaOutputFormat.class);
 
     /**
      * Pattern of escape mode for hexadecimal characters, such as "hi\\x33hi\\x44hello".
