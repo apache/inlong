@@ -33,7 +33,6 @@ import org.apache.inlong.sort.base.Constants;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import org.apache.inlong.sort.base.MetricType;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,17 +65,11 @@ public class SourceMetricData implements MetricData {
     private Meter numRecordsInPerSecond;
     private Meter numBytesInPerSecond;
     private AuditOperator auditOperator;
-    private final MetricType metricType;
     private final Map<String, SourceMetricData> subSourceMetricMap = Maps.newHashMap();
 
     public SourceMetricData(MetricOption option, MetricGroup metricGroup) {
-        this(option, metricGroup, MetricType.NODE);
-    }
-
-    public SourceMetricData(MetricOption option, MetricGroup metricGroup, MetricType metricType) {
         this.metricGroup = metricGroup;
         this.labels = option.getLabels();
-        this.metricType = metricType;
 
         ThreadSafeCounter recordsInCounter = new ThreadSafeCounter();
         ThreadSafeCounter bytesInCounter = new ThreadSafeCounter();
@@ -128,7 +121,7 @@ public class SourceMetricData implements MetricData {
      * prometheus
      */
     public void registerMetricsForNumRecordsInForMeter(Counter counter) {
-        numRecordsInForMeter = registerCounter(NUM_RECORDS_IN_FOR_METER, counter, this.metricType);
+        numRecordsInForMeter = registerCounter(NUM_RECORDS_IN_FOR_METER, counter);
     }
 
     /**
@@ -137,7 +130,7 @@ public class SourceMetricData implements MetricData {
      * prometheus
      */
     private void registerMetricsForReadPhase(Counter counter) {
-        readPhase = registerCounter(READ_PHASE, counter, this.metricType);
+        readPhase = registerCounter(READ_PHASE, counter);
     }
 
     /**
@@ -155,7 +148,7 @@ public class SourceMetricData implements MetricData {
      * prometheus
      */
     public void registerMetricsForNumBytesInForMeter(Counter counter) {
-        numBytesInForMeter = registerCounter(NUM_BYTES_IN_FOR_METER, counter, this.metricType);
+        numBytesInForMeter = registerCounter(NUM_BYTES_IN_FOR_METER, counter);
     }
 
     /**
@@ -173,7 +166,7 @@ public class SourceMetricData implements MetricData {
      * prometheus
      */
     public void registerMetricsForNumRecordsIn(Counter counter) {
-        numRecordsIn = registerCounter(NUM_RECORDS_IN, counter, this.metricType);
+        numRecordsIn = registerCounter(NUM_RECORDS_IN, counter);
     }
 
     /**
@@ -191,11 +184,11 @@ public class SourceMetricData implements MetricData {
      * prometheus
      */
     public void registerMetricsForNumBytesIn(Counter counter) {
-        numBytesIn = registerCounter(NUM_BYTES_IN, counter, this.metricType);
+        numBytesIn = registerCounter(NUM_BYTES_IN, counter);
     }
 
     public void registerMetricsForNumRecordsInPerSecond() {
-        numRecordsInPerSecond = registerMeter(NUM_RECORDS_IN_PER_SECOND, this.numRecordsInForMeter, this.metricType);
+        numRecordsInPerSecond = registerMeter(NUM_RECORDS_IN_PER_SECOND, this.numRecordsInForMeter);
     }
 
     public void registerMetricsForNumBytesInPerSecond() {
@@ -280,45 +273,37 @@ public class SourceMetricData implements MetricData {
         if (sourceMetricData == null || recordSchemaInfo == null) {
             return null;
         }
-        final MetricGroup metricGroup = sourceMetricData.getMetricGroup();
 
-        // build sub metricGroup
-        MetricGroup nodeMetricGroup = metricGroup
-                .addGroup(Constants.GROUP_ID, sourceMetricData.getGroupId())
-                .addGroup(Constants.STREAM_ID, sourceMetricData.getStreamId())
-                .addGroup(Constants.NODE_ID, sourceMetricData.getNodeId());
+        // build sub metricGroup labels
+        String metricGroupLabels = this.labels.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining(DELIMITER));
 
-        MetricGroup subMetricGroup;
+        StringBuilder labelStringBuilder = new StringBuilder(metricGroupLabels);
         String topicName = recordSchemaInfo.getTopicName();
         if (StringUtils.isNotBlank(topicName)) {
             // judging only the topic
-            subMetricGroup = nodeMetricGroup.addGroup(Constants.TOPIC_NAME, topicName);
+            labelStringBuilder.append(DELIMITER).append(Constants.TOPIC_NAME).append("=").append(topicName);
         } else {
+            // judge The case of database.schema.table or database.table
             String databaseName = recordSchemaInfo.getDatabaseName();
-            MetricGroup databaseMetricGroup = nodeMetricGroup.addGroup(Constants.DATABASE_NAME, databaseName);
+            labelStringBuilder.append(DELIMITER).append(Constants.DATABASE_NAME).append("=").append(databaseName);
             String schemaName = recordSchemaInfo.getSchemaName();
-            String tableName = recordSchemaInfo.getTableName();
             if (StringUtils.isNotBlank(schemaName)) {
-                subMetricGroup = databaseMetricGroup.addGroup(Constants.SCHEMA_NAME, schemaName)
-                        .addGroup(Constants.TABLE_NAME, tableName);
-            } else {
-                subMetricGroup = databaseMetricGroup.addGroup(Constants.TABLE_NAME, tableName);
+                labelStringBuilder.append(DELIMITER).append(Constants.SCHEMA_NAME).append("=").append(schemaName);
             }
+            String tableName = recordSchemaInfo.getTableName();
+            labelStringBuilder.append(DELIMITER).append(Constants.TABLE_NAME).append("=").append(tableName);
         }
 
         // build option labels
-        String subLabels = this.labels.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue())
-                .collect(Collectors.joining(DELIMITER));
-
         MetricOption metricOption = MetricOption.builder()
                 .withInitRecords(subMetricState != null ? subMetricState.getMetricValue(NUM_RECORDS_IN) : 0L)
                 .withInitBytes(subMetricState != null ? subMetricState.getMetricValue(NUM_BYTES_IN) : 0L)
                 .withReadPhase(subMetricState != null ? subMetricState.getMetricValue(READ_PHASE) : 0L)
-                .withInlongLabels(subLabels)
+                .withInlongLabels(labelStringBuilder.toString())
                 .withRegisterMetric(RegisteredMetric.NORMAL)
                 .build();
-
-        return new SourceMetricData(metricOption, subMetricGroup, MetricType.TABLE);
+        return new SourceMetricData(metricOption, sourceMetricData.getMetricGroup());
     }
 
     /**
@@ -331,10 +316,10 @@ public class SourceMetricData implements MetricData {
         String database = recordSchemaInfo.getDatabaseName();
         String topicName = recordSchemaInfo.getTopicName();
         // Judging only the topic
-        if (StringUtils.isBlank(database) && StringUtils.isNotBlank(topicName)) {
+        if (StringUtils.isNotBlank(topicName)) {
             return topicName;
         }
-
+        // judge The case of database.schema.table or database.table
         String table = recordSchemaInfo.getTableName();
         String schema = recordSchemaInfo.getSchemaName();
         StringBuilder identifyBuilder = new StringBuilder();
@@ -422,7 +407,6 @@ public class SourceMetricData implements MetricData {
         return "SourceMetricData{"
                 + "metricGroup=" + metricGroup
                 + ", labels=" + labels
-                + ", metricType=" + metricType
                 + ", readPhase=" + (readPhase != null ? readPhase.getCount() : null)
                 + ", numRecordsIn=" + numRecordsIn.getCount()
                 + ", numBytesIn=" + numBytesIn.getCount()

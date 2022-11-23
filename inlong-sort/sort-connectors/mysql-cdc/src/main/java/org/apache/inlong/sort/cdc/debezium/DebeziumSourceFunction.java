@@ -504,7 +504,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                             public void deserialize(SourceRecord record, Collector<T> out,
                                     TableChange tableSchema) throws Exception {
 
-                                if (sourceMetricData != null && record.value() != null) {
+                                if (sourceMetricData != null && record != null) {
                                     Struct value = (Struct) record.value();
                                     Struct source = value.getStruct(Envelope.FieldName.SOURCE);
                                     String dbName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
