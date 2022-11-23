@@ -105,20 +105,14 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         return authCtrlStatus == EnableStatus.STATUS_ENABLE;
     }
 
-    public void setEnableAuthCtrl(boolean enableAuth) {
-        if (enableAuth) {
-            this.authCtrlStatus = EnableStatus.STATUS_ENABLE;
-        } else {
-            this.authCtrlStatus = EnableStatus.STATUS_DISABLE;
-        }
-    }
-
     public EnableStatus getAuthCtrlStatus() {
         return authCtrlStatus;
     }
 
     public void setAuthCtrlStatus(EnableStatus authCtrlStatus) {
-        this.authCtrlStatus = authCtrlStatus;
+        if (authCtrlStatus != null) {
+            this.authCtrlStatus = authCtrlStatus;
+        }
     }
 
     public int getMaxMsgSizeInB() {
@@ -147,7 +141,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      * @return  whether changed
      */
     public boolean updModifyInfo(long dataVerId, int topicNameId,
-                                 int newMaxMsgSizeMB, Boolean enableTopicAuth) {
+                                 int newMaxMsgSizeMB, EnableStatus enableTopicAuth) {
         boolean changed = false;
         // check and set brokerPort info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -167,9 +161,9 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         }
         // check and set authCtrlStatus info
         if (enableTopicAuth != null
-                && (this.authCtrlStatus == EnableStatus.STATUS_UNDEFINE
-                || this.authCtrlStatus.isEnable() != enableTopicAuth)) {
-            setEnableAuthCtrl(enableTopicAuth);
+                && enableTopicAuth != EnableStatus.STATUS_UNDEFINE
+                && this.authCtrlStatus != enableTopicAuth) {
+            setAuthCtrlStatus(enableTopicAuth);
             changed = true;
         }
         if (changed) {

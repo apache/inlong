@@ -30,9 +30,9 @@ public final class Constants {
     /**
      * constants for metrics
      */
-    public static final String DIRTY_BYTES = "dirtyBytes";
+    public static final String DIRTY_BYTES_OUT = "dirtyBytesOut";
 
-    public static final String DIRTY_RECORDS = "dirtyRecords";
+    public static final String DIRTY_RECORDS_OUT = "dirtyRecordsOut";
 
     public static final String NUM_BYTES_OUT = "numBytesOut";
 

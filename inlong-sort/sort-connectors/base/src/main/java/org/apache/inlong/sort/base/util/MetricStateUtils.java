@@ -24,14 +24,16 @@ import org.apache.flink.api.common.state.ListState;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.READ_PHASE;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
@@ -46,6 +48,7 @@ public class MetricStateUtils {
     public static final Logger LOGGER = LoggerFactory.getLogger(MetricStateUtils.class);
 
     /**
+     *
      * restore metric state data
      *
      * @param metricStateListState state data list
@@ -114,9 +117,9 @@ public class MetricStateUtils {
     }
 
     /**
+     *
      * Assignment previous subtask index to current subtask when reduce parallelism
      * n = N/m, get n old task per new subtask, mth new subtask get (N - (m - 1) * n) old task
-     *
      * @param subtaskIndex current subtask index
      * @param currentSubtaskNum number of current parallel subtask
      * @param previousSubtaskNum number of previous parallel subtask
@@ -139,8 +142,8 @@ public class MetricStateUtils {
     }
 
     /**
-     * Snapshot metric state data for {@link SourceMetricData}
      *
+     * Snapshot metric state data for {@link SourceMetricData}
      * @param metricStateListState state data list
      * @param sourceMetricData {@link SourceMetricData} A collection class for handling metrics
      * @param subtaskIndex subtask index
@@ -173,8 +176,8 @@ public class MetricStateUtils {
     }
 
     /**
-     * Snapshot metric state data for {@link SinkMetricData}
      *
+     * Snapshot metric state data for {@link SinkMetricData}
      * @param metricStateListState state data list
      * @param sinkMetricData {@link SinkMetricData} A collection class for handling metrics
      * @param subtaskIndex subtask index
@@ -189,6 +192,8 @@ public class MetricStateUtils {
         Map<String, Long> metricDataMap = new HashMap<>();
         metricDataMap.put(NUM_RECORDS_OUT, sinkMetricData.getNumRecordsOut().getCount());
         metricDataMap.put(NUM_BYTES_OUT, sinkMetricData.getNumBytesOut().getCount());
+        metricDataMap.put(DIRTY_RECORDS_OUT, sinkMetricData.getDirtyRecordsOut().getCount());
+        metricDataMap.put(DIRTY_BYTES_OUT, sinkMetricData.getDirtyBytesOut().getCount());
         MetricState metricState = new MetricState(subtaskIndex, metricDataMap);
         metricStateListState.add(metricState);
     }

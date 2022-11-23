@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
@@ -205,12 +206,12 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         final Set<String> inGroupSet = (Set<String>) result.getRetData();
         // get resCheckStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req,
+        if (!WebParameterUtils.getEnableStatusValue(req,
                 WebFieldDef.RESCHECKENABLE, false, null, strBuff, result)) {
             WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
             return strBuff;
         }
-        Boolean resCheckEnable = (Boolean) result.getRetData();
+        EnableStatus resCheckEnable = (EnableStatus) result.getRetData();
         // get and valid qryPriorityId info
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, TBaseConstants.META_VALUE_UNDEFINED,
@@ -220,12 +221,12 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         int inQryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req,
+        if (!WebParameterUtils.getEnableStatusValue(req,
                 WebFieldDef.FLOWCTRLENABLE, false, null, strBuff, result)) {
             WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
             return strBuff;
         }
-        Boolean flowCtrlEnable = (Boolean) result.getRetData();
+        EnableStatus flowCtrlEnable = (EnableStatus) result.getRetData();
         // query matched records
         qryEntity.updModifyInfo(qryEntity.getDataVerId(),
                 resCheckEnable, TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId,
@@ -278,12 +279,12 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         final Set<String> batchGroupNames = (Set<String>) result.getRetData();
         // get resCheckStatus info
-        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.RESCHECKENABLE,
-                false, (isAddOp ? false : null), sBuffer, result)) {
+        if (!WebParameterUtils.getEnableStatusValue(req, WebFieldDef.RESCHECKENABLE,
+                false, (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean resCheckEnable = (Boolean) result.getRetData();
+        EnableStatus resCheckEnable = (EnableStatus) result.getRetData();
         // get and valid allowedBrokerClientRate info
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.ALWDBCRATE,
                 false, (isAddOp ? TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN
@@ -306,12 +307,12 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         int qryPriorityId = (int) result.getRetData();
         // get flowCtrlEnable info
-        if (!WebParameterUtils.getBooleanParamValue(req, WebFieldDef.FLOWCTRLENABLE,
-                false, (isAddOp ? false : null), sBuffer, result)) {
+        if (!WebParameterUtils.getEnableStatusValue(req, WebFieldDef.FLOWCTRLENABLE,
+                false, (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean flowCtrlEnable = (Boolean) result.getRetData();
+        EnableStatus flowCtrlEnable = (EnableStatus) result.getRetData();
         // get and flow control rule info
         int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(req,
                 (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);
@@ -386,11 +387,11 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             }
             final String groupName = (String) result.getRetData();
             // get resCheckStatus info
-            if (!WebParameterUtils.getBooleanParamValue(itemValueMap, WebFieldDef.RESCHECKENABLE,
-                    false, (isAddOp ? false : null), sBuffer, result)) {
+            if (!WebParameterUtils.getEnableStatusValue(itemValueMap, WebFieldDef.RESCHECKENABLE,
+                    false, (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
                 return result.isSuccess();
             }
-            final Boolean resCheckEnable = (Boolean) result.getRetData();
+            final EnableStatus resCheckEnable = (EnableStatus) result.getRetData();
             // get and valid allowedBrokerClientRate info
             if (!WebParameterUtils.getIntParamValue(itemValueMap, WebFieldDef.ALWDBCRATE,
                     false, (isAddOp ? TServerConstants.GROUP_BROKER_CLIENT_RATE_MIN
@@ -409,12 +410,12 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             }
             final int qryPriorityId = (int) result.getRetData();
             // get flowCtrlEnable info
-            if (!WebParameterUtils.getBooleanParamValue(itemValueMap,
+            if (!WebParameterUtils.getEnableStatusValue(itemValueMap,
                     WebFieldDef.FLOWCTRLENABLE, false,
-                    (isAddOp ? false : null), sBuffer, result)) {
+                    (isAddOp ? EnableStatus.STATUS_DISABLE : null), sBuffer, result)) {
                 return result.isSuccess();
             }
-            Boolean flowCtrlEnable = (Boolean) result.getRetData();
+            EnableStatus flowCtrlEnable = (EnableStatus) result.getRetData();
             // get and flow control rule info
             int flowRuleCnt = WebParameterUtils.getAndCheckFlowRules(itemValueMap,
                     (isAddOp ? TServerConstants.BLANK_FLOWCTRL_RULES : null), sBuffer, result);

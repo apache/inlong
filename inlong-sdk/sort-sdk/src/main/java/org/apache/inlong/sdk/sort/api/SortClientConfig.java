@@ -18,7 +18,7 @@
 package org.apache.inlong.sdk.sort.api;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.Serializable;
 import java.util.Map;

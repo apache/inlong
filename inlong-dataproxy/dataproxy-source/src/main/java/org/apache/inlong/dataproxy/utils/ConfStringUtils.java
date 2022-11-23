@@ -30,10 +30,14 @@ public class ConfStringUtils {
         ip = ip.trim();
         if (ip.matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}")) {
             String[] s = ip.split("\\.");
-            if (Integer.parseInt(s[0]) < 255) {
-                if (Integer.parseInt(s[1]) < 255) {
-                    if (Integer.parseInt(s[2]) < 255) {
-                        if (Integer.parseInt(s[3]) < 255) {
+            int number0 = Integer.parseInt(s[0]);
+            int number1 = Integer.parseInt(s[1]);
+            int number2 = Integer.parseInt(s[2]);
+            int number3 = Integer.parseInt(s[3]);
+            if (number0 >= 0 && number0 <= 255) {
+                if (number1 >= 0 && number1 <= 255) {
+                    if (number2 >= 0 && number2 <= 255) {
+                        if (number3 >= 0 && number3 <= 255) {
                             b = true;
                         }
                     }

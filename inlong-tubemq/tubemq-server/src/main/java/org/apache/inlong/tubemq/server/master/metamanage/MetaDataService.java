@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.Server;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStsChgType;
@@ -123,7 +124,7 @@ public interface MetaDataService extends Server {
     boolean addOrUpdClusterDefSetting(BaseEntity opEntity, int brokerPort,
                                       int brokerTlsPort, int brokerWebPort,
                                       int maxMsgSizeMB, int qryPriorityId,
-                                      Boolean flowCtrlEnable, int flowRuleCnt,
+                                      EnableStatus flowCtrlEnable, int flowRuleCnt,
                                       String flowCtrlInfo, TopicPropGroup topicProps,
                                       StringBuilder strBuff, ProcessResult result);
 
@@ -414,7 +415,7 @@ public interface MetaDataService extends Server {
      */
     List<TopicProcessResult> addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
                                                    Set<String> topicNameSet, int topicNameId,
-                                                   Boolean enableTopicAuth, int maxMsgSizeInMB,
+                                                   EnableStatus enableTopicAuth, int maxMsgSizeInMB,
                                                    StringBuilder strBuff, ProcessResult result);
 
     /**
@@ -435,13 +436,13 @@ public interface MetaDataService extends Server {
      *
      * @param opEntity operator information
      * @param topicName topic info
-     * @param enableTopicAuth if authenticate check
+     * @param enableTopicAuth authenticate check status
      * @param strBuff  the print info string buffer
      * @param result     the process result return
      * @return true if success otherwise false
      */
     TopicProcessResult insertTopicCtrlConf(BaseEntity opEntity, String topicName,
-                                           Boolean enableTopicAuth, StringBuilder strBuff,
+                                           EnableStatus enableTopicAuth, StringBuilder strBuff,
                                            ProcessResult result);
 
     /**
@@ -523,9 +524,9 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult addOrUpdGroupCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                             String groupName, Boolean resCheckEnable,
+                                             String groupName, EnableStatus resCheckEnable,
                                              int allowedBClientRate, int qryPriorityId,
-                                             Boolean flowCtrlEnable, int flowRuleCnt,
+                                             EnableStatus flowCtrlEnable, int flowRuleCnt,
                                              String flowCtrlInfo, StringBuilder strBuff,
                                              ProcessResult result);
 
@@ -554,7 +555,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                           int qryPriorityId, Boolean flowCtrlEnable,
+                                           int qryPriorityId, EnableStatus flowCtrlEnable,
                                            int flowRuleCnt, String flowCtrlRuleInfo,
                                            StringBuilder strBuff, ProcessResult result);
 
@@ -571,7 +572,7 @@ public interface MetaDataService extends Server {
      * @return true if success otherwise false
      */
     GroupProcessResult insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                           Boolean resChkEnable, int allowedB2CRate,
+                                           EnableStatus resChkEnable, int allowedB2CRate,
                                            StringBuilder strBuff, ProcessResult result);
 
     /**
@@ -634,8 +635,8 @@ public interface MetaDataService extends Server {
      */
     GroupProcessResult addOrUpdConsumeCtrlInfo(boolean isAddOp, BaseEntity opEntity,
                                                String groupName, String topicName,
-                                               Boolean enableCsm, String disableRsn,
-                                               Boolean enableFlt, String fltCondStr,
+                                               EnableStatus enableCsm, String disableRsn,
+                                               EnableStatus enableFlt, String fltCondStr,
                                                StringBuilder strBuff, ProcessResult result);
 
     /**
@@ -665,8 +666,8 @@ public interface MetaDataService extends Server {
      * @return    process result
      */
     GroupProcessResult insertConsumeCtrlInfo(BaseEntity opEntity, String groupName,
-                                             String topicName, Boolean enableCsm,
-                                             String disReason, Boolean enableFlt,
+                                             String topicName, EnableStatus enableCsm,
+                                             String disReason, EnableStatus enableFlt,
                                              String fltCondStr, StringBuilder strBuff,
                                              ProcessResult result);
 
