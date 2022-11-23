@@ -71,6 +71,7 @@ class BaseProducer : public BaseClient, public std::enable_shared_from_this<Base
   void showNodeInfo(const NodeInfo& node_info);
   Partition selectPartition(const Message& message);
   void getAllowedPartitions();
+  const char* encodePayload(BufferPtr buffer, const Message& message);
  
  // methods for build and process protobuf mssages
  private:
@@ -82,7 +83,7 @@ class BaseProducer : public BaseClient, public std::enable_shared_from_this<Base
                                   const TubeMQCodec::RspProtocolPtr& rsp_protocol);
   bool processHBResponseM2P(int32_t& error_code, string& err_info,
                             const TubeMQCodec::RspProtocolPtr& rsp_protocol);
-  void processSendMessageResponseB2P(int32_t& error_code, string& err_info,
+  bool processSendMessageResponseB2P(int32_t& error_code, string& err_info,
                                      const TubeMQCodec::RspProtocolPtr& rsp_protocol);
   void updateBrokerInfoList(bool is_register, const vector<string>& pkg_broker_infos, int64_t pkg_checksum);
   void updateTopicConfigure(const std::vector<std::string>& str_topic_infos);

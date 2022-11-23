@@ -64,6 +64,7 @@ class Utils {
   static bool NeedDnsXfs(const string& masteraddr);
   static string GenBrokerAuthenticateToken(const string& username, const string& usrpassword);
   static int64_t CurrentTimeMillis();
+  static void BuildTestData(string& data, uint32_t body_size);
 };
 
 }  // namespace tubemq

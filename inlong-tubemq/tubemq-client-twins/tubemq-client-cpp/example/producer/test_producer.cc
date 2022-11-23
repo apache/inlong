@@ -30,7 +30,6 @@ struct MessageSentCallback {
       SENT_SUCC_COUNTER.IncrementAndGet();
     } else {
       SENT_FAIL_COUNTER.IncrementAndGet();
-      std::cout << "*** err Code = " << error_code.Value() << ", err Msg = " << error_code.Message() << std::endl;
     }
 	}
 
@@ -44,8 +43,9 @@ AtomicLong MessageSentCallback::SENT_SUCC_COUNTER;
 AtomicLong MessageSentCallback::SENT_FAIL_COUNTER;
 AtomicLong MessageSentCallback::SENT_EXCEPT_COUNTER;
 
-const uint64_t MSG_COUNT = 100000;
+const uint64_t MSG_COUNT = 100;
 bool SYNC_PRODUCTION = false;
+const uint32_t MSG_DATA_SIZE = 2048;
 
 int main(int argc, char* argv[]) {
 	if (argc < 3) {
@@ -59,6 +59,10 @@ int main(int argc, char* argv[]) {
 	if (argc > 3) {
 		conf_file = argv[3];
 	}
+  uint32_t msg_count = MSG_COUNT;
+  if (argc > 4) {
+    msg_count = std::atoi(argv[4]);
+  }
 
 	TubeMQProducer producer;
 	set<string> topic_list;
@@ -77,7 +81,7 @@ int main(int argc, char* argv[]) {
 
 	result = StartTubeMQService(err_info, service_config);
 	if (!result) {
-		printf("\n StartTubeMQService failure: %s", err_info.c_str());
+		printf("\n StartTubeMQService failure: %s, please check the log for detailed error code and message.", err_info.c_str());
     return -1;
 	}
 
@@ -90,11 +94,15 @@ int main(int argc, char* argv[]) {
   result = producer.Publish(err_info, {topic_name});
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
-  std::cout << "*** Before send message" << std::endl;
+  uint64_t send_count = 0;
+  std::string send_data;
+  Utils::BuildTestData(send_data, MSG_DATA_SIZE);
+  std::string curr_time = std::to_string(Utils::CurrentTimeMillis());
   auto start = std::chrono::steady_clock::now();
-  for (size_t i = 0; i < MSG_COUNT; i++) {
-    std::string demo_content = std::string("hello_world_") + std::to_string(Utils::CurrentTimeMillis());
-    Message message(topic_name, demo_content.c_str(), demo_content.size());
+  for (size_t i = 0; i < msg_count; i++) {
+    Message message(topic_name, send_data.c_str(), send_data.size());
+    message.PutSystemHeader(std::to_string(send_count), curr_time);
+    send_count++;
     if (SYNC_PRODUCTION) {
       bool is_success = producer.SendMessage(err_info, message);
       MessageSentCallback::TOTAL_COUNTER.IncrementAndGet();
@@ -106,11 +114,10 @@ int main(int argc, char* argv[]) {
     } else {
       producer.SendMessage(message, MessageSentCallback());
     }
-    // std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 
-  while (MessageSentCallback::TOTAL_COUNTER.Get() < (long)MSG_COUNT) {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+  while (MessageSentCallback::TOTAL_COUNTER.Get() < (long)msg_count) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   auto stop = std::chrono::steady_clock::now();
   double duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start).count() * 0.000001;

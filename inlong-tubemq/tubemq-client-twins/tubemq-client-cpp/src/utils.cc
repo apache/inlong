@@ -524,5 +524,23 @@ int64_t Utils::CurrentTimeMillis() {
       std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
+// Reference: java producer: MixedUtils.buildTestData, only for demo
+void Utils::BuildTestData(string& data, uint32_t body_size) {
+  std::string transmit_data = "This is a test data!";
+  stringstream ss;
+  size_t data_len = 0;
+  size_t transmit_data_size = transmit_data.size();
+  while ((data_len + transmit_data_size) <= body_size) {
+    ss << transmit_data;
+    data_len += transmit_data_size;
+  }
+
+  if (data_len < body_size) {
+    ss << transmit_data.substr(0, body_size - data_len);
+  }
+
+  data = ss.str();
+}
+
 }  // namespace tubemq
 
