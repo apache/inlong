@@ -17,12 +17,10 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import static org.mockito.ArgumentMatchers.any;
-
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.sink.SinkContext;
+import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequest;
 import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsResponse;
@@ -41,6 +39,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import static org.mockito.ArgumentMatchers.any;
 
 /**
  * 
@@ -109,12 +109,12 @@ public class TestEsOutputChannel {
      */
     @Test
     public void test() throws Exception {
-        LinkedBlockingQueue<EsIndexRequest> dispatchQueue = new LinkedBlockingQueue<>();
+        BufferQueue<EsIndexRequest> dispatchQueue = SinkContext.createBufferQueue();
         EsSinkContext context = TestEsSinkContext.mock(dispatchQueue);
         EsOutputChannel output = new EsOutputChannel(context);
         ProfileEvent event = TestEsSinkContext.mockProfileEvent();
         EsIndexRequest indexRequest = context.createIndexRequestHandler().parse(context, event);
-        dispatchQueue.add(indexRequest);
+        dispatchQueue.offer(indexRequest);
         output.init();
         output.send();
         output.close();

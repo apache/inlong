@@ -17,16 +17,17 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.flume.Context;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
+import org.apache.inlong.sort.standalone.sink.SinkContext;
+import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * EsSink
@@ -36,7 +37,7 @@ public class EsSink extends AbstractSink implements Configurable {
     public static final Logger LOG = LoggerFactory.getLogger(EsSink.class);
 
     private Context parentContext;
-    private final LinkedBlockingQueue<EsIndexRequest> dispatchQueue = new LinkedBlockingQueue<>();
+    private BufferQueue<EsIndexRequest> dispatchQueue;
     private EsSinkContext context;
     // workers
     private List<EsChannelWorker> workers = new ArrayList<>();
@@ -50,6 +51,7 @@ public class EsSink extends AbstractSink implements Configurable {
     public void start() {
         super.start();
         try {
+            this.dispatchQueue = SinkContext.createBufferQueue();
             this.context = new EsSinkContext(getName(), parentContext, getChannel(), dispatchQueue);
             this.context.start();
             for (int i = 0; i < context.getMaxThreads(); i++) {
