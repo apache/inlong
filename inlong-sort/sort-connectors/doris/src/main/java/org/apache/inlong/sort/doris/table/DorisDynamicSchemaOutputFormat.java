@@ -588,7 +588,9 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         String[] tableWithDb = tableIdentifier.split("\\.");
         RespContent respContent = null;
         // Dynamic set COLUMNS_KEY for tableIdentifier every time for multiple sink scenario
-        executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
+        if (multipleSink) {
+            executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
+        }
         for (int i = 0; i <= executionOptions.getMaxRetries(); i++) {
             try {
                 respContent = dorisStreamLoad.load(tableWithDb[0], tableWithDb[1], result);
