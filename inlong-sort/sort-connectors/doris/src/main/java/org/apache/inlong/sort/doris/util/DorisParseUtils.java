@@ -44,25 +44,6 @@ public class DorisParseUtils {
     private static final Pattern HEX_PATTERN = Pattern.compile("\\\\x(\\d{2})");
 
     /**
-     * A utility function used to split the given string which represents a captured row,
-     * containing whitespace or tab and parse it to a hashmap.
-     *
-     * @param data an object which is created by stringify row data
-     * @return Map a hashmap which can be used to load the data
-     */
-    public static Map<String, String> parseToMap(Object data) {
-        String[] toParse = data.toString().split("\\s+");
-        Map<String, String> ret = new HashMap<>();
-        if (toParse.length < 2) {
-            LOG.warn("parsed length of string {} is not 2", Arrays.toString(toParse));
-            return ret;
-        }
-        ret.put(ID, toParse[0]);
-        ret.put(DORIS_DELETE_SIGN, toParse[1]);
-        return ret;
-    }
-
-    /**
      * A utility function used to determine the DORIS_DELETE_SIGN for a row change.
      *
      * @param rowKind the row change
