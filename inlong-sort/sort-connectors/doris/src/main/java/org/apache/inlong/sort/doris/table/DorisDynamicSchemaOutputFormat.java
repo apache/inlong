@@ -347,7 +347,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                     value.add(DorisParseUtils.parseDeleteSign(rowData.getRowKind()));
                 }
             }
-            Object data = jsonFormat ? valueMap :value.toString();
+            Object data = jsonFormat ? valueMap : value.toString();
             List mapData = batchMap.getOrDefault(tableIdentifier, new ArrayList<String>());
             mapData.add(data);
             batchMap.putIfAbsent(tableIdentifier, mapData);
