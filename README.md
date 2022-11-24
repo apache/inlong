@@ -26,8 +26,8 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.inlong/inlong/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.inlong)
 [![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://inlong.apache.org/download/)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Twitter](https://img.shields.io/twitter/url?label=Follow%20Apache%20InLong&style=social&url=https%3A%2F%2Ftwitter.com%2FApacheInlong)](https://twitter.com/ApacheInlong)
-[![Slack](https://img.shields.io/badge/%20Slack-ApacheInLong%20Channel-blueviolet)](https://the-asf.slack.com/archives/C01QAG6U00L)
+[![Twitter](https://img.shields.io/twitter/url?label=Follow%20ApacheInlong&style=social&url=https%3A%2F%2Ftwitter.com%2FApacheInlong)](https://twitter.com/ApacheInlong)
+[![Slack](https://img.shields.io/badge/%20Slack-InLong%20Channel-blueviolet)](https://the-asf.slack.com/archives/C01QAG6U00L)
 
 - [What is Apache InLong?](#what-is-apache-inlong)
 - [Features](#features)
