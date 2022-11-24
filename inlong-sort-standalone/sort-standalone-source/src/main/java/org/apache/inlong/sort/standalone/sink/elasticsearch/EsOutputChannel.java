@@ -206,6 +206,13 @@ public class EsOutputChannel extends Thread {
                 Thread.sleep(context.getProcessInterval());
                 return;
             }
+            // get id config
+            String uid = indexRequest.getEvent().getUid();
+            if (context.getIdConfig(uid) == null) {
+                context.addSendResultMetric(indexRequest.getEvent(), context.getTaskName(), false,
+                        indexRequest.getSendTime());
+                return;
+            }
             // send
             bulkProcessor.add(indexRequest);
             context.addSendMetric(indexRequest.getEvent(), context.getTaskName());
