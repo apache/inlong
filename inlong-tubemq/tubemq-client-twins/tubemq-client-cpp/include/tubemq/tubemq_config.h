@@ -33,14 +33,13 @@ using std::map;
 using std::set;
 using std::string;
 
-
 // configure for log, thread pool etc.
 class TubeMQServiceConfig {
  public:
   TubeMQServiceConfig();
   ~TubeMQServiceConfig();
-  void SetLogCofigInfo(int32_t log_max_num,
-                int32_t log_max_size, int32_t log_level, const string& log_path);
+  void SetLogCofigInfo(int32_t log_max_num, int32_t log_max_size, int32_t log_level,
+                       const string& log_path);
   void SetLogPrintLevel(int32_t log_level);
   const int32_t GetMaxLogFileNum() const;
   const int32_t GetMaxLogFileSize() const;
@@ -48,8 +47,7 @@ class TubeMQServiceConfig {
   const string& GetLogStorePath() const;
   void SetDnsXfsPeriodInMs(int32_t dns_xfs_period_ms);
   const int32_t GetDnsXfsPeriodInMs() const;
-  void SetServiceThreads(int32_t timer_threads,
-    int32_t network_threads, int32_t signal_threads);
+  void SetServiceThreads(int32_t timer_threads, int32_t network_threads, int32_t signal_threads);
   const int32_t GetTimerThreads() const;
   const int32_t GetNetWorkThreads() const;
   const int32_t GetSignalThreads() const;

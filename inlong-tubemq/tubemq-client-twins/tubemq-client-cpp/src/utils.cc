@@ -38,12 +38,9 @@
 #include "const_config.h"
 #include "const_rpc.h"
 
-
-
 namespace tubemq {
 
 using std::stringstream;
-
 
 static const char kWhitespaceCharSet[] = " \n\r\t\f\v";
 
@@ -543,4 +540,3 @@ void Utils::BuildTestData(string& data, uint32_t body_size) {
 }
 
 }  // namespace tubemq
-

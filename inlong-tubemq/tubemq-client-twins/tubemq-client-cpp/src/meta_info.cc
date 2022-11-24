@@ -595,12 +595,14 @@ string ConsumerEvent::ToString() {
   return ss.str();
 }
 
-TopicInfo::TopicInfo(const NodeInfo& broker, const std::string& topic,
-                     int partition_num, int topic_store_num,
-                     bool accept_publish, bool accept_subscribe)
-  : broker_(broker), topic_(topic),
-    partition_num_(partition_num), topic_store_num_(topic_store_num),
-    accept_publish_(accept_publish), accept_subscribe_(accept_subscribe) {}
+TopicInfo::TopicInfo(const NodeInfo& broker, const std::string& topic, int partition_num,
+                     int topic_store_num, bool accept_publish, bool accept_subscribe)
+    : broker_(broker),
+      topic_(topic),
+      partition_num_(partition_num),
+      topic_store_num_(topic_store_num),
+      accept_publish_(accept_publish),
+      accept_subscribe_(accept_subscribe) {}
 
 const std::string& TopicInfo::GetTopic() const {
   return topic_;

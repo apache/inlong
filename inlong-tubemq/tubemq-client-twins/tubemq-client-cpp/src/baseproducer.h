@@ -21,17 +21,17 @@
 #define TUBEMQ_CLIENT_IMP_PRODUCER_API_H_
 
 #include <list>
-#include <set>
 #include <mutex>
+#include <set>
 #include <unordered_map>
 
 #include "BrokerService.pb.h"
 #include "MasterService.pb.h"
 #include "RPC.pb.h"
 #include "client_service.h"
+#include "partition_router.h"
 #include "tubemq/tubemq_atomic.h"
 #include "tubemq_codec.h"
-#include "partition_router.h"
 
 namespace tubemq {
 
@@ -39,7 +39,7 @@ class BaseProducer : public BaseClient, public std::enable_shared_from_this<Base
  public:
   BaseProducer();
   ~BaseProducer();
-  
+
   bool Start(string& err_info, const ProducerConfig& config);
   void ShutDown();
 
@@ -49,15 +49,16 @@ class BaseProducer : public BaseClient, public std::enable_shared_from_this<Base
   bool IsTopicCurAcceptPublish(const string& topic);
   const set<string>& GetPublishedTopicSet();
 
-  bool SendMessage(string& err_info, const Message& message, bool is_sync, const std::function<void(const ErrorCode&)>& callback);
- 
- // methods for interacting with tubemq server
+  bool SendMessage(string& err_info, const Message& message, bool is_sync,
+                   const std::function<void(const ErrorCode&)>& callback);
+
+  // methods for interacting with tubemq server
  private:
   bool register2Master(int32_t& error_code, string& err_info, bool need_change);
   void heartBeat2Master();
   void close2Master();
 
- // private util methods
+  // private util methods
  private:
   string buildUUID();
   bool isClientRunning();
@@ -65,27 +66,30 @@ class BaseProducer : public BaseClient, public std::enable_shared_from_this<Base
   void getNextMasterAddr(string& ipaddr, int32_t& port);
   void getCurrentMasterAddr(string& ipaddr, int32_t& port);
   bool needGenMasterCertificateInfo(bool force);
-  void genMasterAuthenticateToken(AuthenticateInfo* pauthinfo, const string& username, const string usrpassword);
+  void genMasterAuthenticateToken(AuthenticateInfo* pauthinfo, const string& username,
+                                  const string usrpassword);
   void genBrokerAuthenticInfo(AuthorizedInfo* p_authInfo, bool force);
   void processAuthorizedToken(const MasterAuthorizedInfo& authorized_token_info);
   void showNodeInfo(const NodeInfo& node_info);
   Partition selectPartition(const Message& message);
   void getAllowedPartitions();
   const char* encodePayload(BufferPtr buffer, const Message& message);
- 
- // methods for build and process protobuf mssages
+
+  // methods for build and process protobuf mssages
  private:
   void buildRegisterRequestP2M(TubeMQCodec::ReqProtocolPtr& req_protocol);
   void buildHeartRequestP2M(TubeMQCodec::ReqProtocolPtr& req_protocol);
   void buildCloseRequestP2M(TubeMQCodec::ReqProtocolPtr& req_protocol);
-  void buildSendMessageRequestP2B(const Partition& partition, const Message& message, TubeMQCodec::ReqProtocolPtr& req_protocol);
+  void buildSendMessageRequestP2B(const Partition& partition, const Message& message,
+                                  TubeMQCodec::ReqProtocolPtr& req_protocol);
   bool processRegisterResponseM2P(int32_t& error_code, string& err_info,
                                   const TubeMQCodec::RspProtocolPtr& rsp_protocol);
   bool processHBResponseM2P(int32_t& error_code, string& err_info,
                             const TubeMQCodec::RspProtocolPtr& rsp_protocol);
   bool processSendMessageResponseB2P(int32_t& error_code, string& err_info,
                                      const TubeMQCodec::RspProtocolPtr& rsp_protocol);
-  void updateBrokerInfoList(bool is_register, const vector<string>& pkg_broker_infos, int64_t pkg_checksum);
+  void updateBrokerInfoList(bool is_register, const vector<string>& pkg_broker_infos,
+                            int64_t pkg_checksum);
   void updateTopicConfigure(const std::vector<std::string>& str_topic_infos);
 
  private:
@@ -105,7 +109,8 @@ class BaseProducer : public BaseClient, public std::enable_shared_from_this<Base
   mutex pub_topic_list_lock_;
   std::unordered_map<string, uint64_t> pub_topic_list_;
   mutex topic_partition_map_lock_;
-  std::unordered_map<std::string, std::unordered_map<int, std::vector<Partition> > > topic_partition_map_;
+  std::unordered_map<std::string, std::unordered_map<int, std::vector<Partition> > >
+      topic_partition_map_;
   RoundRobinPartitionRouter partition_router_;
   AtomicLong visit_token_;
   mutable mutex auth_lock_;
@@ -118,4 +123,4 @@ using BaseProducerPtr = std::shared_ptr<BaseProducer>;
 
 }  // namespace tubemq
 
-#endif // TUBEMQ_CLIENT_IMP_PRODUCER_API_H_
+#endif  // TUBEMQ_CLIENT_IMP_PRODUCER_API_H_

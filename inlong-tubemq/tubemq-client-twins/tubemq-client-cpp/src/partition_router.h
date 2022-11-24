@@ -20,14 +20,14 @@
 #ifndef TUBEMQ_PARTITION_ROUTER_H_
 #define TUBEMQ_PARTITION_ROUTER_H_
 
-#include <vector>
-#include <unordered_map>
-#include <string>
 #include <mutex>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-#include "tubemq/tubemq_message.h"
-#include "tubemq/tubemq_atomic.h"
 #include "meta_info.h"
+#include "tubemq/tubemq_atomic.h"
+#include "tubemq/tubemq_message.h"
 #include "utils.h"
 
 namespace tubemq {
@@ -50,6 +50,6 @@ class RoundRobinPartitionRouter {
   std::mutex partition_router_map_mutex;
 };
 
-}
+}  // namespace tubemq
 
 #endif

@@ -17,84 +17,83 @@
  * under the License.
  */
 
-#include <sstream>
-#include <iostream>
+#include "baseproducer.h"
+
 #include <unistd.h>
 
+#include <iostream>
+#include <sstream>
 
-#include "baseproducer.h"
 #include "const_config.h"
 #include "const_rpc.h"
 #include "singleton.h"
-#include "utils.h"
 #include "transport.h"
-#include "version.h"
 #include "tubemq/tubemq_errcode.h"
 #include "tubemq_transport.h"
+#include "utils.h"
+#include "version.h"
 
 namespace tubemq {
 
 using std::stringstream;
 
 BaseProducer::BaseProducer() : BaseClient(true) {
-	status_.Set(0);
-	masters_map_.clear();
+  status_.Set(0);
+  masters_map_.clear();
   is_master_actived_.Set(false);
-	master_reg_status_.Set(0);
+  master_reg_status_.Set(0);
   master_hb_status_.Set(0);
-	broker_info_checksum_ = -1;
+  broker_info_checksum_ = -1;
   master_sh_retry_cnt_ = 0;
 }
 
-BaseProducer::~BaseProducer() {
-
-}
+BaseProducer::~BaseProducer() {}
 
 bool BaseProducer::Start(string& err_info, const ProducerConfig& config) {
-	if (!status_.CompareAndSet(0, 1)) {
+  if (!status_.CompareAndSet(0, 1)) {
     err_info = "Ok";
     return true;
   }
 
-	// check master addr info
-	if (config.GetMasterAddrInfo().length() == 0) {
-		err_info = "Parameter error: not set master address info!";
-		status_.CompareAndSet(1, 0);
-		return false;
-	}
+  // check master addr info
+  if (config.GetMasterAddrInfo().length() == 0) {
+    err_info = "Parameter error: not set master address info!";
+    status_.CompareAndSet(1, 0);
+    return false;
+  }
 
-	if (!TubeMQService::Instance()->IsRunning()) {
-		err_info = "TubeMQ Service not startted!";
-		status_.CompareAndSet(1, 0);
-		return false;
-	}
+  if (!TubeMQService::Instance()->IsRunning()) {
+    err_info = "TubeMQ Service not startted!";
+    status_.CompareAndSet(1, 0);
+    return false;
+  }
 
-	// add to TubeMQService
-	if (!TubeMQService::Instance()->AddClientObj(err_info, shared_from_this())) {
-		printf("Add to tubemq service failed!!!\n");
+  // add to TubeMQService
+  if (!TubeMQService::Instance()->AddClientObj(err_info, shared_from_this())) {
+    printf("Add to tubemq service failed!!!\n");
     client_index_ = tb_config::kInvalidValue;
     status_.CompareAndSet(1, 0);
     return false;
   }
 
-	config_ = config;
-	if (!initMasterAddress(err_info, config.GetMasterAddrInfo())) {
+  config_ = config;
+  if (!initMasterAddress(err_info, config.GetMasterAddrInfo())) {
     TubeMQService::Instance()->RmvClientObj(shared_from_this());
     status_.CompareAndSet(1, 0);
     return false;
   }
 
-	// set client_uuid_
-	client_uuid_ = buildUUID();
+  // set client_uuid_
+  client_uuid_ = buildUUID();
 
-	// producer register to master
-	int32_t error_code;
-	if (!register2Master(error_code, err_info, false)) {
-		TubeMQService::Instance()->RmvClientObj(shared_from_this());
+  // producer register to master
+  int32_t error_code;
+  if (!register2Master(error_code, err_info, false)) {
+    TubeMQService::Instance()->RmvClientObj(shared_from_this());
     status_.CompareAndSet(1, 0);
     return false;
-	}
-	status_.CompareAndSet(1, 2); // register2Master done, change status_ to `2`
+  }
+  status_.CompareAndSet(1, 2);  // register2Master done, change status_ to `2`
 
   // set heartbeat timer
   heart_beat_timer_ = TubeMQService::Instance()->CreateTimer();
@@ -107,18 +106,18 @@ bool BaseProducer::Start(string& err_info, const ProducerConfig& config) {
     heartBeat2Master();
   });
 
-	return true;
+  return true;
 }
 
 void BaseProducer::ShutDown() {
-	if (!status_.CompareAndSet(2, 0)) {
+  if (!status_.CompareAndSet(2, 0)) {
     return;
   }
 
-	close2Master();
+  close2Master();
 
-	TubeMQService::Instance()->RmvClientObj(shared_from_this());
-	client_index_ = tb_config::kInvalidValue;
+  TubeMQService::Instance()->RmvClientObj(shared_from_this());
+  client_index_ = tb_config::kInvalidValue;
 }
 
 bool BaseProducer::Publish(string& err_info, const string& topic) {
@@ -135,17 +134,18 @@ bool BaseProducer::Publish(string& err_info, const set<string>& topic_list) {
   }
   err_info = "OK";
   return true;
-} 
+}
 
-bool BaseProducer::SendMessage(string& err_info, const Message& message, bool is_sync, const std::function<void(const ErrorCode&)>& callback) {
+bool BaseProducer::SendMessage(string& err_info, const Message& message, bool is_sync,
+                               const std::function<void(const ErrorCode&)>& callback) {
   Partition partition = selectPartition(message);
   std::string broker_id = std::to_string(partition.GetBrokerId());
-  
+
   auto request = std::make_shared<RequestContext>();
   TubeMQCodec::ReqProtocolPtr req_protocol = TubeMQCodec::GetReqProtocol();
-	buildSendMessageRequestP2B(partition, message, req_protocol);
+  buildSendMessageRequestP2B(partition, message, req_protocol);
   string target_ip;
-	int target_port;
+  int target_port;
   getCurrentMasterAddr(target_ip, target_port);
   request->codec_ = std::make_shared<TubeMQCodec>();
   request->ip_ = brokers_map_[broker_id].GetHost();
@@ -159,7 +159,8 @@ bool BaseProducer::SendMessage(string& err_info, const Message& message, bool is
     ResponseContext response_context;
     ErrorCode error = SyncRequest(response_context, request, req_protocol);
     if (error.Value() != err_code::kErrSuccess) {
-      std::cout << "*** err Code = " << error.Value() << ", err Msg = " << error.Message() << std::endl;
+      std::cout << "*** err Code = " << error.Value() << ", err Msg = " << error.Message()
+                << std::endl;
       return false;
     }
     int32_t error_code = 0;
@@ -167,72 +168,73 @@ bool BaseProducer::SendMessage(string& err_info, const Message& message, bool is
     auto rsp = any_cast<TubeMQCodec::RspProtocolPtr>(response_context.rsp_);
     bool res = processSendMessageResponseB2P(error_code, err_msg, rsp);
     if (!res) {
-      std::cout << "*** Sync Request return from tubemq server, error_code = " << error_code << ", err_msg = " << err_msg << std::endl;
+      std::cout << "*** Sync Request return from tubemq server, error_code = " << error_code
+                << ", err_msg = " << err_msg << std::endl;
       return false;
     }
   } else {
     AsyncRequest(request, req_protocol)
-      .AddCallBack([=](ErrorCode error, const ResponseContext& response_context) {
-        if (error.Value() == err_code::kErrSuccess) {
-          auto rsp = any_cast<TubeMQCodec::RspProtocolPtr>(response_context.rsp_);
-          int32_t error_code = 0;
-          std::string err_msg;
-          bool res = processSendMessageResponseB2P(error_code, err_msg, rsp);
-          if (!res) {
-            LOG_ERROR("Send Message to Broker successully, but response is not successful!!!");
-            std::cout << "*** return from tubemq server, error_code = " << error_code << ", err_msg = " << err_msg << std::endl;
+        .AddCallBack([=](ErrorCode error, const ResponseContext& response_context) {
+          if (error.Value() == err_code::kErrSuccess) {
+            auto rsp = any_cast<TubeMQCodec::RspProtocolPtr>(response_context.rsp_);
+            int32_t error_code = 0;
+            std::string err_msg;
+            bool res = processSendMessageResponseB2P(error_code, err_msg, rsp);
+            if (!res) {
+              LOG_ERROR("Send Message to Broker successully, but response is not successful!!!");
+              std::cout << "*** return from tubemq server, error_code = " << error_code
+                        << ", err_msg = " << err_msg << std::endl;
+            }
+          } else {
+            LOG_ERROR("Async Send Message to Broker failed!!!");
           }
-        } else {
-          LOG_ERROR("Async Send Message to Broker failed!!!");
-        }
-        callback(error);
-      });
+          callback(error);
+        });
   }
 
-  
   return true;
 }
 
 bool BaseProducer::register2Master(int32_t& error_code, string& err_info, bool need_change) {
-	// set regist process status to begin
+  // set regist process status to begin
   if (!master_reg_status_.CompareAndSet(0, 1)) {
     err_info = "register2Master process has began!";
     return false;
   }
 
-	LOG_INFO("[PRODUCER] register2Master process begin:");
+  LOG_INFO("[PRODUCER] register2Master process begin:");
 
-	string target_ip;
-	int target_port;
-	getCurrentMasterAddr(target_ip, target_port);
-	bool result = false;
+  string target_ip;
+  int target_port;
+  getCurrentMasterAddr(target_ip, target_port);
+  bool result = false;
   int retry_count = 0;
   int max_retry_count = masters_map_.size();
   err_info = "Master register failure, no online master service!";
-	while (retry_count < max_retry_count) {
-		if (!TubeMQService::Instance()->IsRunning()) {
+  while (retry_count < max_retry_count) {
+    if (!TubeMQService::Instance()->IsRunning()) {
       err_info = "TubeMQ Service is stopped!";
       master_reg_status_.CompareAndSet(1, 0);
       return false;
     }
-		// Construct the request
-		auto request = std::make_shared<RequestContext>();
-		TubeMQCodec::ReqProtocolPtr req_protocol = TubeMQCodec::GetReqProtocol();
-		buildRegisterRequestP2M(req_protocol);
-		// set parameters
-		request->codec_ = std::make_shared<TubeMQCodec>();
-		request->ip_ = target_ip;
+    // Construct the request
+    auto request = std::make_shared<RequestContext>();
+    TubeMQCodec::ReqProtocolPtr req_protocol = TubeMQCodec::GetReqProtocol();
+    buildRegisterRequestP2M(req_protocol);
+    // set parameters
+    request->codec_ = std::make_shared<TubeMQCodec>();
+    request->ip_ = target_ip;
     request->port_ = target_port;
-		request->timeout_ = config_.GetRpcReadTimeoutMs();
-		request->request_id_ = Singleton<UniqueSeqId>::Instance().Next();
-		req_protocol->request_id_ = request->request_id_;
-		req_protocol->rpc_read_timeout_ = config_.GetRpcReadTimeoutMs() - 500;
-		// send request sync
-		ResponseContext response_context;
+    request->timeout_ = config_.GetRpcReadTimeoutMs();
+    request->request_id_ = Singleton<UniqueSeqId>::Instance().Next();
+    req_protocol->request_id_ = request->request_id_;
+    req_protocol->rpc_read_timeout_ = config_.GetRpcReadTimeoutMs() - 500;
+    // send request sync
+    ResponseContext response_context;
     ErrorCode error = SyncRequest(response_context, request, req_protocol);
     LOG_INFO("register2Master response come, error.value is %d", error.Value());
-		if (error.Value() == err_code::kErrSuccess) {
-			// process response
+    if (error.Value() == err_code::kErrSuccess) {
+      // process response
       auto rsp = any_cast<TubeMQCodec::RspProtocolPtr>(response_context.rsp_);
       result = processRegisterResponseM2P(error_code, err_info, rsp);
       if (result) {
@@ -242,13 +244,14 @@ bool BaseProducer::register2Master(int32_t& error_code, string& err_info, bool n
       } else {
         is_master_actived_.Set(false);
       }
-		}
-		getNextMasterAddr(target_ip, target_port);
+    }
+    getNextMasterAddr(target_ip, target_port);
     retry_count++;
-	}
-	if (result) {
-    printf("Producer register2Master successfully, the registered mater is: %s:%d\n", target_ip.c_str(), target_port);
-  } 
+  }
+  if (result) {
+    printf("Producer register2Master successfully, the registered mater is: %s:%d\n",
+           target_ip.c_str(), target_port);
+  }
   return result;
 }
 
@@ -295,12 +298,11 @@ void BaseProducer::heartBeat2Master() {
   AsyncRequest(request, req_protocol)
       .AddCallBack([=](ErrorCode error, const ResponseContext& response_context) {
         if (GetClientIndex() == tb_config::kInvalidValue ||
-          !TubeMQService::Instance()->IsRunning() ||
-          !isClientRunning()) {
+            !TubeMQService::Instance()->IsRunning() || !isClientRunning()) {
           master_hb_status_.CompareAndSet(1, 0);
           return;
         }
-        
+
         if (error.Value() != err_code::kErrSuccess) {
           master_sh_retry_cnt_++;
           LOG_WARN("[PRODUCER] heartBeat2Master failue to (%s:%d) : %s, client=%s",
@@ -310,7 +312,7 @@ void BaseProducer::heartBeat2Master() {
                      master_sh_retry_cnt_, client_uuid_.c_str());
             master_sh_retry_cnt_ = 0;
             is_master_actived_.Set(false);
-        //     asyncRegister2Master(true);
+            //     asyncRegister2Master(true);
             master_hb_status_.CompareAndSet(1, 0);
             return;
           }
@@ -332,15 +334,14 @@ void BaseProducer::heartBeat2Master() {
               bool need_change = !(error_code == err_code::kErrHbNoNode);
               LOG_WARN("[PRODUCER] heartBeat2Master found no-node or standby, client=%s, change=%d",
                        client_uuid_.c_str(), need_change);
-        //       asyncRegister2Master(need_change);
+              //       asyncRegister2Master(need_change);
               master_hb_status_.CompareAndSet(1, 0);
               return;
             }
           }
         }
         if (GetClientIndex() == tb_config::kInvalidValue ||
-          !TubeMQService::Instance()->IsRunning() ||
-          !isClientRunning()) {
+            !TubeMQService::Instance()->IsRunning() || !isClientRunning()) {
           master_hb_status_.CompareAndSet(1, 0);
           return;
         }
@@ -358,13 +359,13 @@ void BaseProducer::heartBeat2Master() {
 }
 
 void BaseProducer::close2Master() {
-	string target_ip;
-	int target_port;
-	getCurrentMasterAddr(target_ip, target_port);
-	LOG_INFO("[PRODUCER] close2Master begin, clientid=%s", client_uuid_.c_str());
-	auto request = std::make_shared<RequestContext>();
+  string target_ip;
+  int target_port;
+  getCurrentMasterAddr(target_ip, target_port);
+  LOG_INFO("[PRODUCER] close2Master begin, clientid=%s", client_uuid_.c_str());
+  auto request = std::make_shared<RequestContext>();
   TubeMQCodec::ReqProtocolPtr req_protocol = TubeMQCodec::GetReqProtocol();
-	request->codec_ = std::make_shared<TubeMQCodec>();
+  request->codec_ = std::make_shared<TubeMQCodec>();
   request->ip_ = target_ip;
   request->port_ = target_port;
   request->timeout_ = config_.GetRpcReadTimeoutMs();
@@ -379,35 +380,33 @@ void BaseProducer::close2Master() {
 }
 
 string BaseProducer::buildUUID() {
-	stringstream ss;
-	ss << "PRODUCER_"; // producer client doesn't have `group_name`, use constant string instead
-	ss << TubeMQService::Instance()->GetLocalHost();
-	ss << "-";
-	ss << getpid();
-	ss << "-";
-	ss << Utils::GetCurrentTimeMillis();
-	ss << "-";
-	ss << GetClientIndex();
-	ss << "-";
-	ss << kTubeMQClientVersion;
-	return ss.str();
+  stringstream ss;
+  ss << "PRODUCER_";  // producer client doesn't have `group_name`, use constant string instead
+  ss << TubeMQService::Instance()->GetLocalHost();
+  ss << "-";
+  ss << getpid();
+  ss << "-";
+  ss << Utils::GetCurrentTimeMillis();
+  ss << "-";
+  ss << GetClientIndex();
+  ss << "-";
+  ss << kTubeMQClientVersion;
+  return ss.str();
 }
 
-bool BaseProducer::isClientRunning() { 
-  return (status_.Get() == 2); 
-}
+bool BaseProducer::isClientRunning() { return (status_.Get() == 2); }
 
 bool BaseProducer::initMasterAddress(string& err_info, const string& master_info) {
-	// Set master ip info
-	masters_map_.clear();
-	Utils::Split(master_info, masters_map_, delimiter::kDelimiterComma, delimiter::kDelimiterColon);
-	if (masters_map_.empty()) {
-		err_info = "Illegal master_addr parameter, the format is `ip1:port1,ip2:port2...`";
-		return false;
-	}
+  // Set master ip info
+  masters_map_.clear();
+  Utils::Split(master_info, masters_map_, delimiter::kDelimiterComma, delimiter::kDelimiterColon);
+  if (masters_map_.empty()) {
+    err_info = "Illegal master_addr parameter, the format is `ip1:port1,ip2:port2...`";
+    return false;
+  }
 
-	// whether translate hostname to ip
-	bool needXfs = false;
+  // whether translate hostname to ip
+  bool needXfs = false;
   map<string, int32_t>::iterator it;
   for (it = masters_map_.begin(); it != masters_map_.end(); it++) {
     if (Utils::NeedDnsXfs(it->first)) {
@@ -421,12 +420,12 @@ bool BaseProducer::initMasterAddress(string& err_info, const string& master_info
     TubeMQService::Instance()->AddMasterAddress(err_info, master_info);
   }
 
-	err_info = "ok";
-	return true;
+  err_info = "ok";
+  return true;
 }
 
 void BaseProducer::getNextMasterAddr(string& ipaddr, int32_t& port) {
-	map<string, int32_t>::iterator it;
+  map<string, int32_t>::iterator it;
   it = masters_map_.find(curr_master_addr_);
   if (it != masters_map_.end()) {
     it++;
@@ -446,7 +445,7 @@ void BaseProducer::getNextMasterAddr(string& ipaddr, int32_t& port) {
 }
 
 void BaseProducer::getCurrentMasterAddr(string& ipaddr, int32_t& port) {
-	ipaddr = curr_master_addr_;
+  ipaddr = curr_master_addr_;
   port = masters_map_[curr_master_addr_];
   if (Utils::NeedDnsXfs(ipaddr)) {
     TubeMQService::Instance()->GetXfsMasterAddress(curr_master_addr_, ipaddr);
@@ -501,18 +500,19 @@ void BaseProducer::genBrokerAuthenticInfo(AuthorizedInfo* p_authInfo, bool force
 }
 
 void BaseProducer::genMasterAuthenticateToken(AuthenticateInfo* pauthinfo, const string& username,
-                                              const string usrpassword) {
-}
+                                              const string usrpassword) {}
 
 void BaseProducer::showNodeInfo(const NodeInfo& node_info) {
-  std::cout << "node_id: " << node_info.GetNodeId() << " node_host: " << node_info.GetHost() << " node_port: " << node_info.GetPort() << std::endl;
+  std::cout << "node_id: " << node_info.GetNodeId() << " node_host: " << node_info.GetHost()
+            << " node_port: " << node_info.GetPort() << std::endl;
 }
 
 Partition BaseProducer::selectPartition(const Message& message) {
   std::string topic = message.GetTopic();
   std::vector<Partition> partition_list;
   // todo, get legal broker partitions
-  for (auto it = topic_partition_map_[topic].begin(); it != topic_partition_map_[topic].end(); it++) {
+  for (auto it = topic_partition_map_[topic].begin(); it != topic_partition_map_[topic].end();
+       it++) {
     int broker_id = it->first;
     for (size_t i = 0; i < topic_partition_map_[topic][broker_id].size(); i++) {
       partition_list.push_back(topic_partition_map_[topic][broker_id][i]);
@@ -522,9 +522,7 @@ Partition BaseProducer::selectPartition(const Message& message) {
   return Partition(partition_list[select_index]);
 }
 
-void BaseProducer::getAllowedPartitions() {
-
-}
+void BaseProducer::getAllowedPartitions() {}
 
 const char* BaseProducer::encodePayload(BufferPtr buffer, const Message& message) {
   const char* payload = message.GetData();
@@ -533,8 +531,9 @@ const char* BaseProducer::encodePayload(BufferPtr buffer, const Message& message
   }
   // generate attribute string
   std::string attribute;
-  Utils::Join(message.GetProperties(), attribute, delimiter::kDelimiterComma, delimiter::kDelimiterEqual);
-  // allocate 
+  Utils::Join(message.GetProperties(), attribute, delimiter::kDelimiterComma,
+              delimiter::kDelimiterEqual);
+  // allocate
   buffer->AppendInt32(attribute.size());
   buffer->Append(attribute.c_str(), attribute.size());
   buffer->Append(payload, message.GetDataLength());
@@ -543,17 +542,17 @@ const char* BaseProducer::encodePayload(BufferPtr buffer, const Message& message
 }
 
 void BaseProducer::buildRegisterRequestP2M(TubeMQCodec::ReqProtocolPtr& req_protocol) {
-	RegisterRequestP2M p2m_request;
-	// set client_id
-	p2m_request.set_clientid(client_uuid_);
-	// set topic list, to be pub in `publish method`
-	// list<string>::iterator it_topics;
-	
-	// set checksum
-	p2m_request.set_brokerchecksum(broker_info_checksum_);
-	
-	// set hostname
-	p2m_request.set_hostname(TubeMQService::Instance()->GetLocalHost());
+  RegisterRequestP2M p2m_request;
+  // set client_id
+  p2m_request.set_clientid(client_uuid_);
+  // set topic list, to be pub in `publish method`
+  // list<string>::iterator it_topics;
+
+  // set checksum
+  p2m_request.set_brokerchecksum(broker_info_checksum_);
+
+  // set hostname
+  p2m_request.set_hostname(TubeMQService::Instance()->GetLocalHost());
 
   // authenticate info
   if (needGenMasterCertificateInfo(true)) {
@@ -562,10 +561,10 @@ void BaseProducer::buildRegisterRequestP2M(TubeMQCodec::ReqProtocolPtr& req_prot
     genMasterAuthenticateToken(pauthinfo, config_.GetUsrName(), config_.GetUsrPassWord());
   }
 
-	string req_msg;
-	p2m_request.SerializeToString(&req_msg);
-	req_protocol->method_id_ = rpc_config::kMasterMethoddProducerRegister;
-	req_protocol->prot_msg_ = req_msg;
+  string req_msg;
+  p2m_request.SerializeToString(&req_msg);
+  req_protocol->method_id_ = rpc_config::kMasterMethoddProducerRegister;
+  req_protocol->prot_msg_ = req_msg;
 }
 
 void BaseProducer::buildHeartRequestP2M(TubeMQCodec::ReqProtocolPtr& req_protocol) {
@@ -586,19 +585,19 @@ void BaseProducer::buildHeartRequestP2M(TubeMQCodec::ReqProtocolPtr& req_protoco
   string req_msg;
   p2m_request.SerializeToString(&req_msg);
   req_protocol->method_id_ = rpc_config::kMasterMethoddProducerHeatbeat;
-	req_protocol->prot_msg_ = req_msg;
+  req_protocol->prot_msg_ = req_msg;
 }
 
 void BaseProducer::buildCloseRequestP2M(TubeMQCodec::ReqProtocolPtr& req_protocol) {
-	string close_msg;
-	CloseRequestP2M p2m_request;
-	p2m_request.set_clientid(client_uuid_);
-	p2m_request.SerializeToString(&close_msg);
+  string close_msg;
+  CloseRequestP2M p2m_request;
+  p2m_request.set_clientid(client_uuid_);
+  p2m_request.SerializeToString(&close_msg);
   req_protocol->method_id_ = rpc_config::kMasterMethoddProducerClose;
   req_protocol->prot_msg_ = close_msg;
 }
 
-void BaseProducer::buildSendMessageRequestP2B(const Partition& partition, const Message& message, 
+void BaseProducer::buildSendMessageRequestP2B(const Partition& partition, const Message& message,
                                               TubeMQCodec::ReqProtocolPtr& req_protocol) {
   SendMessageRequestP2B p2b_request;
   p2b_request.set_clientid(client_uuid_);
@@ -606,7 +605,8 @@ void BaseProducer::buildSendMessageRequestP2B(const Partition& partition, const 
   p2b_request.set_partitionid(partition.GetPartitionId());
   BufferPtr buffer = std::make_shared<Buffer>(rpc_config::kRpcConnectInitBufferSize);
   const char* data = encodePayload(buffer, message);
-  // p2b_request.set_data(data, buffer->length()); // this approach has problem when msg_data_size is large
+  // p2b_request.set_data(data, buffer->length()); // this approach has problem when msg_data_size
+  // is large
   p2b_request.set_data(std::move(std::string(data)));
   p2b_request.set_checksum(-1);
   string ipv4_local_address;
@@ -635,9 +635,9 @@ void BaseProducer::buildSendMessageRequestP2B(const Partition& partition, const 
   // }
 
   string req_msg;
-	p2b_request.SerializeToString(&req_msg);
-	req_protocol->method_id_ = rpc_config::kBrokerMethoddProducerSendMsg;
-	req_protocol->prot_msg_ = req_msg;
+  p2b_request.SerializeToString(&req_msg);
+  req_protocol->method_id_ = rpc_config::kBrokerMethoddProducerSendMsg;
+  req_protocol->prot_msg_ = req_msg;
 }
 
 bool BaseProducer::processRegisterResponseM2P(int32_t& error_code, string& err_info,
@@ -650,7 +650,7 @@ bool BaseProducer::processRegisterResponseM2P(int32_t& error_code, string& err_i
   RegisterResponseM2P rsp_m2p;
   bool result = rsp_m2p.ParseFromArray(rsp_protocol->rsp_body_.data().c_str(),
                                        (int32_t)(rsp_protocol->rsp_body_.data().length()));
-  
+
   if (!result) {
     error_code = err_code::kErrParseFailure;
     err_info = "Parse RegisterResponseM2P response failure!";
@@ -683,7 +683,8 @@ bool BaseProducer::processHBResponseM2P(int32_t& error_code, string& err_info,
   if (!rsp_protocol->success_) {
     error_code = rsp_protocol->code_;
     err_info = rsp_protocol->error_msg_;
-    std::cout << "*** !rsp->success, error_code = " << error_code << ", err_info = " << err_info << std::endl;
+    std::cout << "*** !rsp->success, error_code = " << error_code << ", err_info = " << err_info
+              << std::endl;
     return false;
   };
 
@@ -719,7 +720,7 @@ bool BaseProducer::processHBResponseM2P(int32_t& error_code, string& err_info,
     processAuthorizedToken(rsp_m2p.authorizedinfo());
   }
 
-  return true;                      
+  return true;
 }
 
 bool BaseProducer::processSendMessageResponseB2P(int32_t& error_code, string& err_info,
@@ -732,7 +733,8 @@ bool BaseProducer::processSendMessageResponseB2P(int32_t& error_code, string& er
   return true;
 }
 
-void BaseProducer::updateBrokerInfoList(bool is_register, const vector<string>& pkg_broker_infos, int64_t pkg_checksum) {
+void BaseProducer::updateBrokerInfoList(bool is_register, const vector<string>& pkg_broker_infos,
+                                        int64_t pkg_checksum) {
   std::lock_guard<std::mutex> lck(brokers_map_lock_);
   if (pkg_checksum != broker_info_checksum_) {
     if (!pkg_broker_infos.empty()) {
@@ -766,7 +768,8 @@ void BaseProducer::updateTopicConfigure(const std::vector<std::string>& str_topi
       broker_info = brokers_map_[topic_info_tokens[0]];
       int partition_num = std::stoi(topic_info_tokens[1]);
       int store_num = std::stoi(topic_info_tokens[2]);
-      topic_list.push_back(TopicInfo(broker_info, str_topic_info_0, partition_num, store_num, true, true));
+      topic_list.push_back(
+          TopicInfo(broker_info, str_topic_info_0, partition_num, store_num, true, true));
     }
 
     if (str_topic_info_list.size() == 2 || str_topic_info_list[2].empty()) {
@@ -777,8 +780,8 @@ void BaseProducer::updateTopicConfigure(const std::vector<std::string>& str_topi
 
   for (const auto& topic_info : topic_list) {
     if (!topic_partition_map_.count(topic_info.GetTopic())) {
-        std::unordered_map<int, std::vector<Partition>> broker_list;
-        topic_partition_map_[topic_info.GetTopic()] = broker_list;
+      std::unordered_map<int, std::vector<Partition>> broker_list;
+      topic_partition_map_[topic_info.GetTopic()] = broker_list;
     }
     for (int j = 0; j < topic_info.GetTopicStoreNum(); j++) {
       int base_value = j * tb_config::kMetaStoreInsBase;
@@ -790,4 +793,4 @@ void BaseProducer::updateTopicConfigure(const std::vector<std::string>& str_topi
   }
 }
 
-} // namespace tubemq
+}  // namespace tubemq

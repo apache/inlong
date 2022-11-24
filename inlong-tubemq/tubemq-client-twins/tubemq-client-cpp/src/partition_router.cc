@@ -18,44 +18,42 @@
  */
 
 // #include <cstdlib>
+#include "partition_router.h"
+
 #include <climits>
 #include <iostream>
 
-#include "partition_router.h"
-
 namespace tubemq {
 
-  RoundRobinPartitionRouter::RoundRobinPartitionRouter() {
-    stepped_counter_.Set(0);
+RoundRobinPartitionRouter::RoundRobinPartitionRouter() { stepped_counter_.Set(0); }
+
+RoundRobinPartitionRouter::~RoundRobinPartitionRouter() {}
+
+int RoundRobinPartitionRouter::GetPartition(const Message& message,
+                                            const std::vector<Partition>& partitions) {
+  if (partitions.empty()) return -1;
+  const std::string topic = message.GetTopic();
+
+  // for (const auto& part : partitions) {
+  //   std::cout << "*** part_id = " << part.GetPartitionId() << std::endl;
+  // }
+
+  if (partition_router_map_.count(topic) == 0) {
+    std::srand(std::time(0));
+    AtomicInteger new_counter(std::rand());
+    partition_router_map_[topic] = new_counter;
   }
 
-  RoundRobinPartitionRouter::~RoundRobinPartitionRouter() {
-  }
-
-  int RoundRobinPartitionRouter::GetPartition(const Message& message, 
-                                              const std::vector<Partition>& partitions) {
-    if (partitions.empty()) return -1;
-    const std::string topic = message.GetTopic();
-
-    // for (const auto& part : partitions) {
-    //   std::cout << "*** part_id = " << part.GetPartitionId() << std::endl;
-    // }
-
-    if (partition_router_map_.count(topic) == 0) {
-      std::srand(std::time(0));
-      AtomicInteger new_counter(std::rand());
-      partition_router_map_[topic] = new_counter;
-    } 
-    
-    int round_partition_index = -1;
-    size_t part_size = partitions.size();
-    for (size_t i = 0; i < part_size; i++) {
-      round_partition_index = ((partition_router_map_[topic].IncrementAndGet() & INT_MAX) % part_size);
-      if (partitions[round_partition_index].GetDelayTimestamp() < Utils::CurrentTimeMillis()) {
-        return round_partition_index;
-      }
+  int round_partition_index = -1;
+  size_t part_size = partitions.size();
+  for (size_t i = 0; i < part_size; i++) {
+    round_partition_index =
+        ((partition_router_map_[topic].IncrementAndGet() & INT_MAX) % part_size);
+    if (partitions[round_partition_index].GetDelayTimestamp() < Utils::CurrentTimeMillis()) {
+      return round_partition_index;
     }
-
-    return (stepped_counter_.IncrementAndGet() & INT_MAX) % part_size;
   }
+
+  return (stepped_counter_.IncrementAndGet() & INT_MAX) % part_size;
 }
+}  // namespace tubemq

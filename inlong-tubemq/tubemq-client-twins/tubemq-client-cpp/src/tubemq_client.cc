@@ -36,8 +36,7 @@ namespace tubemq {
 using std::lock_guard;
 using std::stringstream;
 
-bool StartTubeMQService(string& err_info,
-    const TubeMQServiceConfig& serviceConfig) {
+bool StartTubeMQService(string& err_info, const TubeMQServiceConfig& serviceConfig) {
   signal(SIGPIPE, SIG_IGN);
   return TubeMQService::Instance()->Start(err_info, serviceConfig);
 }
@@ -180,9 +179,7 @@ TubeMQProducer::TubeMQProducer() {
   status_.Set(0);
 }
 
-TubeMQProducer::~TubeMQProducer() {
-  ShutDown();
-}
+TubeMQProducer::~TubeMQProducer() { ShutDown(); }
 
 bool TubeMQProducer::Start(string& err_info, const ProducerConfig& config) {
   if (!TubeMQService::Instance()->IsRunning()) {
@@ -259,7 +256,8 @@ bool TubeMQProducer::SendMessage(string& err_info, const Message& message) {
   return true;
 }
 
-void TubeMQProducer::SendMessage(const Message& message, const std::function<void(const ErrorCode&)>& callback) {
+void TubeMQProducer::SendMessage(const Message& message,
+                                 const std::function<void(const ErrorCode&)>& callback) {
   if (client_id_ != tb_config::kInvalidValue) {
     BaseProducerPtr rmt_client = std::dynamic_pointer_cast<BaseProducer>(
         TubeMQService::Instance()->GetClientObj(client_id_));
