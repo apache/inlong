@@ -224,8 +224,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
         // if enable batch delete, the columns must add tag '__DORIS_DELETE_SIGN__'
         String columns = (String) props.get(COLUMNS_KEY);
-        if (!columns.contains(DORIS_DELETE_SIGN)
-                && enableBatchDelete()) {
+        if (!columns.contains(DORIS_DELETE_SIGN) && enableBatchDelete()) {
             props.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
         }
     }
