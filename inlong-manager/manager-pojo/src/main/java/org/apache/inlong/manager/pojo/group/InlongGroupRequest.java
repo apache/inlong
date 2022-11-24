@@ -25,8 +25,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
@@ -41,11 +43,11 @@ import java.util.List;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
 public abstract class InlongGroupRequest extends BaseInlongGroup {
 
-    @NotBlank(message = "inlongGroupId cannot be blank")
+    @NotBlank(message = "cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
-    @Length(min = 4, max = 100, message = "inlongGroupId length must be between 4 and 100")
+    @Length(min = 4, max = 100, message = "length must be between 4 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{4,100}$",
-            message = "inlongGroupId only supports lowercase letters, numbers, '-', or '_'")
+            message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong group name", required = true)
@@ -58,7 +60,7 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "MQ type, replaced by mqType")
     private String middlewareType;
 
-    @NotBlank(message = "mqType cannot be blank")
+    @NotBlank(message = "cannot be blank")
     @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
     private String mqType;
 
@@ -78,6 +80,15 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: no, 1: yes")
     private Integer lightweight = 0;
 
+    @NotNull(message = "cannot be null")
+    @Range(min = 0, max = 2, message = "only supports 0, 1, 2")
+    @ApiModelProperty(value = "Data report type, default is 0.\n"
+            + " 0: report to DataProxy and respond when the DataProxy received data.\n"
+            + " 1: report to DataProxy and respond after DataProxy sends data.\n"
+            + " 2: report to MQ and respond when the MQ received data.",
+            notes = "Current constraint is that all InLong Agents under one InlongGroup use the same type")
+    private Integer dataReportType = 0;
+
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
     private String inlongClusterTag;
 
@@ -93,7 +104,7 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "The maximum length of a single piece of data, unit: Byte")
     private Integer maxLength;
 
-    @NotBlank(message = "inCharges cannot be blank")
+    @NotBlank(message = "cannot be blank")
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;
 

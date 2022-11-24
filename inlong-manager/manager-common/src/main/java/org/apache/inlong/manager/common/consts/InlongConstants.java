@@ -56,6 +56,18 @@ public class InlongConstants {
     public static final Integer DISABLE_CREATE_RESOURCE = 0;
     public static final Integer ENABLE_CREATE_RESOURCE = 1;
 
+    /**
+     * Data report type, support:
+     * <pre>
+     *     0: report to DataProxy and respond when the DataProxy received data.
+     *     1: report to DataProxy and respond after DataProxy sends data.
+     *     2: report to MQ and respond when the MQ received data.
+     * </pre>
+     */
+    public static final Integer REPORT_TO_DP_RECEIVED = 0;
+    public static final Integer REPORT_TO_DP_SENT = 1;
+    public static final Integer REPORT_TO_MQ_RECEIVED = 2;
+
     public static final Integer UN_SYNC_SEND = 0;
     public static final Integer SYNC_SEND = 1;
 

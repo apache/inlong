@@ -43,7 +43,8 @@ public interface InlongGroupService {
      * @param operator name of operator
      * @return inlong group id after saving
      */
-    String save(InlongGroupRequest groupInfo, String operator);
+    String save(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest groupInfo,
+            String operator);
 
     /**
      * Query whether the specified group id exists
