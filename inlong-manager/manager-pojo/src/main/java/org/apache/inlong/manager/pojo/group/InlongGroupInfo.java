@@ -75,10 +75,12 @@ public abstract class InlongGroupInfo extends BaseInlongGroup {
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: no, 1: yes")
     private Integer lightweight;
 
-    @ApiModelProperty(value = "The reporting position of the collection task "
-            + "corresponding to the groupId, 0: to DataProxy with source response, "
-            + "1: to DataProxy with sink response, 2: to MQ directly")
-    private Integer reportDataTo = 0;
+    @ApiModelProperty(value = "Data report type, default is 0.\n"
+            + " 0: report to DataProxy and respond when the DataProxy received data.\n"
+            + " 1: report to DataProxy and respond after DataProxy sends data.\n"
+            + " 2: report to MQ and respond when the MQ received data.",
+            notes = "Current constraint is that all InLong Agents under one InlongGroup use the same type")
+    private Integer dataReportType;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
     private String inlongClusterTag;

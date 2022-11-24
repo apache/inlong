@@ -67,14 +67,6 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
         if (StringUtils.isEmpty(entity.getMqResource())) {
             entity.setMqResource(groupId);
         }
-        //  check reportDataTo value
-        Integer reportDataTo = entity.getReportDataTo();
-        if (reportDataTo != null) {
-            if (reportDataTo > 2 || reportDataTo < 0) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED,
-                        "Illegal reportDataTo value, value range in [0, 2]");
-            }
-        }
         // set the ext params
         setTargetEntity(request, entity);
 
@@ -99,14 +91,6 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void updateOpt(InlongGroupRequest request, String operator) {
         InlongGroupEntity entity = CommonBeanUtils.copyProperties(request, InlongGroupEntity::new);
-        //  check reportDataTo value
-        Integer reportDataTo = entity.getReportDataTo();
-        if (reportDataTo != null) {
-            if (reportDataTo > 2 || reportDataTo < 0) {
-                throw new BusinessException(ErrorCodeEnum.GROUP_SAVE_FAILED,
-                        "Illegal reportDataTo value, value range in [0, 2]");
-            }
-        }
         // set the ext params
         setTargetEntity(request, entity);
 

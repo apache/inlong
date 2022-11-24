@@ -18,8 +18,6 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -66,9 +64,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -96,8 +94,6 @@ public class AgentServiceImpl implements AgentService {
             SourceStatus.TO_BE_ISSUED_REDO_METRIC.getCode(),
             SourceStatus.TO_BE_ISSUED_MAKEUP.getCode());
 
-    private static final Gson GSON = new Gson();
-
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -105,11 +101,11 @@ public class AgentServiceImpl implements AgentService {
     @Autowired
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
     @Autowired
+    private InlongGroupEntityMapper groupMapper;
+    @Autowired
     private InlongStreamEntityMapper streamMapper;
     @Autowired
     private InlongClusterEntityMapper clusterMapper;
-    @Autowired
-    private InlongGroupEntityMapper groupMapper;
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -356,26 +352,28 @@ public class AgentServiceImpl implements AgentService {
         String streamId = entity.getInlongStreamId();
         dataConfig.setInlongGroupId(groupId);
         dataConfig.setInlongStreamId(streamId);
+
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        if (groupEntity == null) {
+            throw new BusinessException(String.format("inlong group not found for groupId=%s", groupId));
+        }
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
+        if (streamEntity == null) {
+            throw new BusinessException(
+                    String.format("inlong stream not found for groupId=%s streamId=%s", groupId, streamId));
+        }
+
         String extParams = entity.getExtParams();
-        if (streamEntity != null) {
-            dataConfig.setSyncSend(streamEntity.getSyncSend());
-            if (SourceType.FILE.equalsIgnoreCase(streamEntity.getDataType())) {
-                String dataSeparator = streamEntity.getDataSeparator();
-                extParams = null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams;
-            }
-        } else {
-            dataConfig.setSyncSend(0);
-            LOGGER.warn("set syncSend=[0] as the stream not exists for groupId={}, streamId={}", groupId, streamId);
+        dataConfig.setSyncSend(streamEntity.getSyncSend());
+        if (SourceType.FILE.equalsIgnoreCase(streamEntity.getDataType())) {
+            String dataSeparator = streamEntity.getDataSeparator();
+            extParams = (null != dataSeparator ? getExtParams(extParams, dataSeparator) : extParams);
         }
         dataConfig.setExtParams(extParams);
-        int reportDataTo = 0;
-        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
-        if (groupEntity != null) {
-            reportDataTo = groupEntity.getReportDataTo();
-        }
-        dataConfig.setReportDataTo(reportDataTo);
-        if (reportDataTo == 2) {
+
+        int dataReportType = groupEntity.getDataReportType();
+        dataConfig.setDataReportType(dataReportType);
+        if (InlongConstants.REPORT_TO_MQ_RECEIVED == dataReportType) {
             // add mq cluster setting
             List<MQClusterInfo> mqSet = new ArrayList<>();
             List<InlongClusterEntity> mqClusterList =
@@ -385,10 +383,10 @@ public class AgentServiceImpl implements AgentService {
                 clusterInfo.setUrl(cluster.getUrl());
                 clusterInfo.setToken(cluster.getToken());
                 clusterInfo.setMqType(cluster.getType());
-                clusterInfo.setParams(GSON.fromJson(cluster.getExtParams(), Map.class));
+                clusterInfo.setParams(JsonUtils.parseObject(cluster.getExtParams(), HashMap.class));
                 mqSet.add(clusterInfo);
             }
-            dataConfig.setMqClusterInfos(mqSet);
+            dataConfig.setMqClusters(mqSet);
             // add topic setting
             InlongClusterEntity cluster = mqClusterList.get(0);
             String mqResource = groupEntity.getMqResource();
@@ -416,9 +414,6 @@ public class AgentServiceImpl implements AgentService {
     }
 
     private String getExtParams(String extParams, String dataSeparator) {
-        if (Objects.isNull(extParams)) {
-            return null;
-        }
         FileSourceDTO fileSourceDTO = JsonUtils.parseObject(extParams, FileSourceDTO.class);
         if (Objects.nonNull(fileSourceDTO)) {
             fileSourceDTO.setDataSeparator(dataSeparator);
