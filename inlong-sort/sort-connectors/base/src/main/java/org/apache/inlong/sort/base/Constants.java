@@ -74,9 +74,13 @@ public final class Constants {
      */
     public static final String NODE_ID = "nodeId";
     /**
-     * It is used for inlong.metric
+     * It is used for 'inlong.metric.labels' or 'sink.dirty.labels'
      */
     public static final String DELIMITER = "&";
+    /**
+     * The delimiter of key and value, it is used for 'inlong.metric.labels' or 'sink.dirty.labels'
+     */
+    public static final String KEY_VALUE_DELIMITER = "=";
 
     // sort received successfully
     public static final Integer AUDIT_SORT_INPUT = 7;
@@ -177,4 +181,93 @@ public final class Constants {
                     .defaultValue(false)
                     .withDescription("Because spark do not support iceberg data type: `timestamp without time zone` and"
                             + "`time`, so type conversions must be mapped to types supported by spark.");
+
+    //========================================= dirty configuration =========================================
+    public static final String DEFAULT_LABEL_IDENTIFER = "dirty-data";
+    public static final String SINK_DIRTY_PREFIX = "sink.dirty.";
+    public static final String DIRTY_PREFIX = "dirty.";
+    public static final String DIRTY_LABEL_DELIMITER = "-";
+
+    public static final ConfigOption<Boolean> DIRTY_IGNORE =
+            ConfigOptions.key("dirty.ignore")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether ignore the dirty data, default value is 'false'");
+    public static final ConfigOption<Boolean> DIRTY_SINK_ENABLE =
+            ConfigOptions.key("dirty.sink.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether supports dirty data sink, default value is 'false'");
+    public static final ConfigOption<String> SINK_DIRTY_CONNECTOR =
+            ConfigOptions.key("sink.dirty.connector")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription("The connector of dirty sink");
+    public static final ConfigOption<String> SINK_DIRTY_FORMAT =
+            ConfigOptions.key("sink.dirty.format")
+                    .stringType()
+                    .defaultValue("csv")
+                    .withDescription(
+                            "The format of dirty sink, only support [csv|json] for now and default value is 'csv'");
+    public static final ConfigOption<Boolean> SINK_DIRTY_IGNORE_SINK_ERRORS =
+            ConfigOptions.key("sink.dirty.ignore-sink-errors")
+                    .booleanType()
+                    .defaultValue(true)
+                    .withDescription("Whether ignore the dirty sink erros, default value is 'true'.");
+    public static final ConfigOption<Boolean> SINK_DIRTY_ENABLE_LOG =
+            ConfigOptions.key("sink.dirty.log.enable")
+                    .booleanType()
+                    .defaultValue(true)
+                    .withDescription("Whether enable log print, default value is 'true'.");
+    public static final ConfigOption<String> SINK_DIRTY_LABELS =
+            ConfigOptions.key("sink.dirty.labels")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "The labels of dirty sink, format is 'key1=value1&key2=value2', "
+                                    + "it supports variable extraction like '${variable}',"
+                                    + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE] are currently supported,"
+                                    + " and the support of other variables is determined by the connector.");
+    public static final ConfigOption<String> SINK_DIRTY_LOG_TAG =
+            ConfigOptions.key("sink.dirty.log-tag")
+                    .stringType()
+                    .defaultValue("DirtyData")
+                    .withDescription(
+                            "The log tag of dirty sink, it supports variable extraction like '${variable}'."
+                                    + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE] are currently supported,"
+                                    + " and the support of other variables is determined by the connector.");
+    public static final ConfigOption<String> SINK_DIRTY_FIELD_DELIMITER =
+            ConfigOptions.key("sink.dirty.field-delimiter")
+                    .stringType()
+                    .defaultValue(",")
+                    .withDescription("The connector of dirty sink");
+    public static final ConfigOption<String> SINK_DIRTY_LINE_DELIMITER =
+            ConfigOptions.key("sink.dirty.line-delimiter")
+                    .stringType()
+                    .defaultValue("\n")
+                    .withDescription("The connector of dirty sink");
+    public static final ConfigOption<Integer> SINK_DIRTY_BATCH_SIZE = ConfigOptions
+            .key("sink.dirty.batch.size")
+            .intType()
+            .defaultValue(100)
+            .withDescription(
+                    "The flush max size, over this number of records, will flush data. The default value is 100.");
+    public static final ConfigOption<Integer> SINK_DIRTY_RETRIES = ConfigOptions
+            .key("sink.dirty.retries")
+            .intType()
+            .defaultValue(3)
+            .withDescription("The retry times if writing records failed.");
+    public static final ConfigOption<Long> SINK_DIRTY_BATCH_INTERVAL = ConfigOptions
+            .key("sink.dirty.batch.interval")
+            .longType()
+            .defaultValue(60000L)
+            .withDescription(
+                    "The flush interval mills, over this time, "
+                            + "asynchronous threads will flush data. The default value is 60s.");
+    public static final ConfigOption<Long> SINK_DIRTY_BATCH_BYTES = ConfigOptions
+            .key("sink.dirty.batch.bytes")
+            .longType()
+            .defaultValue(10240L)
+            .withDescription(
+                    "The flush max bytes, over this number in batch, will flush data. The default value is 10KB.");
 }
