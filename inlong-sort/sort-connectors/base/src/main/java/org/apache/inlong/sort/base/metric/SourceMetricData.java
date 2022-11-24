@@ -33,12 +33,12 @@ import org.apache.inlong.sort.base.Constants;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import org.apache.inlong.sort.base.enums.ReadPhase;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.sort.base.Constants.DELIMITER;
-import static org.apache.inlong.sort.base.Constants.INCREASE_PHASE;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
@@ -46,10 +46,9 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
 import static org.apache.inlong.sort.base.Constants.READ_PHASE;
-import static org.apache.inlong.sort.base.Constants.SNAPSHOT_PHASE;
 
 /**
- * A collection class for handling metrics
+ * A collection class for handling source metrics
  */
 public class SourceMetricData implements MetricData {
 
@@ -331,15 +330,15 @@ public class SourceMetricData implements MetricData {
         return identifyBuilder.toString();
     }
 
-    public void outputMetricsWithEstimate(Object o) {
-        long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
-        outputMetrics(1, size);
+    public void outputMetricsWithEstimate(Object data) {
+        long size = data.toString().getBytes(StandardCharsets.UTF_8).length;
+        outputMetrics(1L, size);
     }
 
-    public void outputMetricsWithEstimate(SourceRecordSchemaInfo recordSchemaInfo, Object o) {
+    public void outputMetricsWithEstimate(SourceRecordSchemaInfo recordSchemaInfo, Object data) {
         if (recordSchemaInfo == null) {
             LOGGER.warn("record schema info is null when outputting metrics with estimate");
-            outputMetricsWithEstimate(o);
+            outputMetricsWithEstimate(data);
             return;
         }
         String identify = buildSchemaIdentify(recordSchemaInfo);
@@ -352,7 +351,7 @@ public class SourceMetricData implements MetricData {
         }
         // sourceMetric and subSourceMetric output metrics
         long rowCountSize = 1L;
-        long rowDataSize = o.toString().getBytes(StandardCharsets.UTF_8).length;
+        long rowDataSize = data.toString().getBytes(StandardCharsets.UTF_8).length;
         this.outputMetrics(rowCountSize, rowDataSize, recordSchemaInfo.getSnapshotRecord());
         subSourceMetricData.outputMetrics(rowCountSize, rowDataSize, recordSchemaInfo.getSnapshotRecord());
     }
@@ -393,12 +392,12 @@ public class SourceMetricData implements MetricData {
             return;
         }
         long count = this.readPhase.getCount();
-        if (isSnapshotRecord && count != SNAPSHOT_PHASE) {
+        if (isSnapshotRecord && count != ReadPhase.SNAPSHOT_PHASE.getValue()) {
             this.readPhase.dec(count);
-            this.readPhase.inc(SNAPSHOT_PHASE);
-        } else if (!isSnapshotRecord && count != INCREASE_PHASE) {
+            this.readPhase.inc(ReadPhase.SNAPSHOT_PHASE.getValue());
+        } else if (!isSnapshotRecord && count != ReadPhase.INCREASE_PHASE.getValue()) {
             this.readPhase.dec(count);
-            this.readPhase.inc(INCREASE_PHASE);
+            this.readPhase.inc(ReadPhase.INCREASE_PHASE.getValue());
         }
     }
 
