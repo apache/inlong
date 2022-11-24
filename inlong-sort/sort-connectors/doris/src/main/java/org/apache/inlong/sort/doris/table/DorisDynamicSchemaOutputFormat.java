@@ -70,11 +70,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import static org.apache.flink.table.data.RowData.createFieldGetter;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
-import static org.apache.inlong.sort.doris.util.DorisParseUtils.escapeString;
 
 /**
  * DorisDynamicSchemaOutputFormat, copy from {@link org.apache.doris.flink.table.DorisDynamicOutputFormat}
@@ -205,39 +203,30 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         }
     }
 
-    private void handleStreamloadProp() {
-        Properties streamLoadProp = executionOptions.getStreamLoadProp();
-        boolean ifEscape = Boolean.parseBoolean(
-                streamLoadProp.getProperty(ESCAPE_DELIMITERS_KEY, ESCAPE_DELIMITERS_DEFAULT));
+    private void handleStreamLoadProp() {
+        Properties props = executionOptions.getStreamLoadProp();
+        boolean ifEscape = Boolean.parseBoolean(props.getProperty(ESCAPE_DELIMITERS_KEY, ESCAPE_DELIMITERS_DEFAULT));
+        this.fieldDelimiter = props.getProperty(FIELD_DELIMITER_KEY, FIELD_DELIMITER_DEFAULT);
+        this.lineDelimiter = props.getProperty(LINE_DELIMITER_KEY, LINE_DELIMITER_DEFAULT);
         if (ifEscape) {
-            this.fieldDelimiter = escapeString(streamLoadProp.getProperty(FIELD_DELIMITER_KEY,
-                    FIELD_DELIMITER_DEFAULT));
-            this.lineDelimiter = escapeString(streamLoadProp.getProperty(LINE_DELIMITER_KEY,
-                    LINE_DELIMITER_DEFAULT));
-
-            if (streamLoadProp.contains(ESCAPE_DELIMITERS_KEY)) {
-                streamLoadProp.remove(ESCAPE_DELIMITERS_KEY);
-            }
-        } else {
-            this.fieldDelimiter = streamLoadProp.getProperty(FIELD_DELIMITER_KEY,
-                    FIELD_DELIMITER_DEFAULT);
-            this.lineDelimiter = streamLoadProp.getProperty(LINE_DELIMITER_KEY,
-                    LINE_DELIMITER_DEFAULT);
+            this.fieldDelimiter = DorisParseUtils.escapeString(fieldDelimiter);
+            this.lineDelimiter = DorisParseUtils.escapeString(lineDelimiter);
+            props.remove(ESCAPE_DELIMITERS_KEY);
         }
 
         //add column key when fieldNames is not empty
-        if (!streamLoadProp.containsKey(COLUMNS_KEY) && fieldNames != null && fieldNames.length > 0) {
+        if (!props.containsKey(COLUMNS_KEY) && fieldNames != null && fieldNames.length > 0) {
             String columns = String.join(",", Arrays.stream(fieldNames)
                     .map(item -> String.format("`%s`", item.trim().replace("`", "")))
                     .collect(Collectors.toList()));
-            streamLoadProp.put(COLUMNS_KEY, columns);
+            props.put(COLUMNS_KEY, columns);
         }
 
         // if enable batch delete, the columns must add tag '__DORIS_DELETE_SIGN__'
-        String columns = (String) streamLoadProp.get(COLUMNS_KEY);
+        String columns = (String) props.get(COLUMNS_KEY);
         if (!columns.contains(DORIS_DELETE_SIGN)
                 && enableBatchDelete()) {
-            streamLoadProp.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
+            props.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
         }
     }
 
@@ -264,10 +253,10 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
         if (!multipleSink) {
             Properties loadProperties = executionOptions.getStreamLoadProp();
             this.jsonFormat = true;
-            handleStreamloadProp();
+            handleStreamLoadProp();
             this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
             for (int i = 0; i < logicalTypes.length; i++) {
-                fieldGetters[i] = createFieldGetter(logicalTypes[i], i);
+                fieldGetters[i] = RowData.createFieldGetter(logicalTypes[i], i);
             }
         }
 
