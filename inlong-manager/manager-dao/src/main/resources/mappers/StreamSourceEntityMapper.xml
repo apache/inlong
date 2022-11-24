@@ -380,6 +380,7 @@
         status = #{nextStatus, jdbcType=INTEGER}
         <where>
             is_deleted = 0
+            and status != 101
             and inlong_group_id = #{groupId, jdbcType=VARCHAR}
             <if test="streamId != null">
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
