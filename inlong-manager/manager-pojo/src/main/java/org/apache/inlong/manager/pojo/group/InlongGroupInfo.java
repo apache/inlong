@@ -70,7 +70,7 @@ public abstract class InlongGroupInfo extends BaseInlongGroup {
     private Integer enableZookeeper = 0;
 
     @ApiModelProperty(value = "Whether to enable create resource? 0: disable, 1: enable")
-    private Integer enableCreateResource;
+    private Integer enableCreateResource = 0;
 
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: no, 1: yes")
     private Integer lightweight;
@@ -80,7 +80,7 @@ public abstract class InlongGroupInfo extends BaseInlongGroup {
             + " 1: report to DataProxy and respond after DataProxy sends data.\n"
             + " 2: report to MQ and respond when the MQ received data.",
             notes = "Current constraint is that all InLong Agents under one InlongGroup use the same type")
-    private Integer dataReportType;
+    private Integer dataReportType = 0;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
     private String inlongClusterTag;

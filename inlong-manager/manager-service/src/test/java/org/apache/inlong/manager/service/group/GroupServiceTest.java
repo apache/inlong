@@ -40,8 +40,7 @@ class GroupServiceTest extends ServiceBaseTest {
                 ConstraintViolationException.class,
                 () -> groupService.update(new InlongTubeMQRequest(), ""));
 
-        Assertions.assertTrue(exception.getMessage().contains("inCharges cannot be blank"));
-        Assertions.assertTrue(exception.getMessage().contains("inlongGroupId cannot be blank"));
+        Assertions.assertTrue(exception.getMessage().contains("cannot be blank"));
     }
 
     @Test
@@ -49,8 +48,6 @@ class GroupServiceTest extends ServiceBaseTest {
         ConstraintViolationException exception = Assertions.assertThrows(ConstraintViolationException.class,
                 () -> groupService.updateAfterApprove(new InlongGroupApproveRequest(), ""));
 
-        Assertions.assertTrue(exception.getMessage().contains("mqType cannot be blank"));
-        Assertions.assertTrue(exception.getMessage().contains("inlongGroupId cannot be blank"));
-
+        Assertions.assertTrue(exception.getMessage().contains("cannot be blank"));
     }
 }

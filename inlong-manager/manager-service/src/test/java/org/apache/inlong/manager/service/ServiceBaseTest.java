@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service;
 
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -89,7 +88,6 @@ public class ServiceBaseTest extends BaseTest {
         groupInfo.setMqType(mqType);
         groupInfo.setMqResource("test-queue");
         groupInfo.setInCharges(GLOBAL_OPERATOR);
-        groupInfo.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         groupService.save(groupInfo.genRequest(), GLOBAL_OPERATOR);
         InlongGroupInfo updateGroupInfo = groupService.get(inlongGroupId);
         groupService.updateStatus(inlongGroupId, GroupStatus.TO_BE_APPROVAL.getCode(), GLOBAL_OPERATOR);
