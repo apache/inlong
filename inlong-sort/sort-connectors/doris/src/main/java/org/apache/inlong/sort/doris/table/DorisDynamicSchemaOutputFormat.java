@@ -214,18 +214,17 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             props.remove(ESCAPE_DELIMITERS_KEY);
         }
 
-        //add column key when fieldNames is not empty
+        // add column key when fieldNames is not empty
         if (!props.containsKey(COLUMNS_KEY) && fieldNames != null && fieldNames.length > 0) {
-            String columns = String.join(",", Arrays.stream(fieldNames)
+            String columns = Arrays.stream(fieldNames)
                     .map(item -> String.format("`%s`", item.trim().replace("`", "")))
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.joining(","));
             props.put(COLUMNS_KEY, columns);
         }
 
         // if enable batch delete, the columns must add tag '__DORIS_DELETE_SIGN__'
         String columns = (String) props.get(COLUMNS_KEY);
-        if (!columns.contains(DORIS_DELETE_SIGN)
-                && enableBatchDelete()) {
+        if (!columns.contains(DORIS_DELETE_SIGN) && enableBatchDelete()) {
             props.put(COLUMNS_KEY, String.format("%s,%s", columns, DORIS_DELETE_SIGN));
         }
     }
@@ -245,13 +244,9 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     @Override
     public void open(int taskNumber, int numTasks) throws IOException {
-        dorisStreamLoad = new DorisStreamLoad(
-                getBackend(),
-                options.getUsername(),
-                options.getPassword(),
-                executionOptions.getStreamLoadProp());
+        Properties loadProps = executionOptions.getStreamLoadProp();
+        dorisStreamLoad = new DorisStreamLoad(getBackend(), options.getUsername(), options.getPassword(), loadProps);
         if (!multipleSink) {
-            Properties loadProperties = executionOptions.getStreamLoadProp();
             this.jsonFormat = true;
             handleStreamLoadProp();
             this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
@@ -286,14 +281,12 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     private boolean checkFlushException(String tableIdentifier) {
-        Exception flushException = flushExceptionMap.get(tableIdentifier);
-        if (!multipleSink || flushException == null) {
+        Exception ex = flushExceptionMap.get(tableIdentifier);
+        if (!multipleSink || ex == null) {
             return false;
         }
         if (!ignoreSingleTableErrors) {
-            throw new RuntimeException(
-                    String.format("Writing records to streamload of tableIdentifier:%s failed.", tableIdentifier),
-                    flushException);
+            throw new RuntimeException("Writing records to streamload failed, tableIdentifier=" + tableIdentifier, ex);
         }
         return true;
     }
@@ -593,7 +586,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
                     dorisStreamLoad.setHostPort(getBackend());
                     LOG.warn("streamload error,switch be: {}",
                             dorisStreamLoad.getLoadUrlStr(tableWithDb[0], tableWithDb[1]), e);
-                    Thread.sleep(1000 * i);
+                    Thread.sleep(1000L * i);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                     throw new IOException("unable to flush; interrupted while doing another attempt", e);
