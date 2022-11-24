@@ -129,7 +129,42 @@ public enum MetaField {
     /**
      * Name of the collection that contain the row, it is only used for MongoDB.
      */
-    COLLECTION_NAME;
+    COLLECTION_NAME,
+
+    /**
+     * key of the Kafka record, it is only used for Kafka.
+     */
+    KEY,
+
+    /**
+     * value of the Kafka record, it is only used for Kafka.
+     */
+    VALUE,
+
+    /**
+     * Partition ID of the Kafka record, it is only used for Kafka.
+     */
+    PARTITION,
+
+    /**
+     * Headers of the Kafka record as a map of raw bytes, it is only used for Kafka.
+     */
+    HEADERS,
+
+    /**
+     * Headers of the Kafka record as a json string, it is only used for Kafka.
+     */
+    HEADERS_TO_JSON_STR,
+
+    /**
+     * Offset of the Kafka record in the partition., it is only used for Kafka.
+     */
+    OFFSET,
+
+    /**
+     * Timestamp of the Kafka record, it is only used for Kafka.
+     */
+    TIMESTAMP;
 
     public static MetaField forName(String name) {
         for (MetaField metaField : values()) {
