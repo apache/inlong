@@ -65,6 +65,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
+
     private static final Logger logger = LoggerFactory.getLogger(ServerMessageHandler.class);
 
     private static final String DEFAULT_REMOTE_IP_VALUE = "0.0.0.0";
@@ -365,8 +366,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
      * @return  convert result
      */
     private boolean convertMsgList(List<ProxyMessage> msgList, Map<String, String> commonAttrMap,
-                                   Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
-                                   String strRemoteIP) {
+            Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
+            String strRemoteIP) {
         for (ProxyMessage message : msgList) {
             String configTopic = null;
             String groupId = message.getGroupId();
@@ -381,11 +382,13 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         && configManager.getStreamIdMappingProperties() != null) {
                     groupId = configManager.getGroupIdMappingProperties().get(groupIdNum);
                     streamId = (configManager.getStreamIdMappingProperties().get(groupIdNum) == null)
-                            ? null : configManager.getStreamIdMappingProperties().get(groupIdNum).get(streamIdNum);
+                            ? null
+                            : configManager.getStreamIdMappingProperties().get(groupIdNum).get(streamIdNum);
                     if (groupId != null && streamId != null) {
                         String enableTrans =
                                 (configManager.getGroupIdEnableMappingProperties() == null)
-                                        ? null : configManager.getGroupIdEnableMappingProperties().get(groupIdNum);
+                                        ? null
+                                        : configManager.getGroupIdEnableMappingProperties().get(groupIdNum);
                         if (("TRUE".equalsIgnoreCase(enableTrans)
                                 && "TRUE".equalsIgnoreCase(num2name))) {
                             String extraAttr = "groupId=" + groupId + "&" + "streamId=" + streamId;
@@ -406,7 +409,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     String dcInterfaceId = message.getStreamId();
                     if (StringUtils.isNotEmpty(dcInterfaceId)
                             && configManager.getDcMappingProperties()
-                            .containsKey(dcInterfaceId.trim())) {
+                                    .containsKey(dcInterfaceId.trim())) {
                         groupId = configManager.getDcMappingProperties()
                                 .get(dcInterfaceId.trim()).trim();
                         message.setGroupId(groupId);
@@ -468,9 +471,9 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
      * @param msgRcvTime  the received time
      */
     private void formatMessagesAndSend(ChannelHandlerContext ctx, Map<String, String> commonAttrMap,
-                                       Map<String, Object> resultMap,
-                                       Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
-                                       String strRemoteIP, MsgType msgType, long msgRcvTime) throws MessageIDException {
+            Map<String, Object> resultMap,
+            Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
+            String strRemoteIP, MsgType msgType, long msgRcvTime) throws MessageIDException {
 
         int inLongMsgVer = 1;
         if (MsgType.MSG_MULTI_BODY_ATTR.equals(msgType)) {
@@ -525,7 +528,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 headers.put(AttributeConstants.RCV_TIME,
                         commonAttrMap.get(AttributeConstants.RCV_TIME));
                 headers.put(ConfigConstants.DECODER_ATTRS,
-                        (String)resultMap.get(ConfigConstants.DECODER_ATTRS));
+                        (String) resultMap.get(ConfigConstants.DECODER_ATTRS));
                 // add extra key-value information
                 headers.put(AttributeConstants.UNIQ_ID,
                         commonAttrMap.get(AttributeConstants.UNIQ_ID));

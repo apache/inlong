@@ -33,7 +33,6 @@ public class DebeziumFormat {
      */
     private Map<String, String> after;
 
-
     /**
      * extra info about db
      */

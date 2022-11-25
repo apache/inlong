@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class TopicViewRes {
+
     private String topicName;
     private double totalCfgNumStore;
     private double totalRunNumStore;

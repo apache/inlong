@@ -23,6 +23,7 @@ import java.util.List;
 
 @Data
 public class TopicQueryRes {
+
     private String topicName;
     private List<TopicInfoRes> topicInfo;
     private String infoCount;
@@ -34,16 +35,18 @@ public class TopicQueryRes {
 
     @Data
     private static class TopicAuthInfo {
+
         private boolean enableAuthControl;
         private String createUser;
         private String createDate;
         private List<AuthConsumeGroupInfo> authConsumeGroup;
-        private String  groupCount;
+        private String groupCount;
         private List<AuthFilterCondSet> authFilterCondSet;
         private String filterCount;
 
         @Data
         private static class AuthConsumeGroupInfo {
+
             private String groupName;
             private String createUser;
             private String createDate;
@@ -51,6 +54,7 @@ public class TopicQueryRes {
 
         @Data
         private static class AuthFilterCondSet {
+
             private String groupName;
             private String condStatus;
             private String filterConds;

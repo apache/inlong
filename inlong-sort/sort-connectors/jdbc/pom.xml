@@ -17,20 +17,18 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>sort-connectors</artifactId>
         <groupId>org.apache.inlong</groupId>
+        <artifactId>sort-connectors</artifactId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sort-connector-jdbc</artifactId>
-    <name>Apache InLong - Sort-connector-jdbc</name>
     <packaging>jar</packaging>
+    <name>Apache InLong - Sort-connector-jdbc</name>
 
     <dependencies>
         <dependency>
@@ -89,10 +87,10 @@
                 <executions>
                     <execution>
                         <id>shade-flink</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <filters>
                                 <filter>

@@ -25,6 +25,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class CloneOffsetReq extends BaseReq {
+
     private String sourceGroupName;
     private String modifyUser;
     private String topicName;

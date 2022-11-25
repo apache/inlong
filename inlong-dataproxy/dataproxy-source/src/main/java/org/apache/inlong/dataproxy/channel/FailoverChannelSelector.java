@@ -112,7 +112,7 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
 
     @Override
     public void configure(Context context) {
-//        LOG.info(context.toString());
+        // LOG.info(context.toString());
         String masters = context.getString(MASTER_CHANNEL);
         String transfer = context.getString(TRANSFER_CHANNEL);
         String fileMertic = context.getString(FILE_METRIC_CHANNEL);

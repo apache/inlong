@@ -219,7 +219,7 @@ public class Master implements Action {
      * @return
      */
     private void innGetBrokerInfo(final HttpServletRequest req,
-                                           StringBuilder sBuilder, boolean isOldRet) {
+            StringBuilder sBuilder, boolean isOldRet) {
         Map<Integer, BrokerInfo> brokerInfoMap = null;
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         String brokerIds = req.getParameter("ids");

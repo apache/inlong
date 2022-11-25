@@ -58,7 +58,7 @@ public interface AttributeConstants {
     /* sort type */
     String METHOD = "m";
 
-    /* global unique id for a message*/
+    /* global unique id for a message */
     String SEQUENCE_ID = "sid";
 
     String UNIQ_ID = "uniq";

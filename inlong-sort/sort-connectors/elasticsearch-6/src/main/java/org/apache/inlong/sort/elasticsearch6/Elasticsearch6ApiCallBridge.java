@@ -45,7 +45,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @Internal
 public class Elasticsearch6ApiCallBridge
-        implements ElasticsearchApiCallBridge<RestHighLevelClient> {
+        implements
+            ElasticsearchApiCallBridge<RestHighLevelClient> {
 
     private static final long serialVersionUID = -5222683870097809633L;
 

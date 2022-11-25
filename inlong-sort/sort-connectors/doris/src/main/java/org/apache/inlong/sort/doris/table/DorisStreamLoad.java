@@ -72,6 +72,7 @@ public class DorisStreamLoad implements Serializable {
         HttpClientBuilder httpClientBuilder = HttpClients
                 .custom()
                 .setRedirectStrategy(new DefaultRedirectStrategy() {
+
                     @Override
                     protected boolean isRedirectable(String method) {
                         return true;

@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.corebase.config;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 
 public class TLSConfig {
+
     private boolean tlsEnable = false;
     private int tlsPort = TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
     private String tlsTrustStorePath = "";

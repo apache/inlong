@@ -48,7 +48,7 @@ public class ConsumerEventManager {
     }
 
     public boolean addDisconnectEvent(String consumerId,
-                                      ConsumerEvent event) {
+            ConsumerEvent event) {
         LinkedList<ConsumerEvent> eventList =
                 disconnectEventMap.get(consumerId);
         if (eventList == null) {
@@ -67,7 +67,7 @@ public class ConsumerEventManager {
     }
 
     public boolean addConnectEvent(String consumerId,
-                                   ConsumerEvent event) {
+            ConsumerEvent event) {
         LinkedList<ConsumerEvent> eventList =
                 connectEventMap.get(consumerId);
         if (eventList == null) {
@@ -98,7 +98,8 @@ public class ConsumerEventManager {
         if (group != null) {
             ConcurrentHashMap<String, LinkedList<ConsumerEvent>> currentEventMap =
                     hasDisconnectEvent(group)
-                            ? disconnectEventMap : connectEventMap;
+                            ? disconnectEventMap
+                            : connectEventMap;
             LinkedList<ConsumerEvent> eventList =
                     currentEventMap.get(consumerId);
             if (eventList != null) {
@@ -214,14 +215,12 @@ public class ConsumerEventManager {
      * @return true if event map is not empty, otherwise false
      */
     public boolean hasEvent() {
-        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry
-                : disconnectEventMap.entrySet()) {
+        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry : disconnectEventMap.entrySet()) {
             if (!entry.getValue().isEmpty()) {
                 return true;
             }
         }
-        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry
-                : connectEventMap.entrySet()) {
+        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry : connectEventMap.entrySet()) {
             if (!entry.getValue().isEmpty()) {
                 return true;
             }
@@ -264,14 +263,12 @@ public class ConsumerEventManager {
      */
     public Set<String> getUnProcessedIdSet() {
         Set<String> consumerIdSet = new HashSet<>();
-        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry
-                : disconnectEventMap.entrySet()) {
+        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry : disconnectEventMap.entrySet()) {
             if (!entry.getValue().isEmpty()) {
                 consumerIdSet.add(entry.getKey());
             }
         }
-        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry
-                : connectEventMap.entrySet()) {
+        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry : connectEventMap.entrySet()) {
             if (!entry.getValue().isEmpty()) {
                 consumerIdSet.add(entry.getKey());
             }

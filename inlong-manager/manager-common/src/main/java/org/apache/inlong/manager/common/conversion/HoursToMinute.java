@@ -30,4 +30,3 @@ public class HoursToMinute implements ConversionStrategy {
         return value * 60;
     }
 }
-

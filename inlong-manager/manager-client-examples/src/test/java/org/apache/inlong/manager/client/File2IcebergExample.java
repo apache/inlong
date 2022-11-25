@@ -142,7 +142,7 @@ public class File2IcebergExample extends BaseExample {
         // field3: decimal column example
         IcebergColumnInfo info3 = new IcebergColumnInfo();
         info3.setScale(5);
-        info3.setPrecision(10);  // scale must be less than or equal to precision
+        info3.setPrecision(10); // scale must be less than or equal to precision
         field3.setExtParams(JsonUtils.toJsonString(info3));
 
         // field4: hour partition example

@@ -71,12 +71,13 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  */
 @Internal
 public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends RichSinkFunction<T>
-        implements CheckpointedFunction {
+        implements
+            CheckpointedFunction {
 
     public static final String CONFIG_KEY_BULK_FLUSH_MAX_ACTIONS = "bulk.flush.max.actions";
 
     // ------------------------------------------------------------------------
-    //  Internal bulk processor configuration
+    // Internal bulk processor configuration
     // ------------------------------------------------------------------------
     public static final String CONFIG_KEY_BULK_FLUSH_MAX_SIZE_MB = "bulk.flush.max.size.mb";
     public static final String CONFIG_KEY_BULK_FLUSH_INTERVAL_MS = "bulk.flush.interval.ms";
@@ -104,7 +105,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     private final ElasticsearchSinkFunction<T> elasticsearchSinkFunction;
 
     // ------------------------------------------------------------------------
-    //  User-facing API and configuration
+    // User-facing API and configuration
     // ------------------------------------------------------------------------
     /**
      * User-provided handler for failed {@link ActionRequest ActionRequests}.
@@ -136,7 +137,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     private transient RequestIndexer requestIndexer;
 
     // ------------------------------------------------------------------------
-    //  Internals for the Flink Elasticsearch Sink
+    // Internals for the Flink Elasticsearch Sink
     // ------------------------------------------------------------------------
     /**
      * Provided to the {@link ActionRequestFailureHandler} to allow users to re-index failed

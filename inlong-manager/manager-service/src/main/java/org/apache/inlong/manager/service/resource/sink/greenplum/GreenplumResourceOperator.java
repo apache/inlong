@@ -84,8 +84,7 @@ public class GreenplumResourceOperator implements SinkResourceOperator {
         final List<GreenplumColumnInfo> columnList = Lists.newArrayList();
         fieldList.forEach(field -> {
             columnList.add(
-                    new GreenplumColumnInfo(field.getFieldName(), field.getFieldType(), field.getFieldComment())
-            );
+                    new GreenplumColumnInfo(field.getFieldName(), field.getFieldType(), field.getFieldComment()));
         });
 
         GreenplumSinkDTO greenplumSink = GreenplumSinkDTO.getFromJson(sinkInfo.getExtParams());

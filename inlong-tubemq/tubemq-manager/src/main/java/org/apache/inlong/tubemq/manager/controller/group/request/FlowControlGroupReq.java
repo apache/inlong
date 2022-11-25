@@ -29,6 +29,7 @@ import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class FlowControlGroupReq extends BaseReq {
+
     private String groupName;
     private Integer statusId;
     private Integer qryPriorityId;

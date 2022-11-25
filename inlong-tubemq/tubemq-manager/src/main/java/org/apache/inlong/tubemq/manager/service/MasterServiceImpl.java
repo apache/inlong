@@ -65,8 +65,8 @@ public class MasterServiceImpl implements MasterService {
             TubeHttpResponse tubeResponse =
                     gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
                             StandardCharsets.UTF_8), TubeHttpResponse.class);
-            if (tubeResponse.getCode() == TubeConst.SUCCESS_CODE && tubeResponse.getErrCode()
-                    == TubeConst.SUCCESS_CODE) {
+            if (tubeResponse.getCode() == TubeConst.SUCCESS_CODE
+                    && tubeResponse.getErrCode() == TubeConst.SUCCESS_CODE) {
                 return defaultResult;
             } else {
                 defaultResult = errorResult(tubeResponse.getErrMsg());

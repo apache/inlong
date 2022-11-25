@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SimpleVisitTokenManager extends AbstractDaemonService {
+
     private static final Logger logger = LoggerFactory.getLogger(SimpleVisitTokenManager.class);
 
     private final MasterConfig masterConfig;

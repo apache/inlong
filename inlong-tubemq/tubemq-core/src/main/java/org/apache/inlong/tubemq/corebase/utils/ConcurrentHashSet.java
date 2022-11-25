@@ -28,8 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConcurrentHashSet<E> extends AbstractSet<E> {
 
-    private final ConcurrentHashMap<E, Long> keyValMap
-            = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<E, Long> keyValMap = new ConcurrentHashMap<>();
 
     public ConcurrentHashSet() {
 

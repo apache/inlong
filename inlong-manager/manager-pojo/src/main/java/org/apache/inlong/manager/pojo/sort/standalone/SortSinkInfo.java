@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class SortSinkInfo {
+
     private static final long serialVersionUID = 1L;
     String name;
     String type;

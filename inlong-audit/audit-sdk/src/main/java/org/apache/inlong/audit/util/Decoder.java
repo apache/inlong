@@ -23,6 +23,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import java.util.List;
 
 public class Decoder extends MessageToMessageDecoder<ByteBuf> {
+
     // Maximum return packet size
     private static final int MAX_RESPONSE_LENGTH = 8 * 1024 * 1024;
 
@@ -36,7 +37,7 @@ public class Decoder extends MessageToMessageDecoder<ByteBuf> {
         // otherwise only the first one will be parsed correctly,
         // which will adversely affect the parsing of the subsequent package
         buffer.markReaderIndex();
-        //Packet composition: 4 bytes length content + ProtocolBuffer content
+        // Packet composition: 4 bytes length content + ProtocolBuffer content
         int totalLen = buffer.readInt();
         // Respond to abnormal channel, interrupt in time to avoid stuck
         if (totalLen > MAX_RESPONSE_LENGTH) {

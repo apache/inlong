@@ -32,6 +32,7 @@ import org.apache.inlong.tubemq.server.common.TStatusConstants;
  * Topic's metadata. Contains topic name, partitions count, etc.
  */
 public class TopicMetadata {
+
     // topic name.
     private String topic;
     // metadata status.
@@ -167,8 +168,8 @@ public class TopicMetadata {
      * @param numPartitions        the topic partition count
      */
     public TopicMetadata(BrokerDefMetadata brokerDefMetadata,
-                         String topicName, int numTopicStores,
-                         int numPartitions) {
+            String topicName, int numTopicStores,
+            int numPartitions) {
         this.topic = topicName;
         this.numTopicStores = numTopicStores;
         this.numPartitions = numPartitions;
@@ -188,13 +189,13 @@ public class TopicMetadata {
     }
 
     private TopicMetadata(String topic, int unflushThreshold,
-                          int unflushInterval, int unflushDataHold,
-                          String dataPath, String deleteWhen, String deletePolicy,
-                          int numPartitions, boolean acceptPublish,
-                          boolean acceptSubscribe, int statusId,
-                          int numTopicStores, int memCacheMsgSize,
-                          int memCacheMsgCnt, int memCacheFlushIntvl,
-                          int maxMsgSize, int minMemCacheSize) {
+            int unflushInterval, int unflushDataHold,
+            String dataPath, String deleteWhen, String deletePolicy,
+            int numPartitions, boolean acceptPublish,
+            boolean acceptSubscribe, int statusId,
+            int numTopicStores, int memCacheMsgSize,
+            int memCacheMsgCnt, int memCacheFlushIntvl,
+            int maxMsgSize, int minMemCacheSize) {
         this.topic = topic;
         this.unflushThreshold = unflushThreshold;
         this.unflushInterval = unflushInterval;

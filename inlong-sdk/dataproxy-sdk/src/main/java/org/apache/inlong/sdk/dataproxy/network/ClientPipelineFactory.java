@@ -25,6 +25,7 @@ import org.apache.inlong.sdk.dataproxy.codec.ProtocolDecoder;
 import org.apache.inlong.sdk.dataproxy.codec.ProtocolEncoder;
 
 public class ClientPipelineFactory extends ChannelInitializer<SocketChannel> {
+
     private final ClientMgr clientMgr;
     private final Sender sender;
 

@@ -38,6 +38,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AddressUtils.class)
 public class MessageFetchManagerTest {
+
     @Test
     public void testMessageFetchManager() throws Exception {
         TubeClientConfig clientConfig = mock(TubeClientConfig.class);

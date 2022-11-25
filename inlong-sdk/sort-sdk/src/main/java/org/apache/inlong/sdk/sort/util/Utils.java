@@ -47,7 +47,6 @@ public class Utils {
 
     public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
 
-
     private static ConcurrentHashMap<String, AtomicLong> timeMap = new ConcurrentHashMap<String, AtomicLong>();
 
     public static double toKB(long bytes) {
@@ -188,7 +187,7 @@ public class Utils {
         GZIPInputStream gzip = null;
         int initBufSize = 8192;
         try {
-            //int inputLength=(data.length-(startOffset==0? 0:startOffset));
+            // int inputLength=(data.length-(startOffset==0? 0:startOffset));
             ByteArrayInputStream in = new ByteArrayInputStream(data, startOffset, dataLength);
             gzip = new GZIPInputStream(in, 8192);
 

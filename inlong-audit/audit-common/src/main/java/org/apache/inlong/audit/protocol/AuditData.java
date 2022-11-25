@@ -18,6 +18,7 @@
 package org.apache.inlong.audit.protocol;
 
 public class AuditData {
+
     private String ip;
     private String dockerId;
     private String threadId;

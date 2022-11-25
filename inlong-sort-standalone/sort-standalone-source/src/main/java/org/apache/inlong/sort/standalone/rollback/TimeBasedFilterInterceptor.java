@@ -89,7 +89,7 @@ public class TimeBasedFilterInterceptor implements Interceptor {
      * Builder of {@link TimeBasedFilterInterceptor}.
      * Should be configured before build called.
      */
-    public static class Builder implements Interceptor.Builder  {
+    public static class Builder implements Interceptor.Builder {
 
         private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         private static final String START_TIME = "rollback.startTime";

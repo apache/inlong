@@ -127,11 +127,13 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
      * List of metadata that can be read with this format.
      */
     public enum ReadableMetadata {
+
         DATABASE(
                 "database",
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("database", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -148,6 +150,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("table", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -166,6 +169,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                         "sqlType",
                         DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.INT().nullable())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -182,6 +186,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                 DataTypes.ARRAY(DataTypes.STRING()).nullable(),
                 DataTypes.FIELD("pkNames", DataTypes.ARRAY(DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -198,6 +203,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).nullable(),
                 DataTypes.FIELD("ts", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -214,6 +220,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).nullable(),
                 DataTypes.FIELD("es", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -234,6 +241,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("opType", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -249,6 +257,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("type", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -264,6 +273,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                 DataTypes.BOOLEAN().nullable(),
                 DataTypes.FIELD("isDdl", DataTypes.BOOLEAN()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -280,6 +290,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                 DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable(),
                 DataTypes.FIELD("mysqlType", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -295,6 +306,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                 DataTypes.BIGINT().nullable(),
                 DataTypes.FIELD("batchId", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -316,6 +328,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
                 DataTypes.FIELD("updateBefore", DataTypes.ARRAY(
                         DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()))),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

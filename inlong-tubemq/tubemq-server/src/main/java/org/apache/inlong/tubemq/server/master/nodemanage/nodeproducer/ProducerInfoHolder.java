@@ -32,8 +32,8 @@ public class ProducerInfoHolder {
     }
 
     public void setProducerInfo(String producerId,
-                                Set<String> topicSet,
-                                String host, boolean overTLS) {
+            Set<String> topicSet,
+            String host, boolean overTLS) {
         if (producerInfoMap.put(producerId,
                 new ProducerInfo(producerId, topicSet, host, overTLS)) == null) {
             MasterSrvStatsHolder.incProducerCnt();
@@ -41,9 +41,9 @@ public class ProducerInfoHolder {
     }
 
     public void updateProducerInfo(String producerId,
-                                   Set<String> topicSet,
-                                   String host,
-                                   boolean overTLS) {
+            Set<String> topicSet,
+            String host,
+            boolean overTLS) {
         ProducerInfo curProducer =
                 producerInfoMap.get(producerId);
         ProducerInfo newProducer =

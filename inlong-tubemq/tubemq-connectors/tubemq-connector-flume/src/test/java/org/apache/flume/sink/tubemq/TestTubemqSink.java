@@ -45,7 +45,7 @@ public class TestTubemqSink {
 
         TubeClientConfig config = tubemqSink.getClientConfig();
 
-        //check that we have defaults set
+        // check that we have defaults set
         for (String host : config.getMasterInfo().getNodeHostPortList()) {
             if (host.startsWith("ip1")) {
                 assertEquals("ip1:9092", host);
@@ -60,38 +60,22 @@ public class TestTubemqSink {
     @Test
     public void testTubeSink() throws Exception {
         /*
-        TubemqSink tubeSink = new TubemqSink();
-        Context context = prepareDefaultContext();
-        Configurables.configure(tubeSink, context);
-        Channel memoryChannel = new MemoryChannel();
-        Configurables.configure(memoryChannel, context);
-        tubeSink.setChannel(memoryChannel);
-        tubeSink.start();
-
-        String msg = "default-topic-test";
-        Transaction tx = memoryChannel.getTransaction();
-        tx.begin();
-        Event event = EventBuilder.withBody(msg.getBytes());
-        Map<String, String> eventHeader = new HashMap<>();
-        eventHeader.put(TOPIC, msg);
-        event.setHeaders(eventHeader);
-        memoryChannel.put(event);
-        tx.commit();
-        tx.close();
-
-        try {
-            Sink.Status status = tubeSink.process();
-            if (status == Sink.Status.BACKOFF) {
-                fail("Error Occurred");
-            }
-        } catch (Exception ex) {
-            // ignore
-        }
-
-        await().atMost(20, TimeUnit.SECONDS).until(() -> tubeSink.getCounter().getTubeSendCount() == 1);
-        assertEquals(1, tubeSink.getCounter().getTubeSendCount());
-
-        tubeSink.stop();
-        */
+         * TubemqSink tubeSink = new TubemqSink(); Context context = prepareDefaultContext();
+         * Configurables.configure(tubeSink, context); Channel memoryChannel = new MemoryChannel();
+         * Configurables.configure(memoryChannel, context); tubeSink.setChannel(memoryChannel); tubeSink.start();
+         * 
+         * String msg = "default-topic-test"; Transaction tx = memoryChannel.getTransaction(); tx.begin(); Event event =
+         * EventBuilder.withBody(msg.getBytes()); Map<String, String> eventHeader = new HashMap<>();
+         * eventHeader.put(TOPIC, msg); event.setHeaders(eventHeader); memoryChannel.put(event); tx.commit();
+         * tx.close();
+         * 
+         * try { Sink.Status status = tubeSink.process(); if (status == Sink.Status.BACKOFF) { fail("Error Occurred"); }
+         * } catch (Exception ex) { // ignore }
+         * 
+         * await().atMost(20, TimeUnit.SECONDS).until(() -> tubeSink.getCounter().getTubeSendCount() == 1);
+         * assertEquals(1, tubeSink.getCounter().getTubeSendCount());
+         * 
+         * tubeSink.stop();
+         */
     }
 }

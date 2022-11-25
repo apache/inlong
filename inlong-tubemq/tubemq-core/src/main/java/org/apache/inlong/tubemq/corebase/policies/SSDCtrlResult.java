@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corebase.policies;
 
 public class SSDCtrlResult {
+
     public long dataStartDltInSize = Long.MAX_VALUE;
     public long dataEndDLtInSz = 0;
 

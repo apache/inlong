@@ -24,6 +24,7 @@ import org.apache.inlong.tubemq.manager.service.tube.BrokerConf;
 
 @Data
 public class CloneBrokersReq {
+
     private Integer sourceBrokerId;
     private List<String> targetIps;
     private List<AddTopicReq> addTopicReqs;

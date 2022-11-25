@@ -54,8 +54,7 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
     public AckOffsetOnRebalance(
             String clusterId,
             Seeker seeker,
-            ConcurrentHashMap<TopicPartition,
-            OffsetAndMetadata> commitOffsetMap,
+            ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap,
             KafkaConsumer<byte[], byte[]> consumer) {
         this(clusterId, seeker, commitOffsetMap, null, consumer);
     }

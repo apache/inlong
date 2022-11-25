@@ -23,8 +23,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class DateTimeUtils {
-    private static final DateTimeFormatter DATE_FORMATTER
-            = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
     private static final ZoneId defZoneId = ZoneId.systemDefault();
 
     /**

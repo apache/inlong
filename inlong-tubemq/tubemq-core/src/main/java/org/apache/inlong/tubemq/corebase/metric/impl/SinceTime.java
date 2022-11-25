@@ -26,6 +26,7 @@ import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
  * After calling the snapshot() function, it need to be updated to the snapshot time.
  */
 public class SinceTime extends BaseMetric {
+
     private final AtomicLong sinceTime = new AtomicLong();
 
     public SinceTime(String metricName, String prefix) {

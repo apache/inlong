@@ -116,7 +116,7 @@ public class ServiceDiscoveryUtils {
                 for (String existedIp : existedIps) {
                     if (StringUtils.isBlank(existedIp)) {
                         log.error("ServiceDiscovery get illegal format ipList from local file, "
-                                        + "exist ip is empty, managerIpList is {}, local file is {}",
+                                + "exist ip is empty, managerIpList is {}, local file is {}",
                                 existedIpList, clientConfig.getManagerIpLocalPath());
                         continue;
                     }
@@ -133,7 +133,7 @@ public class ServiceDiscoveryUtils {
                 }
             } else {
                 log.error("ServiceDiscovery get illegal format ipList from local file, "
-                                + "exist ip is empty, managerIpList is {}, local file is {}",
+                        + "exist ip is empty, managerIpList is {}, local file is {}",
                         existedIpList, clientConfig.getManagerIpLocalPath());
             }
         } else {

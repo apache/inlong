@@ -129,9 +129,9 @@ public class ProxyUtils {
             }
         }
         if (!clientConfig.isLocalVisit()) {
-            //if(!clientConfig.isNeedDataEncry()) {
-            //    throw new IllegalArgumentException("OutNetwork visit isNeedDataEncry must be true!");
-            //}
+            // if(!clientConfig.isNeedDataEncry()) {
+            // throw new IllegalArgumentException("OutNetwork visit isNeedDataEncry must be true!");
+            // }
             if (!clientConfig.isNeedAuthentication()) {
                 throw new IllegalArgumentException("OutNetwork visit isNeedAuthentication must be true!");
             }

@@ -57,10 +57,7 @@ public class WorkflowClientTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/workflow/start.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(workflowResult))
-                                )
-                        )
-        );
+                                        Response.success(workflowResult)))));
         WorkflowOperationRequest request = new WorkflowOperationRequest();
         request.setName(ProcessName.APPLY_GROUP_PROCESS);
         request.setApplicant("test_user");
@@ -79,17 +76,13 @@ public class WorkflowClientTest extends ClientFactoryTest {
                 ProcessResponse.builder()
                         .id(1)
                         .name("test_process")
-                        .build()
-        );
+                        .build());
 
         stubFor(
                 get(urlMatching("/inlong/manager/api/workflow/listProcess.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageResult<>(responses)))
-                                )
-                        )
-        );
+                                        Response.success(new PageResult<>(responses))))));
 
         ProcessRequest request = new ProcessRequest();
         request.setId(1);

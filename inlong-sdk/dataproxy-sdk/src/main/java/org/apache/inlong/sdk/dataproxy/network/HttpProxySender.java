@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * http sender
  */
 public class HttpProxySender extends Thread {
+
     private static final Logger logger = LoggerFactory.getLogger(Sender.class);
 
     private final ConcurrentHashSet<HostInfo> hostList = new ConcurrentHashSet<>();
@@ -133,7 +134,7 @@ public class HttpProxySender extends Thread {
      * @return
      */
     public SendResult sendMessage(String body, String groupId, String streamId, long dt,
-                                  long timeout, TimeUnit timeUnit) {
+            long timeout, TimeUnit timeUnit) {
         return sendMessage(Collections.singletonList(body), groupId, streamId, dt, timeout, timeUnit);
     }
 
@@ -149,7 +150,7 @@ public class HttpProxySender extends Thread {
      * @return
      */
     public SendResult sendMessage(List<String> bodies, String groupId, String streamId, long dt,
-                                  long timeout, TimeUnit timeUnit) {
+            long timeout, TimeUnit timeUnit) {
         if (hostList.isEmpty()) {
             logger.error("proxy list is empty, maybe client has been "
                     + "closed or groupId is not assigned with proxy list");
@@ -172,7 +173,7 @@ public class HttpProxySender extends Thread {
      * @param callback
      */
     public void asyncSendMessage(List<String> bodies, String groupId, String streamId, long dt,
-                                 long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
+            long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
         List<String> bodyList = new ArrayList<>(bodies);
         HttpMessage httpMessage = new HttpMessage(bodyList, groupId, streamId, dt,
                 timeout, timeUnit, callback);
@@ -208,7 +209,7 @@ public class HttpProxySender extends Thread {
      * @param callback
      */
     public void asyncSendMessage(String body, String groupId, String streamId, long dt,
-                                 long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
+            long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
         asyncSendMessage(Collections.singletonList(body), groupId, streamId,
                 dt, timeout, timeUnit, callback);
     }

@@ -62,6 +62,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.i
  * @see MySqlSourceOptions#SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE
  */
 public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
+
     private static final Logger LOG = LoggerFactory.getLogger(MySqlSnapshotSplitAssigner.class);
 
     private final List<TableId> alreadyProcessedTables;

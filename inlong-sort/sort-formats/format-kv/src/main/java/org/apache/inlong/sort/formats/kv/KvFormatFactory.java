@@ -47,14 +47,15 @@ import org.apache.inlong.sort.formats.common.RowFormatInfo;
  * Table format factory for kv formats.
  */
 public final class KvFormatFactory
-        extends TableFormatFactoryBase<Row>
+        extends
+            TableFormatFactoryBase<Row>
         implements
-        DeserializationSchemaFactory<Row>,
-                SerializationSchemaFactory<Row>,
-                ProjectedDeserializationSchemaFactory,
-                ProjectedSerializationSchemaFactory,
-                TableFormatDeserializerFactory,
-                TableFormatSerializerFactory {
+            DeserializationSchemaFactory<Row>,
+            SerializationSchemaFactory<Row>,
+            ProjectedDeserializationSchemaFactory,
+            ProjectedSerializationSchemaFactory,
+            TableFormatDeserializerFactory,
+            TableFormatSerializerFactory {
 
     public KvFormatFactory() {
         super(Kv.FORMAT_TYPE_VALUE, 1, true);
@@ -76,8 +77,7 @@ public final class KvFormatFactory
 
     @Override
     public KvDeserializationSchema createDeserializationSchema(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -89,8 +89,7 @@ public final class KvFormatFactory
 
     @Override
     public KvSerializationSchema createSerializationSchema(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -103,8 +102,7 @@ public final class KvFormatFactory
     @Override
     public DeserializationSchema<Row> createProjectedDeserializationSchema(
             Map<String, String> properties,
-            int[] fields
-    ) {
+            int[] fields) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -119,8 +117,7 @@ public final class KvFormatFactory
     @Override
     public SerializationSchema<Row> createProjectedSerializationSchema(
             Map<String, String> properties,
-            int[] fields
-    ) {
+            int[] fields) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -134,8 +131,7 @@ public final class KvFormatFactory
 
     @Override
     public TableFormatDeserializer createFormatDeserializer(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -155,8 +151,7 @@ public final class KvFormatFactory
 
     @Override
     public TableFormatSerializer createFormatSerializer(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -175,8 +170,7 @@ public final class KvFormatFactory
     }
 
     private static DescriptorProperties getValidatedProperties(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         DescriptorProperties descriptorProperties =
                 new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
@@ -189,8 +183,7 @@ public final class KvFormatFactory
 
     private static KvDeserializationSchema buildDeserializationSchema(
             DescriptorProperties descriptorProperties,
-            RowFormatInfo rowFormatInfo
-    ) {
+            RowFormatInfo rowFormatInfo) {
         for (FormatInfo formatInfo : rowFormatInfo.getFieldFormatInfos()) {
             if (!(formatInfo instanceof BasicFormatInfo)) {
                 throw new ValidationException("Currently only basic formats " + "are supported in kv formats.");
@@ -223,8 +216,7 @@ public final class KvFormatFactory
 
     private static KvSerializationSchema buildSerializationSchema(
             DescriptorProperties descriptorProperties,
-            RowFormatInfo rowFormatInfo
-    ) {
+            RowFormatInfo rowFormatInfo) {
         for (FormatInfo formatInfo : rowFormatInfo.getFieldFormatInfos()) {
             if (!(formatInfo instanceof BasicFormatInfo)) {
                 throw new ValidationException("Currently only basic formats " + "are supported in kv formats.");

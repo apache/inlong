@@ -27,6 +27,7 @@ import java.util.Set;
  * A manager to maintain different type of fetchers
  */
 public abstract class TopicManager implements Cleanable {
+
     protected ClientContext context;
     protected QueryConsumeConfig queryConsumeConfig;
 

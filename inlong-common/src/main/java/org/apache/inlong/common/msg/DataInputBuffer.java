@@ -37,7 +37,9 @@ import java.io.DataInputStream;
  * }
  */
 public class DataInputBuffer extends DataInputStream {
+
     private static class Buffer extends ByteArrayInputStream {
+
         public Buffer() {
             super(new byte[]{
                     //

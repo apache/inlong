@@ -43,8 +43,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
 
     private static final long serialVersionUID = 1L;
 
-    private final @Nullable
-    DeserializationSchema<RowData> keyDeserialization;
+    private final @Nullable DeserializationSchema<RowData> keyDeserialization;
 
     private final DeserializationSchema<RowData> valueDeserialization;
 
@@ -203,7 +202,9 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
      * </ul>
      */
     private static final class OutputProjectionCollector
-            implements Collector<RowData>, Serializable {
+            implements
+                Collector<RowData>,
+                Serializable {
 
         private static final long serialVersionUID = 1L;
 

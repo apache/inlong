@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Cl
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsClusterConfigMapperImpl;
 
 public class BdbClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
+
     // bdb store
     private EntityStore clsDefSettingStore;
     private final PrimaryIndex<String, BdbClusterSettingEntity> clsDefSettingIndex;
@@ -90,7 +91,7 @@ public class BdbClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
     }
 
     protected boolean putConfig2Persistent(ClusterSettingEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         BdbClusterSettingEntity bdbEntity =
                 entity.buildBdbClsDefSettingEntity();
         try {

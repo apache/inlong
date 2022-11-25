@@ -34,12 +34,10 @@ public class DateTimeConvertUtils {
     private static final ZoneId defZoneId = ZoneId.systemDefault();
     public static final String PAT_YYYYMMDDHHMM = "yyyyMMddHHmm";
     public static final int LENGTH_YYYYMMDDHHMM = PAT_YYYYMMDDHHMM.length();
-    private static final DateTimeFormatter sdf4yyyyMMddHHmm
-            = DateTimeFormatter.ofPattern(PAT_YYYYMMDDHHMM);
+    private static final DateTimeFormatter sdf4yyyyMMddHHmm = DateTimeFormatter.ofPattern(PAT_YYYYMMDDHHMM);
     public static final String PAT_YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
     public static final int LENGTH_YYYYMMDDHHMMSS = PAT_YYYYMMDDHHMMSS.length();
-    private static final DateTimeFormatter sdf4yyyyMMddHHmmss
-            = DateTimeFormatter.ofPattern(PAT_YYYYMMDDHHMMSS);
+    private static final DateTimeFormatter sdf4yyyyMMddHHmmss = DateTimeFormatter.ofPattern(PAT_YYYYMMDDHHMMSS);
 
     /**
      * Converts the specified timestamp value to a string
@@ -61,7 +59,7 @@ public class DateTimeConvertUtils {
      * @return the time string in yyyyMMddHHmm format
      */
     public static String ms2yyyyMMddHHmm(long timestamp, ZoneId zoneId) {
-        LocalDateTime  localDateTime =
+        LocalDateTime localDateTime =
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
         return sdf4yyyyMMddHHmm.format(localDateTime);
     }
@@ -111,7 +109,7 @@ public class DateTimeConvertUtils {
      * @return the time string in yyyyMMddHHmmss format
      */
     public static String ms2yyyyMMddHHmmss(long timestamp, ZoneId zoneId) {
-        LocalDateTime  localDateTime =
+        LocalDateTime localDateTime =
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
         return sdf4yyyyMMddHHmmss.format(localDateTime);
     }
@@ -140,7 +138,7 @@ public class DateTimeConvertUtils {
             return TStringUtils.EMPTY;
         }
         try {
-            LocalDateTime  localDateTime =
+            LocalDateTime localDateTime =
                     LocalDateTime.ofInstant(date.toInstant(), zoneId);
             return sdf4yyyyMMddHHmmss.format(localDateTime);
         } catch (Throwable ex) {

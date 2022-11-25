@@ -22,31 +22,31 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 public interface MasterService {
 
     ClientMaster.RegisterResponseM2P producerRegisterP2M(ClientMaster.RegisterRequestP2M request,
-                                                         String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientMaster.HeartResponseM2P producerHeartbeatP2M(ClientMaster.HeartRequestP2M request,
-                                                       String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientMaster.CloseResponseM2P producerCloseClientP2M(ClientMaster.CloseRequestP2M request,
-                                                         String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientMaster.RegisterResponseM2C consumerRegisterC2M(ClientMaster.RegisterRequestC2M request,
-                                                         String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientMaster.HeartResponseM2C consumerHeartbeatC2M(ClientMaster.HeartRequestC2M request,
-                                                       String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientMaster.CloseResponseM2C consumerCloseClientC2M(ClientMaster.CloseRequestC2M request,
-                                                         String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientMaster.RegisterResponseM2B brokerRegisterB2M(ClientMaster.RegisterRequestB2M request,
-                                                       String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientMaster.HeartResponseM2B brokerHeartbeatB2M(ClientMaster.HeartRequestB2M request,
-                                                     String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientMaster.CloseResponseM2B brokerCloseClientB2M(ClientMaster.CloseRequestB2M request,
-                                                       String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientMaster.RegisterResponseM2CV2 consumerRegisterC2MV2(
             ClientMaster.RegisterRequestC2MV2 request,

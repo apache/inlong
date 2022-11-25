@@ -76,7 +76,7 @@ public class MessageDeserializer implements Deserializer {
             Map<String, String> headers,
             byte[] data) throws Exception {
 
-        //1. version
+        // 1. version
         int version = Integer.parseInt(headers.getOrDefault(VERSION_KEY, Integer.toString(MESSAGE_VERSION_INLONG_MSG)));
         switch (version) {
             case MESSAGE_VERSION_NONE: {

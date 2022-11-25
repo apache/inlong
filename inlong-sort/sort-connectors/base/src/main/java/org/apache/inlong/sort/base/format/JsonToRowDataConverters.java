@@ -101,6 +101,7 @@ public class JsonToRowDataConverters implements Serializable {
      */
     @FunctionalInterface
     public interface JsonToRowDataConverter extends Serializable {
+
         Object convert(JsonNode jsonNode);
     }
 
@@ -134,13 +135,13 @@ public class JsonToRowDataConverters implements Serializable {
                 return this::convertToTimestamp;
             case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
                 if (adaptSpark) {
-                  return  jsonNode -> {
-                      try {
-                          return convertToTimestampWithLocalZone(jsonNode);
-                      } catch (DateTimeParseException e) {
-                          return convertToTimestamp(jsonNode);
-                      }
-                  };
+                    return jsonNode -> {
+                        try {
+                            return convertToTimestampWithLocalZone(jsonNode);
+                        } catch (DateTimeParseException e) {
+                            return convertToTimestamp(jsonNode);
+                        }
+                    };
                 }
                 return this::convertToTimestampWithLocalZone;
             case FLOAT:
@@ -403,6 +404,7 @@ public class JsonToRowDataConverters implements Serializable {
 
     /** Exception which refers to parse errors in converters. */
     private static final class JsonParseException extends RuntimeException {
+
         private static final long serialVersionUID = 1L;
 
         public JsonParseException(String message) {

@@ -46,6 +46,7 @@ import java.util.List;
 
 @Service
 public class SortConfigLoaderImpl implements SortConfigLoader {
+
     @Autowired
     private InlongClusterEntityMapper clusterEntityMapper;
     @Autowired

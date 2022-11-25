@@ -20,8 +20,8 @@ package org.apache.inlong.tubemq.server.common.fielddef;
 public enum CliArgDef {
 
     // Note: Due to compatibility considerations,
-    //      the defined fields in the scheme are forbidden to be modified,
-    //      only new fields can be added
+    // the defined fields in the scheme are forbidden to be modified,
+    // only new fields can be added
 
     HELP("h", "help", "Print usage information."),
     VERSION("v", "version", "Display TubeMQ version."),

@@ -39,6 +39,7 @@ import static org.junit.Assert.assertEquals;
  * Test util for test container.
  */
 public class TestUtils {
+
     private static final ParameterProperty<Path> MODULE_DIRECTORY =
             new ParameterProperty<>("moduleDir", Paths::get);
 
@@ -61,10 +62,9 @@ public class TestUtils {
             final List<Path> matchingResources =
                     dependencyResources
                             .filter(
-                                    jar ->
-                                            Pattern.compile(resourceNameRegex)
-                                                    .matcher(jar.toAbsolutePath().toString())
-                                                    .find())
+                                    jar -> Pattern.compile(resourceNameRegex)
+                                            .matcher(jar.toAbsolutePath().toString())
+                                            .find())
                             .collect(Collectors.toList());
             switch (matchingResources.size()) {
                 case 0:

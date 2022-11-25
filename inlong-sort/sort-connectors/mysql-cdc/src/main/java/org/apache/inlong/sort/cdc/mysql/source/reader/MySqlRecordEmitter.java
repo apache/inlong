@@ -60,7 +60,8 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isWaterm
  * emit records rather than emit the records directly.</p>
  */
 public final class MySqlRecordEmitter<T>
-        implements RecordEmitter<SourceRecord, T, MySqlSplitState> {
+        implements
+            RecordEmitter<SourceRecord, T, MySqlSplitState> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlRecordEmitter.class);
     private static final FlinkJsonTableChangeSerializer TABLE_CHANGE_SERIALIZER =
@@ -111,15 +112,15 @@ public final class MySqlRecordEmitter<T>
                 emitElement(element, output, null);
             }
         } else if (isDataChangeRecord(element)) {
-//            updateStartingOffsetForSplit(splitState, element);
-//            reportMetrics(element);
-//
-//            final Map<TableId, TableChange> tableSchemas =
-//                splitState.getMySQLSplit().getTableSchemas();
-//            final TableChange tableSchema =
-//                tableSchemas.getOrDefault(getTableId(element), null);
-//
-//            emitElement(element, output, tableSchema);
+            // updateStartingOffsetForSplit(splitState, element);
+            // reportMetrics(element);
+            //
+            // final Map<TableId, TableChange> tableSchemas =
+            // splitState.getMySQLSplit().getTableSchemas();
+            // final TableChange tableSchema =
+            // tableSchemas.getOrDefault(getTableId(element), null);
+            //
+            // emitElement(element, output, tableSchema);
             if (splitState.isBinlogSplitState()) {
                 BinlogOffset position = getBinlogPosition(element);
                 splitState.asBinlogSplitState().setStartingOffset(position);
@@ -143,6 +144,7 @@ public final class MySqlRecordEmitter<T>
             debeziumDeserializationSchema.deserialize(
                     element,
                     new Collector<T>() {
+
                         @Override
                         public void collect(final T t) {
                             long byteNum = t.toString().getBytes(StandardCharsets.UTF_8).length;

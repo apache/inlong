@@ -31,10 +31,7 @@ import java.util.List;
 /**
  * Node relation base class which defines the simplest one-to-one relation
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FullOuterJoinRelation.class, name = "fullOuterJoin"),
         @JsonSubTypes.Type(value = InnerJoinNodeRelation.class, name = "innerJoin"),

@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
  *  for metric data collection.
  */
 public class TrafficStatsService extends AbstractDaemonService implements TrafficService {
+
     // Maximum write wait time
     private static final long MAX_WRITING_WAIT_DLT = 5000L;
     // Statistics output log file
@@ -199,6 +200,7 @@ public class TrafficStatsService extends AbstractDaemonService implements Traffi
      * statistic dimensions and corresponding metric values
      */
     private static class WritableUnit {
+
         // Current writing thread count
         public LongOnlineCounter refCnt =
                 new LongOnlineCounter("ref_count", null);

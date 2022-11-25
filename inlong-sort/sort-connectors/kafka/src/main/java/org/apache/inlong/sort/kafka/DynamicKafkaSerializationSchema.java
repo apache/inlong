@@ -55,13 +55,11 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamicKafkaSerializationSchema.class);
 
-    private final @Nullable
-    FlinkKafkaPartitioner<RowData> partitioner;
+    private final @Nullable FlinkKafkaPartitioner<RowData> partitioner;
 
     private final String topic;
 
-    private final @Nullable
-    SerializationSchema<RowData> keySerialization;
+    private final @Nullable SerializationSchema<RowData> keySerialization;
 
     private final SerializationSchema<RowData> valueSerialization;
 
@@ -138,7 +136,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             partitioner.open(parallelInstanceId, numParallelInstances);
         }
         // Only support dynamic topic when the topicPattern is specified
-        //      and the valueSerialization is RawFormatSerializationSchema
+        // and the valueSerialization is RawFormatSerializationSchema
         if (valueSerialization instanceof RawFormatSerializationSchema && StringUtils.isNotBlank(topicPattern)) {
             multipleSink = true;
             jsonDynamicSchemaFormat =
@@ -231,8 +229,9 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
 
     private boolean splitRequired(JsonNode updateBeforeNode, JsonNode updateAfterNode) {
         return (updateAfterNode != null && updateAfterNode.isArray()
-                && updateAfterNode.size() > 1) || (updateBeforeNode != null && updateBeforeNode.isArray()
-                && updateBeforeNode.size() > 1);
+                && updateAfterNode.size() > 1)
+                || (updateBeforeNode != null && updateBeforeNode.isArray()
+                        && updateBeforeNode.size() > 1);
     }
 
     private void split2JsonArray(JsonNode rootNode,
@@ -306,8 +305,8 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
     public String getTargetTopic(RowData element) {
         if (multipleSink) {
             try {
-                //  Extract the index '0' as the raw data is determined by the Raw format:
-                //  The Raw format allows to read and write raw (byte based) values as a single column
+                // Extract the index '0' as the raw data is determined by the Raw format:
+                // The Raw format allows to read and write raw (byte based) values as a single column
                 return jsonDynamicSchemaFormat.parse(element.getBinary(0), topicPattern);
             } catch (IOException e) {
                 // Ignore the parse error and it will return the default topic final.

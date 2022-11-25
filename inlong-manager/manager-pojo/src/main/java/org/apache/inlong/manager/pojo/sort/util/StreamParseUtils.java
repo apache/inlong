@@ -98,6 +98,7 @@ public class StreamParseUtils {
         } else {
             String transformName = jsonObject.get(TRANSFORM_NAME).getAsString();
             StreamTransform transform = new StreamTransform() {
+
                 @Override
                 public String getTransformName() {
                     return super.getTransformName();

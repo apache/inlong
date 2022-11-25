@@ -70,7 +70,11 @@ import java.util.concurrent.TimeUnit;
  * </p>
  */
 public final class SortSdkSource extends AbstractSource
-        implements Configurable, Runnable, EventDrivenSource, ConsumerServiceMBean {
+        implements
+            Configurable,
+            Runnable,
+            EventDrivenSource,
+            ConsumerServiceMBean {
 
     // Log of {@link SortSdkSource}.
     private static final Logger LOG = LoggerFactory.getLogger(SortSdkSource.class);

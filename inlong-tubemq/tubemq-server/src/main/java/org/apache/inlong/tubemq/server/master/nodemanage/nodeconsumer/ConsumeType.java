@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 
 public enum ConsumeType {
+
     CONSUME_NORMAL(0, "unbound", "Normal consume without reset offset"),
     CONSUME_BAND(1, "bound", "Consume data with reset offset"),
     CONSUME_CLIENT_REB(2, "client-rebalance", "Consume data with client assigned partitions");

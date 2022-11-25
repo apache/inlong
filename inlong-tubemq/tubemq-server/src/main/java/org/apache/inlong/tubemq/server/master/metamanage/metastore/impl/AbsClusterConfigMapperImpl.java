@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper {
+
     protected static final Logger logger =
             LoggerFactory.getLogger(AbsClusterConfigMapperImpl.class);
     // data cache
@@ -40,7 +41,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
 
     @Override
     public boolean addUpdClusterConfig(ClusterSettingEntity entity,
-                                       StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         ClusterSettingEntity newEntity;
         // Check whether the configure record already exist
         ClusterSettingEntity curEntity = metaDataCache.get(entity.getRecordKey());
@@ -118,7 +119,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(ClusterSettingEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete cluster configure information from persistent storage

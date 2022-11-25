@@ -43,6 +43,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote
  * A component used to get schema by table path.
  */
 public class MySqlSchema {
+
     private static final String SHOW_CREATE_TABLE = "SHOW CREATE TABLE ";
     private static final String DESC_TABLE = "DESC ";
 

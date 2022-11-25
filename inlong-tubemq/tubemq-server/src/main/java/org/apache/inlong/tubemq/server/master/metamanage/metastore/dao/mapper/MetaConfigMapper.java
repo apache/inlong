@@ -63,11 +63,11 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean addOrUpdClusterDefSetting(BaseEntity opEntity, int brokerPort,
-                                      int brokerTlsPort, int brokerWebPort,
-                                      int maxMsgSizeMB, int qryPriorityId,
-                                      EnableStatus flowCtrlEnable, int flowRuleCnt,
-                                      String flowCtrlInfo, TopicPropGroup topicProps,
-                                      StringBuilder strBuff, ProcessResult result);
+            int brokerTlsPort, int brokerWebPort,
+            int maxMsgSizeMB, int qryPriorityId,
+            EnableStatus flowCtrlEnable, int flowRuleCnt,
+            String flowCtrlInfo, TopicPropGroup topicProps,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get cluster configure information
@@ -89,7 +89,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean addOrUpdBrokerConfig(boolean isAddOp, BrokerConfEntity entity,
-                                 StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Change broker configure status
@@ -102,8 +102,8 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean changeBrokerConfStatus(BaseEntity opEntity,
-                                   int brokerId, ManageStatus newMngStatus,
-                                   StringBuilder strBuff, ProcessResult result);
+            int brokerId, ManageStatus newMngStatus,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete broker configure information
@@ -116,7 +116,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean delBrokerConfInfo(String operator, int brokerId, boolean rsvData,
-                              StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Query broker configure information
@@ -135,8 +135,8 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return broker configure information
      */
     Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
-                                                     Set<String> brokerIpSet,
-                                                     BrokerConfEntity qryEntity);
+            Set<String> brokerIpSet,
+            BrokerConfEntity qryEntity);
 
     /**
      * Get broker configure information
@@ -166,7 +166,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean addOrUpdTopicCtrlConf(boolean isAddOp, TopicCtrlEntity entity,
-                                  StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add topic control record, or update records if data exists
@@ -179,8 +179,8 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean insertTopicCtrlConf(BaseEntity opEntity,
-                                String topicName, EnableStatus enableTopicAuth,
-                                StringBuilder strBuff, ProcessResult result);
+            String topicName, EnableStatus enableTopicAuth,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add topic control record, or update records if data exists
@@ -191,7 +191,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean insertTopicCtrlConf(TopicCtrlEntity entity,
-                                StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete topic control configure
@@ -203,7 +203,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean delTopicCtrlConf(String operator, String topicName,
-                             StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get topic control record by topic name
@@ -237,7 +237,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return   the query result list
      */
     Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
-                                                  TopicCtrlEntity qryEntity);
+            TopicCtrlEntity qryEntity);
 
     /**
      * get topic max message size configure info from store
@@ -247,7 +247,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return result, only read
      */
     Map<String, Integer> getMaxMsgSizeInBByTopics(int defMaxMsgSizeInB,
-                                                  Set<String> topicNameSet);
+            Set<String> topicNameSet);
 
     // ////////////////////////////////////////////////////////////
 
@@ -260,7 +260,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @param strBuff         the string buffer
      */
     void addSystemTopicDeploy(int brokerId, int brokerPort,
-                              String brokerIp, StringBuilder strBuff);
+            String brokerIp, StringBuilder strBuff);
 
     /**
      * Add or update topic deploy configure info
@@ -272,7 +272,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean addOrUpdTopicDeployInfo(boolean isAddOp, TopicDeployEntity deployEntity,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update topic deploy status info
@@ -286,8 +286,8 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean updTopicDeployStatusInfo(BaseEntity opEntity, int brokerId,
-                                     String topicName, TopicStatus topicStatus,
-                                     StringBuilder strBuff, ProcessResult result);
+            String topicName, TopicStatus topicStatus,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete topic deploy configure info from store
@@ -300,7 +300,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return           whether success
      */
     boolean delTopicDeployInfo(String operator, int brokerId, String topicName,
-                               StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get broker topic entity, if query entity is null, return all topic entity
@@ -311,8 +311,8 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return topic deploy entity map
      */
     Map<String, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                               Set<Integer> brokerIdSet,
-                                                               TopicDeployEntity qryEntity);
+            Set<Integer> brokerIdSet,
+            TopicDeployEntity qryEntity);
 
     /**
      * Get broker topic entity, if query entity is null, return all topic entity
@@ -322,7 +322,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return topic deploy entity map
      */
     Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                                Set<Integer> brokerIdSet);
+            Set<Integer> brokerIdSet);
 
     /**
      * Get broker topic entity by topic name and broker id set
@@ -393,7 +393,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean addOrUpdGroupResCtrlConf(boolean isAddOp, GroupResCtrlEntity entity,
-                                     StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add group control configure, or update records if data exists
@@ -409,9 +409,9 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                int qryPriorityId, EnableStatus flowCtrlEnable,
-                                int flowRuleCnt, String flowCtrlRuleInfo,
-                                StringBuilder strBuff, ProcessResult result);
+            int qryPriorityId, EnableStatus flowCtrlEnable,
+            int flowRuleCnt, String flowCtrlRuleInfo,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add group control configure, or update records if data exists
@@ -425,8 +425,8 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                EnableStatus resChkEnable, int allowedB2CRate,
-                                StringBuilder strBuff, ProcessResult result);
+            EnableStatus resChkEnable, int allowedB2CRate,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add group control configure, or update records if data exists
@@ -437,7 +437,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean insertGroupCtrlConf(GroupResCtrlEntity entity,
-                                StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete group control information
@@ -449,7 +449,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return    delete result
      */
     boolean delGroupCtrlConf(String operator, String groupName,
-                             StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get group control information by group and query condition
@@ -459,7 +459,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return    query result
      */
     Map<String, GroupResCtrlEntity> getGroupCtrlConf(Set<String> groupSet,
-                                                     GroupResCtrlEntity qryEntity);
+            GroupResCtrlEntity qryEntity);
 
     /**
      * Get group control information by group name
@@ -481,7 +481,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return true if success otherwise false
      */
     boolean addOrUpdConsumeCtrlInfo(boolean isAddOp, GroupConsumeCtrlEntity entity,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Add consume control information, or update records if data exists
@@ -498,10 +498,10 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return    process result
      */
     boolean insertConsumeCtrlInfo(BaseEntity opEntity, String groupName,
-                                  String topicName, EnableStatus enableCsm,
-                                  String disReason, EnableStatus enableFlt,
-                                  String fltCondStr, StringBuilder strBuff,
-                                  ProcessResult result);
+            String topicName, EnableStatus enableCsm,
+            String disReason, EnableStatus enableFlt,
+            String fltCondStr, StringBuilder strBuff,
+            ProcessResult result);
 
     /**
      * Add consume control information, or update records if data exists
@@ -512,7 +512,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return    process result
      */
     boolean insertConsumeCtrlInfo(GroupConsumeCtrlEntity entity,
-                                  StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete consume control configure
@@ -525,8 +525,8 @@ public interface MetaConfigMapper extends KeepAliveService {
      * @return    process result
      */
     boolean delConsumeCtrlConf(String operator,
-                               String groupName, String topicName,
-                               StringBuilder strBuff, ProcessResult result);
+            String groupName, String topicName,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Get all group consume control record for a specific topic

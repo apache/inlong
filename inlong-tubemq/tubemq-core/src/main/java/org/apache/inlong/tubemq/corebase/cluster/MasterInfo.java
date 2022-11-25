@@ -90,7 +90,7 @@ public class MasterInfo {
     }
 
     private MasterInfo(Map<String, NodeAddrInfo> addressMap4Failover,
-                       NodeAddrInfo firstNodeAddr, String masterClusterStr) {
+            NodeAddrInfo firstNodeAddr, String masterClusterStr) {
         for (Map.Entry<String, NodeAddrInfo> entry : addressMap4Failover.entrySet()) {
             if (TStringUtils.isBlank(entry.getKey()) || entry.getValue() == null) {
                 continue;

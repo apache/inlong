@@ -44,19 +44,19 @@ public interface LoadBalancer {
             final StringBuilder sBuilder);
 
     Map<String, Map<String, List<Partition>>> bukAssign(ConsumerInfoHolder consumerHolder,
-                                                        BrokerRunManager brokerRunManager,
-                                                        List<String> groups,
-                                                        MetaDataService defMetaDataService,
-                                                        StringBuilder sBuilder);
+            BrokerRunManager brokerRunManager,
+            List<String> groups,
+            MetaDataService defMetaDataService,
+            StringBuilder sBuilder);
 
     Map<String, Map<String, Map<String, Partition>>> resetBukAssign(ConsumerInfoHolder consumerHolder,
-                                                                    BrokerRunManager brokerRunManager,
-                                                                    List<String> groups,
-                                                                    MetaDataService defMetaDataService,
-                                                                    StringBuilder sBuilder);
+            BrokerRunManager brokerRunManager,
+            List<String> groups,
+            MetaDataService defMetaDataService,
+            StringBuilder sBuilder);
 
     Map<String, List<Partition>> roundRobinAssignment(List<Partition> partitions,
-                                                      List<String> consumers);
+            List<String> consumers);
 
     ConsumerInfo randomAssignment(List<ConsumerInfo> servers);
 }

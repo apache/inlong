@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corerpc.exception;
 
 public class ClientClosedException extends Exception {
+
     public ClientClosedException() {
     }
 

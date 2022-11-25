@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
  * test DLC search sql parse
  */
 public class DLCIcebergSqlParseTest {
+
     private MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("id", new IntFormatInfo()),
@@ -83,7 +84,7 @@ public class DLCIcebergSqlParseTest {
 
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
-                                new FieldInfo("id", new IntFormatInfo())),
+                        new FieldInfo("id", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())));
         List<FieldInfo> fields = Arrays.asList(

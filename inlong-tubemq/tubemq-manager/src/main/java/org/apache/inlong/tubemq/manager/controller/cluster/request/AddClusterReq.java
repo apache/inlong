@@ -26,6 +26,7 @@ import java.util.List;
 
 @Data
 public class AddClusterReq {
+
     private Integer id;
     private String clusterName;
     private List<MasterEntry> masterEntries;

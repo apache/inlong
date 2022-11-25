@@ -53,9 +53,8 @@ public class ChunkUtils {
     }
 
     public static RowType getSplitType(Column splitColumn) {
-        return (RowType)
-                ROW(FIELD(splitColumn.name(), MySqlTypeUtils.fromDbzColumn(splitColumn)))
-                        .getLogicalType();
+        return (RowType) ROW(FIELD(splitColumn.name(), MySqlTypeUtils.fromDbzColumn(splitColumn)))
+                .getLogicalType();
     }
 
     public static Column getSplitColumn(Table table) {

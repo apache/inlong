@@ -21,6 +21,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HighPriorityThreadFactory implements ThreadFactory {
+
     static final AtomicInteger poolNumber = new AtomicInteger(1);
     final AtomicInteger threadNumber;
     final ThreadGroup group;
@@ -50,4 +51,3 @@ public class HighPriorityThreadFactory implements ThreadFactory {
         return t;
     }
 }
-

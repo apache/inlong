@@ -53,8 +53,11 @@ import org.apache.inlong.sort.formats.inlongmsg.InLongMsgValidator;
  * serializer and deserializer.
  */
 public final class InLongMsgCsvFormatFactory
-        extends TableFormatFactoryBase<Row>
-        implements TableFormatDeserializerFactory, InLongMsgMixedFormatFactory {
+        extends
+            TableFormatFactoryBase<Row>
+        implements
+            TableFormatDeserializerFactory,
+            InLongMsgMixedFormatFactory {
 
     public InLongMsgCsvFormatFactory() {
         super(InLongMsgCsv.FORMAT_TYPE_VALUE, 1, true);
@@ -78,8 +81,7 @@ public final class InLongMsgCsvFormatFactory
 
     @Override
     public TableFormatDeserializer createFormatDeserializer(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
@@ -139,14 +141,12 @@ public final class InLongMsgCsvFormatFactory
                 quoteCharacter,
                 nullLiteral,
                 deleteHeadDelimiter,
-                ignoreErrors
-        );
+                ignoreErrors);
     }
 
     @Override
     public InLongMsgCsvMixedFormatDeserializer createMixedFormatDeserializer(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
@@ -185,14 +185,12 @@ public final class InLongMsgCsvFormatFactory
                 escapeCharacter,
                 quoteCharacter,
                 deleteHeadDelimiter,
-                ignoreErrors
-        );
+                ignoreErrors);
     }
 
     @Override
     public InLongMsgCsvMixedFormatConverter createMixedFormatConverter(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
@@ -224,7 +222,6 @@ public final class InLongMsgCsvFormatFactory
                 timeFieldName,
                 attributesFieldName,
                 nullLiteral,
-                ignoreErrors
-        );
+                ignoreErrors);
     }
 }

@@ -20,13 +20,14 @@ package org.apache.inlong.tubemq.corerpc;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class RemoteConErrStats {
+
     private long statisticDuration = 60000;
     private int maxConnAllowedFailCount = 5;
     private final AtomicLong errCounter = new AtomicLong(0);
     private final AtomicLong lastTimeStamp = new AtomicLong(0);
 
     public RemoteConErrStats(final long statisticDuration,
-                             final int maxConnAllowedFailCount) {
+            final int maxConnAllowedFailCount) {
         this.errCounter.set(0);
         this.lastTimeStamp.set(System.currentTimeMillis());
         this.statisticDuration = statisticDuration;
@@ -59,4 +60,3 @@ public class RemoteConErrStats {
         return false;
     }
 }
-

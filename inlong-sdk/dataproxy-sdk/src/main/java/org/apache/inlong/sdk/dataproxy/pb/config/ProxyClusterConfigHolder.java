@@ -73,13 +73,13 @@ public class ProxyClusterConfigHolder {
         String strLoaderType = context.getString(ProxyClusterConfigLoader.KEY_LOADER_TYPE);
         LoaderType loaderType = LoaderType.valueOf(strLoaderType);
         switch (loaderType) {
-            case File :
+            case File:
                 this.loader = new FileProxyClusterConfigLoader();
                 break;
-            case Manager :
+            case Manager:
                 this.loader = new ManagerProxyClusterConfigLoader();
                 break;
-            case Plugin :
+            case Plugin:
                 try {
                     String strLoaderClass = context.getString(ProxyClusterConfigLoader.KEY_LOADER_TYPE_PLUGIN_CLASS);
                     Class<?> loaderClass = ClassUtils.getClass(strLoaderClass);
@@ -91,8 +91,8 @@ public class ProxyClusterConfigHolder {
                     LOG.error("Fail to init loader,loaderType:{},error:{}", loaderType, t);
                 }
                 break;
-            case Context :
-            default :
+            case Context:
+            default:
                 this.loader = new ContextProxyClusterConfigLoader();
                 break;
         }

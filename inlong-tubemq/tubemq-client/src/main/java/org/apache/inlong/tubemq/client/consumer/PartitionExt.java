@@ -32,6 +32,7 @@ import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
  * on the predefined strategy.
  */
 public class PartitionExt extends Partition {
+
     private static final long serialVersionUID = 7587342323917872253L;
     private final FlowCtrlRuleHandler groupFlowCtrlRuleHandler;
     private final FlowCtrlRuleHandler defFlowCtrlRuleHandler;
@@ -56,8 +57,8 @@ public class PartitionExt extends Partition {
     private boolean isLastPackConsumed = false;
 
     public PartitionExt(final FlowCtrlRuleHandler groupFlowCtrlRuleHandler,
-                        final FlowCtrlRuleHandler defFlowCtrlRuleHandler,
-                        final BrokerInfo broker, final String topic, final int partitionId) {
+            final FlowCtrlRuleHandler defFlowCtrlRuleHandler,
+            final BrokerInfo broker, final String topic, final int partitionId) {
         super(broker, topic, partitionId);
         this.groupFlowCtrlRuleHandler = groupFlowCtrlRuleHandler;
         this.defFlowCtrlRuleHandler = defFlowCtrlRuleHandler;
@@ -84,8 +85,8 @@ public class PartitionExt extends Partition {
      * @return message size per minute
      */
     public long procConsumeResult(boolean isFilterConsume, int reqProcType, int errCode,
-                                  int msgSize, boolean isReqEscLimit, long rsplimitDlt,
-                                  long lastDataDlt, boolean isRequireSlow) {
+            int msgSize, boolean isReqEscLimit, long rsplimitDlt,
+            long lastDataDlt, boolean isRequireSlow) {
         if (lastDataDlt >= 0) {
             this.lastDataRdDlt = lastDataDlt;
         }
@@ -117,7 +118,8 @@ public class PartitionExt extends Partition {
             if (this.recvMsgInMin >= this.curFlowCtrlVal.dataLtInSize
                     || this.recvMsgSize >= this.limitMsgInSec) {
                 return this.curFlowCtrlVal.freqLtInMs > rsplimitDlt
-                        ? this.curFlowCtrlVal.freqLtInMs : rsplimitDlt;
+                        ? this.curFlowCtrlVal.freqLtInMs
+                        : rsplimitDlt;
             }
             if (errCode == TErrCodeConstants.SUCCESS) {
                 if (isFilterConsume && filterCtrlItem.getFreqLtInMs() >= 0) {
@@ -189,9 +191,9 @@ public class PartitionExt extends Partition {
     }
 
     public void setPullTempData(int reqProcType, int errCode,
-                                boolean isEscLimit, int msgSize,
-                                long limitDlt, long curDataDlt,
-                                boolean isRequireSlow) {
+            boolean isEscLimit, int msgSize,
+            long limitDlt, long curDataDlt,
+            boolean isRequireSlow) {
         this.lastRptTIme = System.currentTimeMillis();
         this.reqProcType = reqProcType;
         this.errCode = errCode;

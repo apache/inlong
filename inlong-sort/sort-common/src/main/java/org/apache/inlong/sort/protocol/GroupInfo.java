@@ -59,8 +59,8 @@ public class GroupInfo implements Serializable {
     }
 
     public GroupInfo(@JsonProperty("groupId") String groupId,
-        @JsonProperty("streams") List<StreamInfo> streams,
-        Map<String, String> properties) {
+            @JsonProperty("streams") List<StreamInfo> streams,
+            Map<String, String> properties) {
         this.groupId = Preconditions.checkNotNull(groupId, "groupId is null");
         this.streams = Preconditions.checkNotNull(streams, "streams is null");
         this.properties = properties;

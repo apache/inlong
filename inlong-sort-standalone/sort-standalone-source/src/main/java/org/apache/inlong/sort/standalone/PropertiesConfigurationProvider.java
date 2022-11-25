@@ -29,8 +29,9 @@ import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
  * 
  * PropertiesConfigurationProvider
  */
-public class PropertiesConfigurationProvider extends
-        AbstractConfigurationProvider {
+public class PropertiesConfigurationProvider
+        extends
+            AbstractConfigurationProvider {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(PropertiesConfigurationProvider.class);
 

@@ -59,8 +59,7 @@ public class StringUtils {
             @Nonnull Character entryDelimiter,
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar
-    ) {
+            @Nullable Character quoteChar) {
         Map<String, String> fields = new HashMap<>();
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -71,8 +70,7 @@ public class StringUtils {
         int state = STATE_KEY;
 
         /*
-         * The state when entering escaping and quoting. When we exit escaping
-         * or quoting, we should restore this state.
+         * The state when entering escaping and quoting. When we exit escaping or quoting, we should restore this state.
          */
         int kvState = STATE_KEY;
 
@@ -187,11 +185,10 @@ public class StringUtils {
             @Nonnull Character entryDelimiter,
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar
-    ) {
+            @Nullable Character quoteChar) {
         if (fieldKeys.length != fieldValues.length) {
             throw new IllegalArgumentException("The keys' number " + fieldKeys.length
-                   + " doesn't match values' number " + fieldValues.length);
+                    + " doesn't match values' number " + fieldValues.length);
         }
 
         Collection<Character> delimiters =
@@ -206,8 +203,7 @@ public class StringUtils {
                     fieldKeys[index],
                     delimiters,
                     escapeChar,
-                    quoteChar
-            );
+                    quoteChar);
 
             stringBuilder.append(kvDelimiter);
 
@@ -216,8 +212,7 @@ public class StringUtils {
                     fieldValues[index],
                     delimiters,
                     escapeChar,
-                    quoteChar
-            );
+                    quoteChar);
 
             if (index < fieldKeys.length - 1) {
                 stringBuilder.append(entryDelimiter);
@@ -232,8 +227,7 @@ public class StringUtils {
             String text,
             Collection<Character> delimiters,
             Character escapeChar,
-            Character quoteChar
-    ) {
+            Character quoteChar) {
         for (int i = 0; i < text.length(); ++i) {
             char ch = text.charAt(i);
 
@@ -247,7 +241,7 @@ public class StringUtils {
                     stringBuilder.append(quoteChar);
                 } else {
                     throw new IllegalArgumentException("There is a delimiter in the text, "
-                           + "but neither escape nor quote character is specified.");
+                            + "but neither escape nor quote character is specified.");
                 }
             } else if (escapeChar != null && ch == escapeChar) {
                 stringBuilder.append(escapeChar);
@@ -258,7 +252,7 @@ public class StringUtils {
                     stringBuilder.append(ch);
                 } else {
                     throw new IllegalArgumentException("There is a quote character in the text, "
-                           + "but escape character is not specified.");
+                            + "but escape character is not specified.");
                 }
             } else {
                 stringBuilder.append(ch);
@@ -285,8 +279,7 @@ public class StringUtils {
             @Nonnull String text,
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar
-    ) {
+            @Nullable Character quoteChar) {
         List<String> fields = new ArrayList<>();
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -372,8 +365,7 @@ public class StringUtils {
             @Nonnull String[] fields,
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar
-    ) {
+            @Nullable Character quoteChar) {
         StringBuilder stringBuilder = new StringBuilder();
 
         for (int index = 0; index < fields.length; ++index) {
@@ -384,8 +376,8 @@ public class StringUtils {
                 char ch = field.charAt(i);
 
                 if (ch == delimiter
-                            || (escapeChar != null && ch == escapeChar)
-                            || (quoteChar != null && ch == quoteChar)) {
+                        || (escapeChar != null && ch == escapeChar)
+                        || (quoteChar != null && ch == quoteChar)) {
 
                     if (escapeChar != null) {
                         stringBuilder.append(escapeChar);
@@ -396,7 +388,7 @@ public class StringUtils {
                         stringBuilder.append(quoteChar);
                     } else {
                         throw new IllegalArgumentException("There exist special characters in the text, "
-                               + "but neither escape character nor quote character is configured.");
+                                + "but neither escape character nor quote character is configured.");
                     }
                 } else {
                     stringBuilder.append(ch);

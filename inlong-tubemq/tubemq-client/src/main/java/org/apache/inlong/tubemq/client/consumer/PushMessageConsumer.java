@@ -23,8 +23,8 @@ import org.apache.inlong.tubemq.client.exception.TubeClientException;
 public interface PushMessageConsumer extends MessageConsumer {
 
     PushMessageConsumer subscribe(String topic,
-                                  TreeSet<String> filterConds,
-                                  MessageListener messageListener) throws TubeClientException;
+            TreeSet<String> filterConds,
+            MessageListener messageListener) throws TubeClientException;
 
     void resumeConsume();
 

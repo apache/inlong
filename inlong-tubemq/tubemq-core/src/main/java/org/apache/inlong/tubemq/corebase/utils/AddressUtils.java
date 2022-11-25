@@ -51,7 +51,7 @@ public class AddressUtils {
     }
 
     private static boolean checkValidIp(Enumeration<NetworkInterface> allInterface,
-                                        String currLocalHost) {
+            String currLocalHost) {
         String fstV4IP = null;
         while (allInterface.hasMoreElements()) {
             try {
@@ -176,8 +176,8 @@ public class AddressUtils {
             throw new AddressException("Call getIPV4LocalAddress throw exception", e);
         }
         throw new AddressException(new StringBuilder(256)
-            .append("Illegal parameter: not found the default ip")
-            .append(" in local networkInterfaces!").toString());
+                .append("Illegal parameter: not found the default ip")
+                .append(" in local networkInterfaces!").toString());
     }
 
     /**
@@ -196,9 +196,9 @@ public class AddressUtils {
             while (enumeration.hasMoreElements()) {
                 NetworkInterface oneInterface = enumeration.nextElement();
                 if (oneInterface == null
-                    || oneInterface.isLoopback()
-                    || !oneInterface.isUp()
-                    || !defEthName.equalsIgnoreCase(oneInterface.getName())) {
+                        || oneInterface.isLoopback()
+                        || !oneInterface.isUp()
+                        || !defEthName.equalsIgnoreCase(oneInterface.getName())) {
                     continue;
                 }
                 foundNetInter = true;
@@ -218,12 +218,12 @@ public class AddressUtils {
         }
         if (foundNetInter) {
             throw new AddressException(new StringBuilder(256)
-                .append("Illegal parameter: not found valid ip")
-                .append(" in networkInterfaces ").append(defEthName).toString());
+                    .append("Illegal parameter: not found valid ip")
+                    .append(" in networkInterfaces ").append(defEthName).toString());
         } else {
             throw new AddressException(new StringBuilder(256)
-                .append("Illegal parameter: ").append(defEthName)
-                .append(" does not exist or is not in a valid state!").toString());
+                    .append("Illegal parameter: ").append(defEthName)
+                    .append(" does not exist or is not in a valid state!").toString());
         }
     }
 

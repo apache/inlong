@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.dataproxy.config;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 
 public class ProxyClusterConfig {
+
     private boolean success;
     private String errMsg;
     private DataProxyNodeResponse data;

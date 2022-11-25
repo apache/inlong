@@ -60,11 +60,10 @@ class AnnoControllerTest extends WebBaseTest {
         loginUser.setPassword("test_wrong_pwd");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/login")
-                                .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                post("/api/anno/login")
+                        .content(JsonUtils.toJsonString(loginUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -83,11 +82,10 @@ class AnnoControllerTest extends WebBaseTest {
                 .build();
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/register")
-                                .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                post("/api/anno/register")
+                        .content(JsonUtils.toJsonString(userInfo))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -106,11 +104,10 @@ class AnnoControllerTest extends WebBaseTest {
                 .build();
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/register")
-                                .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                post("/api/anno/register")
+                        .content(JsonUtils.toJsonString(userInfo))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -124,10 +121,9 @@ class AnnoControllerTest extends WebBaseTest {
         testLogin();
 
         MvcResult mvcResult = mockMvc.perform(
-                        get("/api/anno/logout")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                get("/api/anno/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -147,11 +143,10 @@ class AnnoControllerTest extends WebBaseTest {
                 .build();
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/register")
-                                .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                post("/api/anno/register")
+                        .content(JsonUtils.toJsonString(userInfo))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 

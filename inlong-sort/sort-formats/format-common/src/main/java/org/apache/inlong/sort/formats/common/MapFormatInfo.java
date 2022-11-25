@@ -50,8 +50,7 @@ public class MapFormatInfo implements FormatInfo {
     @JsonCreator
     public MapFormatInfo(
             @JsonProperty(FIELD_KEY_FORMAT) @Nonnull FormatInfo keyFormatInfo,
-            @JsonProperty(FIELD_VALUE_FORMAT) @Nonnull FormatInfo valueFormatInfo
-    ) {
+            @JsonProperty(FIELD_VALUE_FORMAT) @Nonnull FormatInfo valueFormatInfo) {
         this.keyFormatInfo = keyFormatInfo;
         this.valueFormatInfo = valueFormatInfo;
     }
@@ -86,7 +85,7 @@ public class MapFormatInfo implements FormatInfo {
 
         MapFormatInfo that = (MapFormatInfo) o;
         return keyFormatInfo.equals(that.keyFormatInfo)
-                       && valueFormatInfo.equals(that.valueFormatInfo);
+                && valueFormatInfo.equals(that.valueFormatInfo);
     }
 
     @Override

@@ -113,21 +113,21 @@ public class TestMqttReader {
         when(jobProfile.getInstanceId()).thenReturn(INSTANCE_ID);
         when(jobProfile.getInt(eq(MqttReader.JOB_MQTT_QUEUE_SIZE), eq(1000))).thenReturn(1000);
 
-        //mock MqttClient
+        // mock MqttClient
         whenNew(MqttClient.class).withArguments(anyString(), anyString(), any(MemoryPersistence.class))
                 .thenReturn(mqttClient);
 
-        //mock queue
+        // mock queue
         whenNew(LinkedBlockingQueue.class).withArguments(anyInt()).thenReturn(queue);
         when(queue.poll()).thenReturn(message);
 
-        //mock metrics
+        // mock metrics
         whenNew(AgentMetricItemSet.class).withArguments(anyString()).thenReturn(agentMetricItemSet);
         when(agentMetricItemSet.findMetricItem(any())).thenReturn(agentMetricItem);
         field(AgentMetricItem.class, "pluginReadCount").set(agentMetricItem, atomicLong);
         field(AgentMetricItem.class, "pluginReadSuccessCount").set(agentMetricItem, atomicCountLong);
 
-        //init method
+        // init method
         mockStatic(MetricRegister.class);
         (reader = new MqttReader(topic)).init(jobProfile);
     }

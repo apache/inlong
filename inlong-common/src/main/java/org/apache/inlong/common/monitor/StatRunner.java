@@ -23,7 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class StatRunner
-        implements Runnable {
+        implements
+            Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(StatRunner.class);
     private boolean shutDownFlag = false;
@@ -109,4 +110,3 @@ public class StatRunner
         this.shutDownFlag = true;
     }
 }
-

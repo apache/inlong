@@ -50,7 +50,7 @@ public class VelocityTemplateEngine implements TemplateEngine {
 
     @Override
     public String renderTemplate(String templateName,
-                                 RequestContext context) throws Exception {
+            RequestContext context) throws Exception {
         StringWriter writer = new StringWriter();
         renderTemplate(templateName, context, writer);
         return writer.toString();
@@ -58,8 +58,8 @@ public class VelocityTemplateEngine implements TemplateEngine {
 
     @Override
     public void renderTemplate(String templateName,
-                               RequestContext context,
-                               Writer writer) throws Exception {
+            RequestContext context,
+            Writer writer) throws Exception {
         Template t = engine.getTemplate(templateName);
         if (t != null) {
             t.merge(new VelocityContext(context.getMap()), writer);

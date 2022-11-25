@@ -168,9 +168,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         return helper.discoverOptionalDecodingFormat(
                 DeserializationFormatFactory.class, FactoryUtil.FORMAT)
                 .orElseGet(
-                        () ->
-                                helper.discoverDecodingFormat(
-                                        DeserializationFormatFactory.class, VALUE_FORMAT));
+                        () -> helper.discoverDecodingFormat(
+                                DeserializationFormatFactory.class, VALUE_FORMAT));
     }
 
     private static EncodingFormat<SerializationSchema<RowData>> getValueEncodingFormat(
@@ -178,9 +177,8 @@ public class KafkaDynamicTableFactory implements DynamicTableSourceFactory, Dyna
         return helper.discoverOptionalEncodingFormat(
                 SerializationFormatFactory.class, FactoryUtil.FORMAT)
                 .orElseGet(
-                        () ->
-                                helper.discoverEncodingFormat(
-                                        SerializationFormatFactory.class, VALUE_FORMAT));
+                        () -> helper.discoverEncodingFormat(
+                                SerializationFormatFactory.class, VALUE_FORMAT));
     }
 
     private static String getSinkMultipleFormat(

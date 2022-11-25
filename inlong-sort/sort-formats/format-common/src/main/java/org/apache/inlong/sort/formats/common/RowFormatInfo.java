@@ -48,8 +48,7 @@ public class RowFormatInfo implements FormatInfo {
     @JsonCreator
     public RowFormatInfo(
             @JsonProperty(FIELD_FIELD_NAMES) @Nonnull String[] fieldNames,
-            @JsonProperty(FIELD_FIELD_FORMATS) @Nonnull FormatInfo[] fieldFormatInfos
-    ) {
+            @JsonProperty(FIELD_FIELD_FORMATS) @Nonnull FormatInfo[] fieldFormatInfos) {
         checkArity(fieldNames, fieldFormatInfos);
         checkDuplicates(fieldNames);
 
@@ -79,8 +78,7 @@ public class RowFormatInfo implements FormatInfo {
 
     private static void checkArity(
             String[] fieldNames,
-            FormatInfo[] fieldFormatInfos
-    ) {
+            FormatInfo[] fieldFormatInfos) {
         if (fieldNames.length != fieldFormatInfos.length) {
             throw new IllegalArgumentException("The number of names and " + "formats is not equal.");
         }

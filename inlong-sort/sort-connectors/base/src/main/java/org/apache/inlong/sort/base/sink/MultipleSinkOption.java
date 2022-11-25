@@ -97,6 +97,7 @@ public class MultipleSinkOption implements Serializable {
     }
 
     public static class Builder {
+
         private String format;
         private boolean sparkEngineEnable;
         private SchemaUpdateExceptionPolicy schemaUpdatePolicy;

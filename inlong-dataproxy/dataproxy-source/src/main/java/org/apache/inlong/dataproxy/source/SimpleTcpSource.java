@@ -50,7 +50,9 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class SimpleTcpSource extends BaseSource
-        implements Configurable, EventDrivenSource {
+        implements
+            Configurable,
+            EventDrivenSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleTcpSource.class);
 
@@ -145,6 +147,7 @@ public class SimpleTcpSource extends BaseSource
     }
 
     private class CheckBlackListThread extends Thread {
+
         private boolean shutdown = false;
 
         public void shutdouwn() {
@@ -181,7 +184,7 @@ public class SimpleTcpSource extends BaseSource
         logger.info("start " + this.getName());
         checkBlackListThread = new CheckBlackListThread();
         checkBlackListThread.start();
-//        ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
+        // ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
 
         logger.info("Set max workers : {} ;", maxThreads);
 
@@ -201,7 +204,7 @@ public class SimpleTcpSource extends BaseSource
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, keepAlive);
         bootstrap.childOption(ChannelOption.SO_RCVBUF, receiveBufferSize);
         bootstrap.childOption(ChannelOption.SO_SNDBUF, sendBufferSize);
-//        serverBootstrap.childOption("child.trafficClass", trafficClass);
+        // serverBootstrap.childOption("child.trafficClass", trafficClass);
         bootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, highWaterMark);
         bootstrap.channel(EventLoopUtil.getServerSocketChannelClass(workerGroup));
         EventLoopUtil.enableTriggeredMode(bootstrap);
@@ -256,7 +259,7 @@ public class SimpleTcpSource extends BaseSource
 
         trafficClass = context.getInteger(ConfigConstants.TRAFFIC_CLASS, TRAFFIC_CLASS_TYPE_0);
         Preconditions.checkArgument((trafficClass == TRAFFIC_CLASS_TYPE_0
-                        || trafficClass == TRAFFIC_CLASS_TYPE_96),
+                || trafficClass == TRAFFIC_CLASS_TYPE_96),
                 "trafficClass must be == 0 or == 96");
 
         try {

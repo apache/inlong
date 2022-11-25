@@ -99,4 +99,3 @@ public class GreenplumSinkDTO {
         return tableInfo;
     }
 }
-

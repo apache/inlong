@@ -273,7 +273,8 @@ public class KafkaReader<K, V> extends AbstractReader {
             }
             // calculate sleep time
             long sleepTime = byteLimitSleepTime < recordLimitSleepTime
-                    ? recordLimitSleepTime : byteLimitSleepTime;
+                    ? recordLimitSleepTime
+                    : byteLimitSleepTime;
             if (sleepTime > 0) {
                 LOGGER.info("sleep seconds:{}", sleepTime / 1000);
                 try {

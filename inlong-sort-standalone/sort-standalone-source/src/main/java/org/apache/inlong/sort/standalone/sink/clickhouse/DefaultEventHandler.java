@@ -119,17 +119,17 @@ public class DefaultEventHandler implements IEventHandler {
             int fieldType = pair.getValue();
             switch (fieldType) {
                 // Int8 - [-128 : 127]
-                case Types.TINYINT :
+                case Types.TINYINT:
                     // TINYINT = -6;
                     pstat.setByte(i, NumberUtils.toByte(fieldValue, (byte) 0));
                     break;
                 // Int16 - [-32768 : 32767]
-                case Types.SMALLINT :
+                case Types.SMALLINT:
                     // SMALLINT= 5;
                     pstat.setShort(i, NumberUtils.toShort(fieldValue, (short) 0));
                     break;
                 // Int32 - [-2147483648 : 2147483647]
-                case Types.INTEGER :
+                case Types.INTEGER:
                     // INTEGER = 4;
                     pstat.setInt(i, NumberUtils.toInt(fieldValue, 0));
                     break;
@@ -138,24 +138,24 @@ public class DefaultEventHandler implements IEventHandler {
                 // UInt16 - [0 : 65535]
                 // UInt32 - [0 : 4294967295]
                 // UInt64 - [0 : 18446744073709551615]
-                case Types.BIGINT :
+                case Types.BIGINT:
                     // BIGINT = -5;
                     pstat.setLong(i, NumberUtils.toLong(fieldValue, 0));
                     break;
                 // Float32 - float
-                case Types.FLOAT :
+                case Types.FLOAT:
                     // FLOAT = 6;
                     pstat.setFloat(i, NumberUtils.toFloat(fieldValue, 0));
                     break;
                 // Float64 – double
-                case Types.DOUBLE :
+                case Types.DOUBLE:
                     // DOUBLE = 8;
                     pstat.setDouble(i, NumberUtils.toDouble(fieldValue, 0));
                     break;
                 // Decimal32(s)
                 // Decimal64(s)
                 // Decimal128(s)
-                case Types.NUMERIC :
+                case Types.NUMERIC:
                     // NUMERIC = 2;
                     pstat.setBigDecimal(i, NumberUtils.toScaledBigDecimal(fieldValue));
                     break;
@@ -163,29 +163,29 @@ public class DefaultEventHandler implements IEventHandler {
                 // FixedString(N)
                 // Enum8
                 // Enum16
-                case Types.VARCHAR :
+                case Types.VARCHAR:
                     // VARCHAR = 12;
-                case Types.LONGVARCHAR :
+                case Types.LONGVARCHAR:
                     // LONGVARCHAR = -1;
                     pstat.setString(i, fieldValue);
                     break;
                 // Date
-                case Types.DATE :
+                case Types.DATE:
                     // DATE= 91;
                     pstat.setDate(i, this.parseDate(fieldValue));
                     break;
                 // Datetime
                 // Datetime64
-                case Types.TIMESTAMP :
+                case Types.TIMESTAMP:
                     // TIMESTAMP = 93;
                     pstat.setTimestamp(i, new Timestamp(this.parseDate(fieldValue).getTime()));
                     break;
 
-                case Types.TIME :
+                case Types.TIME:
                     // TIME= 92;
                     pstat.setTime(i, new Time(this.parseDate(fieldValue).getTime()));
                     break;
-                default :
+                default:
                     pstat.setString(i, fieldValue);
                     break;
             }

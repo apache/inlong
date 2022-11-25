@@ -191,8 +191,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             boolean migrateAll,
             String inlongMetric,
             String inlongAudit,
-            String rowKindsFiltered
-            ) {
+            String rowKindsFiltered) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -255,7 +254,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                         .setAppendSource(appendSource)
                         .setValidator(new RowKindValidator(rowKindsFiltered))
                         .setUserDefinedConverterFactory(
-                            MySqlDeserializationConverterFactory.instance())
+                                MySqlDeserializationConverterFactory.instance())
                         .setMigrateAll(migrateAll)
                         .build();
         if (enableParallelRead) {
@@ -316,17 +315,15 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(MySqlReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(MySqlReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(
-                        m ->
-                                m == MySqlReadableMetadata.OLD
-                                        ? new OldFieldMetadataConverter(
+                        m -> m == MySqlReadableMetadata.OLD
+                                ? new OldFieldMetadataConverter(
                                         physicalDataType, serverTimeZone)
-                                        : m.getConverter())
+                                : m.getConverter())
                 .toArray(MetadataConverter[]::new);
     }
 

@@ -36,9 +36,11 @@ import java.io.IOException;
  */
 public class SchemaRecord {
 
-    @Nullable private final HistoryRecord historyRecord;
+    @Nullable
+    private final HistoryRecord historyRecord;
 
-    @Nullable private final Document tableChangeDoc;
+    @Nullable
+    private final Document tableChangeDoc;
 
     public SchemaRecord(HistoryRecord historyRecord) {
         this.historyRecord = historyRecord;

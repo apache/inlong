@@ -63,10 +63,7 @@ import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
  * and it is the top-level interface for function parameters.
  * It mainly includes several categories such as fields, constants, functions, operators etc
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FieldInfo.class, name = "field"),
         @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField"),

@@ -31,6 +31,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote
  * used to generate table definition in ddl with "desc table".
  */
 public class MySqlTableDefinition {
+
     TableId tableId;
     List<MySqlFieldDefinition> fieldDefinitions;
     List<String> primaryKeys;
@@ -70,5 +71,3 @@ public class MySqlTableDefinition {
         return pkDefinition.toString();
     }
 }
-
-

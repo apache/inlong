@@ -29,10 +29,11 @@ import org.apache.inlong.tubemq.corerpc.protocol.RpcProtocol;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 
 public class RpcServiceInvoker extends AbstractServiceInvoker {
+
     private NodeAddrInfo targetAddress;
 
     public RpcServiceInvoker(ClientFactory clientFactory, Class serviceClass,
-                             RpcConfig conf, NodeAddrInfo targetAddress) {
+            RpcConfig conf, NodeAddrInfo targetAddress) {
         super(clientFactory, serviceClass, conf);
         this.targetAddress = targetAddress;
     }
@@ -43,7 +44,7 @@ public class RpcServiceInvoker extends AbstractServiceInvoker {
 
     @Override
     public Object callMethod(String targetInterface, String method,
-                             Object arg, Callback callback) throws Throwable {
+            Object arg, Callback callback) throws Throwable {
         Client client =
                 clientFactory.getClient(targetAddress, this.conf);
         if (client == null) {

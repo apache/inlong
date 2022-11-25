@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 public class ADConfig {
+
     // whether to enable data report by audit sdk
     private boolean auditEnable = false;
     // audit proxy server addresses

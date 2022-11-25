@@ -49,7 +49,7 @@ public abstract class AbstractReader implements Reader {
     protected static final AtomicLong METRIC_INDEX = new AtomicLong(0);
     protected String inlongGroupId;
     protected String inlongStreamId;
-    //metric
+    // metric
     protected AgentMetricItemSet metricItemSet;
     protected AgentMetricItem readerMetric;
     protected String metricName;

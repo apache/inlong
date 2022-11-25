@@ -56,6 +56,7 @@ public class TestMqttConnect {
         ExecutorService threadPool = Executors.newFixedThreadPool(5);
         for (Reader reader : readers) {
             threadPool.submit(new Runnable() {
+
                 @Override
                 public void run() {
                     reader.init(jobProfile);

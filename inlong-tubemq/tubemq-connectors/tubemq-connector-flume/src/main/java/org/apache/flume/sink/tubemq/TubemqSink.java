@@ -75,6 +75,7 @@ import org.slf4j.LoggerFactory;
  * Make tubemq as one of flume sinks
  */
 public class TubemqSink extends AbstractSink implements Configurable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TubemqSink.class);
 
     public TubeMultiSessionFactory sessionFactory;
@@ -348,6 +349,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
             // send message with callback
             Message message = new Message(es.getTopic(), es.getEvent().getBody());
             producer.sendMessage(message, new MessageSentCallback() {
+
                 @Override
                 public void onMessageSent(MessageSentResult result) {
                     if (!result.isSuccess()) {

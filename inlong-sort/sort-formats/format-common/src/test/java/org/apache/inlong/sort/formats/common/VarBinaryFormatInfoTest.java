@@ -38,16 +38,14 @@ public class VarBinaryFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() throws Exception {
         assertEquals(
                 "testString",
-                VarBinaryFormatInfo.INSTANCE.serialize("testString".getBytes(StandardCharsets.UTF_8))
-        );
+                VarBinaryFormatInfo.INSTANCE.serialize("testString".getBytes(StandardCharsets.UTF_8)));
     }
 
     @Test
     public void testDeserialize() throws Exception {
         assertArrayEquals(
                 "testString".getBytes(StandardCharsets.UTF_8),
-                VarBinaryFormatInfo.INSTANCE.deserialize("testString")
-        );
+                VarBinaryFormatInfo.INSTANCE.deserialize("testString"));
     }
 
 }

@@ -119,7 +119,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
         if (TStringUtils.isBlank(masterServers)) {
             throw new Exception(CliArgDef.MASTERSERVER.longOpt + " is not allowed blank!");
         }
-        masterInfo =  new MasterInfo(masterServers.trim());
+        masterInfo = new MasterInfo(masterServers.trim());
         // get operation-type
         if (!cli.hasOption(CliArgDef.OPERATIONTYPE.longOpt)) {
             throw new Exception(CliArgDef.OPERATIONTYPE.longOpt + " is required!");
@@ -308,7 +308,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
                         .append("  verify failure, stored cluster configure value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                                ? null
+                                : targetEntity.toString())
+                        .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -361,7 +363,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
                         .append("  verify failure, stored cluster configure value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                                ? null
+                                : targetEntity.toString())
+                        .toString());
                 return false;
             }
         }
@@ -436,7 +440,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @return         the process result
      */
     private boolean writeClusterConfInfo(Map<String, ClusterSettingEntity> clusterConfMap,
-                                         StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         if (clusterConfMap.isEmpty()) {
             return true;
         }
@@ -490,7 +494,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
                         .append("  verify failure, stored brokerConfig value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                                ? null
+                                : targetEntity.toString())
+                        .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -543,7 +549,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
                         .append("  verify failure, stored brokerConfig value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                                ? null
+                                : targetEntity.toString())
+                        .toString());
                 return false;
             }
         }
@@ -617,7 +625,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @return         the process result
      */
     private boolean writeBrokerConfInfo(Map<String, BrokerConfEntity> brokerConfigMap,
-                                        StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         if (brokerConfigMap.isEmpty()) {
             return true;
         }
@@ -695,7 +703,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
                         .append("  verify failure, stored topic-control value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                                ? null
+                                : targetEntity.toString())
+                        .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -712,7 +722,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @return         true for success, false for failure
      */
     private boolean recoveryTopicCtrlConfig(StringBuilder strBuff,
-                                            ProcessResult result) {
+            ProcessResult result) {
         logger.info("[Recovery Topic Ctrl] begin ");
         Map<String, TopicCtrlEntity> storedTopicCtrlMap =
                 (Map<String, TopicCtrlEntity>) readObjectFromFile(
@@ -759,7 +769,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
             if ((targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
                     && (!targetEntity.isMatched(qryEntry.getValue(), false)))
                     || (!targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
-                    && !targetEntity.isDataEquals(qryEntry.getValue()))) {
+                            && !targetEntity.isDataEquals(qryEntry.getValue()))) {
                 logger.error(strBuff
                         .append("  verify failure, stored topic-control value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
@@ -830,7 +840,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @return         the process result
      */
     private boolean writeTopicCtrlInfo(Map<String, TopicCtrlEntity> topicCtrlMap,
-                                       StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         if (topicCtrlMap.isEmpty()) {
             return true;
         }
@@ -928,7 +938,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
                         .append("  verify failure, stored topic-deploy value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                                ? null
+                                : targetEntity.toString())
+                        .toString());
                 return false;
             }
         }
@@ -999,7 +1011,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
             if ((targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
                     && (!targetEntity.isMatched(qryEntry.getValue(), false)))
                     || (!targetEntity.getTopicName().equals(TServerConstants.OFFSET_HISTORY_NAME)
-                    && !targetEntity.isDataEquals(qryEntry.getValue()))) {
+                            && !targetEntity.isDataEquals(qryEntry.getValue()))) {
                 logger.error(strBuff
                         .append("  verify failure, stored topic-deploy value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
@@ -1074,7 +1086,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @return         the process result
      */
     private boolean writeTopicDeployInfo(Map<String, TopicDeployEntity> topicDeployMap,
-                                         StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         if (topicDeployMap.isEmpty()) {
             return true;
         }
@@ -1192,7 +1204,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
                         .append("  verify failure, stored group-control value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                                ? null
+                                : targetEntity.toString())
+                        .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -1245,7 +1259,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
                         .append("  verify failure, stored group-control value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                                ? null
+                                : targetEntity.toString())
+                        .toString());
                 return false;
             }
         }
@@ -1319,7 +1335,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @return         the process result
      */
     private boolean writeGroupResCtrlInfo(Map<String, GroupResCtrlEntity> groupResCtrlMap,
-                                          StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         if (groupResCtrlMap.isEmpty()) {
             return true;
         }
@@ -1382,7 +1398,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
                         .append("  verify failure, stored consume-ctrl value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                                ? null
+                                : targetEntity.toString())
+                        .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -1437,7 +1455,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
                         .append("  verify failure, stored consume-control value not equal!")
                         .append(" data in server is ").append(qryEntry.getValue().toString())
                         .append(", data stored is ").append((targetEntity == null)
-                                ? null : targetEntity.toString()).toString());
+                                ? null
+                                : targetEntity.toString())
+                        .toString());
                 strBuff.delete(0, strBuff.length());
                 return false;
             }
@@ -1509,7 +1529,7 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @return         the process result
      */
     private boolean writeGroupCsmInfo(Map<String, GroupConsumeCtrlEntity> groupCsmMap,
-                                      StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         if (groupCsmMap.isEmpty()) {
             return true;
         }
@@ -1602,8 +1622,8 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @return            the query result of Json format, null if failure
      */
     private JsonObject qryDataFromMaster(String method,
-                                         Map<String, String> inParamMap,
-                                         StringBuilder strBuff) {
+            Map<String, String> inParamMap,
+            StringBuilder strBuff) {
         String visitUrl;
         JsonObject jsonRes = null;
         // call master nodes
@@ -1635,9 +1655,9 @@ public class CliMetaDataBRU extends CliAbstractBase {
      * @return            success or failure
      */
     private boolean writeDataToMaster(String method, String opCode,
-                                      Map<String, String> inParamMap,
-                                      StringBuilder strBuff,
-                                      ProcessResult result) {
+            Map<String, String> inParamMap,
+            StringBuilder strBuff,
+            ProcessResult result) {
         String visitUrl;
         JsonObject jsonRes = null;
         // call master nodes

@@ -142,10 +142,10 @@ public class TestSQLServerReader {
                 specificOffsetPos);
         whenNew(SqlServerSnapshotBase.class).withAnyArguments().thenReturn(sqlServerSnapshot);
 
-        //mock sqlServerMessageQueue
+        // mock sqlServerMessageQueue
         whenNew(LinkedBlockingQueue.class).withAnyArguments().thenReturn(sqlServerMessageQueue);
 
-        //mock DebeziumEngine
+        // mock DebeziumEngine
         mockStatic(DebeziumEngine.class);
         when(DebeziumEngine.create(io.debezium.engine.format.Json.class)).thenReturn(builder);
         when(builder.using(any(Properties.class))).thenReturn(builder);
@@ -153,17 +153,17 @@ public class TestSQLServerReader {
         when(builder.using(any(DebeziumEngine.CompletionCallback.class))).thenReturn(builder);
         when(builder.build()).thenReturn(engine);
 
-        //mock executorService
+        // mock executorService
         mockStatic(Executors.class);
         when(Executors.newSingleThreadExecutor()).thenReturn(executorService);
 
-        //mock metrics
+        // mock metrics
         whenNew(AgentMetricItemSet.class).withArguments(anyString()).thenReturn(agentMetricItemSet);
         when(agentMetricItemSet.findMetricItem(any())).thenReturn(agentMetricItem);
         field(AgentMetricItem.class, "pluginReadCount").set(agentMetricItem, atomicLong);
         field(AgentMetricItem.class, "pluginReadSuccessCount").set(agentMetricItem, atomicCountLong);
 
-        //init method
+        // init method
         mockStatic(MetricRegister.class);
         (reader = new SQLServerReader()).init(jobProfile);
     }

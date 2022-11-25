@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
  *      and the old ones will be put in a list, waiting to be cleaned by a scheduled thread.
  */
 public abstract class MultiTopicsFetcher implements TopicFetcher {
+
     protected final ReentrantReadWriteLock mainLock = new ReentrantReadWriteLock(true);
     protected final ScheduledExecutorService executor;
     protected final String fetchKey;

@@ -72,8 +72,7 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
     public CanalJsonSerializationSchema(
             RowType physicalRowType,
             Map<Integer, ReadableMetadata> fieldIndexToMetadata,
-            boolean isMigrateAll
-    ) {
+            boolean isMigrateAll) {
         this.isMigrateAll = isMigrateAll;
 
         if (isMigrateAll) {
@@ -161,8 +160,7 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
         DataType root = DataTypes.ROW(
                 DataTypes.FIELD("data", DataTypes.ARRAY(
                         isMigrateAll ? DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()) : dataSchema)),
-                DataTypes.FIELD("type", DataTypes.STRING())
-        );
+                DataTypes.FIELD("type", DataTypes.STRING()));
 
         final List<Field> metadataFields =
                 metadataSet.stream()

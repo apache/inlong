@@ -33,26 +33,31 @@ public class KafkaJob {
 
     @Data
     public static class Group {
+
         private String id;
     }
 
     @Data
     public static class Bootstrap {
+
         private String servers;
     }
 
     @Data
     public static class Partition {
+
         private String offset;
     }
 
     @Data
     public static class RecordSpeed {
+
         private String limit;
     }
 
     @Data
     public static class ByteSpeed {
+
         private String limit;
     }
 
@@ -64,6 +69,6 @@ public class KafkaJob {
         private String groupId;
         private String recordSpeedLimit;
         private String byteSpeedLimit;
-        private  String autoOffsetReset;
+        private String autoOffsetReset;
     }
 }

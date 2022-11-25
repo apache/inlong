@@ -45,7 +45,7 @@ public class MessageFetchManager {
     private Thread[] fetchWorkerPool;
 
     public MessageFetchManager(final ConsumerConfig consumerConfig,
-                               final SimplePushMessageConsumer pushConsumer) {
+            final SimplePushMessageConsumer pushConsumer) {
         this.consumerConfig = consumerConfig;
         this.pushConsumer = pushConsumer;
     }
@@ -163,6 +163,7 @@ public class MessageFetchManager {
     }
 
     private class FetchTaskWorker implements Runnable {
+
         @Override
         public void run() {
             StringBuilder sBuilder = new StringBuilder(256);
@@ -202,7 +203,7 @@ public class MessageFetchManager {
                         }
                         MessageFetchManager.this.pushConsumer
                                 .getBaseConsumer().pushReqReleasePartition(partition.getPartitionKey(),
-                                usedToken, result);
+                                        usedToken, result);
                         partSelectResult = null;
                         continue;
                     }

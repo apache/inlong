@@ -72,7 +72,7 @@ public class SortClientImplV2 extends SortClient {
      * @param managerReportHandler ManagerReportHandler
      */
     public SortClientImplV2(SortClientConfig sortClientConfig, QueryConsumeConfig queryConsumeConfig,
-                          MetricReporter metricReporter, ManagerReportHandler managerReportHandler) {
+            MetricReporter metricReporter, ManagerReportHandler managerReportHandler) {
         try {
             this.sortClientConfig = sortClientConfig;
             this.context = new ClientContextImpl(this.sortClientConfig, metricReporter);

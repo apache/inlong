@@ -30,6 +30,7 @@ import java.io.Serializable;
 
 /** For version-agnostic creating of {@link ActionRequest}s. */
 public interface RequestFactory extends Serializable {
+
     /**
      * Creates an update request to be added to a {@link RequestIndexer}. Note: the type field has
      * been deprecated since Elasticsearch 7.x and it would not take any effort.

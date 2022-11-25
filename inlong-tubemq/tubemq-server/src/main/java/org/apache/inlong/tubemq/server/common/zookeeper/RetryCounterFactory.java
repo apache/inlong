@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class RetryCounterFactory {
+
     private final int maxRetries;
     private final int retryIntervalMillis;
 

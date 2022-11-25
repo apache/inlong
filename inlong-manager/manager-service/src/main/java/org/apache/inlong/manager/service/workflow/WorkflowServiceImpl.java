@@ -204,8 +204,7 @@ public class WorkflowServiceImpl implements WorkflowService {
                 .status(inst.getStatus())
                 .startTime(inst.getStartTime())
                 .endTime(inst.getEndTime())
-                .build()
-        );
+                .build());
 
         // According to the process execution log, query the execution log of each task in the process
         for (WorkflowExecuteLog executeLog : pageInfo.getList()) {

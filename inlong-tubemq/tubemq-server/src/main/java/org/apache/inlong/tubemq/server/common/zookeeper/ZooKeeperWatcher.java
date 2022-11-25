@@ -48,9 +48,11 @@ import org.slf4j.LoggerFactory;
  * modified version of <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class ZooKeeperWatcher implements Watcher, Abortable {
+
     // Certain ZooKeeper nodes need to be world-readable
     @SuppressWarnings("serial")
     public static final ArrayList<ACL> CREATOR_ALL_AND_WORLD_READABLE = new ArrayList<ACL>() {
+
         {
             add(new ACL(ZooDefs.Perms.READ, ZooDefs.Ids.ANYONE_ID_UNSAFE));
             add(new ACL(ZooDefs.Perms.ALL, ZooDefs.Ids.AUTH_IDS));
@@ -136,8 +138,9 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
 
     @Override
     public String toString() {
-        return recoverableZooKeeper == null ? "" : Long.toHexString(this.recoverableZooKeeper
-                .getSessionId());
+        return recoverableZooKeeper == null ? ""
+                : Long.toHexString(this.recoverableZooKeeper
+                        .getSessionId());
     }
 
     /**
@@ -297,7 +300,7 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
                 }
                 if (this.recoverableZooKeeper == null) {
                     logger.error("ZK is null on connection event -- see stack trace "
-                                    + "for the stack trace when constructor was called on this zkw",
+                            + "for the stack trace when constructor was called on this zkw",
                             this.constructorCaller);
                     throw new NullPointerException("ZK is null");
                 }

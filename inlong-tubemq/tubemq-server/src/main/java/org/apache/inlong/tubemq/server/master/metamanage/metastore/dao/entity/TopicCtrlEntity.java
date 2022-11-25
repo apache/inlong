@@ -47,7 +47,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     public TopicCtrlEntity(BaseEntity opEntity, String topicName,
-                           int topicNameId, int maxMsgSizeInMB) {
+            int topicNameId, int maxMsgSizeInMB) {
         super(opEntity.getDataVerId(),
                 opEntity.getModifyUser(),
                 opEntity.getModifyDate());
@@ -141,7 +141,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      * @return  whether changed
      */
     public boolean updModifyInfo(long dataVerId, int topicNameId,
-                                 int newMaxMsgSizeMB, EnableStatus enableTopicAuth) {
+            int newMaxMsgSizeMB, EnableStatus enableTopicAuth) {
         boolean changed = false;
         // check and set brokerPort info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -212,11 +212,11 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         return (target.getMaxMsgSizeInB() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getMaxMsgSizeInB() == this.maxMsgSizeInB)
                 && (TStringUtils.isBlank(target.getTopicName())
-                || target.getTopicName().equals(this.topicName))
+                        || target.getTopicName().equals(this.topicName))
                 && (target.getAuthCtrlStatus() == EnableStatus.STATUS_UNDEFINE
-                || target.getAuthCtrlStatus() == this.authCtrlStatus)
+                        || target.getAuthCtrlStatus() == this.authCtrlStatus)
                 && (target.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getTopicId() == this.topicNameId);
+                        || target.getTopicId() == this.topicNameId);
     }
 
     /**
@@ -228,8 +228,8 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      * @return   process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         if (isLongName) {
             sBuilder.append("{\"topicName\":\"").append(topicName).append("\"")
                     .append(",\"topicNameId\":").append(topicNameId)

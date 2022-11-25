@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.server.common.paramcheck;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 
 public class ParamCheckResult {
+
     public boolean result;
     public int errCode;
     public String errMsg;

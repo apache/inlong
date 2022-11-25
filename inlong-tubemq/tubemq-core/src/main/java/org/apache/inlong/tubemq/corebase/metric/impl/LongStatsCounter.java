@@ -26,6 +26,7 @@ import org.apache.inlong.tubemq.corebase.metric.Counter;
  * The metric used for statistics, value is stored by LongAdder type.
  */
 public class LongStatsCounter extends BaseMetric implements Counter {
+
     // value counter
     private final LongAdder value = new LongAdder();
 

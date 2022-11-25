@@ -50,8 +50,8 @@ public class FullOuterJoinRelation extends JoinRelation {
      */
     @JsonCreator
     public FullOuterJoinRelation(@JsonProperty("inputs") List<String> inputs,
-                                 @JsonProperty("outputs") List<String> outputs,
-                                 @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
+            @JsonProperty("outputs") List<String> outputs,
+            @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
         super(inputs, outputs, joinConditionMap);
     }
 

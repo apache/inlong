@@ -24,6 +24,7 @@ import io.netty.channel.socket.SocketChannel;
 import org.apache.inlong.audit.util.Decoder;
 
 public class ClientPipelineFactory extends ChannelInitializer<SocketChannel> {
+
     private final SimpleChannelInboundHandler sendHandler;
 
     public ClientPipelineFactory(SimpleChannelInboundHandler sendHandler) {
@@ -36,4 +37,3 @@ public class ClientPipelineFactory extends ChannelInitializer<SocketChannel> {
         ch.pipeline().addLast("handler", sendHandler);
     }
 }
-

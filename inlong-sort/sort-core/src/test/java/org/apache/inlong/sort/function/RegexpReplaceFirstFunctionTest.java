@@ -76,15 +76,16 @@ public class RegexpReplaceFirstFunctionTest extends AbstractTestBase {
         org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction regexpReplaceFirstFunction =
                 new org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction(
                         new FieldInfo("f1",
-                                new StringFormatInfo()), new StringConstantParam("inlong*"),
+                                new StringFormatInfo()),
+                        new StringConstantParam("inlong*"),
                         new StringConstantParam("INLONG"));
         String sqlQuery = String.format("SELECT %s as f1 FROM temp_view", regexpReplaceFirstFunction.format());
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
         // step 4. Get function execution result and parse it
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
+                .hasNext();) {
             String next = it.next();
             result.add(next);
         }

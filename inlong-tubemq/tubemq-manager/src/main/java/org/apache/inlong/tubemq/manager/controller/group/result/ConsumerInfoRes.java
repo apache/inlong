@@ -23,6 +23,7 @@ import java.util.List;
 
 @Data
 public class ConsumerInfoRes {
+
     private String consumeGroup;
     private List<String> topicSet;
     private Double consumerNum;

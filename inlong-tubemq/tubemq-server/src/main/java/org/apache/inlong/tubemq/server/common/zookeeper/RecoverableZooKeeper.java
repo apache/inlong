@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class RecoverableZooKeeper {
+
     private static final Logger logger =
             LoggerFactory.getLogger(RecoverableZooKeeper.class);
     private final RetryCounterFactory retryCounterFactory;
@@ -65,7 +66,7 @@ public class RecoverableZooKeeper {
     private String quorumServers;
 
     public RecoverableZooKeeper(String quorumServers, int sessionTimeout, Watcher watcher,
-                                int maxRetries, int retryIntervalMillis) throws IOException {
+            int maxRetries, int retryIntervalMillis) throws IOException {
         this.zk = new ZooKeeper(quorumServers, sessionTimeout, watcher);
         this.retryCounterFactory = new RetryCounterFactory(maxRetries, retryIntervalMillis);
         this.watcher = watcher;
@@ -442,7 +443,7 @@ public class RecoverableZooKeeper {
     }
 
     private synchronized String createNonSequential(String path, byte[] data, List<ACL> acl,
-                                                    CreateMode createMode)
+            CreateMode createMode)
             throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         boolean isRetry = false; // False for first attempt, true for all
@@ -492,7 +493,7 @@ public class RecoverableZooKeeper {
     }
 
     private synchronized String createSequential(String path, byte[] data, List<ACL> acl,
-                                                 CreateMode createMode) throws KeeperException, InterruptedException {
+            CreateMode createMode) throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         boolean first = true;
         // String newPath = path + this.identifier;

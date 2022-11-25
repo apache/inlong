@@ -53,7 +53,7 @@ public class TestStreamIdFilter {
     public void testStreamId() {
         DefaultMessageFilter messageFilter = new DefaultMessageFilter();
         ProxyMessage proxyMessage = new ProxyMessage("streamId|this is a line of file".getBytes(
-            StandardCharsets.UTF_8), new HashMap<>());
+                StandardCharsets.UTF_8), new HashMap<>());
         String s = messageFilter.filterStreamId(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
         Assert.assertEquals(s, "streamId");
     }
@@ -65,7 +65,7 @@ public class TestStreamIdFilter {
         jobProfile.set(AGENT_MESSAGE_FILTER_CLASSNAME, "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
         MessageFilter messageFilter = sinkTest.initMessageFilter(jobProfile);
         ProxyMessage proxyMessage = new ProxyMessage("tid|this is a line of file".getBytes(
-            StandardCharsets.UTF_8), new HashMap<>());
+                StandardCharsets.UTF_8), new HashMap<>());
         String s = messageFilter.filterStreamId(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
         Assert.assertEquals(s, "tid");
     }
@@ -94,4 +94,3 @@ public class TestStreamIdFilter {
     }
 
 }
-

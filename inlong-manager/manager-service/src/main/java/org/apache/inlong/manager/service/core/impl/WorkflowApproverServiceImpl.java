@@ -104,8 +104,8 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
                 .build();
         List<WorkflowApproverEntity> approverEntities = approverMapper.selectByCondition(pageRequest);
         Set<String> resultSet = new HashSet<>();
-        approverEntities.forEach(entity ->
-                resultSet.addAll(Arrays.asList(entity.getApprovers().split(InlongConstants.COMMA))));
+        approverEntities
+                .forEach(entity -> resultSet.addAll(Arrays.asList(entity.getApprovers().split(InlongConstants.COMMA))));
 
         return new ArrayList<>(resultSet);
     }

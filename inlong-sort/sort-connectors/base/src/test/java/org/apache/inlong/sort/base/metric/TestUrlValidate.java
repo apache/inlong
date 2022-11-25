@@ -30,15 +30,15 @@ public class TestUrlValidate {
     @Test
     public void testJdbcUrlValid() {
         final String jdbcUrl = "jdbc:mysql://localhost:8066/dbtest?"
-            + "detectCustomCollations=true&autoDeserialize=true";
+                + "detectCustomCollations=true&autoDeserialize=true";
         final String expectResult = "jdbc:mysql://localhost:8066/dbtest?"
-            + "detectCustomCollations=true&autoDeserialize=false";
+                + "detectCustomCollations=true&autoDeserialize=false";
         Assert.assertEquals(expectResult, JdbcUrlUtils.replaceInvalidUrlProperty(jdbcUrl));
 
         final String jdbcUrlWithCase = "jdbc:mysql://localhost:8066/dbtest?"
-            + "detectCustomCollations=true&autoDeserialize=tRue";
+                + "detectCustomCollations=true&autoDeserialize=tRue";
         final String expectResultWithoutCase = "jdbc:mysql://localhost:8066/dbtest?"
-            + "detectCustomCollations=true&autoDeserialize=false";
+                + "detectCustomCollations=true&autoDeserialize=false";
         Assert.assertEquals(expectResultWithoutCase, JdbcUrlUtils.replaceInvalidUrlProperty(jdbcUrlWithCase));
 
     }

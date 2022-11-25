@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.broker.stats;
 
 public enum BrokerStatsType {
+
     ALL(0, "all", "all statistics types"),
     SERVICESTATUS(1, "serviceStatus", "service rpc statistics"),
     WEBAPI(2, "webAPI", "web api call statistics"),

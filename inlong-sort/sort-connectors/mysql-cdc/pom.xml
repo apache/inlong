@@ -17,21 +17,19 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <parent>
-        <artifactId>sort-connectors</artifactId>
-        <groupId>org.apache.inlong</groupId>
-        <version>1.5.0-SNAPSHOT</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.apache.inlong</groupId>
+        <artifactId>sort-connectors</artifactId>
+        <version>1.5.0-SNAPSHOT</version>
+    </parent>
+
     <artifactId>sort-connector-mysql-cdc</artifactId>
-    <name>Apache InLong - Sort-connector-mysql-cdc</name>
     <packaging>jar</packaging>
+    <name>Apache InLong - Sort-connector-mysql-cdc</name>
 
     <dependencies>
         <dependency>
@@ -68,10 +66,10 @@
                 <executions>
                     <execution>
                         <id>shade-flink</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <artifactSet>
                                 <includes>
@@ -119,33 +117,23 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.apache.inlong.sort.base</pattern>
-                                    <shadedPattern>
-                                        org.apache.inlong.sort.cdc.mysql.shaded.org.apache.inlong.sort.base
-                                    </shadedPattern>
+                                    <shadedPattern>org.apache.inlong.sort.cdc.mysql.shaded.org.apache.inlong.sort.base</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.kafka</pattern>
-                                    <shadedPattern>
-                                        com.ververica.cdc.connectors.shaded.org.apache.kafka
-                                    </shadedPattern>
+                                    <shadedPattern>com.ververica.cdc.connectors.shaded.org.apache.kafka</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.antlr</pattern>
-                                    <shadedPattern>
-                                        com.ververica.cdc.connectors.shaded.org.antlr
-                                    </shadedPattern>
+                                    <shadedPattern>com.ververica.cdc.connectors.shaded.org.antlr</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.fasterxml</pattern>
-                                    <shadedPattern>
-                                        com.ververica.cdc.connectors.shaded.com.fasterxml
-                                    </shadedPattern>
+                                    <shadedPattern>com.ververica.cdc.connectors.shaded.com.fasterxml</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google</pattern>
-                                    <shadedPattern>
-                                        com.ververica.cdc.connectors.shaded.com.google
-                                    </shadedPattern>
+                                    <shadedPattern>com.ververica.cdc.connectors.shaded.com.google</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.esri.geometry</pattern>
@@ -153,9 +141,7 @@
                                 </relocation>
                                 <relocation>
                                     <pattern>com.zaxxer</pattern>
-                                    <shadedPattern>
-                                        com.ververica.cdc.connectors.shaded.com.zaxxer
-                                    </shadedPattern>
+                                    <shadedPattern>com.ververica.cdc.connectors.shaded.com.zaxxer</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

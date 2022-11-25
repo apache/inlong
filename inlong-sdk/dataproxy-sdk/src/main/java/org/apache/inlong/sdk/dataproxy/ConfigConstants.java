@@ -50,7 +50,7 @@ public class ConfigConstants {
 
     public static final int MAX_LINE_CNT = 30;
 
-    /* Default connection,connect timeout in milliseconds.*/
+    /* Default connection,connect timeout in milliseconds. */
     public static final long DEFAULT_CONNECT_TIMEOUT_MILLIS =
             TimeUnit.MILLISECONDS.convert(40, TimeUnit.SECONDS);
 

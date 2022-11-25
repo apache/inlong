@@ -26,15 +26,15 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Gr
 public interface ConsumeCtrlMapper extends AbstractMapper {
 
     boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean delGroupConsumeCtrlConf(String recordKey, StringBuilder strBuff, ProcessResult result);
 
     boolean delGroupConsumeCtrlConf(String groupName, String topicName,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean isTopicNameInUse(String topicName);
 

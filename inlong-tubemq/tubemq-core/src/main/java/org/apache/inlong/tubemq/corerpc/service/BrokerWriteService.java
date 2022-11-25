@@ -23,12 +23,12 @@ import org.apache.inlong.tubemq.corerpc.client.Callback;
 public interface BrokerWriteService {
 
     ClientBroker.SendMessageResponseB2P sendMessageP2B(ClientBroker.SendMessageRequestP2B request,
-                                                       String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     interface AsyncService extends BrokerWriteService {
 
         void sendMessageP2B(ClientBroker.SendMessageRequestP2B request, String rmtAddress,
-                            boolean overtls, Callback callback) throws Throwable;
+                boolean overtls, Callback callback) throws Throwable;
 
     }
 

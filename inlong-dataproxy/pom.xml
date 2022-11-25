@@ -17,9 +17,7 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -27,8 +25,8 @@
         <artifactId>inlong</artifactId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
-    <packaging>pom</packaging>
     <artifactId>inlong-dataproxy</artifactId>
+    <packaging>pom</packaging>
     <name>Apache InLong - DataProxy</name>
 
     <modules>
@@ -41,13 +39,13 @@
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>tubemq-client</artifactId>
+            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
             </exclusions>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>

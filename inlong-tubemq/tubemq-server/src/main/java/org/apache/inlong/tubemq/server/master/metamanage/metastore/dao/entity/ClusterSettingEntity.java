@@ -141,10 +141,10 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @return if changed
      */
     public boolean updModifyInfo(long dataVerId, int brokerPort, int brokerTLSPort,
-                                 int brokerWebPort, int maxMsgSizeMB,
-                                 int qryPriorityId, EnableStatus flowCtrlEnable,
-                                 int flowRuleCnt, String flowCtrlRuleInfo,
-                                 TopicPropGroup defTopicProps) {
+            int brokerWebPort, int maxMsgSizeMB,
+            int qryPriorityId, EnableStatus flowCtrlEnable,
+            int flowRuleCnt, String flowCtrlRuleInfo,
+            TopicPropGroup defTopicProps) {
         boolean changed = false;
         // check and set dataVerId info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -285,8 +285,8 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @return  the serialized result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         if (isLongName) {
             sBuilder.append("{\"brokerPort\":").append(brokerPort)
                     .append(",\"brokerTLSPort\":").append(brokerTLSPort)
@@ -321,7 +321,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @param isLongName if return field key is long name
      */
     public void getConfigureInfo(Map<String, String> paramMap,
-                                 boolean isLongName) {
+            boolean isLongName) {
         if (brokerPort != TBaseConstants.META_VALUE_UNDEFINED) {
             paramMap.put((isLongName ? "brokerPort" : "bPort"),
                     String.valueOf(brokerPort));
@@ -365,7 +365,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @return           the build result
      */
     public StringBuilder toOldVerFlowCtrlWebJsonStr(StringBuilder sBuilder,
-                                                    boolean isLongName) {
+            boolean isLongName) {
         int statusId = gloFlowCtrlStatus.isEnable() ? 1 : 0;
         if (isLongName) {
             sBuilder.append("{\"statusId\":").append(statusId)

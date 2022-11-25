@@ -18,7 +18,8 @@
 package org.apache.inlong.dataproxy.http.exception;
 
 public class MessageProcessException
-        extends Exception {
+        extends
+            Exception {
 
     public MessageProcessException() {
     }

@@ -63,16 +63,19 @@ public class MongoJob {
 
     @Data
     public static class Snapshot {
+
         private String mode;
     }
 
     @Data
     public static class Capture {
+
         private String mode;
     }
 
     @Data
     public static class History {
+
         private String filename;
 
     }

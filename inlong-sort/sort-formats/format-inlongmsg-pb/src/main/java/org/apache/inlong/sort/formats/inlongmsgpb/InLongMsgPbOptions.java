@@ -24,6 +24,7 @@ import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
 
 public class InLongMsgPbOptions {
+
     private InLongMsgPbOptions() {
     }
 
@@ -39,7 +40,7 @@ public class InLongMsgPbOptions {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Optional flag to skip fields and rows with parse errors instead of failing;\n"
-                                        + "fields are set to null in case of errors");
+                            + "fields are set to null in case of errors");
 
     public static final ConfigOption<String> DECOMPRESS_TYPE =
             ConfigOptions.key("decompress.type")
@@ -59,7 +60,7 @@ public class InLongMsgPbOptions {
         String innerFormat = config.get(INNER_FORMAT);
         if (innerFormat == null) {
             throw new ValidationException(
-                    INNER_FORMAT.key()  + " shouldn't be null.");
+                    INNER_FORMAT.key() + " shouldn't be null.");
         }
     }
 }

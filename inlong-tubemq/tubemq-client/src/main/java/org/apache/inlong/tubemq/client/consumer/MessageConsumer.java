@@ -107,8 +107,8 @@ public interface MessageConsumer extends Shutdownable {
      * the currOffset value carried in PearInfo.
      */
     void completeSubscribe(String sessionKey,
-                           int sourceCount,
-                           boolean isSelectBig,
-                           Map<String, Long> partOffsetMap) throws TubeClientException;
+            int sourceCount,
+            boolean isSelectBig,
+            Map<String, Long> partOffsetMap) throws TubeClientException;
 
 }

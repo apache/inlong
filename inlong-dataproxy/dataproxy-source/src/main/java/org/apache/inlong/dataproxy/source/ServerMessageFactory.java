@@ -33,7 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ServerMessageFactory
-        extends ChannelInitializer<SocketChannel> {
+        extends
+            ChannelInitializer<SocketChannel> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerMessageFactory.class);
 
@@ -129,9 +130,9 @@ public class ServerMessageFactory
 
         if (processor != null) {
             try {
-                Class<? extends ChannelInboundHandlerAdapter> clazz
-                        = (Class<? extends ChannelInboundHandlerAdapter>) Class
-                        .forName(messageHandlerName);
+                Class<? extends ChannelInboundHandlerAdapter> clazz =
+                        (Class<? extends ChannelInboundHandlerAdapter>) Class
+                                .forName(messageHandlerName);
 
                 Constructor<?> ctor = clazz.getConstructor(
                         BaseSource.class, ServiceDecoder.class, ChannelGroup.class,
@@ -142,8 +143,7 @@ public class ServerMessageFactory
                 ChannelInboundHandlerAdapter messageHandler = (ChannelInboundHandlerAdapter) ctor
                         .newInstance(source, serviceDecoder, allChannels, topic, attr,
                                 filterEmptyMsg, maxConnections,
-                                isCompressed,  monitorIndex, monitorIndexExt, protocolType
-                        );
+                                isCompressed, monitorIndex, monitorIndexExt, protocolType);
 
                 ch.pipeline().addLast("messageHandler", messageHandler);
             } catch (Exception e) {

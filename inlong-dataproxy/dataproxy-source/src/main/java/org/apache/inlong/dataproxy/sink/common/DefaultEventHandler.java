@@ -99,14 +99,14 @@ public class DefaultEventHandler implements EventHandler {
         // compress
         byte[] compressBytes = null;
         switch (compressType) {
-            case INLONG_SNAPPY :
+            case INLONG_SNAPPY:
                 compressBytes = Snappy.compress(srcBytes);
                 break;
-            case INLONG_GZ :
+            case INLONG_GZ:
                 compressBytes = GzipUtils.compress(srcBytes);
                 break;
-            case INLONG_NO_COMPRESS :
-            default :
+            case INLONG_NO_COMPRESS:
+            default:
                 compressBytes = srcBytes;
                 break;
         }

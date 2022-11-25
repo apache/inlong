@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.server.common.fileconfig;
 import com.sleepycat.je.Durability;
 
 public class BdbMetaConfig {
+
     private String repGroupName = "tubemqMasterGroup";
     private String repNodeName;
     private int repNodePort = 9001;

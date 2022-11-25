@@ -21,6 +21,7 @@ import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.rv.RetValue;
 
 public class ConfirmResult extends RetValue {
+
     private String topicName = "";
     private PeerInfo peerInfo = new PeerInfo();
     private String confirmContext = "";
@@ -30,15 +31,15 @@ public class ConfirmResult extends RetValue {
     }
 
     public void setSuccResult(String topicName, Partition partition,
-                              long currOffset, long maxOffset) {
+            long currOffset, long maxOffset) {
         super.setSuccResult();
         this.topicName = topicName;
         this.peerInfo.setMsgSourceInfo(partition, currOffset, maxOffset);
     }
 
     public void setProcessResult(boolean isSuccess, int errCode, String errMsg,
-                                 String topicName, Partition partition,
-                                 long currOffset, long maxOffset) {
+            String topicName, Partition partition,
+            long currOffset, long maxOffset) {
         super.setFullInfo(isSuccess, errCode, errMsg);
         this.topicName = topicName;
         this.peerInfo.setMsgSourceInfo(partition, currOffset, maxOffset);

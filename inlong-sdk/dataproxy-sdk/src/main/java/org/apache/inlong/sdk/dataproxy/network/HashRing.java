@@ -30,6 +30,7 @@ import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 public class HashRing {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(HashRing.class);
     private static volatile HashRing instance;
     private int virtualNode = ConfigConstants.DEFAULT_VIRTUAL_NODE;

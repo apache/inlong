@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class ThreadUtils {
+
     private static final Logger logger = LoggerFactory.getLogger(ThreadUtils.class);
     private static final AtomicInteger poolNumber = new AtomicInteger(1);
 
@@ -60,7 +61,7 @@ public class ThreadUtils {
      * @return Returns the passed Thread <code>t</code>.
      */
     public static Thread setDaemonThreadRunning(final Thread t, final String name,
-                                                final UncaughtExceptionHandler handler) {
+            final UncaughtExceptionHandler handler) {
         t.setName(name);
         if (handler != null) {
             t.setUncaughtExceptionHandler(handler);
@@ -125,7 +126,7 @@ public class ThreadUtils {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 }

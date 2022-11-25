@@ -58,7 +58,7 @@ public class LocalProfile {
             if (Files.isDirectory(this.filePath)) {
                 // list parent path and find files which name is end with .json or .properties
                 try (final Stream<Path> pathStream = Files.list(this.filePath)) {
-                    for (Iterator<Path> it = pathStream.iterator(); it.hasNext(); ) {
+                    for (Iterator<Path> it = pathStream.iterator(); it.hasNext();) {
                         String childPath = it.next().toString();
                         JobProfile jobProfile = null;
                         if (childPath.endsWith(JSON_SUFFIX)) {

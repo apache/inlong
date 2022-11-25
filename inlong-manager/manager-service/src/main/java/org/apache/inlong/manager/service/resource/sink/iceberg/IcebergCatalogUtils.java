@@ -119,7 +119,7 @@ public class IcebergCatalogUtils {
     private static String icebergTypeDesc(IcebergColumnInfo column) {
         switch (IcebergType.forType(column.getType())) {
             case DECIMAL:
-                //note: the space is needed or iceberg won't recognize
+                // note: the space is needed or iceberg won't recognize
                 return String.format("decimal(%d, %d)", column.getPrecision(), column.getScale());
             case FIXED:
                 return String.format("fixed(%d)", column.getLength());
@@ -173,7 +173,7 @@ public class IcebergCatalogUtils {
             }
         }
 
-        //commit schema update before partition spec update
+        // commit schema update before partition spec update
         updateSchema.commit();
 
         // update partition spec

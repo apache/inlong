@@ -132,10 +132,11 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
         try {
             this.redisCommandsContainer = RedisCommandsContainerBuilder.build(this.flinkJedisConfigBase);
             this.redisCommandsContainer.open();
-            this.cache = cacheMaxSize == -1 || cacheExpireMs == -1 ? null : CacheBuilder.newBuilder()
-                    .expireAfterWrite(cacheExpireMs, TimeUnit.MILLISECONDS)
-                    .maximumSize(cacheMaxSize)
-                    .build();
+            this.cache = cacheMaxSize == -1 || cacheExpireMs == -1 ? null
+                    : CacheBuilder.newBuilder()
+                            .expireAfterWrite(cacheExpireMs, TimeUnit.MILLISECONDS)
+                            .maximumSize(cacheMaxSize)
+                            .build();
         } catch (Exception e) {
             LOG.error("Redis has not been properly initialized: ", e);
             throw e;

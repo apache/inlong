@@ -150,7 +150,8 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         boolean scanNewlyAddedTableEnabled = config.get(SCAN_NEWLY_ADDED_TABLE_ENABLED);
         Duration heartbeatInterval = config.get(HEARTBEAT_INTERVAL);
         final String rowKindFiltered = config.get(ROW_KINDS_FILTERED).isEmpty()
-            ? ROW_KINDS_FILTERED.defaultValue() : config.get(ROW_KINDS_FILTERED);
+                ? ROW_KINDS_FILTERED.defaultValue()
+                : config.get(ROW_KINDS_FILTERED);
         boolean enableParallelRead = config.get(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
         if (enableParallelRead) {
             validatePrimaryKeyIfEnableParallel(physicalSchema);

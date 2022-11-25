@@ -26,6 +26,6 @@ public interface TemplateEngine {
     String renderTemplate(String templateName, RequestContext context) throws Exception;
 
     void renderTemplate(String templateName,
-                        RequestContext context,
-                        Writer writer) throws Exception;
+            RequestContext context,
+            Writer writer) throws Exception;
 }

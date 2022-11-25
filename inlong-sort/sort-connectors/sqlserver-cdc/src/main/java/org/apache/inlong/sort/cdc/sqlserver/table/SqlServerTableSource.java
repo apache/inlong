@@ -94,7 +94,7 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
             Properties dbzProperties,
             StartupOptions startupOptions,
             String inlongMetric,
-        String auditHostAndPorts) {
+            String auditHostAndPorts) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -149,8 +149,8 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                         .debeziumProperties(dbzProperties)
                         .startupOptions(startupOptions)
                         .deserializer(deserializer)
-                    .inlongMetric(inlongMetric)
-                    .auditHostAndPorts(auditHostAndPorts)
+                        .inlongMetric(inlongMetric)
+                        .auditHostAndPorts(auditHostAndPorts)
                         .build();
         return SourceFunctionProvider.of(sourceFunction, false);
     }
@@ -162,11 +162,10 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(SqlServerReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(SqlServerReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(SqlServerReadableMetadata::getConverter)
                 .toArray(MetadataConverter[]::new);
     }
@@ -186,8 +185,8 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
                         password,
                         dbzProperties,
                         startupOptions,
-                    inlongMetric,
-                    auditHostAndPorts);
+                        inlongMetric,
+                        auditHostAndPorts);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

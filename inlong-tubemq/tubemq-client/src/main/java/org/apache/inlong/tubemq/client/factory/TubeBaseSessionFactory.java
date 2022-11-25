@@ -60,7 +60,7 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
      * @param tubeClientConfig   the tube client configure
      */
     public TubeBaseSessionFactory(final ClientFactory clientFactory,
-                                  final TubeClientConfig tubeClientConfig) throws TubeClientException {
+            final TubeClientConfig tubeClientConfig) throws TubeClientException {
         super();
         this.checkConfig(tubeClientConfig);
         this.tubeClientConfig = tubeClientConfig;
@@ -74,7 +74,7 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
         config.put(RpcConstants.RPC_LQ_MAX_FAIL_FORBIDDEN_RATE,
                 tubeClientConfig.getLinkStatsMaxForbiddenRate());
         config.put(RpcConstants.RPC_SERVICE_UNAVAILABLE_FORBIDDEN_DURATION,
-            tubeClientConfig.getUnAvailableFbdDurationMs());
+                tubeClientConfig.getUnAvailableFbdDurationMs());
         this.rpcServiceFactory = new RpcServiceFactory(clientFactory, config);
         this.producerManager = new ProducerManager(this, this.tubeClientConfig);
         this.brokerRcvQltyStats =

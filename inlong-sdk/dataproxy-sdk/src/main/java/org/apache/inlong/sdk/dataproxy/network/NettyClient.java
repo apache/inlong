@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class NettyClient {
+
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
     private Channel channel = null;
@@ -55,7 +56,7 @@ public class NettyClient {
     }
 
     public NettyClient(Bootstrap bootstrap, String serverIP,
-                       int serverPort, ProxyClientConfig configure) {
+            int serverPort, ProxyClientConfig configure) {
         this.bootstrap = bootstrap;
         this.serverIP = serverIP;
         this.serverPort = serverPort;
@@ -79,6 +80,7 @@ public class NettyClient {
         ChannelFuture future = bootstrap.connect(new InetSocketAddress(
                 serverIP, serverPort));
         future.addListener(new ChannelFutureListener() {
+
             public void operationComplete(ChannelFuture arg0) throws Exception {
                 logger.info("connect ack! {}", serverIP);
                 awaitLatch.countDown();
@@ -113,6 +115,7 @@ public class NettyClient {
             if (channel != null) {
                 ChannelFuture future = channel.close();
                 future.addListener(new ChannelFutureListener() {
+
                     public void operationComplete(ChannelFuture arg0)
                             throws Exception {
                         logger.info("close client ack {}", serverIP);

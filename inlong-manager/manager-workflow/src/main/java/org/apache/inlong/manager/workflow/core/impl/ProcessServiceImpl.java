@@ -83,8 +83,7 @@ public class ProcessServiceImpl implements ProcessService {
                     .setTaskEntity(taskEntity)
                     .setOperator(operator)
                     .setRemark(remark)
-                    .setTask(task)
-            );
+                    .setTask(task));
             this.processorExecutor.executeStart(task, context);
         }
         return context;
@@ -104,8 +103,7 @@ public class ProcessServiceImpl implements ProcessService {
                     .setTaskEntity(taskEntity)
                     .setOperator(operator)
                     .setRemark(remark)
-                    .setTask(task)
-            );
+                    .setTask(task));
             this.processorExecutor.executeComplete(task, context);
         }
 

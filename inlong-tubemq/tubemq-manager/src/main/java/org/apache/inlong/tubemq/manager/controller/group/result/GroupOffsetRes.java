@@ -23,6 +23,7 @@ import java.util.List;
 
 @Data
 public class GroupOffsetRes {
+
     private String groupName;
     private List<TopicOffsetRes> subInfo;
     private int topicCount;

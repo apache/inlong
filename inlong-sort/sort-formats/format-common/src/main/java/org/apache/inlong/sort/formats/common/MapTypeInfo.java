@@ -50,8 +50,7 @@ public class MapTypeInfo implements TypeInfo {
     @JsonCreator
     public MapTypeInfo(
             @JsonProperty(FIELD_KEY_TYPE) @Nonnull TypeInfo keyTypeInfo,
-            @JsonProperty(FIELD_VALUE_TYPE) @Nonnull TypeInfo valueTypeInfo
-    ) {
+            @JsonProperty(FIELD_VALUE_TYPE) @Nonnull TypeInfo valueTypeInfo) {
         this.keyTypeInfo = keyTypeInfo;
         this.valueTypeInfo = valueTypeInfo;
     }
@@ -78,7 +77,7 @@ public class MapTypeInfo implements TypeInfo {
 
         MapTypeInfo that = (MapTypeInfo) o;
         return keyTypeInfo.equals(that.keyTypeInfo)
-                       && valueTypeInfo.equals(that.valueTypeInfo);
+                && valueTypeInfo.equals(that.valueTypeInfo);
     }
 
     @Override

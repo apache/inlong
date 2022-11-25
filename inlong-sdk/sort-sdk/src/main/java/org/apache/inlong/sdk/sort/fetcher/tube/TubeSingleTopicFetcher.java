@@ -50,6 +50,7 @@ import java.util.concurrent.TimeUnit;
  * Tube single topic fetcher
  */
 public class TubeSingleTopicFetcher extends SingleTopicFetcher {
+
     private static final Logger LOG = LoggerFactory.getLogger(TubeSingleTopicFetcher.class);
     private PullMessageConsumer messageConsumer;
     private volatile Thread fetchThread;

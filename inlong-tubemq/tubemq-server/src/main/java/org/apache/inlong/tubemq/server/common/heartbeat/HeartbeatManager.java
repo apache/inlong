@@ -121,10 +121,11 @@ public class HeartbeatManager {
     }
 
     private void registerCheckBusiness(final String businessType,
-                                       final Map<String, TimeoutInfo> nodeMap,
-                                       final TimeoutListener listener) {
+            final Map<String, TimeoutInfo> nodeMap,
+            final TimeoutListener listener) {
 
         timeoutScanService.submit(new Runnable() {
+
             @Override
             public void run() {
                 while (!isStopped) {
@@ -202,8 +203,8 @@ public class HeartbeatManager {
      * @return the timeout info of the registered consumer
      */
     public TimeoutInfo regConsumerNode(final String nodeId,
-                                       final String consumerId,
-                                       final String partStr) {
+            final String consumerId,
+            final String partStr) {
         return this.consumerRegMap.put(nodeId,
                 new TimeoutInfo(consumerId, partStr, this.consumerTimeoutDlt));
     }
@@ -253,7 +254,7 @@ public class HeartbeatManager {
      * @throws HeartbeatException if the timeout info of the node is not found
      */
     public boolean updBrokerNode(String nodeId, String createId,
-                                 StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         TimeoutInfo timeoutInfo = brokerRegMap.get(nodeId);
         if (timeoutInfo == null) {
             result.setFailResult(TErrCodeConstants.HB_NO_NODE,

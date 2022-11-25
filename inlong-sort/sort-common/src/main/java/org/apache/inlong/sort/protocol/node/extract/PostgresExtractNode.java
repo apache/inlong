@@ -113,8 +113,8 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
         options.put(PostgresConstant.DATABASE_NAME, database);
         options.put(PostgresConstant.SCHEMA_NAME, schema);
         options.put(PostgresConstant.PORT, port.toString());
-        String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
-                String.format("(%s)", StringUtils.join(tableNames, "|"));
+        String formatTable =
+                tableNames.size() == 1 ? tableNames.get(0) : String.format("(%s)", StringUtils.join(tableNames, "|"));
         options.put(PostgresConstant.TABLE_NAME, String.format("%s", formatTable));
         String decodingPluginNameOption;
         if (StringUtils.isNotEmpty(decodingPluginName)) {

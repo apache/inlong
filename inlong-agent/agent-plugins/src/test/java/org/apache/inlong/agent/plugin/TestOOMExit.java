@@ -55,6 +55,7 @@ public class TestOOMExit {
     }
 
     static class MockJobManager extends AbstractDaemon {
+
         private static final Logger LOGGER = LoggerFactory.getLogger(MockJobManager.class);
 
         @Override

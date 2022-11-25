@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
  * MultiTopicsFetcher for pulsar.
  */
 public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarMultiTopicsFetcher.class);
     private PulsarConsumer currentConsumer;
     private List<PulsarConsumer> toBeRemovedConsumers = new LinkedList<>();
@@ -347,7 +348,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                 String offsetKey = getOffset(msg.getMessageId());
                 currentConsumer.put(offsetKey, topic, msg.getMessageId());
 
-                //deserialize
+                // deserialize
                 List<InLongMessage> inLongMessages = deserializer
                         .deserialize(context, topic, msg.getProperties(), msg.getData());
                 // intercept

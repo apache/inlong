@@ -33,8 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SimpleUdpSource
-        extends BaseSource
-        implements EventDrivenSource, Configurable {
+        extends
+            BaseSource
+        implements
+            EventDrivenSource,
+            Configurable {
 
     private static final Logger logger = LoggerFactory
             .getLogger(SimpleUdpSource.class);
@@ -47,13 +50,13 @@ public class SimpleUdpSource
         super();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public void startSource() {
         // setup Netty server
         logger.info("start " + this.getName());
         bootstrap = new Bootstrap();
-        logger.info("Set max workers : {} ;",maxThreads);
+        logger.info("Set max workers : {} ;", maxThreads);
         bootstrap.channel(NioDatagramChannel.class);
         bootstrap.option(ChannelOption.SO_RCVBUF, receiveBufferSize);
         bootstrap.option(ChannelOption.SO_SNDBUF, sendBufferSize);
@@ -68,9 +71,9 @@ public class SimpleUdpSource
             }
         } catch (Exception e) {
             logger.error("Simple UDP Source error bind host {} port {}, program will exit!",
-                    new Object[] { host, port});
+                    new Object[]{host, port});
             System.exit(-1);
-            //throw new FlumeException(e.getMessage());
+            // throw new FlumeException(e.getMessage());
         }
         ConfigManager.getInstance().addSourceReportInfo(
                 host, String.valueOf(port), getProtocolName().toUpperCase());

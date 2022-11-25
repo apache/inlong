@@ -23,12 +23,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class TopicProcessor {
+
     private MessageListener messageListener;
     private TreeSet<String> filterCondStrs;
     private List<Integer> filterCondCodes = new ArrayList<>();
 
     public TopicProcessor(final MessageListener messageListener,
-                          final TreeSet<String> filterConds) {
+            final TreeSet<String> filterConds) {
         this.messageListener = messageListener;
         this.filterCondStrs = filterConds;
         if ((this.filterCondStrs != null) && !this.filterCondStrs.isEmpty()) {

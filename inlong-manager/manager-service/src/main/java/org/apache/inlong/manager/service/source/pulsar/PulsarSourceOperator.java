@@ -113,7 +113,8 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
         String adminUrl = pulsarCluster.getAdminUrl();
         String serviceUrl = pulsarCluster.getUrl();
         String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                ? InlongConstants.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+                ? InlongConstants.DEFAULT_PULSAR_TENANT
+                : pulsarCluster.getTenant();
 
         Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
         streamInfos.forEach(streamInfo -> {

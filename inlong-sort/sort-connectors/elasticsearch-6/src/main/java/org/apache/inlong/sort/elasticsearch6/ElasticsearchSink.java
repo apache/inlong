@@ -244,8 +244,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     elasticsearchSinkFunction,
                     failureHandler,
                     restClientFactory,
-                    inlongMetric
-                    );
+                    inlongMetric);
         }
 
         @Override

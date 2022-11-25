@@ -21,6 +21,7 @@ import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 
 @FunctionalInterface
 public interface ZoneClusterProducerCalculator {
+
     AbstractZoneClusterProducer calculator(String workerName,
-                                           CacheClusterConfig config, AbstractZoneSinkContext context);
+            CacheClusterConfig config, AbstractZoneSinkContext context);
 }

@@ -17,17 +17,16 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-audit</artifactId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <name>Apache InLong - Audit store</name>
     <artifactId>audit-store</artifactId>
+    <name>Apache InLong - Audit store</name>
 
     <dependencies>
         <dependency>
@@ -45,12 +44,12 @@
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>spring-boot-autoconfigure</artifactId>
                     <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-autoconfigure</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>log4j-api</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -82,20 +81,20 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-starter</artifactId>
-                    <groupId>org.springframework.boot</groupId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-autoconfigure</artifactId>
-                    <groupId>org.springframework.boot</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>junit-jupiter-api</artifactId>
                     <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>spring-boot</artifactId>
                     <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -104,8 +103,8 @@
             <artifactId>druid-spring-boot-starter</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>spring-boot</artifactId>
                     <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -135,16 +134,16 @@
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>commons-codec</artifactId>
                     <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>jackson-core</artifactId>
                     <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>snakeyaml</artifactId>
                     <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -193,8 +192,8 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
                 <includes>
                     <include>**/application*.yml</include>
                     <include>**/application*.yaml</include>
@@ -223,17 +222,17 @@
                     <executions>
                         <execution>
                             <id>compile</id>
-                            <phase>compile</phase>
                             <goals>
                                 <goal>compile</goal>
                             </goals>
+                            <phase>compile</phase>
                         </execution>
                         <execution>
                             <id>test-compile</id>
-                            <phase>test-compile</phase>
                             <goals>
                                 <goal>test-compile</goal>
                             </goals>
+                            <phase>test-compile</phase>
                         </execution>
                     </executions>
                 </plugin>
@@ -247,6 +246,9 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
+                    <configuration>
+                        <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>
@@ -255,9 +257,6 @@
                             </goals>
                         </execution>
                     </executions>
-                    <configuration>
-                        <classesDirectory>${project.build.outputDirectory}</classesDirectory>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -266,8 +265,7 @@
                         <archive>
                             <manifest>
                                 <mainClass>${start-class}</mainClass>
-                                <addDefaultImplementationEntries>true
-                                </addDefaultImplementationEntries>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             </manifest>
                         </archive>
                     </configuration>
@@ -279,8 +277,7 @@
                         <archive>
                             <manifest>
                                 <mainClass>${start-class}</mainClass>
-                                <addDefaultImplementationEntries>true
-                                </addDefaultImplementationEntries>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             </manifest>
                         </archive>
                     </configuration>
@@ -298,6 +295,12 @@
                 <plugin>
                     <groupId>pl.project13.maven</groupId>
                     <artifactId>git-commit-id-plugin</artifactId>
+                    <configuration>
+                        <verbose>true</verbose>
+                        <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+                        <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                        <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    </configuration>
                     <executions>
                         <execution>
                             <goals>
@@ -305,19 +308,14 @@
                             </goals>
                         </execution>
                     </executions>
-                    <configuration>
-                        <verbose>true</verbose>
-                        <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
-                        <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                        <generateGitPropertiesFilename>
-                            ${project.build.outputDirectory}/git.properties
-                        </generateGitPropertiesFilename>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring.plugin.version}</version>
+                    <configuration>
+                        <mainClass>${start-class}</mainClass>
+                    </configuration>
                     <executions>
                         <execution>
                             <id>repackage</id>
@@ -326,9 +324,6 @@
                             </goals>
                         </execution>
                     </executions>
-                    <configuration>
-                        <mainClass>${start-class}</mainClass>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -356,28 +351,23 @@
                     </dependencies>
                     <executions>
                         <execution>
-                            <phase>package</phase>
                             <goals>
                                 <goal>shade</goal>
                             </goals>
+                            <phase>package</phase>
                             <configuration>
                                 <transformers>
-                                    <transformer
-                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                         <resource>META-INF/spring.handlers</resource>
                                     </transformer>
-                                    <transformer
-                                            implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
+                                    <transformer implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
                                         <resource>META-INF/spring.factories</resource>
                                     </transformer>
-                                    <transformer
-                                            implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                         <resource>META-INF/spring.schemas</resource>
                                     </transformer>
-                                    <transformer
-                                            implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                                    <transformer
-                                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                         <mainClass>${start-class}</mainClass>
                                     </transformer>
                                 </transformers>

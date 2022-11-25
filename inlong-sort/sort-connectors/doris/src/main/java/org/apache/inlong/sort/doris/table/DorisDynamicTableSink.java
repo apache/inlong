@@ -119,4 +119,3 @@ public class DorisDynamicTableSink implements DynamicTableSink {
         return "Doris Table Sink Of InLong";
     }
 }
-

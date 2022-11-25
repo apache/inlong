@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class SortTaskInfo {
+
     private static final long serialVersionUID = 1L;
     String sortClusterName;
     String sortTaskName;

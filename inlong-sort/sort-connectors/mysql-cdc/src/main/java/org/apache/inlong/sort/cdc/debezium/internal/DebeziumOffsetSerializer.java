@@ -26,6 +26,7 @@ import java.io.IOException;
 /** Serializer implementation for a {@link DebeziumOffset}. */
 @Internal
 public class DebeziumOffsetSerializer {
+
     public static final DebeziumOffsetSerializer INSTANCE = new DebeziumOffsetSerializer();
 
     public byte[] serialize(DebeziumOffset debeziumOffset) throws IOException {

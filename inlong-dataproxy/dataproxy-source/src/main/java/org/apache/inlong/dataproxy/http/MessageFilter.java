@@ -52,8 +52,8 @@ public class MessageFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request,
-                         ServletResponse response,
-                         FilterChain chain) throws IOException {
+            ServletResponse response,
+            FilterChain chain) throws IOException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
@@ -136,7 +136,7 @@ public class MessageFilter implements Filter {
     }
 
     private void returnRspPackage(HttpServletResponse resp, String charEncoding,
-                                  int errCode, String errMsg) throws IOException {
+            int errCode, String errMsg) throws IOException {
         StringBuilder builder =
                 new StringBuilder().append("{\"code\":\"").append(errCode)
                         .append("\",\"msg\":\"").append(errMsg).append("\"}");

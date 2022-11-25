@@ -105,7 +105,10 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
  * File system {@link DynamicTableSink}.
  */
 public class FileSystemTableSink extends AbstractFileSystemTable
-        implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
+        implements
+            DynamicTableSink,
+            SupportsPartitioning,
+            SupportsOverwrite {
 
     // For compaction reading
     @Nullable
@@ -232,21 +235,21 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
         BucketsBuilder<RowData, String, ? extends BucketsBuilder<RowData, ?, ?>> bucketsBuilder;
         if (isEncoder) {
-            //noinspection unchecked
+            // noinspection unchecked
             bucketsBuilder =
                     StreamingFileSink.forRowFormat(
-                                    path,
-                                    new ProjectionEncoder((Encoder<RowData>) writer, computer))
+                            path,
+                            new ProjectionEncoder((Encoder<RowData>) writer, computer))
                             .withBucketAssigner(assigner)
                             .withOutputFileConfig(fileNamingConfig)
                             .withRollingPolicy(rollingPolicy);
         } else {
-            //noinspection unchecked
+            // noinspection unchecked
             bucketsBuilder =
                     StreamingFileSink.forBulkFormat(
-                                    path,
-                                    new ProjectionBulkFactory(
-                                            (BulkWriter.Factory<RowData>) writer, computer))
+                            path,
+                            new ProjectionBulkFactory(
+                                    (BulkWriter.Factory<RowData>) writer, computer))
                             .withBucketAssigner(assigner)
                             .withOutputFileConfig(fileNamingConfig)
                             .withRollingPolicy(rollingPolicy);
@@ -265,10 +268,9 @@ public class FileSystemTableSink extends AbstractFileSystemTable
             CompactReader.Factory<RowData> reader =
                     createCompactReaderFactory(sinkContext)
                             .orElseThrow(
-                                    () ->
-                                            new TableException(
-                                                    "Please implement available reader for compaction:"
-                                                            + " BulkFormat, FileInputFormat."));
+                                    () -> new TableException(
+                                            "Please implement available reader for compaction:"
+                                                    + " BulkFormat, FileInputFormat."));
 
             writerStream =
                     StreamingSink.compactionWriter(
@@ -308,7 +310,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         } else if (formatFactory != null) {
             InputFormat<RowData, ?> format = formatFactory.createReader(createReaderContext());
             if (format instanceof FileInputFormat) {
-                //noinspection unchecked
+                // noinspection unchecked
                 return Optional.of(
                         FileInputFormatCompactReader.factory((FileInputFormat<RowData>) format));
             }
@@ -328,6 +330,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
     private DynamicTableSource.Context createSourceContext(Context context) {
         return new DynamicTableSource.Context() {
+
             @Override
             public <T> TypeInformation<T> createTypeInformation(DataType producedDataType) {
                 return context.createTypeInformation(producedDataType);
@@ -343,6 +346,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
     private FileSystemFormatFactory.ReaderContext createReaderContext() {
         return new FileSystemFormatFactory.ReaderContext() {
+
             @Override
             public TableSchema getSchema() {
                 return schema;

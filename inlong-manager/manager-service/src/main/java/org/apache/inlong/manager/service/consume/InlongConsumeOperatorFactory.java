@@ -41,7 +41,6 @@ public class InlongConsumeOperatorFactory {
                 .filter(inst -> inst.accept(mqType))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(
-                        String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType))
-                );
+                        String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType)));
     }
 }

@@ -35,6 +35,7 @@ import java.util.List;
  * Cls channel worker.
  */
 public class ClsChannelWorker extends Thread {
+
     private static final Logger LOG = InlongLoggerFactory.getLogger(ClsChannelWorker.class);
 
     private final ClsSinkContext context;

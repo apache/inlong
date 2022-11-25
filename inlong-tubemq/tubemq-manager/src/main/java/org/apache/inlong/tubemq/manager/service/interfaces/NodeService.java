@@ -61,7 +61,7 @@ public interface NodeService {
      * @return
      */
     TubeMQResult addTopicsToBrokers(MasterEntry masterEntry, List<Integer> brokerIds,
-                                    List<AddTopicReq> addTopicReqs);
+            List<AddTopicReq> addTopicReqs);
 
     /**
      * add one topic to brokers
@@ -84,7 +84,7 @@ public interface NodeService {
      * @return
      */
     boolean configBrokersForTopics(MasterEntry masterEntry,
-                                   Set<String> topics, List<Integer> brokerList, int maxBrokers);
+            Set<String> topics, List<Integer> brokerList, int maxBrokers);
 
     void handleReloadBroker(MasterEntry masterEntry, List<Integer> needReloadList, ClusterEntry clusterEntry);
 

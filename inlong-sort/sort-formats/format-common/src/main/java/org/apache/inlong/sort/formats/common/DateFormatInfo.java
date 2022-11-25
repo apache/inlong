@@ -51,8 +51,7 @@ public class DateFormatInfo implements BasicFormatInfo<Date> {
 
     @JsonCreator
     public DateFormatInfo(
-            @JsonProperty(FIELD_FORMAT) @Nonnull String format
-    ) {
+            @JsonProperty(FIELD_FORMAT) @Nonnull String format) {
         this.format = format;
 
         if (!format.equals("SECONDS")

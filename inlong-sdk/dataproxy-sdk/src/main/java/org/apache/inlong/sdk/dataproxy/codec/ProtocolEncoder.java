@@ -88,7 +88,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 int nonce = new SecureRandom(String.valueOf(timestamp).getBytes()).nextInt(Integer.MAX_VALUE);
                 endAttr = endAttr + "_userName=" + object.getUserName() + "&_clientIP=" + Utils.getLocalIp()
                         + "&_signature=" + Utils.generateSignature(object.getUserName(),
-                        timestamp, nonce, object.getSecretKey())
+                                timestamp, nonce, object.getSecretKey())
                         + "&_timeStamp=" + timestamp + "&_nonce=" + nonce;
             }
             if (Utils.isNotBlank(object.getMsgUUID())) {
@@ -228,7 +228,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 }
                 body = out.toByteArray();
             }
-            //send single message one time
+            // send single message one time
             if (object.getBodyBytes() != null && object.getBodyBytes().length != 0) {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -252,7 +252,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
             int totalLength = 1 + 4 + 4;
             byte[] body = null;
 
-            //send multiple  messages one time
+            // send multiple messages one time
             if (object.getBodylist() != null && object.getBodylist().size() != 0) {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 Iterator<byte[]> iter = object.getBodylist().iterator();
@@ -265,7 +265,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 }
                 body = out.toByteArray();
             }
-            //send single message one time
+            // send single message one time
             if (object.getBodyBytes() != null && object.getBodyBytes().length != 0) {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 ByteBuffer byteBuffer = ByteBuffer.allocate(4);
@@ -319,29 +319,17 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
         return buf;
     }
 
-    /*private ChannelBuffer writeToBuf4(EncodeObject object) {
-        ChannelBuffer buf = ChannelBuffers.dynamicBuffer();
-        try {
-            int totalLength = 1 + 4 + 4;
-            byte[] body = null;
-
-            //send single message one time
-            if (object.getBodyBytes() != null && object.getBodyBytes().length != 0) {
-                body = object.getBodyBytes();
-            }
-            totalLength = totalLength + body.length + object.getAttributes().getBytes("utf8").length;
-            buf.writeInt(totalLength);
-            buf.writeByte(4);
-            buf.writeInt(body.length);
-            buf.writeBytes(body);
-            buf.writeInt(object.getAttributes().getBytes().length);
-            buf.writeBytes(object.getAttributes().getBytes());
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        return buf;
-    }
-    */
+    /*
+     * private ChannelBuffer writeToBuf4(EncodeObject object) { ChannelBuffer buf = ChannelBuffers.dynamicBuffer(); try
+     * { int totalLength = 1 + 4 + 4; byte[] body = null;
+     * 
+     * //send single message one time if (object.getBodyBytes() != null && object.getBodyBytes().length != 0) { body =
+     * object.getBodyBytes(); } totalLength = totalLength + body.length +
+     * object.getAttributes().getBytes("utf8").length; buf.writeInt(totalLength); buf.writeByte(4);
+     * buf.writeInt(body.length); buf.writeBytes(body); buf.writeInt(object.getAttributes().getBytes().length);
+     * buf.writeBytes(object.getAttributes().getBytes()); } catch (Exception e) { logger.error(e.getMessage()); } return
+     * buf; }
+     */
 
     private ByteBuf writeToBuf3(EncodeObject object) {
         ByteBuf buf = null;
@@ -349,7 +337,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
             int totalLength = 1 + 4 + 4;
             byte[] body = null;
 
-            //send multiple  messages one time
+            // send multiple messages one time
             if (object.getBodylist() != null && object.getBodylist().size() != 0) {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 Iterator<byte[]> iter = object.getBodylist().iterator();
@@ -360,7 +348,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                 }
                 body = out.toByteArray();
             }
-            //send single message one time
+            // send single message one time
             if (object.getBodyBytes() != null && object.getBodyBytes().length != 0) {
                 body = object.getBodyBytes();
             }

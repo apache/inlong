@@ -248,9 +248,9 @@ public class DebeziumChangeFetcher<T> {
 
     private TableChange getTableChange(SourceRecord record) {
         SchemaRecord schemaRecord = FlinkDatabaseSchemaHistory.latestTables.get(RecordUtils.getTableId(
-            record));
+                record));
         return FlinkJsonTableChangeSerializer.fromDocument(
-            schemaRecord.toDocument(), true);
+                schemaRecord.toDocument(), true);
     }
 
     private void emitRecordsUnderCheckpointLock(

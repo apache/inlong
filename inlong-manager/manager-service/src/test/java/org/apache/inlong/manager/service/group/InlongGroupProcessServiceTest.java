@@ -51,10 +51,9 @@ public class InlongGroupProcessServiceTest extends ServiceBaseTest {
         before();
         testStartProcess();
         /*
-         TODO: https://github.com/apache/inlong/issues/6631
-          In order to avoid affecting the integration of other features,
-          temporarily comment out the execution content of this function,
-          and add this test case after the problem is identified
+         * TODO: https://github.com/apache/inlong/issues/6631 In order to avoid affecting the integration of other
+         * features, temporarily comment out the execution content of this function, and add this test case after the
+         * problem is identified
          */
         // testSuspendProcess();
         // testRestartProcess();
@@ -108,4 +107,3 @@ public class InlongGroupProcessServiceTest extends ServiceBaseTest {
     }
 
 }
-

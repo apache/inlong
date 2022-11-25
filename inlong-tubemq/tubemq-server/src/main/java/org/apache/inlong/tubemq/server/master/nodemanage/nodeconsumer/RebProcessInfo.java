@@ -32,7 +32,7 @@ public class RebProcessInfo {
     }
 
     public RebProcessInfo(List<String> needProcessList,
-                          List<String> needEscapeList) {
+            List<String> needEscapeList) {
         this.needProcessList = needProcessList;
         this.needEscapeList = needEscapeList;
     }

@@ -37,7 +37,7 @@ public class KafkaZoneSinkContext extends AbstractZoneSinkContext {
      * @param context
      */
     public KafkaZoneSinkContext(String sinkName, Context context, Channel channel,
-                                ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
+            ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
         super(sinkName, context, channel, dispatchQueues);
     }
 

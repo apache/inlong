@@ -36,8 +36,7 @@ public class InLongMsgTlogKvDeserializationInfo extends InLongMsgDeserialization
             @JsonProperty("tid") String tid,
             @JsonProperty("delimiter") char delimiter,
             @JsonProperty("entry_delimiter") char entryDelimiter,
-            @JsonProperty("kv_delimiter") char kvDelimiter
-    ) {
+            @JsonProperty("kv_delimiter") char kvDelimiter) {
         super(tid);
         this.delimiter = delimiter;
         this.entryDelimiter = entryDelimiter;

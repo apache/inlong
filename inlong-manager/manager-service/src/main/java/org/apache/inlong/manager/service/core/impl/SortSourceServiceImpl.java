@@ -69,6 +69,7 @@ public class SortSourceServiceImpl implements SortSourceService {
 
     private static final Gson GSON = new Gson();
     private static final Set<String> SUPPORTED_MQ_TYPE = new HashSet<String>() {
+
         {
             add(MQType.KAFKA);
             add(MQType.TUBEMQ);
@@ -288,8 +289,8 @@ public class SortSourceServiceImpl implements SortSourceService {
         // get group infos
         List<SortSourceStreamSinkInfo> sinkInfoList = sinkList.stream()
                 .filter(sinkInfo -> groupInfos.containsKey(sinkInfo.getGroupId())
-                                && allStreams.containsKey(sinkInfo.getGroupId())
-                                && allStreams.get(sinkInfo.getGroupId()).containsKey(sinkInfo.getStreamId()))
+                        && allStreams.containsKey(sinkInfo.getGroupId())
+                        && allStreams.get(sinkInfo.getGroupId()).containsKey(sinkInfo.getStreamId()))
                 .collect(Collectors.toList());
 
         // group them by cluster tag.
@@ -315,8 +316,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                         (zone1, zone2) -> {
                             zone1.getTopics().addAll(zone2.getTopics());
                             return zone1;
-                        })
-                );
+                        }));
     }
 
     private List<CacheZone> parseCacheZonesByTag(
@@ -347,7 +347,8 @@ public class SortSourceServiceImpl implements SortSourceService {
             SortSourceClusterInfo cluster,
             boolean isBackupTag) {
         switch (cluster.getType()) {
-            case ClusterType.PULSAR: return parsePulsarZone(sinks, cluster, isBackupTag);
+            case ClusterType.PULSAR:
+                return parsePulsarZone(sinks, cluster, isBackupTag);
             default:
                 throw new BusinessException(String.format("do not support cluster type=%s of cluster=%s",
                         cluster.getType(), cluster));

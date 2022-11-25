@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corebase.policies;
 
 public class FlowCtrlResult {
+
     public long dataLtInSize = Integer.MAX_VALUE;
     public int freqLtInMs = 0;
 

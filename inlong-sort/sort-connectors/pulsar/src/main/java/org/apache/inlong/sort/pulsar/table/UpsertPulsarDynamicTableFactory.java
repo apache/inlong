@@ -278,6 +278,7 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
      * for insert-only format.
      */
     protected static class DecodingFormatWrapper implements DecodingFormat<DeserializationSchema<RowData>> {
+
         private static final ChangelogMode SOURCE_CHANGELOG_MODE = ChangelogMode.newBuilder()
                 .addContainedKind(RowKind.UPDATE_AFTER)
                 .addContainedKind(RowKind.DELETE)
@@ -324,6 +325,7 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
      * for insert-only format.
      */
     protected static class EncodingFormatWrapper implements EncodingFormat<SerializationSchema<RowData>> {
+
         public static final ChangelogMode SINK_CHANGELOG_MODE = ChangelogMode.newBuilder()
                 .addContainedKind(RowKind.INSERT)
                 .addContainedKind(RowKind.UPDATE_AFTER)
@@ -366,4 +368,3 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
         }
     }
 }
-

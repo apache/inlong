@@ -52,12 +52,10 @@ public class InEnumIntValidator implements ConstraintValidator<InEnumInt, Intege
         context.disableDefaultConstraintViolation();
         // Add the error message again
         context.buildConstraintViolationWithTemplate(
-                        context.getDefaultConstraintMessageTemplate()
-                                .replace("{value}", Joiner.on(",").join(values))
-                )
+                context.getDefaultConstraintMessageTemplate()
+                        .replace("{value}", Joiner.on(",").join(values)))
                 .addConstraintViolation();
         return false;
     }
 
 }
-
