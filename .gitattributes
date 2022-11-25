@@ -31,8 +31,13 @@
 *.md text
 *.xml text
 *.txt text
+*.ini text
+*.conf text
+*.properties text
 
 # Denote all files that are truly binary and should not be modified.
+*.a binary
+*.jar binary
 *.png binary
 *.jpg binary
 *.jpeg binary
