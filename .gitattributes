@@ -1,3 +1,4 @@
+#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -12,5 +13,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-org.apache.inlong.sort.formats.inlongmsg.InLongMsgFormatFactory
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Declare files that will always have LF line endings on checkout.
+* text eol=lf
+
+# Explicitly declare text files you want to always be normalized and converted
+# to native line endings on checkout.
+*.java text
+*.cpp text
+*.py text
+*.c text
+*.h text
+*.md text
+*.xml text
+*.txt text
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
+*.jpeg binary
