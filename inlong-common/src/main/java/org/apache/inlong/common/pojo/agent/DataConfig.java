@@ -18,6 +18,10 @@
 package org.apache.inlong.common.pojo.agent;
 
 import lombok.Data;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
+import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+
+import java.util.List;
 
 /**
  * The task config for agent.
@@ -45,6 +49,29 @@ public class DataConfig {
      * The task delivery time, format is 'yyyy-MM-dd HH:mm:ss'.
      */
     private String deliveryTime;
+    /**
+     * Data report type.
+     * The current constraint is that all InLong Agents under one InlongGroup use the same type.
+     * <p/>
+     * This constraint is not applicable to InlongStream or StreamSource, which avoids the configuration
+     * granularity and reduces the operation and maintenance costs.
+     * <p/>
+     * Supported type:
+     * <pre>
+     *     0: report to DataProxy and respond when the DataProxy received data.
+     *     1: report to DataProxy and respond after DataProxy sends data.
+     *     2: report to MQ and respond when the MQ received data.
+     * </pre>
+     */
+    private Integer dataReportType = 0;
+    /**
+     * MQ cluster information, valid when reportDataTo is 2.
+     */
+    private List<MQClusterInfo> mqClusters;
+    /**
+     * MQ's topic information, valid when reportDataTo is 2.
+     */
+    private DataProxyTopicInfo topicInfo;
 
     public boolean isValid() {
         return true;
