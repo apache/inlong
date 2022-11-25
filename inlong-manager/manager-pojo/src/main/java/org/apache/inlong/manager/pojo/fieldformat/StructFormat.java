@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.pojo.fieldformat;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.FieldType;
 
 import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor

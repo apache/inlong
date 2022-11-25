@@ -17,12 +17,11 @@
 
 package org.apache.inlong.sort.standalone.rollback;
 
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
-import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,11 +30,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Interceptor that filters events selectively based on a configured time interval.
- * Usually, it's used to roll back data in a certain time interval.
- * It supports config either one of start, stop time or both of them.
- * Multiple TimeBasedFilterInterceptor can be chained together to create more complex time intervals.
+ * Interceptor that filters events selectively based on a configured time
+ * interval. Usually, it's used to roll back data in a certain time interval. It
+ * supports config either one of start, stop time or both of them. Multiple
+ * TimeBasedFilterInterceptor can be chained together to create more complex
+ * time intervals.
  */
 public class TimeBasedFilterInterceptor implements Interceptor {
 
@@ -86,10 +89,10 @@ public class TimeBasedFilterInterceptor implements Interceptor {
     }
 
     /**
-     * Builder of {@link TimeBasedFilterInterceptor}.
-     * Should be configured before build called.
+     * Builder of {@link TimeBasedFilterInterceptor}. Should be configured before
+     * build called.
      */
-    public static class Builder implements Interceptor.Builder  {
+    public static class Builder implements Interceptor.Builder {
 
         private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         private static final String START_TIME = "rollback.startTime";

@@ -50,8 +50,8 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
     /**
      * channelConnected
      * 
-     * @param  ctx
-     * @param  e
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
@@ -62,8 +62,8 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
     /**
      * messageReceived
      * 
-     * @param  ctx
-     * @param  e
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
@@ -78,8 +78,8 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
     /**
      * exceptionCaught
      * 
-     * @param  ctx
-     * @param  e
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
@@ -102,8 +102,8 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
     /**
      * channelDisconnected
      * 
-     * @param  ctx
-     * @param  e
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
@@ -121,8 +121,8 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
     /**
      * channelClosed
      * 
-     * @param  ctx
-     * @param  e
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
@@ -140,8 +140,8 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
     /**
      * writeComplete
      * 
-     * @param  ctx
-     * @param  e
+     * @param ctx
+     * @param e
      * @throws Exception
      */
     @Override
@@ -152,8 +152,8 @@ public class SdkSenderClientHandler extends SimpleChannelHandler {
     /**
      * getChannel
      * 
-     * @param  ctx
-     * @param  e
+     * @param ctx
+     * @param e
      * @return
      */
     private Channel getChannel(ChannelHandlerContext ctx, ChannelEvent e) {

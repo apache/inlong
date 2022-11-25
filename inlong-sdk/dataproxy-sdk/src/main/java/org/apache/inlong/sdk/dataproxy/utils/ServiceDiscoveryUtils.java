@@ -18,10 +18,10 @@
 
 package org.apache.inlong.sdk.dataproxy.utils;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import org.apache.inlong.common.util.BasicAuth;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.network.Utils;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -40,13 +40,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.common.util.BasicAuth;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLContext;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,6 +50,16 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.net.ssl.SSLContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * Utils for service discovery
@@ -116,7 +120,7 @@ public class ServiceDiscoveryUtils {
                 for (String existedIp : existedIps) {
                     if (StringUtils.isBlank(existedIp)) {
                         log.error("ServiceDiscovery get illegal format ipList from local file, "
-                                        + "exist ip is empty, managerIpList is {}, local file is {}",
+                                + "exist ip is empty, managerIpList is {}, local file is {}",
                                 existedIpList, clientConfig.getManagerIpLocalPath());
                         continue;
                     }
@@ -133,7 +137,7 @@ public class ServiceDiscoveryUtils {
                 }
             } else {
                 log.error("ServiceDiscovery get illegal format ipList from local file, "
-                                + "exist ip is empty, managerIpList is {}, local file is {}",
+                        + "exist ip is empty, managerIpList is {}, local file is {}",
                         existedIpList, clientConfig.getManagerIpLocalPath());
             }
         } else {
@@ -147,8 +151,7 @@ public class ServiceDiscoveryUtils {
      * Get Inlong-Manager IP list from the given managerIp and proxy client config
      */
     public static String getManagerIpListByHttp(String managerIp, ProxyClientConfig proxyClientConfig) {
-        String url =
-                (proxyClientConfig.isLocalVisit() ? "http://" : "https://") + managerIp + GET_MANAGER_IP_LIST_API;
+        String url = (proxyClientConfig.isLocalVisit() ? "http://" : "https://") + managerIp + GET_MANAGER_IP_LIST_API;
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
         params.add(new BasicNameValuePair("operation", "query"));
         params.add(new BasicNameValuePair("username", proxyClientConfig.getUserName()));
@@ -267,8 +270,9 @@ public class ServiceDiscoveryUtils {
             localPath.getParentFile().mkdirs();
         }
 
-        try (BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(localPath), StandardCharsets.UTF_8))) {
+        try (
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(new FileOutputStream(localPath), StandardCharsets.UTF_8))) {
             writer.write(storeString);
             writer.flush();
         } catch (IOException e) {

@@ -17,17 +17,6 @@
 
 package org.apache.inlong.tubemq.server.tools.cli;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
 import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
@@ -42,17 +31,31 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.fielddef.CliArgDef;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is used to process CLI Producer process for script #{bin/tubemq-producer-test.sh}.
+ * This class is used to process CLI Producer process for script
+ * #{bin/tubemq-producer-test.sh}.
  *
  */
 public class CliProducer extends CliAbstractBase {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(CliProducer.class);
+    private static final Logger logger = LoggerFactory.getLogger(CliProducer.class);
     // start time
     private long startTime = System.currentTimeMillis();
     // statistic data index
@@ -97,8 +100,8 @@ public class CliProducer extends CliAbstractBase {
         addCommandOption(CliArgDef.MASTERSERVER);
         addCommandOption(CliArgDef.MESSAGES);
         addCommandOption(CliArgDef.MSGDATASIZE);
-        //addCommandOption(CliArgDef.PAYLOADFILE);
-        //addCommandOption(CliArgDef.PAYLOADDELIM);
+        // addCommandOption(CliArgDef.PAYLOADFILE);
+        // addCommandOption(CliArgDef.PAYLOADDELIM);
         addCommandOption(CliArgDef.PRDTOPIC);
         addCommandOption(CliArgDef.RPCTIMEOUT);
         addCommandOption(CliArgDef.CONNREUSE);
@@ -191,18 +194,17 @@ public class CliProducer extends CliAbstractBase {
         topicSendRounds = MixedUtils.buildTopicFilterTupleList(topicAndFiltersMap);
         startTime = System.currentTimeMillis();
         // initial send thread service
-        sendExecutorService =
-                Executors.newFixedThreadPool(sendThreadCnt, new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable runnable) {
-                        return new Thread(runnable, "sender_" + producerMap.size());
-                    }
-                });
+        sendExecutorService = Executors.newFixedThreadPool(sendThreadCnt, new ThreadFactory() {
+
+            @Override
+            public Thread newThread(Runnable runnable) {
+                return new Thread(runnable, "sender_" + producerMap.size());
+            }
+        });
         // initial producer object
         if (reuseConn) {
             // if resue connection, use TubeSingleSessionFactory class
-            MessageSessionFactory msgSessionFactory =
-                    new TubeSingleSessionFactory(clientConfig);
+            MessageSessionFactory msgSessionFactory = new TubeSingleSessionFactory(clientConfig);
             this.sessionFactoryList.add(msgSessionFactory);
             for (int i = 0; i < clientCount; i++) {
                 MessageProducer producer = msgSessionFactory.createProducer();
@@ -214,8 +216,7 @@ public class CliProducer extends CliAbstractBase {
         } else {
             for (int i = 0; i < clientCount; i++) {
                 // if not resue connection, use TubeMultiSessionFactory class
-                MessageSessionFactory msgSessionFactory =
-                        new TubeMultiSessionFactory(clientConfig);
+                MessageSessionFactory msgSessionFactory = new TubeMultiSessionFactory(clientConfig);
                 this.sessionFactoryList.add(msgSessionFactory);
                 MessageProducer producer = msgSessionFactory.createProducer();
                 producer.publish(topicAndFiltersMap.keySet());
@@ -263,8 +264,7 @@ public class CliProducer extends CliAbstractBase {
                             target.getF0(), target.getF1(), sentData, sentCount);
                     // use sync or async process
                     if (syncProduction) {
-                        MessageSentResult procResult =
-                                producer.sendMessage(message);
+                        MessageSentResult procResult = producer.sendMessage(message);
                         TOTAL_COUNTER.incrementAndGet();
                         if (procResult.isSuccess()) {
                             SENT_SUCC_COUNTER.incrementAndGet();
@@ -295,6 +295,7 @@ public class CliProducer extends CliAbstractBase {
     }
 
     private class DefaultSendCallback implements MessageSentCallback {
+
         @Override
         public void onMessageSent(MessageSentResult result) {
             TOTAL_COUNTER.incrementAndGet();
@@ -315,8 +316,10 @@ public class CliProducer extends CliAbstractBase {
 
     /**
      * Produce messages called by the tubemq-producer-test.sh script.
-     * @param args     Call parameter array,
-     *                 the relevant parameters are dynamic mode, which is parsed by CommandLine.
+     * 
+     * @param args
+     *          Call parameter array, the relevant parameters are dynamic mode,
+     *          which is parsed by CommandLine.
      */
     public static void main(String[] args) {
         CliProducer cliProducer = new CliProducer();

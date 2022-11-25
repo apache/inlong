@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
+import static org.junit.Assert.assertEquals;
+
+import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDecodingFormat.ReadableMetadata;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedEncodingFormat.WriteableMetadata;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.formats.common.TimestampFormat;
@@ -34,9 +39,6 @@ import org.apache.flink.table.runtime.typeutils.InternalTypeInfo;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDecodingFormat.ReadableMetadata;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedEncodingFormat.WriteableMetadata;
-import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,67 +53,63 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class CanalJsonEnhancedSerDeSchemaTest {
+
     public static final String DATABASE = "TEST";
 
     public static final String TABLE = "TEST";
 
-    public static final ResolvedSchema SCHEMA =
-            ResolvedSchema.of(
-                    Column.metadata("database", DataTypes.BOOLEAN(), "database", false),
-                    Column.physical("id", DataTypes.BIGINT()),
-                    Column.physical("name", DataTypes.STRING()),
-                    Column.metadata("table", DataTypes.BOOLEAN(), "table", false),
-                    Column.metadata("sql_type",
-                            DataTypes.MAP(DataTypes.STRING(), DataTypes.INT()), "sql-type", false),
-                    Column.metadata("pk_names",
-                            DataTypes.ARRAY(DataTypes.STRING()), "pk-names", false),
-                    Column.metadata("ingestion_timestamp",
-                            DataTypes.TIMESTAMP_LTZ(3), "ingestion-timestamp", false),
-                    Column.metadata("event_timestamp",
-                            DataTypes.TIMESTAMP_LTZ(3), "event-timestamp", false),
-                    Column.metadata("op_type", DataTypes.STRING(), "op-type", false),
-                    Column.metadata("is_ddl", DataTypes.BOOLEAN(), "is-ddl", false),
-                    Column.metadata("mysql_type",
-                            DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()), "mysql-type", false),
-                    Column.metadata("batch_id", DataTypes.BIGINT(), "batch-id", false),
-                    Column.metadata("update_before",
-                            DataTypes.ARRAY(DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
-                            "update-before", false));
+    public static final ResolvedSchema SCHEMA = ResolvedSchema.of(
+            Column.metadata("database", DataTypes.BOOLEAN(), "database", false),
+            Column.physical("id", DataTypes.BIGINT()),
+            Column.physical("name", DataTypes.STRING()),
+            Column.metadata("table", DataTypes.BOOLEAN(), "table", false),
+            Column.metadata("sql_type",
+                    DataTypes.MAP(DataTypes.STRING(), DataTypes.INT()), "sql-type", false),
+            Column.metadata("pk_names",
+                    DataTypes.ARRAY(DataTypes.STRING()), "pk-names", false),
+            Column.metadata("ingestion_timestamp",
+                    DataTypes.TIMESTAMP_LTZ(3), "ingestion-timestamp", false),
+            Column.metadata("event_timestamp",
+                    DataTypes.TIMESTAMP_LTZ(3), "event-timestamp", false),
+            Column.metadata("op_type", DataTypes.STRING(), "op-type", false),
+            Column.metadata("is_ddl", DataTypes.BOOLEAN(), "is-ddl", false),
+            Column.metadata("mysql_type",
+                    DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()), "mysql-type", false),
+            Column.metadata("batch_id", DataTypes.BIGINT(), "batch-id", false),
+            Column.metadata("update_before",
+                    DataTypes.ARRAY(DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
+                    "update-before", false));
 
     public static final DataType PHYSICAL_DATA_TYPE = SCHEMA.toPhysicalRowDataType();
 
-    public static final List<ReadableMetadata> READABLE_METADATA =
-            Stream.of(
-                    ReadableMetadata.DATABASE,
-                    ReadableMetadata.TABLE,
-                    ReadableMetadata.SQL_TYPE,
-                    ReadableMetadata.PK_NAMES,
-                    ReadableMetadata.INGESTION_TIMESTAMP,
-                    ReadableMetadata.EVENT_TIMESTAMP,
-                    ReadableMetadata.OP_TYPE,
-                    ReadableMetadata.IS_DDL,
-                    ReadableMetadata.MYSQL_TYPE,
-                    ReadableMetadata.BATCH_ID,
-                    ReadableMetadata.UPDATE_BEFORE
-            ).collect(Collectors.toList());
+    public static final List<ReadableMetadata> READABLE_METADATA = Stream.of(
+            ReadableMetadata.DATABASE,
+            ReadableMetadata.TABLE,
+            ReadableMetadata.SQL_TYPE,
+            ReadableMetadata.PK_NAMES,
+            ReadableMetadata.INGESTION_TIMESTAMP,
+            ReadableMetadata.EVENT_TIMESTAMP,
+            ReadableMetadata.OP_TYPE,
+            ReadableMetadata.IS_DDL,
+            ReadableMetadata.MYSQL_TYPE,
+            ReadableMetadata.BATCH_ID,
+            ReadableMetadata.UPDATE_BEFORE).collect(Collectors.toList());
 
-    public static final List<WriteableMetadata> WRITEABLE_METADATA =
-            Stream.of(
-                    WriteableMetadata.DATABASE,
-                    WriteableMetadata.TABLE,
-                    WriteableMetadata.SQL_TYPE,
-                    WriteableMetadata.PK_NAMES,
-                    WriteableMetadata.INGESTION_TIMESTAMP,
-                    WriteableMetadata.EVENT_TIMESTAMP,
-                    WriteableMetadata.OP_TYPE,
-                    WriteableMetadata.IS_DDL,
-                    WriteableMetadata.MYSQL_TYPE,
-                    WriteableMetadata.BATCH_ID,
-                    WriteableMetadata.UPDATE_BEFORE
-            ).collect(Collectors.toList());
+    public static final List<WriteableMetadata> WRITEABLE_METADATA = Stream.of(
+            WriteableMetadata.DATABASE,
+            WriteableMetadata.TABLE,
+            WriteableMetadata.SQL_TYPE,
+            WriteableMetadata.PK_NAMES,
+            WriteableMetadata.INGESTION_TIMESTAMP,
+            WriteableMetadata.EVENT_TIMESTAMP,
+            WriteableMetadata.OP_TYPE,
+            WriteableMetadata.IS_DDL,
+            WriteableMetadata.MYSQL_TYPE,
+            WriteableMetadata.BATCH_ID,
+            WriteableMetadata.UPDATE_BEFORE).collect(Collectors.toList());
 
     @Test
     public void testSerDeWithMetadata() throws Exception {
@@ -138,17 +136,17 @@ public class CanalJsonEnhancedSerDeSchemaTest {
     // =======================================Utils=======================================================
 
     private CanalJsonEnhancedDeserializationSchema createCanalJsonDeserializationSchema(
-            DataType physicalDataType, List<ReadableMetadata> requestedMetadata) {
-        final DataType producedDataType =
-                DataTypeUtils.appendRowFields(
-                        physicalDataType,
-                        requestedMetadata.stream()
-                                .map(m -> DataTypes.FIELD(m.key, m.dataType))
-                                .collect(Collectors.toList()));
+            DataType physicalDataType,
+            List<ReadableMetadata> requestedMetadata) {
+        final DataType producedDataType = DataTypeUtils.appendRowFields(
+                physicalDataType,
+                requestedMetadata.stream()
+                        .map(m -> DataTypes.FIELD(m.key, m.dataType))
+                        .collect(Collectors.toList()));
         return CanalJsonEnhancedDeserializationSchema.builder(
-                        PHYSICAL_DATA_TYPE,
-                        requestedMetadata,
-                        InternalTypeInfo.of(producedDataType.getLogicalType()))
+                PHYSICAL_DATA_TYPE,
+                requestedMetadata,
+                InternalTypeInfo.of(producedDataType.getLogicalType()))
                 .setDatabase(DATABASE)
                 .setTable(TABLE)
                 .setIgnoreParseErrors(JsonOptions.IGNORE_PARSE_ERRORS.defaultValue())
@@ -157,7 +155,8 @@ public class CanalJsonEnhancedSerDeSchemaTest {
     }
 
     private CanalJsonEnhancedSerializationSchema createCanalJsonSerializationSchema(
-            DataType physicalDataType, List<WriteableMetadata> requestedMetadata) {
+            DataType physicalDataType,
+            List<WriteableMetadata> requestedMetadata) {
         return new CanalJsonEnhancedSerializationSchema(
                 physicalDataType,
                 requestedMetadata,
@@ -179,7 +178,7 @@ public class CanalJsonEnhancedSerDeSchemaTest {
         assert url != null;
         Path path = new File(url.getFile()).toPath();
         ObjectInputStream in = new ObjectInputStream(new FileInputStream(path.toString()));
-        return (List<RowData>)in.readObject();
+        return (List<RowData>) in.readObject();
     }
 
     public void compareJson(String json1, String json2) throws JsonProcessingException {

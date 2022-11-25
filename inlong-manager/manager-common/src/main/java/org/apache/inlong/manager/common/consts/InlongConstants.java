@@ -58,6 +58,7 @@ public class InlongConstants {
 
     /**
      * Data report type, support:
+     * 
      * <pre>
      *     0: report to DataProxy and respond when the DataProxy received data.
      *     1: report to DataProxy and respond after DataProxy sends data.

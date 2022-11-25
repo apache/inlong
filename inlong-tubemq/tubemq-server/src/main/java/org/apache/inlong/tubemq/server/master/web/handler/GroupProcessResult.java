@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.server.master.web.handler;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 
 public class GroupProcessResult extends ProcessResult {
+
     private String groupName = "";
     private String topicName = "";
 
@@ -28,8 +29,8 @@ public class GroupProcessResult extends ProcessResult {
     }
 
     public GroupProcessResult(String groupName,
-                              String topicName,
-                              ProcessResult result) {
+            String topicName,
+            ProcessResult result) {
         super(result);
         this.groupName = groupName;
         this.topicName = topicName;

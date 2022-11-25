@@ -17,17 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
@@ -47,12 +36,25 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInf
 import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
 import org.apache.inlong.tubemq.server.master.stats.MasterStatsType;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.servlet.http.HttpServletRequest;
+
 public class WebOtherInfoHandler extends AbstractWebHandler {
 
     /**
      * Constructor
      *
-     * @param master tube master
+     * @param master
+     *          tube master
      */
     public WebOtherInfoHandler(TMaster master) {
         super(master);
@@ -87,14 +89,17 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get all API methods supported by this version.
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryAllMethods(HttpServletRequest req,
-                                              StringBuilder sBuffer,
-                                              ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         int totalCnt = getRegisteredMethods(sBuffer);
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
@@ -104,14 +109,17 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get subscription info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder getSubscribeInfo(HttpServletRequest req,
-                                          StringBuilder sBuffer,
-                                          ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, false, null, sBuffer, result)) {
@@ -134,8 +142,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
-        Set<String> queryGroupSet =
-                topicPSInfoManager.getGroupSetWithSubTopic(inGroupNameSet, topicNameSet);
+        Set<String> queryGroupSet = topicPSInfoManager.getGroupSetWithSubTopic(inGroupNameSet, topicNameSet);
         int totalCnt = 0;
         int topicCnt = 0;
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
@@ -163,14 +170,17 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get Master version info
      *
-     * @param req       Http Servlet Request
-     * @param strBuff   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param strBuff
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryMasterVersion(HttpServletRequest req,
-                                                 StringBuilder strBuff,
-                                                 ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         WebParameterUtils.buildSuccessWithDataRetBegin(strBuff);
         strBuff.append("{\"version\":\"")
                 .append(TubeServerVersion.SERVER_VERSION).append("\"}");
@@ -181,15 +191,18 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get consume group detail info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     // #lizard forgives
     public StringBuilder getConsumeGroupDetailInfo(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // get group name
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.GROUPNAME, true, null, sBuffer, result)) {
@@ -333,14 +346,17 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Query Master's version
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return          metric information
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return metric information
      */
     public StringBuilder adminQueryBrokerVersion(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         sBuffer.append("{\"version\":\"")
                 .append(TubeServerVersion.SERVER_VERSION).append("\"}");
@@ -351,14 +367,17 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Get master's metric information
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return          metric information
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return metric information
      */
     public StringBuilder adminGetMetricsInfo(HttpServletRequest req,
-                                             StringBuilder sBuffer,
-                                             ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get whether to reset the metric items
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.NEEDREFRESH, false, false, sBuffer, result)) {
@@ -389,14 +408,17 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Enable Master's statistics functions.
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return          metric information
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return metric information
      */
     public StringBuilder adminEnableMetricsStats(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -409,12 +431,14 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Disable Master's statistics functions.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public StringBuilder adminDisableMetricsStats(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -428,12 +452,14 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Disable Master's all statistics functions.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public StringBuilder adminDisableAllStats(HttpServletRequest req,
-                                              StringBuilder sBuffer,
-                                              ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         innEnableOrDisableMetricsStats(false,
                 BrokerStatsType.ALL.getName(), req, sBuffer, result);
         return sBuffer;
@@ -442,18 +468,23 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Disable or Enable Master's statistics functions
      *
-     * @param enable     whether enable or disable
-     * @param statsType  the statistics type to be operated on
-     * @param req        HttpServletRequest
-     * @param sBuffer    query result
-     * @param result     process result
-     * @return           return information
+     * @param enable
+     *          whether enable or disable
+     * @param statsType
+     *          the statistics type to be operated on
+     * @param req
+     *          HttpServletRequest
+     * @param sBuffer
+     *          query result
+     * @param result
+     *          process result
+     * @return return information
      */
     private StringBuilder innEnableOrDisableMetricsStats(boolean enable,
-                                                         String statsType,
-                                                         HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result) {
+            String statsType,
+            HttpServletRequest req,
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // get input metric type
         MasterStatsType inMetricType = null;
         for (MasterStatsType metricType : MasterStatsType.values()) {
@@ -488,17 +519,19 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     /**
      * Private method to append consumer info of the give list to a string builder
      *
-     * @param consumerList  consumer list
-     * @param consumeType   consume type
-     * @param strBuffer     string buffer
+     * @param consumerList
+     *          consumer list
+     * @param consumeType
+     *          consume type
+     * @param strBuffer
+     *          string buffer
      */
     private void getConsumerInfoList(final List<ConsumerInfo> consumerList,
-                                     ConsumeType consumeType, final StringBuilder strBuffer) {
+            ConsumeType consumeType, final StringBuilder strBuffer) {
         strBuffer.append(",\"data\":[");
         if (!consumerList.isEmpty()) {
             Collections.sort(consumerList);
-            Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap =
-                    master.getCurrentSubInfoMap();
+            Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap = master.getCurrentSubInfoMap();
             for (int i = 0; i < consumerList.size(); i++) {
                 ConsumerInfo consumer = consumerList.get(i);
                 if (consumer == null) {
@@ -531,8 +564,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                     strBuffer.append(",\"sourceCount\":").append(consumer.getSourceCount())
                             .append(",\"nodeId\":").append(consumer.getNodeId());
                 }
-                Map<String, Map<String, Partition>> topicSubMap =
-                        currentSubInfoMap.get(consumer.getConsumerId());
+                Map<String, Map<String, Partition>> topicSubMap = currentSubInfoMap.get(consumer.getConsumerId());
                 if (topicSubMap == null || topicSubMap.isEmpty()) {
                     strBuffer.append(",\"parCount\":0,\"parInfo\":[]}");
                 } else {

@@ -31,8 +31,10 @@ public interface DataNodeService {
     /**
      * Save data node.
      *
-     * @param request data node info
-     * @param operator name of operator
+     * @param request
+     *          data node info
+     * @param operator
+     *          name of operator
      * @return cluster id after saving
      */
     Integer save(DataNodeRequest request, String operator);
@@ -40,7 +42,8 @@ public interface DataNodeService {
     /**
      * Get data node by id.
      *
-     * @param id node id
+     * @param id
+     *          node id
      * @return node info
      */
     DataNodeInfo get(Integer id);
@@ -48,8 +51,10 @@ public interface DataNodeService {
     /**
      * Get data node by name and type.
      *
-     * @param name node name
-     * @param type node type
+     * @param name
+     *          node name
+     * @param type
+     *          node type
      * @return node info
      */
     DataNodeInfo get(String name, String type);
@@ -57,7 +62,8 @@ public interface DataNodeService {
     /**
      * Paging query nodes according to conditions.
      *
-     * @param request page request conditions
+     * @param request
+     *          page request conditions
      * @return node list
      */
     PageResult<DataNodeInfo> list(DataNodePageRequest request);
@@ -65,8 +71,10 @@ public interface DataNodeService {
     /**
      * Update data node.
      *
-     * @param request node info to be modified
-     * @param operator current operator
+     * @param request
+     *          node info to be modified
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean update(DataNodeRequest request, String operator);
@@ -74,8 +82,10 @@ public interface DataNodeService {
     /**
      * Update data node by key.
      *
-     * @param request node info to be modified
-     * @param operator current operator
+     * @param request
+     *          node info to be modified
+     * @param operator
+     *          current operator
      * @return update result
      */
     UpdateResult updateByKey(DataNodeRequest request, String operator);
@@ -83,8 +93,10 @@ public interface DataNodeService {
     /**
      * Delete data node.
      *
-     * @param id node id to be deleted
-     * @param operator current operator
+     * @param id
+     *          node id to be deleted
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean delete(Integer id, String operator);
@@ -92,9 +104,12 @@ public interface DataNodeService {
     /**
      * Delete data node by key.
      *
-     * @param name node name to be deleted
-     * @param type node type to be deleted
-     * @param operator current operator
+     * @param name
+     *          node name to be deleted
+     * @param type
+     *          node type to be deleted
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean deleteByKey(String name, String type, String operator);
@@ -102,7 +117,8 @@ public interface DataNodeService {
     /**
      * Test whether the connection can be successfully established.
      *
-     * @param request connection request
+     * @param request
+     *          connection request
      * @return true or false
      */
     Boolean testConnection(DataNodeRequest request);

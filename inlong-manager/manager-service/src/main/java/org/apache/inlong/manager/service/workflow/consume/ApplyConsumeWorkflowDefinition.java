@@ -34,12 +34,13 @@ import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * New inlong consume workflow definition
@@ -129,8 +130,8 @@ public class ApplyConsumeWorkflowDefinition implements WorkflowDefinition {
     /**
      * Get task approvers by process name and task name
      *
-     * @apiNote Do not delete this method, otherwise the unit tests will fail due to not loading the table
-     *         structure in time.
+     * @apiNote Do not delete this method, otherwise the unit tests will fail due to
+     *          not loading the table structure in time.
      */
     private List<String> getTaskApprovers(String taskName) {
         return workflowApproverService.getApprovers(this.getProcessName().name(), taskName);

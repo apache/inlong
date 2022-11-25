@@ -43,7 +43,23 @@ import static org.apache.flume.sink.tubemq.ConfigOptions.SESSION_WARN_DELAYED_MS
 import static org.apache.flume.sink.tubemq.ConfigOptions.SINK_THREAD_NUM;
 import static org.apache.flume.sink.tubemq.ConfigOptions.TOPIC;
 
-import com.google.common.annotations.VisibleForTesting;
+import org.apache.inlong.tubemq.client.config.TubeClientConfig;
+import org.apache.inlong.tubemq.client.exception.TubeClientException;
+import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
+import org.apache.inlong.tubemq.client.producer.MessageProducer;
+import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
+import org.apache.inlong.tubemq.client.producer.MessageSentResult;
+import org.apache.inlong.tubemq.corebase.Message;
+import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
+
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.flume.FlumeException;
+import org.apache.flume.Transaction;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.sink.AbstractSink;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,28 +69,16 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.FlumeException;
-import org.apache.flume.Transaction;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.sink.AbstractSink;
-import org.apache.inlong.tubemq.client.config.TubeClientConfig;
-import org.apache.inlong.tubemq.client.exception.TubeClientException;
-import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
-import org.apache.inlong.tubemq.client.producer.MessageProducer;
-import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
-import org.apache.inlong.tubemq.client.producer.MessageSentResult;
-import org.apache.inlong.tubemq.corebase.Message;
-import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Make tubemq as one of flume sinks
  */
 public class TubemqSink extends AbstractSink implements Configurable {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TubemqSink.class);
 
     public TubeMultiSessionFactory sessionFactory;
@@ -303,7 +307,8 @@ public class TubemqSink extends AbstractSink implements Configurable {
     /**
      * Get producer from cache, create it if not exists.
      *
-     * @param topic - topic name
+     * @param topic
+     *          - topic name
      * @return MessageProducer
      * @throws TubeClientException
      */
@@ -348,6 +353,7 @@ public class TubemqSink extends AbstractSink implements Configurable {
             // send message with callback
             Message message = new Message(es.getTopic(), es.getEvent().getBody());
             producer.sendMessage(message, new MessageSentCallback() {
+
                 @Override
                 public void onMessageSent(MessageSentResult result) {
                     if (!result.isSuccess()) {
@@ -369,7 +375,8 @@ public class TubemqSink extends AbstractSink implements Configurable {
         /**
          * Resent event
          *
-         * @param es EventStat
+         * @param es
+         *          EventStat
          */
         private void resendEvent(EventStat es) {
             if (es == null || es.getEvent() == null) {

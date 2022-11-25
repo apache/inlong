@@ -27,9 +27,10 @@ import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 
+import java.util.List;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * Inlong group service layer interface
@@ -39,8 +40,10 @@ public interface InlongGroupService {
     /**
      * Save inlong group info.
      *
-     * @param groupInfo group request need to save
-     * @param operator name of operator
+     * @param groupInfo
+     *          group request need to save
+     * @param operator
+     *          name of operator
      * @return inlong group id after saving
      */
     String save(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest groupInfo,
@@ -49,7 +52,8 @@ public interface InlongGroupService {
     /**
      * Query whether the specified group id exists
      *
-     * @param groupId the group id to be queried
+     * @param groupId
+     *          the group id to be queried
      * @return does it exist
      */
     Boolean exist(String groupId);
@@ -57,7 +61,8 @@ public interface InlongGroupService {
     /**
      * Get inlong group info based on inlong group id
      *
-     * @param groupId inlong group id
+     * @param groupId
+     *          inlong group id
      * @return detail of inlong group
      */
     InlongGroupInfo get(String groupId);
@@ -65,7 +70,8 @@ public interface InlongGroupService {
     /**
      * Query the group information of each status of the current user
      *
-     * @param operator name of operator
+     * @param operator
+     *          name of operator
      * @return inlong group status statistics
      */
     InlongGroupCountResponse countGroupByUser(String operator);
@@ -73,7 +79,8 @@ public interface InlongGroupService {
     /**
      * According to the group id, query the topic to which it belongs
      *
-     * @param groupId Inlong group id
+     * @param groupId
+     *          Inlong group id
      * @return Topic information
      * @apiNote TubeMQ corresponds to the group, only 1 topic
      */
@@ -82,7 +89,8 @@ public interface InlongGroupService {
     /**
      * According to the group id, query the backup topic to which it belongs
      *
-     * @param groupId inlong group id
+     * @param groupId
+     *          inlong group id
      * @return backup topic info
      */
     InlongGroupTopicInfo getBackupTopic(String groupId);
@@ -90,7 +98,8 @@ public interface InlongGroupService {
     /**
      * Paging query inlong group brief info list
      *
-     * @param request pagination query request
+     * @param request
+     *          pagination query request
      * @return group list
      */
     PageResult<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request);
@@ -98,8 +107,10 @@ public interface InlongGroupService {
     /**
      * Modify group information
      *
-     * @param request inlong group request that needs to be modified
-     * @param operator name of operator
+     * @param request
+     *          inlong group request that needs to be modified
+     * @param operator
+     *          name of operator
      * @return inlong group id
      */
     String update(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest request,
@@ -108,9 +119,12 @@ public interface InlongGroupService {
     /**
      * Modify the status of the specified group
      *
-     * @param groupId inlong group id
-     * @param status modified status
-     * @param operator name of operator
+     * @param groupId
+     *          inlong group id
+     * @param status
+     *          modified status
+     * @param operator
+     *          name of operator
      * @return whether succeed
      */
     Boolean updateStatus(String groupId, Integer status, String operator);
@@ -118,8 +132,10 @@ public interface InlongGroupService {
     /**
      * Check whether deletion is supported for the specified group.
      *
-     * @param groupId inlong group id
-     * @param operator name of operator
+     * @param groupId
+     *          inlong group id
+     * @param operator
+     *          name of operator
      * @return inlong group info
      */
     InlongGroupInfo doDeleteCheck(String groupId, String operator);
@@ -127,8 +143,10 @@ public interface InlongGroupService {
     /**
      * Delete the group information of the specified group id
      *
-     * @param groupId The group id that needs to be deleted
-     * @param operator name of operator
+     * @param groupId
+     *          The group id that needs to be deleted
+     * @param operator
+     *          name of operator
      * @return whether succeed
      * @apiNote Before invoking this delete method, you must
      */
@@ -137,8 +155,10 @@ public interface InlongGroupService {
     /**
      * Save the group modified when the approval is passed
      *
-     * @param approveRequest approval information
-     * @param operator name of operator
+     * @param approveRequest
+     *          approval information
+     * @param operator
+     *          name of operator
      */
     void updateAfterApprove(
             @Valid @NotNull(message = "approve request cannot be null") InlongGroupApproveRequest approveRequest,
@@ -146,10 +166,14 @@ public interface InlongGroupService {
 
     /**
      * Save or update extended information
-     * <p/>First physically delete the existing extended information, and then add this batch of extended information
+     * <p/>
+     * First physically delete the existing extended information, and then add this
+     * batch of extended information
      *
-     * @param groupId inlong group id
-     * @param infoList inlong group ext info list
+     * @param groupId
+     *          inlong group id
+     * @param infoList
+     *          inlong group ext info list
      */
     void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> infoList);
 

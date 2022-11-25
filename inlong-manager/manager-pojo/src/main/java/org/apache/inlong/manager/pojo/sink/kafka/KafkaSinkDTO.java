@@ -17,17 +17,19 @@
 
 package org.apache.inlong.manager.pojo.sink.kafka;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
-import javax.validation.constraints.NotNull;
 import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Kafka sink info
@@ -50,8 +52,7 @@ public class KafkaSinkDTO {
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
 
-    @ApiModelProperty(value = "The strategy of auto offset reset",
-            notes = "including earliest, latest (the default), none")
+    @ApiModelProperty(value = "The strategy of auto offset reset", notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
     @ApiModelProperty("Primary key is required when serializationType is json, avro")

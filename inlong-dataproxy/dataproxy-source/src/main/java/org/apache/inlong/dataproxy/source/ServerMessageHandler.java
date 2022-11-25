@@ -20,34 +20,13 @@ package org.apache.inlong.dataproxy.source;
 import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.group.ChannelGroup;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.flume.ChannelException;
-import org.apache.flume.Event;
-import org.apache.flume.channel.ChannelProcessor;
-import org.apache.flume.event.EventBuilder;
+import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
-import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
+import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -57,14 +36,41 @@ import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.flume.ChannelException;
+import org.apache.flume.Event;
+import org.apache.flume.channel.ChannelProcessor;
+import org.apache.flume.event.EventBuilder;
+
+import java.io.IOException;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
 
 /**
  * Server message handler
  *
  */
 public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
+
     private static final Logger logger = LoggerFactory.getLogger(ServerMessageHandler.class);
 
     private static final String DEFAULT_REMOTE_IP_VALUE = "0.0.0.0";
@@ -110,17 +116,28 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     /**
      * Constructor
      *
-     * @param source AbstractSource
-     * @param serviceDecoder ServiceDecoder
-     * @param allChannels ChannelGroup
-     * @param topic Topic
-     * @param attr String
-     * @param filterEmptyMsg Boolean
-     * @param maxCons maxCons
-     * @param isCompressed Is compressed
-     * @param monitorIndex MonitorIndex
-     * @param monitorIndexExt MonitorIndexExt
-     * @param protocolType protocolType
+     * @param source
+     *          AbstractSource
+     * @param serviceDecoder
+     *          ServiceDecoder
+     * @param allChannels
+     *          ChannelGroup
+     * @param topic
+     *          Topic
+     * @param attr
+     *          String
+     * @param filterEmptyMsg
+     *          Boolean
+     * @param maxCons
+     *          maxCons
+     * @param isCompressed
+     *          Is compressed
+     * @param monitorIndex
+     *          MonitorIndex
+     * @param monitorIndexExt
+     *          MonitorIndexExt
+     * @param protocolType
+     *          protocolType
      */
     public ServerMessageHandler(BaseSource source, ServiceDecoder serviceDecoder,
             ChannelGroup allChannels,
@@ -279,8 +296,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             // get msgType from parsed result
             MsgType msgType = (MsgType) resultMap.get(ConfigConstants.MSG_TYPE);
             // get attribute data from parsed result
-            Map<String, String> commonAttrMap =
-                    (Map<String, String>) resultMap.get(ConfigConstants.COMMON_ATTR_MAP);
+            Map<String, String> commonAttrMap = (Map<String, String>) resultMap.get(ConfigConstants.COMMON_ATTR_MAP);
             if (commonAttrMap == null) {
                 commonAttrMap = new HashMap<>();
             }
@@ -309,8 +325,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
             // check message's groupId, streamId, topic
-            List<ProxyMessage> msgList =
-                    (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
+            List<ProxyMessage> msgList = (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
             if (msgList == null) {
                 commonAttrMap.put(AttributeConstants.MESSAGE_PROCESS_ERRCODE,
                         DataProxyErrCode.EMPTY_MSG.getErrCodeStr());
@@ -327,8 +342,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
             // convert message data
-            Map<String, HashMap<String, List<ProxyMessage>>> messageMap =
-                    new HashMap<>(msgList.size());
+            Map<String, HashMap<String, List<ProxyMessage>>> messageMap = new HashMap<>(msgList.size());
             if (!convertMsgList(msgList, commonAttrMap, messageMap, strRemoteIP)) {
                 MessageUtils.sourceReturnRspPackage(
                         commonAttrMap, resultMap, remoteChannel, msgType);
@@ -357,16 +371,20 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     /**
      * Complete the message content and covert proxy message to map
      *
-     * @param msgList  the message list
-     * @param commonAttrMap common attribute map
-     * @param messageMap    message list
-     * @param strRemoteIP   remote ip
+     * @param msgList
+     *          the message list
+     * @param commonAttrMap
+     *          common attribute map
+     * @param messageMap
+     *          message list
+     * @param strRemoteIP
+     *          remote ip
      *
-     * @return  convert result
+     * @return convert result
      */
     private boolean convertMsgList(List<ProxyMessage> msgList, Map<String, String> commonAttrMap,
-                                   Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
-                                   String strRemoteIP) {
+            Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
+            String strRemoteIP) {
         for (ProxyMessage message : msgList) {
             String configTopic = null;
             String groupId = message.getGroupId();
@@ -381,11 +399,12 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         && configManager.getStreamIdMappingProperties() != null) {
                     groupId = configManager.getGroupIdMappingProperties().get(groupIdNum);
                     streamId = (configManager.getStreamIdMappingProperties().get(groupIdNum) == null)
-                            ? null : configManager.getStreamIdMappingProperties().get(groupIdNum).get(streamIdNum);
+                            ? null
+                            : configManager.getStreamIdMappingProperties().get(groupIdNum).get(streamIdNum);
                     if (groupId != null && streamId != null) {
-                        String enableTrans =
-                                (configManager.getGroupIdEnableMappingProperties() == null)
-                                        ? null : configManager.getGroupIdEnableMappingProperties().get(groupIdNum);
+                        String enableTrans = (configManager.getGroupIdEnableMappingProperties() == null)
+                                ? null
+                                : configManager.getGroupIdEnableMappingProperties().get(groupIdNum);
                         if (("TRUE".equalsIgnoreCase(enableTrans)
                                 && "TRUE".equalsIgnoreCase(num2name))) {
                             String extraAttr = "groupId=" + groupId + "&" + "streamId=" + streamId;
@@ -406,15 +425,14 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     String dcInterfaceId = message.getStreamId();
                     if (StringUtils.isNotEmpty(dcInterfaceId)
                             && configManager.getDcMappingProperties()
-                            .containsKey(dcInterfaceId.trim())) {
+                                    .containsKey(dcInterfaceId.trim())) {
                         groupId = configManager.getDcMappingProperties()
                                 .get(dcInterfaceId.trim()).trim();
                         message.setGroupId(groupId);
                     }
                 }
                 // get configured m value
-                Map<String, String> mxValue =
-                        configManager.getMxPropertiesMaps().get(groupId);
+                Map<String, String> mxValue = configManager.getMxPropertiesMaps().get(groupId);
                 if (mxValue != null && mxValue.size() != 0) {
                     message.getAttributeMap().putAll(mxValue);
                 } else {
@@ -426,9 +444,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             }
             // check topic configure
             if (StringUtils.isEmpty(configTopic)) {
-                String acceptMsg =
-                        configManager.getCommonProperties().getOrDefault(
-                                ConfigConstants.SOURCE_NO_TOPIC_ACCEPT, "false");
+                String acceptMsg = configManager.getCommonProperties().getOrDefault(
+                        ConfigConstants.SOURCE_NO_TOPIC_ACCEPT, "false");
                 if ("true".equalsIgnoreCase(acceptMsg)) {
                     configTopic = this.defaultTopic;
                 } else {
@@ -459,18 +476,26 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     /**
      * format message to event and send to channel
      *
-     * @param ctx  client connect
-     * @param commonAttrMap common attribute map
-     * @param resultMap    the result map
-     * @param messageMap    message list
-     * @param strRemoteIP   remote ip
-     * @param msgType    the message type
-     * @param msgRcvTime  the received time
+     * @param ctx
+     *          client connect
+     * @param commonAttrMap
+     *          common attribute map
+     * @param resultMap
+     *          the result map
+     * @param messageMap
+     *          message list
+     * @param strRemoteIP
+     *          remote ip
+     * @param msgType
+     *          the message type
+     * @param msgRcvTime
+     *          the received time
      */
     private void formatMessagesAndSend(ChannelHandlerContext ctx, Map<String, String> commonAttrMap,
-                                       Map<String, Object> resultMap,
-                                       Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
-                                       String strRemoteIP, MsgType msgType, long msgRcvTime) throws MessageIDException {
+            Map<String, Object> resultMap,
+            Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
+            String strRemoteIP, MsgType msgType, long msgRcvTime)
+            throws MessageIDException {
 
         int inLongMsgVer = 1;
         if (MsgType.MSG_MULTI_BODY_ATTR.equals(msgType)) {
@@ -525,7 +550,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 headers.put(AttributeConstants.RCV_TIME,
                         commonAttrMap.get(AttributeConstants.RCV_TIME));
                 headers.put(ConfigConstants.DECODER_ATTRS,
-                        (String)resultMap.get(ConfigConstants.DECODER_ATTRS));
+                        (String) resultMap.get(ConfigConstants.DECODER_ATTRS));
                 // add extra key-value information
                 headers.put(AttributeConstants.UNIQ_ID,
                         commonAttrMap.get(AttributeConstants.UNIQ_ID));
@@ -555,8 +580,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 final byte[] data = inLongMsg.buildArray();
                 Event event = EventBuilder.withBody(data, headers);
                 inLongMsg.reset();
-                Pair<Boolean, String> evenProcType =
-                        MessageUtils.getEventProcType(syncSend, proxySend);
+                Pair<Boolean, String> evenProcType = MessageUtils.getEventProcType(syncSend, proxySend);
                 if (evenProcType.getLeft()) {
                     event = new SinkRspEvent(event, msgType, ctx);
                 }
@@ -594,9 +618,12 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     /**
      * add statistics information
      *
-     * @param isSuccess  success or failure
-     * @param size    message size
-     * @param event   message event
+     * @param isSuccess
+     *          success or failure
+     * @param size
+     *          message size
+     * @param event
+     *          message event
      */
     private void addStatistics(boolean isSuccess, long size, Event event) {
         if (event == null) {

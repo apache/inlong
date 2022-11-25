@@ -61,15 +61,14 @@ public class HBaseDynamicTableSink implements DynamicTableSink {
 
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
-        HBaseSinkFunction<RowData> sinkFunction =
-                new HBaseSinkFunction<>(
-                        tableName,
-                        hbaseConf,
-                        new RowDataToMutationConverter(hbaseTableSchema, nullStringLiteral),
-                        writeOptions.getBufferFlushMaxSizeInBytes(),
-                        writeOptions.getBufferFlushMaxRows(),
-                        writeOptions.getBufferFlushIntervalMillis(),
-                        inlongMetric, inlongAudit);
+        HBaseSinkFunction<RowData> sinkFunction = new HBaseSinkFunction<>(
+                tableName,
+                hbaseConf,
+                new RowDataToMutationConverter(hbaseTableSchema, nullStringLiteral),
+                writeOptions.getBufferFlushMaxSizeInBytes(),
+                writeOptions.getBufferFlushMaxRows(),
+                writeOptions.getBufferFlushIntervalMillis(),
+                inlongMetric, inlongAudit);
         return SinkFunctionProvider.of(sinkFunction, writeOptions.getParallelism());
     }
 

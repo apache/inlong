@@ -22,17 +22,15 @@ import java.util.List;
 
 public class RebProcessInfo {
 
-    public List<String> needProcessList =
-            new ArrayList<>();
-    public List<String> needEscapeList =
-            new ArrayList<>();
+    public List<String> needProcessList = new ArrayList<>();
+    public List<String> needEscapeList = new ArrayList<>();
 
     public RebProcessInfo() {
 
     }
 
     public RebProcessInfo(List<String> needProcessList,
-                          List<String> needEscapeList) {
+            List<String> needEscapeList) {
         this.needProcessList = needProcessList;
         this.needEscapeList = needEscapeList;
     }

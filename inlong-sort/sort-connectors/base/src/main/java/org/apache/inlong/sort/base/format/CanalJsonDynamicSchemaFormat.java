@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.base.format;
 
+import org.apache.inlong.sort.base.format.JsonToRowDataConverters.JsonToRowDataConverter;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.format.JsonToRowDataConverters.JsonToRowDataConverter;
 
 import java.util.ArrayList;
 import java.util.List;

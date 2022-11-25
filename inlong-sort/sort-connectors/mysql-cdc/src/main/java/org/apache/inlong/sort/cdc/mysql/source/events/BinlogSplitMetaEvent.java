@@ -18,16 +18,18 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.events;
 
-import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.inlong.sort.cdc.mysql.source.enumerator.MySqlSourceEnumerator;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 
+import org.apache.flink.api.connector.source.SourceEvent;
+
 import java.util.List;
 
 /**
- * The {@link SourceEvent} that {@link MySqlSourceEnumerator} sends to {@link MySqlSourceReader} to
- * pass binlog meta data, i.e. {@link FinishedSnapshotSplitInfo}.
+ * The {@link SourceEvent} that {@link MySqlSourceEnumerator} sends to
+ * {@link MySqlSourceReader} to pass binlog meta data, i.e.
+ * {@link FinishedSnapshotSplitInfo}.
  */
 public class BinlogSplitMetaEvent implements SourceEvent {
 
@@ -40,9 +42,9 @@ public class BinlogSplitMetaEvent implements SourceEvent {
      */
     private final int metaGroupId;
     /**
-     * The serialized meta data of binlog split, it's serialized/deserialize by {@link
-     * FinishedSnapshotSplitInfo#serialize(FinishedSnapshotSplitInfo)} and {@link
-     * FinishedSnapshotSplitInfo#deserialize(byte[])}.
+     * The serialized meta data of binlog split, it's serialized/deserialize by
+     * {@link FinishedSnapshotSplitInfo#serialize(FinishedSnapshotSplitInfo)} and
+     * {@link FinishedSnapshotSplitInfo#deserialize(byte[])}.
      */
     private final List<byte[]> metaGroup;
 

@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
-import org.apache.flume.Transaction;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.flume.Transaction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
 
 /**
  * 
@@ -149,9 +151,9 @@ public class PulsarProducerFederation {
     /**
      * send
      * 
-     * @param  profileEvent
-     * @param  tx
-     * @return              boolean
+     * @param profileEvent
+     * @param tx
+     * @return boolean
      * @throws IOException
      */
     public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {

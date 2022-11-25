@@ -19,10 +19,6 @@ package org.apache.inlong.sdk.sort.impl;
 
 import static org.powermock.api.mockito.PowerMockito.when;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.InlongTopicManager;
@@ -30,6 +26,12 @@ import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

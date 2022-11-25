@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.entity.RoleEntity;
+
 import org.springframework.stereotype.Repository;
 
 @Repository

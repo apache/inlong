@@ -28,7 +28,8 @@ public class ManagerReportHandlerImpl implements ManagerReportHandler {
     /**
      * report heartbeat to manager
      *
-     * @param heartBeatParams HeartBeatParams
+     * @param heartBeatParams
+     *          HeartBeatParams
      * @return HeartBeatResult
      */
     @Override
@@ -39,7 +40,8 @@ public class ManagerReportHandlerImpl implements ManagerReportHandler {
     /**
      * updateConsumeStatus to manager
      *
-     * @param consumeStatusParams ConsumeStatusParams
+     * @param consumeStatusParams
+     *          ConsumeStatusParams
      * @return ConsumeStatusResult
      */
     @Override

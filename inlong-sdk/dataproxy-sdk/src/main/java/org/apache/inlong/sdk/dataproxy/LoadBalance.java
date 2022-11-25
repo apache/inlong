@@ -20,10 +20,8 @@ package org.apache.inlong.sdk.dataproxy;
 
 public enum LoadBalance {
 
-    RANDOM("random", 0),
-    ROBIN("robin", 1),
-    CONSISTENCY_HASH("consistency hash", 2),
-    WEIGHT_RANDOM("weight random", 3),
+    RANDOM("random", 0), ROBIN("robin", 1), CONSISTENCY_HASH("consistency hash", 2), WEIGHT_RANDOM("weight random",
+            3),
     WEIGHT_ROBIN("weight robin", 4);
 
     private String name;

@@ -17,11 +17,6 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -53,17 +48,24 @@ import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.util.WorkflowUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 
 /**
  * Workflow service
@@ -204,10 +206,10 @@ public class WorkflowServiceImpl implements WorkflowService {
                 .status(inst.getStatus())
                 .startTime(inst.getStartTime())
                 .endTime(inst.getEndTime())
-                .build()
-        );
+                .build());
 
-        // According to the process execution log, query the execution log of each task in the process
+        // According to the process execution log, query the execution log of each task
+        // in the process
         for (WorkflowExecuteLog executeLog : pageInfo.getList()) {
             TaskRequest taskQuery = new TaskRequest();
             taskQuery.setProcessId(executeLog.getProcessId());

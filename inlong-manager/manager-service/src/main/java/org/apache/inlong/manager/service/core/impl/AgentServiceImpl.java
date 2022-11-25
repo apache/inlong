@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
@@ -53,13 +49,10 @@ import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,6 +62,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.Lists;
 
 /**
  * Agent service layer implementation
@@ -83,7 +86,8 @@ public class AgentServiceImpl implements AgentService {
     private static final int TASK_FETCH_SIZE = 2;
 
     /**
-     * Need issued status list, not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
+     * Need issued status list, not included status with TO_BE_ISSUED_ADD and
+     * TO_BE_ISSUED_ACTIVE
      */
     private static final List<Integer> NEED_ISSUED_STATUS = Arrays.asList(
             SourceStatus.TO_BE_ISSUED_DELETE.getCode(),
@@ -113,8 +117,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
-            propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public void report(TaskRequest request) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin to get agent task: {}", request);
@@ -123,7 +126,8 @@ public class AgentServiceImpl implements AgentService {
             throw new BusinessException("agent request or agent ip was empty, just return");
         }
 
-        // Update task status, other tasks with status 20x will change to 30x in next request
+        // Update task status, other tasks with status 20x will change to 30x in next
+        // request
         if (CollectionUtils.isEmpty(request.getCommandInfo())) {
             LOGGER.info("task result was empty in request: {}, just return", request);
             return;
@@ -136,7 +140,8 @@ public class AgentServiceImpl implements AgentService {
     /**
      * Update task status by command.
      *
-     * @param command command info.
+     * @param command
+     *          command info.
      */
     private void updateTaskStatus(CommandEntity command) {
         Integer taskId = command.getTaskId();
@@ -177,8 +182,7 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
-            propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
     public TaskResult getTaskResult(TaskRequest request) {
         if (StringUtils.isBlank(request.getClusterName()) || StringUtils.isBlank(request.getAgentIp())) {
             throw new BusinessException("agent request or agent ip was empty, just return");
@@ -284,7 +288,8 @@ public class AgentServiceImpl implements AgentService {
             }
 
             // if not, clone a subtask for this Agent.
-            // note: a new source name with random suffix is generated to adhere to the unique constraint
+            // note: a new source name with random suffix is generated to adhere to the
+            // unique constraint
             StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
             fileEntity.setExtParams(sourceEntity.getExtParams());
             fileEntity.setAgentIp(agentIp);
@@ -333,8 +338,10 @@ public class AgentServiceImpl implements AgentService {
     /**
      * Get the DataConfig from the stream source entity.
      *
-     * @param entity stream source entity.
-     * @param op operation code for add, delete, etc.
+     * @param entity
+     *          stream source entity.
+     * @param op
+     *          operation code for add, delete, etc.
      * @return data config.
      */
     private DataConfig getDataConfig(StreamSourceEntity entity, int op) {
@@ -425,7 +432,8 @@ public class AgentServiceImpl implements AgentService {
     /**
      * Get the Task type from the stream source entity.
      *
-     * @param sourceEntity stream source info.
+     * @param sourceEntity
+     *          stream source info.
      * @return task type
      */
     private int getTaskType(StreamSourceEntity sourceEntity) {
@@ -439,7 +447,8 @@ public class AgentServiceImpl implements AgentService {
     /**
      * Get the agent command config by the agent ip.
      *
-     * @param taskRequest task request info.
+     * @param taskRequest
+     *          task request info.
      * @return agent command config list.
      */
     private List<CmdConfig> getAgentCmdConfigs(TaskRequest taskRequest) {

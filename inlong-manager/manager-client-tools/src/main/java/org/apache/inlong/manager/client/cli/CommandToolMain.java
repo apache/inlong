@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.client.cli;
 
+import java.util.Arrays;
+
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-
-import java.util.Arrays;
 
 /**
  * Command tool main.

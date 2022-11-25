@@ -30,9 +30,9 @@ public interface IEvent2PulsarRecordHandler {
     /**
      * parse
      * 
-     * @param  context
-     * @param  event
-     * @return             ProducerRecord
+     * @param context
+     * @param event
+     * @return ProducerRecord
      * @throws IOException
      */
     byte[] parse(PulsarFederationSinkContext context, ProfileEvent event) throws IOException;

@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
+
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.mapping.ResultSetType;
-import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InlongGroupExtEntityMapper {
@@ -51,7 +53,8 @@ public interface InlongGroupExtEntityMapper {
     /**
      * Insert data in batches
      *
-     * @param extEntityList need to insert data
+     * @param extEntityList
+     *          need to insert data
      */
     int insertAll(@Param("extList") List<InlongGroupExtEntity> extEntityList);
 

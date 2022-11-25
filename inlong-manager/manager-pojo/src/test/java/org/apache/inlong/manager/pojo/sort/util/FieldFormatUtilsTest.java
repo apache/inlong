@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
 import org.apache.inlong.manager.pojo.fieldformat.BinaryFormat;
@@ -26,10 +25,13 @@ import org.apache.inlong.manager.pojo.fieldformat.MapFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat;
 import org.apache.inlong.manager.pojo.fieldformat.StructFormat.Element;
 import org.apache.inlong.manager.pojo.fieldformat.VarBinaryFormat;
+
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import com.google.common.collect.Lists;
 
 public class FieldFormatUtilsTest {
 

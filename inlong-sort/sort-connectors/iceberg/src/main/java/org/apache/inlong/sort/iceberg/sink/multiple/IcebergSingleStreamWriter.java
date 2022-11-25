@@ -18,6 +18,16 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -30,21 +40,15 @@ import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.io.TaskWriter;
 import org.apache.iceberg.io.WriteResult;
 import org.apache.iceberg.relocated.com.google.common.base.MoreObjects;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import javax.annotation.Nullable;
 
 public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, WriteResult>
-        implements CheckpointedFunction, SchemaEvolutionFunction<TaskWriterFactory<T>> {
+        implements
+            CheckpointedFunction,
+            SchemaEvolutionFunction<TaskWriterFactory<T>> {
 
     private static final long serialVersionUID = 1L;
 
@@ -105,8 +109,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     }
 
     @Override
-    public void processElement(T value)
-            throws Exception {
+    public void processElement(T value) throws Exception {
         writer.write(value);
 
         if (metricData != null) {
@@ -121,7 +124,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
@@ -147,8 +150,10 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
 
     @Override
     public void endInput() throws IOException {
-        // For bounded stream, it may don't enable the checkpoint mechanism so we'd better to emit the remaining
-        // completed files to downstream before closing the writer so that we won't miss any of them.
+        // For bounded stream, it may don't enable the checkpoint mechanism so we'd
+        // better to emit the remaining
+        // completed files to downstream before closing the writer so that we won't miss
+        // any of them.
         emit(writer.complete());
     }
 

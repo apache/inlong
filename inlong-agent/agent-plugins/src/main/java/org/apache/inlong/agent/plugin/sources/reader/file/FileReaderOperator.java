@@ -17,8 +17,13 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
+import static org.apache.inlong.agent.constant.MetadataConstants.KUBERNETES;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
@@ -28,8 +33,9 @@ import org.apache.inlong.agent.plugin.except.FileException;
 import org.apache.inlong.agent.plugin.sources.reader.AbstractReader;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -43,12 +49,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static org.apache.inlong.agent.constant.CommonConstants.COMMA;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_PARTITION_KEY;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_META_ENV_LIST;
-import static org.apache.inlong.agent.constant.MetadataConstants.KUBERNETES;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * File reader entrance

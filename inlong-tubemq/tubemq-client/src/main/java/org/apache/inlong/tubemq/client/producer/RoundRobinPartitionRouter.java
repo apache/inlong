@@ -17,19 +17,19 @@
 
 package org.apache.inlong.tubemq.client.producer;
 
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class RoundRobinPartitionRouter implements PartitionRouter {
 
     private final AtomicInteger steppedCounter = new AtomicInteger(0);
-    private final ConcurrentHashMap<String/* topic */, AtomicInteger> partitionRouterMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* topic */, AtomicInteger> partitionRouterMap = new ConcurrentHashMap<>();
 
     @Override
     public Partition getPartition(final Message message, final List<Partition> partitions) throws TubeClientException {
@@ -49,8 +49,7 @@ public class RoundRobinPartitionRouter implements PartitionRouter {
         Partition roundPartition = null;
         int partSize = partitions.size();
         for (int i = 0; i < partSize; i++) {
-            roundPartition =
-                    partitions.get((currRouterCount.incrementAndGet() & Integer.MAX_VALUE) % partSize);
+            roundPartition = partitions.get((currRouterCount.incrementAndGet() & Integer.MAX_VALUE) % partSize);
             if (roundPartition != null && roundPartition.getDelayTimeStamp() < System.currentTimeMillis()) {
                 return roundPartition;
             }

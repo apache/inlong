@@ -19,10 +19,12 @@ package org.apache.inlong.tubemq.client.consumer;
 
 import org.apache.inlong.tubemq.client.common.StatsConfig;
 import org.apache.inlong.tubemq.client.common.StatsLevel;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 public class StatsConfigTest {
+
     @Test
     public void testStatsConfig() {
         StatsConfig statsConfig = new StatsConfig();

@@ -17,12 +17,10 @@
 
 package org.apache.inlong.manager.service.resource.sink.mysql;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -31,6 +29,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * Utils for MySQL JDBC.
@@ -44,11 +47,15 @@ public class MySQLJdbcUtils {
     /**
      * Get MySQL connection from the url and user.
      *
-     * @param url jdbc url, such as jdbc:mysql://host:port/database
-     * @param user Username for JDBC URL
-     * @param password User password
+     * @param url
+     *          jdbc url, such as jdbc:mysql://host:port/database
+     * @param user
+     *          Username for JDBC URL
+     * @param password
+     *          User password
      * @return {@link Connection}
-     * @throws Exception on get connection error
+     * @throws Exception
+     *           on get connection error
      */
     public static Connection getConnection(String url, String user, String password) throws Exception {
         if (StringUtils.isBlank(url) || !url.startsWith(MYSQL_JDBC_PREFIX)) {
@@ -74,9 +81,12 @@ public class MySQLJdbcUtils {
     /**
      * Execute SQL command on MySQL.
      *
-     * @param conn JDBC {@link Connection}
-     * @param sql SQL to be executed
-     * @throws Exception on execute SQL error
+     * @param conn
+     *          JDBC {@link Connection}
+     * @param sql
+     *          SQL to be executed
+     * @throws Exception
+     *           on execute SQL error
      */
     public static void executeSql(final Connection conn, final String sql) throws Exception {
         try (Statement stmt = conn.createStatement()) {
@@ -88,9 +98,12 @@ public class MySQLJdbcUtils {
     /**
      * Execute batch query SQL on MySQL.
      *
-     * @param conn JDBC {@link Connection}
-     * @param sqls SQL to be executed
-     * @throws Exception on get execute SQL batch error
+     * @param conn
+     *          JDBC {@link Connection}
+     * @param sqls
+     *          SQL to be executed
+     * @throws Exception
+     *           on get execute SQL batch error
      */
     public static void executeSqlBatch(final Connection conn, final List<String> sqls) throws Exception {
         conn.setAutoCommit(false);
@@ -108,9 +121,12 @@ public class MySQLJdbcUtils {
     /**
      * Create MySQL database
      *
-     * @param conn JDBC {@link Connection}
-     * @param dbName database name
-     * @throws Exception on create database error
+     * @param conn
+     *          JDBC {@link Connection}
+     * @param dbName
+     *          database name
+     * @throws Exception
+     *           on create database error
      */
     public static void createDb(final Connection conn, final String dbName) throws Exception {
         if (!checkDbExist(conn, dbName)) {
@@ -125,14 +141,18 @@ public class MySQLJdbcUtils {
     /**
      * Check database from the MySQL information_schema.
      *
-     * @param conn JDBC {@link Connection}
-     * @param dbName database name
+     * @param conn
+     *          JDBC {@link Connection}
+     * @param dbName
+     *          database name
      * @return true if table exist, otherwise false
-     * @throws Exception on check database exist error
+     * @throws Exception
+     *           on check database exist error
      */
     public static boolean checkDbExist(final Connection conn, final String dbName) throws Exception {
         final String checkDbSql = MySQLSqlBuilder.getCheckDatabase(dbName);
-        try (Statement stmt = conn.createStatement();
+        try (
+                Statement stmt = conn.createStatement();
                 ResultSet resultSet = stmt.executeQuery(checkDbSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
@@ -148,9 +168,12 @@ public class MySQLJdbcUtils {
     /**
      * Create MySQL table by MySQLTableInfo
      *
-     * @param conn JDBC {@link Connection}
-     * @param tableInfo table info  {@link MySQLTableInfo}
-     * @throws Exception on create table error
+     * @param conn
+     *          JDBC {@link Connection}
+     * @param tableInfo
+     *          table info {@link MySQLTableInfo}
+     * @throws Exception
+     *           on create table error
      */
     public static void createTable(final Connection conn, final MySQLTableInfo tableInfo) throws Exception {
         if (checkTablesExist(conn, tableInfo.getDbName(), tableInfo.getTableName())) {
@@ -165,17 +188,23 @@ public class MySQLJdbcUtils {
     /**
      * Check tables from the MySQL information_schema.
      *
-     * @param conn JDBC {@link Connection}
-     * @param dbName database name
-     * @param tableName table name
+     * @param conn
+     *          JDBC {@link Connection}
+     * @param dbName
+     *          database name
+     * @param tableName
+     *          table name
      * @return true if table exist, otherwise false
-     * @throws Exception on check table exist error
+     * @throws Exception
+     *           on check table exist error
      */
-    public static boolean checkTablesExist(final Connection conn, final String dbName, final String tableName)
+    public static boolean checkTablesExist(final Connection conn, final String dbName,
+            final String tableName)
             throws Exception {
         boolean result = false;
         final String checkTableSql = MySQLSqlBuilder.getCheckTable(dbName, tableName);
-        try (Statement stmt = conn.createStatement();
+        try (
+                Statement stmt = conn.createStatement();
                 ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
@@ -190,18 +219,25 @@ public class MySQLJdbcUtils {
     /**
      * Check whether the column exists in the MySQL table.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param dbName database name
-     * @param tableName table name
-     * @param column table column name
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param dbName
+     *          database name
+     * @param tableName
+     *          table name
+     * @param column
+     *          table column name
      * @return true if column exist in the table, otherwise false
-     * @throws Exception on check column exist error
+     * @throws Exception
+     *           on check column exist error
      */
     public static boolean checkColumnExist(final Connection conn, final String dbName, final String tableName,
-            final String column) throws Exception {
+            final String column)
+            throws Exception {
         boolean result = false;
         final String checkTableSql = MySQLSqlBuilder.getCheckColumn(dbName, tableName, column);
-        try (Statement stmt = conn.createStatement();
+        try (
+                Statement stmt = conn.createStatement();
                 ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
             if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
@@ -216,18 +252,24 @@ public class MySQLJdbcUtils {
     /**
      * Query all MySQL table columns by the given tableName.
      *
-     * @param conn JDBC {@link Connection}
-     * @param dbName database name
-     * @param tableName table name
+     * @param conn
+     *          JDBC {@link Connection}
+     * @param dbName
+     *          database name
+     * @param tableName
+     *          table name
      * @return {@link List}
-     * @throws Exception on get columns error
+     * @throws Exception
+     *           on get columns error
      */
-    public static List<MySQLColumnInfo> getColumns(final Connection conn, final String dbName, final String tableName)
+    public static List<MySQLColumnInfo> getColumns(final Connection conn, final String dbName,
+            final String tableName)
             throws Exception {
         final String querySql = MySQLSqlBuilder.buildDescTableSql(dbName, tableName);
         final List<MySQLColumnInfo> columnList = new ArrayList<>();
 
-        try (Statement stmt = conn.createStatement();
+        try (
+                Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(querySql)) {
             if (Objects.nonNull(rs)) {
                 while (rs.next()) {
@@ -243,14 +285,20 @@ public class MySQLJdbcUtils {
     /**
      * Add columns for MySQL table.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param dbName database name
-     * @param tableName table name
-     * @param columns columns to be added
-     * @throws Exception on add columns error
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param dbName
+     *          database name
+     * @param tableName
+     *          table name
+     * @param columns
+     *          columns to be added
+     * @throws Exception
+     *           on add columns error
      */
     public static void addColumns(final Connection conn, final String dbName, final String tableName,
-            final List<MySQLColumnInfo> columns) throws Exception {
+            final List<MySQLColumnInfo> columns)
+            throws Exception {
         final List<MySQLColumnInfo> columnInfos = Lists.newArrayList();
 
         for (MySQLColumnInfo columnInfo : columns) {

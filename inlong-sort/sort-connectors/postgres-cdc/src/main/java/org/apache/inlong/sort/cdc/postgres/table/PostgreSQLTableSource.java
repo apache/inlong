@@ -18,11 +18,11 @@
 
 package org.apache.inlong.sort.cdc.postgres.table;
 
-import com.ververica.cdc.connectors.postgres.table.PostgreSQLReadableMetadata;
-import com.ververica.cdc.connectors.postgres.table.PostgresValueValidator;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.table.MetadataConverter;
-import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import org.apache.inlong.sort.cdc.postgres.DebeziumSourceFunction;
+import org.apache.inlong.sort.cdc.postgres.PostgreSQLSource;
+
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -34,8 +34,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.cdc.postgres.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.postgres.PostgreSQLSource;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,11 +43,15 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import com.ververica.cdc.connectors.postgres.table.PostgreSQLReadableMetadata;
+import com.ververica.cdc.connectors.postgres.table.PostgresValueValidator;
+import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
+import com.ververica.cdc.debezium.table.MetadataConverter;
+import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 
 /**
- * A {@link DynamicTableSource} that describes how to create a PostgreSQL source from a logical
- * description.
+ * A {@link DynamicTableSource} that describes how to create a PostgreSQL source
+ * from a logical description.
  */
 public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMetadata {
 
@@ -120,34 +122,31 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
 
     @Override
     public ScanRuntimeProvider getScanRuntimeProvider(ScanContext scanContext) {
-        RowType physicalDataType =
-                (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
+        RowType physicalDataType = (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
         MetadataConverter[] metadataConverters = getMetadataConverters();
         TypeInformation<RowData> typeInfo = scanContext.createTypeInformation(producedDataType);
 
-        DebeziumDeserializationSchema<RowData> deserializer =
-                RowDataDebeziumDeserializeSchema.newBuilder()
-                        .setPhysicalRowType(physicalDataType)
-                        .setMetadataConverters(metadataConverters)
-                        .setResultTypeInfo(typeInfo)
-                        .setValueValidator(new PostgresValueValidator(schemaName, tableName))
-                        .build();
-        DebeziumSourceFunction<RowData> sourceFunction =
-                PostgreSQLSource.<RowData>builder()
-                        .hostname(hostname)
-                        .port(port)
-                        .database(database)
-                        .schemaList(schemaName)
-                        .tableList(schemaName + "." + tableName)
-                        .username(username)
-                        .password(password)
-                        .decodingPluginName(pluginName)
-                        .slotName(slotName)
-                        .debeziumProperties(dbzProperties)
-                        .deserializer(deserializer)
-                        .inlongMetric(inlongMetric)
-                        .inlongAudit(inlongAudit)
-                        .build();
+        DebeziumDeserializationSchema<RowData> deserializer = RowDataDebeziumDeserializeSchema.newBuilder()
+                .setPhysicalRowType(physicalDataType)
+                .setMetadataConverters(metadataConverters)
+                .setResultTypeInfo(typeInfo)
+                .setValueValidator(new PostgresValueValidator(schemaName, tableName))
+                .build();
+        DebeziumSourceFunction<RowData> sourceFunction = PostgreSQLSource.<RowData>builder()
+                .hostname(hostname)
+                .port(port)
+                .database(database)
+                .schemaList(schemaName)
+                .tableList(schemaName + "." + tableName)
+                .username(username)
+                .password(password)
+                .decodingPluginName(pluginName)
+                .slotName(slotName)
+                .debeziumProperties(dbzProperties)
+                .deserializer(deserializer)
+                .inlongMetric(inlongMetric)
+                .inlongAudit(inlongAudit)
+                .build();
         return SourceFunctionProvider.of(sourceFunction, false);
     }
 
@@ -158,32 +157,30 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(PostgreSQLReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(PostgreSQLReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(PostgreSQLReadableMetadata::getConverter)
                 .toArray(MetadataConverter[]::new);
     }
 
     @Override
     public DynamicTableSource copy() {
-        PostgreSQLTableSource source =
-                new PostgreSQLTableSource(
-                        physicalSchema,
-                        port,
-                        hostname,
-                        database,
-                        schemaName,
-                        tableName,
-                        username,
-                        password,
-                        pluginName,
-                        slotName,
-                        dbzProperties,
-                        inlongMetric,
-                        inlongAudit);
+        PostgreSQLTableSource source = new PostgreSQLTableSource(
+                physicalSchema,
+                port,
+                hostname,
+                database,
+                schemaName,
+                tableName,
+                username,
+                password,
+                pluginName,
+                slotName,
+                dbzProperties,
+                inlongMetric,
+                inlongAudit);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

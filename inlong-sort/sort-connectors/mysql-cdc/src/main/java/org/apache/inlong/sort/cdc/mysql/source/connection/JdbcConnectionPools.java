@@ -18,15 +18,17 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.connection;
 
-import com.zaxxer.hikari.HikariDataSource;
+import static org.apache.inlong.sort.cdc.mysql.source.connection.PooledDataSourceFactory.createPooledDataSource;
+
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.inlong.sort.cdc.mysql.source.connection.PooledDataSourceFactory.createPooledDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * A Jdbc Connection pools implementation.

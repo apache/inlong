@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.protocol;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
+import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.protocol.transformation.FunctionParam;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,16 +28,16 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+import javax.annotation.Nullable;
+
+import lombok.Data;
+
+import com.google.common.base.Preconditions;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FieldInfo.class, name = "field"),
         @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField")

@@ -20,11 +20,9 @@ package org.apache.inlong.tubemq.corebase.metric;
 import java.util.Map;
 
 /**
- * MetricMXBean
- * Broker's metric data access interface, including:
- * the getValue() that directly obtains data
- * the snapshot() that can clear the values of
- *     the counter, maximum and minimum extremum Gauge data
+ * MetricMXBean Broker's metric data access interface, including: the getValue()
+ * that directly obtains data the snapshot() that can clear the values of the
+ * counter, maximum and minimum extremum Gauge data
  */
 public interface MetricMXBean {
 

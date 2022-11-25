@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
+import static org.apache.flink.util.Preconditions.checkState;
+
+import org.apache.inlong.sort.jdbc.internal.GenericJdbcSinkFunction;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
@@ -29,17 +33,14 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.jdbc.internal.GenericJdbcSinkFunction;
 
 import java.util.Objects;
-
-import static org.apache.flink.util.Preconditions.checkState;
 
 /**
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
  *
- * A {@link DynamicTableSink} for JDBC.
- * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
+ * A {@link DynamicTableSink} for JDBC. Add an option `sink.ignore.changelog` to
+ * support insert-only mode without primaryKey.
  */
 @Internal
 public class JdbcDynamicTableSink implements DynamicTableSink {

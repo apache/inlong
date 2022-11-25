@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sort.redis.common.container;
 
-import org.apache.flink.streaming.connectors.redis.common.container.RedisContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisSentinelPool;
+
+import org.apache.flink.streaming.connectors.redis.common.container.RedisContainer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The redis contain expand from {@link RedisContainer}
@@ -38,7 +40,8 @@ public class InlongRedisContainer extends RedisContainer implements InlongRedisC
     /**
      * Use this constructor if to connect with single Redis server.
      *
-     * @param jedisPool JedisPool which actually manages Jedis instances
+     * @param jedisPool
+     *          JedisPool which actually manages Jedis instances
      */
     public InlongRedisContainer(JedisPool jedisPool) {
         super(jedisPool);
@@ -49,7 +52,8 @@ public class InlongRedisContainer extends RedisContainer implements InlongRedisC
     /**
      * Use this constructor if Redis environment is clustered with sentinels.
      *
-     * @param sentinelPool SentinelPool which actually manages Jedis instances
+     * @param sentinelPool
+     *          SentinelPool which actually manages Jedis instances
      */
     public InlongRedisContainer(JedisSentinelPool sentinelPool) {
         super(sentinelPool);
@@ -169,7 +173,8 @@ public class InlongRedisContainer extends RedisContainer implements InlongRedisC
     /**
      * Closes the jedis instance after finishing the command.
      *
-     * @param jedis The jedis instance
+     * @param jedis
+     *          The jedis instance
      */
     public void releaseInstance(final Jedis jedis) {
         if (jedis == null) {

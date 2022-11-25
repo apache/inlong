@@ -19,18 +19,12 @@ package org.apache.inlong.tubemq.server.common.fielddef;
 
 public enum WebFieldType {
 
-    UNKNOWN(-1, "Unknown field type"),
-    STRING(1, "String"),
-    INT(2, "int"),
-    LONG(3, "long"),
-    BOOLEAN(4, "Boolean"),
-    DATE(5, "Date"),
-    COMPSTRING(6, "Compound string"),
-    COMPINT(7, "Compound integer"),
-    COMPLONG(8, "Compound long"),
-    JSONDICT(9, "Json dict"),
-    JSONSET(10, "Json set"),
-    DELPOLICY(11, "Delete policy");
+    UNKNOWN(-1, "Unknown field type"), STRING(1, "String"), INT(2, "int"), LONG(3, "long"), BOOLEAN(4, "Boolean"),
+    DATE(5,
+            "Date"),
+    COMPSTRING(6, "Compound string"), COMPINT(7, "Compound integer"), COMPLONG(8,
+            "Compound long"),
+    JSONDICT(9, "Json dict"), JSONSET(10, "Json set"), DELPOLICY(11, "Delete policy");
 
     private int value;
     private String desc;

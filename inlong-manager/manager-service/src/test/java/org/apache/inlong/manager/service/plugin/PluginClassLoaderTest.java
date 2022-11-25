@@ -17,18 +17,21 @@
 
 package org.apache.inlong.manager.service.plugin;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.common.plugin.PluginDefinition;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import org.apache.inlong.manager.workflow.plugin.sort.PollerPlugin;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.Lists;
 
 /**
  * Test class for load plugin.
@@ -36,8 +39,8 @@ import java.util.Objects;
 public class PluginClassLoaderTest {
 
     /**
-     * The test plugin jar was packaged from manager-plugins,
-     * naming it to `manager-plugin-example.jar`.
+     * The test plugin jar was packaged from manager-plugins, naming it to
+     * `manager-plugin-example.jar`.
      */
     @Test
     public void testLoadPlugin() {

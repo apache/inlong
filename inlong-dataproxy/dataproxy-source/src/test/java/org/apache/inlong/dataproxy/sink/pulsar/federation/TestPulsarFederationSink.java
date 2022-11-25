@@ -17,11 +17,18 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.loader.TestContextIdTopicConfigLoader;
 import org.apache.inlong.dataproxy.utils.MockUtils;
+
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,11 +37,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * TestPulsarFederationSink
@@ -55,9 +57,10 @@ public class TestPulsarFederationSink {
     @BeforeClass
     public static void setUp() {
         Map<String, String> result = new ConcurrentHashMap<>();
-        try (InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource(
-                "dataproxy-pulsar.conf")
-                .openStream()) {
+        try (
+                InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource(
+                        "dataproxy-pulsar.conf")
+                        .openStream()) {
             Properties props = new Properties();
             props.load(inStream);
             for (Map.Entry<Object, Object> entry : props.entrySet()) {

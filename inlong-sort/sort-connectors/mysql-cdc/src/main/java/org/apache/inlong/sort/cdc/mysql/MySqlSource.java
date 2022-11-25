@@ -18,7 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql;
 
-import io.debezium.connector.mysql.MySqlConnector;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_KEY;
+import static org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_VALUE;
+
 import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
 import org.apache.inlong.sort.cdc.debezium.internal.DebeziumOffset;
@@ -28,16 +31,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_KEY;
-import static org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction.LEGACY_IMPLEMENTATION_VALUE;
+import io.debezium.connector.mysql.MySqlConnector;
 
 /**
- * A builder to build a SourceFunction which can read snapshot and continue to consume binlog.
+ * A builder to build a SourceFunction which can read snapshot and continue to
+ * consume binlog.
  *
- * @deprecated please use {@link org.apache.inlong.sort.cdc.mysql.source.MySqlSource} instead
- *     which supports more rich features, e.g. parallel reading from historical data. The {@link
- * MySqlSource} will be dropped in the future version.
+ * @deprecated please use
+ *             {@link org.apache.inlong.sort.cdc.mysql.source.MySqlSource}
+ *             instead which supports more rich features, e.g. parallel reading
+ *             from historical data. The {@link MySqlSource} will be dropped in
+ *             the future version.
  */
 @Deprecated
 public class MySqlSource {
@@ -51,10 +55,11 @@ public class MySqlSource {
     /**
      * Builder class of {@link MySqlSource}.
      *
-     * @deprecated please use {@link
-     * org.apache.inlong.sort.cdc.mysql.source.MySqlSource#builder()} instead which supports
-     *     more rich features, e.g. parallel reading from historical data. The {@link
-     * Builder} will be dropped in the future version.
+     * @deprecated please use
+     *             {@link org.apache.inlong.sort.cdc.mysql.source.MySqlSource#builder()}
+     *             instead which supports more rich features, e.g. parallel reading
+     *             from historical data. The {@link Builder} will be dropped in the
+     *             future version.
      */
     @Deprecated
     public static class Builder<T> {
@@ -87,9 +92,9 @@ public class MySqlSource {
         }
 
         /**
-         * An optional list of regular expressions that match database names to be monitored; any
-         * database name not included in the whitelist will be excluded from monitoring. By default
-         * all databases will be monitored.
+         * An optional list of regular expressions that match database names to be
+         * monitored; any database name not included in the whitelist will be excluded
+         * from monitoring. By default all databases will be monitored.
          */
         public Builder<T> databaseList(String... databaseList) {
             this.databaseList = databaseList;
@@ -97,10 +102,11 @@ public class MySqlSource {
         }
 
         /**
-         * An optional list of regular expressions that match fully-qualified table identifiers for
-         * tables to be monitored; any table not included in the list will be excluded from
-         * monitoring. Each identifier is of the form databaseName.tableName. By default the
-         * connector will monitor every non-system table in each monitored database.
+         * An optional list of regular expressions that match fully-qualified table
+         * identifiers for tables to be monitored; any table not included in the list
+         * will be excluded from monitoring. Each identifier is of the form
+         * databaseName.tableName. By default the connector will monitor every
+         * non-system table in each monitored database.
          */
         public Builder<T> tableList(String... tableList) {
             this.tableList = tableList;
@@ -108,7 +114,8 @@ public class MySqlSource {
         }
 
         /**
-         * Name of the MySQL database to use when connecting to the MySQL database server.
+         * Name of the MySQL database to use when connecting to the MySQL database
+         * server.
          */
         public Builder<T> username(String username) {
             this.username = username;
@@ -124,8 +131,8 @@ public class MySqlSource {
         }
 
         /**
-         * The session time zone in database server, e.g. "America/Los_Angeles". It controls how the
-         * TIMESTAMP type in MYSQL converted to STRING. See more
+         * The session time zone in database server, e.g. "America/Los_Angeles". It
+         * controls how the TIMESTAMP type in MYSQL converted to STRING. See more
          * https://debezium.io/documentation/reference/1.5/connectors/mysql.html#mysql-temporal-types
          */
         public Builder<T> serverTimeZone(String timeZone) {
@@ -134,10 +141,11 @@ public class MySqlSource {
         }
 
         /**
-         * A numeric ID of this database client, which must be unique across all currently-running
-         * database processes in the MySQL cluster. This connector joins the MySQL database cluster
-         * as another server (with this unique ID) so it can read the binlog. By default, a random
-         * number is generated between 5400 and 6400, though we recommend setting an explicit value.
+         * A numeric ID of this database client, which must be unique across all
+         * currently-running database processes in the MySQL cluster. This connector
+         * joins the MySQL database cluster as another server (with this unique ID) so
+         * it can read the binlog. By default, a random number is generated between 5400
+         * and 6400, though we recommend setting an explicit value.
          */
         public Builder<T> serverId(int serverId) {
             this.serverId = serverId;
@@ -153,8 +161,8 @@ public class MySqlSource {
         }
 
         /**
-         * The deserializer used to convert from consumed {@link
-         * org.apache.kafka.connect.source.SourceRecord}.
+         * The deserializer used to convert from consumed
+         * {@link org.apache.kafka.connect.source.SourceRecord}.
          */
         public Builder<T> deserializer(DebeziumDeserializationSchema<T> deserializer) {
             this.deserializer = deserializer;
@@ -186,11 +194,14 @@ public class MySqlSource {
             Properties props = new Properties();
             props.setProperty("connector.class", MySqlConnector.class.getCanonicalName());
             // hard code server name, because we don't need to distinguish it, docs:
-            // Logical name that identifies and provides a namespace for the particular MySQL
+            // Logical name that identifies and provides a namespace for the particular
+            // MySQL
             // database
-            // server/cluster being monitored. The logical name should be unique across all other
+            // server/cluster being monitored. The logical name should be unique across all
+            // other
             // connectors,
-            // since it is used as a prefix for all Kafka topic names emanating from this connector.
+            // since it is used as a prefix for all Kafka topic names emanating from this
+            // connector.
             // Only alphanumeric characters and underscores should be used.
             props.setProperty("database.server.name", DATABASE_SERVER_NAME);
             props.setProperty("database.hostname", checkNotNull(hostname));
@@ -250,9 +261,8 @@ public class MySqlSource {
                 case TIMESTAMP:
                     checkNotNull(deserializer);
                     props.setProperty("snapshot.mode", "never");
-                    deserializer =
-                            new SeekBinlogToTimestampFilter<>(
-                                    startupOptions.startupTimestampMillis, deserializer);
+                    deserializer = new SeekBinlogToTimestampFilter<>(
+                            startupOptions.startupTimestampMillis, deserializer);
                     break;
 
                 default:
@@ -261,7 +271,8 @@ public class MySqlSource {
 
             if (dbzProperties != null) {
                 props.putAll(dbzProperties);
-                // Add default configurations for compatibility when set the legacy mysql connector
+                // Add default configurations for compatibility when set the legacy mysql
+                // connector
                 // implementation
                 if (LEGACY_IMPLEMENTATION_VALUE.equals(
                         dbzProperties.get(LEGACY_IMPLEMENTATION_KEY))) {

@@ -43,7 +43,8 @@ public class GetProxyConfigByAgentResponse {
     /**
      * set result
      * 
-     * @param result the result to set
+     * @param result
+     *          the result to set
      */
     public void setResult(boolean result) {
         this.result = result;
@@ -61,7 +62,8 @@ public class GetProxyConfigByAgentResponse {
     /**
      * set errCode
      * 
-     * @param errCode the errCode to set
+     * @param errCode
+     *          the errCode to set
      */
     public void setErrCode(int errCode) {
         this.errCode = errCode;
@@ -79,7 +81,8 @@ public class GetProxyConfigByAgentResponse {
     /**
      * set md5
      * 
-     * @param md5 the md5 to set
+     * @param md5
+     *          the md5 to set
      */
     public void setMd5(String md5) {
         this.md5 = md5;
@@ -97,7 +100,8 @@ public class GetProxyConfigByAgentResponse {
     /**
      * set data
      * 
-     * @param data the data to set
+     * @param data
+     *          the data to set
      */
     public void setData(List<ProxyClusterConfig> data) {
         this.data = data;

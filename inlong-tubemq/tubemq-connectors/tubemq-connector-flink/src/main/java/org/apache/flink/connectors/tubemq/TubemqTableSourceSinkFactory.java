@@ -36,13 +36,7 @@ import static org.apache.flink.table.descriptors.Schema.SCHEMA_PROCTIME;
 import static org.apache.flink.table.descriptors.Schema.SCHEMA_TYPE;
 import static org.apache.flink.table.descriptors.StreamTableDescriptorValidator.UPDATE_MODE;
 import static org.apache.flink.table.descriptors.StreamTableDescriptorValidator.UPDATE_MODE_VALUE_APPEND;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeSet;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.Configuration;
@@ -59,11 +53,21 @@ import org.apache.flink.table.sources.RowtimeAttributeDescriptor;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.types.Row;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeSet;
+
 /**
  * Factory for creating configured instances of {@link TubemqTableSource}.
  */
-public class TubemqTableSourceSinkFactory implements StreamTableSourceFactory<Row>,
-    StreamTableSinkFactory<Row> {
+public class TubemqTableSourceSinkFactory
+        implements
+            StreamTableSourceFactory<Row>,
+            StreamTableSinkFactory<Row> {
 
     private static final String SPLIT_COMMA = ",";
 
@@ -116,39 +120,28 @@ public class TubemqTableSourceSinkFactory implements StreamTableSourceFactory<Ro
 
     @Override
     public StreamTableSource<Row> createStreamTableSource(
-        Map<String, String> properties
-    ) {
-        final DeserializationSchema<Row> deserializationSchema =
-            getDeserializationSchema(properties);
+            Map<String, String> properties) {
+        final DeserializationSchema<Row> deserializationSchema = getDeserializationSchema(properties);
 
-        final DescriptorProperties descriptorProperties =
-            new DescriptorProperties(true);
+        final DescriptorProperties descriptorProperties = new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
 
         validateProperties(descriptorProperties);
 
-        final TableSchema schema =
-            descriptorProperties.getTableSchema(SCHEMA);
-        final Optional<String> proctimeAttribute =
-            SchemaValidator.deriveProctimeAttribute(descriptorProperties);
-        final List<RowtimeAttributeDescriptor> rowtimeAttributeDescriptors =
-            SchemaValidator.deriveRowtimeAttributes(descriptorProperties);
-        final Map<String, String> fieldMapping =
-            SchemaValidator.deriveFieldMapping(
+        final TableSchema schema = descriptorProperties.getTableSchema(SCHEMA);
+        final Optional<String> proctimeAttribute = SchemaValidator.deriveProctimeAttribute(descriptorProperties);
+        final List<RowtimeAttributeDescriptor> rowtimeAttributeDescriptors = SchemaValidator
+                .deriveRowtimeAttributes(descriptorProperties);
+        final Map<String, String> fieldMapping = SchemaValidator.deriveFieldMapping(
                 descriptorProperties,
                 Optional.of(deserializationSchema.getProducedType()));
-        final String topic =
-            descriptorProperties.getString(TubemqValidator.CONNECTOR_TOPIC);
-        final String masterAddress =
-            descriptorProperties.getString(TubemqValidator.CONNECTOR_MASTER);
-        final String consumerGroup =
-            descriptorProperties.getString(TubemqValidator.CONNECTOR_GROUP);
-        final String tids =
-            descriptorProperties
+        final String topic = descriptorProperties.getString(TubemqValidator.CONNECTOR_TOPIC);
+        final String masterAddress = descriptorProperties.getString(TubemqValidator.CONNECTOR_MASTER);
+        final String consumerGroup = descriptorProperties.getString(TubemqValidator.CONNECTOR_GROUP);
+        final String tids = descriptorProperties
                 .getOptionalString(TubemqValidator.CONNECTOR_TIDS)
                 .orElse(null);
-        final Configuration configuration =
-            getConfiguration(descriptorProperties);
+        final Configuration configuration = getConfiguration(descriptorProperties);
 
         TreeSet<String> tidSet = new TreeSet<>();
         if (tids != null) {
@@ -156,61 +149,49 @@ public class TubemqTableSourceSinkFactory implements StreamTableSourceFactory<Ro
         }
 
         return new TubemqTableSource(
-            deserializationSchema,
-            schema,
-            proctimeAttribute,
-            rowtimeAttributeDescriptors,
-            fieldMapping,
-            masterAddress,
-            topic,
-            tidSet,
-            consumerGroup,
-            configuration
-        );
+                deserializationSchema,
+                schema,
+                proctimeAttribute,
+                rowtimeAttributeDescriptors,
+                fieldMapping,
+                masterAddress,
+                topic,
+                tidSet,
+                consumerGroup,
+                configuration);
     }
 
     @Override
     public StreamTableSink<Row> createStreamTableSink(
-        Map<String, String> properties
-    ) {
-        final SerializationSchema<Row> serializationSchema =
-            getSerializationSchema(properties);
+            Map<String, String> properties) {
+        final SerializationSchema<Row> serializationSchema = getSerializationSchema(properties);
 
-        final DescriptorProperties descriptorProperties =
-            new DescriptorProperties(true);
+        final DescriptorProperties descriptorProperties = new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
 
         validateProperties(descriptorProperties);
 
-        final TableSchema tableSchema =
-            descriptorProperties.getTableSchema(SCHEMA);
-        final String topic =
-            descriptorProperties.getString(TubemqValidator.CONNECTOR_TOPIC);
-        final String masterAddress =
-            descriptorProperties.getString(TubemqValidator.CONNECTOR_MASTER);
+        final TableSchema tableSchema = descriptorProperties.getTableSchema(SCHEMA);
+        final String topic = descriptorProperties.getString(TubemqValidator.CONNECTOR_TOPIC);
+        final String masterAddress = descriptorProperties.getString(TubemqValidator.CONNECTOR_MASTER);
 
-        final Configuration configuration =
-            getConfiguration(descriptorProperties);
+        final Configuration configuration = getConfiguration(descriptorProperties);
 
         return new TubemqTableSink(
-            serializationSchema,
-            tableSchema,
-            topic,
-            masterAddress,
-            configuration
-        );
+                serializationSchema,
+                tableSchema,
+                topic,
+                masterAddress,
+                configuration);
     }
 
     private SerializationSchema<Row> getSerializationSchema(
-        Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         @SuppressWarnings("unchecked")
-        final SerializationSchemaFactory<Row> formatFactory =
-            TableFactoryService.find(
+        final SerializationSchemaFactory<Row> formatFactory = TableFactoryService.find(
                 SerializationSchemaFactory.class,
                 properties,
-                this.getClass().getClassLoader()
-            );
+                this.getClass().getClassLoader());
 
         return formatFactory.createSerializationSchema(properties);
     }
@@ -221,23 +202,20 @@ public class TubemqTableSourceSinkFactory implements StreamTableSourceFactory<Ro
     }
 
     private DeserializationSchema<Row> getDeserializationSchema(
-        Map<String, String> properties
-    ) {
-        @SuppressWarnings("unchecked") final DeserializationSchemaFactory<Row> formatFactory =
-            TableFactoryService.find(
+            Map<String, String> properties) {
+        @SuppressWarnings("unchecked")
+        final DeserializationSchemaFactory<Row> formatFactory = TableFactoryService.find(
                 DeserializationSchemaFactory.class,
                 properties,
-                this.getClass().getClassLoader()
-            );
+                this.getClass().getClassLoader());
 
         return formatFactory.createDeserializationSchema(properties);
     }
 
     private Configuration getConfiguration(
-        DescriptorProperties descriptorProperties
-    ) {
+            DescriptorProperties descriptorProperties) {
         Map<String, String> properties =
-            descriptorProperties.getPropertiesWithPrefix(TubemqValidator.CONNECTOR_PROPERTIES);
+                descriptorProperties.getPropertiesWithPrefix(TubemqValidator.CONNECTOR_PROPERTIES);
 
         Configuration configuration = new Configuration();
         for (Map.Entry<String, String> property : properties.entrySet()) {

@@ -17,15 +17,17 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -73,12 +75,11 @@ public class ClusterSettingEntityTest {
         String attributes = "";
         String modifyUser = "modifyUser";
         Date modifyDate = new Date();
-        BdbClusterSettingEntity bdbEntity =
-                new BdbClusterSettingEntity(recordKey, configId, brokerPort, brokerTLSPort,
-                        brokerWebPort, numTopicStores, numPartitions, unflushThreshold,
-                        unflushInterval, unflushDataHold, memCacheMsgCntInK, memCacheFlushIntvl,
-                        memCacheMsgSizeInMB, acceptPublish, acceptSubscribe, deletePolicy,
-                        qryPriorityId, maxMsgSizeInB, attributes, modifyUser, modifyDate);
+        BdbClusterSettingEntity bdbEntity = new BdbClusterSettingEntity(recordKey, configId, brokerPort, brokerTLSPort,
+                brokerWebPort, numTopicStores, numPartitions, unflushThreshold,
+                unflushInterval, unflushDataHold, memCacheMsgCntInK, memCacheFlushIntvl,
+                memCacheMsgSizeInMB, acceptPublish, acceptSubscribe, deletePolicy,
+                qryPriorityId, maxMsgSizeInB, attributes, modifyUser, modifyDate);
         ClusterSettingEntity setting2 = new ClusterSettingEntity(bdbEntity);
         Assert.assertEquals(setting2.getBrokerPort(), bdbEntity.getBrokerPort());
         Assert.assertEquals(setting2.getBrokerTLSPort(), bdbEntity.getBrokerTLSPort());

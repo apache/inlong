@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import static org.apache.inlong.sort.base.Constants.GROUP_ID;
+import static org.apache.inlong.sort.base.Constants.NODE_ID;
+import static org.apache.inlong.sort.base.Constants.STREAM_ID;
+import static org.apache.inlong.sort.base.Constants.TIME_SPAN_IN_SECONDS;
+
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MeterView;
@@ -25,13 +30,9 @@ import org.apache.flink.metrics.SimpleCounter;
 
 import java.util.Map;
 
-import static org.apache.inlong.sort.base.Constants.GROUP_ID;
-import static org.apache.inlong.sort.base.Constants.NODE_ID;
-import static org.apache.inlong.sort.base.Constants.STREAM_ID;
-import static org.apache.inlong.sort.base.Constants.TIME_SPAN_IN_SECONDS;
-
 /**
- * This class is the top-level interface of metric data, it defines common metric data methods.
+ * This class is the top-level interface of metric data, it defines common
+ * metric data methods.
  */
 public interface MetricData {
 
@@ -79,8 +80,10 @@ public interface MetricData {
     /**
      * Register a counter metric
      *
-     * @param metricName The metric name
-     * @param counter The counter of metric
+     * @param metricName
+     *          The metric name
+     * @param counter
+     *          The counter of metric
      * @return Counter of registered
      */
     default Counter registerCounter(String metricName, Counter counter) {
@@ -94,7 +97,8 @@ public interface MetricData {
     /**
      * Register a counter metric
      *
-     * @param metricName The metric name
+     * @param metricName
+     *          The metric name
      * @return Counter of registered
      */
     default Counter registerCounter(String metricName) {
@@ -104,7 +108,8 @@ public interface MetricData {
     /**
      * Register a meter metric
      *
-     * @param metricName The metric name
+     * @param metricName
+     *          The metric name
      * @return Meter of registered
      */
     default Meter registerMeter(String metricName, Counter counter) {

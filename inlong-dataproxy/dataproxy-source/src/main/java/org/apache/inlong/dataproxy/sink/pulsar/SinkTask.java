@@ -17,13 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar;
 
-import com.google.common.cache.LoadingCache;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Event;
-import org.apache.flume.instrumentation.SinkCounter;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -32,9 +25,20 @@ import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.EventStat;
 import org.apache.inlong.dataproxy.sink.PulsarSink;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Event;
+import org.apache.flume.instrumentation.SinkCounter;
 import org.apache.pulsar.client.api.PulsarClientException;
+
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.LoadingCache;
 
 public class SinkTask extends Thread {
 
@@ -63,7 +67,7 @@ public class SinkTask extends Thread {
 
     private SinkCounter sinkCounter;
 
-    private LoadingCache<String, Long>  agentIdCache;
+    private LoadingCache<String, Long> agentIdCache;
 
     private MQClusterConfig pulsarConfig;
 
@@ -129,15 +133,14 @@ public class SinkTask extends Thread {
                 } else {
                     if (currentInFlightCount.get() > BATCH_SIZE) {
                         /*
-                         * Under the condition that the number of unresponsive messages
-                         * is greater than 1w, the number of unresponsive messages sent
-                         * to pulsar will be printed periodically
+                         * Under the condition that the number of unresponsive messages is greater than 1w, the number
+                         * of unresponsive messages sent to pulsar will be printed periodically
                          */
                         logCounter++;
                         if (logCounter == 1 || logCounter % 100000 == 0) {
                             logger.info(getName()
-                                            + " currentInFlightCount={} resendQueue"
-                                            + ".size={}",
+                                    + " currentInFlightCount={} resendQueue"
+                                    + ".size={}",
                                     currentInFlightCount.get(), resendQueue.size());
                         }
                         if (logCounter > Long.MAX_VALUE - 10) {
@@ -203,14 +206,13 @@ public class SinkTask extends Thread {
                     } else {
                         try {
                             /*
-                             * The exception of pulsar will cause the sending thread to block
-                             * and prevent further pressure on pulsar. Here you should pay
-                             * attention to the type of exception to prevent the error of
-                             *  a topic from affecting the global
+                             * The exception of pulsar will cause the sending thread to block and prevent further
+                             * pressure on pulsar. Here you should pay attention to the type of exception to prevent the
+                             * error of a topic from affecting the global
                              */
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
-                            //ignore..
+                            // ignore..
                         }
                     }
                 }
@@ -221,11 +223,10 @@ public class SinkTask extends Thread {
                             + eventStat.getEvent().getHeaders(), t);
                 }
                 /*
-                 * producer.sendMessage is abnormal,
-                 * so currentInFlightCount is not added,
-                 * so there is no need to subtract
+                 * producer.sendMessage is abnormal, so currentInFlightCount is not added, so there is no need to
+                 * subtract
                  */
-                pulsarSink.handleRequestProcError(topic, eventStat,false,
+                pulsarSink.handleRequestProcError(topic, eventStat, false,
                         DataProxyErrCode.SEND_REQUEST_TO_MQ_FAILURE, t.getMessage());
             }
         }

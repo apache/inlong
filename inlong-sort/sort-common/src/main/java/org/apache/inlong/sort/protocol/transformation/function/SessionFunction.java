@@ -17,28 +17,31 @@
 
 package org.apache.inlong.sort.protocol.transformation.function;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.GroupTimeWindowFunction;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.util.Arrays;
 import java.util.List;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
 
 /**
  * The sliding windows assigner assigns elements to windows of fixed length.
  * Similar to a tumbling windows assigner, the size of the windows is configured
- * by the window size parameter. An additional window slide parameter
- * controls how frequently a sliding window is started. Hence,
- * sliding windows can be overlapping if the slide is smaller than the window size.
- * In this case elements are assigned to multiple windows.
+ * by the window size parameter. An additional window slide parameter controls
+ * how frequently a sliding window is started. Hence, sliding windows can be
+ * overlapping if the slide is smaller than the window size. In this case
+ * elements are assigned to multiple windows.
  */
 @JsonTypeName("session")
 @Data

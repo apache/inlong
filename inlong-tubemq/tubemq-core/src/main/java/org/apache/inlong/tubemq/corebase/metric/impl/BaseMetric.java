@@ -21,13 +21,15 @@ import org.apache.inlong.tubemq.corebase.metric.Metric;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 /**
- * BaseMetric, store general information about the metric item, such as the metric name.
+ * BaseMetric, store general information about the metric item, such as the
+ * metric name.
  *
  * The metric includes a base name and a prefix, the full name is composed of
- *   the prefix + "_" + the base name, different name are selected
- *   for output according to the metric output requirements.
+ * the prefix + "_" + the base name, different name are selected for output
+ * according to the metric output requirements.
  */
 public class BaseMetric implements Metric {
+
     // metric short name
     private final String shortName;
     // metric full name

@@ -36,9 +36,12 @@ public class Tuple3<T0, T1, T2> {
     /**
      * Creates a new tuple and assigns the given values to the tuple's fields.
      *
-     * @param value0 The value for field 0
-     * @param value1 The value for field 1
-     * @param value2 The value for field 2
+     * @param value0
+     *          The value for field 0
+     * @param value1
+     *          The value for field 1
+     * @param value2
+     *          The value for field 2
      */
     public Tuple3(T0 value0, T1 value1, T2 value2) {
         setFieldsValue(value0, value1, value2);

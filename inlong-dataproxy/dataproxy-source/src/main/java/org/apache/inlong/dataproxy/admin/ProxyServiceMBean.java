@@ -22,8 +22,10 @@ import javax.management.MXBean;
 /**
  * ProxyServiceMBean<br>
  * Stop TCP service before stopping DataProxy process.<br>
- * TCP service will response error to agent, agent will resend data to other DataProxy.<br>
- * After DataProxy send all channel data to cache cluster, DataProxy can be stopped.<br>
+ * TCP service will response error to agent, agent will resend data to other
+ * DataProxy.<br>
+ * After DataProxy send all channel data to cache cluster, DataProxy can be
+ * stopped.<br>
  */
 @MXBean
 public interface ProxyServiceMBean {

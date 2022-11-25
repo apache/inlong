@@ -18,11 +18,6 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.LoadBalance;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
@@ -33,25 +28,33 @@ import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
 import org.apache.inlong.sdk.dataproxy.utils.ConsistencyHashUtil;
 import org.apache.inlong.sdk.dataproxy.utils.EventLoopUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Random;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
+
 public class ClientMgr {
+
     private static final Logger logger = LoggerFactory
             .getLogger(ClientMgr.class);
     private static final int[] weight = {
@@ -86,7 +89,7 @@ public class ClientMgr {
     private int groupIdNum = 0;
     private String groupId = "";
     private Map<String, Integer> streamIdMap = new HashMap<String, Integer>();
-    //    private static final int total_weight = 240;
+    // private static final int total_weight = 240;
     private int loadThreshold;
     private int loadCycle = 0;
     private LoadBalance loadBalance;
@@ -124,8 +127,7 @@ public class ClientMgr {
         }
 
         /*
-         * Request the IP before starting, so that we already have three
-         * connections.
+         * Request the IP before starting, so that we already have three connections.
          */
         this.configure = configure;
         this.sender = sender;
@@ -390,7 +392,7 @@ public class ClientMgr {
         if (client == null || !client.isActive()) {
             return null;
         }
-        //logger.info("get a client {}", client.getChannel());
+        // logger.info("get a client {}", client.getChannel());
         return client;
     }
 
@@ -416,7 +418,7 @@ public class ClientMgr {
         return client;
     }
 
-//    public synchronized NettyClient getClientByLeastConnections() {}
+    // public synchronized NettyClient getClientByLeastConnections() {}
 
     public synchronized NettyClient getClientByConsistencyHash(String messageId) {
         NettyClient client;
@@ -451,7 +453,7 @@ public class ClientMgr {
         return clientList.get(clientId);
     }
 
-//    public synchronized NettyClient getClientByWeightLeastConnections(){}
+    // public synchronized NettyClient getClientByWeightLeastConnections(){}
 
     public synchronized NettyClient getClientByWeightRandom() {
         NettyClient client;
@@ -491,11 +493,11 @@ public class ClientMgr {
     }
 
     public void shutDown() {
-//        bootstrap.shutdown();
+        // bootstrap.shutdown();
 
         ipManager.shutDown();
 
-//        connectionCheckThread.shutDown();
+        // connectionCheckThread.shutDown();
         sendHBThread.shutDown();
         closeAllConnection();
 
@@ -527,7 +529,7 @@ public class ClientMgr {
 
     private void updateAllConnection(List<HostInfo> hostInfos) {
         closeAllConnection();
-        /* Build new channels*/
+        /* Build new channels */
         for (HostInfo hostInfo : hostInfos) {
             initConnection(hostInfo);
         }
@@ -543,7 +545,7 @@ public class ClientMgr {
                     HostInfo hostInfo = entry.getKey();
                     if (client != null && client.getChannel() != null
                             && client.getChannel().id().equals(channel.id())) {
-//                        logger.info("channel" + channel + "; Load:" + load);
+                        // logger.info("channel" + channel + "; Load:" + load);
                         if (!channelLoadMapData.containsKey(hostInfo)) {
                             channelLoadMapData.put(hostInfo, new int[ConfigConstants.CYCLE]);
                         }
@@ -561,7 +563,7 @@ public class ClientMgr {
                     HostInfo hostInfo = entry.getKey();
                     if (client != null && client.getChannel() != null
                             && client.getChannel().id().equals(channel.id())) {
-//                        logger.info("HBchannel" + channel + "; Load:" + load);
+                        // logger.info("HBchannel" + channel + "; Load:" + load);
                         if (!channelLoadMapHB.containsKey(hostInfo)) {
                             channelLoadMapHB.put(hostInfo, new int[ConfigConstants.CYCLE]);
                         }
@@ -625,6 +627,7 @@ public class ClientMgr {
 
             List<Map.Entry<HostInfo, Integer>> listData = new ArrayList<>(loadData.entrySet());
             Collections.sort(listData, new Comparator<Map.Entry<HostInfo, Integer>>() {
+
                 @Override
                 public int compare(Map.Entry<HostInfo, Integer> o1, Map.Entry<HostInfo, Integer> o2) {
                     if (o2.getValue() != null && o1.getValue() != null && o1.getValue() > o2.getValue()) {
@@ -636,6 +639,7 @@ public class ClientMgr {
             });
             List<Map.Entry<HostInfo, Integer>> listHB = new ArrayList<>(loadHB.entrySet());
             Collections.sort(listHB, new Comparator<Map.Entry<HostInfo, Integer>>() {
+
                 @Override
                 public int compare(Map.Entry<HostInfo, Integer> o1, Map.Entry<HostInfo, Integer> o2) {
                     if (o2.getValue() != null && o1.getValue() != null && o2.getValue() > o1.getValue()) {
@@ -648,16 +652,17 @@ public class ClientMgr {
 
             logger.info("show info: last compute result!");
             for (Map.Entry<HostInfo, Integer> item : listData) {
-//                System.out.println("listData:"+listData.get(i));
+                // System.out.println("listData:"+listData.get(i));
                 logger.info("Client:" + item.getKey() + ";" + item.getValue());
             }
             for (Map.Entry<HostInfo, Integer> item : listHB) {
-//                System.out.println("listHB:"+listHB.get(i));
+                // System.out.println("listHB:"+listHB.get(i));
                 logger.info("HBClient:" + item.getKey() + ";" + item.getValue());
             }
             boolean isLoadSwitch = false;
 
-//            int smallSize = listData.size() < listHB.size() ? listData.size() : listHB.size();
+            // int smallSize = listData.size() < listHB.size() ? listData.size() :
+            // listHB.size();
             int smallSize = 1;
             for (int i = 0; i < smallSize; i++) {
                 if ((listData.get(i).getValue() - listHB.get(i).getValue()) >= this.loadThreshold) {
@@ -675,9 +680,9 @@ public class ClientMgr {
                     clientList.remove(clientMapData.get(dataHost));
                     clientMap.remove(dataHost);
                     clientMapData.remove(dataHost);
-//                    channelLoadMapData.remove(dataHost);
+                    // channelLoadMapData.remove(dataHost);
                     clientMapData.put(hbHost, clientMapHB.get(hbHost));
-//                    channelLoadMapData.put(hbHost,listHB.get(i).getValue());
+                    // channelLoadMapData.put(hbHost,listHB.get(i).getValue());
                     clientList.add(clientMapHB.get(hbHost));
                     clientMapHB.remove(hbHost);
                 }
@@ -788,7 +793,7 @@ public class ClientMgr {
         List<HostInfo> replaceHostLists = getRealHosts(pendingBadList, currentRealSize);
         if (replaceHostLists.size() > 0) {
             logger.info("replace bad connection, use last bad list, "
-                            + "last bad list {}, client Map data {}",
+                    + "last bad list {}, client Map data {}",
                     lastBadHostMap.size(), clientMapData.size());
         }
         for (HostInfo hostInfo : replaceHostLists) {
@@ -881,12 +886,12 @@ public class ClientMgr {
     }
 
     /**
-     * 1. check all inactive conn, including dataConn and HBConn
-     * 2.1. if there is no any bad conn, do dataConn<->hbConn balance every ConfigConstants.CYCLE, according to load
-     * 2.2. close and remove all inactive conn
-     * 3. fillUp dataConn and HBConn using remaining hosts(excludes lastBadHostMap)
-     * 4. if dataConns are still not full, try to using HBConns (then lastBadHostMap) to fillUp
-     * 5. update lastBadHostMap, including increase, remove and update badValue
+     * 1. check all inactive conn, including dataConn and HBConn 2.1. if there is no
+     * any bad conn, do dataConn<->hbConn balance every ConfigConstants.CYCLE,
+     * according to load 2.2. close and remove all inactive conn 3. fillUp dataConn
+     * and HBConn using remaining hosts(excludes lastBadHostMap) 4. if dataConns are
+     * still not full, try to using HBConns (then lastBadHostMap) to fillUp 5.
+     * update lastBadHostMap, including increase, remove and update badValue
      */
     public void replaceBadConnectionHB() {
         try {
@@ -940,7 +945,7 @@ public class ClientMgr {
 
             if (realSize != 0) {
                 List<HostInfo> replaceHostLists = getRealHosts(hostLists, realSize);
-                /* Build new channels.*/
+                /* Build new channels. */
                 for (HostInfo hostInfo : replaceHostLists) {
                     initConnection(hostInfo);
                 }
@@ -954,7 +959,8 @@ public class ClientMgr {
                 fillUpWorkClientWithLastBadClient();
             }
 
-            // when all hosts are bad, reuse them to avoid clientMapData is empty in this round
+            // when all hosts are bad, reuse them to avoid clientMapData is empty in this
+            // round
             if (clientMapData.isEmpty()) {
                 fillUpWorkClientWithBadClient(badHostLists);
             }

@@ -17,20 +17,20 @@
 
 package org.apache.inlong.sdk.commons.admin;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.management.ManagementFactory;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import static org.apache.inlong.sdk.commons.admin.AdminEventHandler.DOMAIN_SEPARATOR;
 import static org.apache.inlong.sdk.commons.admin.AdminEventHandler.JMX_DOMAIN;
 import static org.apache.inlong.sdk.commons.admin.AdminEventHandler.JMX_NAME;
 import static org.apache.inlong.sdk.commons.admin.AdminEventHandler.JMX_TYPE;
 import static org.apache.inlong.sdk.commons.admin.AdminEventHandler.PROPERTY_EQUAL;
 import static org.apache.inlong.sdk.commons.admin.AdminEventHandler.PROPERTY_SEPARATOR;
+
+import java.lang.management.ManagementFactory;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AdminServiceRegister

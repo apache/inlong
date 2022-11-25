@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.doris.table;
 
+import org.apache.inlong.sort.doris.model.RespContent;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.doris.flink.exception.StreamLoadException;
 import org.apache.doris.shaded.com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,9 +33,6 @@ import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.sort.doris.model.RespContent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -47,8 +46,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * DorisStreamLoad copy from {@link org.apache.doris.flink.table.DorisStreamLoad}
+ * DorisStreamLoad copy from
+ * {@link org.apache.doris.flink.table.DorisStreamLoad}
  **/
 public class DorisStreamLoad implements Serializable {
 
@@ -72,6 +75,7 @@ public class DorisStreamLoad implements Serializable {
         HttpClientBuilder httpClientBuilder = HttpClients
                 .custom()
                 .setRedirectStrategy(new DefaultRedirectStrategy() {
+
                     @Override
                     protected boolean isRedirectable(String method) {
                         return true;

@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class ManagerReturnDto {
+
     private boolean success;
     private String errMsg;
     private String data;

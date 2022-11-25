@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corebase.utils;
 
 import junit.framework.TestCase;
+
 import org.junit.Assert;
 
 public class AddressUtilsTest extends TestCase {

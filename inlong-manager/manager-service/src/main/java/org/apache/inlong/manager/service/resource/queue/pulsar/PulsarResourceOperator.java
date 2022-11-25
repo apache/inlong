@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
-import com.google.common.base.Objects;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
@@ -40,11 +36,19 @@ import org.apache.inlong.manager.service.consume.InlongConsumeService;
 import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.admin.PulsarAdmin;
+
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.google.common.base.Objects;
 
 /**
  * Operator for create Pulsar Tenant, Namespace, Topic and Subscription
@@ -54,7 +58,8 @@ import java.util.List;
 public class PulsarResourceOperator implements QueueResourceOperator {
 
     /**
-     * The name rule for Pulsar subscription: clusterTag_topicName_sinkId_consumer_group
+     * The name rule for Pulsar subscription:
+     * clusterTag_topicName_sinkId_consumer_group
      */
     private static final String PULSAR_SUBSCRIPTION = "%s_%s_%s_consumer_group";
 
@@ -208,7 +213,8 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     /**
      * Create Pulsar Topic and Subscription, and save the consumer group info.
      */
-    private void createTopic(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName)
+    private void createTopic(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster,
+            String topicName)
             throws Exception {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             String tenant = pulsarCluster.getTenant();
@@ -231,7 +237,8 @@ public class PulsarResourceOperator implements QueueResourceOperator {
      * Create Pulsar Subscription, and save the consumer group info.
      */
     private void createSubscription(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster, String topicName,
-            String streamId) throws Exception {
+            String streamId)
+            throws Exception {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             String tenant = pulsarCluster.getTenant();
             if (StringUtils.isEmpty(tenant)) {
@@ -274,7 +281,8 @@ public class PulsarResourceOperator implements QueueResourceOperator {
      * Delete Pulsar Topic and Subscription, and delete the consumer group info.
      * TODO delete Subscription and InlongConsume info
      */
-    private void deletePulsarTopic(InlongGroupInfo groupInfo, PulsarClusterInfo pulsarCluster, String topicName)
+    private void deletePulsarTopic(InlongGroupInfo groupInfo, PulsarClusterInfo pulsarCluster,
+            String topicName)
             throws Exception {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             String tenant = pulsarCluster.getTenant();

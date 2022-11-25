@@ -18,12 +18,7 @@
 package org.apache.inlong.tubemq.server.master.web.handler;
 
 import static java.lang.Math.abs;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
+
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
@@ -47,22 +42,29 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerAbnHol
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunStatusInfo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 /**
  *
- * The class to handle the default config of broker, including:
- * - Add config
- * - Update config
- * - Delete config
- * And manage the broker status.
+ * The class to handle the default config of broker, including: - Add config -
+ * Update config - Delete config And manage the broker status.
  *
- * Please note that one IP could only host one broker, and brokerId must be unique
+ * Please note that one IP could only host one broker, and brokerId must be
+ * unique
  */
 public class WebBrokerConfHandler extends AbstractWebHandler {
 
     /**
      * Constructor
      *
-     * @param master tube master
+     * @param master
+     *          tube master
      */
     public WebBrokerConfHandler(TMaster master) {
         super(master);
@@ -108,14 +110,17 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Query broker config
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryBrokerConfInfo(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         BrokerConfEntity qryEntity = new BrokerConfEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -228,8 +233,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (BrokerConfEntity entity : qryResult.values()) {
-            Map<String, TopicDeployEntity> topicConfEntityMap =
-                    defMetaDataService.getBrokerTopicConfEntitySet(entity.getBrokerId());
+            Map<String, TopicDeployEntity> topicConfEntityMap = defMetaDataService
+                    .getBrokerTopicConfEntitySet(entity.getBrokerId());
             if (!isValidRecord(topicNameSet, isInclude, topicStatus, topicConfEntityMap)) {
                 continue;
             }
@@ -255,70 +260,85 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Add broker configure
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminAddBrokerConfInfo(HttpServletRequest req,
-                                                StringBuilder sBuffer,
-                                                ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdBrokerConfInfo(req, sBuffer, result, true);
     }
 
     /**
      * update broker configure
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminUpdateBrokerConfInfo(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdBrokerConfInfo(req, sBuffer, result, false);
     }
 
     /**
      * Add broker config to brokers in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchAddBrokerConfInfo(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdBrokerConfInfo(req, sBuffer, result, true);
     }
 
     /**
      * Update broker configure in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchUpdBrokerConfInfo(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdBrokerConfInfo(req, sBuffer, result, false);
     }
 
     /**
      * Delete broker config
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminDeleteBrokerConfEntityInfo(HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -352,14 +372,17 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Make broker config online
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminOnlineBrokerConf(HttpServletRequest req,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -384,14 +407,17 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Make broker config offline
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminOfflineBrokerConf(HttpServletRequest req,
-                                                StringBuilder sBuffer,
-                                                ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -414,18 +440,20 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     }
 
     /**
-     * Set read/write status of a broker.
-     * The same operations could be made by changing broker's config,
-     * but those are extracted here to simplify the code.
+     * Set read/write status of a broker. The same operations could be made by
+     * changing broker's config, but those are extracted here to simplify the code.
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminSetReadOrWriteBrokerConf(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -444,8 +472,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Tuple2<Boolean, Boolean> rdWtTpl =
-                (Tuple2<Boolean, Boolean>) result.getRetData();
+        Tuple2<Boolean, Boolean> rdWtTpl = (Tuple2<Boolean, Boolean>) result.getRetData();
         // change broker status
         BrokerConfEntity curEntry;
         List<BrokerProcessResult> retInfo = new ArrayList<>();
@@ -457,8 +484,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 retInfo.add(new BrokerProcessResult(brokerId, "", result));
                 continue;
             }
-            if (curEntry.getManageStatus().getCode()
-                    < ManageStatus.STATUS_MANAGE_ONLINE.getCode()) {
+            if (curEntry.getManageStatus().getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode()) {
                 result.setFailResult(DataOpErrCode.DERR_CONDITION_LACK.getCode(),
                         "The broker configure under draft status, please online first!");
                 retInfo.add(new BrokerProcessResult(brokerId, "", result));
@@ -480,14 +506,17 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Reload broker config
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminReloadBrokerConf(HttpServletRequest req,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -511,14 +540,17 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Release broker auto forbidden status
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminRelBrokerAutoForbiddenStatus(HttpServletRequest req,
-                                                           StringBuilder sBuffer,
-                                                           ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -548,14 +580,17 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     /**
      * Query run status of broker
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryBrokerRunStatusInfo(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         BrokerConfEntity qryEntity = new BrokerConfEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -606,23 +641,20 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         boolean onlyEnableTLS = (Boolean) result.getRetData();
         // query current broker configures
         Map<Integer, BrokerConfEntity> brokerConfEntityMap =
-                defMetaDataService.getBrokerConfInfo(brokerIds, brokerIpSet, null);
+                defMetaDataService.getBrokerConfInfo(brokerIds, brokerIpSet,
+                        null);
         BrokerAbnHolder abnHolder = master.getBrokerAbnHolder();
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
-        Map<Integer, BrokerAbnHolder.BrokerAbnInfo> brokerAbnInfoMap =
-                abnHolder.getBrokerAbnormalMap();
-        Map<Integer, BrokerAbnHolder.BrokerFbdInfo> brokerFbdInfoMap =
-                abnHolder.getAutoForbiddenBrokerMapInfo();
+        Map<Integer, BrokerAbnHolder.BrokerAbnInfo> brokerAbnInfoMap = abnHolder.getBrokerAbnormalMap();
+        Map<Integer, BrokerAbnHolder.BrokerFbdInfo> brokerFbdInfoMap = abnHolder.getAutoForbiddenBrokerMapInfo();
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (BrokerConfEntity entity : brokerConfEntityMap.values()) {
-            BrokerAbnHolder.BrokerAbnInfo brokerAbnInfo =
-                    brokerAbnInfoMap.get(entity.getBrokerId());
+            BrokerAbnHolder.BrokerAbnInfo brokerAbnInfo = brokerAbnInfoMap.get(entity.getBrokerId());
             if (onlyAbnormal && brokerAbnInfo == null) {
                 continue;
             }
-            BrokerAbnHolder.BrokerFbdInfo brokerForbInfo =
-                    brokerFbdInfoMap.get(entity.getBrokerId());
+            BrokerAbnHolder.BrokerFbdInfo brokerForbInfo = brokerFbdInfoMap.get(entity.getBrokerId());
             if (onlyAutoForbidden && brokerForbInfo == null) {
                 continue;
             }
@@ -661,10 +693,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                         .append(",\"isConfChanged\":\"-\",\"isConfLoaded\":\"-\",\"isBrokerOnline\":\"-\"")
                         .append(",\"brokerVersion\":\"-\",\"acceptPublish\":\"-\",\"acceptSubscribe\":\"-\"");
             } else {
-                Tuple2<Boolean, Boolean> pubSubTuple =
-                        entity.getManageStatus().getPubSubStatus();
-                BrokerRunStatusInfo runStatusInfo =
-                        brokerRunManager.getBrokerRunStatusInfo(entity.getBrokerId());
+                Tuple2<Boolean, Boolean> pubSubTuple = entity.getManageStatus().getPubSubStatus();
+                BrokerRunStatusInfo runStatusInfo = brokerRunManager.getBrokerRunStatusInfo(entity.getBrokerId());
                 if (runStatusInfo == null) {
                     sBuffer.append(",\"runStatus\":\"unRegister\",\"subStatus\":\"-\"")
                             .append(",\"isConfChanged\":\"-\",\"isConfLoaded\":\"-\",\"isBrokerOnline\":\"-\"")
@@ -688,8 +718,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                                     .append(stepStatus.getCode());
                         }
                     }
-                    Tuple2<Boolean, Boolean> syncTuple =
-                            runStatusInfo.getDataSyncStatus();
+                    Tuple2<Boolean, Boolean> syncTuple = runStatusInfo.getDataSyncStatus();
                     sBuffer.append(",\"isConfChanged\":\"").append(syncTuple.getF0())
                             .append("\",\"isConfLoaded\":\"").append(syncTuple.getF1())
                             .append("\",\"isBrokerOnline\":\"").append(runStatusInfo.isOnline())
@@ -708,9 +737,9 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdBrokerConfInfo(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result,
-                                                    boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -718,12 +747,12 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // check and get cluster default setting info
-        ClusterSettingEntity defClusterSetting =
-                defMetaDataService.getClusterDefSetting(false);
+        ClusterSettingEntity defClusterSetting = defMetaDataService.getClusterDefSetting(false);
         // get brokerPort field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERPORT,
                 false, (isAddOp ? defClusterSetting.getBrokerPort()
-                        : TBaseConstants.META_VALUE_UNDEFINED), 1, sBuffer, result)) {
+                        : TBaseConstants.META_VALUE_UNDEFINED),
+                1, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
@@ -731,7 +760,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         // get brokerTlsPort field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERTLSPORT,
                 false, (isAddOp ? defClusterSetting.getBrokerTLSPort()
-                        : TBaseConstants.META_VALUE_UNDEFINED), 1, sBuffer, result)) {
+                        : TBaseConstants.META_VALUE_UNDEFINED),
+                1, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
@@ -739,7 +769,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
         // get brokerWebPort field
         if (!WebParameterUtils.getIntParamValue(req, WebFieldDef.BROKERWEBPORT,
                 false, (isAddOp ? defClusterSetting.getBrokerWebPort()
-                        : TBaseConstants.META_VALUE_UNDEFINED), 1, sBuffer, result)) {
+                        : TBaseConstants.META_VALUE_UNDEFINED),
+                1, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
@@ -783,8 +814,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return sBuffer;
             }
-            Tuple2<Integer, String> brokerIdAndIpTuple =
-                    (Tuple2<Integer, String>) result.getRetData();
+            Tuple2<Integer, String> brokerIdAndIpTuple = (Tuple2<Integer, String>) result.getRetData();
             // set the initial status
             if (mngStatus == ManageStatus.STATUS_MANAGE_UNDEFINED) {
                 mngStatus = ManageStatus.STATUS_MANAGE_APPLY;
@@ -817,9 +847,9 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
      * @return
      */
     private StringBuilder innBatchAddOrUpdBrokerConfInfo(HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result,
-                                                         boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -831,8 +861,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Map<Integer, BrokerConfEntity> addedRecordMap =
-                (HashMap<Integer, BrokerConfEntity>) result.getRetData();
+        Map<Integer, BrokerConfEntity> addedRecordMap = (HashMap<Integer, BrokerConfEntity>) result.getRetData();
         // add record and process result
         List<BrokerProcessResult> retInfo = new ArrayList<>();
         for (BrokerConfEntity brokerEntity : addedRecordMap.values()) {
@@ -852,8 +881,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
      * @return
      */
     private boolean isValidRecord(Set<String> qryTopicSet, Boolean isInclude,
-                                  TopicStatus topicStatus,
-                                  Map<String, TopicDeployEntity> topicConfEntityMap) {
+            TopicStatus topicStatus,
+            Map<String, TopicDeployEntity> topicConfEntityMap) {
         if (topicConfEntityMap == null || topicConfEntityMap.isEmpty()) {
             return ((qryTopicSet == null || qryTopicSet.isEmpty())
                     && topicStatus == TopicStatus.STATUS_TOPIC_UNDEFINED);
@@ -903,7 +932,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
      * @return
      */
     private StringBuilder addTopicInfo(Boolean withTopic, StringBuilder sBuffer,
-                                       Map<String, TopicDeployEntity> topicConfEntityMap) {
+            Map<String, TopicDeployEntity> topicConfEntityMap) {
         if (withTopic) {
             sBuffer.append(",\"topicSet\":[");
             int topicCount = 0;
@@ -921,17 +950,15 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     }
 
     private boolean getBrokerJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                         BaseEntity defOpEntity, StringBuilder sBuffer,
-                                         ProcessResult result) {
+            BaseEntity defOpEntity, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.BROKERJSONSET, true, null, result)) {
             return result.isSuccess();
         }
-        List<Map<String, String>> brokerJsonArray =
-                (List<Map<String, String>>) result.getRetData();
+        List<Map<String, String>> brokerJsonArray = (List<Map<String, String>>) result.getRetData();
         // check and get cluster default setting info
-        ClusterSettingEntity defClusterSetting =
-                defMetaDataService.getClusterDefSetting(false);
+        ClusterSettingEntity defClusterSetting = defMetaDataService.getClusterDefSetting(false);
         // check and get broker configure
         BrokerConfEntity itemEntity;
         HashMap<Integer, BrokerConfEntity> addedRecordMap = new HashMap<>();
@@ -945,21 +972,24 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
             // get brokerPort field
             if (!WebParameterUtils.getIntParamValue(brokerObject, WebFieldDef.BROKERPORT,
                     false, (isAddOp ? defClusterSetting.getBrokerPort()
-                            : TBaseConstants.META_VALUE_UNDEFINED), 1, sBuffer, result)) {
+                            : TBaseConstants.META_VALUE_UNDEFINED),
+                    1, sBuffer, result)) {
                 return result.isSuccess();
             }
             int brokerPort = (int) result.getRetData();
             // get brokerTlsPort field
             if (!WebParameterUtils.getIntParamValue(brokerObject, WebFieldDef.BROKERTLSPORT,
                     false, (isAddOp ? defClusterSetting.getBrokerTLSPort()
-                            : TBaseConstants.META_VALUE_UNDEFINED), 1, sBuffer, result)) {
+                            : TBaseConstants.META_VALUE_UNDEFINED),
+                    1, sBuffer, result)) {
                 return result.isSuccess();
             }
             int brokerTlsPort = (int) result.getRetData();
             // get brokerWebPort field
             if (!WebParameterUtils.getIntParamValue(brokerObject, WebFieldDef.BROKERWEBPORT,
                     false, (isAddOp ? defClusterSetting.getBrokerWebPort()
-                            : TBaseConstants.META_VALUE_UNDEFINED), 1, sBuffer, result)) {
+                            : TBaseConstants.META_VALUE_UNDEFINED),
+                    1, sBuffer, result)) {
                 return result.isSuccess();
             }
             int brokerWebPort = (int) result.getRetData();
@@ -995,8 +1025,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
                 if (!getBrokerIpAndIdParamValue(brokerObject, sBuffer, result)) {
                     return result.isSuccess();
                 }
-                Tuple2<Integer, String> brokerIdAndIpTuple =
-                        (Tuple2<Integer, String>) result.getRetData();
+                Tuple2<Integer, String> brokerIdAndIpTuple = (Tuple2<Integer, String>) result.getRetData();
                 // set the initial status
                 if (mngStatus == ManageStatus.STATUS_MANAGE_UNDEFINED) {
                     mngStatus = ManageStatus.STATUS_MANAGE_APPLY;
@@ -1035,7 +1064,7 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<BrokerProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (BrokerProcessResult entry : retInfo) {
@@ -1053,8 +1082,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     }
 
     private <T> boolean getBrokerIpAndIdParamValue(T paramCntr,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // get brokerIp
         if (!WebParameterUtils.getStringParamValue(paramCntr,
                 WebFieldDef.BROKERIP, true, null, sBuffer, result)) {
@@ -1104,8 +1133,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     }
 
     private <T> boolean getManageStatusParamValue(T paramCntr,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(paramCntr,
                 WebFieldDef.MANAGESTATUS, false,
                 null, sBuffer, result)) {
@@ -1129,8 +1158,8 @@ public class WebBrokerConfHandler extends AbstractWebHandler {
     }
 
     private <T> boolean getAcceptReadAndWriteParamValue(T paramCntr,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getBooleanParamValue(paramCntr,
                 WebFieldDef.ACCEPTPUBLISH, false, null, sBuffer, result)) {
             return result.isSuccess();

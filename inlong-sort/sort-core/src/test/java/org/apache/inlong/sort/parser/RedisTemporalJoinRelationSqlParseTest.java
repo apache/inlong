@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -47,8 +43,11 @@ import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 import org.apache.inlong.sort.protocol.transformation.relation.InnerTemporalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterTemporalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoinRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,6 +56,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for {@link RedisExtractNode} and temporal join {@link FlinkSqlParser}
@@ -67,8 +69,7 @@ public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new StringFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
-                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME)
-        );
+                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME));
         Map<String, String> map = new HashMap<>();
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, map, "id",
@@ -97,11 +98,10 @@ public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("nickname", new StringFormatInfo()),
                 new FieldInfo("rank", new LongFormatInfo()),
-                new FieldInfo("score", new DoubleFormatInfo())
-        );
+                new FieldInfo("score", new DoubleFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", "1", new StringFormatInfo()),
-                                new FieldInfo("id", new StringFormatInfo())),
+                        new FieldInfo("id", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("name", "1", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", "1", new IntFormatInfo()),
@@ -113,8 +113,7 @@ public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("v", "4", new DoubleFormatInfo()),
                                 new FieldInfo("score", new DoubleFormatInfo())),
                         new FieldRelation(new FieldInfo("v", "5", new StringFormatInfo()),
-                                new FieldInfo("address", new StringFormatInfo()))
-                );
+                                new FieldInfo("address", new StringFormatInfo())));
         return new MySqlLoadNode("6", "mysql_output", fields, relations, null,
                 null, null, null, "jdbc:mysql://localhost:3306/inlong",
                 "inlong", "inlong", "mysql_output", "id");
@@ -123,8 +122,10 @@ public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
     /**
      * build node relation
      *
-     * @param inputs extract node
-     * @param outputs load node
+     * @param inputs
+     *          extract node
+     * @param outputs
+     *          load node
      * @return node relation
      */
     private TemporalJoinRelation buildNodeRelation(List<Node> inputs, List<Node> outputs, boolean left) {
@@ -151,10 +152,11 @@ public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test left temporal join for extract is mysql {@link MySqlExtractNode}, {@link RedisExtractNode}
-     * and load is mysql {@link MySqlLoadNode}
+     * Test left temporal join for extract is mysql {@link MySqlExtractNode},
+     * {@link RedisExtractNode} and load is mysql {@link MySqlLoadNode}
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testLeftTemporalJoinParse() throws Exception {
@@ -186,10 +188,11 @@ public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test inner temporal join for extract is mysql {@link MySqlExtractNode}, {@link RedisExtractNode}
-     * and load is mysql {@link MySqlLoadNode}
+     * Test inner temporal join for extract is mysql {@link MySqlExtractNode},
+     * {@link RedisExtractNode} and load is mysql {@link MySqlLoadNode}
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testInnerTemporalJoinParse() throws Exception {

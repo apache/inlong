@@ -17,17 +17,21 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.CharUtils;
-import org.apache.commons.lang3.StringUtils;
+import static java.sql.Types.BINARY;
+import static java.sql.Types.BLOB;
+import static java.sql.Types.LONGVARBINARY;
+import static java.sql.Types.VARBINARY;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.CharUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -37,10 +41,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.sql.Types.BINARY;
-import static java.sql.Types.BLOB;
-import static java.sql.Types.LONGVARBINARY;
-import static java.sql.Types.VARBINARY;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Read data from database by SQL
@@ -175,7 +177,8 @@ public class SqlReader extends AbstractReader {
     /**
      * Init column meta data.
      *
-     * @throws Exception - sql exception
+     * @throws Exception
+     *           - sql exception
      */
     private void initColumnMeta() throws Exception {
         columnCount = resultSet.getMetaData().getColumnCount();

@@ -17,6 +17,14 @@
 
 package org.apache.inlong.tubemq.client.producer.qltystats;
 
+import org.apache.inlong.tubemq.client.config.TubeClientConfig;
+import org.apache.inlong.tubemq.client.exception.TubeClientException;
+import org.apache.inlong.tubemq.corebase.TokenConstants;
+import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
+import org.apache.inlong.tubemq.corebase.cluster.Partition;
+import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
+import org.apache.inlong.tubemq.corerpc.RpcServiceFactory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,13 +36,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.inlong.tubemq.client.config.TubeClientConfig;
-import org.apache.inlong.tubemq.client.exception.TubeClientException;
-import org.apache.inlong.tubemq.corebase.TokenConstants;
-import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
-import org.apache.inlong.tubemq.corebase.cluster.Partition;
-import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
-import org.apache.inlong.tubemq.corerpc.RpcServiceFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,21 +44,18 @@ import org.slf4j.LoggerFactory;
  * An implementation of BrokerRcvQltyStats.
  */
 public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
-    private static final Logger logger =
-            LoggerFactory.getLogger(DefaultBrokerRcvQltyStats.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultBrokerRcvQltyStats.class);
     private final TubeClientConfig clientConfig;
     private final RpcServiceFactory rpcServiceFactory;
     private final Thread statisticThread;
     // Broker link quality statistics.
     // Request failure analysis, by broker.
-    private final ConcurrentHashMap<Integer, BrokerStatsItemSet> brokerStats =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, BrokerStatsItemSet> brokerStats = new ConcurrentHashMap<>();
     // The request number of the current broker.
-    private final ConcurrentHashMap<Integer, AtomicLong> brokerCurSentReqNum =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, AtomicLong> brokerCurSentReqNum = new ConcurrentHashMap<>();
     // The statistics of the blocking brokers.
-    private final ConcurrentHashMap<Integer, Long> brokerForbiddenMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, Long> brokerForbiddenMap = new ConcurrentHashMap<>();
     // Status:
     // -1: Uninitialized
     // 0: Running
@@ -67,27 +66,32 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     private final AtomicLong curTotalSentRequestNum = new AtomicLong(0);
     // The time of last link quality statistic.
     private long lastLinkStatisticTime = System.currentTimeMillis();
-    // Analyze the broker quality based on the request response. We calculate the quality metric by
-    //     success response number / total request number
-    // in a time range. The time range is same when we compare the quality of different brokers.
-    // We think the quality is better when the successful ratio is higher. The bad quality brokers
+    // Analyze the broker quality based on the request response. We calculate the
+    // quality metric by
+    // success response number / total request number
+    // in a time range. The time range is same when we compare the quality of
+    // different brokers.
+    // We think the quality is better when the successful ratio is higher. The bad
+    // quality brokers
     // will be blocked. The blocking ratio and time can be configured.
-    private List<Map.Entry<Integer, BrokerStatsDltTuple>> cachedLinkQualities =
-            new ArrayList<>();
+    private List<Map.Entry<Integer, BrokerStatsDltTuple>> cachedLinkQualities = new ArrayList<>();
     private long lastQualityStatisticTime = System.currentTimeMillis();
     private long printCount = 0;
 
     /**
      * Initial a broker receive status statistics ojbect
      *
-     * @param rpcServiceFactory  the session factory
-     * @param producerConfig     the producer configure
+     * @param rpcServiceFactory
+     *          the session factory
+     * @param producerConfig
+     *          the producer configure
      */
     public DefaultBrokerRcvQltyStats(final RpcServiceFactory rpcServiceFactory,
-                                     final TubeClientConfig producerConfig) {
+            final TubeClientConfig producerConfig) {
         this.clientConfig = producerConfig;
         this.rpcServiceFactory = rpcServiceFactory;
         this.statisticThread = new Thread(new Runnable() {
+
             @Override
             public void run() {
                 while (!isStopped()) {
@@ -124,13 +128,16 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     /**
      * Get the partitions of allowed broker.
      *
-     * @param brokerPartList broker partition mapping
+     * @param brokerPartList
+     *          broker partition mapping
      * @return partition list
-     * @throws TubeClientException  the exception while query
+     * @throws TubeClientException
+     *           the exception while query
      */
     @Override
     public List<Partition> getAllowedBrokerPartitions(
-            Map<Integer, List<Partition>> brokerPartList) throws TubeClientException {
+            Map<Integer, List<Partition>> brokerPartList)
+            throws TubeClientException {
         // #lizard forgives
         List<Partition> partList = new ArrayList<>();
         if ((brokerPartList == null) || (brokerPartList.isEmpty())) {
@@ -149,7 +156,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
         for (Map.Entry<Integer, List<Partition>> oldBrokerPartEntry : brokerPartList.entrySet()) {
             Long lastAddTime = unAvailableBrokerMap.get(oldBrokerPartEntry.getKey());
             if ((lastAddTime != null)
-                && (curTime - lastAddTime <= clientConfig.getUnAvailableFbdDurationMs())) {
+                    && (curTime - lastAddTime <= clientConfig.getUnAvailableFbdDurationMs())) {
                 continue;
             }
             if (this.brokerForbiddenMap.containsKey(oldBrokerPartEntry.getKey())) {
@@ -160,8 +167,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
                 Partition partition = partitionList.get(0);
                 if (partition != null) {
                     BrokerInfo brokerInfo = partition.getBroker();
-                    AtomicLong curMaxSentNum =
-                            this.brokerCurSentReqNum.get(brokerInfo.getBrokerId());
+                    AtomicLong curMaxSentNum = this.brokerCurSentReqNum.get(brokerInfo.getBrokerId());
                     if ((curMaxSentNum != null)
                             && (curMaxSentNum.get() > this.clientConfig.getLinkMaxAllowedDelayedMsgCount())) {
                         continue;
@@ -178,8 +184,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
         int selectCount = allowedBrokerIds.size();
         int allowedCount = selectCount;
         if (currentWaitCount > this.clientConfig.getSessionWarnDelayedMsgCount()) {
-            allowedCount =
-                    (int) Math.rint(selectCount * (1 - this.clientConfig.getSessionWarnForbiddenRate()));
+            allowedCount = (int) Math.rint(selectCount * (1 - this.clientConfig.getSessionWarnForbiddenRate()));
         }
         if ((this.cachedLinkQualities.isEmpty()) || (selectCount == allowedCount)) {
             for (Integer selBrokerId : allowedBrokerIds) {
@@ -200,8 +205,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
                 }
             }
             if (allowedCount > 0) {
-                for (Map.Entry<Integer, BrokerStatsDltTuple> brokerEntry :
-                        this.cachedLinkQualities) {
+                for (Map.Entry<Integer, BrokerStatsDltTuple> brokerEntry : this.cachedLinkQualities) {
                     if (allowedBrokerIds.contains(brokerEntry.getKey())) {
                         partList.addAll(brokerPartList.get(brokerEntry.getKey()));
                         allowedCount--;
@@ -218,7 +222,8 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     /**
      * Remove a registered broker from the statistic list.
      *
-     * @param registeredBrokerIdList   the broker id need to delete
+     * @param registeredBrokerIdList
+     *          the broker id need to delete
      */
     @Override
     public void removeUnRegisteredBroker(List<Integer> registeredBrokerIdList) {
@@ -233,19 +238,16 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     public void statisticDltBrokerStatus() {
         // #lizard forgives
         long currentTime = System.currentTimeMillis();
-        if ((currentTime - this.lastLinkStatisticTime
-                < this.clientConfig.getSessionStatisticCheckDuration())
-                && (currentTime - this.lastQualityStatisticTime
-                < this.clientConfig.getMaxForbiddenCheckDuration())) {
+        if ((currentTime - this.lastLinkStatisticTime < this.clientConfig.getSessionStatisticCheckDuration())
+                && (currentTime - this.lastQualityStatisticTime < this.clientConfig.getMaxForbiddenCheckDuration())) {
             return;
         }
-        if (currentTime - this.lastLinkStatisticTime
-                > this.clientConfig.getSessionStatisticCheckDuration()) {
+        if (currentTime - this.lastLinkStatisticTime > this.clientConfig.getSessionStatisticCheckDuration()) {
             this.lastLinkStatisticTime = System.currentTimeMillis();
             this.cachedLinkQualities = getCurBrokerSentWaitStats();
         }
-        if (System.currentTimeMillis() - this.lastQualityStatisticTime
-                < this.clientConfig.getMaxForbiddenCheckDuration()) {
+        if (System.currentTimeMillis() - this.lastQualityStatisticTime < this.clientConfig
+                .getMaxForbiddenCheckDuration()) {
             return;
         }
         StringBuilder sBuilder = new StringBuilder(512);
@@ -263,15 +265,14 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
             }
             if (!rpcServiceFactory.getUnavailableBrokerMap().isEmpty()) {
                 logger.info(sBuilder.append("[status check]: current service unavailable brokerMap is ")
-                    .append(rpcServiceFactory.getUnavailableBrokerMap().toString()).toString());
+                        .append(rpcServiceFactory.getUnavailableBrokerMap().toString()).toString());
                 sBuilder.delete(0, sBuilder.length());
             }
         }
 
         boolean changed = false;
         long totalSuccRecNum = 0L;
-        HashMap<Integer, BrokerStatsDltTuple> needSelNumTMap =
-                new HashMap<>();
+        HashMap<Integer, BrokerStatsDltTuple> needSelNumTMap = new HashMap<>();
         for (Map.Entry<Integer, BrokerStatsItemSet> brokerForbiddenEntry : brokerStats.entrySet()) {
             BrokerStatsItemSet curStatsItemSet = brokerStats.get(brokerForbiddenEntry.getKey());
             if (curStatsItemSet != null) {
@@ -285,8 +286,8 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
             }
         }
         for (Map.Entry<Integer, Long> brokerForbiddenEntry : brokerForbiddenMap.entrySet()) {
-            if (System.currentTimeMillis() - brokerForbiddenEntry.getValue()
-                    > this.clientConfig.getMaxForbiddenCheckDuration()) {
+            if (System.currentTimeMillis() - brokerForbiddenEntry.getValue() > this.clientConfig
+                    .getMaxForbiddenCheckDuration()) {
                 changed = true;
                 brokerForbiddenMap.remove(brokerForbiddenEntry.getKey());
             }
@@ -301,14 +302,12 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
             }
             return;
         }
-        List<Map.Entry<Integer, BrokerStatsDltTuple>> lstData =
-                new ArrayList<>(needSelNumTMap.entrySet());
+        List<Map.Entry<Integer, BrokerStatsDltTuple>> lstData = new ArrayList<>(needSelNumTMap.entrySet());
         // Sort the list in ascending order
         Collections.sort(lstData, new BrokerStatsDltTupleComparator(false));
         int filteredBrokerListSize = lstData.size();
-        int needHoldCount =
-                (int) Math.rint((filteredBrokerListSize + brokerForbiddenMap.size())
-                        * clientConfig.getMaxSentForbiddenRate());
+        int needHoldCount = (int) Math.rint((filteredBrokerListSize + brokerForbiddenMap.size())
+                * clientConfig.getMaxSentForbiddenRate());
         needHoldCount -= brokerForbiddenMap.size();
         if (needHoldCount <= 0) {
             if (changed) {
@@ -330,8 +329,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
             totalSuccRecNum -= lstData.get(lstData.size() - 1).getValue().getSuccRecvNum();
             avgSuccRecNumThreshold = (long) (totalSuccRecNum / (filteredBrokerListSize - 3) * 0.2);
         }
-        ConcurrentHashMap<Integer, Boolean> tmpBrokerForbiddenMap =
-                new ConcurrentHashMap<>();
+        ConcurrentHashMap<Integer, Boolean> tmpBrokerForbiddenMap = new ConcurrentHashMap<>();
         for (Map.Entry<Integer, BrokerStatsDltTuple> brokerDltNumEntry : lstData) {
             long succRecvNum = brokerDltNumEntry.getValue().getSuccRecvNum();
             long succSendNumThreshold = (long) (brokerDltNumEntry.getValue().getSendNum() * 0.1);
@@ -340,10 +338,10 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
                 tmpBrokerForbiddenMap.put(brokerDltNumEntry.getKey(), true);
                 if (logger.isDebugEnabled()) {
                     logger.debug(sBuilder.append("[forbidden statistic] brokerId=")
-                        .append(brokerDltNumEntry.getKey()).append(",succRecvNum=")
-                        .append(succRecvNum).append(",avgSuccRecNumThreshold=")
-                        .append(avgSuccRecNumThreshold).append(",succSendNumThreshold=")
-                        .append(succSendNumThreshold).toString());
+                            .append(brokerDltNumEntry.getKey()).append(",succRecvNum=")
+                            .append(succRecvNum).append(",avgSuccRecNumThreshold=")
+                            .append(avgSuccRecNumThreshold).append(",succSendNumThreshold=")
+                            .append(succSendNumThreshold).toString());
                     sBuilder.delete(0, sBuilder.length());
                 }
             }
@@ -375,8 +373,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
                         curStatsItemSet.getSendNum()));
             }
         }
-        List<Map.Entry<Integer, BrokerStatsDltTuple>> lstData =
-                new ArrayList<>(needSelNumTMap.entrySet());
+        List<Map.Entry<Integer, BrokerStatsDltTuple>> lstData = new ArrayList<>(needSelNumTMap.entrySet());
         // Sort the list in descending order
         Collections.sort(lstData, new BrokerStatsDltTupleComparator(true));
         return lstData;
@@ -447,7 +444,9 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
     }
 
     private static class BrokerStatsDltTupleComparator
-            implements Comparator<Map.Entry<Integer, BrokerStatsDltTuple>> {
+            implements
+                Comparator<Map.Entry<Integer, BrokerStatsDltTuple>> {
+
         // Descending sort or ascending sort
         private boolean isDescSort = true;
 
@@ -457,7 +456,7 @@ public class DefaultBrokerRcvQltyStats implements BrokerRcvQltyStats {
 
         @Override
         public int compare(final Map.Entry<Integer, BrokerStatsDltTuple> o1,
-                           final Map.Entry<Integer, BrokerStatsDltTuple> o2) {
+                final Map.Entry<Integer, BrokerStatsDltTuple> o2) {
             if (o1.getValue().getSuccRecvNum() == o2.getValue().getSuccRecvNum()) {
                 return 0;
             } else {

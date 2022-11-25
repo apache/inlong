@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.google.common.collect.Lists;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
@@ -34,12 +33,15 @@ import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
+
+import java.util.Collections;
+import java.util.Date;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Collections;
-import java.util.Date;
+import com.google.common.collect.Lists;
 
 /**
  * Agent service test

@@ -17,11 +17,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
 import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -37,19 +32,28 @@ import org.apache.inlong.sort.protocol.node.load.DorisLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
- * Test for extract data use {@link DorisExtractNode} and load data use {@link DorisLoadNode}
+ * Test for extract data use {@link DorisExtractNode} and load data use
+ * {@link DorisLoadNode}
  */
 @Slf4j
 public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
@@ -61,8 +65,7 @@ public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("price", new DecimalFormatInfo()),
-                new FieldInfo("sale", new DoubleFormatInfo())
-        );
+                new FieldInfo("sale", new DoubleFormatInfo()));
         return new DorisExtractNode("1", "doris_input", fields,
                 null, null, "localhost:8030", "root",
                 "000000", "test.test1");
@@ -75,12 +78,11 @@ public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("price", new DecimalFormatInfo()),
-                new FieldInfo("sale", new DoubleFormatInfo())
-        );
+                new FieldInfo("sale", new DoubleFormatInfo()));
 
         List<FieldRelation> fieldRelations = Arrays
                 .asList(new FieldRelation(new FieldInfo("dt", new StringFormatInfo()),
-                                new FieldInfo("dt", new StringFormatInfo())),
+                        new FieldInfo("dt", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
                                 new FieldInfo("id", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
@@ -90,8 +92,7 @@ public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("price", new DecimalFormatInfo()),
                                 new FieldInfo("price", new DecimalFormatInfo())),
                         new FieldRelation(new FieldInfo("sale", new DoubleFormatInfo()),
-                                new FieldInfo("sale", new DoubleFormatInfo()))
-                );
+                                new FieldInfo("sale", new DoubleFormatInfo())));
 
         List<FilterFunction> filters = new ArrayList<>();
         Map<String, String> map = new HashMap<>();
@@ -104,8 +105,10 @@ public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
     /**
      * build node relation
      *
-     * @param inputs  extract node
-     * @param outputs load node
+     * @param inputs
+     *          extract node
+     * @param outputs
+     *          load node
      * @return node relation
      */
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -115,7 +118,8 @@ public class DorisExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
     }
 
     /**
-     * Test flink sql task for extract is doris {@link DorisExtractNode} and load is doris {@link DorisLoadNode}
+     * Test flink sql task for extract is doris {@link DorisExtractNode} and load is
+     * doris {@link DorisLoadNode}
      */
     @Test
     public void testDorisExtractNodeToDorisLoadNodeSqlParse() {

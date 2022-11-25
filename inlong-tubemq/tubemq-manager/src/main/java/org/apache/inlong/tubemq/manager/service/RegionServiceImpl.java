@@ -17,10 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.service;
 
-import java.util.List;
-import javax.transaction.Transactional;
-
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.entry.RegionEntry;
 import org.apache.inlong.tubemq.manager.repository.BrokerRepository;
@@ -29,6 +25,13 @@ import org.apache.inlong.tubemq.manager.repository.RegionRepository;
 import org.apache.inlong.tubemq.manager.service.interfaces.BrokerService;
 import org.apache.inlong.tubemq.manager.service.interfaces.RegionService;
 import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
+
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
@@ -52,7 +55,7 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     public TubeMQResult createNewRegion(RegionEntry regionEntry,
-                                        List<Long> brokerIdList) {
+            List<Long> brokerIdList) {
         try {
             Long clusterId = regionEntry.getClusterId();
             if (!brokerService.checkIfBrokersAllExist(brokerIdList, clusterId)) {

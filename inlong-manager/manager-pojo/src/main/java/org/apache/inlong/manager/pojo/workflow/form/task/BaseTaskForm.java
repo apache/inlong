@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.pojo.workflow.form.task;
 
+import lombok.Data;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import lombok.Data;
 
 /**
  * Approval task node form

@@ -19,6 +19,15 @@
 
 package org.apache.inlong.sort.iceberg.flink.sink;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -34,23 +43,18 @@ import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.io.TaskWriter;
 import org.apache.iceberg.io.WriteResult;
 import org.apache.iceberg.relocated.com.google.common.base.MoreObjects;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import javax.annotation.Nullable;
 
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
-        implements OneInputStreamOperator<T, WriteResult>, BoundedOneInput {
+        implements
+            OneInputStreamOperator<T, WriteResult>,
+            BoundedOneInput {
 
     private static final long serialVersionUID = 1L;
 
@@ -119,7 +123,7 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
@@ -147,8 +151,10 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
 
     @Override
     public void endInput() throws IOException {
-        // For bounded stream, it may don't enable the checkpoint mechanism so we'd better to emit the remaining
-        // completed files to downstream before closing the writer so that we won't miss any of them.
+        // For bounded stream, it may don't enable the checkpoint mechanism so we'd
+        // better to emit the remaining
+        // completed files to downstream before closing the writer so that we won't miss
+        // any of them.
         emit(writer.complete());
     }
 

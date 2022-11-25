@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.service.resource.sink.mysql;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builder the SQL string for MySQL
@@ -36,7 +38,8 @@ public class MySQLSqlBuilder {
     /**
      * Build SQL to check whether the database exists.
      *
-     * @param dbName MySQL database name
+     * @param dbName
+     *          MySQL database name
      * @return the check database SQL string
      */
     public static String getCheckDatabase(String dbName) {
@@ -53,8 +56,10 @@ public class MySQLSqlBuilder {
     /**
      * Build SQL to check whether the table exists.
      *
-     * @param dbName MySQL database name
-     * @param tableName MySQL table name
+     * @param dbName
+     *          MySQL database name
+     * @param tableName
+     *          MySQL table name
      * @return the check table SQL string
      */
     public static String getCheckTable(String dbName, String tableName) {
@@ -72,9 +77,12 @@ public class MySQLSqlBuilder {
     /**
      * Build SQL to check whether the column exists.
      *
-     * @param dbName MySQL database name
-     * @param tableName MySQL table name
-     * @param columnName MySQL column name
+     * @param dbName
+     *          MySQL database name
+     * @param tableName
+     *          MySQL table name
+     * @param columnName
+     *          MySQL column name
      * @return the check column SQL string
      */
     public static String getCheckColumn(String dbName, String tableName, String columnName) {
@@ -94,7 +102,8 @@ public class MySQLSqlBuilder {
     /**
      * Build create database SQL.
      *
-     * @param dbName MySQL database name
+     * @param dbName
+     *          MySQL database name
      * @return the create database SQL string
      */
     public static String buildCreateDbSql(String dbName) {
@@ -106,7 +115,8 @@ public class MySQLSqlBuilder {
     /**
      * Build create table SQL by MySQLTableInfo.
      *
-     * @param table MySQL table info {@link MySQLTableInfo}
+     * @param table
+     *          MySQL table info {@link MySQLTableInfo}
      * @return the create table SQL String
      */
     public static String buildCreateTableSql(MySQLTableInfo table) {
@@ -137,8 +147,10 @@ public class MySQLSqlBuilder {
     /**
      * Build add columns SQL.
      *
-     * @param tableName MySQL table name
-     * @param columnList MySQL column list {@link List}
+     * @param tableName
+     *          MySQL table name
+     * @param columnList
+     *          MySQL column list {@link List}
      * @return add column SQL string list
      */
     public static List<String> buildAddColumnsSql(String dbName, String tableName,
@@ -163,7 +175,8 @@ public class MySQLSqlBuilder {
     /**
      * Build create column SQL.
      *
-     * @param table MySQL table info {@link MySQLTableInfo}
+     * @param table
+     *          MySQL table info {@link MySQLTableInfo}
      * @return create column SQL string
      */
     private static String buildCreateColumnsSql(MySQLTableInfo table) {
@@ -184,7 +197,8 @@ public class MySQLSqlBuilder {
     /**
      * Build column info by MySQLColumnInfo list.
      *
-     * @param columns MySQL column info {@link MySQLColumnInfo} list
+     * @param columns
+     *          MySQL column info {@link MySQLColumnInfo} list
      * @return the SQL list
      */
     private static List<String> getColumnsInfo(List<MySQLColumnInfo> columns) {
@@ -211,8 +225,10 @@ public class MySQLSqlBuilder {
     /**
      * Build query table SQL.
      *
-     * @param dbName MySQL database name
-     * @param tableName MySQL table name
+     * @param dbName
+     *          MySQL database name
+     * @param tableName
+     *          MySQL table name
      * @return desc table SQL string
      */
     public static String buildDescTableSql(String dbName, String tableName) {

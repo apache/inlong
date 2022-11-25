@@ -31,7 +31,8 @@ public interface WorkflowEventService {
     /**
      * Get event log based on ID
      *
-     * @param id ID of the event log
+     * @param id
+     *          ID of the event log
      * @return Event log view
      */
     EventLogResponse get(Integer id);
@@ -39,7 +40,8 @@ public interface WorkflowEventService {
     /**
      * Query event logs based on conditions
      *
-     * @param query Query conditions
+     * @param query
+     *          Query conditions
      * @return Log list
      */
     PageResult<EventLogResponse> list(EventLogRequest query);
@@ -47,39 +49,48 @@ public interface WorkflowEventService {
     /**
      * Execute the listener based on the log ID
      *
-     * @param eventLogId Log record ID
+     * @param eventLogId
+     *          Log record ID
      */
     void executeEventListener(Integer eventLogId);
 
     /**
      * Re-execute the specified listener according to the process ID
      *
-     * @param processId WorkflowProcess ID
-     * @param listenerName Listener name
+     * @param processId
+     *          WorkflowProcess ID
+     * @param listenerName
+     *          Listener name
      */
     void executeProcessEventListener(Integer processId, String listenerName);
 
     /**
      * Re-execute the specified listener based on the task ID
      *
-     * @param taskId WorkflowTask ID
-     * @param listenerName Listener name
+     * @param taskId
+     *          WorkflowTask ID
+     * @param listenerName
+     *          Listener name
      */
     void executeTaskEventListener(Integer taskId, String listenerName);
 
     /**
      * Re-trigger the process event based on the process ID
      *
-     * @param processId WorkflowProcess ID
-     * @param processEvent WorkflowProcess event
+     * @param processId
+     *          WorkflowProcess ID
+     * @param processEvent
+     *          WorkflowProcess event
      */
     void triggerProcessEvent(Integer processId, ProcessEvent processEvent);
 
     /**
      * Re-trigger task events based on task ID
      *
-     * @param taskId WorkflowTask ID
-     * @param taskEvent WorkflowTask event
+     * @param taskId
+     *          WorkflowTask ID
+     * @param taskEvent
+     *          WorkflowTask event
      */
     void triggerTaskEvent(Integer taskId, TaskEvent taskEvent);
 

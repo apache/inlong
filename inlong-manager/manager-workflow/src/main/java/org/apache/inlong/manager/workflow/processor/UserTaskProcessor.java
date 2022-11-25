@@ -17,13 +17,6 @@
 
 package org.apache.inlong.manager.workflow.processor;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.JsonException;
@@ -40,8 +33,9 @@ import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.TaskEventNotifier;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -50,6 +44,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 /**
  * User task processor
@@ -62,8 +66,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
             .of(WorkflowAction.APPROVE, WorkflowAction.REJECT, WorkflowAction.TRANSFER);
     private static final Set<WorkflowAction> SUPPORT_ACTIONS = ImmutableSet.of(
             WorkflowAction.APPROVE, WorkflowAction.REJECT, WorkflowAction.TRANSFER, WorkflowAction.CANCEL,
-            WorkflowAction.TERMINATE
-    );
+            WorkflowAction.TERMINATE);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -169,8 +172,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
 
         boolean operatorIsApprover = ArrayUtils.contains(
                 workflowTaskEntity.getApprovers().split(WorkflowTaskEntity.APPROVERS_DELIMITER),
-                actionContext.getOperator()
-        );
+                actionContext.getOperator());
 
         if (!operatorIsApprover) {
             throw new WorkflowException(

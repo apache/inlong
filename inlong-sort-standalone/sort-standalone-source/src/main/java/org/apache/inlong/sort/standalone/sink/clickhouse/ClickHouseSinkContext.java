@@ -17,12 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink.clickhouse;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.math3.util.Pair;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
@@ -35,7 +29,11 @@ import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.math3.util.Pair;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -51,6 +49,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
@@ -137,11 +139,13 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * initIdConfig
+     * 
      * @param newIdConfigMap
      * @throws SQLException
      */
     private void initIdConfig(Map<String, ClickHouseIdConfig> newIdConfigMap) throws SQLException {
-        try (Connection conn = DriverManager.getConnection(jdbcUrl, jdbcUsername, jdbcPassword);
+        try (
+                Connection conn = DriverManager.getConnection(jdbcUrl, jdbcUsername, jdbcPassword);
                 Statement stat = conn.createStatement();) {
             for (Entry<String, ClickHouseIdConfig> entry : newIdConfigMap.entrySet()) {
                 // parse field list
@@ -211,6 +215,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * addReadFailMetric
+     * 
      * @param errorMsg
      * @param currentRecord
      */
@@ -236,6 +241,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * addReadFailMetric
+     * 
      * @param errorMsg
      * @param event
      */
@@ -317,6 +323,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get nodeId
+     * 
      * @return the nodeId
      */
     public String getNodeId() {
@@ -325,7 +332,9 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * set nodeId
-     * @param nodeId the nodeId to set
+     * 
+     * @param nodeId
+     *          the nodeId to set
      */
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
@@ -333,6 +342,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get jdbcDriver
+     * 
      * @return the jdbcDriver
      */
     public String getJdbcDriver() {
@@ -341,7 +351,9 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * set jdbcDriver
-     * @param jdbcDriver the jdbcDriver to set
+     * 
+     * @param jdbcDriver
+     *          the jdbcDriver to set
      */
     public void setJdbcDriver(String jdbcDriver) {
         this.jdbcDriver = jdbcDriver;
@@ -349,6 +361,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get jdbcUrl
+     * 
      * @return the jdbcUrl
      */
     public String getJdbcUrl() {
@@ -357,7 +370,9 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * set jdbcUrl
-     * @param jdbcUrl the jdbcUrl to set
+     * 
+     * @param jdbcUrl
+     *          the jdbcUrl to set
      */
     public void setJdbcUrl(String jdbcUrl) {
         this.jdbcUrl = jdbcUrl;
@@ -365,6 +380,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get jdbcUsername
+     * 
      * @return the jdbcUsername
      */
     public String getJdbcUsername() {
@@ -373,7 +389,9 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * set jdbcUsername
-     * @param jdbcUsername the jdbcUsername to set
+     * 
+     * @param jdbcUsername
+     *          the jdbcUsername to set
      */
     public void setJdbcUsername(String jdbcUsername) {
         this.jdbcUsername = jdbcUsername;
@@ -381,6 +399,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get jdbcPassword
+     * 
      * @return the jdbcPassword
      */
     public String getJdbcPassword() {
@@ -389,7 +408,9 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * set jdbcPassword
-     * @param jdbcPassword the jdbcPassword to set
+     * 
+     * @param jdbcPassword
+     *          the jdbcPassword to set
      */
     public void setJdbcPassword(String jdbcPassword) {
         this.jdbcPassword = jdbcPassword;
@@ -397,6 +418,7 @@ public class ClickHouseSinkContext extends SinkContext {
 
     /**
      * get dispatchQueue
+     * 
      * @return the dispatchQueue
      */
     public LinkedBlockingQueue<DispatchProfile> getDispatchQueue() {
@@ -406,7 +428,7 @@ public class ClickHouseSinkContext extends SinkContext {
     /**
      * getIdConfig
      * 
-     * @param  uid
+     * @param uid
      * @return
      */
     public ClickHouseIdConfig getIdConfig(String uid) {

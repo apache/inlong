@@ -29,6 +29,7 @@ public class ProxyCluster {
 
     /**
      * get clusterName
+     * 
      * @return the clusterName
      */
     public String getClusterName() {
@@ -37,7 +38,9 @@ public class ProxyCluster {
 
     /**
      * set clusterName
-     * @param clusterName the clusterName to set
+     * 
+     * @param clusterName
+     *          the clusterName to set
      */
     public void setClusterName(String clusterName) {
         this.clusterName = clusterName;
@@ -45,6 +48,7 @@ public class ProxyCluster {
 
     /**
      * get clusterTag
+     * 
      * @return the clusterTag
      */
     public String getClusterTag() {
@@ -53,7 +57,9 @@ public class ProxyCluster {
 
     /**
      * set clusterTag
-     * @param clusterTag the clusterTag to set
+     * 
+     * @param clusterTag
+     *          the clusterTag to set
      */
     public void setClusterTag(String clusterTag) {
         this.clusterTag = clusterTag;
@@ -61,6 +67,7 @@ public class ProxyCluster {
 
     /**
      * get extTag
+     * 
      * @return the extTag
      */
     public String getExtTag() {
@@ -69,7 +76,9 @@ public class ProxyCluster {
 
     /**
      * set extTag
-     * @param extTag the extTag to set
+     * 
+     * @param extTag
+     *          the extTag to set
      */
     public void setExtTag(String extTag) {
         this.extTag = extTag;
@@ -77,6 +86,7 @@ public class ProxyCluster {
 
     /**
      * get extParams
+     * 
      * @return the extParams
      */
     public String getExtParams() {
@@ -85,7 +95,9 @@ public class ProxyCluster {
 
     /**
      * set extParams
-     * @param extParams the extParams to set
+     * 
+     * @param extParams
+     *          the extParams to set
      */
     public void setExtParams(String extParams) {
         this.extParams = extParams;

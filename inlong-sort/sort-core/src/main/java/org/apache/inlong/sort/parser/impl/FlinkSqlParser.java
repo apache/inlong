@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.parser.impl;
 
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.table.api.TableEnvironment;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
@@ -52,8 +49,9 @@ import org.apache.inlong.sort.protocol.transformation.relation.JoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.table.api.TableEnvironment;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,9 +65,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+
 /**
- * Flink sql parse handler
- * It accepts a TableEnvironment and GroupInfo, and outputs the parsed FlinkSqlParseResult
+ * Flink sql parse handler It accepts a TableEnvironment and GroupInfo, and
+ * outputs the parsed FlinkSqlParseResult
  */
 public class FlinkSqlParser implements Parser {
 
@@ -86,8 +89,10 @@ public class FlinkSqlParser implements Parser {
     /**
      * Flink sql parse constructor
      *
-     * @param tableEnv The tableEnv, it is the execution environment of flink sql
-     * @param groupInfo The groupInfo, it is the data model abstraction of task execution
+     * @param tableEnv
+     *          The tableEnv, it is the execution environment of flink sql
+     * @param groupInfo
+     *          The groupInfo, it is the data model abstraction of task execution
      */
     public FlinkSqlParser(TableEnvironment tableEnv, GroupInfo groupInfo) {
         this.tableEnv = tableEnv;
@@ -98,8 +103,10 @@ public class FlinkSqlParser implements Parser {
     /**
      * Get an instance of FlinkSqlParser
      *
-     * @param tableEnv The tableEnv, it is the execution environment of flink sql
-     * @param groupInfo The groupInfo, it is the data model abstraction of task execution
+     * @param tableEnv
+     *          The tableEnv, it is the execution environment of flink sql
+     * @param groupInfo
+     *          The groupInfo, it is the data model abstraction of task execution
      * @return FlinkSqlParser The flink sql parse handler
      */
     public static FlinkSqlParser getInstance(TableEnvironment tableEnv, GroupInfo groupInfo) {
@@ -141,7 +148,8 @@ public class FlinkSqlParser implements Parser {
     /**
      * Parse stream
      *
-     * @param streamInfo The encapsulation of nodes and node relations
+     * @param streamInfo
+     *          The encapsulation of nodes and node relations
      */
     private void parseStream(StreamInfo streamInfo) {
         Preconditions.checkNotNull(streamInfo, "stream is null");
@@ -173,7 +181,8 @@ public class FlinkSqlParser implements Parser {
     /**
      * Inject the metric option for ExtractNode or LoadNode
      *
-     * @param streamInfo The encapsulation of nodes and node relations
+     * @param streamInfo
+     *          The encapsulation of nodes and node relations
      */
     private void injectInlongMetric(StreamInfo streamInfo) {
         streamInfo.getNodes().stream().filter(node -> node instanceof InlongMetric).forEach(node -> {
@@ -191,8 +200,8 @@ public class FlinkSqlParser implements Parser {
             }
             properties.put(Constants.METRICS_LABELS.key(),
                     Stream.of(Constants.GROUP_ID + "=" + groupInfo.getGroupId(),
-                                    Constants.STREAM_ID + "=" + streamInfo.getStreamId(),
-                                    Constants.NODE_ID + "=" + node.getId())
+                            Constants.STREAM_ID + "=" + streamInfo.getStreamId(),
+                            Constants.NODE_ID + "=" + node.getId())
                             .collect(Collectors.joining("&")));
             // METRICS_AUDIT_PROXY_HOSTS depends on INLONG_GROUP_STREAM_NODE
             if (StringUtils.isNotEmpty(groupInfo.getProperties().get(Constants.METRICS_AUDIT_PROXY_HOSTS.key()))) {
@@ -203,13 +212,16 @@ public class FlinkSqlParser implements Parser {
     }
 
     /**
-     * parse node relation
-     * Here we only parse the output node in the relation,
-     * and the input node parsing is achieved by parsing the dependent node parsing of the output node.
+     * parse node relation Here we only parse the output node in the relation, and
+     * the input node parsing is achieved by parsing the dependent node parsing of
+     * the output node.
      *
-     * @param relation Define relations between nodes, it also shows the data flow
-     * @param nodeMap Store the mapping relation between node id and node
-     * @param relationMap Store the mapping relation between node id and relation
+     * @param relation
+     *          Define relations between nodes, it also shows the data flow
+     * @param nodeMap
+     *          Store the mapping relation between node id and node
+     * @param relationMap
+     *          Store the mapping relation between node id and relation
      */
     private void parseNodeRelation(NodeRelation relation, Map<String, Node> nodeMap,
             Map<String, NodeRelation> relationMap) {
@@ -243,10 +255,14 @@ public class FlinkSqlParser implements Parser {
     /**
      * Parse a node and recursively resolve its dependent nodes
      *
-     * @param node The abstract of extract, transform, load
-     * @param relation Define relations between nodes, it also shows the data flow
-     * @param nodeMap store the mapping relation between node id and node
-     * @param relationMap Store the mapping relation between node id and relation
+     * @param node
+     *          The abstract of extract, transform, load
+     * @param relation
+     *          Define relations between nodes, it also shows the data flow
+     * @param nodeMap
+     *          store the mapping relation between node id and node
+     * @param relationMap
+     *          Store the mapping relation between node id and relation
      */
     private void parseNode(Node node, NodeRelation relation, Map<String, Node> nodeMap,
             Map<String, NodeRelation> relationMap) {
@@ -327,9 +343,12 @@ public class FlinkSqlParser implements Parser {
     /**
      * Generate select sql for union
      *
-     * @param fieldRelations The relation of fieds
-     * @param unionRelation The union relation of sql
-     * @param nodeMap Store the mapping relation between node id and node
+     * @param fieldRelations
+     *          The relation of fieds
+     * @param unionRelation
+     *          The union relation of sql
+     * @param nodeMap
+     *          Store the mapping relation between node id and node
      * @return Transform sql for this node logic
      */
     private String genUnionNodeSelectSql(Node node, List<FieldRelation> fieldRelations,
@@ -342,10 +361,14 @@ public class FlinkSqlParser implements Parser {
         Map<String, Map<String, FieldRelation>> fieldRelationMap = new HashMap<>(unionRelation.getInputs().size());
         // Generate mapping for output field to FieldRelation
         fieldRelations.forEach(s -> {
-            // All field relations of input nodes will be the same if the node id of output field is blank.
-            // Currently, the node id in the output field is used to distinguish which field of the node in the
-            // upstream of the union the field comes from. A better way is through the upstream input field,
-            // but this abstraction does not yet have the ability to set node ids for all upstream input fields.
+            // All field relations of input nodes will be the same if the node id of output
+            // field is blank.
+            // Currently, the node id in the output field is used to distinguish which field
+            // of the node in the
+            // upstream of the union the field comes from. A better way is through the
+            // upstream input field,
+            // but this abstraction does not yet have the ability to set node ids for all
+            // upstream input fields.
             // todo optimize the implementation of this block in the future
             String nodeId = s.getOutputField().getNodeId();
             if (StringUtils.isBlank(nodeId)) {
@@ -465,7 +488,8 @@ public class FlinkSqlParser implements Parser {
     }
 
     private void parseRegularJoin(JoinRelation relation, Map<String, Node> nodeMap,
-            Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
+            Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap,
+            StringBuilder sb) {
         for (int i = 1; i < relation.getInputs().size(); i++) {
             String inputId = relation.getInputs().get(i);
             sb.append("\n      ").append(relation.format()).append(" ")
@@ -476,7 +500,8 @@ public class FlinkSqlParser implements Parser {
     }
 
     private void parseTemporalJoin(TemporalJoinRelation relation, Map<String, Node> nodeMap,
-            Map<String, String> tableNameAliasMap, Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
+            Map<String, String> tableNameAliasMap,
+            Map<String, List<FilterFunction>> conditionMap, StringBuilder sb) {
         if (StringUtils.isBlank(relation.getSystemTime().getNodeId())) {
             relation.getSystemTime().setNodeId(relation.getInputs().get(0));
         }
@@ -506,9 +531,11 @@ public class FlinkSqlParser implements Parser {
     /**
      * Fill out the table name alias
      *
-     * @param params The params used in filter, join condition, transform function etc.
-     * @param tableNameAliasMap The table name alias map, contains all table name alias used in this relation of
-     *         nodes
+     * @param params
+     *          The params used in filter, join condition, transform function etc.
+     * @param tableNameAliasMap
+     *          The table name alias map, contains all table name alias used in this
+     *          relation of nodes
      */
     private void fillOutTableNameAlias(List<FunctionParam> params, Map<String, String> tableNameAliasMap) {
         for (FunctionParam param : params) {
@@ -530,8 +557,10 @@ public class FlinkSqlParser implements Parser {
     /**
      * Generate filter sql of distinct node
      *
-     * @param fields The fields of node
-     * @param sb Container for storing sql
+     * @param fields
+     *          The fields of node
+     * @param sb
+     *          Container for storing sql
      * @return A new container for storing sql
      */
     private StringBuilder genDistinctFilterSql(List<FieldInfo> fields, StringBuilder sb) {
@@ -546,10 +575,13 @@ public class FlinkSqlParser implements Parser {
     }
 
     /**
-     * Generate distinct sql according to the deduplication field, the sorting field.
+     * Generate distinct sql according to the deduplication field, the sorting
+     * field.
      *
-     * @param distinctNode The distinct node
-     * @param sb Container for storing sql
+     * @param distinctNode
+     *          The distinct node
+     * @param sb
+     *          Container for storing sql
      */
     private void genDistinctSql(DistinctNode distinctNode, StringBuilder sb) {
         Preconditions.checkNotNull(distinctNode.getDistinctFields(), "distinctField is null");
@@ -568,16 +600,23 @@ public class FlinkSqlParser implements Parser {
     /**
      * Generate the most basic conversion sql one-to-one
      *
-     * @param node The load node
-     * @param fieldRelations The relation between fields
-     * @param relation Define relations between nodes, it also shows the data flow
-     * @param filters The filters
-     * @param filterStrategy The filterStrategy
-     * @param nodeMap Store the mapping relation between node id and node
+     * @param node
+     *          The load node
+     * @param fieldRelations
+     *          The relation between fields
+     * @param relation
+     *          Define relations between nodes, it also shows the data flow
+     * @param filters
+     *          The filters
+     * @param filterStrategy
+     *          The filterStrategy
+     * @param nodeMap
+     *          Store the mapping relation between node id and node
      * @return Select sql for this node logic
      */
     private String genSimpleSelectSql(Node node, List<FieldRelation> fieldRelations,
-            NodeRelation relation, List<FilterFunction> filters, FilterStrategy filterStrategy,
+            NodeRelation relation, List<FilterFunction> filters,
+            FilterStrategy filterStrategy,
             Map<String, Node> nodeMap) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ");
@@ -605,9 +644,13 @@ public class FlinkSqlParser implements Parser {
     /**
      * Parse filter fields to generate filter sql like 'where 1=1...'
      *
-     * @param filterStrategy The filter strategy default[RETAIN], it decides whether to retain or remove
-     * @param filters The filter functions
-     * @param sb Container for storing sql
+     * @param filterStrategy
+     *          The filter strategy default[RETAIN], it decides whether to retain or
+     *          remove
+     * @param filters
+     *          The filter functions
+     * @param sb
+     *          Container for storing sql
      */
     private void parseFilterFields(FilterStrategy filterStrategy, List<FilterFunction> filters, StringBuilder sb) {
         if (filters != null && !filters.isEmpty()) {
@@ -625,9 +668,12 @@ public class FlinkSqlParser implements Parser {
     /**
      * Parse field relation
      *
-     * @param fields The fields defined in node
-     * @param fieldRelationMap The field relation map
-     * @param sb Container for storing sql
+     * @param fields
+     *          The fields defined in node
+     * @param fieldRelationMap
+     *          The field relation map
+     * @param sb
+     *          Container for storing sql
      */
     private void parseFieldRelations(List<FieldInfo> fields,
             Map<String, FieldRelation> fieldRelationMap, StringBuilder sb) {
@@ -666,9 +712,12 @@ public class FlinkSqlParser implements Parser {
     /**
      * Generate load node insert sql
      *
-     * @param loadNode The real data write node
-     * @param relation The relation between nods
-     * @param nodeMap The node map
+     * @param loadNode
+     *          The real data write node
+     * @param relation
+     *          The relation between nods
+     * @param nodeMap
+     *          The node map
      * @return Insert sql
      */
     private String genLoadNodeInsertSql(LoadNode loadNode, NodeRelation relation, Map<String, Node> nodeMap) {
@@ -730,7 +779,8 @@ public class FlinkSqlParser implements Parser {
     /**
      * Generate create sql
      *
-     * @param node The abstract of extract, transform, load
+     * @param node
+     *          The abstract of extract, transform, load
      * @return The creation sql pf table
      */
     private String genCreateSql(Node node) {
@@ -806,7 +856,8 @@ public class FlinkSqlParser implements Parser {
     /**
      * Generate create transform sql
      *
-     * @param node The transform node
+     * @param node
+     *          The transform node
      * @return The creation sql of transform node
      */
     private String genCreateTransformSql(Node node) {
@@ -817,7 +868,8 @@ public class FlinkSqlParser implements Parser {
     /**
      * Parse options to generate with options
      *
-     * @param options The options defined in node
+     * @param options
+     *          The options defined in node
      * @return The with option string
      */
     private String parseOptions(Map<String, String> options) {
@@ -838,7 +890,8 @@ public class FlinkSqlParser implements Parser {
     /**
      * Parse transform node fields
      *
-     * @param fields The fields defined in node
+     * @param fields
+     *          The fields defined in node
      * @return Field formats in select sql
      */
     private String parseTransformNodeFields(List<FieldInfo> fields) {
@@ -855,8 +908,10 @@ public class FlinkSqlParser implements Parser {
     /**
      * Parse fields
      *
-     * @param fields The fields defined in node
-     * @param node The abstract of extract, transform, load
+     * @param fields
+     *          The fields defined in node
+     * @param node
+     *          The abstract of extract, transform, load
      * @return Field formats in select sql
      */
     private String parseFields(List<FieldInfo> fields, Node node) {
@@ -889,7 +944,8 @@ public class FlinkSqlParser implements Parser {
     /**
      * Generate primary key format in sql
      *
-     * @param primaryKey The primary key of table
+     * @param primaryKey
+     *          The primary key of table
      * @return Primary key format in sql
      */
     private String genPrimaryKey(String primaryKey) {
@@ -905,7 +961,8 @@ public class FlinkSqlParser implements Parser {
     /**
      * Format fields with '`'
      *
-     * @param fields The fields that need format
+     * @param fields
+     *          The fields that need format
      * @return list of field after format
      */
     private List<String> formatFields(String... fields) {

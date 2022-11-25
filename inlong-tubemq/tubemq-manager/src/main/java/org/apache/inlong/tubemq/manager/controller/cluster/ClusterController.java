@@ -17,14 +17,8 @@
 
 package org.apache.inlong.tubemq.manager.controller.cluster;
 
-import com.google.common.collect.Lists;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.inlong.tubemq.manager.service.TubeConst.SUCCESS_CODE;
+
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.cluster.dto.ClusterDto;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.AddClusterReq;
@@ -42,6 +36,14 @@ import org.apache.inlong.tubemq.manager.service.TubeMQErrorConst;
 import org.apache.inlong.tubemq.manager.service.interfaces.ClusterService;
 import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
@@ -53,10 +55,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.tubemq.manager.service.TubeConst.SUCCESS_CODE;
+import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 @RestController
 @RequestMapping(path = "/v1/cluster")
@@ -73,8 +77,7 @@ public class ClusterController {
     private MasterService masterService;
 
     @PostMapping("")
-    public @ResponseBody
-    TubeMQResult clusterMethodProxy(@RequestParam String method, @RequestBody String req) {
+    public @ResponseBody TubeMQResult clusterMethodProxy(@RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD:
                 return addNewCluster(gson.fromJson(req, AddClusterReq.class));
@@ -130,10 +133,10 @@ public class ClusterController {
      * @param clusterId
      * @return
      */
-    @RequestMapping(value = "", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public TubeMQResult queryCluster(@RequestParam(required = false) Integer clusterId,
-            @RequestParam(required = false) String clusterName, @RequestParam(required = false) String masterIp) {
+            @RequestParam(required = false) String clusterName,
+            @RequestParam(required = false) String masterIp) {
         TubeMQResult result = new TubeMQResult();
         if (clusterId == null && clusterName == null && masterIp == null) {
             return queryAllClusterVo();
@@ -146,7 +149,7 @@ public class ClusterController {
             List<MasterEntry> masterNodes = masterService.getMasterNodes(clusterEntry.getClusterId());
             ClusterVo allCount = getCountInCluster(clusterId);
             result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount)));
-            return  result;
+            return result;
         }
         if (clusterName != null) {
             result = queryClusterByClusterName(clusterName);
@@ -198,11 +201,10 @@ public class ClusterController {
     /**
      * query cluster info
      */
-    @RequestMapping(value = "/query", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    String queryInfo(
-            @RequestParam Map<String, String> queryBody) throws Exception {
+    @RequestMapping(value = "/query", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody String queryInfo(
+            @RequestParam Map<String, String> queryBody)
+            throws Exception {
         String url = masterService.getQueryUrl(queryBody);
         return masterService.queryMaster(url);
     }

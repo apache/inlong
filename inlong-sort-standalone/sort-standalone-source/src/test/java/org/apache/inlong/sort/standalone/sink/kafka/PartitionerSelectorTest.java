@@ -22,12 +22,13 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.PartitionInfo;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+
+import org.junit.Test;
 
 /**
  * Test for PartitionerSelector
@@ -57,7 +58,7 @@ public class PartitionerSelectorTest {
             obj.configure(configs);
             Cluster cluster = new Cluster("clusterId", nodes, partitionInfos,
                     new HashSet<String>(), new HashSet<String>());
-            obj.partition(V_INLONG_ID_TOPIC, null, null, null,null, cluster);
+            obj.partition(V_INLONG_ID_TOPIC, null, null, null, null, cluster);
             obj.partition(V_INLONG_ID_TOPIC, "", V_INLONG_ID.getBytes(),
                     V_INLONG_ID.getBytes(), V_INLONG_ID.getBytes(), cluster);
             obj.onNewBatch(V_INLONG_ID_TOPIC, cluster, 0);

@@ -17,11 +17,13 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
+
+import java.util.Date;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,9 +38,8 @@ public class TopicCtrlEntityTest {
         String createUser = "creater";
         Date createDate = new Date();
         final int maxMsgSizeInB = 12222;
-        BdbTopicAuthControlEntity bdbEntity1 =
-                new BdbTopicAuthControlEntity(topicName,
-                        enableAuthControl, attributes, createUser, createDate);
+        BdbTopicAuthControlEntity bdbEntity1 = new BdbTopicAuthControlEntity(topicName,
+                enableAuthControl, attributes, createUser, createDate);
         final TopicCtrlEntity ctrlEntity1 = new TopicCtrlEntity(bdbEntity1);
         // check bdbEntity1
         Assert.assertEquals(bdbEntity1.getTopicName(), topicName);
@@ -93,8 +94,7 @@ public class TopicCtrlEntityTest {
         Assert.assertEquals(ctrlEntity2.getModifyDate(), createDate2);
         Assert.assertEquals(ctrlEntity2.getDataVerId(), dataVerId2);
         // case 3
-        BdbTopicAuthControlEntity bdbEntity3 =
-                ctrlEntity2.buildBdbTopicAuthControlEntity();
+        BdbTopicAuthControlEntity bdbEntity3 = ctrlEntity2.buildBdbTopicAuthControlEntity();
         Assert.assertEquals(bdbEntity3.getTopicName(), ctrlEntity2.getTopicName());
         Assert.assertEquals(bdbEntity3.getTopicId(), ctrlEntity2.getTopicId());
         Assert.assertEquals(bdbEntity3.isEnableAuthControl(),

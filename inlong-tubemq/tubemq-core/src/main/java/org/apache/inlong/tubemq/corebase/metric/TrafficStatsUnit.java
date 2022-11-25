@@ -23,10 +23,11 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 /**
  * TrafficStatsUnit, Metric Statistics item Unit
  *
- * Currently includes the total number of messages and bytes
- * according to the statistics dimension, which can be expanded later as needed
+ * Currently includes the total number of messages and bytes according to the
+ * statistics dimension, which can be expanded later as needed
  */
 public class TrafficStatsUnit {
+
     // the traffic name
     private String trafficName;
     // the message count
@@ -37,9 +38,12 @@ public class TrafficStatsUnit {
     /**
      * Accumulate the count of messages and message bytes.
      *
-     * @param msgCntName    the specified count statistics item name
-     * @param msgSizeName   the specified size statistics item name
-     * @param prefix        the prefix of statistics items
+     * @param msgCntName
+     *          the specified count statistics item name
+     * @param msgSizeName
+     *          the specified size statistics item name
+     * @param prefix
+     *          the prefix of statistics items
      */
     public TrafficStatsUnit(String msgCntName, String msgSizeName, String prefix) {
         this.trafficName = prefix;
@@ -50,8 +54,10 @@ public class TrafficStatsUnit {
     /**
      * Accumulate the count of messages and message bytes.
      *
-     * @param msgCount  the specified message count
-     * @param msgSize   the specified message size
+     * @param msgCount
+     *          the specified message count
+     * @param msgSize
+     *          the specified message size
      */
     public void addMsgCntAndSize(long msgCount, long msgSize) {
         this.msgCnt.addValue(msgCount);
@@ -61,8 +67,10 @@ public class TrafficStatsUnit {
     /**
      * Get traffic information in json format.
      *
-     * @param strBuff      the string information container
-     * @param resetValue   whether reset value
+     * @param strBuff
+     *          the string information container
+     * @param resetValue
+     *          whether reset value
      */
     public void getValue(StringBuilder strBuff, boolean resetValue) {
         if (!TStringUtils.isEmpty(this.trafficName)) {

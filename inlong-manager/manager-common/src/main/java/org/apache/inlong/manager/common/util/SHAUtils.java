@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.common.util;
 
-import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.crypto.hash.SimpleHash;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * SHA encryption and decryption utils.
@@ -38,7 +39,8 @@ public class SHAUtils {
     /**
      * Get SHA from the given string.
      *
-     * @param source string to be encrypted
+     * @param source
+     *          string to be encrypted
      * @return SHA string after encrypt
      */
     public static String getSHAString(String source) {
@@ -69,7 +71,8 @@ public class SHAUtils {
     /**
      * Encrypt the given string by SHA-256 encryption algorithm.
      *
-     * @param source string to be encrypted
+     * @param source
+     *          string to be encrypted
      * @return SHA string after encrypt
      */
     public static String encrypt(String source) {

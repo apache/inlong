@@ -41,7 +41,8 @@ public class DataNodeClient {
     /**
      * Save data node.
      *
-     * @param request data node info
+     * @param request
+     *          data node info
      * @return cluster id after saving
      */
     public Integer save(DataNodeRequest request) {
@@ -56,7 +57,8 @@ public class DataNodeClient {
     /**
      * Get data node by id.
      *
-     * @param id node id
+     * @param id
+     *          node id
      * @return node info
      */
     public DataNodeInfo get(Integer id) {
@@ -69,7 +71,8 @@ public class DataNodeClient {
     /**
      * Paging query nodes according to conditions.
      *
-     * @param request page request conditions
+     * @param request
+     *          page request conditions
      * @return node list
      */
     public PageResult<DataNodeInfo> list(DataNodeRequest request) {
@@ -82,7 +85,8 @@ public class DataNodeClient {
     /**
      * Update data node.
      *
-     * @param request node info to be modified
+     * @param request
+     *          node info to be modified
      * @return whether succeed
      */
     public Boolean update(DataNodeRequest request) {
@@ -98,7 +102,8 @@ public class DataNodeClient {
     /**
      * Update data node by unique key.
      *
-     * @param request node info to be modified
+     * @param request
+     *          node info to be modified
      * @return update result
      */
     public UpdateResult updateByKey(DataNodeRequest request) {
@@ -113,7 +118,8 @@ public class DataNodeClient {
     /**
      * Delete data node.
      *
-     * @param id node id to be deleted
+     * @param id
+     *          node id to be deleted
      * @return whether succeed
      */
     public Boolean delete(Integer id) {
@@ -126,8 +132,10 @@ public class DataNodeClient {
     /**
      * Delete data node by name and type.
      *
-     * @param name node name to be deleted
-     * @param type node type to be deleted
+     * @param name
+     *          node name to be deleted
+     * @param type
+     *          node type to be deleted
      * @return whether succeed
      */
     public Boolean deleteByKey(String name, String type) {

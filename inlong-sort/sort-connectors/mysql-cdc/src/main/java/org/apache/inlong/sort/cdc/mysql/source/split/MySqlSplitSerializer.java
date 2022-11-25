@@ -18,18 +18,19 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
-import io.debezium.document.Document;
-import io.debezium.document.DocumentReader;
-import io.debezium.document.DocumentWriter;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.rowToSerializedString;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.serializedStringToRow;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writeBinlogPosition;
+
+import org.apache.inlong.sort.cdc.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.utils.LogicalTypeParser;
-import org.apache.inlong.sort.cdc.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -38,10 +39,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.rowToSerializedString;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.serializedStringToRow;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writeBinlogPosition;
+import io.debezium.document.Document;
+import io.debezium.document.DocumentReader;
+import io.debezium.document.DocumentWriter;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
 
 /**
  * A serializer for the {@link MySqlSplit}.
@@ -51,30 +53,32 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
     public static final MySqlSplitSerializer INSTANCE = new MySqlSplitSerializer();
 
     private static final int VERSION = 4;
-    private static final ThreadLocal<DataOutputSerializer> SERIALIZER_CACHE =
-            ThreadLocal.withInitial(() -> new DataOutputSerializer(64));
+    private static final ThreadLocal<DataOutputSerializer> SERIALIZER_CACHE = ThreadLocal
+            .withInitial(() -> new DataOutputSerializer(64));
 
     private static final int SNAPSHOT_SPLIT_FLAG = 1;
     private static final int BINLOG_SPLIT_FLAG = 2;
     private static final int METRIC_SPLIT_FLAG = 3;
 
     private static void writeTableSchemas(
-            Map<TableId, TableChange> tableSchemas, DataOutputSerializer out) throws IOException {
+            Map<TableId, TableChange> tableSchemas,
+            DataOutputSerializer out)
+            throws IOException {
         FlinkJsonTableChangeSerializer jsonSerializer = new FlinkJsonTableChangeSerializer();
         DocumentWriter documentWriter = DocumentWriter.defaultWriter();
         final int size = tableSchemas.size();
         out.writeInt(size);
         for (Map.Entry<TableId, TableChange> entry : tableSchemas.entrySet()) {
             out.writeUTF(entry.getKey().toString());
-            final String tableChangeStr =
-                    documentWriter.write(jsonSerializer.toDocument(entry.getValue()));
+            final String tableChangeStr = documentWriter.write(jsonSerializer.toDocument(entry.getValue()));
             final byte[] tableChangeBytes = tableChangeStr.getBytes(StandardCharsets.UTF_8);
             out.writeInt(tableChangeBytes.length);
             out.write(tableChangeBytes);
         }
     }
 
-    private static Map<TableId, TableChange> readTableSchemas(int version, DataInputDeserializer in)
+    private static Map<TableId, TableChange> readTableSchemas(int version,
+            DataInputDeserializer in)
             throws IOException {
         DocumentReader documentReader = DocumentReader.defaultReader();
         Map<TableId, TableChange> tableSchemas = new HashMap<>();
@@ -105,7 +109,8 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
     }
 
     private static void writeFinishedSplitsInfo(
-            List<FinishedSnapshotSplitInfo> finishedSplitsInfo, DataOutputSerializer out)
+            List<FinishedSnapshotSplitInfo> finishedSplitsInfo,
+            DataOutputSerializer out)
             throws IOException {
         final int size = finishedSplitsInfo.size();
         out.writeInt(size);
@@ -119,7 +124,9 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
     }
 
     private static List<FinishedSnapshotSplitInfo> readFinishedSplitsInfo(
-            int version, DataInputDeserializer in) throws IOException {
+            int version,
+            DataInputDeserializer in)
+            throws IOException {
         List<FinishedSnapshotSplitInfo> finishedSplitsInfo = new ArrayList<>();
         final int size = in.readInt();
         for (int i = 0; i < size; i++) {
@@ -164,7 +171,8 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
             writeTableSchemas(snapshotSplit.getTableSchemas(), out);
             final byte[] result = out.getCopyOfBuffer();
             out.clear();
-            // optimization: cache the serialized from, so we avoid the byte work during repeated
+            // optimization: cache the serialized from, so we avoid the byte work during
+            // repeated
             // serialization
             snapshotSplit.serializedFormCache = result;
             return result;
@@ -186,7 +194,8 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
             out.writeBoolean(binlogSplit.isSuspended());
             final byte[] result = out.getCopyOfBuffer();
             out.clear();
-            // optimization: cache the serialized from, so we avoid the byte work during repeated
+            // optimization: cache the serialized from, so we avoid the byte work during
+            // repeated
             // serialization
             binlogSplit.serializedFormCache = result;
             return result;
@@ -245,8 +254,7 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
             in.readUTF();
             BinlogOffset startingOffset = readBinlogPosition(version, in);
             BinlogOffset endingOffset = readBinlogPosition(version, in);
-            List<FinishedSnapshotSplitInfo> finishedSplitsInfo =
-                    readFinishedSplitsInfo(version, in);
+            List<FinishedSnapshotSplitInfo> finishedSplitsInfo = readFinishedSplitsInfo(version, in);
             Map<TableId, TableChange> tableChangeMap = readTableSchemas(version, in);
             int totalFinishedSplitSize = finishedSplitsInfo.size();
             boolean isSuspended = false;

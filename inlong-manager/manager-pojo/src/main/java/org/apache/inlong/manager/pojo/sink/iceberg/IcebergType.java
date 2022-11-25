@@ -24,20 +24,11 @@ import lombok.Getter;
  */
 public enum IcebergType {
 
-    BOOLEAN("boolean"),
-    INT("int"),
-    LONG("long"),
-    FLOAT("float"),
-    DOUBLE("double"),
-    DECIMAL("decimal"),
-    DATE("date"),
-    TIME("time"),
-    TIMESTAMP("timestamp"),
-    TIMESTAMPTZ("timestamptz"),
-    STRING("string"),
-    UUID("uuid"),
-    FIXED("fixed"),
-    BINARY("binary");
+    BOOLEAN("boolean"), INT("int"), LONG("long"), FLOAT("float"), DOUBLE("double"), DECIMAL("decimal"), DATE(
+            "date"),
+    TIME("time"), TIMESTAMP(
+            "timestamp"),
+    TIMESTAMPTZ("timestamptz"), STRING("string"), UUID("uuid"), FIXED("fixed"), BINARY("binary");
 
     @Getter
     private final String type;

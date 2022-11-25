@@ -38,7 +38,8 @@ public class ProxyInfo {
     /**
      * set clusterId
      * 
-     * @param clusterId the clusterId to set
+     * @param clusterId
+     *          the clusterId to set
      */
     public void setClusterId(String clusterId) {
         this.clusterId = clusterId;
@@ -56,7 +57,8 @@ public class ProxyInfo {
     /**
      * set md5
      * 
-     * @param md5 the md5 to set
+     * @param md5
+     *          the md5 to set
      */
     public void setMd5(String md5) {
         this.md5 = md5;

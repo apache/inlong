@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
@@ -28,11 +26,14 @@ import org.apache.inlong.manager.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.pojo.transform.deduplication.DeDuplicationDefinition;
+import org.apache.inlong.manager.pojo.transform.encrypt.EncryptDefinition;
 import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.pojo.transform.replacer.StringReplacerDefinition;
 import org.apache.inlong.manager.pojo.transform.splitter.SplitterDefinition;
-import org.apache.inlong.manager.pojo.transform.encrypt.EncryptDefinition;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Utils of stream parse.
@@ -98,6 +99,7 @@ public class StreamParseUtils {
         } else {
             String transformName = jsonObject.get(TRANSFORM_NAME).getAsString();
             StreamTransform transform = new StreamTransform() {
+
                 @Override
                 public String getTransformName() {
                     return super.getTransformName();

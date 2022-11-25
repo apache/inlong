@@ -17,12 +17,13 @@
 
 package org.apache.inlong.tubemq.manager.service.interfaces;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
+
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -70,6 +71,7 @@ public interface MasterService {
 
     /**
      * get master node in one cluster
+     * 
      * @param clusterId
      * @return
      */
@@ -77,6 +79,7 @@ public interface MasterService {
 
     /**
      * get master in master ip
+     * 
      * @param masterIp
      * @return
      */
@@ -88,7 +91,8 @@ public interface MasterService {
      * @param queryBody
      * @return
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
     String getQueryUrl(Map<String, String> queryBody) throws Exception;
 

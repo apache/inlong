@@ -17,8 +17,12 @@
 
 package org.apache.inlong.audit.db;
 
-import com.alibaba.druid.pool.DruidDataSource;
 import org.apache.inlong.audit.config.StoreConfig;
+
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +31,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
+import com.alibaba.druid.pool.DruidDataSource;
 
 @Configuration
 @EnableConfigurationProperties({DruidDataSourceProperties.class})

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
@@ -30,14 +29,17 @@ import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumTableInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.sink.greenplum.GreenplumJdbcUtils;
+
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * Greenplum sink service test
@@ -115,7 +117,6 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
         deleteSink(sinkId);
     }
 
-
     /**
      * Just using in local test.
      */
@@ -149,16 +150,17 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
         List<GreenplumColumnInfo> addColums = Lists.newArrayList(
                 new GreenplumColumnInfo("test1", "int", "test1"),
                 new GreenplumColumnInfo("test2", "varchar(30)", "test2"),
-                new GreenplumColumnInfo("Test1", "varchar(50)", "Test1")
-        );
+                new GreenplumColumnInfo("Test1", "varchar(50)", "Test1"));
         return addColums;
     }
 
     /**
      * Build test Greenplum table info.
      *
-     * @param userName Greenplum database name
-     * @param tableName Greenplum table name
+     * @param userName
+     *          Greenplum database name
+     * @param tableName
+     *          Greenplum table name
      * @return {@link GreenplumTableInfo}
      */
     private GreenplumTableInfo bulidTestGreenplumTableInfo(final String userName, final String schemaName,
@@ -166,8 +168,7 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
         List<GreenplumColumnInfo> columns = Lists.newArrayList(
                 new GreenplumColumnInfo("id", "int", "id"),
                 new GreenplumColumnInfo("cell", "varchar(25)", "cell"),
-                new GreenplumColumnInfo("name", "varchar(50)", "name")
-        );
+                new GreenplumColumnInfo("name", "varchar(50)", "name"));
         final GreenplumTableInfo tableInfo = new GreenplumTableInfo();
         tableInfo.setColumns(columns);
         tableInfo.setTableName(tableName);

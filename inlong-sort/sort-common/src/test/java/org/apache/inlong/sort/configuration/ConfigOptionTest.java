@@ -24,14 +24,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.Sets;
 import org.apache.inlong.sort.util.TestLogger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.junit.Test;
+
+import com.google.common.collect.Sets;
 
 /**
  * Tests for the {@link ConfigOption}.

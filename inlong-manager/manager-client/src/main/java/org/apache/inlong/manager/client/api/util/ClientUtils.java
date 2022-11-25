@@ -17,24 +17,26 @@
 
 package org.apache.inlong.manager.client.api.util;
 
-import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.client.api.service.AuthInterceptor;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
-import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.common.Response;
+
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.io.IOException;
 import java.util.Optional;
+
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 /**
  * Utils for client
@@ -50,7 +52,8 @@ public class ClientUtils {
     /**
      * Get factory for {@link org.apache.inlong.manager.client.api.inner.client}.
      *
-     * @param configuration client configuration
+     * @param configuration
+     *          client configuration
      * @return ClientFactory
      */
     public static ClientFactory getClientFactory(ClientConfiguration configuration) {
@@ -60,7 +63,8 @@ public class ClientUtils {
     /**
      * Get retrofit to instantiate Client API.
      *
-     * @param configuration client configuration
+     * @param configuration
+     *          client configuration
      * @return Retrofit
      */
     public static Retrofit createRetrofit(ClientConfiguration configuration) {
@@ -92,8 +96,10 @@ public class ClientUtils {
     /**
      * Send http request.
      *
-     * @param call http request
-     * @param <T> T
+     * @param call
+     *          http request
+     * @param <T>
+     *          T
      * @return T
      */
     public static <T> T executeHttpCall(Call<T> call) {
@@ -113,7 +119,8 @@ public class ClientUtils {
     /**
      * Assert if the response is successful.
      *
-     * @param response response
+     * @param response
+     *          response
      */
     public static void assertRespSuccess(Response<?> response) {
         Preconditions.checkTrue(response.isSuccess(), String.format(REQUEST_FAILED_MSG, response.getErrMsg(), null));

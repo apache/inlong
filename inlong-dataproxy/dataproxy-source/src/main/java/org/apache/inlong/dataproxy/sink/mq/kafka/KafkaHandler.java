@@ -17,7 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.mq.kafka;
 
-import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.sink.common.EventHandler;
@@ -26,17 +25,20 @@ import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
 import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
 import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
+
+import org.apache.flume.Context;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * KafkaHandler
@@ -55,6 +57,7 @@ public class KafkaHandler implements MessageQueueHandler {
 
     /**
      * init
+     * 
      * @param config
      * @param sinkContext
      */
@@ -96,6 +99,7 @@ public class KafkaHandler implements MessageQueueHandler {
 
     /**
      * send
+     * 
      * @param event
      * @return
      */
@@ -142,7 +146,8 @@ public class KafkaHandler implements MessageQueueHandler {
      * sendProfileV1
      */
     private void sendProfileV1(BatchPackProfile event, IdTopicConfig idConfig,
-            String topic) throws Exception {
+            String topic)
+            throws Exception {
         // headers
         Map<String, String> headers = this.handler.parseHeader(idConfig, event, sinkContext.getNodeId(),
                 sinkContext.getCompressType());
@@ -185,7 +190,8 @@ public class KafkaHandler implements MessageQueueHandler {
      * sendSimpleProfileV0
      */
     private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
-            String topic) throws Exception {
+            String topic)
+            throws Exception {
         // headers
         Map<String, String> headers = event.getSimpleProfile().getHeaders();
         // compress
@@ -227,7 +233,8 @@ public class KafkaHandler implements MessageQueueHandler {
      * sendOrderProfileV0
      */
     private void sendOrderProfileV0(OrderBatchPackProfileV0 event, IdTopicConfig idConfig,
-            String topic) throws Exception {
+            String topic)
+            throws Exception {
         // headers
         Map<String, String> headers = event.getOrderProfile().getHeaders();
         // compress

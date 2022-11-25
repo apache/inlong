@@ -23,7 +23,8 @@ import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Sink;
 
 /**
- * task meta definition which contains reader -> channel -> sink and job config information
+ * task meta definition which contains reader -> channel -> sink and job config
+ * information
  */
 public class Task {
 
@@ -34,7 +35,7 @@ public class Task {
     private final JobProfile jobConf;
 
     public Task(String taskId, Reader reader, Sink sink, Channel channel,
-        JobProfile jobConf) {
+            JobProfile jobConf) {
         this.reader = reader;
         this.sink = sink;
         this.taskId = taskId;

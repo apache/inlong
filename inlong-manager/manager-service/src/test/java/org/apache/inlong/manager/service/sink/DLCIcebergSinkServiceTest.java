@@ -26,12 +26,13 @@ import org.apache.inlong.manager.pojo.sink.dlciceberg.DLCIcebergSink;
 import org.apache.inlong.manager.pojo.sink.dlciceberg.DLCIcebergSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * DLCIceberg sink service test..

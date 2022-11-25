@@ -17,14 +17,15 @@
 
 package org.apache.inlong.tubemq.manager.service.tube;
 
-import com.google.common.collect.Lists;
-
 import java.util.List;
 
 import lombok.Data;
 
+import com.google.common.collect.Lists;
+
 @Data
 public class RebalanceGroupResult {
+
     private List<String> failConsumers = Lists.newArrayList();
 
     private List<String> successConsumers = Lists.newArrayList();

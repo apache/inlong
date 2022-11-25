@@ -17,9 +17,12 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
+import static org.apache.inlong.agent.constant.JobConstants.INTERVAL_MILLISECONDS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_DEFAULT_EXPIRE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_EXPIRE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_INTERVAL;
+
 import org.apache.inlong.agent.common.AgentThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,10 +32,8 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.agent.constant.JobConstants.INTERVAL_MILLISECONDS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_DEFAULT_EXPIRE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_EXPIRE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_INTERVAL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Monitor for text files

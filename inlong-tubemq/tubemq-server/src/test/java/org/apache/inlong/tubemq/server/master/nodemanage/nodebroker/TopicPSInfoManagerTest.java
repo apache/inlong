@@ -20,12 +20,14 @@ package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TopicPSInfoManagerTest {
+
     private TopicPSInfoManager topicPSInfoManager;
 
     @Before

@@ -45,8 +45,8 @@ public class IdTopicConfig {
     /**
      * generateUid
      * 
-     * @param  inlongGroupId
-     * @param  inlongStreamId
+     * @param inlongGroupId
+     * @param inlongStreamId
      * @return
      */
     public static String generateUid(String inlongGroupId, String inlongStreamId) {
@@ -77,7 +77,8 @@ public class IdTopicConfig {
     /**
      * set inlongGroupId
      * 
-     * @param inlongGroupId the inlongGroupId to set
+     * @param inlongGroupId
+     *          the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
         this.inlongGroupId = inlongGroupId;
@@ -96,7 +97,8 @@ public class IdTopicConfig {
     /**
      * set inlongStreamid
      * 
-     * @param inlongStreamid the inlongStreamid to set
+     * @param inlongStreamid
+     *          the inlongStreamid to set
      */
     public void setInlongStreamid(String inlongStreamid) {
         this.inlongStreamid = inlongStreamid;
@@ -115,7 +117,8 @@ public class IdTopicConfig {
     /**
      * set topicName
      * 
-     * @param topicName the topicName to set
+     * @param topicName
+     *          the topicName to set
      */
     public void setTopicName(String topicName) {
         this.topicName = topicName;
@@ -133,7 +136,8 @@ public class IdTopicConfig {
     /**
      * set dataType
      * 
-     * @param dataType the dataType to set
+     * @param dataType
+     *          the dataType to set
      */
     public void setDataType(DataType dataType) {
         this.dataType = dataType;
@@ -151,7 +155,8 @@ public class IdTopicConfig {
     /**
      * set fieldDelimiter
      * 
-     * @param fieldDelimiter the fieldDelimiter to set
+     * @param fieldDelimiter
+     *          the fieldDelimiter to set
      */
     public void setFieldDelimiter(String fieldDelimiter) {
         this.fieldDelimiter = fieldDelimiter;
@@ -169,7 +174,8 @@ public class IdTopicConfig {
     /**
      * set fileDelimiter
      * 
-     * @param fileDelimiter the fileDelimiter to set
+     * @param fileDelimiter
+     *          the fileDelimiter to set
      */
     public void setFileDelimiter(String fileDelimiter) {
         this.fileDelimiter = fileDelimiter;
@@ -177,7 +183,8 @@ public class IdTopicConfig {
 
     /**
      * formatTopicName<br>
-     * change full topic name "pulsar-9xn9wp35pbxb/test/atta_topic_1" to base topic name "atta_topic_1"<br>
+     * change full topic name "pulsar-9xn9wp35pbxb/test/atta_topic_1" to base topic
+     * name "atta_topic_1"<br>
      */
     public void formatTopicName() {
         if (this.topicName != null) {

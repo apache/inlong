@@ -17,16 +17,18 @@
 
 package org.apache.inlong.tubemq.corerpc.netty;
 
+import org.apache.inlong.tubemq.corerpc.RpcConstants;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.inlong.tubemq.corerpc.RpcConstants;
 
 /**
- * Utility to collect data written to an {@link java.io.OutputStream} in {@link java.nio.ByteBuffer}s.
- * Copied from <a href="http://avro.apache.org">Apache Avro Project</a>
+ * Utility to collect data written to an {@link java.io.OutputStream} in
+ * {@link java.nio.ByteBuffer}s. Copied from
+ * <a href="http://avro.apache.org">Apache Avro Project</a>
  */
 public class ByteBufferOutputStream extends OutputStream {
 
@@ -51,7 +53,8 @@ public class ByteBufferOutputStream extends OutputStream {
     /**
      * Prepend a list of ByteBuffers to this stream.
      *
-     * @param lists    need to prepended content
+     * @param lists
+     *          need to prepended content
      */
     public void prepend(List<ByteBuffer> lists) {
         for (ByteBuffer buffer : lists) {
@@ -63,7 +66,8 @@ public class ByteBufferOutputStream extends OutputStream {
     /**
      * Append a list of ByteBuffers to this stream.
      *
-     * @param lists    need to appended content
+     * @param lists
+     *          need to appended content
      */
     public void append(List<ByteBuffer> lists) {
         for (ByteBuffer buffer : lists) {
@@ -109,7 +113,8 @@ public class ByteBufferOutputStream extends OutputStream {
     /**
      * Add a buffer to the output without copying, if possible.
      *
-     * @param buffer   the content need to written
+     * @param buffer
+     *          the content need to written
      */
     public void writeBuffer(ByteBuffer buffer) throws IOException {
         if (buffer.remaining() < RpcConstants.RPC_MAX_BUFFER_SIZE) {

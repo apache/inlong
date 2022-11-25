@@ -17,14 +17,15 @@
 
 package org.apache.inlong.audit.db.entities;
 
+import java.util.Date;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
 public class ESDataPo {
+
     private String ip;
     private String dockerId;
     private String threadId;

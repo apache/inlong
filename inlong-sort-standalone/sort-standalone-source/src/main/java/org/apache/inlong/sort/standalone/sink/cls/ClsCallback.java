@@ -17,16 +17,19 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import org.apache.flume.Transaction;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+
 import com.tencentcloudapi.cls.producer.Callback;
 import com.tencentcloudapi.cls.producer.Result;
 import com.tencentcloudapi.cls.producer.common.Attempt;
 import com.tencentcloudapi.cls.producer.common.ErrorCodes;
-import org.apache.flume.Transaction;
-import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
-
-import java.util.List;
 
 /**
  * Implementation of CLS {@link Callback}.
@@ -43,9 +46,12 @@ public class ClsCallback implements Callback {
     /**
      * Constructor.
      *
-     * @param tx Transaction
-     * @param context Context.
-     * @param event Related event.
+     * @param tx
+     *          Transaction
+     * @param context
+     *          Context.
+     * @param event
+     *          Related event.
      */
     public ClsCallback(Transaction tx, ClsSinkContext context, ProfileEvent event) {
         this.tx = tx;
@@ -76,7 +82,8 @@ public class ClsCallback implements Callback {
     /**
      * If send failed.
      *
-     * @param result Send result.
+     * @param result
+     *          Send result.
      */
     private void onFailed(Result result) {
         if (isRetryable(result.getReservedAttempts())) {

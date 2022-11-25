@@ -17,14 +17,12 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import org.apache.inlong.dataproxy.dispatch.DispatchManager;
+import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
+import org.apache.inlong.dataproxy.sink.pulsar.PulsarClientService;
+import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
+import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
+
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -33,15 +31,21 @@ import org.apache.flume.Sink;
 import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
-import org.apache.inlong.dataproxy.dispatch.DispatchManager;
-import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
-import org.apache.inlong.dataproxy.sink.pulsar.PulsarClientService;
-import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
-import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractZoneSink extends AbstractSink implements Configurable {
+
     public static final Logger LOG = LoggerFactory.getLogger(AbstractZoneSink.class);
 
     protected Context parentContext;
@@ -81,10 +85,10 @@ public abstract class AbstractZoneSink extends AbstractSink implements Configura
             // dispatch
             this.scheduledPool.scheduleWithFixedDelay(new Runnable() {
 
-                                                          public void run() {
-                                                              dispatchManager.setNeedOutputOvertimeData();
-                                                          }
-                                                      }, this.dispatchManager.getDispatchTimeout(),
+                public void run() {
+                    dispatchManager.setNeedOutputOvertimeData();
+                }
+            }, this.dispatchManager.getDispatchTimeout(),
                     this.dispatchManager.getDispatchTimeout(),
                     TimeUnit.MILLISECONDS);
             // create worker
@@ -106,7 +110,7 @@ public abstract class AbstractZoneSink extends AbstractSink implements Configura
 
     @Deprecated
     public void diffUpdatePulsarClient(PulsarClientService pulsarClientService, Map<String, String> originalCluster,
-                                       Map<String, String> endCluster) {
+            Map<String, String> endCluster) {
         this.workers.forEach(worker -> {
             worker.zoneProducer.reload();
         });
@@ -131,7 +135,7 @@ public abstract class AbstractZoneSink extends AbstractSink implements Configura
     /**
      * process
      *
-     * @return                        Status
+     * @return Status
      * @throws EventDeliveryException
      */
     @Override

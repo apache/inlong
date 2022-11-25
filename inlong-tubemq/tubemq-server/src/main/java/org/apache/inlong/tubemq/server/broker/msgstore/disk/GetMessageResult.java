@@ -17,17 +17,19 @@
 
 package org.apache.inlong.tubemq.server.broker.msgstore.disk;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker.TransferedMessage;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Broker's reply to Consumer's GetMessage request.
  */
 public class GetMessageResult {
+
     public boolean isSuccess;
     public int retCode = -1;
     public String errInfo;
@@ -43,20 +45,20 @@ public class GetMessageResult {
     public long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
 
     public GetMessageResult(boolean isSuccess, int retCode, final String errInfo,
-                            final long reqOffset, final int lastReadOffset,
-                            final long lastRdDataOffset, final int totalSize,
-                            HashMap<String, TrafficInfo> tmpCounters,
-                            List<TransferedMessage> transferedMessageList) {
+            final long reqOffset, final int lastReadOffset,
+            final long lastRdDataOffset, final int totalSize,
+            HashMap<String, TrafficInfo> tmpCounters,
+            List<TransferedMessage> transferedMessageList) {
         this(isSuccess, retCode, errInfo, reqOffset, lastReadOffset,
                 lastRdDataOffset, totalSize, tmpCounters, transferedMessageList, false);
     }
 
     public GetMessageResult(boolean isSuccess, int retCode, final String errInfo,
-                            final long reqOffset, final int lastReadOffset,
-                            final long lastRdDataOffset, final int totalSize,
-                            HashMap<String, TrafficInfo> tmpCounters,
-                            List<TransferedMessage> transferedMessageList,
-                            boolean isFromSsdFile) {
+            final long reqOffset, final int lastReadOffset,
+            final long lastRdDataOffset, final int totalSize,
+            HashMap<String, TrafficInfo> tmpCounters,
+            List<TransferedMessage> transferedMessageList,
+            boolean isFromSsdFile) {
         this.isSuccess = isSuccess;
         this.errInfo = errInfo;
         this.retCode = retCode;
@@ -70,10 +72,10 @@ public class GetMessageResult {
     }
 
     public GetMessageResult(boolean isSuccess,
-                            int retCode,
-                            final long reqOffset,
-                            final int lastReadOffset,
-                            final String errInfo) {
+            int retCode,
+            final long reqOffset,
+            final int lastReadOffset,
+            final String errInfo) {
         this.isSuccess = isSuccess;
         this.retCode = retCode;
         this.errInfo = errInfo;
@@ -82,8 +84,8 @@ public class GetMessageResult {
     }
 
     public GetMessageResult(boolean isSuccess, int retCode,
-                            final long reqOffset, final int lastReadOffset,
-                            final long waitTime, final String errInfo) {
+            final long reqOffset, final int lastReadOffset,
+            final long waitTime, final String errInfo) {
         this.isSuccess = isSuccess;
         this.retCode = retCode;
         this.errInfo = errInfo;

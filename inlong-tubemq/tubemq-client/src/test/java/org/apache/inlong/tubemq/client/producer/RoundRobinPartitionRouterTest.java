@@ -18,12 +18,15 @@
 package org.apache.inlong.tubemq.client.producer;
 
 import static org.junit.Assert.assertEquals;
-import java.util.ArrayList;
-import java.util.List;
+
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 

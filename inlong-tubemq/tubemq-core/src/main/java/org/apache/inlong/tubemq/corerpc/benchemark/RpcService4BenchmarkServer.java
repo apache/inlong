@@ -17,14 +17,14 @@
 
 package org.apache.inlong.tubemq.corerpc.benchemark;
 
-import java.util.concurrent.Executors;
 import org.apache.inlong.tubemq.corerpc.RpcConfig;
 import org.apache.inlong.tubemq.corerpc.RpcServiceFactory;
 
+import java.util.concurrent.Executors;
+
 public class RpcService4BenchmarkServer {
 
-    private final RpcServiceFactory rpcServiceFactory =
-            new RpcServiceFactory();
+    private final RpcServiceFactory rpcServiceFactory = new RpcServiceFactory();
     private SimpleService simpleService;
 
     public static void main(String[] args) throws Exception {

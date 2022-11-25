@@ -19,6 +19,7 @@ package org.apache.inlong.tubemq.server.broker.stats;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -48,8 +49,7 @@ public class TrafficStatsServiceTest {
 
     @Test
     public void testTrafficStatsService() {
-        TrafficStatsService trafficService =
-                new TrafficStatsService("PutCounterGroup", "Producer", 60 * 1000L);
+        TrafficStatsService trafficService = new TrafficStatsService("PutCounterGroup", "Producer", 60 * 1000L);
         trafficService.add("key", 1L, 100);
         Map<String, TrafficInfo> items = new HashMap<>();
         items.put("key1", new TrafficInfo(1L, 1024));

@@ -25,20 +25,25 @@ public interface ClusterConfigMapper extends AbstractMapper {
     /**
      * Add or replace cluster setting info into store
      *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
-     * @param result   process result with old value
-     * @return  the process result
+     * @param entity
+     *          need add record
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          process result with old value
+     * @return the process result
      */
     boolean addUpdClusterConfig(ClusterSettingEntity entity,
-                                StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete current cluster setting from store
      *
-     * @param result the process result
-     * @param strBuff  the string buffer
-     * @return  the process result
+     * @param result
+     *          the process result
+     * @param strBuff
+     *          the string buffer
+     * @return the process result
      */
     boolean delClusterConfig(StringBuilder strBuff, ProcessResult result);
 

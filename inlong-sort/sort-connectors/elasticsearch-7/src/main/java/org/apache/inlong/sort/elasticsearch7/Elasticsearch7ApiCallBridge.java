@@ -17,13 +17,22 @@
 
 package org.apache.inlong.sort.elasticsearch7;
 
+import org.apache.inlong.sort.elasticsearch.ElasticsearchApiCallBridge;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.streaming.connectors.elasticsearch7.RestClientFactory;
 import org.apache.flink.util.Preconditions;
 import org.apache.http.HttpHost;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchApiCallBridge;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.Nullable;
+
 import org.elasticsearch.action.bulk.BackoffPolicy;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -35,18 +44,14 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
- * Implementation of {@link ElasticsearchApiCallBridge} for Elasticsearch 7 and later versions.
+ * Implementation of {@link ElasticsearchApiCallBridge} for Elasticsearch 7 and
+ * later versions.
  */
 @Internal
 public class Elasticsearch7ApiCallBridge
-        implements ElasticsearchApiCallBridge<RestHighLevelClient> {
+        implements
+            ElasticsearchApiCallBridge<RestHighLevelClient> {
 
     private static final long serialVersionUID = -5222683870097809633L;
 
@@ -70,8 +75,7 @@ public class Elasticsearch7ApiCallBridge
 
     @Override
     public RestHighLevelClient createClient(Map<String, String> clientConfig) {
-        RestClientBuilder builder =
-                RestClient.builder(httpHosts.toArray(new HttpHost[httpHosts.size()]));
+        RestClientBuilder builder = RestClient.builder(httpHosts.toArray(new HttpHost[httpHosts.size()]));
         restClientFactory.configureRestClientBuilder(builder);
 
         RestHighLevelClient rhlClient = new RestHighLevelClient(builder);
@@ -81,10 +85,10 @@ public class Elasticsearch7ApiCallBridge
 
     @Override
     public BulkProcessor.Builder createBulkProcessorBuilder(
-            RestHighLevelClient client, BulkProcessor.Listener listener) {
+            RestHighLevelClient client,
+            BulkProcessor.Listener listener) {
         return BulkProcessor.builder(
-                (request, bulkListener) ->
-                        client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
+                (request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
                 listener);
     }
 
@@ -106,17 +110,15 @@ public class Elasticsearch7ApiCallBridge
         if (flushBackoffPolicy != null) {
             switch (flushBackoffPolicy.getBackoffType()) {
                 case CONSTANT:
-                    backoffPolicy =
-                            BackoffPolicy.constantBackoff(
-                                    new TimeValue(flushBackoffPolicy.getDelayMillis()),
-                                    flushBackoffPolicy.getMaxRetryCount());
+                    backoffPolicy = BackoffPolicy.constantBackoff(
+                            new TimeValue(flushBackoffPolicy.getDelayMillis()),
+                            flushBackoffPolicy.getMaxRetryCount());
                     break;
                 case EXPONENTIAL:
                 default:
-                    backoffPolicy =
-                            BackoffPolicy.exponentialBackoff(
-                                    new TimeValue(flushBackoffPolicy.getDelayMillis()),
-                                    flushBackoffPolicy.getMaxRetryCount());
+                    backoffPolicy = BackoffPolicy.exponentialBackoff(
+                            new TimeValue(flushBackoffPolicy.getDelayMillis()),
+                            flushBackoffPolicy.getMaxRetryCount());
             }
         } else {
             backoffPolicy = BackoffPolicy.noBackoff();

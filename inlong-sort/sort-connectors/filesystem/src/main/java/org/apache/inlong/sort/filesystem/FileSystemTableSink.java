@@ -18,6 +18,16 @@
 
 package org.apache.inlong.sort.filesystem;
 
+import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_CHECK_INTERVAL;
+import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_FILE_SIZE;
+import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_ROLLOVER_INTERVAL;
+import static org.apache.flink.table.filesystem.stream.compact.CompactOperator.convertToUncompacted;
+import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
+import org.apache.inlong.sort.filesystem.stream.StreamingSink;
+
 import org.apache.flink.api.common.io.FileInputFormat;
 import org.apache.flink.api.common.io.InputFormat;
 import org.apache.flink.api.common.io.OutputFormat;
@@ -77,9 +87,7 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.utils.PartitionPathUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.filesystem.stream.StreamingSink;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
@@ -93,19 +101,16 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_CHECK_INTERVAL;
-import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_FILE_SIZE;
-import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_ROLLOVER_INTERVAL;
-import static org.apache.flink.table.filesystem.stream.compact.CompactOperator.convertToUncompacted;
-import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import javax.annotation.Nullable;
 
 /**
  * File system {@link DynamicTableSink}.
  */
 public class FileSystemTableSink extends AbstractFileSystemTable
-        implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
+        implements
+            DynamicTableSink,
+            SupportsPartitioning,
+            SupportsOverwrite {
 
     // For compaction reading
     @Nullable
@@ -187,7 +192,8 @@ public class FileSystemTableSink extends AbstractFileSystemTable
     }
 
     private DataStreamSink<RowData> createBatchSink(
-            DataStream<RowData> inputStream, Context sinkContext, final int parallelism) {
+            DataStream<RowData> inputStream, Context sinkContext,
+            final int parallelism) {
         FileSystemOutputFormat.Builder<RowData> builder = new FileSystemOutputFormat.Builder<>();
         builder.setPartitionComputer(partitionComputer());
         builder.setDynamicGrouped(dynamicGrouping);
@@ -208,7 +214,8 @@ public class FileSystemTableSink extends AbstractFileSystemTable
     }
 
     private DataStreamSink<?> createStreamingSink(
-            DataStream<RowData> dataStream, Context sinkContext, final int parallelism) {
+            DataStream<RowData> dataStream, Context sinkContext,
+            final int parallelism) {
         FileSystemFactory fsFactory = FileSystem::get;
         RowDataPartitionComputer computer = partitionComputer();
 
@@ -216,76 +223,67 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         Object writer = createWriter(sinkContext);
         boolean isEncoder = writer instanceof Encoder;
         TableBucketAssigner assigner = new TableBucketAssigner(computer);
-        TableRollingPolicy rollingPolicy =
-                new TableRollingPolicy(
-                        !isEncoder || autoCompaction,
-                        tableOptions.get(SINK_ROLLING_POLICY_FILE_SIZE).getBytes(),
-                        tableOptions.get(SINK_ROLLING_POLICY_ROLLOVER_INTERVAL).toMillis());
+        TableRollingPolicy rollingPolicy = new TableRollingPolicy(
+                !isEncoder || autoCompaction,
+                tableOptions.get(SINK_ROLLING_POLICY_FILE_SIZE).getBytes(),
+                tableOptions.get(SINK_ROLLING_POLICY_ROLLOVER_INTERVAL).toMillis());
 
         String randomPrefix = "part-" + UUID.randomUUID().toString();
         OutputFileConfig.OutputFileConfigBuilder fileNamingBuilder = OutputFileConfig.builder();
-        fileNamingBuilder =
-                autoCompaction
-                        ? fileNamingBuilder.withPartPrefix(convertToUncompacted(randomPrefix))
-                        : fileNamingBuilder.withPartPrefix(randomPrefix);
+        fileNamingBuilder = autoCompaction
+                ? fileNamingBuilder.withPartPrefix(convertToUncompacted(randomPrefix))
+                : fileNamingBuilder.withPartPrefix(randomPrefix);
         OutputFileConfig fileNamingConfig = fileNamingBuilder.build();
 
         BucketsBuilder<RowData, String, ? extends BucketsBuilder<RowData, ?, ?>> bucketsBuilder;
         if (isEncoder) {
-            //noinspection unchecked
-            bucketsBuilder =
-                    StreamingFileSink.forRowFormat(
-                                    path,
-                                    new ProjectionEncoder((Encoder<RowData>) writer, computer))
-                            .withBucketAssigner(assigner)
-                            .withOutputFileConfig(fileNamingConfig)
-                            .withRollingPolicy(rollingPolicy);
+            // noinspection unchecked
+            bucketsBuilder = StreamingFileSink.forRowFormat(
+                    path,
+                    new ProjectionEncoder((Encoder<RowData>) writer, computer))
+                    .withBucketAssigner(assigner)
+                    .withOutputFileConfig(fileNamingConfig)
+                    .withRollingPolicy(rollingPolicy);
         } else {
-            //noinspection unchecked
-            bucketsBuilder =
-                    StreamingFileSink.forBulkFormat(
-                                    path,
-                                    new ProjectionBulkFactory(
-                                            (BulkWriter.Factory<RowData>) writer, computer))
-                            .withBucketAssigner(assigner)
-                            .withOutputFileConfig(fileNamingConfig)
-                            .withRollingPolicy(rollingPolicy);
+            // noinspection unchecked
+            bucketsBuilder = StreamingFileSink.forBulkFormat(
+                    path,
+                    new ProjectionBulkFactory(
+                            (BulkWriter.Factory<RowData>) writer, computer))
+                    .withBucketAssigner(assigner)
+                    .withOutputFileConfig(fileNamingConfig)
+                    .withRollingPolicy(rollingPolicy);
         }
 
         long bucketCheckInterval = tableOptions.get(SINK_ROLLING_POLICY_CHECK_INTERVAL).toMillis();
 
         DataStream<PartitionCommitInfo> writerStream;
         if (autoCompaction) {
-            long compactionSize =
-                    tableOptions
-                            .getOptional(FileSystemOptions.COMPACTION_FILE_SIZE)
-                            .orElse(tableOptions.get(SINK_ROLLING_POLICY_FILE_SIZE))
-                            .getBytes();
+            long compactionSize = tableOptions
+                    .getOptional(FileSystemOptions.COMPACTION_FILE_SIZE)
+                    .orElse(tableOptions.get(SINK_ROLLING_POLICY_FILE_SIZE))
+                    .getBytes();
 
-            CompactReader.Factory<RowData> reader =
-                    createCompactReaderFactory(sinkContext)
-                            .orElseThrow(
-                                    () ->
-                                            new TableException(
-                                                    "Please implement available reader for compaction:"
-                                                            + " BulkFormat, FileInputFormat."));
+            CompactReader.Factory<RowData> reader = createCompactReaderFactory(sinkContext)
+                    .orElseThrow(
+                            () -> new TableException(
+                                    "Please implement available reader for compaction:"
+                                            + " BulkFormat, FileInputFormat."));
 
-            writerStream =
-                    StreamingSink.compactionWriter(
-                            dataStream,
-                            bucketCheckInterval,
-                            bucketsBuilder,
-                            fsFactory,
-                            path,
-                            reader,
-                            compactionSize,
-                            parallelism,
-                            inlongMetric,
-                            inlongAudit);
+            writerStream = StreamingSink.compactionWriter(
+                    dataStream,
+                    bucketCheckInterval,
+                    bucketsBuilder,
+                    fsFactory,
+                    path,
+                    reader,
+                    compactionSize,
+                    parallelism,
+                    inlongMetric,
+                    inlongAudit);
         } else {
-            writerStream =
-                    StreamingSink.writer(
-                            dataStream, bucketCheckInterval, bucketsBuilder, parallelism, inlongMetric, inlongAudit);
+            writerStream = StreamingSink.writer(
+                    dataStream, bucketCheckInterval, bucketsBuilder, parallelism, inlongMetric, inlongAudit);
         }
 
         return StreamingSink.sink(
@@ -301,26 +299,23 @@ public class FileSystemTableSink extends AbstractFileSystemTable
     private Optional<CompactReader.Factory<RowData>> createCompactReaderFactory(Context context) {
         DataType producedDataType = schema.toRowDataType();
         if (bulkReaderFormat != null) {
-            BulkFormat<RowData, FileSourceSplit> format =
-                    bulkReaderFormat.createRuntimeDecoder(
-                            createSourceContext(context), producedDataType);
+            BulkFormat<RowData, FileSourceSplit> format = bulkReaderFormat.createRuntimeDecoder(
+                    createSourceContext(context), producedDataType);
             return Optional.of(CompactBulkReader.factory(format));
         } else if (formatFactory != null) {
             InputFormat<RowData, ?> format = formatFactory.createReader(createReaderContext());
             if (format instanceof FileInputFormat) {
-                //noinspection unchecked
+                // noinspection unchecked
                 return Optional.of(
                         FileInputFormatCompactReader.factory((FileInputFormat<RowData>) format));
             }
         } else if (deserializationFormat != null) {
             // NOTE, we need pass full format types to deserializationFormat
-            DeserializationSchema<RowData> decoder =
-                    deserializationFormat.createRuntimeDecoder(
-                            createSourceContext(context), getFormatDataType());
+            DeserializationSchema<RowData> decoder = deserializationFormat.createRuntimeDecoder(
+                    createSourceContext(context), getFormatDataType());
             int[] projectedFields = IntStream.range(0, schema.getFieldCount()).toArray();
-            DeserializationSchemaAdapter format =
-                    new DeserializationSchemaAdapter(
-                            decoder, schema, projectedFields, partitionKeys, defaultPartName);
+            DeserializationSchemaAdapter format = new DeserializationSchemaAdapter(
+                    decoder, schema, projectedFields, partitionKeys, defaultPartName);
             return Optional.of(CompactBulkReader.factory(format));
         }
         return Optional.empty();
@@ -328,6 +323,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
     private DynamicTableSource.Context createSourceContext(Context context) {
         return new DynamicTableSource.Context() {
+
             @Override
             public <T> TypeInformation<T> createTypeInformation(DataType producedDataType) {
                 return context.createTypeInformation(producedDataType);
@@ -343,6 +339,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
     private FileSystemFormatFactory.ReaderContext createReaderContext() {
         return new FileSystemFormatFactory.ReaderContext() {
+
             @Override
             public TableSchema getSchema() {
                 return schema;
@@ -450,9 +447,8 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
             @Override
             public void open(int taskNumber, int numTasks) throws IOException {
-                this.writer =
-                        factory.create(
-                                path.getFileSystem().create(path, FileSystem.WriteMode.OVERWRITE));
+                this.writer = factory.create(
+                        path.getFileSystem().create(path, FileSystem.WriteMode.OVERWRITE));
             }
 
             @Override
@@ -532,14 +528,13 @@ public class FileSystemTableSink extends AbstractFileSystemTable
 
     @Override
     public DynamicTableSink copy() {
-        FileSystemTableSink sink =
-                new FileSystemTableSink(
-                        context,
-                        bulkReaderFormat,
-                        deserializationFormat,
-                        formatFactory,
-                        bulkWriterFormat,
-                        serializationFormat);
+        FileSystemTableSink sink = new FileSystemTableSink(
+                context,
+                bulkReaderFormat,
+                deserializationFormat,
+                formatFactory,
+                bulkWriterFormat,
+                serializationFormat);
         sink.overwrite = overwrite;
         sink.dynamicGrouping = dynamicGrouping;
         sink.staticPartitions = staticPartitions;
@@ -589,7 +584,8 @@ public class FileSystemTableSink extends AbstractFileSystemTable
     }
 
     /**
-     * Table {@link RollingPolicy}, it extends {@link CheckpointRollingPolicy} for bulk writers.
+     * Table {@link RollingPolicy}, it extends {@link CheckpointRollingPolicy} for
+     * bulk writers.
      */
     public static class TableRollingPolicy extends CheckpointRollingPolicy<RowData, String> {
 
@@ -616,8 +612,7 @@ public class FileSystemTableSink extends AbstractFileSystemTable
         }
 
         @Override
-        public boolean shouldRollOnEvent(PartFileInfo<String> partFileState, RowData element)
-                throws IOException {
+        public boolean shouldRollOnEvent(PartFileInfo<String> partFileState, RowData element) throws IOException {
             return partFileState.getSize() > rollingFileSize;
         }
 

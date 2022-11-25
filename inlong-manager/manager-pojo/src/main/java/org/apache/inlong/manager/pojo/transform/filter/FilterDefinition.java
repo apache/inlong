@@ -17,19 +17,21 @@
 
 package org.apache.inlong.manager.pojo.transform.filter;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
- * A class to define operation to filter stream records by different modes.
- * Rule mode is more recommended than script mode.
+ * A class to define operation to filter stream records by different modes. Rule
+ * mode is more recommended than script mode.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -85,8 +87,8 @@ public class FilterDefinition extends TransformDefinition {
     }
 
     /**
-     * Filter rule is about relation between sourceField and targetValue.
-     * Such as 'a >= b' or 'a were not null'
+     * Filter rule is about relation between sourceField and targetValue. Such as 'a
+     * >= b' or 'a were not null'
      */
     @Data
     @AllArgsConstructor

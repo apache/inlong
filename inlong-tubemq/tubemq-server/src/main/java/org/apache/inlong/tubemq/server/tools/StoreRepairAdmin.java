@@ -17,6 +17,17 @@
 
 package org.apache.inlong.tubemq.server.tools;
 
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.CheckSum;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.server.broker.msgstore.disk.FileSegment;
+import org.apache.inlong.tubemq.server.broker.msgstore.disk.FileSegmentList;
+import org.apache.inlong.tubemq.server.broker.msgstore.disk.Segment;
+import org.apache.inlong.tubemq.server.broker.msgstore.disk.SegmentList;
+import org.apache.inlong.tubemq.server.broker.msgstore.disk.SegmentType;
+import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
+import org.apache.inlong.tubemq.server.common.utils.FileUtil;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -33,16 +44,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.utils.CheckSum;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.broker.msgstore.disk.FileSegment;
-import org.apache.inlong.tubemq.server.broker.msgstore.disk.FileSegmentList;
-import org.apache.inlong.tubemq.server.broker.msgstore.disk.Segment;
-import org.apache.inlong.tubemq.server.broker.msgstore.disk.SegmentList;
-import org.apache.inlong.tubemq.server.broker.msgstore.disk.SegmentType;
-import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
-import org.apache.inlong.tubemq.server.common.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,15 +52,17 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class StoreRepairAdmin {
-    private static final Logger logger =
-            LoggerFactory.getLogger(StoreRepairAdmin.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(StoreRepairAdmin.class);
 
     /**
      * Repair topic storage files, rebuild index files by existing data files
-     * @param args   Startup parameter array, including the following parts:
-     *               The 1st parameter is the path of topic storage files;
-     *               The 2nd parameter is the topic name(s) that needs to be repaired,
-     *                   if not specified, all topics in the storage path will be repaired.
+     * 
+     * @param args
+     *          Startup parameter array, including the following parts: The 1st
+     *          parameter is the path of topic storage files; The 2nd parameter is
+     *          the topic name(s) that needs to be repaired, if not specified, all
+     *          topics in the storage path will be repaired.
      */
     public static void main(final String[] args) throws Exception {
         if (args == null || args.length < 1) {
@@ -98,8 +101,7 @@ public class StoreRepairAdmin {
                     .append(topicList.toString()).toString());
         }
         int count = 0;
-        ExecutorService executor =
-                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
         List<Callable<IndexRepairStore>> tasks = new ArrayList<>();
         if (ls != null) {
             for (final File subDir : ls) {
@@ -120,14 +122,14 @@ public class StoreRepairAdmin {
                     }
                     final int storeId = Integer.parseInt(name.substring(index + 1));
                     tasks.add(new Callable<IndexRepairStore>() {
+
                         @Override
                         public IndexRepairStore call() throws Exception {
                             StringBuilder sBuilder = new StringBuilder(512);
                             logger.info(sBuilder.append("[Data Repair] Loading data directory:")
                                     .append(subDir.getAbsolutePath()).append("...").toString());
                             sBuilder.delete(0, sBuilder.length());
-                            final IndexRepairStore messageStore =
-                                    new IndexRepairStore(storePath, topic, storeId);
+                            final IndexRepairStore messageStore = new IndexRepairStore(storePath, topic, storeId);
                             messageStore.reCreateIndexFiles();
                             logger.info(sBuilder.append("[Data Repair] Finished data index recreation :")
                                     .append(subDir.getAbsolutePath()).toString());
@@ -139,14 +141,12 @@ public class StoreRepairAdmin {
             }
         }
         if (count > 0) {
-            CompletionService<IndexRepairStore> completionService =
-                    new ExecutorCompletionService<>(executor);
+            CompletionService<IndexRepairStore> completionService = new ExecutorCompletionService<>(executor);
             for (Callable<IndexRepairStore> task : tasks) {
                 completionService.submit(task);
             }
             for (int i = 0; i < tasks.size(); i++) {
-                IndexRepairStore messageStore =
-                        completionService.take().get();
+                IndexRepairStore messageStore = completionService.take().get();
                 if (messageStore != null) {
                     messageStore.close();
                 }
@@ -167,6 +167,7 @@ public class StoreRepairAdmin {
     }
 
     private static class IndexRepairStore implements Closeable {
+
         private final String topic;
         private final int storeId;
         private final String basePath;
@@ -175,19 +176,17 @@ public class StoreRepairAdmin {
         private final String indexPath;
         private final File topicDir;
         private final File indexDir;
-        private int maxIndexSegmentSize =
-                500000 * DataStoreUtils.STORE_INDEX_HEAD_LEN;
+        private int maxIndexSegmentSize = 500000 * DataStoreUtils.STORE_INDEX_HEAD_LEN;
         private SegmentList segments;
 
         public IndexRepairStore(final String basePath,
-                               final String topic,
-                               final int storeId) {
+                final String topic,
+                final int storeId) {
             this.basePath = basePath;
             this.topic = topic;
             this.storeId = storeId;
             StringBuilder sBuilder = new StringBuilder(512);
-            this.topicKey =
-                    sBuilder.append(this.topic).append("-").append(this.storeId).toString();
+            this.topicKey = sBuilder.append(this.topic).append("-").append(this.storeId).toString();
             sBuilder.delete(0, sBuilder.length());
             this.storePath = sBuilder.append(this.basePath)
                     .append(File.separator).append(this.topicKey).toString();
@@ -251,6 +250,7 @@ public class StoreRepairAdmin {
             if (accum.size() > 0) {
                 // compare segment's start value, and sort order
                 Collections.sort(accum, new Comparator<Segment>() {
+
                     @Override
                     public int compare(final Segment o1, final Segment o2) {
                         if (o1.getStart() == o2.getStart()) {
@@ -332,10 +332,8 @@ public class StoreRepairAdmin {
                 return;
             }
             Segment curPartSeg = null;
-            final ByteBuffer dataBuffer =
-                    ByteBuffer.allocate(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT);
-            final ByteBuffer indexBuffer =
-                    ByteBuffer.allocate(DataStoreUtils.STORE_INDEX_HEAD_LEN);
+            final ByteBuffer dataBuffer = ByteBuffer.allocate(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT);
+            final ByteBuffer indexBuffer = ByteBuffer.allocate(DataStoreUtils.STORE_INDEX_HEAD_LEN);
             for (Segment curSegment : segments) {
                 if (curSegment == null) {
                     continue;
@@ -356,8 +354,7 @@ public class StoreRepairAdmin {
                                 break;
                             }
                             // read message fields
-                            final int msgLen =
-                                    dataBuffer.getInt(dataStart + DataStoreUtils.STORE_HEADER_POS_LENGTH);
+                            final int msgLen = dataBuffer.getInt(dataStart + DataStoreUtils.STORE_HEADER_POS_LENGTH);
                             final int msgToken =
                                     dataBuffer.getInt(dataStart + DataStoreUtils.STORE_HEADER_POS_DATATYPE);
                             final int checkSum =
@@ -368,8 +365,7 @@ public class StoreRepairAdmin {
                                     dataBuffer.getLong(dataStart + DataStoreUtils.STORE_HEADER_POS_QUEUE_LOGICOFF);
                             final long timeRecv =
                                     dataBuffer.getLong(dataStart + DataStoreUtils.STORE_HEADER_POS_RECEIVEDTIME);
-                            final int keyCode =
-                                    dataBuffer.getInt(dataStart + DataStoreUtils.STORE_HEADER_POS_KEYCODE);
+                            final int keyCode = dataBuffer.getInt(dataStart + DataStoreUtils.STORE_HEADER_POS_KEYCODE);
                             final int msgSize = msgLen + 4;
                             final long msgOffset = queueOffset - queueOffset % DataStoreUtils.STORE_INDEX_HEAD_LEN;
                             int payLoadLen = msgLen - DataStoreUtils.STORE_DATA_PREFX_LEN;
@@ -405,8 +401,7 @@ public class StoreRepairAdmin {
                             if (curPartSeg == null) {
                                 File newFile = new File(this.indexDir,
                                         DataStoreUtils.nameFromOffset(msgOffset, DataStoreUtils.INDEX_FILE_SUFFIX));
-                                curPartSeg =
-                                        new FileSegment(msgOffset, newFile, SegmentType.INDEX);
+                                curPartSeg = new FileSegment(msgOffset, newFile, SegmentType.INDEX);
                             }
                             // append index message
                             curPartSeg.append(indexBuffer, timeRecv, timeRecv);

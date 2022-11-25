@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.pojo.transform.deduplication;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
@@ -28,12 +24,17 @@ import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * A class to define operation to duplicate message in a time duration.
- * DupFields is needed to judge whether stream records is duplicate.
- * TimingField is eventTime of stream records.
- * Interval and timeunit is required to modify a time interval,
- * during which duplicate records is operated;
+ * DupFields is needed to judge whether stream records is duplicate. TimingField
+ * is eventTime of stream records. Interval and timeunit is required to modify a
+ * time interval, during which duplicate records is operated;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

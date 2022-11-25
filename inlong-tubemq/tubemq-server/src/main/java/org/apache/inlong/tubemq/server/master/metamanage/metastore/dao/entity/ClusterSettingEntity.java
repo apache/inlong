@@ -17,8 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Map;
-import java.util.Objects;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
@@ -27,14 +25,16 @@ import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
+import java.util.Map;
+import java.util.Objects;
+
 /*
  * store the cluster default setting
  *
  */
 public class ClusterSettingEntity extends BaseEntity implements Cloneable {
 
-    private final String recordKey =
-            TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING;
+    private final String recordKey = TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING;
     // broker tcp port
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
     // broker tls port
@@ -62,21 +62,21 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     /**
      * Constructor by BdbClusterSettingEntity
      *
-     * @param bdbEntity  the BdbClusterSettingEntity initial object
+     * @param bdbEntity
+     *          the BdbClusterSettingEntity initial object
      */
     public ClusterSettingEntity(BdbClusterSettingEntity bdbEntity) {
         super(bdbEntity.getConfigId(),
                 bdbEntity.getCreateUser(), bdbEntity.getCreateDate(),
                 bdbEntity.getModifyUser(), bdbEntity.getModifyDate());
         fillDefaultValue();
-        TopicPropGroup defTopicProps =
-                new TopicPropGroup(bdbEntity.getNumTopicStores(),
-                        bdbEntity.getNumPartitions(), bdbEntity.getUnflushThreshold(),
-                        bdbEntity.getUnflushInterval(), bdbEntity.getUnflushDataHold(),
-                        bdbEntity.getMemCacheMsgSizeInMB(), bdbEntity.getMemCacheMsgCntInK(),
-                        bdbEntity.getMemCacheFlushIntvl(), bdbEntity.isAcceptPublish(),
-                        bdbEntity.isAcceptSubscribe(), bdbEntity.getDeletePolicy(),
-                        bdbEntity.getDefDataType(), bdbEntity.getDefDataPath());
+        TopicPropGroup defTopicProps = new TopicPropGroup(bdbEntity.getNumTopicStores(),
+                bdbEntity.getNumPartitions(), bdbEntity.getUnflushThreshold(),
+                bdbEntity.getUnflushInterval(), bdbEntity.getUnflushDataHold(),
+                bdbEntity.getMemCacheMsgSizeInMB(), bdbEntity.getMemCacheMsgCntInK(),
+                bdbEntity.getMemCacheFlushIntvl(), bdbEntity.isAcceptPublish(),
+                bdbEntity.isAcceptSubscribe(), bdbEntity.getDeletePolicy(),
+                bdbEntity.getDefDataType(), bdbEntity.getDefDataPath());
         updModifyInfo(bdbEntity.getConfigId(), bdbEntity.getBrokerPort(),
                 bdbEntity.getBrokerTLSPort(), bdbEntity.getBrokerWebPort(),
                 (bdbEntity.getMaxMsgSizeInB() / TBaseConstants.META_MB_UNIT_SIZE),
@@ -92,16 +92,15 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @return the BdbClusterSettingEntity object
      */
     public BdbClusterSettingEntity buildBdbClsDefSettingEntity() {
-        BdbClusterSettingEntity bdbEntity =
-                new BdbClusterSettingEntity(recordKey, getDataVerId(), brokerPort,
-                        brokerTLSPort, brokerWebPort, clsDefTopicProps.getNumTopicStores(),
-                        clsDefTopicProps.getNumPartitions(), clsDefTopicProps.getUnflushThreshold(),
-                        clsDefTopicProps.getUnflushInterval(), clsDefTopicProps.getUnflushDataHold(),
-                        clsDefTopicProps.getMemCacheMsgCntInK(), clsDefTopicProps.getMemCacheFlushIntvl(),
-                        clsDefTopicProps.getMemCacheMsgSizeInMB(), clsDefTopicProps.isAcceptPublish(),
-                        clsDefTopicProps.isAcceptSubscribe(), clsDefTopicProps.getDeletePolicy(),
-                        this.qryPriorityId, this.maxMsgSizeInB, getAttributes(),
-                        getModifyUser(), getModifyDate());
+        BdbClusterSettingEntity bdbEntity = new BdbClusterSettingEntity(recordKey, getDataVerId(), brokerPort,
+                brokerTLSPort, brokerWebPort, clsDefTopicProps.getNumTopicStores(),
+                clsDefTopicProps.getNumPartitions(), clsDefTopicProps.getUnflushThreshold(),
+                clsDefTopicProps.getUnflushInterval(), clsDefTopicProps.getUnflushDataHold(),
+                clsDefTopicProps.getMemCacheMsgCntInK(), clsDefTopicProps.getMemCacheFlushIntvl(),
+                clsDefTopicProps.getMemCacheMsgSizeInMB(), clsDefTopicProps.isAcceptPublish(),
+                clsDefTopicProps.isAcceptSubscribe(), clsDefTopicProps.getDeletePolicy(),
+                this.qryPriorityId, this.maxMsgSizeInB, getAttributes(),
+                getModifyUser(), getModifyDate());
         if (TStringUtils.isNotBlank(clsDefTopicProps.getDataPath())) {
             bdbEntity.setDefDataPath(clsDefTopicProps.getDataPath());
         }
@@ -125,8 +124,7 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         this.brokerTLSPort = TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
         this.brokerWebPort = TBaseConstants.META_DEFAULT_BROKER_WEB_PORT;
         this.maxMsgSizeInMB = TBaseConstants.META_MIN_ALLOWED_MESSAGE_SIZE_MB;
-        this.maxMsgSizeInB =
-                SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(this.maxMsgSizeInMB);
+        this.maxMsgSizeInB = SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(this.maxMsgSizeInMB);
         this.qryPriorityId = TServerConstants.QRY_PRIORITY_DEF_VALUE;
         this.gloFlowCtrlStatus = EnableStatus.STATUS_DISABLE;
         this.gloFlowCtrlRuleCnt = 0;
@@ -141,10 +139,10 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
      * @return if changed
      */
     public boolean updModifyInfo(long dataVerId, int brokerPort, int brokerTLSPort,
-                                 int brokerWebPort, int maxMsgSizeMB,
-                                 int qryPriorityId, EnableStatus flowCtrlEnable,
-                                 int flowRuleCnt, String flowCtrlRuleInfo,
-                                 TopicPropGroup defTopicProps) {
+            int brokerWebPort, int maxMsgSizeMB,
+            int qryPriorityId, EnableStatus flowCtrlEnable,
+            int flowRuleCnt, String flowCtrlRuleInfo,
+            TopicPropGroup defTopicProps) {
         boolean changed = false;
         // check and set dataVerId info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -169,13 +167,11 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
         }
         // check and set modified field
         if (maxMsgSizeMB != TBaseConstants.META_VALUE_UNDEFINED) {
-            int tmpMaxMsgSizeInMB =
-                    SettingValidUtils.validAndGetMsgSizeInMB(maxMsgSizeMB);
+            int tmpMaxMsgSizeInMB = SettingValidUtils.validAndGetMsgSizeInMB(maxMsgSizeMB);
             if (this.maxMsgSizeInMB != tmpMaxMsgSizeInMB) {
                 changed = true;
                 this.maxMsgSizeInMB = tmpMaxMsgSizeInMB;
-                this.maxMsgSizeInB =
-                        SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
+                this.maxMsgSizeInB = SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
             }
         }
         // check and set qry priority id
@@ -260,7 +256,8 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     /**
      * check if subclass fields is equals
      *
-     * @param other  check object
+     * @param other
+     *          check object
      * @return if equals
      */
     public boolean isDataEquals(ClusterSettingEntity other) {
@@ -279,14 +276,17 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     /**
      * Serialize field to json format
      *
-     * @param sBuilder   build container
-     * @param isLongName if return field key is long name
-     * @param fullFormat if return full format json
-     * @return  the serialized result
+     * @param sBuilder
+     *          build container
+     * @param isLongName
+     *          if return field key is long name
+     * @param fullFormat
+     *          if return full format json
+     * @return the serialized result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         if (isLongName) {
             sBuilder.append("{\"brokerPort\":").append(brokerPort)
                     .append(",\"brokerTLSPort\":").append(brokerTLSPort)
@@ -317,11 +317,13 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     /**
      * Get field value to key and value format.
      *
-     * @param paramMap   output map
-     * @param isLongName if return field key is long name
+     * @param paramMap
+     *          output map
+     * @param isLongName
+     *          if return field key is long name
      */
     public void getConfigureInfo(Map<String, String> paramMap,
-                                 boolean isLongName) {
+            boolean isLongName) {
         if (brokerPort != TBaseConstants.META_VALUE_UNDEFINED) {
             paramMap.put((isLongName ? "brokerPort" : "bPort"),
                     String.valueOf(brokerPort));
@@ -360,12 +362,14 @@ public class ClusterSettingEntity extends BaseEntity implements Cloneable {
     /**
      * Serialize field to old version json format
      *
-     * @param sBuilder   build container
-     * @param isLongName if return field key is long name
-     * @return           the build result
+     * @param sBuilder
+     *          build container
+     * @param isLongName
+     *          if return field key is long name
+     * @return the build result
      */
     public StringBuilder toOldVerFlowCtrlWebJsonStr(StringBuilder sBuilder,
-                                                    boolean isLongName) {
+            boolean isLongName) {
         int statusId = gloFlowCtrlStatus.isEnable() ? 1 : 0;
         if (isLongName) {
             sBuilder.append("{\"statusId\":").append(statusId)

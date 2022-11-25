@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.cursor.Cursor;
-import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
@@ -28,9 +24,15 @@ import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sort.standalone.SortIdInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamSinkInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortTaskInfo;
-import org.springframework.stereotype.Repository;
+
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.mapping.ResultSetType;
 
 import java.util.List;
+
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StreamSinkEntityMapper {
@@ -42,10 +44,13 @@ public interface StreamSinkEntityMapper {
     StreamSinkEntity selectByPrimaryKey(Integer id);
 
     /**
-     * According to the inlong group id and inlong stream id, query the number of valid sink
+     * According to the inlong group id and inlong stream id, query the number of
+     * valid sink
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
+     * @param groupId
+     *          inlong group id
+     * @param streamId
+     *          inlong stream id
      * @return Sink entity size
      */
     int selectCount(@Param("groupId") String groupId, @Param("streamId") String streamId);
@@ -53,7 +58,8 @@ public interface StreamSinkEntityMapper {
     /**
      * Paging query sink list based on conditions
      *
-     * @param request Paging query conditions
+     * @param request
+     *          Paging query conditions
      * @return Sink entity list
      */
     List<StreamSinkEntity> selectByCondition(@Param("request") SinkPageRequest request);
@@ -67,8 +73,10 @@ public interface StreamSinkEntityMapper {
     /**
      * Query valid sink list by the given group id and stream id.
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
+     * @param groupId
+     *          inlong group id
+     * @param streamId
+     *          inlong stream id
      * @return stream sink entity list
      */
     List<StreamSinkEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
@@ -76,31 +84,42 @@ public interface StreamSinkEntityMapper {
     /**
      * Query stream sink by the unique key.
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
-     * @param sinkName stream sink name
+     * @param groupId
+     *          inlong group id
+     * @param streamId
+     *          inlong stream id
+     * @param sinkName
+     *          stream sink name
      * @return stream sink entity
      */
     StreamSinkEntity selectByUniqueKey(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("sinkName") String sinkName);
 
     /**
-     * According to the group id, stream id and sink type, query valid sink entity list.
+     * According to the group id, stream id and sink type, query valid sink entity
+     * list.
      *
-     * @param groupId Inlong group id.
-     * @param streamId Inlong stream id.
-     * @param sinkType Sink type.
+     * @param groupId
+     *          Inlong group id.
+     * @param streamId
+     *          Inlong stream id.
+     * @param sinkType
+     *          Sink type.
      * @return Sink entity list.
      */
     List<StreamSinkEntity> selectByIdAndType(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("sinkType") String sinkType);
 
     /**
-     * Filter stream ids with the specified groupId and sinkType from the given stream id list.
+     * Filter stream ids with the specified groupId and sinkType from the given
+     * stream id list.
      *
-     * @param groupId Inlong group id.
-     * @param sinkType Sink type.
-     * @param streamIdList Inlong stream id list.
+     * @param groupId
+     *          Inlong group id.
+     * @param sinkType
+     *          Sink type.
+     * @param streamIdList
+     *          Inlong stream id list.
      * @return List of Inlong stream id with the given sink type
      */
     List<String> selectExistsStreamId(@Param("groupId") String groupId, @Param("sinkType") String sinkType,
@@ -114,8 +133,11 @@ public interface StreamSinkEntityMapper {
     /**
      * Select all config for Sort under the group id and stream id
      *
-     * @param groupId inlong group id
-     * @param streamIdList list of the inlong stream id, if is null, get all infos under the group id
+     * @param groupId
+     *          inlong group id
+     * @param streamIdList
+     *          list of the inlong stream id, if is null, get all infos under the
+     *          group id
      * @return Sort config
      */
     List<SinkInfo> selectAllConfig(@Param("groupId") String groupId, @Param("idList") List<String> streamIdList);

@@ -17,13 +17,9 @@
 
 package org.apache.inlong.manager.service.group;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_CLUSTER_TAG;
+import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
+
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -60,15 +56,9 @@ import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.SourceOperatorFactory;
 import org.apache.inlong.manager.service.source.StreamSourceOperator;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,8 +69,21 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_CLUSTER_TAG;
-import static org.apache.inlong.manager.pojo.common.PageRequest.MAX_PAGE_SIZE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Inlong group service layer implementation
@@ -111,11 +114,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private SourceOperatorFactory sourceOperatorFactory;
 
     /**
-     * Check whether modification is supported under the current group status, and which fields can be modified.
+     * Check whether modification is supported under the current group status, and
+     * which fields can be modified.
      *
-     * @param entity original inlong group entity
-     * @param request request of updated
-     * @param operator current operator
+     * @param entity
+     *          original inlong group entity
+     * @param request
+     *          request of updated
+     * @param operator
+     *          current operator
      */
     private static void doUpdateCheck(InlongGroupEntity entity, InlongGroupRequest request, String operator) {
         if (entity == null || request == null) {
@@ -308,9 +315,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class,
-            isolation = Isolation.REPEATABLE_READ,
-            propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public String update(InlongGroupRequest request, String operator) {
         LOGGER.debug("begin to update inlong group={} by user={}", request, operator);
 
@@ -340,8 +345,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ,
-            propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public Boolean updateStatus(String groupId, Integer status, String operator) {
         LOGGER.info("begin to update group status to [{}] for groupId={} by user={}", status, groupId, operator);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
@@ -433,7 +437,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_DELETE_NOT_ALLOWED, errMsg);
         }
 
-        // If the status not allowed deleting directly, you need to delete the related "inlong_stream" first,
+        // If the status not allowed deleting directly, you need to delete the related
+        // "inlong_stream" first,
         // otherwise, all associated info will be logically deleted.
         if (GroupStatus.deleteStreamFirst(curState)) {
             int count = streamService.selectCountByGroupId(groupId);
@@ -453,7 +458,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
 
-        // before deleting an inlong group, delete all inlong streams, sources, sinks, and other info under it
+        // before deleting an inlong group, delete all inlong streams, sources, sinks,
+        // and other info under it
         if (GroupStatus.allowedDeleteSubInfos(GroupStatus.forCode(entity.getStatus()))) {
             streamService.logicDeleteAll(groupId, operator);
         }

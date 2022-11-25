@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
+
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
 import java.util.Properties;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * kafka connection utils

@@ -17,24 +17,27 @@
 
 package org.apache.inlong.sort.protocol.transformation.function;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.transformation.CascadeFunction;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.base.Preconditions;
+
 /**
- * RegexpReplaceFirstFunction class is the logic encapsulation of String replace by regexp
- * and will only replace the first value that satisfies the regex
+ * RegexpReplaceFirstFunction class is the logic encapsulation of String replace
+ * by regexp and will only replace the first value that satisfies the regex
  */
 @JsonTypeName("regexpReplaceFirst")
 @EqualsAndHashCode(callSuper = false)
@@ -53,9 +56,12 @@ public class RegexpReplaceFirstFunction implements CascadeFunction, Serializable
     /**
      * RegexpReplaceFunction constructor
      *
-     * @param field it is character to be replaced
-     * @param regex the regex expression of replacing
-     * @param replacement the value that to be replaced
+     * @param field
+     *          it is character to be replaced
+     * @param regex
+     *          the regex expression of replacing
+     * @param replacement
+     *          the value that to be replaced
      */
     @JsonCreator
     public RegexpReplaceFirstFunction(@JsonProperty("field") FunctionParam field,

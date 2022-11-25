@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.web.auth.openapi;
 
+import org.apache.shiro.authc.AuthenticationToken;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.apache.shiro.authc.AuthenticationToken;
 
 /**
  * Authentication token for open api client

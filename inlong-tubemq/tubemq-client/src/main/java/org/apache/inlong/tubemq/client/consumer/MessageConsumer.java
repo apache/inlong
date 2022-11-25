@@ -17,11 +17,12 @@
 
 package org.apache.inlong.tubemq.client.consumer;
 
-import java.util.List;
-import java.util.Map;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.Shutdownable;
+
+import java.util.List;
+import java.util.Map;
 
 public interface MessageConsumer extends Shutdownable {
 
@@ -38,40 +39,40 @@ public interface MessageConsumer extends Shutdownable {
     /**
      * Get consume offset information of the current registered partitions
      *
-     * @return  consume offset information
+     * @return consume offset information
      */
     Map<String, ConsumeOffsetInfo> getCurConsumedPartitions() throws TubeClientException;
 
     /**
-     * freeze partitions, the specified partition will no longer
-     * consume data until the partition is unfrozen or
-     * rebalanced to other clients in the same group
+     * freeze partitions, the specified partition will no longer consume data until
+     * the partition is unfrozen or rebalanced to other clients in the same group
      *
-     * @param partitionKeys  The partitionKey list that needs to be frozen
+     * @param partitionKeys
+     *          The partitionKey list that needs to be frozen
      */
     void freezePartitions(List<String> partitionKeys) throws TubeClientException;
 
     /**
-     * unfreeze frozen partitions, the specified partition will
-     * resume data consumption until the partition is frozen again
+     * unfreeze frozen partitions, the specified partition will resume data
+     * consumption until the partition is frozen again
      *
-     * @param partitionKeys  The partitionKey list that needs to be unfrozen
+     * @param partitionKeys
+     *          The partitionKey list that needs to be unfrozen
      */
     void unfreezePartitions(List<String> partitionKeys) throws TubeClientException;
 
     /**
-     * unfreeze all frozen partitions, the unfreeze partition will
-     * resume data consumption until the partition is frozen again
+     * unfreeze all frozen partitions, the unfreeze partition will resume data
+     * consumption until the partition is frozen again
      *
      */
     void relAllFrozenPartitions();
 
     /**
      * get all local frozen partitions, if the frozen partition is on this client,
-     * data consumption will only be restored after unfreezing;
-     * if other consumers in the same group and other consumers
-     * have not frozen the partition, the freezing operation will
-     * not affect the consumption of other consumers
+     * data consumption will only be restored after unfreezing; if other consumers
+     * in the same group and other consumers have not frozen the partition, the
+     * freezing operation will not affect the consumption of other consumers
      *
      * @return local frozen partitions
      */
@@ -85,30 +86,34 @@ public interface MessageConsumer extends Shutdownable {
     /**
      * Start consumption with the precise Offset settings
      *
-     * The parameter sessionKey is specified by the caller, similar to the JobID in Flink,
-     * which is used to identify the unrelated offset reset consumption activities before and after.
-     * Each reset operation needs to ensure that it is different from the last reset carried sessionKey;
+     * The parameter sessionKey is specified by the caller, similar to the JobID in
+     * Flink, which is used to identify the unrelated offset reset consumption
+     * activities before and after. Each reset operation needs to ensure that it is
+     * different from the last reset carried sessionKey;
      *
-     * The parameter sourceCount is used to inform the server how many consumers will consume
-     * in this round of consumer group activation, and the client will not consume data until
-     * the consumer group has not reached the specified number of consumers.
+     * The parameter sourceCount is used to inform the server how many consumers
+     * will consume in this round of consumer group activation, and the client will
+     * not consume data until the consumer group has not reached the specified
+     * number of consumers.
      *
-     * The parameter isSelectBig is used to inform the server that if multiple clients reset
-     * the offset to the same partition, the server will use the largest offset
-     * or the smallest offset as the standard;
+     * The parameter isSelectBig is used to inform the server that if multiple
+     * clients reset the offset to the same partition, the server will use the
+     * largest offset or the smallest offset as the standard;
      *
-     * The parameter partOffsetMap is used to inform the server that this consumption expects
-     * the partitions in the Map to be consumed according to the specified offset value.
-     * The offset in the Map comes from the consumer's query from the server, or the content
-     * returned when the consumer successfully consumes the data before, including push
-     * the PearInfo object returned by the callback function during consumption and
-     * the PearInfo object in the ConsumerResult class during Pull consumption.
-     * The Key in the Map is the partitionKey carried in PearInfo, and the value is
-     * the currOffset value carried in PearInfo.
+     * The parameter partOffsetMap is used to inform the server that this
+     * consumption expects the partitions in the Map to be consumed according to the
+     * specified offset value. The offset in the Map comes from the consumer's query
+     * from the server, or the content returned when the consumer successfully
+     * consumes the data before, including push the PearInfo object returned by the
+     * callback function during consumption and the PearInfo object in the
+     * ConsumerResult class during Pull consumption. The Key in the Map is the
+     * partitionKey carried in PearInfo, and the value is the currOffset value
+     * carried in PearInfo.
      */
     void completeSubscribe(String sessionKey,
-                           int sourceCount,
-                           boolean isSelectBig,
-                           Map<String, Long> partOffsetMap) throws TubeClientException;
+            int sourceCount,
+            boolean isSelectBig,
+            Map<String, Long> partOffsetMap)
+            throws TubeClientException;
 
 }

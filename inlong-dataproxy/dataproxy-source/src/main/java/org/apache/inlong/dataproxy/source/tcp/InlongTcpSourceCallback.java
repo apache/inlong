@@ -17,15 +17,16 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
-import org.apache.inlong.sdk.commons.protocol.SourceCallback;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePackHeader;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.inlong.sdk.commons.protocol.SourceCallback;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -47,6 +48,7 @@ public class InlongTcpSourceCallback implements SourceCallback {
 
     /**
      * Constructor
+     * 
      * @param ctx
      * @param header
      */
@@ -58,11 +60,13 @@ public class InlongTcpSourceCallback implements SourceCallback {
 
     /**
      * callback
+     * 
      * @param resultCode
      */
     @Override
     public void callback(ResultCode resultCode) {
-        // If DataProxy have sent timeout response to SDK, DataProxy do not send success response to SDK again when
+        // If DataProxy have sent timeout response to SDK, DataProxy do not send success
+        // response to SDK again when
         // event is success to save.
         if (this.hasResponsed.getAndSet(true)) {
             return;
@@ -96,6 +100,7 @@ public class InlongTcpSourceCallback implements SourceCallback {
 
     /**
      * get hasResponsed
+     * 
      * @return the hasResponsed
      */
     public AtomicBoolean getHasResponsed() {
@@ -104,6 +109,7 @@ public class InlongTcpSourceCallback implements SourceCallback {
 
     /**
      * get latch
+     * 
      * @return the latch
      */
     public CountDownLatch getLatch() {

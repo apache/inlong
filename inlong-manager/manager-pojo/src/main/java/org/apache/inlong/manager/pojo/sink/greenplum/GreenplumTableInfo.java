@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.pojo.sink.greenplum;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * Greenplum table info.

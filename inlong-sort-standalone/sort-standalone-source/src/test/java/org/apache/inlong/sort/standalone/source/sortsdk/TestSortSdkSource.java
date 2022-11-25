@@ -17,12 +17,20 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import org.apache.flume.Context;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
+
+import org.apache.flume.Context;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,12 +42,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")

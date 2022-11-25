@@ -51,15 +51,12 @@ public class MetricTimeNumSummary {
     }
 
     /**
-     * record time
-     * 1. [-, 10)
-     * 2. [10, 100)
-     * 3. [100, 500)
-     * 4. [500, 1000)
-     * 5. [100, -)
+     * record time 1. [-, 10) 2. [10, 100) 3. [100, 500) 4. [500, 1000) 5. [100, -)
      *
-     * @param sendTimeInMs - send time
-     * @param sendNum      - send num
+     * @param sendTimeInMs
+     *          - send time
+     * @param sendNum
+     *          - send num
      */
     public void recordSuccessSendTime(long sendTimeInMs, int sendNum) {
         if (sendTimeInMs < 10) {

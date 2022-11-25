@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.function;
 
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.transformation.CascadeFunction;
+import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
+import org.apache.inlong.sort.protocol.transformation.function.CascadeFunctionWrapper;
+import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunction;
+
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -28,17 +35,12 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.CloseableIterator;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.CascadeFunction;
-import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
-import org.apache.inlong.sort.protocol.transformation.function.CascadeFunctionWrapper;
-import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunction;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for {@link CascadeFunctionWrapper}
@@ -48,7 +50,8 @@ public class CascadeFunctionWrapperTest extends AbstractTestBase {
     /**
      * Test for CascadeFunctionWrapper
      *
-     * @throws Exception The exception may throw when test CascadeFunctionWrapper
+     * @throws Exception
+     *           The exception may throw when test CascadeFunctionWrapper
      */
     @Test
     public void testCascadeFunctionWrapper() throws Exception {
@@ -84,7 +87,8 @@ public class CascadeFunctionWrapperTest extends AbstractTestBase {
                 new StringConstantParam("cc"), new StringConstantParam("etl")));
         CascadeFunctionWrapper wrapper = new CascadeFunctionWrapper(functions);
         DataStream<Row> ds = env.fromCollection(data).returns(typeInfo);
-        // step 3. Convert from DataStream to Table and execute the REGEXP_REPLACE_FIRST function
+        // step 3. Convert from DataStream to Table and execute the REGEXP_REPLACE_FIRST
+        // function
         Table tempView = tableEnv.fromDataStream(ds).as("f1");
         tableEnv.createTemporaryView("temp_view", tempView);
         String sqlQuery = String.format("SELECT %s as a FROM temp_view", wrapper.format());
@@ -92,8 +96,8 @@ public class CascadeFunctionWrapperTest extends AbstractTestBase {
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         // step 4. Get function execution result and parse it
         List<String> r = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
+                .hasNext();) {
             String next = it.next();
             r.add(next);
         }

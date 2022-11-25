@@ -17,22 +17,22 @@
 
 package org.apache.inlong.tubemq.corebase.balance;
 
+import org.apache.inlong.tubemq.corebase.cluster.SubscribeInfo;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.inlong.tubemq.corebase.cluster.SubscribeInfo;
 
 public class ConsumerEvent {
 
     private long rebalanceId;
     private EventType type;
     private EventStatus status;
-    private List<SubscribeInfo> subscribeInfoList =
-            new ArrayList<>();
+    private List<SubscribeInfo> subscribeInfoList = new ArrayList<>();
 
     public ConsumerEvent(long rebalanceId,
-                         EventType type,
-                         List<SubscribeInfo> subscribeInfoList,
-                         EventStatus status) {
+            EventType type,
+            List<SubscribeInfo> subscribeInfoList,
+            EventStatus status) {
         this.rebalanceId = rebalanceId;
         this.type = type;
         if (subscribeInfoList != null) {

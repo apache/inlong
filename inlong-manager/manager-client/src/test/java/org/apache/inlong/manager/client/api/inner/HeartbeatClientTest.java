@@ -17,7 +17,11 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.google.common.collect.Lists;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.manager.client.api.inner.client.HeartbeatClient;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -28,15 +32,13 @@ import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
 import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.Lists;
 
 /**
  * Tests for {@link HeartbeatClient}
@@ -56,10 +58,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/heartbeat/component/get.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(response))
-                                )
-                        )
-        );
+                                        Response.success(response)))));
 
         HeartbeatQueryRequest request = new HeartbeatQueryRequest();
         request.setComponent(ComponentTypeEnum.Agent.getType());
@@ -80,10 +79,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/heartbeat/group/get.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(response))
-                                )
-                        )
-        );
+                                        Response.success(response)))));
 
         HeartbeatQueryRequest request = new HeartbeatQueryRequest();
         request.setComponent(ComponentTypeEnum.Agent.getType());
@@ -107,10 +103,7 @@ public class HeartbeatClientTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/heartbeat/stream/get.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(response))
-                                )
-                        )
-        );
+                                        Response.success(response)))));
 
         HeartbeatQueryRequest request = new HeartbeatQueryRequest();
         request.setComponent(ComponentTypeEnum.Agent.getType());
@@ -130,23 +123,18 @@ public class HeartbeatClientTest extends ClientFactoryTest {
                 ComponentHeartbeatResponse.builder()
                         .component(ComponentTypeEnum.Agent.getType())
                         .instance("127.0.0.1")
-                        .build()
-        );
+                        .build());
 
         stubFor(
                 post(urlMatching("/inlong/manager/api/heartbeat/component/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                                Response.success(new PageResult<>(responses))
-                                        )
-                                )
-                        )
-        );
+                                        Response.success(new PageResult<>(responses))))));
 
         HeartbeatPageRequest request = new HeartbeatPageRequest();
         request.setComponent(ComponentTypeEnum.Agent.getType());
         PageResult<ComponentHeartbeatResponse> pageResult = heartbeatClient.listComponentHeartbeat(request);
-        Assertions.assertEquals(JsonUtils.toJsonString(responses),JsonUtils.toJsonString(pageResult.getList()));
+        Assertions.assertEquals(JsonUtils.toJsonString(responses), JsonUtils.toJsonString(pageResult.getList()));
     }
 
     @Test
@@ -155,23 +143,18 @@ public class HeartbeatClientTest extends ClientFactoryTest {
                 GroupHeartbeatResponse.builder()
                         .component(ComponentTypeEnum.Agent.getType())
                         .instance("127.0.0.1")
-                        .build()
-        );
+                        .build());
 
         stubFor(
                 post(urlMatching("/inlong/manager/api/heartbeat/group/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                                Response.success(new PageResult<>(responses))
-                                        )
-                                )
-                        )
-        );
+                                        Response.success(new PageResult<>(responses))))));
 
         HeartbeatPageRequest request = new HeartbeatPageRequest();
         request.setComponent(ComponentTypeEnum.Agent.getType());
         PageResult<GroupHeartbeatResponse> pageResult = heartbeatClient.listGroupHeartbeat(request);
-        Assertions.assertEquals(JsonUtils.toJsonString(responses),JsonUtils.toJsonString(pageResult.getList()));
+        Assertions.assertEquals(JsonUtils.toJsonString(responses), JsonUtils.toJsonString(pageResult.getList()));
     }
 
     @Test
@@ -182,23 +165,18 @@ public class HeartbeatClientTest extends ClientFactoryTest {
                         .inlongGroupId("test_group")
                         .inlongStreamId("test_stream")
                         .instance("127.0.0.1")
-                        .build()
-        );
+                        .build());
 
         stubFor(
                 post(urlMatching("/inlong/manager/api/heartbeat/stream/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                                Response.success(new PageResult<>(responses))
-                                        )
-                                )
-                        )
-        );
+                                        Response.success(new PageResult<>(responses))))));
 
         HeartbeatPageRequest request = new HeartbeatPageRequest();
         request.setComponent(ComponentTypeEnum.Agent.getType());
         request.setInlongGroupId("test_group");
         PageResult<StreamHeartbeatResponse> pageResult = heartbeatClient.listStreamHeartbeat(request);
-        Assertions.assertEquals(JsonUtils.toJsonString(responses),JsonUtils.toJsonString(pageResult.getList()));
+        Assertions.assertEquals(JsonUtils.toJsonString(responses), JsonUtils.toJsonString(pageResult.getList()));
     }
 }

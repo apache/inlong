@@ -17,12 +17,11 @@
 
 package org.apache.inlong.tubemq.server.common.utils;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
+import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -31,30 +30,38 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
-import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * This class is used to process http connection and return result conversion,
  * currently does not support https
  */
 public class HttpUtils {
+
     // log printer
-    private static final Logger logger =
-            LoggerFactory.getLogger(HttpUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpUtils.class);
 
     /**
      * Send request to target server.
      *
-     * @param url            the target url
-     * @param inParamMap     the parameter map
+     * @param url
+     *          the target url
+     * @param inParamMap
+     *          the parameter map
      */
     public static JsonObject requestWebService(String url,
-                                               Map<String, String> inParamMap) throws Exception {
+            Map<String, String> inParamMap)
+            throws Exception {
         if (url == null) {
             throw new Exception("Web service url is null!");
         }
@@ -125,17 +132,14 @@ public class HttpUtils {
     }
 
     /**
-     *  Test scenario:
-     *     simulate where there are multiple Master nodes in the cluster,
-     *      and there are nodes that do not take effect
-     * Call url:
-     *    http://127.0.0.1:8080/webapi.htm?method=admin_query_topic_info
-     * Request parameters:
-     *    topicName=test_1, brokerId=170399798
-     * Master nodes:
-     *    127.0.0.1:8082(invalid node),127.0.0.1:8080(valid node)
+     * Test scenario: simulate where there are multiple Master nodes in the cluster,
+     * and there are nodes that do not take effect Call url:
+     * http://127.0.0.1:8080/webapi.htm?method=admin_query_topic_info Request
+     * parameters: topicName=test_1, brokerId=170399798 Master nodes:
+     * 127.0.0.1:8082(invalid node),127.0.0.1:8080(valid node)
      *
-     * @param args   the call arguments
+     * @param args
+     *          the call arguments
      */
     public static void main(String[] args) {
         Map<String, String> inParamMap = new HashMap<>();
@@ -143,7 +147,7 @@ public class HttpUtils {
         inParamMap.put("brokerId", "170399798");
         String masterAddr = "127.0.0.1:8082,127.0.0.1:8080";
         // build visit object
-        MasterInfo masterInfo =  new MasterInfo(masterAddr.trim());
+        MasterInfo masterInfo = new MasterInfo(masterAddr.trim());
         JsonObject jsonRes = null;
         // call master nodes
         for (String address : masterInfo.getNodeHostPortList()) {

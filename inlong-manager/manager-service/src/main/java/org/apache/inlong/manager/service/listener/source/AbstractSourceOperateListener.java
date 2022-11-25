@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.service.listener.source;
 
-import com.google.common.collect.Lists;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;
@@ -36,11 +32,19 @@ import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
 
 /**
  * Event listener of operate resources, such as delete, stop, restart sources.
@@ -67,8 +71,8 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
         final String groupId = groupInfo.getInlongGroupId();
         List<InlongStreamBriefInfo> streamResponses = streamService.listBriefWithSink(groupId);
         List<StreamSource> unOperatedSources = Lists.newArrayList();
-        streamResponses.forEach(stream ->
-                operateStreamSources(groupId, stream.getInlongStreamId(), context.getOperator(), unOperatedSources));
+        streamResponses.forEach(stream -> operateStreamSources(groupId, stream.getInlongStreamId(),
+                context.getOperator(), unOperatedSources));
 
         if (CollectionUtils.isNotEmpty(unOperatedSources)) {
             GroupOperateType operateType = getOperateType(context.getProcessForm());
@@ -102,9 +106,10 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
         for (int retry = 0; retry < 60; retry++) {
             int status = streamSource.getStatus();
             SourceStatus sourceStatus = SourceStatus.forCode(status);
-            // template sources are filtered and processed in corresponding subclass listeners
+            // template sources are filtered and processed in corresponding subclass
+            // listeners
             if (sourceStatus == SourceStatus.SOURCE_NORMAL || sourceStatus == SourceStatus.SOURCE_FROZEN
-                || CollectionUtils.isNotEmpty(streamSource.getSubSourceList())) {
+                    || CollectionUtils.isNotEmpty(streamSource.getSubSourceList())) {
                 return true;
             } else if (sourceStatus == SourceStatus.SOURCE_FAILED || sourceStatus == SourceStatus.SOURCE_DISABLE) {
                 return false;

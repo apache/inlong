@@ -26,8 +26,6 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 
-import javax.annotation.Nonnull;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -41,20 +39,27 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+
 /**
  * Factory of {@link IndexGenerator}.
  *
- * <p>Flink supports both static index and dynamic index.
+ * <p>
+ * Flink supports both static index and dynamic index.
  *
- * <p>If you want to have a static index, this option value should be a plain string, e.g.
- * 'myusers', all the records will be consistently written into "myusers" index.
+ * <p>
+ * If you want to have a static index, this option value should be a plain
+ * string, e.g. 'myusers', all the records will be consistently written into
+ * "myusers" index.
  *
- * <p>If you want to have a dynamic index, you can use '{field_name}' to reference a field value in
- * the record to dynamically generate a target index. You can also use
- * '{field_name|date_format_string}' to convert a field value of TIMESTAMP/DATE/TIME type into the
- * format specified by date_format_string. The date_format_string is compatible with {@link
- * java.text.SimpleDateFormat}. For example, if the option value is 'myusers_{log_ts|yyyy-MM-dd}',
- * then a record with log_ts field value 2020-03-27 12:25:55 will be written into
+ * <p>
+ * If you want to have a dynamic index, you can use '{field_name}' to reference
+ * a field value in the record to dynamically generate a target index. You can
+ * also use '{field_name|date_format_string}' to convert a field value of
+ * TIMESTAMP/DATE/TIME type into the format specified by date_format_string. The
+ * date_format_string is compatible with {@link java.text.SimpleDateFormat}. For
+ * example, if the option value is 'myusers_{log_ts|yyyy-MM-dd}', then a record
+ * with log_ts field value 2020-03-27 12:25:55 will be written into
  * "myusers_2020-03-27" index.
  */
 public final class IndexGeneratorFactory {
@@ -74,19 +79,19 @@ public final class IndexGeneratorFactory {
     }
 
     interface DynamicFormatter extends Serializable {
+
         String format(@Nonnull Object fieldValue, DateTimeFormatter formatter);
     }
 
     private static IndexGenerator createRuntimeIndexGenerator(
-            String index, String[] fieldNames, DataType[] fieldTypes, IndexHelper indexHelper) {
+            String index, String[] fieldNames, DataType[] fieldTypes,
+            IndexHelper indexHelper) {
         final String dynamicIndexPatternStr = indexHelper.extractDynamicIndexPatternStr(index);
         final String indexPrefix = index.substring(0, index.indexOf(dynamicIndexPatternStr));
-        final String indexSuffix =
-                index.substring(indexPrefix.length() + dynamicIndexPatternStr.length());
+        final String indexSuffix = index.substring(indexPrefix.length() + dynamicIndexPatternStr.length());
 
         final boolean isDynamicIndexWithFormat = indexHelper.checkIsDynamicIndexWithFormat(index);
-        final int indexFieldPos =
-                indexHelper.extractIndexFieldPos(index, fieldNames, isDynamicIndexWithFormat);
+        final int indexFieldPos = indexHelper.extractIndexFieldPos(index, fieldNames, isDynamicIndexWithFormat);
         final LogicalType indexFieldType = fieldTypes[indexFieldPos].getLogicalType();
         final LogicalTypeRoot indexFieldLogicalTypeRoot = indexFieldType.getTypeRoot();
 
@@ -94,16 +99,14 @@ public final class IndexGeneratorFactory {
         indexHelper.validateIndexFieldType(indexFieldLogicalTypeRoot);
 
         // time extract dynamic index pattern
-        final RowData.FieldGetter fieldGetter =
-                RowData.createFieldGetter(indexFieldType, indexFieldPos);
+        final RowData.FieldGetter fieldGetter = RowData.createFieldGetter(indexFieldType, indexFieldPos);
 
         if (isDynamicIndexWithFormat) {
-            final String dateTimeFormat =
-                    indexHelper.extractDateFormat(index, indexFieldLogicalTypeRoot);
-            DynamicFormatter formatFunction =
-                    createFormatFunction(indexFieldType, indexFieldLogicalTypeRoot);
+            final String dateTimeFormat = indexHelper.extractDateFormat(index, indexFieldLogicalTypeRoot);
+            DynamicFormatter formatFunction = createFormatFunction(indexFieldType, indexFieldLogicalTypeRoot);
 
             return new AbstractTimeIndexGenerator(index, dateTimeFormat) {
+
                 @Override
                 public String generate(RowData row) {
                     Object fieldOrNull = fieldGetter.getFieldOrNull(row);
@@ -120,6 +123,7 @@ public final class IndexGeneratorFactory {
         }
         // general dynamic index pattern
         return new IndexGeneratorBase(index) {
+
             @Override
             public String generate(RowData row) {
                 Object indexField = fieldGetter.getFieldOrNull(row);
@@ -131,7 +135,8 @@ public final class IndexGeneratorFactory {
     }
 
     private static DynamicFormatter createFormatFunction(
-            LogicalType indexFieldType, LogicalTypeRoot indexFieldLogicalTypeRoot) {
+            LogicalType indexFieldType,
+            LogicalTypeRoot indexFieldLogicalTypeRoot) {
         switch (indexFieldLogicalTypeRoot) {
             case DATE:
                 return (value, dateTimeFormatter) -> {
@@ -166,13 +171,13 @@ public final class IndexGeneratorFactory {
     }
 
     /**
-     * Helper class for {@link IndexGeneratorFactory}, this helper can use to validate index field
-     * type ans parse index format from pattern.
+     * Helper class for {@link IndexGeneratorFactory}, this helper can use to
+     * validate index field type ans parse index format from pattern.
      */
     private static class IndexHelper {
+
         private static final Pattern dynamicIndexPattern = Pattern.compile("\\{[^\\{\\}]+\\}?");
-        private static final Pattern dynamicIndexTimeExtractPattern =
-                Pattern.compile(".*\\{.+\\|.*\\}.*");
+        private static final Pattern dynamicIndexTimeExtractPattern = Pattern.compile(".*\\{.+\\|.*\\}.*");
         private static final List<LogicalTypeRoot> supportedTypes = new ArrayList<>();
         private static final Map<LogicalTypeRoot, String> defaultFormats = new HashMap<>();
 
@@ -263,7 +268,10 @@ public final class IndexGeneratorFactory {
             return fieldList.indexOf(indexFieldName);
         }
 
-        /** Extract dateTime format by the date format that extracted from index pattern string. */
+        /**
+         * Extract dateTime format by the date format that extracted from index pattern
+         * string.
+         */
         private String extractDateFormat(String index, LogicalTypeRoot logicalType) {
             String format = index.substring(index.indexOf("|") + 1, index.indexOf("}"));
             if ("".equals(format)) {

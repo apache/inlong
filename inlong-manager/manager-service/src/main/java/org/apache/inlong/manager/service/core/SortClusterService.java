@@ -27,8 +27,10 @@ public interface SortClusterService {
     /**
      * Get the cluster config response by specific cluster name.
      *
-     * @param clusterName Cluster name.
-     * @param md5 Last md5.
+     * @param clusterName
+     *          Cluster name.
+     * @param md5
+     *          Last md5.
      * @return Corresponding response.
      */
     SortClusterResponse getClusterConfig(String clusterName, String md5);

@@ -18,37 +18,38 @@
 package org.apache.inlong.tubemq.corebase.balance;
 
 public enum EventType {
+
     /**
      * Connect to broker.
-     * */
+     */
     CONNECT(1, "Connect to some broker after Disconnecting from some other broker."),
     /**
      * DisConnect from broker.
-     * */
+     */
     DISCONNECT(2, "Disconnect from some broker."),
     /**
      * Report state.
-     * */
+     */
     REPORT(3, "Report current status."),
     /**
      * Update producer published topic information.
-     * */
+     */
     REFRESH(4, "Update whole producer published topic info"),
     /**
      * Stop re-balance thread.
-     * */
+     */
     STOPREBALANCE(5, "Stop rebalance thread"),
     /**
      * Connect to some broker only.
-     * */
+     */
     ONLY_CONNECT(10, "Only connect to some broker"),
     /**
      * Disconnect from broker and finish.
-     * */
+     */
     ONLY_DISCONNECT(20, "Disconnect from some broker,then finish."),
     /**
      * Unknown operation.
-     * */
+     */
     UNKNOWN(-1, "Unknown operation type");
 
     private int value;
@@ -59,7 +60,7 @@ public enum EventType {
         this.description = description;
     }
 
-    public  int getValue() {
+    public int getValue() {
         return value;
     }
 

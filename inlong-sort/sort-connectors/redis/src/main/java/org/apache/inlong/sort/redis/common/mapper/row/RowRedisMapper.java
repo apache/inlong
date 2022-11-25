@@ -17,23 +17,26 @@
 
 package org.apache.inlong.sort.redis.common.mapper.row;
 
-import org.apache.flink.table.data.RowData;
+import static org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator.REDIS_COMMAND;
+
 import org.apache.inlong.sort.redis.common.handler.RedisMapperHandler;
 import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 import org.apache.inlong.sort.redis.common.mapper.RedisCommandDescription;
 import org.apache.inlong.sort.redis.common.mapper.RedisMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flink.table.data.RowData;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import static org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator.REDIS_COMMAND;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Base row redis mapper implement.
- * Copy from {@link org.apache.flink.streaming.connectors.redis.common.mapper.row.RowRedisMapper}
+ * Base row redis mapper implement. Copy from
+ * {@link org.apache.flink.streaming.connectors.redis.common.mapper.row.RowRedisMapper}
  */
 public abstract class RowRedisMapper implements RedisMapper<RowData>, RedisMapperHandler {
 

@@ -33,6 +33,7 @@ public interface IManagerIpListParser {
 
     /**
      * getIpList
+     * 
      * @return ip:port list
      */
     List<String> getIpList();

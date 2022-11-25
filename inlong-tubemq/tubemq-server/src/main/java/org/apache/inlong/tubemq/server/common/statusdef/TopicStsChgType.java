@@ -21,9 +21,9 @@ package org.apache.inlong.tubemq.server.common.statusdef;
  * The topic status change step
  */
 public enum TopicStsChgType {
-    STATUS_CHANGE_SOFT_DELETE(0, "Soft deleted"),
-    STATUS_CHANGE_REMOVE(1, "Soft removed"),
-    STATUS_CHANGE_REDO_SFDEL(2, "Redo soft delete");
+
+    STATUS_CHANGE_SOFT_DELETE(0, "Soft deleted"), STATUS_CHANGE_REMOVE(1, "Soft removed"), STATUS_CHANGE_REDO_SFDEL(2,
+            "Redo soft delete");
 
     private int code;
     private String description;

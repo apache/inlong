@@ -17,16 +17,25 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
-import org.apache.flume.Context;
-import org.apache.flume.Event;
+import static org.junit.Assert.assertTrue;
+
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.utils.MockUtils;
+
+import org.apache.flume.Context;
+import org.apache.flume.Event;
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.TypedMessageBuilder;
+
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,13 +44,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * TestPulsarProducerFederation
@@ -62,8 +64,9 @@ public class TestPulsarProducerFederation {
     @BeforeClass
     public static void setUp() {
         Map<String, String> result = new ConcurrentHashMap<>();
-        try (InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource(
-                "dataproxy-pulsar.conf").openStream()) {
+        try (
+                InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource(
+                        "dataproxy-pulsar.conf").openStream()) {
             MockUtils.mockMetricRegister();
             Properties props = new Properties();
             props.load(inStream);

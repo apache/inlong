@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.listener.group;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
@@ -36,6 +35,9 @@ import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -61,8 +63,8 @@ public class InitGroupCompleteListener implements ProcessEventListener {
     }
 
     /**
-     * After the process of creating InlongGroup resources is completed,
-     * modify the status of related InlongGroup to [Successful]
+     * After the process of creating InlongGroup resources is completed, modify the
+     * status of related InlongGroup to [Successful]
      * <p/>
      * {@link InitGroupFailedListener#listen}
      */
@@ -77,7 +79,8 @@ public class InitGroupCompleteListener implements ProcessEventListener {
             InlongGroupInfo groupInfo = form.getGroupInfo();
             String operator = context.getOperator();
             Integer nextStatus = InlongGroupUtils.isBatchTask(form.getGroupInfo())
-                    ? GroupStatus.FINISH.getCode() : GroupStatus.CONFIG_SUCCESSFUL.getCode();
+                    ? GroupStatus.FINISH.getCode()
+                    : GroupStatus.CONFIG_SUCCESSFUL.getCode();
             groupService.updateStatus(groupId, nextStatus, operator);
 
             InlongGroupEntity existGroup = groupMapper.selectByGroupId(groupId);

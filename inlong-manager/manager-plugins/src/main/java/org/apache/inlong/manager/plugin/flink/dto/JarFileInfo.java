@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.plugin.flink.dto;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * Jar file info, including id, name, uploaded, entry, etc.

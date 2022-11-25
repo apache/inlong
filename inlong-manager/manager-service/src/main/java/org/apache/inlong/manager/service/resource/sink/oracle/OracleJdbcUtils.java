@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.service.resource.sink.oracle;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleColumnInfo;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,6 +29,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utils for Oracle JDBC.
@@ -45,13 +47,19 @@ public class OracleJdbcUtils {
     /**
      * Get Oracle connection from the url and user.
      *
-     * @param url jdbc url,such as jdbc:oracle:thin@host:port:sid or jdbc:oracle:thin@host:port/service_name
-     * @param user Username for JDBC URL
-     * @param password User password
+     * @param url
+     *          jdbc url,such as jdbc:oracle:thin@host:port:sid or
+     *          jdbc:oracle:thin@host:port/service_name
+     * @param user
+     *          Username for JDBC URL
+     * @param password
+     *          User password
      * @return {@link Connection}
-     * @throws Exception on get connection error
+     * @throws Exception
+     *           on get connection error
      */
-    public static Connection getConnection(final String url, final String user, final String password)
+    public static Connection getConnection(final String url, final String user,
+            final String password)
             throws Exception {
         if (StringUtils.isBlank(url) || !url.startsWith(ORACLE_JDBC_PREFIX)) {
             throw new Exception("Oracle server URL was invalid, it should start with jdbc:oracle");
@@ -75,9 +83,12 @@ public class OracleJdbcUtils {
     /**
      * Execute SQL command on Oracle.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param sql SQL string to be executed
-     * @throws Exception on execute SQL error
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param sql
+     *          SQL string to be executed
+     * @throws Exception
+     *           on execute SQL error
      */
     public static void executeSql(final Connection conn, final String sql) throws Exception {
         try (Statement stmt = conn.createStatement()) {
@@ -89,9 +100,12 @@ public class OracleJdbcUtils {
     /**
      * Execute batch query SQL on Oracle.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param sqls SQL string to be executed
-     * @throws Exception on get execute SQL batch error
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param sqls
+     *          SQL string to be executed
+     * @throws Exception
+     *           on get execute SQL batch error
      */
     public static void executeSqlBatch(final Connection conn, final List<String> sqls) throws Exception {
         conn.setAutoCommit(false);
@@ -109,9 +123,12 @@ public class OracleJdbcUtils {
     /**
      * Create Oracle table by OracleTableInfo
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param tableInfo Oracle table info  {@link OracleTableInfo}
-     * @throws Exception on create table error
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param tableInfo
+     *          Oracle table info {@link OracleTableInfo}
+     * @throws Exception
+     *           on create table error
      */
     public static void createTable(final Connection conn, final OracleTableInfo tableInfo) throws Exception {
         if (checkTablesExist(conn, tableInfo.getUserName(), tableInfo.getTableName())) {
@@ -126,17 +143,23 @@ public class OracleJdbcUtils {
     /**
      * Check tables from the Oracle information_schema.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param userName Oracle database name
-     * @param tableName Oracle table name
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param userName
+     *          Oracle database name
+     * @param tableName
+     *          Oracle table name
      * @return true if table exist, otherwise false
-     * @throws Exception on check table exist error
+     * @throws Exception
+     *           on check table exist error
      */
-    public static boolean checkTablesExist(final Connection conn, final String userName, final String tableName)
+    public static boolean checkTablesExist(final Connection conn, final String userName,
+            final String tableName)
             throws Exception {
         boolean result = false;
         final String checkTableSql = OracleSqlBuilder.getCheckTable(userName, tableName);
-        try (Statement statement = conn.createStatement();
+        try (
+                Statement statement = conn.createStatement();
                 ResultSet resultSet = statement.executeQuery(checkTableSql)) {
             if (Objects.nonNull(resultSet) && resultSet.next()) {
                 int size = resultSet.getInt(1);
@@ -152,17 +175,23 @@ public class OracleJdbcUtils {
     /**
      * Check whether the column exists in the table.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param tableName Oracle table name
-     * @param column Oracle table column name
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param tableName
+     *          Oracle table name
+     * @param column
+     *          Oracle table column name
      * @return true if column exist in the table, otherwise false
-     * @throws Exception on check column exist error
+     * @throws Exception
+     *           on check column exist error
      */
-    public static boolean checkColumnExist(final Connection conn, final String tableName, final String column)
+    public static boolean checkColumnExist(final Connection conn, final String tableName,
+            final String column)
             throws Exception {
         boolean result = false;
         final String checkColumnSql = OracleSqlBuilder.getCheckColumn(tableName, column);
-        try (Statement statement = conn.createStatement();
+        try (
+                Statement statement = conn.createStatement();
                 ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
             if (Objects.nonNull(resultSet) && resultSet.next()) {
                 int count = resultSet.getInt(1);
@@ -178,15 +207,19 @@ public class OracleJdbcUtils {
     /**
      * Query all columns of the tableName.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param tableName Oracle table name
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param tableName
+     *          Oracle table name
      * @return {@link List}
-     * @throws Exception on get columns error
+     * @throws Exception
+     *           on get columns error
      */
     public static List<OracleColumnInfo> getColumns(final Connection conn, final String tableName) throws Exception {
         String querySql = OracleSqlBuilder.buildDescTableSql(tableName);
         List<OracleColumnInfo> columnList = new ArrayList<>();
-        try (Statement stmt = conn.createStatement();
+        try (
+                Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(querySql)) {
             while (rs.next()) {
                 OracleColumnInfo columnInfo = new OracleColumnInfo(rs.getString(1),
@@ -200,12 +233,17 @@ public class OracleJdbcUtils {
     /**
      * Add columns for Oracle table.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param tableName Oracle table name
-     * @param columns Oracle columns to be added
-     * @throws Exception on add columns error
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param tableName
+     *          Oracle table name
+     * @param columns
+     *          Oracle columns to be added
+     * @throws Exception
+     *           on add columns error
      */
-    public static void addColumns(final Connection conn, final String tableName, final List<OracleColumnInfo> columns)
+    public static void addColumns(final Connection conn, final String tableName,
+            final List<OracleColumnInfo> columns)
             throws Exception {
         List<OracleColumnInfo> columnInfos = new ArrayList<>();
 

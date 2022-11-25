@@ -17,13 +17,19 @@
 
 package org.apache.inlong.agent.plugin.message;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_SIZE;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_SYNC;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.BatchProxyMessage;
 import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,13 +38,8 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_SIZE;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_PACKAGE_MAX_TIMEOUT_MS;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_SIZE;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_SYNC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handle List of BusMessage, which belong to the same stream id.
@@ -97,7 +98,8 @@ public class PackProxyMessage {
     }
 
     /**
-     * Add proxy message to cache, proxy message should belong to the same stream id.
+     * Add proxy message to cache, proxy message should belong to the same stream
+     * id.
      */
     public void addProxyMessage(ProxyMessage message) {
         assert streamId.equals(message.getInlongStreamId());
@@ -121,9 +123,11 @@ public class PackProxyMessage {
     }
 
     /**
-     * Fetch batch of proxy message, timeout message or max number of list satisfied.
+     * Fetch batch of proxy message, timeout message or max number of list
+     * satisfied.
      *
-     * @return map of message list, key is stream id for the batch; return null if there are no valid messages.
+     * @return map of message list, key is stream id for the batch; return null if
+     *         there are no valid messages.
      */
     public BatchProxyMessage fetchBatch() {
         // if queue is nearly full or package size is satisfied or timeout

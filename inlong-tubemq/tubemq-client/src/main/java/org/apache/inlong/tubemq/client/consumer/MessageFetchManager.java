@@ -17,12 +17,14 @@
 
 package org.apache.inlong.tubemq.client.consumer;
 
-import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
+
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +33,8 @@ import org.slf4j.LoggerFactory;
  */
 public class MessageFetchManager {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(MessageFetchManager.class);
-    private final ConcurrentHashMap<Long, Integer> fetchWorkerStatusMap =
-            new ConcurrentHashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(MessageFetchManager.class);
+    private final ConcurrentHashMap<Long, Integer> fetchWorkerStatusMap = new ConcurrentHashMap<>();
     private final ConsumerConfig consumerConfig;
     private final SimplePushMessageConsumer pushConsumer;
     // Manager status:
@@ -45,7 +45,7 @@ public class MessageFetchManager {
     private Thread[] fetchWorkerPool;
 
     public MessageFetchManager(final ConsumerConfig consumerConfig,
-                               final SimplePushMessageConsumer pushConsumer) {
+            final SimplePushMessageConsumer pushConsumer) {
         this.consumerConfig = consumerConfig;
         this.pushConsumer = pushConsumer;
     }
@@ -53,7 +53,8 @@ public class MessageFetchManager {
     /**
      * Start a worker pool to fetch the message.
      *
-     * @throws TubeClientException   Exception thrown
+     * @throws TubeClientException
+     *           Exception thrown
      */
     public void startFetchWorkers() throws TubeClientException {
         this.pushConsumer.getBaseConsumer().checkClientRunning();
@@ -66,8 +67,7 @@ public class MessageFetchManager {
         }
         StringBuilder sBuilder = new StringBuilder(256);
         logger.info("Starting Fetch Worker Pool !");
-        this.fetchWorkerPool =
-                new Thread[this.consumerConfig.getPushFetchThreadCnt()];
+        this.fetchWorkerPool = new Thread[this.consumerConfig.getPushFetchThreadCnt()];
         logger.info(sBuilder
                 .append("Prepare to start Fetch Worker Pool, total count:")
                 .append(fetchWorkerPool.length).toString());
@@ -98,7 +98,8 @@ public class MessageFetchManager {
     /**
      * Stop fetch worker threads
      *
-     * @param onlySetStatus  Whether to only set the state without stopping the operation
+     * @param onlySetStatus
+     *          Whether to only set the state without stopping the operation
      */
     public void stopFetchWorkers(boolean onlySetStatus) throws InterruptedException {
         if (onlySetStatus) {
@@ -148,8 +149,7 @@ public class MessageFetchManager {
         boolean haveProcessingThread = false;
         long startWaitTime = System.currentTimeMillis();
         do {
-            haveProcessingThread =
-                    (!this.fetchWorkerStatusMap.isEmpty());
+            haveProcessingThread = (!this.fetchWorkerStatusMap.isEmpty());
             if (haveProcessingThread) {
                 try {
                     Thread.sleep(150);
@@ -163,6 +163,7 @@ public class MessageFetchManager {
     }
 
     private class FetchTaskWorker implements Runnable {
+
         @Override
         public void run() {
             StringBuilder sBuilder = new StringBuilder(256);
@@ -177,9 +178,8 @@ public class MessageFetchManager {
                     }
                     fetchWorkerStatusMap.put(curThreadId, 1);
                     MessageFetchManager.this.pushConsumer.allowConsumeWait();
-                    partSelectResult =
-                            MessageFetchManager.this.pushConsumer
-                                    .getBaseConsumer().pushSelectPartition();
+                    partSelectResult = MessageFetchManager.this.pushConsumer
+                            .getBaseConsumer().pushSelectPartition();
                     if (partSelectResult == null) {
                         continue;
                     }
@@ -196,13 +196,12 @@ public class MessageFetchManager {
                     if (MessageFetchManager.this.pushConsumer.isConsumePaused()) {
                         boolean result = partSelectResult.isLastPackConsumed();
                         if (result) {
-                            result =
-                                    MessageFetchManager.this.pushConsumer
-                                            .getBaseConsumer().flushLastRequest(partition);
+                            result = MessageFetchManager.this.pushConsumer
+                                    .getBaseConsumer().flushLastRequest(partition);
                         }
                         MessageFetchManager.this.pushConsumer
                                 .getBaseConsumer().pushReqReleasePartition(partition.getPartitionKey(),
-                                usedToken, result);
+                                        usedToken, result);
                         partSelectResult = null;
                         continue;
                     }

@@ -17,13 +17,6 @@
 
 package org.apache.inlong.manager.workflow.definition;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -32,11 +25,21 @@ import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 
+import org.apache.commons.collections.MapUtils;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * WorkflowProcess definition
@@ -90,7 +93,8 @@ public class WorkflowProcess extends Element {
     /**
      * Get process event listener by listener name.
      *
-     * @param listenerName listener name.
+     * @param listenerName
+     *          listener name.
      * @return process event listener.
      */
     public ProcessEventListener listener(String listenerName) {
@@ -111,7 +115,8 @@ public class WorkflowProcess extends Element {
     /**
      * Get workflow task by task name.
      *
-     * @param name workflow task name.
+     * @param name
+     *          workflow task name.
      * @return workflow task info.
      */
     public WorkflowTask getTaskByName(String name) {

@@ -18,10 +18,11 @@
 
 package org.apache.inlong.sort.formats.base;
 
-import java.util.Map;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.table.factories.TableFormatFactory;
 import org.apache.flink.types.Row;
+
+import java.util.Map;
 
 /**
  * Factory for creating configured instances of {@link DeserializationSchema}
@@ -33,13 +34,14 @@ public interface ProjectedDeserializationSchemaFactory extends TableFormatFactor
      * Creates and configures a {@link DeserializationSchema} using the given
      * properties.
      *
-     * @param properties The properties describing the format.
-     * @param fields The fields of the rows deserialized by the schema.
-     * @return The configured deserialization schema used to deserialize the
-     *         given fields of rows.
+     * @param properties
+     *          The properties describing the format.
+     * @param fields
+     *          The fields of the rows deserialized by the schema.
+     * @return The configured deserialization schema used to deserialize the given
+     *         fields of rows.
      */
     DeserializationSchema<Row> createProjectedDeserializationSchema(
             Map<String, String> properties,
-            int[] fields
-    );
+            int[] fields);
 }

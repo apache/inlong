@@ -17,17 +17,19 @@
 
 package org.apache.inlong.tubemq.server.broker.utils;
 
-import com.google.protobuf.ByteString;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.text.NumberFormat;
-import java.util.HashMap;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.utils.MessageFlagUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.stats.TrafficInfo;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.text.NumberFormat;
+import java.util.HashMap;
+
+import com.google.protobuf.ByteString;
 
 /**
  * Storage util. Used for data and index file storage format.
@@ -36,17 +38,17 @@ public class DataStoreUtils {
     // Data storage format definition
 
     // Message storage structure
-    // message length       4
-    // + dataType           4
-    // + checksum           4
-    // + queueId            4
-    // + queueLogicOffset   8
-    // + receivedTime       8
-    // + reportAddr         4
-    // + keyCode            4
-    // + msgId              8
-    // + flag               4
-    // + data               0
+    // message length 4
+    // + dataType 4
+    // + checksum 4
+    // + queueId 4
+    // + queueLogicOffset 8
+    // + receivedTime 8
+    // + reportAddr 4
+    // + keyCode 4
+    // + msgId 8
+    // + flag 4
+    // + data 0
     //
     public static final int MAX_MSG_TRANSFER_SIZE = 1024 * 1024;
 
@@ -70,11 +72,11 @@ public class DataStoreUtils {
     public static final long MAX_FILE_VALID_DURATION = 168 * 3600L * 1000L;
 
     // Index storage structure
-    // partitionId         4
-    // offset              8
-    // + getCachedSize     4
-    // + keyCode           4
-    // + timeInMillSec     8
+    // partitionId 4
+    // offset 8
+    // + getCachedSize 4
+    // + keyCode 4
+    // + timeInMillSec 8
     public static final int STORE_INDEX_HEAD_LEN = 28;
     public static final int INDEX_POS_PARTITIONID = 0;
     public static final int INDEX_POS_DATAOFFSET = 4;
@@ -82,11 +84,9 @@ public class DataStoreUtils {
     public static final int INDEX_POS_KEY_CODE = 16;
     public static final int INDEX_POS_TIME_RECV = 20;
 
-    public static final int MAX_MSG_DATA_STORE_SIZE =
-            TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT
-                    + TBaseConstants.META_MB_UNIT_SIZE * 8;
-    public static final int STORE_MAX_MESSAGE_STORE_LEN
-            = STORE_DATA_HEADER_LEN + MAX_MSG_DATA_STORE_SIZE;
+    public static final int MAX_MSG_DATA_STORE_SIZE = TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT
+            + TBaseConstants.META_MB_UNIT_SIZE * 8;
+    public static final int STORE_MAX_MESSAGE_STORE_LEN = STORE_DATA_HEADER_LEN + MAX_MSG_DATA_STORE_SIZE;
 
     public static final String DATA_FILE_SUFFIX = ".tube";
     public static final String INDEX_FILE_SUFFIX = ".index";
@@ -106,26 +106,28 @@ public class DataStoreUtils {
     /**
      * Convert inner message to protobuf format, then reply to client.
      *
-     * @param dataBuffer      the raw stored data
-     * @param dataTotalSize   the data size
-     * @param countMap        the statistics map
-     * @param statisKeyBase   the statistics key prefix
-     * @param sBuilder        the string buffer
-     * @return                the converted messages
+     * @param dataBuffer
+     *          the raw stored data
+     * @param dataTotalSize
+     *          the data size
+     * @param countMap
+     *          the statistics map
+     * @param statisKeyBase
+     *          the statistics key prefix
+     * @param sBuilder
+     *          the string buffer
+     * @return the converted messages
      */
     public static ClientBroker.TransferedMessage getTransferMsg(ByteBuffer dataBuffer, int dataTotalSize,
-                                                                HashMap<String, TrafficInfo> countMap,
-                                                                String statisKeyBase,
-                                                                StringBuilder sBuilder) {
+            HashMap<String, TrafficInfo> countMap,
+            String statisKeyBase,
+            StringBuilder sBuilder) {
         if (dataBuffer.array().length < dataTotalSize) {
             return null;
         }
-        final int msgLen =
-                dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_LENGTH);
-        final int msgToken =
-                dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_DATATYPE);
-        final int checkSum =
-                dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_CHECKSUM);
+        final int msgLen = dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_LENGTH);
+        final int msgToken = dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_DATATYPE);
+        final int checkSum = dataBuffer.getInt(DataStoreUtils.STORE_HEADER_POS_CHECKSUM);
         int payLoadLen = msgLen - DataStoreUtils.STORE_DATA_PREFX_LEN;
         int payLoadOffset = DataStoreUtils.STORE_DATA_HEADER_LEN;
         if ((msgToken != DataStoreUtils.STORE_DATA_TOKER_BEGIN_VALUE)
@@ -138,8 +140,7 @@ public class DataStoreUtils {
         final int payLoadLen2 = payLoadLen;
         final byte[] payLoadData = new byte[payLoadLen];
         System.arraycopy(dataBuffer.array(), payLoadOffset, payLoadData, 0, payLoadLen);
-        ClientBroker.TransferedMessage.Builder dataBuilder =
-                ClientBroker.TransferedMessage.newBuilder();
+        ClientBroker.TransferedMessage.Builder dataBuilder = ClientBroker.TransferedMessage.newBuilder();
         dataBuilder.setMessageId(msgId);
         dataBuilder.setCheckSum(checkSum);
         dataBuilder.setFlag(flag);

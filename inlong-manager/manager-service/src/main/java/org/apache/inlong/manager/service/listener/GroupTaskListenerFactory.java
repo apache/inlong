@@ -17,9 +17,8 @@
 
 package org.apache.inlong.manager.service.listener;
 
-import com.google.common.collect.Lists;
-import lombok.Data;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.plugin.Plugin;
+import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.service.listener.queue.QueueResourceListener;
 import org.apache.inlong.manager.service.listener.sink.SinkResourceListener;
 import org.apache.inlong.manager.service.listener.sort.SortConfigListener;
@@ -33,17 +32,23 @@ import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
-import org.apache.inlong.manager.common.plugin.Plugin;
-import org.apache.inlong.manager.common.plugin.PluginBinder;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import lombok.Data;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
 
 /**
  * The TaskEventListener factory for InlongGroup.

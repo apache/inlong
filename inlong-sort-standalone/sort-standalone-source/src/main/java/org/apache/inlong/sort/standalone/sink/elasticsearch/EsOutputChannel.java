@@ -17,9 +17,7 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.function.BiConsumer;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.http.HttpHost;
@@ -28,7 +26,11 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.function.BiConsumer;
+
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkRequest;

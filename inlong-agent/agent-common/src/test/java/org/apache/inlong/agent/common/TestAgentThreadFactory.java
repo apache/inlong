@@ -20,6 +20,7 @@ package org.apache.inlong.agent.common;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

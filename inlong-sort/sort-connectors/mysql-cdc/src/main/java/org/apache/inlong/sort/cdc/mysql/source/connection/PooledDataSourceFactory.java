@@ -18,15 +18,17 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.connection;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import io.debezium.connector.mysql.MySqlConnectorConfig;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 
 import java.util.Properties;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import io.debezium.connector.mysql.MySqlConnectorConfig;
+
 /**
- * A connection pool factory to create pooled DataSource {@link HikariDataSource}.
+ * A connection pool factory to create pooled DataSource
+ * {@link HikariDataSource}.
  */
 public class PooledDataSourceFactory {
 
@@ -77,8 +79,7 @@ public class PooledDataSourceFactory {
         combinedProperties.putAll(DEFAULT_JDBC_PROPERTIES);
         combinedProperties.putAll(jdbcProperties);
 
-        StringBuilder jdbcUrlStringBuilder =
-                new StringBuilder(String.format(JDBC_URL_PATTERN, hostName, port));
+        StringBuilder jdbcUrlStringBuilder = new StringBuilder(String.format(JDBC_URL_PATTERN, hostName, port));
 
         combinedProperties.forEach(
                 (key, value) -> {

@@ -19,15 +19,18 @@ package org.apache.inlong.tubemq.corerpc.codec;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.cluster.SubscribeInfo;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.utils.DataConverterUtil;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
 
 public class DataConverterUtilTest {
@@ -44,8 +47,7 @@ public class DataConverterUtilTest {
         BrokerInfo broker = new BrokerInfo(0, "localhost", 1200);
         List<String> strInfoList = new ArrayList<>();
         strInfoList.add("0:localhost:1200");
-        Map<Integer, BrokerInfo> brokerMap =
-                DataConverterUtil.convertBrokerInfo(strInfoList, false);
+        Map<Integer, BrokerInfo> brokerMap = DataConverterUtil.convertBrokerInfo(strInfoList, false);
         assertEquals("broker should be equal", broker, brokerMap.get(broker.getBrokerId()));
 
         // partition convert
@@ -67,8 +69,8 @@ public class DataConverterUtilTest {
         strInfoList.clear();
         // topic#brokerId:partitionNum:topicStoreNum
         strInfoList.add("tube#0:10:5");
-        Tuple2<Map<String, Integer>, List<TopicInfo>> topicConfTuple =
-                DataConverterUtil.convertTopicInfo(brokerMap, strInfoList);
+        Tuple2<Map<String, Integer>, List<TopicInfo>> topicConfTuple = DataConverterUtil.convertTopicInfo(brokerMap,
+                strInfoList);
         assertEquals("topic should be equal", topic, topicConfTuple.getF1().get(0));
 
     }

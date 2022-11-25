@@ -58,7 +58,8 @@ public class ListenerResult {
     /**
      * Listener execute success
      *
-     * @param remark remarks on execution results.
+     * @param remark
+     *          remarks on execution results.
      * @return listener execute success info.
      */
     public static ListenerResult success(String remark) {
@@ -75,7 +76,8 @@ public class ListenerResult {
     /**
      * Listener execute fail.
      *
-     * @param remark remarks on execution results.
+     * @param remark
+     *          remarks on execution results.
      * @return listener execute fail info.
      */
     public static ListenerResult fail(String remark) {
@@ -85,7 +87,8 @@ public class ListenerResult {
     /**
      * Listener execute fail.
      *
-     * @param exception exception on execution results.
+     * @param exception
+     *          exception on execution results.
      * @return listener execute fail info.
      */
     public static ListenerResult fail(Exception exception) {
@@ -95,8 +98,10 @@ public class ListenerResult {
     /**
      * Listener execute fail.
      *
-     * @param exception exception on execution results.
-     * @param remark remarks on execution results.
+     * @param exception
+     *          exception on execution results.
+     * @param remark
+     *          remarks on execution results.
      * @return listener execute fail info.
      */
     public static ListenerResult fail(Exception exception, String remark) {

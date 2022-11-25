@@ -17,22 +17,6 @@
 
 package org.apache.inlong.agent.plugin.channel;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.metrics.AgentMetricItem;
-import org.apache.inlong.agent.metrics.AgentMetricItemSet;
-import org.apache.inlong.agent.plugin.Channel;
-import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
@@ -40,6 +24,23 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STRE
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
+
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.metrics.AgentMetricItem;
+import org.apache.inlong.agent.metrics.AgentMetricItemSet;
+import org.apache.inlong.agent.plugin.Channel;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.common.metric.MetricRegister;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * memory channel
@@ -49,7 +50,7 @@ public class MemoryChannel implements Channel {
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryChannel.class);
 
     private LinkedBlockingQueue<Message> queue;
-    //metric
+    // metric
     private AgentMetricItemSet metricItemSet;
     private static final AtomicLong METRIC_INDEX = new AtomicLong(0);
     private String inlongGroupId;

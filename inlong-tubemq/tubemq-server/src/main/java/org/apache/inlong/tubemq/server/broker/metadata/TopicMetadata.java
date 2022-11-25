@@ -17,21 +17,22 @@
 
 package org.apache.inlong.tubemq.server.broker.metadata;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.TStatusConstants;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Topic's metadata. Contains topic name, partitions count, etc.
  */
 public class TopicMetadata {
+
     // topic name.
     private String topic;
     // metadata status.
@@ -40,11 +41,13 @@ public class TopicMetadata {
     private int numTopicStores = 1;
     // topic partition count.
     private int numPartitions = 1;
-    // data will be flushed to disk when elapse unflushInterval milliseconds since last flush operation.
+    // data will be flushed to disk when elapse unflushInterval milliseconds since
+    // last flush operation.
     private int unflushThreshold = 1000;
     // data will be flushed to disk when unflushed message count exceed this.
     private int unflushInterval = 10000;
-    // data will be flushed to disk when unflushed data size reach this threshold, 0=disabled.
+    // data will be flushed to disk when unflushed data size reach this threshold,
+    // 0=disabled.
     private int unflushDataHold = 0;
     // enable produce data to topic.
     private boolean acceptPublish = true;
@@ -68,17 +71,19 @@ public class TopicMetadata {
     private int minMemCacheSize = TBaseConstants.META_VALUE_UNDEFINED;
 
     /**
-     * Build TopicMetadata from brokerDefMetadata(default config) and topicMetaConfInfo(custom config).
+     * Build TopicMetadata from brokerDefMetadata(default config) and
+     * topicMetaConfInfo(custom config).
      *
-     * @param brokerDefMetadata    the default topic meta configure
-     * @param topicMetaConfInfo    the topic meta configure
+     * @param brokerDefMetadata
+     *          the default topic meta configure
+     * @param topicMetaConfInfo
+     *          the topic meta configure
      */
     public TopicMetadata(final BrokerDefMetadata brokerDefMetadata, String topicMetaConfInfo) {
         if (TStringUtils.isBlank(topicMetaConfInfo)) {
             return;
         }
-        String[] topicConfInfoArr =
-                topicMetaConfInfo.split(TokenConstants.ATTR_SEP, -1);
+        String[] topicConfInfoArr = topicMetaConfInfo.split(TokenConstants.ATTR_SEP, -1);
         this.topic = topicConfInfoArr[0];
         if (TStringUtils.isBlank(topicConfInfoArr[1])) {
             this.numPartitions = brokerDefMetadata.getNumPartitions();
@@ -150,8 +155,7 @@ public class TopicMetadata {
         if (topicConfInfoArr.length > 14) {
             if (TStringUtils.isNotBlank(topicConfInfoArr[14])) {
                 int maxMsgSize = Integer.parseInt(topicConfInfoArr[14]);
-                Tuple2<Integer, Integer> calcResult =
-                        ClusterConfigHolder.calcMaxMsgSize(maxMsgSize);
+                Tuple2<Integer, Integer> calcResult = ClusterConfigHolder.calcMaxMsgSize(maxMsgSize);
                 this.maxMsgSize = calcResult.getF0();
                 this.minMemCacheSize = calcResult.getF1();
             }
@@ -161,14 +165,18 @@ public class TopicMetadata {
     /**
      * Build TopicMetadata by default topic meta and the special field values.
      *
-     * @param brokerDefMetadata    the default topic meta configure
-     * @param topicName            the topic name
-     * @param numTopicStores       the topic store count
-     * @param numPartitions        the topic partition count
+     * @param brokerDefMetadata
+     *          the default topic meta configure
+     * @param topicName
+     *          the topic name
+     * @param numTopicStores
+     *          the topic store count
+     * @param numPartitions
+     *          the topic partition count
      */
     public TopicMetadata(BrokerDefMetadata brokerDefMetadata,
-                         String topicName, int numTopicStores,
-                         int numPartitions) {
+            String topicName, int numTopicStores,
+            int numPartitions) {
         this.topic = topicName;
         this.numTopicStores = numTopicStores;
         this.numPartitions = numPartitions;
@@ -188,13 +196,13 @@ public class TopicMetadata {
     }
 
     private TopicMetadata(String topic, int unflushThreshold,
-                          int unflushInterval, int unflushDataHold,
-                          String dataPath, String deleteWhen, String deletePolicy,
-                          int numPartitions, boolean acceptPublish,
-                          boolean acceptSubscribe, int statusId,
-                          int numTopicStores, int memCacheMsgSize,
-                          int memCacheMsgCnt, int memCacheFlushIntvl,
-                          int maxMsgSize, int minMemCacheSize) {
+            int unflushInterval, int unflushDataHold,
+            String dataPath, String deleteWhen, String deletePolicy,
+            int numPartitions, boolean acceptPublish,
+            boolean acceptSubscribe, int statusId,
+            int numTopicStores, int memCacheMsgSize,
+            int memCacheMsgCnt, int memCacheFlushIntvl,
+            int maxMsgSize, int minMemCacheSize) {
         this.topic = topic;
         this.unflushThreshold = unflushThreshold;
         this.unflushInterval = unflushInterval;
@@ -471,8 +479,9 @@ public class TopicMetadata {
     /**
      * Each property will be compared, in case of the new added properties.
      *
-     * @param other    the compare object
-     * @return         whether is equal
+     * @param other
+     *          the compare object
+     * @return whether is equal
      */
     public boolean isPropertyEquals(final TopicMetadata other) {
         return (this.numPartitions == other.numPartitions

@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -31,13 +27,19 @@ import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
 
 /**
  * 
@@ -108,8 +110,9 @@ public class PulsarFederationSinkContext extends SinkContext {
     /**
      * get Topic by uid
      *
-     * @param  uid uid
-     * @return     topic
+     * @param uid
+     *          uid
+     * @return topic
      */
     public String getTopic(String uid) {
         PulsarIdConfig idConfig = this.idConfigMap.get(uid);
@@ -122,8 +125,9 @@ public class PulsarFederationSinkContext extends SinkContext {
     /**
      * get PulsarIdConfig by uid
      *
-     * @param  uid uid
-     * @return     KafkaIdConfig
+     * @param uid
+     *          uid
+     * @return KafkaIdConfig
      */
     public PulsarIdConfig getIdConfig(String uid) {
         PulsarIdConfig idConfig = this.idConfigMap.get(uid);

@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sort.cdc.debezium.table;
 
-import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
@@ -27,6 +26,8 @@ import org.apache.flink.util.Collector;
 import org.apache.kafka.connect.source.SourceRecord;
 
 import java.io.Serializable;
+
+import io.debezium.relational.history.TableChanges.TableChange;
 
 /**
  * Emits a row with physical fields and metadata fields.

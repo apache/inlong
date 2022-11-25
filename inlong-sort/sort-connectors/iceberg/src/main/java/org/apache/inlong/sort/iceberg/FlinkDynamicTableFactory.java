@@ -19,6 +19,17 @@
 
 package org.apache.inlong.sort.iceberg;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_PK_AUTO_GENERATED;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
+import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
@@ -48,56 +59,45 @@ import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_PK_AUTO_GENERATED;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
-import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
-
 /**
  * Copy from org.apache.iceberg.flink:iceberg-flink-runtime-1.13:0.13.2
  *
  * <p>
- * Factory for creating configured instances of {@link IcebergTableSource} and {@link
- * IcebergTableSink}.We modify KafkaDynamicTableSink to support append-mode .
+ * Factory for creating configured instances of {@link IcebergTableSource} and
+ * {@link IcebergTableSink}.We modify KafkaDynamicTableSink to support
+ * append-mode .
  * </p>
  */
 public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, DynamicTableSourceFactory {
 
     static final String FACTORY_IDENTIFIER = "iceberg-inlong";
 
-    private static final ConfigOption<String> CATALOG_NAME =
-            ConfigOptions.key("catalog-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Catalog name");
+    private static final ConfigOption<String> CATALOG_NAME = ConfigOptions.key("catalog-name")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Catalog name");
 
-    private static final ConfigOption<String> CATALOG_TYPE =
-            ConfigOptions.key(FlinkCatalogFactory.ICEBERG_CATALOG_TYPE)
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Catalog type, the optional types are: custom, hadoop, hive.");
+    private static final ConfigOption<String> CATALOG_TYPE = ConfigOptions.key(FlinkCatalogFactory.ICEBERG_CATALOG_TYPE)
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Catalog type, the optional types are: custom, hadoop, hive.");
 
-    private static final ConfigOption<String> CATALOG_DATABASE =
-            ConfigOptions.key("catalog-database")
-                    .stringType()
-                    .defaultValue(FlinkCatalogFactory.DEFAULT_DATABASE_NAME)
-                    .withDescription("Database name managed in the iceberg catalog.");
+    private static final ConfigOption<String> CATALOG_DATABASE = ConfigOptions.key("catalog-database")
+            .stringType()
+            .defaultValue(FlinkCatalogFactory.DEFAULT_DATABASE_NAME)
+            .withDescription("Database name managed in the iceberg catalog.");
 
-    private static final ConfigOption<String> CATALOG_TABLE =
-            ConfigOptions.key("catalog-table")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Table name managed in the underlying iceberg catalog and database.");
+    private static final ConfigOption<String> CATALOG_TABLE = ConfigOptions.key("catalog-table")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Table name managed in the underlying iceberg catalog and database.");
 
-    // Flink 1.13.x change the return type from CatalogTable interface to ResolvedCatalogTable which extends the
-    // CatalogTable. Here we use the dynamic method loading approach to avoid adding explicit CatalogTable or
-    // ResolvedCatalogTable class into the iceberg-flink-runtime jar for compatibility purpose.
+    // Flink 1.13.x change the return type from CatalogTable interface to
+    // ResolvedCatalogTable which extends the
+    // CatalogTable. Here we use the dynamic method loading approach to avoid adding
+    // explicit CatalogTable or
+    // ResolvedCatalogTable class into the iceberg-flink-runtime jar for
+    // compatibility purpose.
     private static final DynMethods.UnboundMethod GET_CATALOG_TABLE = DynMethods.builder("getCatalogTable")
             .impl(Context.class, "getCatalogTable")
             .orNoop()
@@ -253,4 +253,3 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         return FACTORY_IDENTIFIER;
     }
 }
-

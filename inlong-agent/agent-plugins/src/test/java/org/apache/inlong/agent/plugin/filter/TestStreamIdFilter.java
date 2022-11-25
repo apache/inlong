@@ -19,15 +19,17 @@ package org.apache.inlong.agent.plugin.filter;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.HashMap;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.sinks.AbstractSink;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.HashMap;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -53,7 +55,7 @@ public class TestStreamIdFilter {
     public void testStreamId() {
         DefaultMessageFilter messageFilter = new DefaultMessageFilter();
         ProxyMessage proxyMessage = new ProxyMessage("streamId|this is a line of file".getBytes(
-            StandardCharsets.UTF_8), new HashMap<>());
+                StandardCharsets.UTF_8), new HashMap<>());
         String s = messageFilter.filterStreamId(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
         Assert.assertEquals(s, "streamId");
     }
@@ -65,7 +67,7 @@ public class TestStreamIdFilter {
         jobProfile.set(AGENT_MESSAGE_FILTER_CLASSNAME, "org.apache.inlong.agent.plugin.filter.DefaultMessageFilter");
         MessageFilter messageFilter = sinkTest.initMessageFilter(jobProfile);
         ProxyMessage proxyMessage = new ProxyMessage("tid|this is a line of file".getBytes(
-            StandardCharsets.UTF_8), new HashMap<>());
+                StandardCharsets.UTF_8), new HashMap<>());
         String s = messageFilter.filterStreamId(proxyMessage, "|".getBytes(StandardCharsets.UTF_8));
         Assert.assertEquals(s, "tid");
     }
@@ -94,4 +96,3 @@ public class TestStreamIdFilter {
     }
 
 }
-

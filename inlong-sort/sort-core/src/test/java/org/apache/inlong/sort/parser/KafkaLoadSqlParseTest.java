@@ -18,10 +18,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
@@ -39,8 +35,11 @@ import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,9 +48,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
- * Test for {@link KafkaLoadNode} sql parse
- * and raw hash partitioner {@link org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner}
+ * Test for {@link KafkaLoadNode} sql parse and raw hash partitioner
+ * {@link org.apache.inlong.sort.kafka.partitioner.RawDataHashPartitioner}
  */
 public class KafkaLoadSqlParseTest extends AbstractTestBase {
 
@@ -71,7 +73,7 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("age", new StringFormatInfo()),
-                                new FieldInfo("age", new StringFormatInfo())),
+                        new FieldInfo("age", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
@@ -112,8 +114,10 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     /**
      * build node relation
      *
-     * @param inputs extract node
-     * @param outputs load node
+     * @param inputs
+     *          extract node
+     * @param outputs
+     *          load node
      * @return node relation
      */
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -125,7 +129,8 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     /**
      * Test mysql to kafka
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testKafkaSourceSqlParse() throws Exception {
@@ -153,7 +158,8 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     /**
      * Test kafka to kafka with dynamic topic
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testKafkaDynamicTopicParse() throws Exception {
@@ -181,7 +187,8 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     /**
      * Test kafka to kafka with dynamic partition
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testKafkaDynamicPartitionParse() throws Exception {
@@ -209,7 +216,8 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
     /**
      * Test kafka to kafka with dynamic partition based on hash of primary key
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testKafkaDynamicPartitionWithPrimaryKey() throws Exception {

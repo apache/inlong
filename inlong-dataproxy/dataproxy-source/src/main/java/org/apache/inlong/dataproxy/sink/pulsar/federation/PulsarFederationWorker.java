@@ -17,17 +17,19 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Event;
-import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.utils.Constants;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Event;
+import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

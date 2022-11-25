@@ -17,13 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
@@ -34,12 +27,21 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SinkContext
@@ -64,7 +66,6 @@ public abstract class AbstractZoneSinkContext {
     protected final DataProxyMetricItemSet metricItemSet;
     protected Timer reloadTimer;
 
-
     public static final String KEY_NODE_ID = "nodeId";
     public static final String PREFIX_PRODUCER = "producer.";
     public static final String KEY_COMPRESS_TYPE = "compressType";
@@ -82,7 +83,7 @@ public abstract class AbstractZoneSinkContext {
      * Constructor
      */
     public AbstractZoneSinkContext(String sinkName, Context context, Channel channel,
-                                   ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
+            ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
         this.sinkName = sinkName;
         this.sinkContext = context;
         this.channel = channel;
@@ -353,6 +354,7 @@ public abstract class AbstractZoneSinkContext {
 
     /**
      * processSendFail
+     * 
      * @param currentRecord
      * @param producerTopic
      * @param sendTime

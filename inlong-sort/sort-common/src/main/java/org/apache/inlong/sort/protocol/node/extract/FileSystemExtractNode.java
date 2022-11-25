@@ -17,23 +17,28 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 
-import javax.annotation.Nonnull;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.base.Preconditions;
+
 /**
- * The feature version of flink is greater than or equal to 1.16.x for stream table
+ * The feature version of flink is greater than or equal to 1.16.x for stream
+ * table
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("fileSystemExtract")

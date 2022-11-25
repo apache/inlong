@@ -17,17 +17,18 @@
 
 package org.apache.inlong.tubemq.server.common.fileconfig;
 
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 public class ADConfig {
+
     // whether to enable data report by audit sdk
     private boolean auditEnable = false;
     // audit proxy server addresses
-    private HashSet<String> auditProxyAddrSet =
-            new HashSet<>(Arrays.asList("127.0.0.1:10081"));
+    private HashSet<String> auditProxyAddrSet = new HashSet<>(Arrays.asList("127.0.0.1:10081"));
     // file path for audit cache data
     private String auditCacheFilePath = "/data/inlong/audit";
     // max cache records for audit cache

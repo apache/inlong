@@ -18,21 +18,24 @@
 package org.apache.inlong.sort.parser.result;
 
 /**
- * The result of parse, it is the top-level interface abstraction of parse result
+ * The result of parse, it is the top-level interface abstraction of parse
+ * result
  */
 public interface ParseResult {
 
     /**
      * Execute the parse result without waiting
      *
-     * @throws Exception The exception may throws when executing
+     * @throws Exception
+     *           The exception may throws when executing
      */
     void execute() throws Exception;
 
     /**
      * Execute the parse result and wait result unit data is ready
      *
-     * @throws Exception The exception may throws when executing
+     * @throws Exception
+     *           The exception may throws when executing
      */
     void waitExecute() throws Exception;
 
@@ -40,7 +43,8 @@ public interface ParseResult {
      * Try to execute, it mostly for unit test and syntax error checking
      *
      * @return true if try execute success else false
-     * @throws Exception The exception may throws when executing
+     * @throws Exception
+     *           The exception may throws when executing
      */
     boolean tryExecute() throws Exception;
 

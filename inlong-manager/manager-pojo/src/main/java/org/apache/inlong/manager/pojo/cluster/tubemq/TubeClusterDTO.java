@@ -18,18 +18,19 @@
 
 package org.apache.inlong.manager.pojo.cluster.tubemq;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * TubeMQ cluster info
@@ -42,8 +43,7 @@ import javax.validation.constraints.NotNull;
 public class TubeClusterDTO {
 
     @NotBlank(message = "masterWebUrl cannot be blank")
-    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080",
-            notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
+    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080", notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
     private String masterWebUrl;
 
     /**

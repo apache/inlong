@@ -25,9 +25,11 @@ public interface AbstractHeartbeatManager {
     /**
      * Report the heartbeat information.
      * <p/>
-     * If the node to which the heartbeat belongs does not exist, it will be registered with the Manager.
+     * If the node to which the heartbeat belongs does not exist, it will be
+     * registered with the Manager.
      *
-     * @param heartbeat heartbeat msg
+     * @param heartbeat
+     *          heartbeat msg
      */
     void reportHeartbeat(HeartbeatMsg heartbeat);
 

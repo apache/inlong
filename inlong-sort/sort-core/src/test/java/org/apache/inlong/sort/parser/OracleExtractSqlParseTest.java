@@ -18,10 +18,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -39,13 +35,19 @@ import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for {@link OracleExtractNode}
@@ -66,8 +68,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
                 new MetaFieldInfo("table_name", MetaField.TABLE_NAME),
                 new MetaFieldInfo("op_ts", MetaField.OP_TS),
-                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME)
-        );
+                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME));
         return new OracleExtractNode("1", "oracle_input", fields,
                 null, null, "ID", "localhost",
                 "flinkuser", "flinkpw", "xE",
@@ -82,8 +83,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new FieldInfo("database_name", new StringFormatInfo()),
                 new FieldInfo("table_name", new StringFormatInfo()),
                 new FieldInfo("op_ts", new TimestampFormatInfo()),
-                new FieldInfo("schema_name", new StringFormatInfo())
-        );
+                new FieldInfo("schema_name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("ID", new LongFormatInfo()),
                         new FieldInfo("id", new LongFormatInfo())),
@@ -100,8 +100,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
                         new FieldInfo("op_ts", new TimestampFormatInfo())),
                 new FieldRelation(new FieldInfo("schema_name", new StringFormatInfo()),
-                        new FieldInfo("schema_name", new StringFormatInfo()))
-        );
+                        new FieldInfo("schema_name", new StringFormatInfo())));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
                 null, "topic", "localhost:9092",
                 new CanalJsonFormat(), null,
@@ -111,8 +110,10 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
     /**
      * Build node relation
      *
-     * @param inputs extract node
-     * @param outputs load node
+     * @param inputs
+     *          extract node
+     * @param outputs
+     *          load node
      * @return node relation
      */
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -122,9 +123,11 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test flink sql task for extract is oracle {@link OracleExtractNode} and load is kafka {@link KafkaLoadNode}
+     * Test flink sql task for extract is oracle {@link OracleExtractNode} and load
+     * is kafka {@link KafkaLoadNode}
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testOracleExtractSqlParse() throws Exception {

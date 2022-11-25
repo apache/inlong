@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.pojo.queue.tubemq;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * Broker view of TubeMQ, includes different status brokers list.
@@ -138,8 +138,8 @@ public class TubeBrokerInfo {
         }
 
         private boolean isWorking() {
-            return RUNNING.equals(runStatus) && (
-                    ONLINE.equals(manageStatus) || ONLY_READ.equals(manageStatus) || ONLY_WRITE.equals(manageStatus));
+            return RUNNING.equals(runStatus) && (ONLINE.equals(manageStatus) || ONLY_READ.equals(manageStatus)
+                    || ONLY_WRITE.equals(manageStatus));
         }
 
         private boolean isConfigurable() {

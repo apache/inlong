@@ -18,13 +18,15 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.events;
 
-import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.inlong.sort.cdc.mysql.source.enumerator.MySqlSourceEnumerator;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
 
+import org.apache.flink.api.connector.source.SourceEvent;
+
 /**
- * The {@link SourceEvent} that {@link MySqlSourceEnumerator} broadcasts to {@link
- * MySqlSourceReader} to tell the source reader to suspend the binlog reader.
+ * The {@link SourceEvent} that {@link MySqlSourceEnumerator} broadcasts to
+ * {@link MySqlSourceReader} to tell the source reader to suspend the binlog
+ * reader.
  */
 public class SuspendBinlogReaderEvent implements SourceEvent {
 

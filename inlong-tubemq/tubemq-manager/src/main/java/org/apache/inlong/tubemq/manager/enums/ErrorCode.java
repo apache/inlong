@@ -19,9 +19,8 @@ package org.apache.inlong.tubemq.manager.enums;
 
 public enum ErrorCode {
 
-    TOPIC_NOT_WRITABLE(100, "topic not writable "),
-    NO_SUCH_TOPIC(101, "no such topic in master"),
-    TASK_EXIST(200, "task already exist");
+    TOPIC_NOT_WRITABLE(100, "topic not writable "), NO_SUCH_TOPIC(101, "no such topic in master"), TASK_EXIST(200,
+            "task already exist");
 
     private Integer code;
 

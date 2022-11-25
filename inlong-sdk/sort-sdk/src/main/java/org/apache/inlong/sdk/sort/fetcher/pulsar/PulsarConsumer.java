@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.sort.fetcher.pulsar;
 
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.Messages;
@@ -31,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Wrapper of pulsar consumer.
  */
 public class PulsarConsumer {
+
     private final ConcurrentHashMap<String, Tuple2<InLongTopic, MessageId>> offsetCache = new ConcurrentHashMap<>();
     private final Consumer<byte[]> consumer;
     private long stopTime = -1;

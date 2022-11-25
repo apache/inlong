@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort;
 
-import com.google.common.base.Preconditions;
-import com.google.common.io.Files;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.parser.Parser;
@@ -33,9 +26,18 @@ import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.util.ParameterTool;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
+import com.google.common.base.Preconditions;
+import com.google.common.io.Files;
 
 public class Entrance {
 

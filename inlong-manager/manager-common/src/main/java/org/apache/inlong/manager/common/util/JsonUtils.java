@@ -18,6 +18,25 @@
 
 package org.apache.inlong.manager.common.util;
 
+import org.apache.inlong.manager.common.exceptions.JsonException;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+
+import org.reflections.Reflections;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -26,21 +45,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import lombok.SneakyThrows;
-import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.exceptions.JsonException;
-import org.reflections.Reflections;
-
-import java.io.IOException;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @UtilityClass
@@ -124,17 +128,20 @@ public class JsonUtils {
     /**
      * Parse JSON string to Java object.
      * <p/>
-     * This method enhancements to {@link #parseObject(String, Class)},
-     * as the above method can not solve this situation:
+     * This method enhancements to {@link #parseObject(String, Class)}, as the above
+     * method can not solve this situation:
      *
      * <pre>
      *     OBJECT_MAPPER.readValue(jsonStr, Response&lt;PageInfo&lt;String>>.class)
      * </pre>
      *
-     * @param text json string
-     * @param typeReference The generic type is actually the parsed java type
+     * @param text
+     *          json string
+     * @param typeReference
+     *          The generic type is actually the parsed java type
      * @return java object;
-     * @throws JsonException when parse error
+     * @throws JsonException
+     *           when parse error
      */
     public static <T> T parseObject(String text, TypeReference<T> typeReference) {
         try {

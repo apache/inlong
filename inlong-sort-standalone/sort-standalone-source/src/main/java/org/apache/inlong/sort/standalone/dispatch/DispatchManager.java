@@ -17,10 +17,10 @@
 
 package org.apache.inlong.sort.standalone.dispatch;
 
-import org.apache.flume.Context;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.flume.Context;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
 
 /**
  * DispatchManager
@@ -146,8 +148,8 @@ public class DispatchManager {
     }
 
     /**
-     * reset dispatch time if the dispatch time is invalid.
-     * The default ahead time is 1 hour, and default delay time is 16 hours.
+     * reset dispatch time if the dispatch time is invalid. The default ahead time
+     * is 1 hour, and default delay time is 16 hours.
      */
     private void checkAndResetDispatchTime(DispatchProfile dispatchProfile, long cur) {
         long diff = dispatchProfile.getDispatchTime() - cur;

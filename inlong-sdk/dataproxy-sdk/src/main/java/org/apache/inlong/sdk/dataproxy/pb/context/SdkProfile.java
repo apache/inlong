@@ -26,7 +26,7 @@ import org.apache.inlong.sdk.dataproxy.pb.network.IpPort;
 public class SdkProfile {
 
     public static final String KEY_SDK_PACKID = "sdkPackId";
-    
+
     private final DispatchProfile dispatchProfile;
     private final long sdkPackId;
     private final long sendTime;
@@ -83,7 +83,8 @@ public class SdkProfile {
     /**
      * set ipPort
      * 
-     * @param ipPort the ipPort to set
+     * @param ipPort
+     *          the ipPort to set
      */
     public void setIpPort(IpPort ipPort) {
         this.ipPort = ipPort;

@@ -18,12 +18,8 @@
 
 package org.apache.inlong.sort.formats.json.debezium;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDeserializationSchema.MetadataConverter;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.formats.common.TimestampFormat;
@@ -39,7 +35,13 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDeserializationSchema.MetadataConverter;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Copied from apache flink project with a litter change.
@@ -84,28 +86,24 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
 
     @Override
     public DeserializationSchema<RowData> createRuntimeDecoder(
-            DynamicTableSource.Context context, DataType physicalDataType) {
+            DynamicTableSource.Context context,
+            DataType physicalDataType) {
 
-        final List<ReadableMetadata> readableMetadata =
-                metadataKeys.stream()
-                        .map(
-                                k ->
-                                        Stream.of(ReadableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .<IllegalStateException>orElseThrow(IllegalStateException::new))
-                        .collect(Collectors.toList());
+        final List<ReadableMetadata> readableMetadata = metadataKeys.stream()
+                .map(
+                        k -> Stream.of(ReadableMetadata.values())
+                                .filter(rm -> rm.key.equals(k))
+                                .findFirst()
+                                .<IllegalStateException>orElseThrow(IllegalStateException::new))
+                .collect(Collectors.toList());
 
-        final List<DataTypes.Field> metadataFields =
-                readableMetadata.stream()
-                        .map(m -> DataTypes.FIELD(m.key, m.dataType))
-                        .collect(Collectors.toList());
+        final List<DataTypes.Field> metadataFields = readableMetadata.stream()
+                .map(m -> DataTypes.FIELD(m.key, m.dataType))
+                .collect(Collectors.toList());
 
-        final DataType producedDataType =
-                DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
+        final DataType producedDataType = DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
 
-        final TypeInformation<RowData> producedTypeInfo =
-                context.createTypeInformation(producedDataType);
+        final TypeInformation<RowData> producedTypeInfo = context.createTypeInformation(producedDataType);
 
         return new DebeziumJsonDeserializationSchema(
                 physicalDataType,
@@ -115,8 +113,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 updateBeforeInclude,
                 ignoreParseErrors,
                 timestampFormat,
-                isMigrateAll
-        );
+                isMigrateAll);
     }
 
     @Override
@@ -150,12 +147,14 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
      * List of metadata that can be read with this format.
      */
     public enum ReadableMetadata {
+
         SCHEMA(
                 "schema",
                 DataTypes.STRING().nullable(),
                 false,
                 DataTypes.FIELD("schema", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -170,6 +169,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("ts_ms", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -184,12 +184,12 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
                     public Object convert(GenericRowData row, int pos) {
-                        final StringData timestamp =
-                                (StringData) readProperty(row, pos, KEY_SOURCE_TIMESTAMP);
+                        final StringData timestamp = (StringData) readProperty(row, pos, KEY_SOURCE_TIMESTAMP);
                         if (timestamp == null) {
                             return null;
                         }
@@ -203,6 +203,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -217,6 +218,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -231,6 +233,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -247,6 +250,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

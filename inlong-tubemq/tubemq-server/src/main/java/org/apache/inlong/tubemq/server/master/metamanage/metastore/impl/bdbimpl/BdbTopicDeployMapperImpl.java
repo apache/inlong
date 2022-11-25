@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
-import com.sleepycat.je.rep.ReplicatedEnvironment;
-import com.sleepycat.persist.EntityCursor;
-import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.PrimaryIndex;
-import com.sleepycat.persist.StoreConfig;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
@@ -29,7 +24,14 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsTopicDeployMapperImpl;
 
+import com.sleepycat.je.rep.ReplicatedEnvironment;
+import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.PrimaryIndex;
+import com.sleepycat.persist.StoreConfig;
+
 public class BdbTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
+
     // Topic configure store
     private EntityStore topicConfStore;
     private final PrimaryIndex<String/* recordKey */, BdbTopicConfEntity> topicConfIndex;
@@ -38,8 +40,7 @@ public class BdbTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
         super();
         topicConfStore = new EntityStore(repEnv,
                 TBDBStoreTables.BDB_TOPIC_CONFIG_STORE_NAME, storeConfig);
-        topicConfIndex =
-                topicConfStore.getPrimaryIndex(String.class, BdbTopicConfEntity.class);
+        topicConfIndex = topicConfStore.getPrimaryIndex(String.class, BdbTopicConfEntity.class);
     }
 
     @Override
@@ -86,9 +87,8 @@ public class BdbTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
     }
 
     protected boolean putConfig2Persistent(TopicDeployEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
-        BdbTopicConfEntity bdbEntity =
-                entity.buildBdbTopicConfEntity();
+            StringBuilder strBuff, ProcessResult result) {
+        BdbTopicConfEntity bdbEntity = entity.buildBdbTopicConfEntity();
         try {
             topicConfIndex.put(bdbEntity);
         } catch (Throwable e) {

@@ -17,15 +17,29 @@
 
 package org.apache.inlong.manager.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserLoginRequest;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.test.BaseTest;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.SecurityManager;
+
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import lombok.SneakyThrows;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,17 +53,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.annotation.Resource;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Transactional
 @TestInstance(Lifecycle.PER_CLASS)
@@ -88,11 +93,10 @@ public abstract class WebBaseTest extends BaseTest {
         loginUser.setPassword("inlong");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/login")
-                                .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                post("/api/anno/login")
+                        .content(JsonUtils.toJsonString(loginUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -105,11 +109,10 @@ public abstract class WebBaseTest extends BaseTest {
     @SneakyThrows
     protected MvcResult postForSuccessMvcResult(String url, Object body) {
         return mockMvc.perform(
-                        post(url)
-                                .content(JsonUtils.toJsonString(body))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                post(url)
+                        .content(JsonUtils.toJsonString(body))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -117,10 +120,9 @@ public abstract class WebBaseTest extends BaseTest {
     @SneakyThrows
     protected MvcResult getForSuccessMvcResult(String url, Object... pathVariable) {
         return mockMvc.perform(
-                        get(url, pathVariable)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                get(url, pathVariable)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -128,10 +130,9 @@ public abstract class WebBaseTest extends BaseTest {
     @SneakyThrows
     protected MvcResult deleteForSuccessMvcResult(String url, Object... pathVariable) {
         return mockMvc.perform(
-                        delete(url, pathVariable)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                delete(url, pathVariable)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
     }
@@ -142,11 +143,10 @@ public abstract class WebBaseTest extends BaseTest {
         loginUser.setPassword("inlong");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/api/anno/login")
-                                .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                post("/api/anno/login")
+                        .content(JsonUtils.toJsonString(loginUser))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -160,8 +160,7 @@ public abstract class WebBaseTest extends BaseTest {
         return objectMapper
                 .readValue(
                         mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8),
-                        objectMapper.getTypeFactory().constructParametricType(Response.class, t)
-                );
+                        objectMapper.getTypeFactory().constructParametricType(Response.class, t));
     }
 
     public <T> T getResBodyObj(MvcResult mvcResult, Class<T> t) throws Exception {
@@ -175,8 +174,7 @@ public abstract class WebBaseTest extends BaseTest {
         return objectMapper
                 .readValue(
                         jsonNode.get("data").toString(),
-                        objectMapper.getTypeFactory().constructParametricType(List.class, t)
-                );
+                        objectMapper.getTypeFactory().constructParametricType(List.class, t));
     }
 
     public <T, R> Map<T, R> getResBodyMap(MvcResult mvcResult, Class<T> keyType, Class<R> valueType) throws Exception {
@@ -184,18 +182,17 @@ public abstract class WebBaseTest extends BaseTest {
         return objectMapper
                 .readValue(
                         jsonNode.get("data").toString(),
-                        this.objectMapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType)
-                );
+                        this.objectMapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType));
     }
 
-    public <T, R> Map<T, R> getResBodyListMap(MvcResult mvcResult, Class<T> keyType, Class<R> valueType)
+    public <T, R> Map<T, R> getResBodyListMap(MvcResult mvcResult, Class<T> keyType,
+            Class<R> valueType)
             throws Exception {
         JsonNode jsonNode = objectMapper.readTree(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8));
         return objectMapper
                 .readValue(
                         jsonNode.get("data").toString(),
-                        this.objectMapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType)
-                );
+                        this.objectMapper.getTypeFactory().constructParametricType(HashMap.class, keyType, valueType));
     }
 
     public <T> List<T> getResBodyPageList(MvcResult mvcResult, Class<T> t) throws Exception {
@@ -203,7 +200,6 @@ public abstract class WebBaseTest extends BaseTest {
         return objectMapper
                 .readValue(
                         jsonNode.get("data").get("records").toString(),
-                        objectMapper.getTypeFactory().constructParametricType(List.class, t)
-                );
+                        objectMapper.getTypeFactory().constructParametricType(List.class, t));
     }
 }

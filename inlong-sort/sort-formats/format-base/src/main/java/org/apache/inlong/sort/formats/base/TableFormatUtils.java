@@ -18,38 +18,11 @@
 
 package org.apache.inlong.sort.formats.base;
 
-import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.factories.DeserializationSchemaFactory;
-import org.apache.flink.table.factories.SerializationSchemaFactory;
-import org.apache.flink.table.factories.TableFactoryService;
-import org.apache.flink.table.types.DataType;
-import org.apache.flink.table.types.logical.ArrayType;
-import org.apache.flink.table.types.logical.BigIntType;
-import org.apache.flink.table.types.logical.BinaryType;
-import org.apache.flink.table.types.logical.BooleanType;
-import org.apache.flink.table.types.logical.DateType;
-import org.apache.flink.table.types.logical.DecimalType;
-import org.apache.flink.table.types.logical.DoubleType;
-import org.apache.flink.table.types.logical.FloatType;
-import org.apache.flink.table.types.logical.IntType;
-import org.apache.flink.table.types.logical.LocalZonedTimestampType;
-import org.apache.flink.table.types.logical.LogicalType;
-import org.apache.flink.table.types.logical.MapType;
-import org.apache.flink.table.types.logical.NullType;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.table.types.logical.SmallIntType;
-import org.apache.flink.table.types.logical.TimeType;
-import org.apache.flink.table.types.logical.TimestampType;
-import org.apache.flink.table.types.logical.TinyIntType;
-import org.apache.flink.table.types.logical.VarBinaryType;
-import org.apache.flink.table.types.logical.VarCharType;
-import org.apache.flink.types.Row;
+import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
+import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
+
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
 import org.apache.inlong.sort.formats.common.ArrayTypeInfo;
 import org.apache.inlong.sort.formats.common.BasicFormatInfo;
@@ -92,14 +65,42 @@ import org.apache.inlong.sort.formats.common.TypeInfo;
 import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
 import org.apache.inlong.sort.formats.common.VarCharFormatInfo;
 
+import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.descriptors.DescriptorProperties;
+import org.apache.flink.table.factories.DeserializationSchemaFactory;
+import org.apache.flink.table.factories.SerializationSchemaFactory;
+import org.apache.flink.table.factories.TableFactoryService;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.logical.ArrayType;
+import org.apache.flink.table.types.logical.BigIntType;
+import org.apache.flink.table.types.logical.BinaryType;
+import org.apache.flink.table.types.logical.BooleanType;
+import org.apache.flink.table.types.logical.DateType;
+import org.apache.flink.table.types.logical.DecimalType;
+import org.apache.flink.table.types.logical.DoubleType;
+import org.apache.flink.table.types.logical.FloatType;
+import org.apache.flink.table.types.logical.IntType;
+import org.apache.flink.table.types.logical.LocalZonedTimestampType;
+import org.apache.flink.table.types.logical.LogicalType;
+import org.apache.flink.table.types.logical.MapType;
+import org.apache.flink.table.types.logical.NullType;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.table.types.logical.SmallIntType;
+import org.apache.flink.table.types.logical.TimeType;
+import org.apache.flink.table.types.logical.TimestampType;
+import org.apache.flink.table.types.logical.TinyIntType;
+import org.apache.flink.table.types.logical.VarBinaryType;
+import org.apache.flink.table.types.logical.VarCharType;
+import org.apache.flink.types.Row;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
-import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
 
 /**
  * A utility class for table formats.
@@ -107,143 +108,139 @@ import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SC
 public class TableFormatUtils {
 
     /**
-     * Returns the {@link DeserializationSchema} described by the given
-     * properties.
+     * Returns the {@link DeserializationSchema} described by the given properties.
      *
-     * @param properties The properties describing the deserializer.
-     * @param classLoader The class loader for the deserializer.
-     * @param <T> The type of the data.
+     * @param properties
+     *          The properties describing the deserializer.
+     * @param classLoader
+     *          The class loader for the deserializer.
+     * @param <T>
+     *          The type of the data.
      * @return The {@link DeserializationSchema} described by the properties.
      */
     public static <T> DeserializationSchema<T> getDeserializationSchema(
             final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
-        @SuppressWarnings("unchecked") final DeserializationSchemaFactory<T> deserializationSchemaFactory =
-                TableFactoryService.find(
-                        DeserializationSchemaFactory.class,
-                        properties,
-                        classLoader
-                );
+            final ClassLoader classLoader) {
+        @SuppressWarnings("unchecked")
+        final DeserializationSchemaFactory<T> deserializationSchemaFactory = TableFactoryService.find(
+                DeserializationSchemaFactory.class,
+                properties,
+                classLoader);
 
         return deserializationSchemaFactory.createDeserializationSchema(properties);
     }
 
     /**
-     * Returns the {@link SerializationSchema} described by the given
-     * properties.
+     * Returns the {@link SerializationSchema} described by the given properties.
      *
-     * @param properties The properties describing the serializer.
-     * @param classLoader The class loader for the serializer.
-     * @param <T> The type of the data.
+     * @param properties
+     *          The properties describing the serializer.
+     * @param classLoader
+     *          The class loader for the serializer.
+     * @param <T>
+     *          The type of the data.
      * @return The {@link SerializationSchema} described by the properties.
      */
     public static <T> SerializationSchema<T> getSerializationSchema(
             final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
-        @SuppressWarnings("unchecked") final SerializationSchemaFactory<T> serializationSchemaFactory =
-                TableFactoryService.find(
-                        SerializationSchemaFactory.class,
-                        properties,
-                        classLoader
-                );
+            final ClassLoader classLoader) {
+        @SuppressWarnings("unchecked")
+        final SerializationSchemaFactory<T> serializationSchemaFactory = TableFactoryService.find(
+                SerializationSchemaFactory.class,
+                properties,
+                classLoader);
 
         return serializationSchemaFactory.createSerializationSchema(properties);
     }
 
     /**
-     * Returns the {@link DeserializationSchema} described by the given
-     * properties.
+     * Returns the {@link DeserializationSchema} described by the given properties.
      *
-     * @param properties The properties describing the deserializer.
-     * @param fields The fields to project.
-     * @param classLoader The class loader for the deserializer.
-     * @param <T> The type of the data.
+     * @param properties
+     *          The properties describing the deserializer.
+     * @param fields
+     *          The fields to project.
+     * @param classLoader
+     *          The class loader for the deserializer.
+     * @param <T>
+     *          The type of the data.
      * @return The {@link DeserializationSchema} described by the properties.
      */
     public static <T> DeserializationSchema<Row> getProjectedDeserializationSchema(
             final Map<String, String> properties,
             final int[] fields,
-            final ClassLoader classLoader
-    ) {
-        final ProjectedDeserializationSchemaFactory deserializationSchemaFactory =
-                TableFactoryService.find(
-                        ProjectedDeserializationSchemaFactory.class,
-                        properties,
-                        classLoader
-                );
+            final ClassLoader classLoader) {
+        final ProjectedDeserializationSchemaFactory deserializationSchemaFactory = TableFactoryService.find(
+                ProjectedDeserializationSchemaFactory.class,
+                properties,
+                classLoader);
 
         return deserializationSchemaFactory
                 .createProjectedDeserializationSchema(properties, fields);
     }
 
     /**
-     * Returns the {@link SerializationSchema} described by the given
-     * properties.
+     * Returns the {@link SerializationSchema} described by the given properties.
      *
-     * @param properties The properties describing the serializer.
-     * @param fields The fields to project.
-     * @param classLoader The class loader for the serializer.
+     * @param properties
+     *          The properties describing the serializer.
+     * @param fields
+     *          The fields to project.
+     * @param classLoader
+     *          The class loader for the serializer.
      * @return The {@link SerializationSchema} described by the properties.
      */
     public static SerializationSchema<Row> getProjectedSerializationSchema(
             final Map<String, String> properties,
             final int[] fields,
-            final ClassLoader classLoader
-    ) {
-        final ProjectedSerializationSchemaFactory serializationSchemaFactory =
-                TableFactoryService.find(
-                        ProjectedSerializationSchemaFactory.class,
-                        properties,
-                        classLoader
-                );
+            final ClassLoader classLoader) {
+        final ProjectedSerializationSchemaFactory serializationSchemaFactory = TableFactoryService.find(
+                ProjectedSerializationSchemaFactory.class,
+                properties,
+                classLoader);
 
         return serializationSchemaFactory
                 .createProjectedSerializationSchema(properties, fields);
     }
 
     /**
-     * Returns the {@link TableFormatSerializer} described by the given
-     * properties.
+     * Returns the {@link TableFormatSerializer} described by the given properties.
      *
-     * @param properties The properties describing the serializer.
-     * @param classLoader The class loader for the serializer.
+     * @param properties
+     *          The properties describing the serializer.
+     * @param classLoader
+     *          The class loader for the serializer.
      * @return The {@link TableFormatSerializer} described by the properties.
      */
     public static TableFormatSerializer getTableFormatSerializer(
             final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
-        final TableFormatSerializerFactory tableFormatSerializerFactory =
-                TableFactoryService.find(
-                        TableFormatSerializerFactory.class,
-                        properties,
-                        classLoader
-                );
+            final ClassLoader classLoader) {
+        final TableFormatSerializerFactory tableFormatSerializerFactory = TableFactoryService.find(
+                TableFormatSerializerFactory.class,
+                properties,
+                classLoader);
 
         return tableFormatSerializerFactory
                 .createFormatSerializer(properties);
     }
 
     /**
-     * Returns the {@link TableFormatDeserializer} described by the
-     * given properties.
+     * Returns the {@link TableFormatDeserializer} described by the given
+     * properties.
      *
-     * @param properties The properties describing the deserializer.
-     * @param classLoader The class loader for the deserializer.
+     * @param properties
+     *          The properties describing the deserializer.
+     * @param classLoader
+     *          The class loader for the deserializer.
      * @return The {@link TableFormatDeserializer} described by the properties.
      */
     public static TableFormatDeserializer getTableFormatDeserializer(
             final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
-        final TableFormatDeserializerFactory tableFormatDeserializerFactory =
-                TableFactoryService.find(
-                        TableFormatDeserializerFactory.class,
-                        properties,
-                        classLoader
-                );
+            final ClassLoader classLoader) {
+        final TableFormatDeserializerFactory tableFormatDeserializerFactory = TableFactoryService.find(
+                TableFormatDeserializerFactory.class,
+                properties,
+                classLoader);
 
         return tableFormatDeserializerFactory
                 .createFormatDeserializer(properties);
@@ -252,7 +249,8 @@ public class TableFormatUtils {
     /**
      * Derive the format information for the given type.
      *
-     * @param logicalType The type whose format is derived.
+     * @param logicalType
+     *          The type whose format is derived.
      * @return The format information for the given type.
      */
     public static FormatInfo deriveFormatInfo(LogicalType logicalType) {
@@ -393,7 +391,8 @@ public class TableFormatUtils {
     /**
      * Returns the type represented by the given format.
      *
-     * @param typeInfo The type information.
+     * @param typeInfo
+     *          The type information.
      * @return The type represented by the given format.
      */
     public static TypeInformation<?> getType(TypeInfo typeInfo) {
@@ -427,8 +426,7 @@ public class TableFormatUtils {
             return Types.PRIMITIVE_ARRAY(Types.BYTE);
         } else if (typeInfo instanceof ArrayTypeInfo) {
             ArrayTypeInfo arrayTypeInfo = (ArrayTypeInfo) typeInfo;
-            TypeInfo elementTypeInfo =
-                    arrayTypeInfo.getElementTypeInfo();
+            TypeInfo elementTypeInfo = arrayTypeInfo.getElementTypeInfo();
             TypeInformation<?> elementType = getType(elementTypeInfo);
 
             return Types.OBJECT_ARRAY(elementType);
@@ -446,10 +444,9 @@ public class TableFormatUtils {
             String[] fieldNames = rowTypeInfo.getFieldNames();
             TypeInfo[] fieldTypeInfos = rowTypeInfo.getFieldTypeInfos();
 
-            TypeInformation<?>[] fieldTypes =
-                    Arrays.stream(fieldTypeInfos)
-                            .map(TableFormatUtils::getType)
-                            .toArray(TypeInformation<?>[]::new);
+            TypeInformation<?>[] fieldTypes = Arrays.stream(fieldTypeInfos)
+                    .map(TableFormatUtils::getType)
+                    .toArray(TypeInformation<?>[]::new);
 
             return Types.ROW_NAMED(fieldNames, fieldTypes);
         } else {
@@ -460,12 +457,12 @@ public class TableFormatUtils {
     /**
      * Returns the format defined in the given property.
      *
-     * @param descriptorProperties The properties of the descriptor.
+     * @param descriptorProperties
+     *          The properties of the descriptor.
      * @return The basic row format defined in the descriptor.
      */
     public static RowFormatInfo deserializeRowFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
+            DescriptorProperties descriptorProperties) {
         try {
             String schema = descriptorProperties.getString(FORMAT_SCHEMA);
 
@@ -483,14 +480,13 @@ public class TableFormatUtils {
     /**
      * Derives the format from the given schema.
      *
-     * @param descriptorProperties The properties of the descriptor.
+     * @param descriptorProperties
+     *          The properties of the descriptor.
      * @return The format derived from the schema in the descriptor.
      */
     public static RowFormatInfo deriveRowFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
-        TableSchema tableSchema =
-                deriveSchema(descriptorProperties.asMap());
+            DescriptorProperties descriptorProperties) {
+        TableSchema tableSchema = deriveSchema(descriptorProperties.asMap());
 
         int numFields = tableSchema.getFieldCount();
         String[] fieldNames = tableSchema.getFieldNames();
@@ -508,12 +504,12 @@ public class TableFormatUtils {
     /**
      * Returns the schema in the properties.
      *
-     * @param descriptorProperties The properties of the descriptor.
+     * @param descriptorProperties
+     *          The properties of the descriptor.
      * @return The schema in the properties.
      */
     public static RowFormatInfo getRowFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
+            DescriptorProperties descriptorProperties) {
         if (descriptorProperties.containsKey(FORMAT_SCHEMA)) {
             return deserializeRowFormatInfo(descriptorProperties);
         } else {
@@ -524,13 +520,13 @@ public class TableFormatUtils {
     /**
      * Projects the given schema.
      *
-     * @param rowFormatInfo The schema to be projected.
+     * @param rowFormatInfo
+     *          The schema to be projected.
      * @return The projected schema in the properties.
      */
     public static RowFormatInfo projectRowFormatInfo(
             RowFormatInfo rowFormatInfo,
-            int[] fields
-    ) {
+            int[] fields) {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
@@ -548,7 +544,8 @@ public class TableFormatUtils {
     /**
      * Validates the schema in the descriptor.
      *
-     * @param descriptorProperties The properties of the descriptor.
+     * @param descriptorProperties
+     *          The properties of the descriptor.
      */
     public static void validateSchema(DescriptorProperties descriptorProperties) {
         final boolean defineSchema = descriptorProperties.containsKey(FORMAT_SCHEMA);
@@ -574,8 +571,7 @@ public class TableFormatUtils {
             String fieldName,
             FormatInfo fieldFormatInfo,
             String fieldText,
-            String nullLiteral
-    ) {
+            String nullLiteral) {
         checkState(fieldFormatInfo instanceof BasicFormatInfo);
 
         if (fieldText == null) {
@@ -612,8 +608,7 @@ public class TableFormatUtils {
             String fieldName,
             FormatInfo fieldFormatInfo,
             Object field,
-            String nullLiteral
-    ) {
+            String nullLiteral) {
         checkState(fieldFormatInfo instanceof BasicFormatInfo);
 
         if (field == null) {

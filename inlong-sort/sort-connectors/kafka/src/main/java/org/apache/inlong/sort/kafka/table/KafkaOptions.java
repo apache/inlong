@@ -23,16 +23,16 @@ import org.apache.flink.configuration.ConfigOptions;
 
 /** Option utils for Kafka table source sink. */
 public class KafkaOptions {
+
     private KafkaOptions() {
     }
 
     // --------------------------------------------------------------------------------------------
     // Sink specific options
     // --------------------------------------------------------------------------------------------
-    public static final ConfigOption<Boolean> KAFKA_IGNORE_ALL_CHANGELOG =
-            ConfigOptions.key("sink.ignore.changelog")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("Regard upsert delete as insert kind.");
+    public static final ConfigOption<Boolean> KAFKA_IGNORE_ALL_CHANGELOG = ConfigOptions.key("sink.ignore.changelog")
+            .booleanType()
+            .defaultValue(false)
+            .withDescription("Regard upsert delete as insert kind.");
 
 }

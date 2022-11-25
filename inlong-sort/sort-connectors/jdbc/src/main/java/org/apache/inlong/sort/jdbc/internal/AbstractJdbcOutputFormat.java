@@ -26,12 +26,12 @@ import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.util.Preconditions;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Flushable;
 import java.io.IOException;
 import java.sql.Connection;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Base jdbc outputFormat. */
 public abstract class AbstractJdbcOutputFormat<T> extends RichOutputFormat<T> implements Flushable {

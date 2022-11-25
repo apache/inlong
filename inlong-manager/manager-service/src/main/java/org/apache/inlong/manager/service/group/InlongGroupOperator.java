@@ -42,8 +42,10 @@ public interface InlongGroupOperator {
     /**
      * Save the inlong group info.
      *
-     * @param request request of the group
-     * @param operator name of the operator
+     * @param request
+     *          request of the group
+     * @param operator
+     *          name of the operator
      * @return group id after saving
      */
     String saveOpt(InlongGroupRequest request, String operator);
@@ -51,7 +53,8 @@ public interface InlongGroupOperator {
     /**
      * Get the group info from the given entity.
      *
-     * @param entity get field value from the entity
+     * @param entity
+     *          get field value from the entity
      * @return group info after encapsulating
      */
     InlongGroupInfo getFromEntity(InlongGroupEntity entity);
@@ -59,15 +62,18 @@ public interface InlongGroupOperator {
     /**
      * Update the inlong group info.
      *
-     * @param request request of update
-     * @param operator name of operator
+     * @param request
+     *          request of update
+     * @param operator
+     *          name of operator
      */
     void updateOpt(InlongGroupRequest request, String operator);
 
     /**
      * Get the topic info for the given inlong group.
      *
-     * @param groupInfo inlong group which need to get topic info
+     * @param groupInfo
+     *          inlong group which need to get topic info
      * @return topic info
      */
     InlongGroupTopicInfo getTopic(InlongGroupInfo groupInfo);
@@ -75,7 +81,8 @@ public interface InlongGroupOperator {
     /**
      * Get backup topic info for the given inlong group if exists.
      *
-     * @param groupInfo inlong group info
+     * @param groupInfo
+     *          inlong group info
      * @return backup topic info
      */
     default InlongGroupTopicInfo getBackupTopic(InlongGroupInfo groupInfo) {

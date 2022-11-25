@@ -18,10 +18,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -49,8 +45,11 @@ import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 import org.apache.inlong.sort.protocol.transformation.relation.InnerTemporalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterTemporalJoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.TemporalJoinRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,8 +59,12 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
- * Test for temporal join for with {@link FlinkSqlParser} with {@link MySqlExtractNode}
+ * Test for temporal join for with {@link FlinkSqlParser} with
+ * {@link MySqlExtractNode}
  */
 public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
 
@@ -70,8 +73,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("price", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
                 new FieldInfo("order_time", new TimestampFormatInfo(3)),
-                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME)
-        );
+                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME));
         return new KafkaExtractNode("1", "kafka_input", fields,
                 new WatermarkField(new FieldInfo("order_time", new TimestampFormatInfo(3))),
                 null, "orders", "localhost:9092",
@@ -83,8 +85,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("currency", new LongFormatInfo()),
                 new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
-                new FieldInfo("update_time", new TimestampFormatInfo(3))
-        );
+                new FieldInfo("update_time", new TimestampFormatInfo(3)));
         Map<String, String> map = new HashMap<>();
         return new MySqlExtractNode("2", "mysql_input", fields,
                 new WatermarkField(new FieldInfo("update_time", new TimestampFormatInfo(3))), map,
@@ -98,8 +99,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
                 new FieldInfo("update_time", new TimestampFormatInfo(3)),
-                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME)
-        );
+                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME));
         Map<String, String> map = new HashMap<>();
         return new MySqlExtractNode("2", "mysql_input", fields, map, "currency",
                 Collections.singletonList("currency_rates"), "inlong", "inlong",
@@ -111,8 +111,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("price", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
                 new FieldInfo("order_time", new TimestampFormatInfo(3)),
-                new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2))
-        );
+                new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
                         new FieldInfo("id", new LongFormatInfo())),
@@ -123,8 +122,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldRelation(new FieldInfo("order_time", "1", new TimestampFormatInfo(3)),
                         new FieldInfo("order_time", new TimestampFormatInfo(3))),
                 new FieldRelation(new FieldInfo("conversion_rate", "2", new DecimalFormatInfo(32, 2)),
-                        new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)))
-        );
+                        new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2))));
         return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
                 null, "orders_output", "localhost:9092", new CanalJsonFormat(),
                 null, null, null);
@@ -133,8 +131,10 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
     /**
      * build node relation
      *
-     * @param inputs extract node
-     * @param outputs load node
+     * @param inputs
+     *          extract node
+     * @param outputs
+     *          load node
      * @return node relation
      */
     private TemporalJoinRelation buildNodeRelation(List<Node> inputs, List<Node> outputs, boolean left,
@@ -152,10 +152,12 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test inner temporal join with event time for extract is mysql {@link MySqlExtractNode},
-     * {@link KafkaExtractNode} and load is mysql {@link KafkaLoadNode}
+     * Test inner temporal join with event time for extract is mysql
+     * {@link MySqlExtractNode}, {@link KafkaExtractNode} and load is mysql
+     * {@link KafkaLoadNode}
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testInnerTemporalJoinWithEventTimeParse() throws Exception {
@@ -176,8 +178,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 Arrays.asList(kafkaExtractNode, mySqlExtractNode2, kafkaLoadNode),
                 Collections.singletonList(
                         buildNodeRelation(Arrays.asList(kafkaExtractNode, mySqlExtractNode2),
-                                Collections.singletonList(kafkaLoadNode), false, new FieldInfo("order_time")))
-        );
+                                Collections.singletonList(kafkaLoadNode), false, new FieldInfo("order_time"))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -185,10 +186,12 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test left temporal join with event time for extract is mysql {@link MySqlExtractNode},
-     * {@link KafkaExtractNode} and load is mysql {@link KafkaLoadNode}
+     * Test left temporal join with event time for extract is mysql
+     * {@link MySqlExtractNode}, {@link KafkaExtractNode} and load is mysql
+     * {@link KafkaLoadNode}
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testLeftTemporalJoinWithEventTimeParse() throws Exception {
@@ -209,8 +212,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 Arrays.asList(kafkaExtractNode, mySqlExtractNode2, kafkaLoadNode),
                 Collections.singletonList(
                         buildNodeRelation(Arrays.asList(kafkaExtractNode, mySqlExtractNode2),
-                                Collections.singletonList(kafkaLoadNode), true, new FieldInfo("order_time")))
-        );
+                                Collections.singletonList(kafkaLoadNode), true, new FieldInfo("order_time"))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -218,10 +220,12 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test inner temporal join with process time for extract is mysql {@link MySqlExtractNode},
-     * {@link KafkaExtractNode} and load is mysql {@link KafkaLoadNode}
+     * Test inner temporal join with process time for extract is mysql
+     * {@link MySqlExtractNode}, {@link KafkaExtractNode} and load is mysql
+     * {@link KafkaLoadNode}
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testInnerTemporalJoinWithProcessTimeParse() throws Exception {
@@ -242,8 +246,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 Arrays.asList(kafkaExtractNode, mySqlExtractNode2, kafkaLoadNode),
                 Collections.singletonList(
                         buildNodeRelation(Arrays.asList(kafkaExtractNode, mySqlExtractNode2),
-                                Collections.singletonList(kafkaLoadNode), false, new FieldInfo("proc_time")))
-        );
+                                Collections.singletonList(kafkaLoadNode), false, new FieldInfo("proc_time"))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -251,10 +254,12 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test left temporal join with process time for extract is mysql {@link MySqlExtractNode},
-     * {@link KafkaExtractNode} and load is mysql {@link KafkaLoadNode}
+     * Test left temporal join with process time for extract is mysql
+     * {@link MySqlExtractNode}, {@link KafkaExtractNode} and load is mysql
+     * {@link KafkaLoadNode}
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testLeftTemporalJoinWithProcessTimeParse() throws Exception {
@@ -275,8 +280,7 @@ public class MySqlTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 Arrays.asList(kafkaExtractNode, mySqlExtractNode2, kafkaLoadNode),
                 Collections.singletonList(
                         buildNodeRelation(Arrays.asList(kafkaExtractNode, mySqlExtractNode2),
-                                Collections.singletonList(kafkaLoadNode), true, new FieldInfo("proc_time")))
-        );
+                                Collections.singletonList(kafkaLoadNode), true, new FieldInfo("proc_time"))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

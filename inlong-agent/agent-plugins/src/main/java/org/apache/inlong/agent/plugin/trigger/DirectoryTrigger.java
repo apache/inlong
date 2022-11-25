@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
@@ -25,8 +27,6 @@ import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -46,7 +46,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Watch directory, if new valid files are created, create jobs correspondingly.
@@ -55,8 +56,7 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DirectoryTrigger.class);
     private static volatile WatchService watchService;
-    private final ConcurrentHashMap<PathPattern, List<WatchKey>> allWatchers =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<PathPattern, List<WatchKey>> allWatchers = new ConcurrentHashMap<>();
     private final LinkedBlockingQueue<JobProfile> queue = new LinkedBlockingQueue<>();
     private TriggerProfile profile;
     private int interval;
@@ -108,13 +108,17 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
     /**
      * register all sub-directory
      *
-     * @param entity entity
-     * @param path path
-     * @param tmpWatchers watchers
+     * @param entity
+     *          entity
+     * @param path
+     *          path
+     * @param tmpWatchers
+     *          watchers
      */
     private void registerAllSubDir(PathPattern entity,
             Path path,
-            List<WatchKey> tmpWatchers) throws Exception {
+            List<WatchKey> tmpWatchers)
+            throws Exception {
         // check regex
         LOGGER.info("check whether path {} is suitable", path);
         if (entity.suitForWatch(path.toString())) {
@@ -140,14 +144,18 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
     /**
      * if directory has created, then check whether directory is valid
      *
-     * @param entity entity
-     * @param watchKey watch key
-     * @param tmpWatchers watchers
+     * @param entity
+     *          entity
+     * @param watchKey
+     *          watch key
+     * @param tmpWatchers
+     *          watchers
      */
     private void registerNewDir(PathPattern entity,
             WatchKey watchKey,
             List<WatchKey> tmpWatchers,
-            List<WatchKey> tmpDeletedWatchers) throws Exception {
+            List<WatchKey> tmpDeletedWatchers)
+            throws Exception {
         Path parentPath = (Path) watchKey.watchable();
         for (WatchEvent<?> event : watchKey.pollEvents()) {
             // if watch event is too much, then event would be overflow.
@@ -163,7 +171,7 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
                 // check whether parent path is valid.
                 if (Files.isDirectory(parentPath)) {
                     try (final Stream<Path> pathStream = Files.list(parentPath)) {
-                        for (Iterator<Path> it = pathStream.iterator(); it.hasNext(); ) {
+                        for (Iterator<Path> it = pathStream.iterator(); it.hasNext();) {
                             Path childPath = it.next();
                             registerAllSubDir(entity, parentPath.resolve(childPath), tmpWatchers);
                         }

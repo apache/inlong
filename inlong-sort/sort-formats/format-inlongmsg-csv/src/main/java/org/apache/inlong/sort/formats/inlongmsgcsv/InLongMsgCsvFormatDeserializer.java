@@ -21,17 +21,20 @@ package org.apache.inlong.sort.formats.inlongmsgcsv;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_ATTRIBUTES_FIELD_NAME;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TIME_FIELD_NAME;
 
-import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgFormatDeserializer;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
+
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.types.Row;
+
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * The deserializer for the records in InLongMsgCsv format.
@@ -103,8 +106,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
             @Nullable Character quoteChar,
             @Nullable String nullLiteral,
             boolean deleteHeadDelimiter,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         super(ignoreErrors);
 
         this.rowFormatInfo = rowFormatInfo;
@@ -119,8 +121,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
     }
 
     public InLongMsgCsvFormatDeserializer(
-            @Nonnull RowFormatInfo rowFormatInfo
-    ) {
+            @Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
                 DEFAULT_TIME_FIELD_NAME,
@@ -131,8 +132,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 null,
                 null,
                 InLongMsgCsvUtils.DEFAULT_DELETE_HEAD_DELIMITER,
-                TableFormatConstants.DEFAULT_IGNORE_ERRORS
-        );
+                TableFormatConstants.DEFAULT_IGNORE_ERRORS);
     }
 
     @Override
@@ -153,8 +153,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 delimiter,
                 escapeChar,
                 quoteChar,
-                deleteHeadDelimiter
-        );
+                deleteHeadDelimiter);
     }
 
     @Override
@@ -165,8 +164,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 head.getTime(),
                 head.getAttributes(),
                 head.getPredefinedFields(),
-                body.getFields()
-        );
+                body.getFields());
     }
 
     @Override
@@ -185,14 +183,14 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
 
         InLongMsgCsvFormatDeserializer that = (InLongMsgCsvFormatDeserializer) o;
         return deleteHeadDelimiter == that.deleteHeadDelimiter
-                       && rowFormatInfo.equals(that.rowFormatInfo)
-                       && timeFieldName.equals(that.timeFieldName)
-                       && attributesFieldName.equals(that.attributesFieldName)
-                       && charset.equals(that.charset)
-                       && delimiter.equals(that.delimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && rowFormatInfo.equals(that.rowFormatInfo)
+                && timeFieldName.equals(that.timeFieldName)
+                && attributesFieldName.equals(that.attributesFieldName)
+                && charset.equals(that.charset)
+                && delimiter.equals(that.delimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override

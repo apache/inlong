@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -32,6 +28,7 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,6 +37,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Stream sink control layer
@@ -108,7 +110,8 @@ public class StreamSinkController {
             @ApiImplicitParam(name = "name", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> deleteByKey(@RequestParam(required = false, defaultValue = "false") boolean startProcess,
-            @RequestParam String groupId, @RequestParam String streamId, @RequestParam String name) {
+            @RequestParam String groupId, @RequestParam String streamId,
+            @RequestParam String name) {
         String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(sinkService.deleteByKey(groupId, streamId, name, startProcess, username));
     }

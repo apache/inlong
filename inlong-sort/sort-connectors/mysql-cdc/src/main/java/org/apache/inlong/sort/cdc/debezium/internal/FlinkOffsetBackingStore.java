@@ -18,9 +18,8 @@
 
 package org.apache.inlong.sort.cdc.debezium.internal;
 
-import io.debezium.embedded.EmbeddedEngine;
-import io.debezium.engine.DebeziumEngine;
 import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
+
 import org.apache.kafka.common.utils.ThreadUtils;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.json.JsonConverter;
@@ -29,8 +28,6 @@ import org.apache.kafka.connect.storage.Converter;
 import org.apache.kafka.connect.storage.OffsetBackingStore;
 import org.apache.kafka.connect.storage.OffsetStorageWriter;
 import org.apache.kafka.connect.util.Callback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -45,18 +42,29 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.embedded.EmbeddedEngine;
+import io.debezium.engine.DebeziumEngine;
+
 /**
- * A implementation of {@link OffsetBackingStore} backed on Flink's state mechanism.
+ * A implementation of {@link OffsetBackingStore} backed on Flink's state
+ * mechanism.
  *
- * <p>The {@link #OFFSET_STATE_VALUE} in the {@link WorkerConfig} is the raw position and offset
- * data in JSON format. It is set into the config when recovery from failover by {@link
- * DebeziumSourceFunction} before startup the {@link DebeziumEngine}. If it is not a restoration,
- * the {@link #OFFSET_STATE_VALUE} is empty. {@link DebeziumEngine} relies on the {@link
- * OffsetBackingStore} for failover recovery.</p>
+ * <p>
+ * The {@link #OFFSET_STATE_VALUE} in the {@link WorkerConfig} is the raw
+ * position and offset data in JSON format. It is set into the config when
+ * recovery from failover by {@link DebeziumSourceFunction} before startup the
+ * {@link DebeziumEngine}. If it is not a restoration, the
+ * {@link #OFFSET_STATE_VALUE} is empty. {@link DebeziumEngine} relies on the
+ * {@link OffsetBackingStore} for failover recovery.
+ * </p>
  *
  * @see DebeziumSourceFunction
  */
 public class FlinkOffsetBackingStore implements OffsetBackingStore {
+
     public static final String OFFSET_STATE_VALUE = "offset.storage.flink.state.value";
     public static final int FLUSH_TIMEOUT_SECONDS = 10;
     private static final Logger LOG = LoggerFactory.getLogger(FlinkOffsetBackingStore.class);
@@ -65,7 +73,8 @@ public class FlinkOffsetBackingStore implements OffsetBackingStore {
 
     @Override
     public void configure(WorkerConfig config) {
-        // eagerly initialize the executor, because OffsetStorageWriter will use it later
+        // eagerly initialize the executor, because OffsetStorageWriter will use it
+        // later
         start();
 
         Map<String, ?> conf = config.originals();
@@ -91,14 +100,13 @@ public class FlinkOffsetBackingStore implements OffsetBackingStore {
         Map<String, Object> valueConfigs = new HashMap<>(conf);
         valueConfigs.put("schemas.enable", false);
         valueConverter.configure(valueConfigs, true);
-        OffsetStorageWriter offsetWriter =
-                new OffsetStorageWriter(
-                        this,
-                        // must use engineName as namespace to align with Debezium Engine
-                        // implementation
-                        engineName,
-                        keyConverter,
-                        valueConverter);
+        OffsetStorageWriter offsetWriter = new OffsetStorageWriter(
+                this,
+                // must use engineName as namespace to align with Debezium Engine
+                // implementation
+                engineName,
+                keyConverter,
+                valueConverter);
 
         offsetWriter.offset(debeziumOffset.sourcePartition, debeziumOffset.sourceOffset);
 
@@ -112,15 +120,14 @@ public class FlinkOffsetBackingStore implements OffsetBackingStore {
         }
 
         // trigger flushing
-        Future<Void> flushFuture =
-                offsetWriter.doFlush(
-                        (error, result) -> {
-                            if (error != null) {
-                                LOG.error("Failed to flush initial offset.", error);
-                            } else {
-                                LOG.debug("Successfully flush initial offset.");
-                            }
-                        });
+        Future<Void> flushFuture = offsetWriter.doFlush(
+                (error, result) -> {
+                    if (error != null) {
+                        LOG.error("Failed to flush initial offset.", error);
+                    } else {
+                        LOG.debug("Successfully flush initial offset.");
+                    }
+                });
 
         // wait until flushing finished
         try {
@@ -144,11 +151,10 @@ public class FlinkOffsetBackingStore implements OffsetBackingStore {
     @Override
     public void start() {
         if (executor == null) {
-            executor =
-                    Executors.newFixedThreadPool(
-                            1,
-                            ThreadUtils.createThreadFactory(
-                                    this.getClass().getSimpleName() + "-%d", false));
+            executor = Executors.newFixedThreadPool(
+                    1,
+                    ThreadUtils.createThreadFactory(
+                            this.getClass().getSimpleName() + "-%d", false));
         }
     }
 
@@ -156,7 +162,8 @@ public class FlinkOffsetBackingStore implements OffsetBackingStore {
     public void stop() {
         if (executor != null) {
             executor.shutdown();
-            // Best effort wait for any get() and set() tasks (and caller's callbacks) to complete.
+            // Best effort wait for any get() and set() tasks (and caller's callbacks) to
+            // complete.
             try {
                 executor.awaitTermination(30, TimeUnit.SECONDS);
             } catch (InterruptedException e) {

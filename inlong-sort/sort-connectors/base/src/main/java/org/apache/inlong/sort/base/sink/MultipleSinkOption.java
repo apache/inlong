@@ -18,17 +18,18 @@
 
 package org.apache.inlong.sort.base.sink;
 
-import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.util.Map;
-
 import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.ALERT_WITH_IGNORE;
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.LOG_WITH_IGNORE;
 import static org.apache.inlong.sort.base.sink.SchemaUpdateExceptionPolicy.TRY_IT_BEST;
+
+import org.apache.flink.shaded.guava18.com.google.common.collect.ImmutableMap;
+
+import java.io.Serializable;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * MultipleSinkOption collect all parameters used for multiple sink.
@@ -97,6 +98,7 @@ public class MultipleSinkOption implements Serializable {
     }
 
     public static class Builder {
+
         private String format;
         private boolean sparkEngineEnable;
         private SchemaUpdateExceptionPolicy schemaUpdatePolicy;

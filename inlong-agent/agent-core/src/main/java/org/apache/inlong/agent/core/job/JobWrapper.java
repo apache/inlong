@@ -17,6 +17,10 @@
 
 package org.apache.inlong.agent.core.job;
 
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
+
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
@@ -28,21 +32,18 @@ import org.apache.inlong.agent.state.AbstractStateWrapper;
 import org.apache.inlong.agent.state.State;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * JobWrapper is used in JobManager, it defines the life cycle of
- * running job and maintains the state of job.
+ * JobWrapper is used in JobManager, it defines the life cycle of running job
+ * and maintains the state of job.
  */
 public class JobWrapper extends AbstractStateWrapper {
 

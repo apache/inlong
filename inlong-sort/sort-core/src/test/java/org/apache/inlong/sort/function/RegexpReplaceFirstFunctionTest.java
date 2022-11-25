@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.function;
 
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
+
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -28,25 +32,24 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.CloseableIterator;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
- * Test for {@link RegexpReplaceFirstFunction}
- * and {@link org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction}
+ * Test for {@link RegexpReplaceFirstFunction} and
+ * {@link org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction}
  */
 public class RegexpReplaceFirstFunctionTest extends AbstractTestBase {
 
     /**
      * Test for RegexpReplaceFirst
      *
-     * @throws Exception The exception may throw when test RegexpReplaceFirst
+     * @throws Exception
+     *           The exception may throw when test RegexpReplaceFirst
      */
     @Test
     public void testRegexpReplaceFirst() throws Exception {
@@ -70,21 +73,23 @@ public class RegexpReplaceFirstFunctionTest extends AbstractTestBase {
         String[] names = {"f1"};
         RowTypeInfo typeInfo = new RowTypeInfo(types, names);
         DataStream<Row> dataStream = env.fromCollection(data).returns(typeInfo);
-        // step 3. Convert from DataStream to Table and execute the REGEXP_REPLACE_FIRST function
+        // step 3. Convert from DataStream to Table and execute the REGEXP_REPLACE_FIRST
+        // function
         Table tempView = tableEnv.fromDataStream(dataStream).as("f1");
         tableEnv.createTemporaryView("temp_view", tempView);
         org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction regexpReplaceFirstFunction =
                 new org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction(
                         new FieldInfo("f1",
-                                new StringFormatInfo()), new StringConstantParam("inlong*"),
+                                new StringFormatInfo()),
+                        new StringConstantParam("inlong*"),
                         new StringConstantParam("INLONG"));
         String sqlQuery = String.format("SELECT %s as f1 FROM temp_view", regexpReplaceFirstFunction.format());
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
         // step 4. Get function execution result and parse it
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
+                .hasNext();) {
             String next = it.next();
             result.add(next);
         }

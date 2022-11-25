@@ -17,15 +17,16 @@
 
 package org.apache.inlong.manager.pojo.workflow.form.task;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamApproveRequest;
-import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * The approval form of the inlong group

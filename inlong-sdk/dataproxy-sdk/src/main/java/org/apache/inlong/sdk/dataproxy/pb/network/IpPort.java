@@ -17,9 +17,9 @@
 
 package org.apache.inlong.sdk.dataproxy.pb.network;
 
-import java.net.InetSocketAddress;
-
 import org.apache.commons.lang3.math.NumberUtils;
+
+import java.net.InetSocketAddress;
 
 /**
  * IPPort
@@ -66,8 +66,8 @@ public class IpPort {
     /**
      * getIpPortKey
      * 
-     * @param  ip
-     * @param  port
+     * @param ip
+     * @param port
      * @return
      */
     public static String getIpPortKey(String ip, int port) {
@@ -89,7 +89,7 @@ public class IpPort {
     /**
      * equals
      * 
-     * @param  o
+     * @param o
      * @return
      */
     @Override
@@ -119,7 +119,7 @@ public class IpPort {
     /**
      * parseIpPort
      * 
-     * @param  ipPort
+     * @param ipPort
      * @return
      */
     public static IpPort parseIpPort(String ipPort) {

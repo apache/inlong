@@ -56,7 +56,7 @@ public enum DataType {
     /**
      * convert
      *
-     * @param  value
+     * @param value
      * @return
      */
     public static DataType convert(String value) {

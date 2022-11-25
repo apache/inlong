@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.workflow.definition;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
@@ -28,6 +24,12 @@ import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * WorkflowTask
@@ -65,7 +67,8 @@ public abstract class WorkflowTask extends NextableElement {
     /**
      * Get task event listener by listener name.
      *
-     * @param listenerName listener name.
+     * @param listenerName
+     *          listener name.
      * @return task event listener info.
      */
     public TaskEventListener listener(String listenerName) {

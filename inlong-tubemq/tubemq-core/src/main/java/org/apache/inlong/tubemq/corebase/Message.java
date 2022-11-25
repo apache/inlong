@@ -17,25 +17,28 @@
 
 package org.apache.inlong.tubemq.corebase;
 
-import java.io.Serializable;
-import java.util.Arrays;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
+import java.io.Serializable;
+import java.util.Arrays;
+
 /**
- * Message is a message object class passed in the Tube. The data of the
- * service setting is passed from the production end to the message receiving
- * end as it is. The attribute content is a field shared with the Tube system.
- * The content filled in the service is not lost or rewritten, but the field
- * has The contents of the Tube system may be added, and in subsequent versions,
- * the contents of the newly added Tube system may be removed without being
+ * Message is a message object class passed in the Tube. The data of the service
+ * setting is passed from the production end to the message receiving end as it
+ * is. The attribute content is a field shared with the Tube system. The content
+ * filled in the service is not lost or rewritten, but the field has The
+ * contents of the Tube system may be added, and in subsequent versions, the
+ * contents of the newly added Tube system may be removed without being
  * notified. This part needs to pay attention to the
- * Message.putSystemHeader(final String msgType, final String msgTime) interface,
- * which is used to set the message type and message sending time of the message,
- * msgType is used for consumer filtering, and msgTime is used as the pipe to send
- * and receive statistics. When the message time statistics dimension is used.
+ * Message.putSystemHeader(final String msgType, final String msgTime)
+ * interface, which is used to set the message type and message sending time of
+ * the message, msgType is used for consumer filtering, and msgTime is used as
+ * the pipe to send and receive statistics. When the message time statistics
+ * dimension is used.
  */
 public class Message implements Serializable {
+
     static final long serialVersionUID = -1L;
     protected int flag;
     private long indexId;
@@ -53,8 +56,10 @@ public class Message implements Serializable {
     /**
      * init with topic and data body
      *
-     * @param topic  topic name
-     * @param data   message content
+     * @param topic
+     *          topic name
+     * @param data
+     *          message content
      */
     public Message(final String topic, final byte[] data) {
         super();
@@ -65,11 +70,16 @@ public class Message implements Serializable {
     /**
      * init with indexId topic data attribute flag
      *
-     * @param indexId    index id
-     * @param topic      topic name
-     * @param data       message content
-     * @param attribute  message attribute
-     * @param flag       message flag
+     * @param indexId
+     *          index id
+     * @param topic
+     *          topic name
+     * @param data
+     *          message content
+     * @param attribute
+     *          message attribute
+     * @param flag
+     *          message flag
      */
     protected Message(long indexId, String topic, byte[] data, String attribute, int flag) {
         this.indexId = indexId;
@@ -104,12 +114,15 @@ public class Message implements Serializable {
     }
 
     /**
-     * Set the filtering items that need to be filtered and the message forwarding time
+     * Set the filtering items that need to be filtered and the message forwarding
+     * time
      *
-     * @param msgType   the ID of the stream that needs to be filtered,
-     *                 if not required, set null
-     * @param msgTime   the time when the message was sent, the format is yyyyMMddHHmm,
-     *                  if not required, set null
+     * @param msgType
+     *          the ID of the stream that needs to be filtered, if not required, set
+     *          null
+     * @param msgTime
+     *          the time when the message was sent, the format is yyyyMMddHHmm, if
+     *          not required, set null
      */
     public void putSystemHeader(final String msgType, final String msgTime) {
         this.msgType = null;
@@ -208,8 +221,9 @@ public class Message implements Serializable {
     /**
      * Get key's value from attribute by key name
      *
-     * @param keyVal   the key name
-     * @return  the key's value of the key name stored in attribute
+     * @param keyVal
+     *          the key name
+     * @return the key's value of the key name stored in attribute
      */
     public String getAttrValue(final String keyVal) {
         if (TStringUtils.isBlank(keyVal)) {
@@ -235,8 +249,10 @@ public class Message implements Serializable {
     /**
      * Store key and value in attribute
      *
-     * @param keyVal    the key name
-     * @param valueVal  the key value
+     * @param keyVal
+     *          the key name
+     * @param valueVal
+     *          the key value
      */
     public void setAttrKeyVal(final String keyVal, final String valueVal) {
         if (TStringUtils.isBlank(keyVal)) {
@@ -257,11 +273,12 @@ public class Message implements Serializable {
         if ((keyVal.contains(TokenConstants.ARRAY_SEP)
                 || keyVal.contains(TokenConstants.EQ))
                 || (valueVal.contains(TokenConstants.ARRAY_SEP)
-                || valueVal.contains(TokenConstants.EQ))) {
+                        || valueVal.contains(TokenConstants.EQ))) {
             throw new IllegalArgumentException(new StringBuilder(512).append("(")
                     .append(TokenConstants.ARRAY_SEP).append(",")
                     .append(TokenConstants.EQ).append(
-                            ") are reserved tokens, can't include in keyVal or valueVal!").toString());
+                            ") are reserved tokens, can't include in keyVal or valueVal!")
+                    .toString());
         }
         if (TStringUtils.isBlank(this.attribute)) {
             this.attribute = keyVal + TokenConstants.EQ + valueVal;

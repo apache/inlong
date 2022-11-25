@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.pojo.dbcollector;
 
+import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 
 /**
  * db collector operation

@@ -17,12 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
@@ -31,6 +25,14 @@ import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
 
@@ -64,98 +66,119 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     /**
      * query booked consume-control group set
      *
-     * @param req       Http Servlet Request
-     * @param strBuff   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param strBuff
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryBookedConsumeCtrlGroups(HttpServletRequest req,
-                                                           StringBuilder strBuff,
-                                                           ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         return innQueryGroupConsumeCtrlInfo(req, strBuff, result, true);
     }
 
     /**
      * query group consume control info
      *
-     * @param req       Http Servlet Request
-     * @param strBuff   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param strBuff
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                        StringBuilder strBuff,
-                                                        ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         return innQueryGroupConsumeCtrlInfo(req, strBuff, result, false);
     }
 
     /**
      * add group consume control info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminAddGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdGroupConsumeCtrlInfo(req, sBuffer, result, true);
     }
 
     /**
      * Add group consume control info in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchAddGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                           StringBuilder sBuffer,
-                                                           ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdGroupConsumeCtrlInfo(req, sBuffer, result, true);
     }
 
     /**
      * modify group consume control info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminModGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdGroupConsumeCtrlInfo(req, sBuffer, result, false);
     }
 
     /**
      * Modify group consume control info in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchModGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                           StringBuilder sBuffer,
-                                                           ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdGroupConsumeCtrlInfo(req, sBuffer, result, false);
     }
 
     /**
      * Delete group consume configure info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminDelGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -179,10 +202,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         // execute delete operation
         List<GroupProcessResult> retInfo = new ArrayList<>();
         if (topicNameSet.isEmpty()) {
-            Map<String, List<GroupConsumeCtrlEntity>> groupCtrlConsumeMap =
-                    defMetaDataService.getConsumeCtrlByGroupName(groupNameSet);
-            for (Map.Entry<String, List<GroupConsumeCtrlEntity>> entry :
-                    groupCtrlConsumeMap.entrySet()) {
+            Map<String, List<GroupConsumeCtrlEntity>> groupCtrlConsumeMap = defMetaDataService
+                    .getConsumeCtrlByGroupName(groupNameSet);
+            for (Map.Entry<String, List<GroupConsumeCtrlEntity>> entry : groupCtrlConsumeMap.entrySet()) {
                 if (entry.getValue().isEmpty()) {
                     result.setFullInfo(true,
                             DataOpErrCode.DERR_SUCCESS.getCode(), "Ok!");
@@ -215,14 +237,17 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     /**
      * Batch delete group consume configure info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchDelGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                           StringBuilder sBuffer,
-                                                           ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -234,8 +259,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Map<String, GroupConsumeCtrlEntity> batchAddInfoMap =
-                (Map<String, GroupConsumeCtrlEntity>) result.getRetData();
+        Map<String, GroupConsumeCtrlEntity> batchAddInfoMap = (Map<String, GroupConsumeCtrlEntity>) result.getRetData();
         // delete group consume control records
         List<GroupProcessResult> retInfo = new ArrayList<>();
         for (GroupConsumeCtrlEntity ctrlEntity : batchAddInfoMap.values()) {
@@ -251,16 +275,20 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     /**
      * query group consume control info
      *
-     * @param req       Http Servlet Request
-     * @param strBuff   string buffer
-     * @param result    process result
-     * @param onlyRetGroup  only return group name
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param strBuff
+     *          string buffer
+     * @param result
+     *          process result
+     * @param onlyRetGroup
+     *          only return group name
+     * @return process result
      */
     private StringBuilder innQueryGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                       StringBuilder strBuff,
-                                                       ProcessResult result,
-                                                       boolean onlyRetGroup) {
+            StringBuilder strBuff,
+            ProcessResult result,
+            boolean onlyRetGroup) {
         // build query entity
         GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -305,8 +333,8 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         // query matched records
         qryEntity.updModifyInfo(qryEntity.getDataVerId(),
                 consumeEnable, null, filterEnable, null);
-        Map<String, List<GroupConsumeCtrlEntity>> qryResultMap =
-                defMetaDataService.getGroupConsumeCtrlConf(groupSet, topicNameSet, qryEntity);
+        Map<String, List<GroupConsumeCtrlEntity>> qryResultMap = defMetaDataService.getGroupConsumeCtrlConf(groupSet,
+                topicNameSet, qryEntity);
         // build return result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(strBuff);
@@ -328,7 +356,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                 for (GroupConsumeCtrlEntity entity : consumeCtrlEntityList) {
                     if (entity == null
                             || !WebParameterUtils.isFilterSetFullIncluded(
-                            filterCondSet, entity.getFilterCondStr())) {
+                                    filterCondSet, entity.getFilterCondStr())) {
                         continue;
                     }
                     if (totalCnt++ > 0) {
@@ -343,9 +371,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                          StringBuilder sBuffer,
-                                                          ProcessResult result,
-                                                          boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -409,9 +437,9 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innBatchAddOrUpdGroupConsumeCtrlInfo(HttpServletRequest req,
-                                                               StringBuilder sBuffer,
-                                                               ProcessResult result,
-                                                               boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -423,8 +451,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Map<String, GroupConsumeCtrlEntity> batchAddInfoMap =
-                (Map<String, GroupConsumeCtrlEntity>) result.getRetData();
+        Map<String, GroupConsumeCtrlEntity> batchAddInfoMap = (Map<String, GroupConsumeCtrlEntity>) result.getRetData();
         // add group resource record
         GroupProcessResult addResult;
         List<GroupProcessResult> retInfo = new ArrayList<>();
@@ -437,7 +464,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (GroupProcessResult result : retInfo) {
@@ -455,20 +482,18 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
     }
 
     private boolean getGroupConsumeJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                               BaseEntity defOpEntity, StringBuilder sBuffer,
-                                               ProcessResult result) {
+            BaseEntity defOpEntity, StringBuilder sBuffer,
+            ProcessResult result) {
         // get groupCsmJsonSet field info
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.GROUPCSMJSONSET, true, null, result)) {
             return result.isSuccess();
         }
-        List<Map<String, String>> filterJsonArray =
-                (List<Map<String, String>>) result.getRetData();
+        List<Map<String, String>> filterJsonArray = (List<Map<String, String>>) result.getRetData();
         // parse groupCsmJsonSet field info
         GroupConsumeCtrlEntity itemConf;
         Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
-        Set<String> configuredTopicSet =
-                defMetaDataService.getDeployedTopicSet();
+        Set<String> configuredTopicSet = defMetaDataService.getDeployedTopicSet();
         for (Map<String, String> itemsMap : filterJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(itemsMap,

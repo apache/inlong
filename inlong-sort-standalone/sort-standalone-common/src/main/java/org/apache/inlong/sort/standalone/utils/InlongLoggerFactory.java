@@ -29,7 +29,7 @@ public class InlongLoggerFactory {
     /**
      * getLogger
      * 
-     * @param  clazz
+     * @param clazz
      * @return
      */
     public static Logger getLogger(Class<?> clazz) {
@@ -41,8 +41,8 @@ public class InlongLoggerFactory {
     /**
      * getClassNamePrefix
      * 
-     * @param  className
-     * @param  layer
+     * @param className
+     * @param layer
      * @return
      */
     public static String getClassNamePrefix(String className, int layer) {

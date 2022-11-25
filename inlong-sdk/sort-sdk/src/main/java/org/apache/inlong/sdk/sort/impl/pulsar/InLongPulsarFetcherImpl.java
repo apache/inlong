@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sdk.sort.impl.pulsar;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sdk.sort.util.StringUtil;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
@@ -32,8 +33,6 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.api.SubscriptionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -43,6 +42,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
 
     private final Logger logger = LoggerFactory.getLogger(InLongPulsarFetcherImpl.class);
@@ -51,7 +53,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     private Consumer<byte[]> consumer;
 
     public InLongPulsarFetcherImpl(InLongTopic inLongTopic,
-                                   ClientContext context) {
+            ClientContext context) {
         super(inLongTopic, context);
     }
 
@@ -89,7 +91,8 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     /**
      * ack Offset
      *
-     * @param msgOffset String
+     * @param msgOffset
+     *          String
      */
     @Override
     public void ack(String msgOffset) throws Exception {
@@ -97,7 +100,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
             try {
                 if (consumer == null) {
                     context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                             .addAckFailTimes(1L);
                     logger.error("consumer == null {}", inLongTopic);
                     return;
@@ -105,7 +108,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                 MessageId messageId = offsetCache.get(msgOffset);
                 if (messageId == null) {
                     context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                             .addAckFailTimes(1L);
                     logger.error("messageId == null {}", inLongTopic);
                     return;
@@ -116,7 +119,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                             logger.error("ack fail:{} {},error:{}",
                                     inLongTopic, msgOffset, exception.getMessage(), exception);
                             context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
-                                            inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
+                                    inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                                     .addAckFailTimes(1L);
                             return null;
                         });
@@ -221,7 +224,8 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
         /**
          * put the received msg to onFinished method
          *
-         * @param messageRecords {@link List}
+         * @param messageRecords
+         *          {@link List}
          */
         private void handleAndCallbackMsg(List<MessageRecord> messageRecords) {
             long start = System.currentTimeMillis();

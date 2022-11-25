@@ -29,7 +29,8 @@ public enum MetaField {
     PROCESS_TIME,
 
     /**
-     * Name of the schema that contain the row, currently used for Oracle, PostgreSQL, SQLSERVER
+     * Name of the schema that contain the row, currently used for Oracle,
+     * PostgreSQL, SQLSERVER
      */
     SCHEMA_NAME,
 
@@ -44,8 +45,9 @@ public enum MetaField {
     TABLE_NAME,
 
     /**
-     * It indicates the time that the change was made in the database.
-     * If the record is read from snapshot of the table instead of the change stream, the value is always 0
+     * It indicates the time that the change was made in the database. If the record
+     * is read from snapshot of the table instead of the change stream, the value is
+     * always 0
      */
     OP_TS,
 
@@ -55,12 +57,14 @@ public enum MetaField {
     IS_DDL,
 
     /**
-     * Type of database operation, such as INSERT/DELETE, etc. Currently, it is used for MySQL database.
+     * Type of database operation, such as INSERT/DELETE, etc. Currently, it is used
+     * for MySQL database.
      */
     OP_TYPE,
 
     /**
      * Represents a canal json of a record in database (in string format)
+     * 
      * @deprecated please use DATA_CANAL \ DATA_DEBEZIUM
      */
     DATA,
@@ -77,6 +81,7 @@ public enum MetaField {
 
     /**
      * Represents a canal json of a record in database (in bytes format)
+     * 
      * @deprecated please use DATA_BYTES_DEBEZIUM \ DATA_CANAL_BYTES
      */
     DATA_BYTES,
@@ -92,7 +97,8 @@ public enum MetaField {
     DATA_BYTES_CANAL,
 
     /**
-     * The value of the field before update. Currently, it is used for MySQL database.
+     * The value of the field before update. Currently, it is used for MySQL
+     * database.
      */
     UPDATE_BEFORE,
 
@@ -102,12 +108,14 @@ public enum MetaField {
     BATCH_ID,
 
     /**
-     * Mapping of sql_type table fields to java data type IDs. Currently, it is used for MySQL database.
+     * Mapping of sql_type table fields to java data type IDs. Currently, it is used
+     * for MySQL database.
      */
     SQL_TYPE,
 
     /**
-     * The current time when the ROW was received and processed. Currently, it is used for MySQL database.
+     * The current time when the ROW was received and processed. Currently, it is
+     * used for MySQL database.
      */
     TS,
 

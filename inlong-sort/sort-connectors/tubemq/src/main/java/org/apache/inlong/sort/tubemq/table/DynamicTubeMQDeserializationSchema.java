@@ -18,18 +18,20 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
-import com.google.common.base.Objects;
+import org.apache.inlong.tubemq.corebase.Message;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.tubemq.corebase.Message;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import com.google.common.base.Objects;
 
 public class DynamicTubeMQDeserializationSchema implements DeserializationSchema<RowData> {
 
@@ -44,7 +46,8 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
     private final MetadataConverter[] metadataConverters;
 
     /**
-     * {@link TypeInformation} of the produced {@link RowData} (physical + meta data).
+     * {@link TypeInformation} of the produced {@link RowData} (physical + meta
+     * data).
      */
     private final TypeInformation<RowData> producedTypeInfo;
 
@@ -95,7 +98,7 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
         DynamicTubeMQDeserializationSchema that = (DynamicTubeMQDeserializationSchema) o;
         return ignoreErrors == that.ignoreErrors
                 && Objects.equal(Arrays.stream(metadataConverters).collect(Collectors.toList()),
-                Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
+                        Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
                 && Objects.equal(deserializationSchema, that.deserializationSchema)
                 && Objects.equal(producedTypeInfo, that.producedTypeInfo);
     }
@@ -104,7 +107,7 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
     public int hashCode() {
         return Objects.hashCode(deserializationSchema, metadataConverters, producedTypeInfo, ignoreErrors);
     }
-    
+
     /**
      * add metadata column
      */
@@ -115,8 +118,7 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
         }
         final int physicalArity = physicalRow.getArity();
         final int metadataArity = metadataConverters.length;
-        final GenericRowData producedRow =
-                new GenericRowData(physicalRow.getRowKind(), physicalArity + metadataArity);
+        final GenericRowData producedRow = new GenericRowData(physicalRow.getRowKind(), physicalArity + metadataArity);
         for (int physicalPos = 0; physicalPos < physicalArity; physicalPos++) {
             producedRow.setField(physicalPos, physicalRow.getField(physicalPos));
         }

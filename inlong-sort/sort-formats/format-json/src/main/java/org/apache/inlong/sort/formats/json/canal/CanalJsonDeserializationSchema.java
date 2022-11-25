@@ -21,15 +21,8 @@ package org.apache.inlong.sort.formats.json.canal;
 import static java.lang.String.format;
 import static org.apache.inlong.sort.formats.json.canal.CanalUtils.getMysqlMetadataKey;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import javax.annotation.Nullable;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -47,20 +40,37 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 /**
- * Deserialization schema from Canal JSON to Flink Table/SQL internal data structure {@link
- * RowData}. The deserialization schema knows Canal's schema definition and can extract the database
- * data and convert into {@link RowData} with {@link RowKind}.
+ * Deserialization schema from Canal JSON to Flink Table/SQL internal data
+ * structure {@link RowData}. The deserialization schema knows Canal's schema
+ * definition and can extract the database data and convert into {@link RowData}
+ * with {@link RowKind}.
  *
- * <p>Deserializes a <code>byte[]</code> message as a JSON object and reads the specified fields.</p>
+ * <p>
+ * Deserializes a <code>byte[]</code> message as a JSON object and reads the
+ * specified fields.
+ * </p>
  *
- * <p>Failures during deserialization are forwarded as wrapped IOExceptions.</p>
+ * <p>
+ * Failures during deserialization are forwarded as wrapped IOExceptions.
+ * </p>
  *
  * @see <a href="https://github.com/alibaba/canal">Alibaba Canal</a>
  */
 public final class CanalJsonDeserializationSchema implements DeserializationSchema<RowData> {
+
     private static final long serialVersionUID = 1L;
 
     private static final String FIELD_OLD = "old";
@@ -77,7 +87,10 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
 
     private final List<ReadableMetadata> requestedMetadata;
 
-    /** {@link TypeInformation} of the produced {@link RowData} (physical + meta data). */
+    /**
+     * {@link TypeInformation} of the produced {@link RowData} (physical + meta
+     * data).
+     */
     private final TypeInformation<RowData> producedTypeInfo;
 
     /** Only read changelogs from the specific database. */
@@ -86,7 +99,10 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     /** Only read changelogs from the specific table. */
     private final @Nullable String table;
 
-    /** Flag indicating whether to ignore invalid fields/rows (default: throw an exception). */
+    /**
+     * Flag indicating whether to ignore invalid fields/rows (default: throw an
+     * exception).
+     */
     private final boolean ignoreParseErrors;
 
     /** Names of fields. */
@@ -110,16 +126,15 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
             boolean ignoreParseErrors,
             TimestampFormat timestampFormat) {
         final RowType jsonRowType = createJsonRowType(physicalDataType, requestedMetadata);
-        this.jsonDeserializer =
-                new JsonRowDataDeserializationSchema(
-                        jsonRowType,
-                        // the result type is never used, so it's fine to pass in the produced type
-                        // info
-                        producedTypeInfo,
-                        false, // ignoreParseErrors already contains the functionality of
-                        // failOnMissingField
-                        ignoreParseErrors,
-                        timestampFormat);
+        this.jsonDeserializer = new JsonRowDataDeserializationSchema(
+                jsonRowType,
+                // the result type is never used, so it's fine to pass in the produced type
+                // info
+                producedTypeInfo,
+                false, // ignoreParseErrors already contains the functionality of
+                // failOnMissingField
+                ignoreParseErrors,
+                timestampFormat);
         this.metadataConverters = createMetadataConverters(jsonRowType, requestedMetadata);
         this.requestedMetadata = requestedMetadata;
         this.producedTypeInfo = producedTypeInfo;
@@ -148,6 +163,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     /** A builder for creating a {@link CanalJsonDeserializationSchema}. */
     @Internal
     public static final class Builder {
+
         private final DataType physicalDataType;
         private final List<ReadableMetadata> requestedMetadata;
         private final TypeInformation<RowData> producedTypeInfo;
@@ -303,8 +319,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
             metadataMap.put(
                     StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),
-                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString())
-            );
+                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString()));
         }
         producedRow.setField(0, new GenericMapData(metadataMap));
 
@@ -353,26 +368,26 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
 
     private static RowType createJsonRowType(
             DataType physicalDataType, List<ReadableMetadata> readableMetadata) {
-        // Canal JSON contains other information, e.g. "ts", "sql", but we don't need them
-        DataType root =
-                DataTypes.ROW(
-                        DataTypes.FIELD("data", DataTypes.ARRAY(physicalDataType)),
-                        DataTypes.FIELD("old", DataTypes.ARRAY(physicalDataType)),
-                        DataTypes.FIELD("type", DataTypes.STRING()),
-                        ReadableMetadata.DATABASE.requiredJsonField,
-                        ReadableMetadata.TABLE.requiredJsonField);
+        // Canal JSON contains other information, e.g. "ts", "sql", but we don't need
+        // them
+        DataType root = DataTypes.ROW(
+                DataTypes.FIELD("data", DataTypes.ARRAY(physicalDataType)),
+                DataTypes.FIELD("old", DataTypes.ARRAY(physicalDataType)),
+                DataTypes.FIELD("type", DataTypes.STRING()),
+                ReadableMetadata.DATABASE.requiredJsonField,
+                ReadableMetadata.TABLE.requiredJsonField);
         // append fields that are required for reading metadata in the root
-        final List<DataTypes.Field> rootMetadataFields =
-                readableMetadata.stream()
-                        .filter(m -> m != ReadableMetadata.DATABASE && m != ReadableMetadata.TABLE)
-                        .map(m -> m.requiredJsonField)
-                        .distinct()
-                        .collect(Collectors.toList());
+        final List<DataTypes.Field> rootMetadataFields = readableMetadata.stream()
+                .filter(m -> m != ReadableMetadata.DATABASE && m != ReadableMetadata.TABLE)
+                .map(m -> m.requiredJsonField)
+                .distinct()
+                .collect(Collectors.toList());
         return (RowType) DataTypeUtils.appendRowFields(root, rootMetadataFields).getLogicalType();
     }
 
     private static MetadataConverter[] createMetadataConverters(
-            RowType jsonRowType, List<ReadableMetadata> requestedMetadata) {
+            RowType jsonRowType,
+            List<ReadableMetadata> requestedMetadata) {
         return requestedMetadata.stream()
                 .map(m -> convert(jsonRowType, m))
                 .toArray(MetadataConverter[]::new);
@@ -381,6 +396,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     private static MetadataConverter convert(RowType jsonRowType, ReadableMetadata metadata) {
         final int pos = jsonRowType.getFieldNames().indexOf(metadata.requiredJsonField.getName());
         return new MetadataConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -398,8 +414,8 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     // --------------------------------------------------------------------------------------------
 
     /**
-     * Converter that extracts a metadata field from the row that comes out of the JSON schema and
-     * converts it to the desired data type.
+     * Converter that extracts a metadata field from the row that comes out of the
+     * JSON schema and converts it to the desired data type.
      */
     interface MetadataConverter extends Serializable {
 

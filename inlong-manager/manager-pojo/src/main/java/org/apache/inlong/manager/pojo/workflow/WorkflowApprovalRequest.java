@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.pojo.workflow;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 import org.apache.inlong.manager.pojo.workflow.form.task.BaseTaskForm;
 
 import java.util.List;
+
+import lombok.Data;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Workflow approval request
@@ -31,8 +32,7 @@ import java.util.List;
 @ApiModel("Workflow approval request")
 public class WorkflowApprovalRequest {
 
-    @ApiModelProperty(value = "Transferor persons",
-            notes = "When transferring the task, specify who needs to be transferred to")
+    @ApiModelProperty(value = "Transferor persons", notes = "When transferring the task, specify who needs to be transferred to")
     public List<String> transferTo;
 
     @ApiModelProperty(value = "Remarks info")

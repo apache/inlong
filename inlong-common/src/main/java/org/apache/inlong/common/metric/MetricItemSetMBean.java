@@ -17,8 +17,9 @@
 
 package org.apache.inlong.common.metric;
 
-import javax.management.MXBean;
 import java.util.List;
+
+import javax.management.MXBean;
 
 /**
  * MetricItemSetMBean<br>
@@ -34,7 +35,8 @@ public interface MetricItemSetMBean {
     /**
      * snapshot
      *
-     * @return get snapshot all metric of item, CountMetric will get metric value and set 0 to value, <br>
+     * @return get snapshot all metric of item, CountMetric will get metric value
+     *         and set 0 to value, <br>
      *         GaugeMetric will only get metric value.
      */
     List<MetricItem> snapshot();

@@ -17,14 +17,15 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.ChannelException;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.ChannelException;
+
+import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -34,7 +35,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageFilter implements Filter {
 
@@ -52,8 +55,9 @@ public class MessageFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request,
-                         ServletResponse response,
-                         FilterChain chain) throws IOException {
+            ServletResponse response,
+            FilterChain chain)
+            throws IOException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
@@ -136,10 +140,10 @@ public class MessageFilter implements Filter {
     }
 
     private void returnRspPackage(HttpServletResponse resp, String charEncoding,
-                                  int errCode, String errMsg) throws IOException {
-        StringBuilder builder =
-                new StringBuilder().append("{\"code\":\"").append(errCode)
-                        .append("\",\"msg\":\"").append(errMsg).append("\"}");
+            int errCode, String errMsg)
+            throws IOException {
+        StringBuilder builder = new StringBuilder().append("{\"code\":\"").append(errCode)
+                .append("\",\"msg\":\"").append(errMsg).append("\"}");
         resp.setCharacterEncoding(charEncoding);
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(builder.toString());

@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.pojo.transform;
 
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
@@ -34,11 +32,15 @@ import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition.FilterSt
 import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition.TargetValue;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition.JoinMode;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 
 /**
  * Transform definition service test.

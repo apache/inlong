@@ -24,14 +24,15 @@ import org.apache.inlong.audit.db.dao.AuditDataDao;
 import org.apache.inlong.audit.service.consume.BaseConsume;
 import org.apache.inlong.audit.service.consume.PulsarConsume;
 import org.apache.inlong.audit.service.consume.TubeConsume;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class AuditMsgConsumerServer implements InitializingBean {
@@ -76,6 +77,7 @@ public class AuditMsgConsumerServer implements InitializingBean {
 
     /**
      * getInsertServiceList
+     * 
      * @return
      */
     private List<InsertData> getInsertServiceList() {

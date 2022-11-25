@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.node.es;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -30,10 +28,15 @@ import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeDTO;
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeInfo;
 import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeRequest;
 import org.apache.inlong.manager.service.node.AbstractDataNodeOperator;
+
+import org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ElasticsearchDataNodeOperator extends AbstractDataNodeOperator {

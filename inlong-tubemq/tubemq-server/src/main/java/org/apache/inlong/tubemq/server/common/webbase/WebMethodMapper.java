@@ -20,25 +20,25 @@ package org.apache.inlong.tubemq.server.common.webbase;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WebMethodMapper {
+
     // log printer
-    private static final Logger logger =
-            LoggerFactory.getLogger(WebMethodMapper.class);
-    private static final Map<String, WebApiRegInfo> WEB_METHOD_MAP =
-            new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(WebMethodMapper.class);
+    private static final Map<String, WebApiRegInfo> WEB_METHOD_MAP = new HashMap<>();
 
     public static WebApiRegInfo getWebApiRegInfo(String webMethodName) {
         return WEB_METHOD_MAP.get(webMethodName);
     }
 
     public static void registerWebMethod(String webMethodName,
-                                         String clsMethodName,
-                                         boolean onlyMasterOp,
-                                         boolean needAuthToken,
-                                         Object webHandler) {
+            String clsMethodName,
+            boolean onlyMasterOp,
+            boolean needAuthToken,
+            Object webHandler) {
         Method[] methods = webHandler.getClass().getMethods();
         for (Method item : methods) {
             if (item.getName().equals(clsMethodName)) {
@@ -73,15 +73,16 @@ public class WebMethodMapper {
     }
 
     public static class WebApiRegInfo {
+
         public Method method;
         public Object webHandler;
         public boolean onlyMasterOp = false;
         public boolean needAuthToken = false;
 
         public WebApiRegInfo(Method method,
-                             Object webHandler,
-                             boolean onlyMasterOp,
-                             boolean needAuthToken) {
+                Object webHandler,
+                boolean onlyMasterOp,
+                boolean needAuthToken) {
             this.method = method;
             this.webHandler = webHandler;
             this.onlyMasterOp = onlyMasterOp;

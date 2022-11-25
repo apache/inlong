@@ -17,17 +17,20 @@
 
 package org.apache.inlong.sort.function;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.flink.table.functions.ScalarFunction;
+
 import java.security.SecureRandom;
 import java.util.Arrays;
+
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.flink.table.functions.ScalarFunction;
 
 /**
- * EncryptFunction class. It is a custom function, used to encrypt the value in the string.
+ * EncryptFunction class. It is a custom function, used to encrypt the value in
+ * the string.
  */
 public class EncryptFunction extends ScalarFunction {
 
@@ -48,7 +51,8 @@ public class EncryptFunction extends ScalarFunction {
     /**
      * eval is String encryption execution method
      *
-     * @param field is the field to be encrypted
+     * @param field
+     *          is the field to be encrypted
      * @return encrypted value
      */
     public String eval(String field, String key, String encrypt) {
@@ -73,9 +77,12 @@ public class EncryptFunction extends ScalarFunction {
     /**
      * encrypt method
      *
-     * @param data it is data to be encrypted
-     * @param key the key of encryption
-     * @param method encryption algorithm
+     * @param data
+     *          it is data to be encrypted
+     * @param key
+     *          the key of encryption
+     * @param method
+     *          encryption algorithm
      * @return
      */
     public static String encrypt(String data, String key, String method) {
@@ -90,8 +97,11 @@ public class EncryptFunction extends ScalarFunction {
 
     /**
      * encrypt by 3DES
-     * @param data it is data to be encrypted
-     * @param key  the key of encryption
+     * 
+     * @param data
+     *          it is data to be encrypted
+     * @param key
+     *          the key of encryption
      * @return
      */
     public static String encrypt3DES(String data, String key) {
@@ -108,7 +118,9 @@ public class EncryptFunction extends ScalarFunction {
 
     /**
      * build 3DesKey
-     * @param keyStr the key of encryption
+     * 
+     * @param keyStr
+     *          the key of encryption
      * @return
      */
     public static byte[] build3DesKey(String keyStr) {
@@ -129,7 +141,8 @@ public class EncryptFunction extends ScalarFunction {
     /**
      * encrypt by BASE64
      *
-     * @param plaintextBytes it is data to be encoded
+     * @param plaintextBytes
+     *          it is data to be encoded
      * @return
      */
     public static String encryptBASE64(byte[] plaintextBytes) throws Exception {
@@ -139,8 +152,10 @@ public class EncryptFunction extends ScalarFunction {
     /**
      * encrypt by AES
      *
-     * @param content it is content to be encrypted
-     * @param key the key of encryption
+     * @param content
+     *          it is content to be encrypted
+     * @param key
+     *          the key of encryption
      * @return
      */
     public static String encryptAES(String content, String key) {

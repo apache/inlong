@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.standalone;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.locks.ReentrantLock;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
+import org.apache.inlong.sort.standalone.utils.FlumeConfigGenerator;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import org.apache.flume.Channel;
 import org.apache.flume.SinkRunner;
@@ -28,10 +29,11 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.flume.lifecycle.LifecycleSupervisor;
 import org.apache.flume.lifecycle.LifecycleSupervisor.SupervisorPolicy;
 import org.apache.flume.node.MaterializedConfiguration;
-import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
-import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
-import org.apache.inlong.sort.standalone.utils.FlumeConfigGenerator;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.slf4j.Logger;
 
 import com.google.common.eventbus.Subscribe;
@@ -100,7 +102,8 @@ public class SortTask {
             LOG.info("Interrupted while trying to handle configuration event");
             return;
         } finally {
-            // If interrupted while trying to lock, we don't own the lock, so must not attempt to unlock
+            // If interrupted while trying to lock, we don't own the lock, so must not
+            // attempt to unlock
             if (lifecycleLock.isHeldByCurrentThread()) {
                 lifecycleLock.unlock();
             }

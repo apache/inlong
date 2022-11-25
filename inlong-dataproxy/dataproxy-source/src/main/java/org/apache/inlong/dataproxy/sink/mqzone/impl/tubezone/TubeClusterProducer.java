@@ -17,8 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone.impl.tubezone;
 
-import org.apache.flume.Context;
-import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
@@ -31,12 +29,16 @@ import org.apache.inlong.tubemq.client.producer.MessageProducer;
 import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
 import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flume.Context;
+import org.apache.flume.lifecycle.LifecycleState;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TubeClusterProducer
@@ -65,7 +67,7 @@ public class TubeClusterProducer extends AbstractZoneClusterProducer {
      * @param context
      */
     public TubeClusterProducer(String workerName, CacheClusterConfig config, TubeZoneSinkContext context) {
-            super(workerName, config, context);
+        super(workerName, config, context);
     }
 
     /**
@@ -89,6 +91,7 @@ public class TubeClusterProducer extends AbstractZoneClusterProducer {
 
     /**
      * initTubeConfig
+     * 
      * @return
      *
      * @throws Exception
@@ -142,12 +145,12 @@ public class TubeClusterProducer extends AbstractZoneClusterProducer {
         }
     }
 
-  /**
-   * send
-   *
-   * @param event
-   */
-  @Override
+    /**
+     * send
+     *
+     * @param event
+     */
+    @Override
     public boolean send(DispatchProfile event) {
         try {
             // topic

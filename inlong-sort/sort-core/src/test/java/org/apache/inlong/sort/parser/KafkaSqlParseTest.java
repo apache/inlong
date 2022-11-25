@@ -18,10 +18,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
@@ -38,13 +34,19 @@ import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for kafka sql parse
@@ -52,9 +54,11 @@ import java.util.stream.Collectors;
 public class KafkaSqlParseTest extends AbstractTestBase {
 
     /**
-     * Test flink sql task for extract is kafka {@link KafkaExtractNode} and load is mysql {@link MySqlLoadNode}
+     * Test flink sql task for extract is kafka {@link KafkaExtractNode} and load is
+     * mysql {@link MySqlLoadNode}
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testKafkaSourceSqlParse() throws Exception {
@@ -92,16 +96,14 @@ public class KafkaSqlParseTest extends AbstractTestBase {
     private Node buildMysqlLoadNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo())
-        );
+                new FieldInfo("age", new IntFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo()))
-                );
+                                new FieldInfo("age", new IntFormatInfo())));
         return new MySqlLoadNode("2", "mysql_output", fields, relations, null,
                 null, null, null, "jdbc:mysql://localhost:3306/inlong",
                 "inlong", "inlong", "table_output", "id");
@@ -110,8 +112,10 @@ public class KafkaSqlParseTest extends AbstractTestBase {
     /**
      * build node relation
      *
-     * @param inputs  extract node
-     * @param outputs load node
+     * @param inputs
+     *          extract node
+     * @param outputs
+     *          load node
      * @return node relation
      */
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -133,17 +137,18 @@ public class KafkaSqlParseTest extends AbstractTestBase {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("log", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("log", new StringFormatInfo()),
-                                new FieldInfo("log", new StringFormatInfo()))
-                );
+                        new FieldInfo("log", new StringFormatInfo())));
         return new MySqlLoadNode("2", "mysql_output", fields, relations, null,
                 null, null, null, "jdbc:mysql://localhost:3306/inlong",
                 "inlong", "inlong", "table_output", null);
     }
 
     /**
-     * Test flink sql task for extract is kafka {@link KafkaExtractNode} and load is mysql {@link MySqlLoadNode}
+     * Test flink sql task for extract is kafka {@link KafkaExtractNode} and load is
+     * mysql {@link MySqlLoadNode}
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testKafkaExtractNodeSqlParseForScanTimestamp() throws Exception {

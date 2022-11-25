@@ -17,22 +17,24 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import java.util.EnumSet;
-import javax.servlet.DispatcherType;
-import java.lang.reflect.Constructor;
-import java.util.Map;
-import org.apache.flume.Context;
-import org.apache.flume.channel.ChannelProcessor;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.remote.ConfigMessageServlet;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.source.ServiceDecoder;
+
+import org.apache.flume.Context;
+import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.source.http.HTTPSource;
 import org.apache.flume.source.http.HTTPSourceConfigurationConstants;
+
+import java.lang.reflect.Constructor;
+import java.util.EnumSet;
+import java.util.Map;
+
+import javax.servlet.DispatcherType;
+
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -47,6 +49,9 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 
 public class SimpleHttpSource extends HttpBaseSource {
 
@@ -91,14 +96,14 @@ public class SimpleHttpSource extends HttpBaseSource {
                 keyStorePath = context.getString(HTTPSourceConfigurationConstants.SSL_KEYSTORE);
                 Preconditions.checkArgument(keyStorePath != null && !keyStorePath.isEmpty(),
                         "Keystore is required for SSL Conifguration");
-                keyStorePassword =
-                        context.getString(HTTPSourceConfigurationConstants.SSL_KEYSTORE_PASSWORD);
+                keyStorePassword = context.getString(HTTPSourceConfigurationConstants.SSL_KEYSTORE_PASSWORD);
                 Preconditions.checkArgument(keyStorePassword != null,
                         "Keystore password is required for SSL Configuration");
             }
 
-            //ref: http://docs.codehaus.org/display/JETTY/Embedding+Jetty
-            //ref: http://jetty.codehaus.org/jetty/jetty-6/apidocs/org/mortbay/jetty/servlet
+            // ref: http://docs.codehaus.org/display/JETTY/Embedding+Jetty
+            // ref:
+            // http://jetty.codehaus.org/jetty/jetty-6/apidocs/org/mortbay/jetty/servlet
             // /Context.html
             subProps = context.getSubProperties(
                     HTTPSourceConfigurationConstants.CONFIG_HANDLER_PREFIX);
@@ -118,13 +123,13 @@ public class SimpleHttpSource extends HttpBaseSource {
         super.start();
         try {
 
-            @SuppressWarnings("unchecked") Class<? extends MessageHandler> clazz =
-                    (Class<? extends MessageHandler>) Class.forName(messageHandlerName);
+            @SuppressWarnings("unchecked")
+            Class<? extends MessageHandler> clazz = (Class<? extends MessageHandler>) Class.forName(messageHandlerName);
             Constructor ctor = clazz.getConstructor(ChannelProcessor.class,
                     MonitorIndex.class, MonitorIndexExt.class, DataProxyMetricItemSet.class, ServiceDecoder.class);
             LOG.info("Using channel processor:{}", getChannelProcessor().getClass().getName());
             messageHandler = (MessageHandler) ctor
-                    .newInstance(getChannelProcessor(), monitorIndex, monitorIndexExt, metricItemSet,null);
+                    .newInstance(getChannelProcessor(), monitorIndex, monitorIndexExt, metricItemSet, null);
             messageHandler.configure(new Context(subProps));
             srv = new Server(new QueuedThreadPool(threadPoolSize));
             Connector[] connectors = new Connector[1];
@@ -156,8 +161,7 @@ public class SimpleHttpSource extends HttpBaseSource {
 
             srv.setConnectors(connectors);
 
-            ServletContextHandler servletContext =
-                    new ServletContextHandler(srv, "/", ServletContextHandler.SESSIONS);
+            ServletContextHandler servletContext = new ServletContextHandler(srv, "/", ServletContextHandler.SESSIONS);
             servletContext.setMaxFormContentSize(maxMsgLength);
             servletContext
                     .addFilter(new FilterHolder(new MessageFilter(maxMsgLength)), "/dataproxy/*",

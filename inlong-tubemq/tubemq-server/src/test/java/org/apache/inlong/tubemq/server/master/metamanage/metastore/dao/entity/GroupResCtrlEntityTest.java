@@ -17,11 +17,13 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
+
+import java.util.Date;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,10 +53,9 @@ public class GroupResCtrlEntityTest {
         String attributes = "key=val&key2=va2";
         String createUser = "create";
         Date createDate = new Date();
-        BdbGroupFlowCtrlEntity bdbEntity2 =
-                new BdbGroupFlowCtrlEntity(dataVerId, groupName2,
-                        flowCtrlInfo, statusId, ruleCnt, qryPriorityId,
-                        attributes, createUser, createDate);
+        BdbGroupFlowCtrlEntity bdbEntity2 = new BdbGroupFlowCtrlEntity(dataVerId, groupName2,
+                flowCtrlInfo, statusId, ruleCnt, qryPriorityId,
+                attributes, createUser, createDate);
         Assert.assertEquals(bdbEntity2.getGroupName(), groupName2);
         Assert.assertEquals(bdbEntity2.getResCheckStatus(), EnableStatus.STATUS_UNDEFINE);
         Assert.assertEquals(bdbEntity2.getAllowedBrokerClientRate(), TBaseConstants.META_VALUE_UNDEFINED);
@@ -86,7 +87,7 @@ public class GroupResCtrlEntityTest {
         EnableStatus resChkEnable = EnableStatus.STATUS_ENABLE;
         int newAllowedB2CRate = 5;
         int newQryPriorityId = 2;
-        EnableStatus newFlowCtrlEnable =  EnableStatus.STATUS_DISABLE;
+        EnableStatus newFlowCtrlEnable = EnableStatus.STATUS_DISABLE;
         int newFlowRuleCnt = 2;
         String newFlowCtrlRuleInfo = "[{},{}]";
         GroupResCtrlEntity resEntry4 = resEntry3.clone();

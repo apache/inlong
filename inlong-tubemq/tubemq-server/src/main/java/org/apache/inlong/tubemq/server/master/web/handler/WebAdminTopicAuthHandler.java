@@ -17,12 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
@@ -33,6 +27,14 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Deprecated
 public class WebAdminTopicAuthHandler extends AbstractWebHandler {
@@ -58,14 +60,17 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     /**
      * Query topic authorization control
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryTopicAuthControl(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         TopicCtrlEntity qryEntity = new TopicCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -80,8 +85,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // query matched records
-        Map<String, TopicCtrlEntity> topicCtrlMap =
-                defMetaDataService.getTopicCtrlConf(topicNameSet, qryEntity);
+        Map<String, TopicCtrlEntity> topicCtrlMap = defMetaDataService.getTopicCtrlConf(topicNameSet, qryEntity);
         // build query result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -96,8 +100,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
                     .append("\",\"modifyUser\":\"").append(entity.getModifyUser())
                     .append("\",\"modifyDate\":\"").append(entity.getModifyDateStr())
                     .append("\",\"authConsumeGroup\":[");
-            List<GroupConsumeCtrlEntity> groupEntity =
-                    defMetaDataService.getConsumeCtrlByTopic(entity.getTopicName());
+            List<GroupConsumeCtrlEntity> groupEntity = defMetaDataService.getConsumeCtrlByTopic(entity.getTopicName());
             int j = 0;
             if (!groupEntity.isEmpty()) {
                 for (GroupConsumeCtrlEntity itemEntity : groupEntity) {
@@ -145,14 +148,17 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     /**
      * Enable or disable topic authorization control
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminEnableDisableTopicAuthControl(HttpServletRequest req,
-                                                            StringBuilder sBuffer,
-                                                            ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -185,14 +191,17 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     /**
      * Add topic authorization control in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchAddTopicAuthControl(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -204,8 +213,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Map<String, TopicCtrlEntity> addRecordMap =
-                (Map<String, TopicCtrlEntity>) result.getRetData();
+        Map<String, TopicCtrlEntity> addRecordMap = (Map<String, TopicCtrlEntity>) result.getRetData();
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (TopicCtrlEntity topicCtrlInfo : addRecordMap.values()) {
             retInfo.add(defMetaDataService.insertTopicCtrlConf(topicCtrlInfo, sBuffer, result));
@@ -216,14 +224,17 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     /**
      * Delete topic authorization control
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminDeleteTopicAuthControl(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -255,13 +266,12 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     }
 
     private boolean getTopicCtrlJsonSetInfo(HttpServletRequest req, BaseEntity defOpEntity,
-                                            StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.TOPICJSONSET, true, null, result)) {
             return result.isSuccess();
         }
-        List<Map<String, String>> deployJsonArray =
-                (List<Map<String, String>>) result.getRetData();
+        List<Map<String, String>> deployJsonArray = (List<Map<String, String>>) result.getRetData();
         TopicCtrlEntity itemConf;
         Map<String, TopicCtrlEntity> addRecordMap = new HashMap<>();
         // check and get topic deployment configure
@@ -304,7 +314,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (TopicProcessResult entry : retInfo) {

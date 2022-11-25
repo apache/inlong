@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessorExecutor;
@@ -29,11 +26,18 @@ import org.apache.inlong.manager.workflow.processor.EndEventProcessor;
 import org.apache.inlong.manager.workflow.processor.ServiceTaskProcessor;
 import org.apache.inlong.manager.workflow.processor.StartEventProcessor;
 import org.apache.inlong.manager.workflow.processor.UserTaskProcessor;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.List;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 /**
  * Workload component processor execution
@@ -61,8 +65,8 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
         processors.add(userTaskProcessor);
         processors.add(serviceTaskProcessor);
 
-        ImmutableMap.Builder<Class<? extends Element>, ElementProcessor<? extends Element>> builder
-                = ImmutableMap.builder();
+        ImmutableMap.Builder<Class<? extends Element>, ElementProcessor<? extends Element>> builder = ImmutableMap
+                .builder();
         processors.forEach(processor -> builder.put(processor.watch(), processor));
         elementProcessor = builder.build();
     }

@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.corerpc.protocol;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.inlong.tubemq.corerpc.RequestWrapper;
 import org.apache.inlong.tubemq.corerpc.ResponseWrapper;
@@ -31,6 +26,13 @@ import org.apache.inlong.tubemq.corerpc.exception.ServiceStoppingException;
 import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
 import org.apache.inlong.tubemq.corerpc.server.RequestContext;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,19 +44,16 @@ public class RpcProtocol implements Protocol {
     public static final int RPC_PROTOCOL_VERSION_TUBEMQ = 2; // for org.apache.tubemq
     public static final int RPC_PROTOCOL_VERSION = 3; // for org.apache.inlong
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(RpcProtocol.class);
-    private final Map<Integer, Object> processors =
-            new HashMap<>();
-    private final Map<Integer, Method> cacheMethods =
-            new HashMap<>();
-    private final Map<Integer, ExecutorService> threadPools =
-            new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(RpcProtocol.class);
+    private final Map<Integer, Object> processors = new HashMap<>();
+    private final Map<Integer, Method> cacheMethods = new HashMap<>();
+    private final Map<Integer, ExecutorService> threadPools = new HashMap<>();
     private boolean isOverTLS = false;
 
     @Override
     public void registerService(boolean isOverTLS, String serviceName,
-                                Object instance, ExecutorService threadPool) throws Exception {
+            Object instance, ExecutorService threadPool)
+            throws Exception {
         this.isOverTLS = isOverTLS;
         int serviceId = PbEnDecoder.getServiceIdByServiceName(serviceName);
         processors.put(serviceId, instance);
@@ -115,7 +114,7 @@ public class RpcProtocol implements Protocol {
         if (System.currentTimeMillis() - context.getReceiveTime() > requestWrapper.getTimeout()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Timeout when request arrived, so give up processing this request from : {}",
-                       rmtAddress);
+                        rmtAddress);
             }
             return;
         }
@@ -145,12 +144,10 @@ public class RpcProtocol implements Protocol {
                         .append(requestWrapper.getServiceType())
                         .append(" found on the server").toString());
             }
-            Object result =
-                    method.invoke(processor, requestWrapper.getRequestData(), rmtAddress, isOverTLS);
-            responseWrapper =
-                    new ResponseWrapper(RpcConstants.RPC_FLAG_MSG_TYPE_RESPONSE,
-                            requestWrapper.getSerialNo(), requestWrapper.getServiceType(),
-                            RPC_PROTOCOL_VERSION, requestWrapper.getMethodId(), result);
+            Object result = method.invoke(processor, requestWrapper.getRequestData(), rmtAddress, isOverTLS);
+            responseWrapper = new ResponseWrapper(RpcConstants.RPC_FLAG_MSG_TYPE_RESPONSE,
+                    requestWrapper.getSerialNo(), requestWrapper.getServiceType(),
+                    RPC_PROTOCOL_VERSION, requestWrapper.getMethodId(), result);
         } catch (Throwable e2) {
             String errorClass = null;
             String errorInfo = null;
@@ -163,10 +160,9 @@ public class RpcProtocol implements Protocol {
             }
             errorClass = MixUtils.replaceClassNamePrefix(errorClass,
                     true, requestWrapper.getProtocolVersion());
-            responseWrapper =
-                    new ResponseWrapper(RpcConstants.RPC_FLAG_MSG_TYPE_RESPONSE,
-                            requestWrapper.getSerialNo(), requestWrapper.getServiceType(),
-                            RPC_PROTOCOL_VERSION, errorClass, errorInfo);
+            responseWrapper = new ResponseWrapper(RpcConstants.RPC_FLAG_MSG_TYPE_RESPONSE,
+                    requestWrapper.getSerialNo(), requestWrapper.getServiceType(),
+                    RPC_PROTOCOL_VERSION, errorClass, errorInfo);
         }
         try {
             context.write(responseWrapper);

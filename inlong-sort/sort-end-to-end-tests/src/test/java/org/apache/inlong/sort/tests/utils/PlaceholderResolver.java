@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
  * A file placeholder replacement tool.
  */
 public class PlaceholderResolver {
+
     /**
      * Default placeholder prefix
      */
@@ -75,9 +76,13 @@ public class PlaceholderResolver {
     }
 
     /**
-     * Replace template string with special placeholder according to replace function.
-     * @param content  template string with special placeholder
-     * @param rule  placeholder replacement rule
+     * Replace template string with special placeholder according to replace
+     * function.
+     * 
+     * @param content
+     *          template string with special placeholder
+     * @param rule
+     *          placeholder replacement rule
      * @return new replaced string
      */
     public String resolveByRule(String content, Function<String, String> rule) {
@@ -99,9 +104,13 @@ public class PlaceholderResolver {
     }
 
     /**
-     * Replace template string with special placeholder according to replace function.
-     * @param file  template file with special placeholder
-     * @param rule  placeholder replacement rule
+     * Replace template string with special placeholder according to replace
+     * function.
+     * 
+     * @param file
+     *          template file with special placeholder
+     * @param rule
+     *          placeholder replacement rule
      * @return new replaced string
      */
     public Path resolveByRule(Path file, Function<String, String> rule) {
@@ -119,14 +128,17 @@ public class PlaceholderResolver {
     }
 
     /**
-     * Replace template string with special placeholder according to properties file.
-     * Key is the content of the placeholder <br/><br/>
+     * Replace template string with special placeholder according to properties
+     * file. Key is the content of the placeholder <br/>
+     * <br/>
      * e.g: content = product:${id}:detail:${did}<br/>
-     *      valueMap = id -> 1; pid -> 2<br/>
-     *      return: product:1:detail:2<br/>
+     * valueMap = id -> 1; pid -> 2<br/>
+     * return: product:1:detail:2<br/>
      *
-     * @param content template string with special placeholder
-     * @param valueMap placeholder replacement map
+     * @param content
+     *          template string with special placeholder
+     * @param valueMap
+     *          placeholder replacement map
      * @return new replaced string
      */
     public String resolveByMap(String content, final Map<String, Object> valueMap) {
@@ -134,14 +146,17 @@ public class PlaceholderResolver {
     }
 
     /**
-     * Replace template string with special placeholder according to properties file.
-     * Key is the content of the placeholder <br/><br/>
+     * Replace template string with special placeholder according to properties
+     * file. Key is the content of the placeholder <br/>
+     * <br/>
      * e.g: content = product:${id}:detail:${did}<br/>
-     *      valueMap = id -> 1; pid -> 2<br/>
-     *      return: product:1:detail:2<br/>
+     * valueMap = id -> 1; pid -> 2<br/>
+     * return: product:1:detail:2<br/>
      *
-     * @param file template string with special placeholder
-     * @param valueMap placeholder replacement map
+     * @param file
+     *          template string with special placeholder
+     * @param valueMap
+     *          placeholder replacement map
      * @return new replaced string
      */
     public Path resolveByMap(Path file, final Map<String, Object> valueMap) {

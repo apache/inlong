@@ -18,23 +18,27 @@
 
 package org.apache.inlong.manager.common.util;
 
-import lombok.experimental.UtilityClass;
 import org.apache.commons.collections.CollectionUtils;
+
+import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
-import java.util.Set;
+
+import lombok.experimental.UtilityClass;
 
 /**
- * With various annotations of javax, it is used to verify object properties, mainly used in the service layer
+ * With various annotations of javax, it is used to verify object properties,
+ * mainly used in the service layer
  */
 @UtilityClass
 public class ValidationUtils {
 
     /**
-     * Validate objects using Javax annotations such as @NotBlank, @NotNull, etc., mainly used in the Service layer
-     * The function is the same as the parameter validation of the controller layer
+     * Validate objects using Javax annotations such as @NotBlank, @NotNull, etc.,
+     * mainly used in the Service layer The function is the same as the parameter
+     * validation of the controller layer
      */
     public static void validate(Validator validator, Object object, Class<?>... groups) {
         Set<ConstraintViolation<Object>> constraintViolations = validator.validate(object, groups);

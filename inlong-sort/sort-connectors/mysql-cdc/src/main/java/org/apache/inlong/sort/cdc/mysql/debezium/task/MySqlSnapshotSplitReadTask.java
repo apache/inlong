@@ -18,6 +18,29 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.task;
 
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
+
+import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl;
+import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
+import org.apache.inlong.sort.cdc.mysql.debezium.reader.SnapshotSplitReader;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
+import org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils;
+
+import org.apache.kafka.connect.errors.ConnectException;
+
+import java.io.UnsupportedEncodingException;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.time.Duration;
+import java.util.Calendar;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.debezium.DebeziumException;
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
@@ -40,33 +63,16 @@ import io.debezium.util.Clock;
 import io.debezium.util.ColumnUtils;
 import io.debezium.util.Strings;
 import io.debezium.util.Threads;
-import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl;
-import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
-import org.apache.inlong.sort.cdc.mysql.debezium.reader.SnapshotSplitReader;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
-import org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils;
-import org.apache.kafka.connect.errors.ConnectException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.UnsupportedEncodingException;
-import java.sql.Blob;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.time.Duration;
-import java.util.Calendar;
-
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
 
 /** Task to read snapshot split of table. */
 public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlSnapshotSplitReadTask.class);
 
-    /** Interval for showing a log statement with the progress while scanning a single table. */
+    /**
+     * Interval for showing a log statement with the progress while scanning a
+     * single table.
+     */
     private static final Duration LOG_INTERVAL = Duration.ofMillis(10_000);
 
     private final MySqlConnectorConfig connectorConfig;
@@ -130,11 +136,10 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
         final RelationalSnapshotChangeEventSource.RelationalSnapshotContext ctx =
                 (RelationalSnapshotChangeEventSource.RelationalSnapshotContext) snapshotContext;
         ctx.offset = offsetContext;
-        final SignalEventDispatcher signalEventDispatcher =
-                new SignalEventDispatcher(
-                        offsetContext.getPartition(),
-                        topicSelector.topicNameFor(snapshotSplit.getTableId()),
-                        dispatcher.getQueue());
+        final SignalEventDispatcher signalEventDispatcher = new SignalEventDispatcher(
+                offsetContext.getPartition(),
+                topicSelector.topicNameFor(snapshotSplit.getTableId()),
+                dispatcher.getQueue());
 
         final BinlogOffset lowWatermark = currentBinlogOffset(jdbcConnection);
         LOG.info(
@@ -168,13 +173,13 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     }
 
     @Override
-    protected SnapshotContext prepare(ChangeEventSourceContext changeEventSourceContext)
-            throws Exception {
+    protected SnapshotContext prepare(ChangeEventSourceContext changeEventSourceContext) throws Exception {
         return new MySqlSnapshotContext();
     }
 
     private static class MySqlSnapshotContext
-            extends RelationalSnapshotChangeEventSource.RelationalSnapshotContext {
+            extends
+                RelationalSnapshotChangeEventSource.RelationalSnapshotContext {
 
         public MySqlSnapshotContext() throws SQLException {
             super("");
@@ -185,8 +190,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
             RelationalSnapshotChangeEventSource.RelationalSnapshotContext snapshotContext,
             TableId tableId)
             throws Exception {
-        EventDispatcher.SnapshotReceiver snapshotReceiver =
-                dispatcher.getSnapshotChangeEventReceiver();
+        EventDispatcher.SnapshotReceiver snapshotReceiver = dispatcher.getSnapshotChangeEventReceiver();
         LOG.debug("Snapshotting table {}", tableId);
         createDataEventsForTable(
                 snapshotContext, snapshotReceiver, databaseSchema.tableFor(tableId));
@@ -203,28 +207,27 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
         long exportStart = clock.currentTimeInMillis();
         LOG.info("Exporting data from split '{}' of table {}", snapshotSplit.splitId(), table.id());
 
-        final String selectSql =
-                StatementUtils.buildSplitScanQuery(
-                        snapshotSplit.getTableId(),
-                        snapshotSplit.getSplitKeyType(),
-                        snapshotSplit.getSplitStart() == null,
-                        snapshotSplit.getSplitEnd() == null);
+        final String selectSql = StatementUtils.buildSplitScanQuery(
+                snapshotSplit.getTableId(),
+                snapshotSplit.getSplitKeyType(),
+                snapshotSplit.getSplitStart() == null,
+                snapshotSplit.getSplitEnd() == null);
         LOG.info(
                 "For split '{}' of table {} using select statement: '{}'",
                 snapshotSplit.splitId(),
                 table.id(),
                 selectSql);
 
-        try (PreparedStatement selectStatement =
-                        StatementUtils.readTableSplitDataStatement(
-                                jdbcConnection,
-                                selectSql,
-                                snapshotSplit.getSplitStart() == null,
-                                snapshotSplit.getSplitEnd() == null,
-                                snapshotSplit.getSplitStart(),
-                                snapshotSplit.getSplitEnd(),
-                                snapshotSplit.getSplitKeyType().getFieldCount(),
-                                connectorConfig.getQueryFetchSize());
+        try (
+                PreparedStatement selectStatement = StatementUtils.readTableSplitDataStatement(
+                        jdbcConnection,
+                        selectSql,
+                        snapshotSplit.getSplitStart() == null,
+                        snapshotSplit.getSplitEnd() == null,
+                        snapshotSplit.getSplitStart(),
+                        snapshotSplit.getSplitEnd(),
+                        snapshotSplit.getSplitKeyType().getFieldCount(),
+                        connectorConfig.getQueryFetchSize());
                 ResultSet rs = selectStatement.executeQuery()) {
 
             ColumnUtils.ColumnArray columnArray = ColumnUtils.toArray(rs, table);
@@ -236,8 +239,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
                 final Object[] row = new Object[columnArray.getGreatestColumnPosition()];
                 for (int i = 0; i < columnArray.getColumns().length; i++) {
                     Column actualColumn = table.columns().get(i);
-                    row[columnArray.getColumns()[i].position() - 1] =
-                            readField(rs, i + 1, actualColumn, table);
+                    row[columnArray.getColumns()[i].position() - 1] = readField(rs, i + 1, actualColumn, table);
                 }
                 if (logTimer.expired()) {
                     long stop = clock.currentTimeInMillis();
@@ -265,7 +267,8 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     }
 
     protected ChangeRecordEmitter getChangeRecordEmitter(
-            SnapshotContext snapshotContext, TableId tableId, Object[] row) {
+            SnapshotContext snapshotContext, TableId tableId,
+            Object[] row) {
         snapshotContext.offset.event(tableId, clock.currentTime());
         return new SnapshotChangeRecordEmitter(snapshotContext.offset, row, clock);
     }
@@ -277,11 +280,12 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     /**
      * Read JDBC return value and deal special type like time, timestamp.
      *
-     * <p>Note https://issues.redhat.com/browse/DBZ-3238 has fixed this issue, please remove this
-     * method once we bump Debezium version to 1.6</p>
+     * <p>
+     * Note https://issues.redhat.com/browse/DBZ-3238 has fixed this issue, please
+     * remove this method once we bump Debezium version to 1.6
+     * </p>
      */
-    private Object readField(ResultSet rs, int fieldNo, Column actualColumn, Table actualTable)
-            throws SQLException {
+    private Object readField(ResultSet rs, int fieldNo, Column actualColumn, Table actualTable) throws SQLException {
         if (actualColumn.jdbcType() == Types.TIME) {
             return readTimeField(rs, fieldNo);
         } else if (actualColumn.jdbcType() == Types.DATE) {
@@ -301,8 +305,8 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     }
 
     /**
-     * As MySQL connector/J implementation is broken for MySQL type "TIME" we have to use a
-     * binary-ish workaround. https://issues.jboss.org/browse/DBZ-342
+     * As MySQL connector/J implementation is broken for MySQL type "TIME" we have
+     * to use a binary-ish workaround. https://issues.jboss.org/browse/DBZ-342
      */
     private Object readTimeField(ResultSet rs, int fieldNo) throws SQLException {
         Blob b = rs.getBlob(fieldNo);
@@ -320,11 +324,10 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     }
 
     /**
-     * In non-string mode the date field can contain zero in any of the date part which we need to
-     * handle as all-zero.
+     * In non-string mode the date field can contain zero in any of the date part
+     * which we need to handle as all-zero.
      */
-    private Object readDateField(ResultSet rs, int fieldNo, Column column, Table table)
-            throws SQLException {
+    private Object readDateField(ResultSet rs, int fieldNo, Column column, Table table) throws SQLException {
         Blob b = rs.getBlob(fieldNo);
         if (b == null) {
             return null; // Don't continue parsing date field if it is null
@@ -340,11 +343,10 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     }
 
     /**
-     * In non-string mode the time field can contain zero in any of the date part which we need to
-     * handle as all-zero.
+     * In non-string mode the time field can contain zero in any of the date part
+     * which we need to handle as all-zero.
      */
-    private Object readTimestampField(ResultSet rs, int fieldNo, Column column, Table table)
-            throws SQLException {
+    private Object readTimestampField(ResultSet rs, int fieldNo, Column column, Table table) throws SQLException {
         Blob b = rs.getBlob(fieldNo);
         if (b == null) {
             return null; // Don't continue parsing timestamp field if it is null
@@ -352,9 +354,9 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
 
         try {
             return MySqlValueConverters.containsZeroValuesInDatePart(
-                            (new String(b.getBytes(1, (int) (b.length())), "UTF-8")), column, table)
-                    ? null
-                    : rs.getTimestamp(fieldNo, Calendar.getInstance());
+                    (new String(b.getBytes(1, (int) (b.length())), "UTF-8")), column, table)
+                            ? null
+                            : rs.getTimestamp(fieldNo, Calendar.getInstance());
         } catch (UnsupportedEncodingException e) {
             LOG.error("Could not read MySQL TIME value as UTF-8");
             throw new RuntimeException(e);

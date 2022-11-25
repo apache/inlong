@@ -17,20 +17,24 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.apache.inlong.sort.protocol.transformation.FilterFunction;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.base.Preconditions;
+
 /**
- * This class defines the interval join relation.In interval join, the join conditions is same as filters,
- * and so we forbid the filters for interval join. And the same time,
- * the joinConditionMap will be allowed to have only one value.
+ * This class defines the interval join relation.In interval join, the join
+ * conditions is same as filters, and so we forbid the filters for interval
+ * join. And the same time, the joinConditionMap will be allowed to have only
+ * one value.
  */
 @JsonTypeName("intervalJoin")
 @EqualsAndHashCode(callSuper = true)
@@ -40,11 +44,14 @@ public class IntervalJoinRelation extends JoinRelation {
     /**
      * Constructor
      *
-     * @param inputs The inputs is a list of input node id
-     * @param outputs The outputs is a list of output node id
-     * @param joinConditionMap The joinConditionMap is a map of join conditions
-     *         the key of joinConditionMap is the node id of join node
-     *         the value of joinConditionMap is a list of join contidition
+     * @param inputs
+     *          The inputs is a list of input node id
+     * @param outputs
+     *          The outputs is a list of output node id
+     * @param joinConditionMap
+     *          The joinConditionMap is a map of join conditions the key of
+     *          joinConditionMap is the node id of join node the value of
+     *          joinConditionMap is a list of join contidition
      */
     public IntervalJoinRelation(@JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs,

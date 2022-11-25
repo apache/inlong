@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.service.resource.sink.ck;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseColumnInfo;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import ru.yandex.clickhouse.ClickHouseDatabaseMetadata;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,6 +30,9 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utils for ClickHouse JDBC.
@@ -104,7 +107,8 @@ public class ClickHouseJdbcUtils {
      * Create ClickHouse table
      */
     public static void createTable(String url, String user, String password,
-            ClickHouseTableInfo tableInfo) throws Exception {
+            ClickHouseTableInfo tableInfo)
+            throws Exception {
         String createTableSql = ClickHouseSqlBuilder.buildCreateTableSql(tableInfo);
         ClickHouseJdbcUtils.executeSql(createTableSql, url, user, password);
     }
@@ -131,10 +135,12 @@ public class ClickHouseJdbcUtils {
      * Query ClickHouse columns
      */
     public static List<ClickHouseColumnInfo> getColumns(String url, String user, String password, String dbName,
-            String tableName) throws Exception {
+            String tableName)
+            throws Exception {
 
         String querySql = ClickHouseSqlBuilder.buildDescTableSql(dbName, tableName);
-        try (Connection conn = getConnection(url, user, password);
+        try (
+                Connection conn = getConnection(url, user, password);
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(querySql)) {
             List<ClickHouseColumnInfo> columnList = new ArrayList<>();
@@ -157,7 +163,8 @@ public class ClickHouseJdbcUtils {
      * Add columns for ClickHouse table
      */
     public static void addColumns(String url, String user, String password, String dbName, String tableName,
-            List<ClickHouseColumnInfo> columnList) throws Exception {
+            List<ClickHouseColumnInfo> columnList)
+            throws Exception {
         List<String> addColumnSql = ClickHouseSqlBuilder.buildAddColumnsSql(dbName, tableName, columnList);
         ClickHouseJdbcUtils.executeSqlBatch(addColumnSql, url, user, password);
     }

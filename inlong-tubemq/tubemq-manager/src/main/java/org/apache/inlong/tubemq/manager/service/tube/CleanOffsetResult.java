@@ -17,14 +17,15 @@
 
 package org.apache.inlong.tubemq.manager.service.tube;
 
-import com.google.common.collect.Lists;
-
 import java.util.List;
 
 import lombok.Data;
 
+import com.google.common.collect.Lists;
+
 @Data
 public class CleanOffsetResult {
+
     private List<String> failBrokers = Lists.newArrayList();
 
     private List<String> successBrokers = Lists.newArrayList();

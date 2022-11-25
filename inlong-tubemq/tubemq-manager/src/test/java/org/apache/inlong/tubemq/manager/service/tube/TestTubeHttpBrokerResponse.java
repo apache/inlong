@@ -17,10 +17,12 @@
 
 package org.apache.inlong.tubemq.manager.service.tube;
 
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.gson.Gson;
 
 @Slf4j
 public class TestTubeHttpBrokerResponse {
@@ -36,8 +38,7 @@ public class TestTubeHttpBrokerResponse {
                 + "\"stepOp\":32,\"isConfChanged\":\"true\",\"isConfLoaded\":\"false\","
                 + "\"isBrokerOnline\":\"false\",\"brokerVersion\":\"-\","
                 + "\"acceptPublish\":\"false\",\"acceptSubscribe\":\"false\"}]}";
-        TubeHttpBrokerInfoList brokerInfoList =
-                gson.fromJson(jsonStr, TubeHttpBrokerInfoList.class);
+        TubeHttpBrokerInfoList brokerInfoList = gson.fromJson(jsonStr, TubeHttpBrokerInfoList.class);
         Assert.assertEquals(1, brokerInfoList.getData().size());
         Assert.assertEquals(0, brokerInfoList.getCode());
         Assert.assertEquals("OK", brokerInfoList.getErrMsg());

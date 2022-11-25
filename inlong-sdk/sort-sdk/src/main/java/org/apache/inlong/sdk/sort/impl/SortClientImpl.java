@@ -27,6 +27,7 @@ import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.exception.NotExistException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,8 @@ public class SortClientImpl extends SortClient {
     /**
      * SortClient Constructor
      *
-     * @param sortClientConfig SortClientConfig
+     * @param sortClientConfig
+     *          SortClientConfig
      */
     public SortClientImpl(SortClientConfig sortClientConfig) {
         try {
@@ -59,12 +61,17 @@ public class SortClientImpl extends SortClient {
     }
 
     /**
-     * SortClient Constructor with user defined QueryConsumeConfig,MetricReporter and ManagerReportHandler
+     * SortClient Constructor with user defined QueryConsumeConfig,MetricReporter
+     * and ManagerReportHandler
      *
-     * @param sortClientConfig SortClientConfig
-     * @param queryConsumeConfig QueryConsumeConfig
-     * @param metricReporter MetricReporter
-     * @param managerReportHandler ManagerReportHandler
+     * @param sortClientConfig
+     *          SortClientConfig
+     * @param queryConsumeConfig
+     *          QueryConsumeConfig
+     * @param metricReporter
+     *          MetricReporter
+     * @param managerReportHandler
+     *          ManagerReportHandler
      */
     public SortClientImpl(SortClientConfig sortClientConfig, QueryConsumeConfig queryConsumeConfig,
             MetricReporter metricReporter, ManagerReportHandler managerReportHandler) {
@@ -94,13 +101,14 @@ public class SortClientImpl extends SortClient {
     /**
      * ack offset to msgKey
      *
-     * @param msgKey String
-     * @param msgOffset String
+     * @param msgKey
+     *          String
+     * @param msgOffset
+     *          String
      * @throws Exception
      */
     @Override
-    public void ack(String msgKey, String msgOffset)
-            throws Exception {
+    public void ack(String msgKey, String msgOffset) throws Exception {
         logger.debug("ack:{} offset:{}", msgKey, msgOffset);
         InLongTopicFetcher inLongTopicFetcher = getFetcher(msgKey);
         inLongTopicFetcher.ack(msgOffset);

@@ -38,10 +38,14 @@ public class Tuple4<T0, T1, T2, T3> {
     /**
      * Creates a new tuple and assigns the given values to the tuple's fields.
      *
-     * @param value0 The value for field 0
-     * @param value1 The value for field 1
-     * @param value2 The value for field 2
-     * @param value3 The value for field 3
+     * @param value0
+     *          The value for field 0
+     * @param value1
+     *          The value for field 1
+     * @param value2
+     *          The value for field 2
+     * @param value3
+     *          The value for field 3
      */
     public Tuple4(T0 value0, T1 value1, T2 value2, T3 value3) {
         setFieldsValue(value0, value1, value2, value3);

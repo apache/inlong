@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.transformation.function.HopEndFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopStartFunction;
@@ -29,13 +27,13 @@ import org.apache.inlong.sort.protocol.transformation.function.TumbleEndFunction
 import org.apache.inlong.sort.protocol.transformation.function.TumbleFunction;
 import org.apache.inlong.sort.protocol.transformation.function.TumbleStartFunction;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * interface for all the window functions appeared in flink
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark"),
         @JsonSubTypes.Type(value = HopStartFunction.class, name = "hopStart"),

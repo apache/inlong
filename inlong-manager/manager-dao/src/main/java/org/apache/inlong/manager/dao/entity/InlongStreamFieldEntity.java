@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
+
+import lombok.Data;
 
 /**
  * Inlong stream field entity, including inlong gourp id, inlong stream id, etc.

@@ -17,16 +17,19 @@
 
 package org.apache.inlong.manager.common.validation;
 
-import com.google.common.base.Joiner;
 import org.apache.inlong.manager.common.enums.IntListValuable;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import java.util.Collections;
 import java.util.List;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import com.google.common.base.Joiner;
+
 /**
- * Check whether the incoming Integer type parameter is in the corresponding enum value
+ * Check whether the incoming Integer type parameter is in the corresponding
+ * enum value
  */
 public class InEnumIntValidator implements ConstraintValidator<InEnumInt, Integer> {
 
@@ -52,12 +55,10 @@ public class InEnumIntValidator implements ConstraintValidator<InEnumInt, Intege
         context.disableDefaultConstraintViolation();
         // Add the error message again
         context.buildConstraintViolationWithTemplate(
-                        context.getDefaultConstraintMessageTemplate()
-                                .replace("{value}", Joiner.on(",").join(values))
-                )
+                context.getDefaultConstraintMessageTemplate()
+                        .replace("{value}", Joiner.on(",").join(values)))
                 .addConstraintViolation();
         return false;
     }
 
 }
-

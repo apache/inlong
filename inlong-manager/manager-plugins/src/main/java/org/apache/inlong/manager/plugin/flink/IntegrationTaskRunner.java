@@ -17,15 +17,17 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.common.JobStatus;
+import static org.apache.flink.api.common.JobStatus.FINISHED;
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
+
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.dto.StopWithSavepointRequest;
 import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 
-import static org.apache.flink.api.common.JobStatus.FINISHED;
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
+import org.apache.flink.api.common.JobStatus;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Integration task runner for start, restart or stop flink service.

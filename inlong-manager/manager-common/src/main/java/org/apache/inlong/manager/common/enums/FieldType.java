@@ -21,37 +21,9 @@ import org.apache.inlong.manager.common.util.Preconditions;
 
 public enum FieldType {
 
-    INT,
-    TINYINT,
-    SMALLINT,
-    BIGINT,
-    SHORT,
-    LONG,
-    DOUBLE,
-    FLOAT,
-    DECIMAL,
-    STRING,
-    FIXED,
-    BYTE,
-    BINARY,
-    VARCHAR,
-    VARBINARY,
-    BOOLEAN,
-    DATE,
-    TIME,
-    INT8,
-    INT16,
-    INT32,
-    INT64,
-    FLOAT32,
-    FLOAT64,
-    DATETIME,
-    TIMESTAMP,
-    LOCAL_ZONE_TIMESTAMP,
-    ARRAY,
-    MAP,
-    STRUCT,
-    FUNCTION;
+    INT, TINYINT, SMALLINT, BIGINT, SHORT, LONG, DOUBLE, FLOAT, DECIMAL, STRING, FIXED, BYTE, BINARY, VARCHAR,
+    VARBINARY, BOOLEAN, DATE, TIME, INT8, INT16, INT32, INT64, FLOAT32, FLOAT64, DATETIME, TIMESTAMP,
+    LOCAL_ZONE_TIMESTAMP, ARRAY, MAP, STRUCT, FUNCTION;
 
     public static FieldType forName(String name) {
         Preconditions.checkNotNull(name, "FieldType should not be null");

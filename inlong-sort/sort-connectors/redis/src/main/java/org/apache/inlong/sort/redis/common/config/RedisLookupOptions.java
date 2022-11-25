@@ -35,7 +35,8 @@ public class RedisLookupOptions implements Serializable {
     private final long cacheExpireMs;
     private final int maxRetryTimes;
     /**
-     * Asynchronous processing has not been implemented yet, but the entry is reserved
+     * Asynchronous processing has not been implemented yet, but the entry is
+     * reserved
      */
     private final boolean lookupAsync;
 
@@ -91,7 +92,8 @@ public class RedisLookupOptions implements Serializable {
         private boolean lookupAsync = false;
 
         /**
-         * optional, lookup cache max size, over this value, the old data will be eliminated.
+         * optional, lookup cache max size, over this value, the old data will be
+         * eliminated.
          */
         public Builder setCacheMaxSize(long cacheMaxSize) {
             this.cacheMaxSize = cacheMaxSize;
@@ -99,7 +101,8 @@ public class RedisLookupOptions implements Serializable {
         }
 
         /**
-         * optional, lookup cache expire mills, over this time, the old data will expire.
+         * optional, lookup cache expire mills, over this time, the old data will
+         * expire.
          */
         public Builder setCacheExpireMs(long cacheExpireMs) {
             this.cacheExpireMs = cacheExpireMs;

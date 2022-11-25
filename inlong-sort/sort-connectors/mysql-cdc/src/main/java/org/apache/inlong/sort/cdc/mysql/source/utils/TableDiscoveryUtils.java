@@ -18,16 +18,12 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
-import io.debezium.connector.mysql.MySqlConnection;
-import io.debezium.jdbc.JdbcConnection;
-import io.debezium.relational.RelationalTableFilters;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import org.apache.flink.util.FlinkRuntimeException;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote;
+
 import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flink.util.FlinkRuntimeException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,18 +31,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.connector.mysql.MySqlConnection;
+import io.debezium.jdbc.JdbcConnection;
+import io.debezium.relational.RelationalTableFilters;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
 
 /**
  * Utilities to discovery matched tables.
  */
 public class TableDiscoveryUtils {
+
     private static final Logger LOG = LoggerFactory.getLogger(TableDiscoveryUtils.class);
 
     /**
      * Get list of table.
      */
-    public static List<TableId> listTables(JdbcConnection jdbc, RelationalTableFilters tableFilters)
+    public static List<TableId> listTables(JdbcConnection jdbc,
+            RelationalTableFilters tableFilters)
             throws SQLException {
         final List<TableId> capturedTableIds = new ArrayList<>();
         // -------------------
@@ -68,9 +73,12 @@ public class TableDiscoveryUtils {
         // ----------------
         // READ TABLE NAMES
         // ----------------
-        // Get the list of table IDs for each database. We can't use a prepared statement with
-        // MySQL, so we have to build the SQL statement each time. Although in other cases this
-        // might lead to SQL injection, in our case we are reading the database names from the
+        // Get the list of table IDs for each database. We can't use a prepared
+        // statement with
+        // MySQL, so we have to build the SQL statement each time. Although in other
+        // cases this
+        // might lead to SQL injection, in our case we are reading the database names
+        // from the
         // database and not taking them from the user ...
         LOG.info("Read list of available tables in each database");
         for (String dbName : databaseNames) {
@@ -103,7 +111,8 @@ public class TableDiscoveryUtils {
      * Discover schemas of table.
      */
     public static Map<TableId, TableChanges.TableChange> discoverCapturedTableSchemas(
-            MySqlSourceConfig sourceConfig, MySqlConnection jdbc) {
+            MySqlSourceConfig sourceConfig,
+            MySqlConnection jdbc) {
         final List<TableId> capturedTableIds;
         try {
             capturedTableIds = listTables(jdbc, sourceConfig.getTableFilters());

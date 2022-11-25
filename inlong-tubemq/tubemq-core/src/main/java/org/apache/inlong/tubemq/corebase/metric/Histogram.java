@@ -27,39 +27,48 @@ public interface Histogram extends Metric {
     /**
      * Update a new value.
      *
-     * @param newValue a new recorded value
+     * @param newValue
+     *          a new recorded value
      */
     void update(long newValue);
 
     /**
      * Get the current recorded values.
      *
-     * @param keyValMap     the read result, the key is metric item's full name
-     * @param includeZero   whether to include the details item with value 0
+     * @param keyValMap
+     *          the read result, the key is metric item's full name
+     * @param includeZero
+     *          whether to include the details item with value 0
      */
     void getValue(Map<String, Long> keyValMap, boolean includeZero);
 
     /**
      * Get the current recorded values.
      *
-     * @param strBuff       string buffer, json format
-     * @param includeZero   whether to include the details item with value 0
+     * @param strBuff
+     *          string buffer, json format
+     * @param includeZero
+     *          whether to include the details item with value 0
      */
     void getValue(StringBuilder strBuff, boolean includeZero);
 
     /**
      * Get the current recorded values and reset to zero.
      *
-     * @param keyValMap     the read result, the key is metric item's full name
-     * @param includeZero   whether to include the details item with value 0
+     * @param keyValMap
+     *          the read result, the key is metric item's full name
+     * @param includeZero
+     *          whether to include the details item with value 0
      */
     void snapShort(Map<String, Long> keyValMap, boolean includeZero);
 
     /**
      * Get the current recorded values and reset to zero.
      *
-     * @param strBuff       string buffer, json format
-     * @param includeZero   whether to include the details item with value 0
+     * @param strBuff
+     *          string buffer, json format
+     * @param includeZero
+     *          whether to include the details item with value 0
      */
     void snapShort(StringBuilder strBuff, boolean includeZero);
 

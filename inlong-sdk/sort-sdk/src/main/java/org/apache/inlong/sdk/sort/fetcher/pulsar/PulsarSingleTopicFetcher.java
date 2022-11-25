@@ -18,16 +18,17 @@
 
 package org.apache.inlong.sdk.sort.fetcher.pulsar;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.Deserializer;
+import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.sdk.sort.api.SeekerFactory;
 import org.apache.inlong.sdk.sort.api.SingleTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sdk.sort.api.Interceptor;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
@@ -37,8 +38,6 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -48,10 +47,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Pulsar single topic fetcher.
  */
 public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarSingleTopicFetcher.class);
     private final ReentrantReadWriteLock mainLock = new ReentrantReadWriteLock(true);
     private final ConcurrentHashMap<String, MessageId> offsetCache = new ConcurrentHashMap<>();
@@ -91,7 +94,8 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
     /**
      * ack Offset
      *
-     * @param msgOffset String
+     * @param msgOffset
+     *          String
      */
     @Override
     public void ack(String msgOffset) throws Exception {
@@ -227,7 +231,8 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
         /**
          * put the received msg to onFinished method
          *
-         * @param messageRecords {@link List}
+         * @param messageRecords
+         *          {@link List}
          */
         private void handleAndCallbackMsg(List<MessageRecord> messageRecords) {
             long start = System.currentTimeMillis();
@@ -279,7 +284,7 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                             String offsetKey = getOffset(msg.getMessageId());
                             offsetCache.put(offsetKey, msg.getMessageId());
 
-                            //deserialize
+                            // deserialize
                             List<InLongMessage> inLongMessages = deserializer
                                     .deserialize(context, topic, msg.getProperties(), msg.getData());
                             // intercept

@@ -21,19 +21,20 @@ import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.task.InlongGroupApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
-import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.listener.group.apply.AfterApprovedTaskListener;
 import org.apache.inlong.manager.service.listener.group.apply.ApproveApplyProcessListener;
 import org.apache.inlong.manager.service.listener.group.apply.CancelApplyProcessListener;
 import org.apache.inlong.manager.service.listener.group.apply.RejectApplyProcessListener;
+import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * New inlong group process definition
@@ -65,8 +66,10 @@ public class ApplyGroupWorkflowDefinition implements WorkflowDefinition {
         // Set up the listener
         process.addListener(cancelApplyProcessListener);
         process.addListener(rejectApplyProcessListener);
-        // Initiate the process of creating inlong group resources, and set the inlong group status
-        // to [Configuration Successful]/[Configuration Failed] according to its completion
+        // Initiate the process of creating inlong group resources, and set the inlong
+        // group status
+        // to [Configuration Successful]/[Configuration Failed] according to its
+        // completion
         process.addListener(approveApplyProcessListener);
 
         // Start node
@@ -103,8 +106,8 @@ public class ApplyGroupWorkflowDefinition implements WorkflowDefinition {
     /**
      * Get task approvers by process name and task name
      *
-     * @apiNote Do not delete this method, otherwise the unit tests will fail due to not loading the table
-     *         structure in time.
+     * @apiNote Do not delete this method, otherwise the unit tests will fail due to
+     *          not loading the table structure in time.
      */
     private List<String> getTaskApprovers(String taskName) {
         return workflowApproverService.getApprovers(this.getProcessName().name(), taskName);

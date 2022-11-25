@@ -18,9 +18,10 @@
 
 package org.apache.inlong.sort.cdc.sqlserver.table;
 
-import com.ververica.cdc.connectors.sqlserver.table.SqlServerDeserializationConverterFactory;
-import com.ververica.cdc.connectors.sqlserver.table.SqlServerReadableMetadata;
-import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import org.apache.inlong.sort.cdc.sqlserver.SqlServerSource;
+
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -33,11 +34,6 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 
-import org.apache.inlong.sort.cdc.sqlserver.SqlServerSource;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.table.MetadataConverter;
-import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
-
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
@@ -47,11 +43,16 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import com.ververica.cdc.connectors.sqlserver.table.SqlServerDeserializationConverterFactory;
+import com.ververica.cdc.connectors.sqlserver.table.SqlServerReadableMetadata;
+import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
+import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
+import com.ververica.cdc.debezium.table.MetadataConverter;
+import com.ververica.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
 
 /**
- * A {@link DynamicTableSource} that describes how to create a SqlServer source from a logical
- * description.
+ * A {@link DynamicTableSource} that describes how to create a SqlServer source
+ * from a logical description.
  */
 public class SqlServerTableSource implements ScanTableSource, SupportsReadingMetadata {
 
@@ -94,7 +95,7 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
             Properties dbzProperties,
             StartupOptions startupOptions,
             String inlongMetric,
-        String auditHostAndPorts) {
+            String auditHostAndPorts) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -124,34 +125,31 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
 
     @Override
     public ScanRuntimeProvider getScanRuntimeProvider(ScanContext scanContext) {
-        RowType physicalDataType =
-                (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
+        RowType physicalDataType = (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
         MetadataConverter[] metadataConverters = getMetadataConverters();
         TypeInformation<RowData> typeInfo = scanContext.createTypeInformation(producedDataType);
 
-        DebeziumDeserializationSchema<RowData> deserializer =
-                RowDataDebeziumDeserializeSchema.newBuilder()
-                        .setPhysicalRowType(physicalDataType)
-                        .setMetadataConverters(metadataConverters)
-                        .setResultTypeInfo(typeInfo)
-                        .setServerTimeZone(serverTimeZone)
-                        .setUserDefinedConverterFactory(
-                                SqlServerDeserializationConverterFactory.instance())
-                        .build();
-        DebeziumSourceFunction<RowData> sourceFunction =
-                SqlServerSource.<RowData>builder()
-                        .hostname(hostname)
-                        .port(port)
-                        .database(database)
-                        .tableList(schemaName + "." + tableName)
-                        .username(username)
-                        .password(password)
-                        .debeziumProperties(dbzProperties)
-                        .startupOptions(startupOptions)
-                        .deserializer(deserializer)
-                    .inlongMetric(inlongMetric)
-                    .auditHostAndPorts(auditHostAndPorts)
-                        .build();
+        DebeziumDeserializationSchema<RowData> deserializer = RowDataDebeziumDeserializeSchema.newBuilder()
+                .setPhysicalRowType(physicalDataType)
+                .setMetadataConverters(metadataConverters)
+                .setResultTypeInfo(typeInfo)
+                .setServerTimeZone(serverTimeZone)
+                .setUserDefinedConverterFactory(
+                        SqlServerDeserializationConverterFactory.instance())
+                .build();
+        DebeziumSourceFunction<RowData> sourceFunction = SqlServerSource.<RowData>builder()
+                .hostname(hostname)
+                .port(port)
+                .database(database)
+                .tableList(schemaName + "." + tableName)
+                .username(username)
+                .password(password)
+                .debeziumProperties(dbzProperties)
+                .startupOptions(startupOptions)
+                .deserializer(deserializer)
+                .inlongMetric(inlongMetric)
+                .auditHostAndPorts(auditHostAndPorts)
+                .build();
         return SourceFunctionProvider.of(sourceFunction, false);
     }
 
@@ -162,32 +160,30 @@ public class SqlServerTableSource implements ScanTableSource, SupportsReadingMet
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(SqlServerReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(SqlServerReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(SqlServerReadableMetadata::getConverter)
                 .toArray(MetadataConverter[]::new);
     }
 
     @Override
     public DynamicTableSource copy() {
-        SqlServerTableSource source =
-                new SqlServerTableSource(
-                        physicalSchema,
-                        port,
-                        hostname,
-                        database,
-                        schemaName,
-                        tableName,
-                        serverTimeZone,
-                        username,
-                        password,
-                        dbzProperties,
-                        startupOptions,
-                    inlongMetric,
-                    auditHostAndPorts);
+        SqlServerTableSource source = new SqlServerTableSource(
+                physicalSchema,
+                port,
+                hostname,
+                database,
+                schemaName,
+                tableName,
+                serverTimeZone,
+                username,
+                password,
+                dbzProperties,
+                startupOptions,
+                inlongMetric,
+                auditHostAndPorts);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

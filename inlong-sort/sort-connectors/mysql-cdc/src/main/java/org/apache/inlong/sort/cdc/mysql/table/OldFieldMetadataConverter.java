@@ -18,14 +18,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
-import io.debezium.data.Envelope;
-import io.debezium.data.SpecialValueDecimal;
-import io.debezium.data.VariableScaleDecimal;
-import io.debezium.time.MicroTime;
-import io.debezium.time.MicroTimestamp;
-import io.debezium.time.NanoTime;
-import io.debezium.time.NanoTimestamp;
-import io.debezium.time.Timestamp;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
+
+import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.debezium.utils.TemporalConversions;
+
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericArrayData;
 import org.apache.flink.table.data.GenericMapData;
@@ -34,15 +31,11 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.debezium.utils.TemporalConversions;
 import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -59,7 +52,17 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.data.Envelope;
+import io.debezium.data.SpecialValueDecimal;
+import io.debezium.data.VariableScaleDecimal;
+import io.debezium.time.MicroTime;
+import io.debezium.time.MicroTimestamp;
+import io.debezium.time.NanoTime;
+import io.debezium.time.NanoTimestamp;
+import io.debezium.time.Timestamp;
 
 /**
  * A {@link MetadataConverter} for {@link MySqlReadableMetadata#OLD}.
@@ -72,32 +75,31 @@ public class OldFieldMetadataConverter implements MetadataConverter {
     /**
      * Formatter for SQL string representation of a time value.
      */
-    private static final DateTimeFormatter SQL_TIME_FORMAT =
-            new DateTimeFormatterBuilder()
-                    .appendPattern("HH:mm:ss")
-                    .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
-                    .toFormatter();
+    private static final DateTimeFormatter SQL_TIME_FORMAT = new DateTimeFormatterBuilder()
+            .appendPattern("HH:mm:ss")
+            .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
+            .toFormatter();
 
     /**
-     * Formatter for SQL string representation of a timestamp value (without UTC timezone).
+     * Formatter for SQL string representation of a timestamp value (without UTC
+     * timezone).
      */
-    private static final DateTimeFormatter SQL_TIMESTAMP_FORMAT =
-            new DateTimeFormatterBuilder()
-                    .append(DateTimeFormatter.ISO_LOCAL_DATE)
-                    .appendLiteral(' ')
-                    .append(SQL_TIME_FORMAT)
-                    .toFormatter();
+    private static final DateTimeFormatter SQL_TIMESTAMP_FORMAT = new DateTimeFormatterBuilder()
+            .append(DateTimeFormatter.ISO_LOCAL_DATE)
+            .appendLiteral(' ')
+            .append(SQL_TIME_FORMAT)
+            .toFormatter();
 
     /**
-     * Formatter for SQL string representation of a timestamp value (with UTC timezone).
+     * Formatter for SQL string representation of a timestamp value (with UTC
+     * timezone).
      */
-    private static final DateTimeFormatter SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT =
-            new DateTimeFormatterBuilder()
-                    .append(DateTimeFormatter.ISO_LOCAL_DATE)
-                    .appendLiteral(' ')
-                    .append(SQL_TIME_FORMAT)
-                    .appendPattern("'Z'")
-                    .toFormatter();
+    private static final DateTimeFormatter SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT = new DateTimeFormatterBuilder()
+            .append(DateTimeFormatter.ISO_LOCAL_DATE)
+            .appendLiteral(' ')
+            .append(SQL_TIME_FORMAT)
+            .appendPattern("'Z'")
+            .toFormatter();
 
     private final ZoneId serverTimeZone;
     private final MetadataConverter converter;
@@ -110,10 +112,9 @@ public class OldFieldMetadataConverter implements MetadataConverter {
         this.converter = MySqlReadableMetadata.OLD.getConverter();
         this.toStringConverter = new ToStringConverter();
         this.fieldNames = rowType.getFieldNames().toArray(new String[0]);
-        this.stringConverters =
-                rowType.getChildren().stream()
-                        .map(this::createConverter)
-                        .toArray(StringConverter[]::new);
+        this.stringConverters = rowType.getChildren().stream()
+                .map(this::createConverter)
+                .toArray(StringConverter[]::new);
     }
 
     @Override
@@ -166,6 +167,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
         switch (type.getTypeRoot()) {
             case NULL:
                 return new StringConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -222,7 +224,8 @@ public class OldFieldMetadataConverter implements MetadataConverter {
     }
 
     // --------------------------------------------------------------------------------
-    // IMPORTANT! We use anonymous classes instead of lambdas for a reason here. It is
+    // IMPORTANT! We use anonymous classes instead of lambdas for a reason here. It
+    // is
     // necessary because the maven shade plugin cannot relocate classes in
     // SerializedLambdas (MSHADE-260).
     // --------------------------------------------------------------------------------
@@ -260,6 +263,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
 
     private StringConverter createTimestampConverter() {
         return new StringConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -285,8 +289,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
                             break;
                     }
                 }
-                LocalDateTime localDateTime =
-                        TemporalConversions.toLocalDateTime(dbzObj, serverTimeZone);
+                LocalDateTime localDateTime = TemporalConversions.toLocalDateTime(dbzObj, serverTimeZone);
                 return TimestampData.fromLocalDateTime(localDateTime);
             }
         };
@@ -294,6 +297,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
 
     private StringConverter createLocalTimeZoneTimestampConverter() {
         return new StringConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -321,6 +325,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
 
     private StringConverter createBinaryConverter() {
         return new StringConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -350,6 +355,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
         final int scale = decimalType.getScale();
 
         return new StringConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -366,8 +372,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
                     bigDecimal = BigDecimal.valueOf((Double) dbzObj);
                 } else {
                     if (VariableScaleDecimal.LOGICAL_NAME.equals(schema.name())) {
-                        SpecialValueDecimal decimal =
-                                VariableScaleDecimal.toLogical((Struct) dbzObj);
+                        SpecialValueDecimal decimal = VariableScaleDecimal.toLogical((Struct) dbzObj);
                         bigDecimal = decimal.getDecimalValue().orElse(BigDecimal.ZERO);
                     } else {
                         // fallback to string
@@ -383,6 +388,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
 
     private StringConverter wrapIntoNullableConverter(StringConverter converter) {
         return new StringConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override

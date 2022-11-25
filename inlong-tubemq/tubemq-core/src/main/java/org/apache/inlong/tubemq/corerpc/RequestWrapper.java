@@ -17,8 +17,9 @@
 
 package org.apache.inlong.tubemq.corerpc;
 
-import java.io.Serializable;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+
+import java.io.Serializable;
 
 public class RequestWrapper implements Serializable {
 
@@ -33,7 +34,7 @@ public class RequestWrapper implements Serializable {
     private Object requestData;
 
     public RequestWrapper(int serviceType, int protocolVersion,
-                          int flagId, long timeout) {
+            int flagId, long timeout) {
         this.serviceType = serviceType;
         this.protocolVersion = protocolVersion;
         this.flagId = flagId;
@@ -41,8 +42,8 @@ public class RequestWrapper implements Serializable {
     }
 
     public RequestWrapper(int serviceType,
-                          int protocolType, int protocolVersion,
-                          int flagId, long timeout) {
+            int protocolType, int protocolVersion,
+            int flagId, long timeout) {
         this.serviceType = serviceType;
         this.protocolType = protocolType;
         this.protocolVersion = protocolVersion;

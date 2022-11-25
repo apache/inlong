@@ -17,13 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
@@ -45,12 +38,21 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.To
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunStatusInfo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 public class WebTopicDeployHandler extends AbstractWebHandler {
 
     /**
      * Constructor
      *
-     * @param master tube master
+     * @param master
+     *          tube master
      */
     public WebTopicDeployHandler(TMaster master) {
         super(master);
@@ -111,98 +113,119 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     /**
      * Query topic info with new format return
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
      * @return query result
      */
     public StringBuilder adminNewQueryTopicCfgAndRunInfo(HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innQueryTopicConfAndRunInfo(req, sBuffer, result, true);
     }
 
     /**
      * Query topic info with old format return
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
      * @return query result
      */
     public StringBuilder adminOldQueryTopicCfgAndRunInfo(HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innQueryTopicConfAndRunInfo(req, sBuffer, result, false);
     }
 
     /**
      * Add new topic deployment record
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminAddTopicDeployInfo(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdTopicDeployInfo(req, sBuffer, result, true);
     }
 
     /**
      * Modify topic deployment info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminModifyTopicDeployInfo(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdTopicDeployInfo(req, sBuffer, result, false);
     }
 
     /**
      * Add new topic deployment record in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchAddTopicDeployInfo(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdTopicDeployInfo(req, sBuffer, result, true);
     }
 
     /**
      * Add new topic deployment record in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchUpdTopicDeployInfo(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdTopicDeployInfo(req, sBuffer, result, false);
     }
 
     /**
      * Delete topic info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminDelTopicDeployInfo(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innModifyTopicDeployStatusInfo(req,
                 sBuffer, result, TopicStsChgType.STATUS_CHANGE_SOFT_DELETE);
     }
@@ -210,14 +233,17 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     /**
      * Remove topic info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminRmvTopicDeployInfo(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innModifyTopicDeployStatusInfo(req,
                 sBuffer, result, TopicStsChgType.STATUS_CHANGE_REMOVE);
     }
@@ -225,14 +251,17 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     /**
      * Redo delete topic info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminRedoDeletedTopicDeployInfo(HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innModifyTopicDeployStatusInfo(req,
                 sBuffer, result, TopicStsChgType.STATUS_CHANGE_REDO_SFDEL);
     }
@@ -240,14 +269,17 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     /**
      * Query broker's topic configure view
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryBrokerTopicCfgAndRunInfo(HttpServletRequest req,
-                                                            StringBuilder sBuffer,
-                                                            ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -261,8 +293,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             return sBuffer;
         }
         Set<Integer> brokerIdSet = (Set<Integer>) result.getRetData();
-        Map<Integer, List<TopicDeployEntity>> queryResult =
-                defMetaDataService.getTopicDeployInfoMap(topicNameSet, brokerIdSet);
+        Map<Integer, List<TopicDeployEntity>> queryResult = defMetaDataService.getTopicDeployInfoMap(topicNameSet,
+                brokerIdSet);
         // build query result
         int recordCount = 0;
         int topicTotalCfgCnt = 0;
@@ -285,8 +317,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
-            BrokerConfEntity brokerConf =
-                    defMetaDataService.getBrokerConfByBrokerId(entry.getKey());
+            BrokerConfEntity brokerConf = defMetaDataService.getBrokerConfByBrokerId(entry.getKey());
             if (brokerConf == null) {
                 continue;
             }
@@ -363,14 +394,17 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     /**
      * Query topic's broker configure view
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryTopicBrokerCfgAndRunInfo(HttpServletRequest req,
-                                                            StringBuilder sBuffer,
-                                                            ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
@@ -386,8 +420,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // query topic configure info
-        Map<String, List<TopicDeployEntity>> topicConfMap =
-                defMetaDataService.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
+        Map<String, List<TopicDeployEntity>> topicConfMap = defMetaDataService
+                .getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         // set statistic data items
         int recordCount = 0;
@@ -435,8 +469,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             topicSrvAccSubStatus = false;
             enableAuthControl = false;
             for (TopicDeployEntity entity : entry.getValue()) {
-                brokerConfEntity =
-                        defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
+                brokerConfEntity = defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
                 if (brokerConfEntity == null) {
                     continue;
                 }
@@ -447,8 +480,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 // accumulate configured data
                 brokerTotalCfgCnt++;
                 storeTotalCfgCnt += topicProps.getNumTopicStores();
-                partTotalCfgCnt +=
-                        topicProps.getNumPartitions() * topicProps.getNumTopicStores();
+                partTotalCfgCnt += topicProps.getNumPartitions() * topicProps.getNumTopicStores();
                 if (topicInfoTuple.getF2() != null) {
                     hasRunConfig = false;
                     tmpPartTtlCount =
@@ -505,22 +537,24 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     /**
      * Query broker's topic-name set info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQuerySimpleTopicName(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
         Set<Integer> brokerIds = (Set<Integer>) result.getRetData();
-        Map<Integer, Set<String>> brokerTopicConfigMap =
-                defMetaDataService.getBrokerTopicConfigInfo(brokerIds);
+        Map<Integer, Set<String>> brokerTopicConfigMap = defMetaDataService.getBrokerTopicConfigInfo(brokerIds);
         // build query result
         int dataCount = 0;
         int topicCnt = 0;
@@ -547,14 +581,17 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     /**
      * Query topic's broker id set
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQuerySimpleBrokerId(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -604,14 +641,17 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     /**
      * Query topic info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder innQueryTopicDeployConfInfo(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         TopicDeployEntity qryEntity = new TopicDeployEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -655,8 +695,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         qryEntity.updModifyInfo(qryEntity.getDataVerId(),
                 TBaseConstants.META_VALUE_UNDEFINED,
                 brokerPort, null, topicStatus, topicProps);
-        Map<String, List<TopicDeployEntity>> topicDeployInfoMap =
-                defMetaDataService.getTopicDeployInfoMap(topicNameSet, brokerIdSet, qryEntity);
+        Map<String, List<TopicDeployEntity>> topicDeployInfoMap = defMetaDataService.getTopicDeployInfoMap(topicNameSet,
+                brokerIdSet, qryEntity);
         // build query result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -678,15 +718,18 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     /**
      * Query topic info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     private StringBuilder innQueryTopicConfAndRunInfo(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result,
-                                                      boolean isNewVer) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isNewVer) {
         TopicDeployEntity qryEntity = new TopicDeployEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -737,8 +780,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
         qryEntity.updModifyInfo(qryEntity.getDataVerId(),
                 TBaseConstants.META_VALUE_UNDEFINED,
                 brokerPort, null, topicStatus, topicProps);
-        Map<String, List<TopicDeployEntity>> topicDeployInfoMap =
-                defMetaDataService.getTopicDeployInfoMap(topicNameSet, brokerIdSet, qryEntity);
+        Map<String, List<TopicDeployEntity>> topicDeployInfoMap = defMetaDataService.getTopicDeployInfoMap(topicNameSet,
+                brokerIdSet, qryEntity);
         // build query result
         if (isNewVer) {
             return buildNewQueryResult(withGroupAuthInfo, sBuffer, topicDeployInfoMap);
@@ -748,7 +791,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildOldQueryResult(StringBuilder sBuffer,
-                                              Map<String, List<TopicDeployEntity>> topicDeployInfoMap) {
+            Map<String, List<TopicDeployEntity>> topicDeployInfoMap) {
         // build query result
         int totalCnt = 0;
         int itemCount = 0;
@@ -796,8 +839,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 entity.toWebJsonStr(sBuffer, true, false);
                 sBuffer.append(",\"runInfo\":{");
                 strManageStatus = "-";
-                brokerConfEntity =
-                        defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
+                brokerConfEntity = defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
                 if (brokerConfEntity != null) {
                     strManageStatus = brokerConfEntity.getManageStatus().getDescription();
                 }
@@ -891,8 +933,8 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildNewQueryResult(boolean withAuthInfo,
-                                              StringBuilder sBuffer,
-                                              Map<String, List<TopicDeployEntity>> topicDeployMap) {
+            StringBuilder sBuffer,
+            Map<String, List<TopicDeployEntity>> topicDeployMap) {
         // build query result
         int totalCnt = 0;
         int itemCount = 0;
@@ -912,8 +954,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             totalRunNumPartCount = 0;
             isSrvAcceptPublish = false;
             isSrvAcceptSubscribe = false;
-            ctrlEntity =
-                    defMetaDataService.getTopicCtrlByTopicName(entry.getKey());
+            ctrlEntity = defMetaDataService.getTopicCtrlByTopicName(entry.getKey());
             if (ctrlEntity == null) {
                 continue;
             }
@@ -930,8 +971,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                 totalCfgNumPartCount += entity.getNumPartitions() * entity.getNumTopicStores();
                 entity.toWebJsonStr(sBuffer, true, false);
                 sBuffer.append(",\"runInfo\":{");
-                brokerConfEntity =
-                        defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
+                brokerConfEntity = defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
                 strManageStatus = "-";
                 if (brokerConfEntity != null) {
                     strManageStatus = brokerConfEntity.getManageStatus().getDescription();
@@ -977,8 +1017,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
                     .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount);
             if (withAuthInfo) {
                 sBuffer.append(",\"groupAuthInfo\":[");
-                groupCtrlInfoLst =
-                        defMetaDataService.getConsumeCtrlByTopic(entry.getKey());
+                groupCtrlInfoLst = defMetaDataService.getConsumeCtrlByTopic(entry.getKey());
                 itemCount = 0;
                 for (GroupConsumeCtrlEntity groupEntity : groupCtrlInfoLst) {
                     if (itemCount++ > 0) {
@@ -995,9 +1034,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdTopicDeployInfo(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result,
-                                                     boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -1042,9 +1081,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innBatchAddOrUpdTopicDeployInfo(HttpServletRequest req,
-                                                          StringBuilder sBuffer,
-                                                          ProcessResult result,
-                                                          boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -1056,8 +1095,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Map<String, TopicDeployEntity> addRecordMap =
-                (Map<String, TopicDeployEntity>) result.getRetData();
+        Map<String, TopicDeployEntity> addRecordMap = (Map<String, TopicDeployEntity>) result.getRetData();
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (TopicDeployEntity topicDeployInfo : addRecordMap.values()) {
             retInfo.add(defMetaDataService.addOrUpdTopicDeployInfo(isAddOp,
@@ -1067,14 +1105,13 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     private boolean getTopicDeployJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                              BaseEntity defOpEntity, StringBuilder sBuffer,
-                                              ProcessResult result) {
+            BaseEntity defOpEntity, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.TOPICJSONSET, true, null, result)) {
             return result.isSuccess();
         }
-        List<Map<String, String>> deployJsonArray =
-                (List<Map<String, String>>) result.getRetData();
+        List<Map<String, String>> deployJsonArray = (List<Map<String, String>>) result.getRetData();
         TopicDeployEntity itemConf;
         Map<String, TopicDeployEntity> addRecordMap = new HashMap<>();
         // check and get topic deployment configure
@@ -1095,8 +1132,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             if (!getBrokerConfInfo(confMap, sBuffer, result)) {
                 return result.isSuccess();
             }
-            BrokerConfEntity brokerConf =
-                    (BrokerConfEntity) result.getRetData();
+            BrokerConfEntity brokerConf = (BrokerConfEntity) result.getRetData();
             // get and valid TopicPropGroup info
             if (!WebParameterUtils.getTopicPropInfo(confMap,
                     (isAddOp ? brokerConf.getTopicProps() : null), sBuffer, result)) {
@@ -1105,8 +1141,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
             final TopicPropGroup topicPropInfo = (TopicPropGroup) result.getRetData();
             // get topicNameId field
             int topicNameId = TBaseConstants.META_VALUE_UNDEFINED;
-            TopicCtrlEntity topicCtrlEntity =
-                    defMetaDataService.getTopicCtrlByTopicName(topicName);
+            TopicCtrlEntity topicCtrlEntity = defMetaDataService.getTopicCtrlByTopicName(topicName);
             if (topicCtrlEntity != null) {
                 topicNameId = topicCtrlEntity.getTopicId();
             }
@@ -1136,15 +1171,14 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     private boolean getBrokerConfInfo(Map<String, String> keyValueMap,
-                                      StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         // get brokerId
         if (!WebParameterUtils.getIntParamValue(keyValueMap,
                 WebFieldDef.BROKERID, true, 0, 0, sBuffer, result)) {
             return result.isSuccess();
         }
         int brokerId = (int) result.getRetData();
-        BrokerConfEntity curEntity =
-                defMetaDataService.getBrokerConfByBrokerId(brokerId);
+        BrokerConfEntity curEntity = defMetaDataService.getBrokerConfByBrokerId(brokerId);
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
                     sBuffer.append("Not found broker configure by ")
@@ -1157,7 +1191,7 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (TopicProcessResult entry : retInfo) {
@@ -1182,9 +1216,9 @@ public class WebTopicDeployHandler extends AbstractWebHandler {
      * @return
      */
     private StringBuilder innModifyTopicDeployStatusInfo(HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result,
-                                                         TopicStsChgType chgType) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            TopicStsChgType chgType) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());

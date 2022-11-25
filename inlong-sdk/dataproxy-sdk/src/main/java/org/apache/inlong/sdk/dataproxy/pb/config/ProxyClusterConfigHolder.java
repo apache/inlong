@@ -17,6 +17,15 @@
 
 package org.apache.inlong.sdk.dataproxy.pb.config;
 
+import org.apache.inlong.sdk.commons.protocol.InlongId;
+import org.apache.inlong.sdk.dataproxy.pb.config.pojo.InlongStreamConfig;
+import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyClusterConfig;
+import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyClusterResult;
+import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyInfo;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.flume.Context;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,13 +35,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Context;
-import org.apache.inlong.sdk.commons.protocol.InlongId;
-import org.apache.inlong.sdk.dataproxy.pb.config.pojo.InlongStreamConfig;
-import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyClusterConfig;
-import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyClusterResult;
-import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,13 +75,13 @@ public class ProxyClusterConfigHolder {
         String strLoaderType = context.getString(ProxyClusterConfigLoader.KEY_LOADER_TYPE);
         LoaderType loaderType = LoaderType.valueOf(strLoaderType);
         switch (loaderType) {
-            case File :
+            case File:
                 this.loader = new FileProxyClusterConfigLoader();
                 break;
-            case Manager :
+            case Manager:
                 this.loader = new ManagerProxyClusterConfigLoader();
                 break;
-            case Plugin :
+            case Plugin:
                 try {
                     String strLoaderClass = context.getString(ProxyClusterConfigLoader.KEY_LOADER_TYPE_PLUGIN_CLASS);
                     Class<?> loaderClass = ClassUtils.getClass(strLoaderClass);
@@ -91,8 +93,8 @@ public class ProxyClusterConfigHolder {
                     LOG.error("Fail to init loader,loaderType:{},error:{}", loaderType, t);
                 }
                 break;
-            case Context :
-            default :
+            case Context:
+            default:
                 this.loader = new ContextProxyClusterConfigLoader();
                 break;
         }
@@ -198,8 +200,8 @@ public class ProxyClusterConfigHolder {
     /**
      * getConfigByStream
      * 
-     * @param  inlongGroupId
-     * @param  inlongStreamId
+     * @param inlongGroupId
+     * @param inlongStreamId
      * @return
      */
     public static ProxyClusterConfig getConfigByStream(String inlongGroupId, String inlongStreamId) {
@@ -231,7 +233,7 @@ public class ProxyClusterConfigHolder {
     /**
      * getConfigByClusterId
      * 
-     * @param  clusterId
+     * @param clusterId
      * @return
      */
     public static ProxyClusterConfig getConfigByClusterId(String clusterId) {

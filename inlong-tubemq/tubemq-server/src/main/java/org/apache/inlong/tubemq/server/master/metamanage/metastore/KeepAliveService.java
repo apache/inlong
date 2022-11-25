@@ -40,36 +40,38 @@ public interface KeepAliveService extends Server {
     /**
      * Get current Master address
      *
-     * @return  the current Master address
+     * @return the current Master address
      */
     String getMasterAddress();
 
     /**
      * Whether the Master node in active
      *
-     * @return  true for Master, false for Slave
+     * @return true for Master, false for Slave
      */
     boolean isPrimaryNodeActive();
 
     /**
      * Transfer Master role to other replica node
      *
-     * @throws Exception the exception information
+     * @throws Exception
+     *           the exception information
      */
     void transferMaster() throws Exception;
 
     /**
      * Get group address info
      *
-     * @return  the group address information
+     * @return the group address information
      */
     ClusterGroupVO getGroupAddressStrInfo();
 
     /**
      * Get Master group status
      *
-     * @param isFromHeartbeat   whether called by hb thread
-     * @return    the master group status
+     * @param isFromHeartbeat
+     *          whether called by hb thread
+     * @return the master group status
      */
     MasterGroupStatus getMasterGroupStatus(boolean isFromHeartbeat);
 }

@@ -25,8 +25,9 @@ import java.math.BigInteger;
 public class ObjectUtils {
 
     /**
-     * Returns a number {@code Object} whose value is {@code (number + augend)}, Note: This method
-     * does not consider number overflow because we don't want to change the object type.
+     * Returns a number {@code Object} whose value is {@code (number + augend)},
+     * Note: This method does not consider number overflow because we don't want to
+     * change the object type.
      */
     public static Object plus(Object number, int augend) {
         if (number instanceof Integer) {
@@ -45,7 +46,10 @@ public class ObjectUtils {
         }
     }
 
-    /** Returns the difference {@code BigDecimal} whose value is {@code (minuend - subtrahend)}. */
+    /**
+     * Returns the difference {@code BigDecimal} whose value is
+     * {@code (minuend - subtrahend)}.
+     */
     public static BigDecimal minus(Object minuend, Object subtrahend) {
         if (!minuend.getClass().equals(subtrahend.getClass())) {
             throw new IllegalStateException(
@@ -75,11 +79,13 @@ public class ObjectUtils {
     /**
      * Compares two comparable objects.
      *
-     * @return The value {@code 0} if {@code num1} is equal to the {@code num2}; a value less than
-     *     {@code 0} if the {@code num1} is numerically less than the {@code num2}; and a value
-     *     greater than {@code 0} if the {@code num1} is numerically greater than the {@code num2}.
-     * @throws ClassCastException if the compared objects are not instance of {@link Comparable} or
-     *     not <i>mutually comparable</i> (for example, strings and integers).
+     * @return The value {@code 0} if {@code num1} is equal to the {@code num2}; a
+     *         value less than {@code 0} if the {@code num1} is numerically less
+     *         than the {@code num2}; and a value greater than {@code 0} if the
+     *         {@code num1} is numerically greater than the {@code num2}.
+     * @throws ClassCastException
+     *           if the compared objects are not instance of {@link Comparable} or
+     *           not <i>mutually comparable</i> (for example, strings and integers).
      */
     @SuppressWarnings("unchecked")
     public static int compare(Object obj1, Object obj2) {
@@ -93,8 +99,8 @@ public class ObjectUtils {
     /**
      * Compares two Double numeric object.
      *
-     * @return -1, 0, or 1 as this {@code arg1} is numerically less than, equal to, or greater than
-     *     {@code arg2}.
+     * @return -1, 0, or 1 as this {@code arg1} is numerically less than, equal to,
+     *         or greater than {@code arg2}.
      */
     public static int doubleCompare(double arg1, double arg2) {
         BigDecimal bigDecimal1 = BigDecimal.valueOf(arg1);

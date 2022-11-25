@@ -17,7 +17,12 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.google.common.collect.Lists;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+
 import org.apache.inlong.manager.client.api.inner.client.WorkflowClient;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -29,16 +34,13 @@ import org.apache.inlong.manager.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.pojo.workflow.WorkflowOperationRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.Lists;
 
 public class WorkflowClientTest extends ClientFactoryTest {
 
@@ -57,10 +59,7 @@ public class WorkflowClientTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/workflow/start.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(workflowResult))
-                                )
-                        )
-        );
+                                        Response.success(workflowResult)))));
         WorkflowOperationRequest request = new WorkflowOperationRequest();
         request.setName(ProcessName.APPLY_GROUP_PROCESS);
         request.setApplicant("test_user");
@@ -79,17 +78,13 @@ public class WorkflowClientTest extends ClientFactoryTest {
                 ProcessResponse.builder()
                         .id(1)
                         .name("test_process")
-                        .build()
-        );
+                        .build());
 
         stubFor(
                 get(urlMatching("/inlong/manager/api/workflow/listProcess.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageResult<>(responses)))
-                                )
-                        )
-        );
+                                        Response.success(new PageResult<>(responses))))));
 
         ProcessRequest request = new ProcessRequest();
         request.setId(1);

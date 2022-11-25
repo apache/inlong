@@ -17,15 +17,16 @@
 
 package org.apache.inlong.agent.message;
 
+import java.util.List;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * A batch of proxy messages used for batch sending, produced by PackProxyMessage
+ * A batch of proxy messages used for batch sending, produced by
+ * PackProxyMessage
  */
 @Data
 @AllArgsConstructor

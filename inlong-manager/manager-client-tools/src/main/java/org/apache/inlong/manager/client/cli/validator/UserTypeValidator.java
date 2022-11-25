@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.client.cli.validator;
 
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
+
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.ParameterException;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
 
 public class UserTypeValidator implements IParameterValidator {
 

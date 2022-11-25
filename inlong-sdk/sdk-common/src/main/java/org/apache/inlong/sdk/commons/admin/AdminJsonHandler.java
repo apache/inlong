@@ -22,8 +22,6 @@ import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.source.http.HTTPBadRequestException;
 import org.apache.flume.source.http.JSONHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +29,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -57,7 +58,8 @@ public class AdminJsonHandler implements AdminHttpSourceHandler {
     }
 
     @Override
-    public List<Event> getEvents(HttpServletRequest request, HttpServletResponse response)
+    public List<Event> getEvents(HttpServletRequest request,
+            HttpServletResponse response)
             throws HTTPBadRequestException, Exception {
         List<Event> events = this.requestHandler.getEvents(request);
         for (Event event : events) {

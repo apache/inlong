@@ -19,8 +19,6 @@
 
 package org.apache.inlong.sdk.sort.impl.kafka;
 
-import com.google.gson.Gson;
-
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SeekerFactory;
@@ -29,6 +27,7 @@ import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sdk.sort.fetcher.kafka.AckOffsetOnRebalance;
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -39,8 +38,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -52,6 +49,11 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 @Deprecated
 public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
@@ -218,7 +220,8 @@ public class InLongKafkaFetcherImpl extends InLongTopicFetcher {
         /**
          * put the received msg to onFinished method
          *
-         * @param messageRecords {@link List < MessageRecord >}
+         * @param messageRecords
+         *          {@link List < MessageRecord >}
          */
         private void handleAndCallbackMsg(List<MessageRecord> messageRecords) {
             long start = System.currentTimeMillis();

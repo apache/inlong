@@ -18,8 +18,7 @@
 package org.apache.inlong.tubemq.server.broker;
 
 import static java.lang.Math.abs;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.config.TLSConfig;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
@@ -31,6 +30,10 @@ import org.apache.inlong.tubemq.server.common.fileconfig.ADConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.AbstractFileConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.PrometheusConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 import org.slf4j.Logger;
@@ -40,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * Config of broker. Read from broker.ini config file.
  */
 public class BrokerConfig extends AbstractFileConfig {
+
     static final long serialVersionUID = -1L;
     private static final Logger logger = LoggerFactory.getLogger(BrokerConfig.class);
     // broker id
@@ -56,17 +60,13 @@ public class BrokerConfig extends AbstractFileConfig {
     private String masterAddressList;
     private String primaryPath;
     // tcp write service thread count
-    private int tcpWriteServiceThread =
-            Runtime.getRuntime().availableProcessors() * 2;
+    private int tcpWriteServiceThread = Runtime.getRuntime().availableProcessors() * 2;
     // tcp read service thread count
-    private int tcpReadServiceThread =
-            Runtime.getRuntime().availableProcessors() * 2;
+    private int tcpReadServiceThread = Runtime.getRuntime().availableProcessors() * 2;
     // tls write service thread count
-    private int tlsWriteServiceThread =
-            Runtime.getRuntime().availableProcessors() * 2;
+    private int tlsWriteServiceThread = Runtime.getRuntime().availableProcessors() * 2;
     // tls read service thread count
-    private int tlsReadServiceThread =
-            Runtime.getRuntime().availableProcessors() * 2;
+    private int tlsReadServiceThread = Runtime.getRuntime().availableProcessors() * 2;
     private long defaultDeduceReadSize = 7 * 1024 * 1024 * 1024L;
     private long defaultDoubleDeduceReadSize = this.defaultDeduceReadSize * 2;
     // max data segment size
@@ -106,8 +106,7 @@ public class BrokerConfig extends AbstractFileConfig {
     private long visitTokenCheckInValidTimeMs = 120000;
     private long ioExcptStatsDurationMs = 120000;
     // row lock wait duration
-    private int rowLockWaitDurMs =
-            TServerConstants.CFG_ROWLOCK_DEFAULT_DURATION;
+    private int rowLockWaitDurMs = TServerConstants.CFG_ROWLOCK_DEFAULT_DURATION;
     // zookeeper config
     private ZKConfig zkConfig = new ZKConfig();
     // tls config
@@ -119,12 +118,11 @@ public class BrokerConfig extends AbstractFileConfig {
     private boolean visitMasterAuth = false;
     private String visitName = "";
     private String visitPassword = "";
-    private long authValidTimeStampPeriodMs =
-            TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
+    private long authValidTimeStampPeriodMs = TBaseConstants.CFG_DEFAULT_AUTH_TIMESTAMP_VALID_INTERVAL;
     // the scan storage cycle for consume group offset
-    private long groupOffsetScanDurMs =
-            TServerConstants.CFG_DEFAULT_GROUP_OFFSET_SCAN_DUR;
-    // whether to enable the memory cache storage, the default is true, open the memory cache
+    private long groupOffsetScanDurMs = TServerConstants.CFG_DEFAULT_GROUP_OFFSET_SCAN_DUR;
+    // whether to enable the memory cache storage, the default is true, open the
+    // memory cache
     private boolean enableMemStore = true;
 
     public BrokerConfig() {
@@ -229,7 +227,7 @@ public class BrokerConfig extends AbstractFileConfig {
             int promHttpPort = this.prometheusConfig.getPromHttpPort();
             if ((promHttpPort == this.port || promHttpPort == this.webPort
                     || (tlsConfig.isTlsEnable()
-                    && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
+                            && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
                 throw new IllegalArgumentException(new StringBuilder(512)
                         .append("Illegal port value configuration, the value of ")
                         .append("port or webPort or tlsPort cannot be the same as the value of promHttpPort!")
@@ -241,7 +239,8 @@ public class BrokerConfig extends AbstractFileConfig {
     /**
      * Load config from broker.ini by section.
      *
-     * @param iniConf  configure section
+     * @param iniConf
+     *          configure section
      */
     private void loadBrokerSectConf(final Ini iniConf) {
         // #lizard forgives
@@ -269,8 +268,8 @@ public class BrokerConfig extends AbstractFileConfig {
                 this.hostName = AddressUtils.getIPV4LocalAddress(this.defEthName);
             } catch (Throwable e) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Get default broker hostName failure : ")
-                    .append(e.getMessage()).toString());
+                        .append("Get default broker hostName failure : ")
+                        .append(e.getMessage()).toString());
             }
         }
         if (TStringUtils.isBlank(brokerSect.get("masterAddressList"))) {
@@ -307,13 +306,12 @@ public class BrokerConfig extends AbstractFileConfig {
         }
         if (TStringUtils.isNotBlank(brokerSect.get("authValidTimeStampPeriodMs"))) {
             long tmpPeriodMs = this.getLong(brokerSect, "authValidTimeStampPeriodMs");
-            this.authValidTimeStampPeriodMs =
-                    tmpPeriodMs < 5000 ? 5000 : tmpPeriodMs > 120000 ? 120000 : tmpPeriodMs;
+            this.authValidTimeStampPeriodMs = tmpPeriodMs < 5000 ? 5000 : tmpPeriodMs > 120000 ? 120000 : tmpPeriodMs;
         }
         if (TStringUtils.isNotBlank(brokerSect.get("visitTokenCheckInValidTimeMs"))) {
             long tmpPeriodMs = this.getLong(brokerSect, "visitTokenCheckInValidTimeMs");
             this.visitTokenCheckInValidTimeMs =
-                tmpPeriodMs < 60000 ? 60000 : tmpPeriodMs > 300000 ? 300000 : tmpPeriodMs;
+                    tmpPeriodMs < 60000 ? 60000 : tmpPeriodMs > 300000 ? 300000 : tmpPeriodMs;
         }
         if (TStringUtils.isNotBlank(brokerSect.get("socketSendBuffer"))) {
             this.socketSendBuffer = getLong(brokerSect, "socketSendBuffer");
@@ -392,10 +390,9 @@ public class BrokerConfig extends AbstractFileConfig {
             this.visitPassword = brokerSect.get("visitPassword").trim();
         }
         if (TStringUtils.isNotBlank(brokerSect.get("groupOffsetScanDurMs"))) {
-            this.groupOffsetScanDurMs =
-                    MixedUtils.mid(getLong(brokerSect, "groupOffsetScanDurMs"),
-                            TServerConstants.CFG_MIN_GROUP_OFFSET_SCAN_DUR,
-                            TServerConstants.CFG_MAX_GROUP_OFFSET_SCAN_DUR);
+            this.groupOffsetScanDurMs = MixedUtils.mid(getLong(brokerSect, "groupOffsetScanDurMs"),
+                    TServerConstants.CFG_MIN_GROUP_OFFSET_SCAN_DUR,
+                    TServerConstants.CFG_MAX_GROUP_OFFSET_SCAN_DUR);
         }
         if (TStringUtils.isNotBlank(brokerSect.get("enableMemStore"))) {
             this.enableMemStore = this.getBoolean(brokerSect, "enableMemStore");

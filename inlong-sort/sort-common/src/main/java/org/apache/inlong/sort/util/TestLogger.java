@@ -20,6 +20,7 @@ package org.apache.inlong.sort.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
@@ -28,10 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Adds automatic test name logging. Every test which wants to log which test is currently executed
- * and why it failed, simply has to extend this class.
+ * Adds automatic test name logging. Every test which wants to log which test is
+ * currently executed and why it failed, simply has to extend this class.
  *
- * <p>Copied from Flink project.</p>
+ * <p>
+ * Copied from Flink project.
+ * </p>
  */
 public class TestLogger {
 

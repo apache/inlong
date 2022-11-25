@@ -17,17 +17,21 @@
 
 package org.apache.inlong.manager.pojo.transform;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.stream.StreamField;
-import org.hibernate.validator.constraints.Length;
+
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.util.List;
+
+import lombok.Data;
+
+import org.hibernate.validator.constraints.Length;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Stream transform request
@@ -50,8 +54,7 @@ public class TransformRequest {
 
     @NotBlank(message = "transformName cannot be blank")
     @Length(min = 1, max = 100, message = "transformName length must be between 1 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
-            message = "transformName only supports lowercase letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-z0-9_-]{1,100}$", message = "transformName only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty("Transform name, unique in one stream")
     private String transformName;
 
@@ -77,4 +80,3 @@ public class TransformRequest {
     @ApiModelProperty(value = "Field list")
     private List<StreamField> fieldList;
 }
-

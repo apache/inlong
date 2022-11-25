@@ -17,11 +17,9 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import com.tencentcloudapi.cls.producer.common.LogItem;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
-import org.slf4j.Logger;
 
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -29,6 +27,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+
+import com.tencentcloudapi.cls.producer.common.LogItem;
 
 /**
  * Default event to logItem handler.
@@ -41,8 +43,10 @@ public class DefaultEvent2LogItemHandler implements IEvent2LogItemHandler {
     /**
      * Parse event to {@literal List<LogItem>} format.
      *
-     * @param context Context of CLS sink.
-     * @param event Event to be pares to {@literal List<LogItem>}
+     * @param context
+     *          Context of CLS sink.
+     * @param event
+     *          Event to be pares to {@literal List<LogItem>}
      * @return Prepared data structure to send.
      */
     @Override

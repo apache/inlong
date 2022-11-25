@@ -17,15 +17,17 @@
 
 package org.apache.inlong.manager.service.workflow.consume;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumeProcessForm;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.ProcessDetailHandler;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.util.WorkflowUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Apply inlong consume process handler

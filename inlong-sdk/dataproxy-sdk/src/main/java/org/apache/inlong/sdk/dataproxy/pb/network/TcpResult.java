@@ -66,7 +66,8 @@ public class TcpResult {
     /**
      * set channelId
      * 
-     * @param channelId the channelId to set
+     * @param channelId
+     *          the channelId to set
      */
     public void setChannelId(Long channelId) {
         this.channelId = channelId;

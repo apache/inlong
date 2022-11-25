@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class DeleteClusterReq {
+
     private Long clusterId;
     private String modifyUser;
     private String token;

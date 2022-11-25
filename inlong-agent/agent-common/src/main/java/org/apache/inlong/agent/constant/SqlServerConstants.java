@@ -20,20 +20,21 @@ package org.apache.inlong.agent.constant;
 public class SqlServerConstants {
 
     /**
-     * Takes a snapshot of structure and data of captured tables;
-     * useful if topics should be populated with a complete representation of the data from the captured tables.
+     * Takes a snapshot of structure and data of captured tables; useful if topics
+     * should be populated with a complete representation of the data from the
+     * captured tables.
      */
     public static final String INITIAL = "initial";
 
     /**
-     * Takes a snapshot of structure and data like initial
-     * but instead does not transition into streaming changes once the snapshot has completed.
+     * Takes a snapshot of structure and data like initial but instead does not
+     * transition into streaming changes once the snapshot has completed.
      */
     public static final String INITIAL_ONLY = "initial_only";
 
     /**
-     * Takes a snapshot of the structure of captured tables only;
-     * useful if only changes happening from now onwards should be propagated to topics.
+     * Takes a snapshot of the structure of captured tables only; useful if only
+     * changes happening from now onwards should be propagated to topics.
      */
     public static final String SCHEMA_ONLY = "schema_only";
 }

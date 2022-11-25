@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.pulsar.withoutadmin;
 
+import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITTED_OFFSETS_METRICS_GAUGE;
+import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.CURRENT_OFFSETS_METRICS_GAUGE;
+import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.OFFSETS_BY_TOPIC_METRICS_GROUP;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import org.apache.flink.api.common.eventtime.WatermarkOutput;
 import org.apache.flink.api.common.eventtime.WatermarkOutputMultiplexer;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -37,12 +42,9 @@ import org.apache.flink.streaming.runtime.tasks.ProcessingTimeCallback;
 import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 import org.apache.flink.streaming.util.serialization.PulsarDeserializationSchema;
 import org.apache.flink.util.SerializedValue;
-
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.shade.com.google.common.collect.ImmutableList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -55,21 +57,22 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITTED_OFFSETS_METRICS_GAUGE;
-import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.CURRENT_OFFSETS_METRICS_GAUGE;
-import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.OFFSETS_BY_TOPIC_METRICS_GROUP;
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9,
- * From {@link org.apache.flink.streaming.connectors.pulsar.internal.PulsarFetcher}
- * Implements the logic around emitting records and tracking offsets,
- * as well as around the optional timestamp assignment and watermark generation.
+ * Copy from
+ * io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9, From
+ * {@link org.apache.flink.streaming.connectors.pulsar.internal.PulsarFetcher}
+ * Implements the logic around emitting records and tracking offsets, as well as
+ * around the optional timestamp assignment and watermark generation.
  *
- * @param <T> The type of elements deserialized from Pulsar messages, and emitted into
- *           the Flink data stream.
+ * @param <T>
+ *          The type of elements deserialized from Pulsar messages, and emitted
+ *          into the Flink data stream.
  */
 public class PulsarFetcher<T> {
+
     private static final Logger log = LoggerFactory.getLogger(PulsarFetcher.class);
     private static final int NO_TIMESTAMPS_WATERMARKS = 0;
     private static final int WITH_WATERMARK_GENERATOR = 1;
@@ -82,28 +85,35 @@ public class PulsarFetcher<T> {
     protected final Map<TopicRange, MessageId> seedTopicsWithInitialOffsets;
     protected final Set<TopicRange> excludeStartMessageIds;
 
-    /** The lock that guarantees that record emission and state updates are atomic,
-     * from the view of taking a checkpoint. */
+    /**
+     * The lock that guarantees that record emission and state updates are atomic,
+     * from the view of taking a checkpoint.
+     */
     private final Object checkpointLock;
 
     /** All partitions (and their state) that this fetcher is subscribed to. */
     protected final List<PulsarTopicState<T>> subscribedPartitionStates;
 
     /**
-     * Queue of partitions that are not yet assigned to any reader thread for consuming.
+     * Queue of partitions that are not yet assigned to any reader thread for
+     * consuming.
      *
-     * <p>All partitions added to this queue are guaranteed to have been added
-     * to {@link #subscribedPartitionStates} already.
+     * <p>
+     * All partitions added to this queue are guaranteed to have been added to
+     * {@link #subscribedPartitionStates} already.
      */
     protected final ClosableBlockingQueue<PulsarTopicState<T>> unassignedPartitionsQueue;
 
-    /** The mode describing whether the fetcher also generates timestamps and watermarks. */
+    /**
+     * The mode describing whether the fetcher also generates timestamps and
+     * watermarks.
+     */
     private final int timestampWatermarkMode;
 
     /**
-     * Optional watermark strategy that will be run per pulsar partition, to exploit per-partition
-     * timestamp characteristics. The watermark strategy is kept in serialized form, to deserialize
-     * it into multiple copies.
+     * Optional watermark strategy that will be run per pulsar partition, to exploit
+     * per-partition timestamp characteristics. The watermark strategy is kept in
+     * serialized form, to deserialize it into multiple copies.
      */
     private final SerializedValue<WatermarkStrategy<T>> watermarkStrategy;
 
@@ -126,20 +136,24 @@ public class PulsarFetcher<T> {
 
     /**
      * Wrapper around our SourceContext for allowing the
-     * {@link org.apache.flink.api.common.eventtime.WatermarkGenerator}
-     * to emit watermarks and mark idleness.
+     * {@link org.apache.flink.api.common.eventtime.WatermarkGenerator} to emit
+     * watermarks and mark idleness.
      */
     protected final WatermarkOutput watermarkOutput;
 
     /**
-     * {@link WatermarkOutputMultiplexer} for supporting per-partition watermark generation.
+     * {@link WatermarkOutputMultiplexer} for supporting per-partition watermark
+     * generation.
      */
     private final WatermarkOutputMultiplexer watermarkOutputMultiplexer;
 
     /** Flag to mark the main work loop as alive. */
     private volatile boolean running = true;
 
-    /** The threads that runs the actual reading and hand the records to this fetcher. */
+    /**
+     * The threads that runs the actual reading and hand the records to this
+     * fetcher.
+     */
     private Map<TopicRange, ReaderThread<T>> topicToThread;
 
     /** Failed or not when data loss. **/
@@ -151,13 +165,13 @@ public class PulsarFetcher<T> {
     private PoisonState poisonState;
 
     // ------------------------------------------------------------------------
-    //  Metrics
+    // Metrics
     // ------------------------------------------------------------------------
 
     /**
-     * Flag indicating whether or not metrics should be exposed.
-     * If {@code true}, offset metrics (e.g. current offset, committed offset) and
-     * pulsar-shipped metrics will be registered.
+     * Flag indicating whether or not metrics should be exposed. If {@code true},
+     * offset metrics (e.g. current offset, committed offset) and pulsar-shipped
+     * metrics will be registered.
      */
     private final boolean useMetrics;
 
@@ -180,7 +194,8 @@ public class PulsarFetcher<T> {
             PulsarDeserializationSchema<T> deserializer,
             PulsarMetadataReader metadataReader,
             MetricGroup consumerMetricGroup,
-            boolean useMetrics) throws Exception {
+            boolean useMetrics)
+            throws Exception {
         this(
                 sourceContext,
                 seedTopicsWithInitialOffsets,
@@ -197,8 +212,7 @@ public class PulsarFetcher<T> {
                 deserializer,
                 metadataReader,
                 consumerMetricGroup,
-                useMetrics
-        );
+                useMetrics);
     }
 
     public PulsarFetcher(
@@ -217,7 +231,8 @@ public class PulsarFetcher<T> {
             PulsarDeserializationSchema<T> deserializer,
             PulsarMetadataReader metadataReader,
             MetricGroup consumerMetricGroup,
-            boolean useMetrics) throws Exception {
+            boolean useMetrics)
+            throws Exception {
 
         this.sourceContext = sourceContext;
         this.watermarkOutput = new SourceContextWatermarkOutputAdapter<>(sourceContext);
@@ -264,7 +279,8 @@ public class PulsarFetcher<T> {
             }
         }
 
-        // all seed partitions are not assigned yet, so should be added to the unassigned partitions queue
+        // all seed partitions are not assigned yet, so should be added to the
+        // unassigned partitions queue
         for (PulsarTopicState<T> state : subscribedPartitionStates) {
             unassignedPartitionsQueue.add(state);
         }
@@ -303,7 +319,8 @@ public class PulsarFetcher<T> {
                 exceptionProxy.checkAndThrowException();
 
                 // wait for max 5 seconds trying to get partitions to assign
-                // if threads shut down, this poll returns earlier, because the threads inject the
+                // if threads shut down, this poll returns earlier, because the threads inject
+                // the
                 // special marker into the queue
                 List<PulsarTopicState<T>> topicsToAssign = unassignedPartitionsQueue.getBatchBlocking(5000);
                 // if there are more markers, remove them all
@@ -340,8 +357,10 @@ public class PulsarFetcher<T> {
         } catch (BreakingException b) {
             // do nothing
         } catch (InterruptedException e) {
-            // this may be thrown because an exception on one of the concurrent fetcher threads
-            // woke this thread up. make sure we throw the root exception instead in that case
+            // this may be thrown because an exception on one of the concurrent fetcher
+            // threads
+            // woke this thread up. make sure we throw the root exception instead in that
+            // case
             exceptionProxy.checkAndThrowException();
 
             // no other root exception, throw the interrupted exception
@@ -354,7 +373,8 @@ public class PulsarFetcher<T> {
             // case the initial interrupt already
             Thread.interrupted();
 
-            // make sure that in any case (completion, abort, error), all spawned threads are stopped
+            // make sure that in any case (completion, abort, error), all spawned threads
+            // are stopped
             try {
                 int runningThreads = 0;
                 do { // check whether threads are alive and cancel them
@@ -388,15 +408,20 @@ public class PulsarFetcher<T> {
     }
 
     // ------------------------------------------------------------------------
-    //  emitting records
+    // emitting records
     // ------------------------------------------------------------------------
 
     /**
      * Emits a record attaching a timestamp to it.
-     * @param record The record to emit
-     * @param partitionState The state of the pulsar partition from which the record was fetched
-     * @param offset The offset of the corresponding pulsar record
-     * @param pulsarEventTimestamp The timestamp of the pulsar record
+     * 
+     * @param record
+     *          The record to emit
+     * @param partitionState
+     *          The state of the pulsar partition from which the record was fetched
+     * @param offset
+     *          The offset of the corresponding pulsar record
+     * @param pulsarEventTimestamp
+     *          The timestamp of the pulsar record
      */
     protected void emitRecordsWithTimestamps(
             Queue<T> records,
@@ -462,13 +487,14 @@ public class PulsarFetcher<T> {
     }
 
     // ------------------------------------------------------------------------
-    //  snapshot and restore the state
+    // snapshot and restore the state
     // ------------------------------------------------------------------------
 
     /**
      * Takes a snapshot of the partition offsets.
      *
-     * <p>Important: This method must be called under the checkpoint lock.
+     * <p>
+     * Important: This method must be called under the checkpoint lock.
      *
      * @return A map from partition to current offset.
      */
@@ -522,14 +548,15 @@ public class PulsarFetcher<T> {
     }
 
     /**
-     * Utility method that takes the topic partitions and creates the topic partition state
-     * holders, depending on the timestamp / watermark mode.
+     * Utility method that takes the topic partitions and creates the topic
+     * partition state holders, depending on the timestamp / watermark mode.
      */
     private List<PulsarTopicState<T>> createPartitionStateHolders(
             Map<TopicRange, MessageId> partitionsToInitialOffsets,
             int timestampWatermarkMode,
             SerializedValue<WatermarkStrategy<T>> watermarkStrategy,
-            ClassLoader userCodeClassLoader) throws IOException, ClassNotFoundException {
+            ClassLoader userCodeClassLoader)
+            throws IOException, ClassNotFoundException {
 
         // CopyOnWrite as adding discovered partitions could happen in parallel
         // while different threads iterate the partitions list
@@ -556,10 +583,8 @@ public class PulsarFetcher<T> {
                     // the format of the ID does not matter, as long as it is unique
                     final String partitionId = state.getTopicRange().toString();
                     watermarkOutputMultiplexer.registerNewOutput(partitionId);
-                    WatermarkOutput immediateOutput =
-                            watermarkOutputMultiplexer.getImmediateOutput(partitionId);
-                    WatermarkOutput deferredOutput =
-                            watermarkOutputMultiplexer.getDeferredOutput(partitionId);
+                    WatermarkOutput immediateOutput = watermarkOutputMultiplexer.getImmediateOutput(partitionId);
+                    WatermarkOutput deferredOutput = watermarkOutputMultiplexer.getDeferredOutput(partitionId);
 
                     PulsarTopicPartitionStateWithWatermarkGenerator<T> partitionState =
                             new PulsarTopicPartitionStateWithWatermarkGenerator<>(
@@ -588,13 +613,19 @@ public class PulsarFetcher<T> {
     // ------------------------- Metrics ----------------------------------
 
     /**
-     * For each partition, register a new metric group to expose current offsets and committed offsets.
-     * Per-partition metric groups can be scoped by user variables.
+     * For each partition, register a new metric group to expose current offsets and
+     * committed offsets. Per-partition metric groups can be scoped by user
+     * variables.
      *
-     * <p>Note: this method also registers gauges for deprecated offset metrics, to maintain backwards compatibility.
+     * <p>
+     * Note: this method also registers gauges for deprecated offset metrics, to
+     * maintain backwards compatibility.
      *
-     * @param consumerMetricGroup The consumer metric group
-     * @param partitionOffsetStates The partition offset state holders, whose values will be used to update metrics
+     * @param consumerMetricGroup
+     *          The consumer metric group
+     * @param partitionOffsetStates
+     *          The partition offset state holders, whose values will be used to
+     *          update metrics
      */
     private void registerOffsetMetrics(
             MetricGroup consumerMetricGroup,
@@ -615,8 +646,7 @@ public class PulsarFetcher<T> {
      * Gauge types.
      */
     private enum OffsetGaugeType {
-        CURRENT_OFFSET,
-        COMMITTED_OFFSET
+        CURRENT_OFFSET, COMMITTED_OFFSET
     }
 
     /**
@@ -647,8 +677,9 @@ public class PulsarFetcher<T> {
     // ------------------------------------------------------------------------
 
     /**
-     * The periodic watermark emitter. In its given interval, it checks all partitions for
-     * the current event time watermark, and possibly emits the next watermark.
+     * The periodic watermark emitter. In its given interval, it checks all
+     * partitions for the current event time watermark, and possibly emits the next
+     * watermark.
      */
     private static class PeriodicWatermarkEmitter<T> implements ProcessingTimeCallback {
 
@@ -662,15 +693,14 @@ public class PulsarFetcher<T> {
 
         private final long interval;
 
-        //-------------------------------------------------
+        // -------------------------------------------------
 
         PeriodicWatermarkEmitter(
                 Object checkpointLock,
                 List<PulsarTopicState<T>> allPartitions,
                 WatermarkOutputMultiplexer watermarkOutputMultiplexer,
                 ProcessingTimeService timerService,
-                long autoWatermarkInterval
-        ) {
+                long autoWatermarkInterval) {
             this.checkpointLock = checkpointLock;
             this.allPartitions = checkNotNull(allPartitions);
             this.watermarkOutputMultiplexer = watermarkOutputMultiplexer;
@@ -678,7 +708,7 @@ public class PulsarFetcher<T> {
             this.interval = autoWatermarkInterval;
         }
 
-        //-------------------------------------------------
+        // -------------------------------------------------
 
         public void start() {
             timerService.registerTimer(timerService.getCurrentProcessingTime() + interval, this);
@@ -700,6 +730,7 @@ public class PulsarFetcher<T> {
     }
 
     private static class BreakingException extends Exception {
+
         static final BreakingException INSTANCE = new BreakingException();
 
         private BreakingException() {

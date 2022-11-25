@@ -17,23 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
-import com.google.gson.Gson;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodList;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import io.fabric8.kubernetes.client.dsl.PodResource;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
-import org.apache.inlong.agent.plugin.utils.PluginUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_ID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.CONTAINER_NAME;
 import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_CONTAINER_ID;
@@ -44,6 +27,26 @@ import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_POD_
 import static org.apache.inlong.agent.constant.KubernetesConstants.METADATA_POD_UID;
 import static org.apache.inlong.agent.constant.KubernetesConstants.NAMESPACE;
 import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
+
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
+import org.apache.inlong.agent.plugin.utils.PluginUtils;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodList;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.PodResource;
 
 /**
  * k8s file reader

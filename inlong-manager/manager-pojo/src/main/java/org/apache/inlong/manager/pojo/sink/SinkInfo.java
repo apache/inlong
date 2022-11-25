@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sink;
 
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import io.swagger.annotations.ApiModel;
 
 /**
  * Sink info - with stream

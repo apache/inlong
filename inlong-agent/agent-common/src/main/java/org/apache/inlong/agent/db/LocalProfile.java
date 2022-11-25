@@ -18,8 +18,6 @@
 package org.apache.inlong.agent.db;
 
 import org.apache.inlong.agent.conf.JobProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +26,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * profile from local file
@@ -58,7 +59,7 @@ public class LocalProfile {
             if (Files.isDirectory(this.filePath)) {
                 // list parent path and find files which name is end with .json or .properties
                 try (final Stream<Path> pathStream = Files.list(this.filePath)) {
-                    for (Iterator<Path> it = pathStream.iterator(); it.hasNext(); ) {
+                    for (Iterator<Path> it = pathStream.iterator(); it.hasNext();) {
                         String childPath = it.next().toString();
                         JobProfile jobProfile = null;
                         if (childPath.endsWith(JSON_SUFFIX)) {

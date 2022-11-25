@@ -17,10 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.action.screen.cluster;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
@@ -28,6 +24,12 @@ import org.apache.inlong.tubemq.server.master.web.common.ClusterQueryResult;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class ClusterManager implements Action {
 
@@ -54,6 +56,7 @@ public class ClusterManager implements Action {
     }
 
     public class BrokerComparator implements Comparator<BrokerInfo> {
+
         @Override
         public int compare(BrokerInfo o1, BrokerInfo o2) {
             return o1.getBrokerId() - o2.getBrokerId();

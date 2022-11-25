@@ -40,7 +40,8 @@ public class CacheCluster {
     /**
      * set clusterName
      *
-     * @param clusterName the clusterName to set
+     * @param clusterName
+     *          the clusterName to set
      */
     public void setClusterName(String clusterName) {
         this.clusterName = clusterName;
@@ -58,7 +59,8 @@ public class CacheCluster {
     /**
      * set type
      *
-     * @param type the type to set
+     * @param type
+     *          the type to set
      */
     public void setType(String type) {
         this.type = type;
@@ -76,7 +78,8 @@ public class CacheCluster {
     /**
      * set clusterTag
      *
-     * @param clusterTags the clusterTag to set
+     * @param clusterTags
+     *          the clusterTag to set
      */
     public void setClusterTags(String clusterTags) {
         this.clusterTags = clusterTags;
@@ -94,7 +97,8 @@ public class CacheCluster {
     /**
      * set extTag
      *
-     * @param extTag the extTag to set
+     * @param extTag
+     *          the extTag to set
      */
     public void setExtTag(String extTag) {
         this.extTag = extTag;
@@ -112,7 +116,8 @@ public class CacheCluster {
     /**
      * set extParams
      *
-     * @param extParams the extParams to set
+     * @param extParams
+     *          the extParams to set
      */
     public void setExtParams(String extParams) {
         this.extParams = extParams;

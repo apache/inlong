@@ -17,15 +17,17 @@
 
 package org.apache.inlong.manager.pojo.group;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import javax.validation.constraints.Pattern;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.Pattern;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Inlong group reset request
@@ -39,9 +41,8 @@ public class InlongGroupResetRequest {
 
     @ApiModelProperty(value = "Inlong group id", required = true)
     @Length(min = 4, max = 200)
-    @Pattern(regexp = "^(?![0-9]+$)[a-z][a-z0-9_-]{1,200}$",
-            message = "inlongGroupId must starts with a lowercase letter "
-                    + "and contains only lowercase letters, digits, `-` or `_`")
+    @Pattern(regexp = "^(?![0-9]+$)[a-z][a-z0-9_-]{1,200}$", message = "inlongGroupId must starts with a lowercase letter "
+            + "and contains only lowercase letters, digits, `-` or `_`")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "If rerun process when group is in operating, 0: false 1: true")

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.tubemq.client.consumer;
 
+import org.apache.inlong.tubemq.corebase.TokenConstants;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,14 +26,12 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.inlong.tubemq.corebase.TokenConstants;
 
 public class ClientSubInfo {
-    private final ConcurrentHashMap<String/* topic */, TopicProcessor> topicCondRegistry =
-            new ConcurrentHashMap<>();
+
+    private final ConcurrentHashMap<String/* topic */, TopicProcessor> topicCondRegistry = new ConcurrentHashMap<>();
     private boolean requireBound = false;
-    private AtomicBoolean isNotAllocated =
-            new AtomicBoolean(true);
+    private AtomicBoolean isNotAllocated = new AtomicBoolean(true);
     private int sourceCount = -1;
     private String sessionKey;
     private long subscribedTime;
@@ -79,9 +79,8 @@ public class ClientSubInfo {
     }
 
     public TopicProcessor putIfAbsentTopicProcessor(String topic,
-                                                    TopicProcessor topicProcessor) {
-        TopicProcessor topicProcessor1 =
-                this.topicCondRegistry.putIfAbsent(topic, topicProcessor);
+            TopicProcessor topicProcessor) {
+        TopicProcessor topicProcessor1 = this.topicCondRegistry.putIfAbsent(topic, topicProcessor);
         if (topicProcessor1 == null) {
             this.subscribedTopics.add(topic);
             Set<String> condSet = topicProcessor.getFilterConds();
@@ -142,16 +141,20 @@ public class ClientSubInfo {
     /**
      * Set Bound Consumption information
      *
-     * @param sessionKey     consume session key
-     * @param sourceCount    the client count of consume group
-     * @param isSelectBig    whether select a bigger data If there is reset conflict
-     * @param partOffsetMap  the map of partitionKey and bootstrap offset
+     * @param sessionKey
+     *          consume session key
+     * @param sourceCount
+     *          the client count of consume group
+     * @param isSelectBig
+     *          whether select a bigger data If there is reset conflict
+     * @param partOffsetMap
+     *          the map of partitionKey and bootstrap offset
      *
      */
     public void setRequireBound(final String sessionKey,
-                                final int sourceCount,
-                                final boolean isSelectBig,
-                                final Map<String, Long> partOffsetMap) {
+            final int sourceCount,
+            final boolean isSelectBig,
+            final Map<String, Long> partOffsetMap) {
         this.requireBound = true;
         this.subscribedTime = System.currentTimeMillis();
         this.sessionKey = sessionKey;

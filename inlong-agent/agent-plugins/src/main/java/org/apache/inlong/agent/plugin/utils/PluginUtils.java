@@ -17,32 +17,6 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.constant.JobConstants;
-import org.apache.inlong.agent.plugin.trigger.PathPattern;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.pulsar.client.api.CompressionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Objects;
-
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_COLON;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NIX_OS;
 import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NUX_OS;
@@ -55,6 +29,36 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
 import static org.apache.inlong.agent.constant.KubernetesConstants.HTTPS;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_HOST;
 import static org.apache.inlong.agent.constant.KubernetesConstants.KUBERNETES_SERVICE_PORT;
+
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.constant.JobConstants;
+import org.apache.inlong.agent.plugin.trigger.PathPattern;
+import org.apache.inlong.agent.utils.AgentUtils;
+
+import org.apache.pulsar.client.api.CompressionType;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Objects;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 
 /**
  * Utils for plugin package.
@@ -89,9 +93,9 @@ public class PluginUtils {
     public static Collection<File> findSuitFiles(JobProfile jobConf) {
         String dirPattern = jobConf.get(JOB_DIR_FILTER_PATTERN);
         LOGGER.info("start to find files with dir pattern {}", dirPattern);
-        PathPattern pattern =
-                jobConf.hasKey(JOB_FILE_TIME_OFFSET) ? new PathPattern(dirPattern, jobConf.get(JOB_FILE_TIME_OFFSET))
-                        : new PathPattern(dirPattern);
+        PathPattern pattern = jobConf.hasKey(JOB_FILE_TIME_OFFSET)
+                ? new PathPattern(dirPattern, jobConf.get(JOB_FILE_TIME_OFFSET))
+                : new PathPattern(dirPattern);
         updateRetryTime(jobConf, pattern);
         int maxFileNum = jobConf.getInt(FILE_MAX_NUM, DEFAULT_FILE_MAX_NUM);
         LOGGER.info("dir pattern {}, max file num {}", dirPattern, maxFileNum);

@@ -17,16 +17,6 @@ package org.apache.inlong.dataproxy.utils;
 
 import static org.apache.inlong.common.util.NetworkUtils.getLocalIp;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.flume.Event;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.monitor.LogCounter;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -34,19 +24,35 @@ import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.source.MsgType;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.flume.Event;
+
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+
 public class MessageUtils {
+
     // log print count
-    private static final LogCounter logCounter =
-            new LogCounter(10, 100000, 30 * 1000);
+    private static final LogCounter logCounter = new LogCounter(10, 100000, 30 * 1000);
 
     private static final Logger logger = LoggerFactory.getLogger(MessageUtils.class);
 
     /**
-     *  is or not sync send for order message
-     * @param event  event object
+     * is or not sync send for order message
+     * 
+     * @param event
+     *          event object
      * @return true/false
      */
     public static boolean isSyncSendForOrder(Event event) {
@@ -86,16 +92,22 @@ public class MessageUtils {
     }
 
     /**
-     *  Return response to client in source
-     * @param commonAttrMap attribute map
-     * @param resultMap     result map
-     * @param remoteChannel client channel
-     * @param msgType       the message type
+     * Return response to client in source
+     * 
+     * @param commonAttrMap
+     *          attribute map
+     * @param resultMap
+     *          result map
+     * @param remoteChannel
+     *          client channel
+     * @param msgType
+     *          the message type
      */
     public static void sourceReturnRspPackage(Map<String, String> commonAttrMap,
-                                              Map<String, Object> resultMap,
-                                              Channel remoteChannel,
-                                              MsgType msgType) throws Exception {
+            Map<String, Object> resultMap,
+            Channel remoteChannel,
+            MsgType msgType)
+            throws Exception {
         ByteBuf binBuffer;
         String origAttrs = null;
         final StringBuilder strBuff = new StringBuilder(512);
@@ -155,7 +167,7 @@ public class MessageUtils {
                         commonAttrMap.get(AttributeConstants.UNIQ_ID));
             } else if (MsgType.MSG_BIN_HEARTBEAT.equals(msgType)) {
                 binBuffer = buildHBRspPackage(destAttrs,
-                        (Byte)resultMap.get(ConfigConstants.VERSION_TYPE), 0);
+                        (Byte) resultMap.get(ConfigConstants.VERSION_TYPE), 0);
             } else {
                 // MsgType.MSG_ACK_SERVICE.equals(msgType)
                 // MsgType.MSG_ORIGINAL_RETURN.equals(msgType)
@@ -181,14 +193,18 @@ public class MessageUtils {
     }
 
     /**
-     *  Return response to client in sink
-     * @param event    the event need to response
-     * @param errCode  process error code
-     * @param errMsg   error message
+     * Return response to client in sink
+     * 
+     * @param event
+     *          the event need to response
+     * @param errCode
+     *          process error code
+     * @param errMsg
+     *          error message
      */
     public static void sinkReturnRspPackage(SinkRspEvent event,
-                                            DataProxyErrCode errCode,
-                                            String errMsg) {
+            DataProxyErrCode errCode,
+            String errMsg) {
         ByteBuf binBuffer;
         final StringBuilder strBuff = new StringBuilder(512);
         // get and check channel context
@@ -285,8 +301,10 @@ public class MessageUtils {
     /**
      * Build default-msg response message ByteBuf
      *
-     * @param msgType  the message type
-     * @param attrs    the return attribute
+     * @param msgType
+     *          the message type
+     * @param attrs
+     *          the return attribute
      * @return ByteBuf
      */
     private static ByteBuf buildDefMsgRspPackage(MsgType msgType, String attrs) {
@@ -311,8 +329,10 @@ public class MessageUtils {
     /**
      * Build bin-msg response message ByteBuf
      *
-     * @param attrs   the return attribute
-     * @param sequenceId sequence Id
+     * @param attrs
+     *          the return attribute
+     * @param sequenceId
+     *          sequence Id
      * @return ByteBuf
      */
     private static ByteBuf buildBinMsgRspPackage(String attrs, String sequenceId) {
@@ -346,14 +366,18 @@ public class MessageUtils {
     /**
      * Build heartbeat response message ByteBuf
      *
-     * @param attrs     the attribute string
-     * @param version   the version
-     * @param loadValue the node load value
+     * @param attrs
+     *          the attribute string
+     * @param version
+     *          the version
+     * @param loadValue
+     *          the node load value
      * @return ByteBuf
      */
     private static ByteBuf buildHBRspPackage(String attrs, byte version, int loadValue) {
         // calculate total length
-        // binTotalLen = mstType + dataTime + version + bodyLen + body + attrsLen + attrs + magic
+        // binTotalLen = mstType + dataTime + version + bodyLen + body + attrsLen +
+        // attrs + magic
         int binTotalLen = 1 + 4 + 1 + 4 + 2 + 2 + 2;
         if (null != attrs) {
             binTotalLen += attrs.length();

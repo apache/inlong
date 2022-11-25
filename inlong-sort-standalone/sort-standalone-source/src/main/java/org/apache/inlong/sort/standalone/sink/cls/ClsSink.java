@@ -21,20 +21,22 @@ import org.apache.flume.Context;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cls Sink implementation.
  *
  * <p>
- *     Response for initialization of {@link ClsChannelWorker}.
+ * Response for initialization of {@link ClsChannelWorker}.
  * </p>
  */
 public class ClsSink extends AbstractSink implements Configurable {
+
     private static final Logger LOG = LoggerFactory.getLogger(ClsSink.class);
 
     private Context parentContext;
@@ -79,6 +81,7 @@ public class ClsSink extends AbstractSink implements Configurable {
 
     /**
      * Process.
+     * 
      * @return Status
      * @throws EventDeliveryException
      */
@@ -89,7 +92,9 @@ public class ClsSink extends AbstractSink implements Configurable {
 
     /**
      * Config parent context.
-     * @param context Parent context.
+     * 
+     * @param context
+     *          Parent context.
      */
     @Override
     public void configure(Context context) {

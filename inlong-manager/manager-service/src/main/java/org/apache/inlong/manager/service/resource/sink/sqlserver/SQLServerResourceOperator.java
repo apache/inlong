@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink.sqlserver;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -31,13 +29,18 @@ import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSinkDTO;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerTableInfo;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import java.sql.Connection;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * SQLServer's resource operator.
@@ -74,7 +77,8 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
     /**
      * Create SQLServer table by SinkInfo.
      *
-     * @param sinkInfo {@link SinkInfo}
+     * @param sinkInfo
+     *          {@link SinkInfo}
      */
     private void createTable(SinkInfo sinkInfo) {
         LOG.info("begin to create SQLServer table for sinkId={}", sinkInfo.getId());
@@ -88,16 +92,16 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
             SQLServerColumnInfo columnInfo = new SQLServerColumnInfo(
                     field.getFieldName(),
                     field.getFieldType(),
-                    field.getFieldComment()
-            );
+                    field.getFieldComment());
             columnList.add(columnInfo);
         });
 
         final SQLServerSinkDTO sink = SQLServerSinkDTO.getFromJson(sinkInfo.getExtParams());
         final SQLServerTableInfo tableInfo = SQLServerSinkDTO.getTableInfo(sink, columnList);
 
-        try (Connection conn = SQLServerJdbcUtils.getConnection(sink.getJdbcUrl(),
-                sink.getUsername(), sink.getPassword())) {
+        try (
+                Connection conn = SQLServerJdbcUtils.getConnection(sink.getJdbcUrl(),
+                        sink.getUsername(), sink.getPassword())) {
 
             // 1. create schema if not exists
             SQLServerJdbcUtils.createSchema(conn, tableInfo.getSchemaName());

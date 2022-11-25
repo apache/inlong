@@ -17,12 +17,13 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Objects;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
+
+import java.util.Objects;
 
 /*
  * store the topic authenticate control setting
@@ -47,7 +48,7 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     public TopicCtrlEntity(BaseEntity opEntity, String topicName,
-                           int topicNameId, int maxMsgSizeInMB) {
+            int topicNameId, int maxMsgSizeInMB) {
         super(opEntity.getDataVerId(),
                 opEntity.getModifyUser(),
                 opEntity.getModifyDate());
@@ -60,7 +61,8 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * Constructor by BdbTopicAuthControlEntity
      *
-     * @param bdbEntity  the BdbTopicAuthControlEntity initial object
+     * @param bdbEntity
+     *          the BdbTopicAuthControlEntity initial object
      */
     public TopicCtrlEntity(BdbTopicAuthControlEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
@@ -83,9 +85,8 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      * @return the BdbTopicAuthControlEntity object
      */
     public BdbTopicAuthControlEntity buildBdbTopicAuthControlEntity() {
-        BdbTopicAuthControlEntity bdbEntity =
-                new BdbTopicAuthControlEntity(topicName, isAuthCtrlEnable(),
-                        getAttributes(), getModifyUser(), getModifyDate());
+        BdbTopicAuthControlEntity bdbEntity = new BdbTopicAuthControlEntity(topicName, isAuthCtrlEnable(),
+                getAttributes(), getModifyUser(), getModifyDate());
         bdbEntity.setCreateInfo(getCreateUser(), getCreateDate());
         bdbEntity.setTopicId(topicNameId);
         bdbEntity.setDataVerId(getDataVerId());
@@ -134,14 +135,18 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * update subclass field values
      *
-     * @param dataVerId         new data version id
-     * @param topicNameId       new topicName Id
-     * @param newMaxMsgSizeMB   new max message size
-     * @param enableTopicAuth   new topicAuth enable status
-     * @return  whether changed
+     * @param dataVerId
+     *          new data version id
+     * @param topicNameId
+     *          new topicName Id
+     * @param newMaxMsgSizeMB
+     *          new max message size
+     * @param enableTopicAuth
+     *          new topicAuth enable status
+     * @return whether changed
      */
     public boolean updModifyInfo(long dataVerId, int topicNameId,
-                                 int newMaxMsgSizeMB, EnableStatus enableTopicAuth) {
+            int newMaxMsgSizeMB, EnableStatus enableTopicAuth) {
         boolean changed = false;
         // check and set brokerPort info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -175,9 +180,10 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * fill empty fields with default value
      *
-     * @param defSetting  current system default setting
+     * @param defSetting
+     *          current system default setting
      *
-     * @return  object
+     * @return object
      */
     public TopicCtrlEntity fillEmptyValues(ClusterSettingEntity defSetting) {
         if (this.maxMsgSizeInMB == TBaseConstants.META_VALUE_UNDEFINED) {
@@ -194,12 +200,13 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     /**
-     * Check whether the specified query item value matches
-     * Allowed query items:
-     *   topicName, maxMsgSizeInB, authCtrlStatus
+     * Check whether the specified query item value matches Allowed query items:
+     * topicName, maxMsgSizeInB, authCtrlStatus
      *
-     * @param target  the matched object
-     * @param fullMatch  whether match parent parameters
+     * @param target
+     *          the matched object
+     * @param fullMatch
+     *          whether match parent parameters
      * @return true: matched, false: not match
      */
     public boolean isMatched(TopicCtrlEntity target, boolean fullMatch) {
@@ -212,24 +219,27 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
         return (target.getMaxMsgSizeInB() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getMaxMsgSizeInB() == this.maxMsgSizeInB)
                 && (TStringUtils.isBlank(target.getTopicName())
-                || target.getTopicName().equals(this.topicName))
+                        || target.getTopicName().equals(this.topicName))
                 && (target.getAuthCtrlStatus() == EnableStatus.STATUS_UNDEFINE
-                || target.getAuthCtrlStatus() == this.authCtrlStatus)
+                        || target.getAuthCtrlStatus() == this.authCtrlStatus)
                 && (target.getTopicId() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getTopicId() == this.topicNameId);
+                        || target.getTopicId() == this.topicNameId);
     }
 
     /**
      * Serialize field to json format
      *
-     * @param sBuilder   build container
-     * @param isLongName if return field key is long name
-     * @param fullFormat if return full format json
-     * @return   process result
+     * @param sBuilder
+     *          build container
+     * @param isLongName
+     *          if return field key is long name
+     * @param fullFormat
+     *          if return full format json
+     * @return process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         if (isLongName) {
             sBuilder.append("{\"topicName\":\"").append(topicName).append("\"")
                     .append(",\"topicNameId\":").append(topicNameId)
@@ -250,26 +260,22 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
 
     private boolean fillMaxMsgSizeInB(int maxMsgSizeInB) {
         boolean changed = false;
-        int tmpMaxMsgSizeInMB =
-                SettingValidUtils.validAndGetMsgSizeBtoMB(maxMsgSizeInB);
+        int tmpMaxMsgSizeInMB = SettingValidUtils.validAndGetMsgSizeBtoMB(maxMsgSizeInB);
         if (this.maxMsgSizeInMB != tmpMaxMsgSizeInMB) {
             changed = true;
             this.maxMsgSizeInMB = tmpMaxMsgSizeInMB;
-            this.maxMsgSizeInB =
-                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
+            this.maxMsgSizeInB = SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
         }
         return changed;
     }
 
     private boolean fillMaxMsgSizeInMB(int maxMsgSizeInMB) {
         boolean changed = false;
-        int tmpMaxMsgSizeInMB =
-                SettingValidUtils.validAndGetMsgSizeInMB(maxMsgSizeInMB);
+        int tmpMaxMsgSizeInMB = SettingValidUtils.validAndGetMsgSizeInMB(maxMsgSizeInMB);
         if (this.maxMsgSizeInMB != tmpMaxMsgSizeInMB) {
             changed = true;
             this.maxMsgSizeInMB = tmpMaxMsgSizeInMB;
-            this.maxMsgSizeInB =
-                    SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
+            this.maxMsgSizeInB = SettingValidUtils.validAndXfeMaxMsgSizeFromMBtoB(tmpMaxMsgSizeInMB);
         }
         return changed;
     }
@@ -277,7 +283,8 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * check if subclass fields is equals
      *
-     * @param other  check object
+     * @param other
+     *          check object
      * @return if equals
      */
     public boolean isDataEquals(TopicCtrlEntity other) {

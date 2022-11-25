@@ -17,9 +17,7 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -27,8 +25,8 @@
         <artifactId>inlong</artifactId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
-    <packaging>pom</packaging>
     <artifactId>inlong-sort-standalone</artifactId>
+    <packaging>pom</packaging>
     <name>Apache InLong - Sort Standalone</name>
 
     <modules>
@@ -56,8 +54,8 @@
             <artifactId>flume-ng-node</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>protobuf-java</artifactId>
                     <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -79,8 +77,8 @@
             <artifactId>pulsar-client</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>guava</artifactId>
                     <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -103,8 +101,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <artifactId>mockito-core</artifactId>
             <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -139,8 +137,8 @@
                     <artifactId>guava</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>protobuf-java</artifactId>
                     <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -165,8 +163,8 @@
                     <artifactId>log4j-slf4j-impl</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>protobuf-java</artifactId>
                     <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -216,8 +214,8 @@
                     <artifactId>log4j</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>protobuf-java</artifactId>
                     <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.openjdk.jol</groupId>
@@ -255,8 +253,8 @@
                     <artifactId>jackson-core</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>log4j-api</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -269,8 +267,8 @@
             <artifactId>tencentcloud-cls-sdk-java</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>protobuf-java</artifactId>
                     <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

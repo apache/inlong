@@ -17,9 +17,9 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * DataProxy node response, used for DataProxy SDK.

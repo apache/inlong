@@ -18,10 +18,10 @@
 
 package org.apache.inlong.manager.common.util;
 
+import java.nio.charset.StandardCharsets;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * AES encryption and decryption util test.

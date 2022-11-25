@@ -17,12 +17,13 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone.impl.kafkazone;
 
-import java.util.ArrayList;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
 import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneSinkContext;
 
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -37,7 +38,7 @@ public class KafkaZoneSinkContext extends AbstractZoneSinkContext {
      * @param context
      */
     public KafkaZoneSinkContext(String sinkName, Context context, Channel channel,
-                                ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
+            ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
         super(sinkName, context, channel, dispatchQueues);
     }
 

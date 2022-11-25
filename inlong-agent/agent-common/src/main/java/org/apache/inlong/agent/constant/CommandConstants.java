@@ -21,6 +21,7 @@ package org.apache.inlong.agent.constant;
  * old version of command result
  */
 public class CommandConstants {
+
     public static final String ID = "id";
 
     public static final String IDC = "idc";

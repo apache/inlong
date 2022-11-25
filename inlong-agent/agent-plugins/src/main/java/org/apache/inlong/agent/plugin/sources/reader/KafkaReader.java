@@ -17,8 +17,12 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
@@ -26,12 +30,13 @@ import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Validator;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -43,11 +48,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BYTE_SPEED_LIMIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_RECORD_SPEED_LIMIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * read kafka data
@@ -207,7 +209,8 @@ public class KafkaReader<K, V> extends AbstractReader {
     /**
      * add specified pattern to validators
      *
-     * @param pattern specified pattern
+     * @param pattern
+     *          specified pattern
      */
     public void addPatternValidator(String pattern) {
         if (pattern.isEmpty()) {
@@ -273,7 +276,8 @@ public class KafkaReader<K, V> extends AbstractReader {
             }
             // calculate sleep time
             long sleepTime = byteLimitSleepTime < recordLimitSleepTime
-                    ? recordLimitSleepTime : byteLimitSleepTime;
+                    ? recordLimitSleepTime
+                    : byteLimitSleepTime;
             if (sleepTime > 0) {
                 LOGGER.info("sleep seconds:{}", sleepTime / 1000);
                 try {

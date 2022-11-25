@@ -18,6 +18,12 @@
 
 package org.apache.inlong.sort.formats.inlongmsgpb;
 
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.DECOMPRESS_TYPE;
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_PARSE_ERRORS;
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_TRAILING_UNMAPPABLE;
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.INNER_FORMAT;
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.validateDecodingFormatOptions;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
@@ -35,17 +41,13 @@ import org.apache.flink.table.factories.SerializationFormatFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.DECOMPRESS_TYPE;
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_PARSE_ERRORS;
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.INNER_FORMAT;
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_TRAILING_UNMAPPABLE;
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.validateDecodingFormatOptions;
-
 /**
  * factory class for inLong msg pb format
  */
 public final class InLongMsgPbFormatFactory
-        implements DeserializationFormatFactory, SerializationFormatFactory {
+        implements
+            DeserializationFormatFactory,
+            SerializationFormatFactory {
 
     public static final String IDENTIFIER = "inlong-msg-pb";
 
@@ -63,8 +65,8 @@ public final class InLongMsgPbFormatFactory
         Configuration allOptions = Configuration.fromMap(context.getCatalogTable().getOptions());
         String innerFormatMetaPrefix = formatOptions.get(INNER_FORMAT) + ".";
         String innerFormatPrefix = INLONG_PREFIX + innerFormatMetaPrefix;
-        DecodingFormat<DeserializationSchema<RowData>> innerFormat =
-                innerFactory.createDecodingFormat(context, new DelegatingConfiguration(allOptions, innerFormatPrefix));
+        DecodingFormat<DeserializationSchema<RowData>> innerFormat = innerFactory.createDecodingFormat(context,
+                new DelegatingConfiguration(allOptions, innerFormatPrefix));
         boolean ignoreErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
         boolean ignoreTrailingUnmappable = formatOptions.get(IGNORE_TRAILING_UNMAPPABLE);
         String decompressType = formatOptions.get(DECOMPRESS_TYPE);

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
-import org.apache.flume.Event;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -29,13 +28,16 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePack;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePackHeader;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flume.Event;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -71,8 +73,8 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * channelRead
      * 
-     * @param  ctx
-     * @param  msg
+     * @param ctx
+     * @param msg
      * @throws Exception
      */
     @Override
@@ -112,12 +114,12 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
             // read version
             int version = cb.readShort();
             switch (version) {
-                case VERSION_1 :
+                case VERSION_1:
                     // decode version 1
                     int bodyLength = totalPackLength - VERSION_PARAM_LENGTH;
                     decodeVersion1(ctx, cb, bodyLength);
                     break;
-                default :
+                default:
                     this.addMetric(false, 0, null);
                     throw new Exception("err version, unknown version:" + version);
             }
@@ -154,12 +156,14 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * processAndWaitingSave
+     * 
      * @param ctx
      * @param packObject
      * @param events
      * @throws Exception
      */
-    private void processAndWaitingSave(ChannelHandlerContext ctx, MessagePack packObject, List<ProxyEvent> events)
+    private void processAndWaitingSave(ChannelHandlerContext ctx, MessagePack packObject,
+            List<ProxyEvent> events)
             throws Exception {
         MessagePackHeader header = packObject.getHeader();
         InlongTcpSourceCallback callback = new InlongTcpSourceCallback(ctx, header);
@@ -192,12 +196,14 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * processAndResponse
+     * 
      * @param ctx
      * @param packObject
      * @param events
      * @throws Exception
      */
-    private void processAndResponse(ChannelHandlerContext ctx, MessagePack packObject, List<ProxyEvent> events)
+    private void processAndResponse(ChannelHandlerContext ctx, MessagePack packObject,
+            List<ProxyEvent> events)
             throws Exception {
         for (ProxyEvent event : events) {
             String uid = event.getUid();
@@ -247,12 +253,11 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * responsePackage
      *
-     * @param  ctx
-     * @param  code
+     * @param ctx
+     * @param code
      * @throws Exception
      */
-    private void responsePackage(ChannelHandlerContext ctx, ResultCode code, MessagePack packObject)
-            throws Exception {
+    private void responsePackage(ChannelHandlerContext ctx, ResultCode code, MessagePack packObject) throws Exception {
         ResponseInfo.Builder builder = ResponseInfo.newBuilder();
         builder.setResult(code);
         MessagePackHeader header = packObject.getHeader();
@@ -279,8 +284,8 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * exceptionCaught
      * 
-     * @param  ctx
-     * @param  cause
+     * @param ctx
+     * @param cause
      * @throws Exception
      */
     @Override
@@ -301,7 +306,7 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * channelInactive
      *
-     * @param  ctx
+     * @param ctx
      * @throws Exception
      */
     @Override
@@ -321,7 +326,7 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
     /**
      * channelActive
      *
-     * @param  ctx
+     * @param ctx
      * @throws Exception
      */
     @Override

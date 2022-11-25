@@ -17,7 +17,6 @@
 
 package org.apache.inlong.agent.core.job;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.task.Task;
@@ -26,11 +25,14 @@ import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Sink;
 import org.apache.inlong.agent.plugin.Source;
 import org.apache.inlong.agent.utils.ThreadUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * job meta definition, job will be split into several tasks.
@@ -46,6 +48,7 @@ public class Job {
     private String description;
     private String jobInstanceId;
     private ThreadLocal<Integer> threadNum = new ThreadLocal<Integer>() {
+
         protected Integer initialValue() {
             return 0;
         }
@@ -84,7 +87,8 @@ public class Job {
     }
 
     /**
-     * split a job into multi tasks, each task has its own reader, writer and channel
+     * split a job into multi tasks, each task has its own reader, writer and
+     * channel
      *
      * @return taskList
      */
@@ -95,7 +99,8 @@ public class Job {
     /**
      * build task from job config
      *
-     * @param jobConf subtask config in the job
+     * @param jobConf
+     *          subtask config in the job
      * @return new task
      */
     public Task createTask(JobProfile jobConf) {

@@ -18,6 +18,17 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
+
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.state.ListState;
@@ -26,16 +37,16 @@ import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+
+import java.util.Objects;
+import java.util.function.Function;
+
+import javax.annotation.Nullable;
+
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -43,16 +54,10 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentType;
 
-import javax.annotation.Nullable;
-
-import java.util.Objects;
-import java.util.function.Function;
-
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
-
-/** Sink function for converting upserts into Elasticsearch {@link ActionRequest}s. */
+/**
+ * Sink function for converting upserts into Elasticsearch
+ * {@link ActionRequest}s.
+ */
 public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<RowData> {
 
     private static final long serialVersionUID = 1L;
@@ -70,7 +75,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
 
     private final Function<RowData, String> createRouting;
 
-    private transient  RuntimeContext runtimeContext;
+    private transient RuntimeContext runtimeContext;
 
     private SinkMetricData sinkMetricData;
 
@@ -128,7 +133,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
@@ -165,15 +170,13 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         final String key = createKey.apply(row);
         sendMetrics(document);
         if (key != null) {
-            final UpdateRequest updateRequest =
-                    requestFactory.createUpdateRequest(
-                            indexGenerator.generate(row), docType, key, contentType, document);
+            final UpdateRequest updateRequest = requestFactory.createUpdateRequest(
+                    indexGenerator.generate(row), docType, key, contentType, document);
             addRouting(updateRequest, row);
             indexer.add(updateRequest);
         } else {
-            final IndexRequest indexRequest =
-                    requestFactory.createIndexRequest(
-                            indexGenerator.generate(row), docType, key, contentType, document);
+            final IndexRequest indexRequest = requestFactory.createIndexRequest(
+                    indexGenerator.generate(row), docType, key, contentType, document);
             addRouting(indexRequest, row);
             indexer.add(indexRequest);
         }

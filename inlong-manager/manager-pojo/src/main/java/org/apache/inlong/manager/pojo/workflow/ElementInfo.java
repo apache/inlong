@@ -17,13 +17,16 @@
 
 package org.apache.inlong.manager.pojo.workflow;
 
-import com.google.common.collect.Lists;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 
 import java.util.List;
+
+import lombok.Data;
+
+import com.google.common.collect.Lists;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Workflow element info

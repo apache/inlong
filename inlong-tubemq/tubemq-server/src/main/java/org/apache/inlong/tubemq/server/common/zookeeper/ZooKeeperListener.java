@@ -20,14 +20,15 @@ package org.apache.inlong.tubemq.server.common.zookeeper;
 /**
  * Base class for internal listeners of ZooKeeper events.
  * <p/>
- * The {@link ZooKeeperWatcher} for a process will execute the appropriate methods of
- * implementations of this class. In order to receive events from the watcher, every listener must
- * register itself via {@link ZooKeeperWatcher#registerListener}.
+ * The {@link ZooKeeperWatcher} for a process will execute the appropriate
+ * methods of implementations of this class. In order to receive events from the
+ * watcher, every listener must register itself via
+ * {@link ZooKeeperWatcher#registerListener}.
  * <p/>
  * Subclasses need only override those methods in which they are interested.
  * <p/>
- * Note that the watcher will be blocked when invoking methods in listeners so they must not be
- * long-running.
+ * Note that the watcher will be blocked when invoking methods in listeners so
+ * they must not be long-running.
  *
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
@@ -47,7 +48,8 @@ public abstract class ZooKeeperListener {
     /**
      * Called when a new node has been created.
      *
-     * @param path full path of the new node
+     * @param path
+     *          full path of the new node
      */
     public void nodeCreated(String path) {
         // no-op
@@ -56,7 +58,8 @@ public abstract class ZooKeeperListener {
     /**
      * Called when a node has been deleted
      *
-     * @param path full path of the deleted node
+     * @param path
+     *          full path of the deleted node
      */
     public void nodeDeleted(String path) {
         // no-op
@@ -65,7 +68,8 @@ public abstract class ZooKeeperListener {
     /**
      * Called when an existing node has changed data.
      *
-     * @param path full path of the updated node
+     * @param path
+     *          full path of the updated node
      */
     public void nodeDataChanged(String path) {
         // no-op
@@ -74,7 +78,8 @@ public abstract class ZooKeeperListener {
     /**
      * Called when an existing node has a child node added or removed.
      *
-     * @param path full path of the node whose children have changed
+     * @param path
+     *          full path of the node whose children have changed
      */
     public void nodeChildrenChanged(String path) {
         // no-op

@@ -18,11 +18,13 @@
 
 package org.apache.inlong.sort.jdbc.converter.clickhouse;
 
-import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.AbstractJdbcRowConverter;
 
+import org.apache.flink.table.types.logical.RowType;
+
 /**
- * Runtime converter that responsible to convert between JDBC object and Flink internal object for ClickHouse.
+ * Runtime converter that responsible to convert between JDBC object and Flink
+ * internal object for ClickHouse.
  */
 public class ClickHouseRowConverter extends AbstractJdbcRowConverter {
 

@@ -17,8 +17,6 @@
 
 package org.apache.inlong.tubemq.client.factory;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.consumer.ClientBalanceConsumer;
@@ -38,29 +36,34 @@ import org.apache.inlong.tubemq.corerpc.RpcConfig;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
 import org.apache.inlong.tubemq.corerpc.RpcServiceFactory;
 import org.apache.inlong.tubemq.corerpc.client.ClientFactory;
+
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TubeBaseSessionFactory implements InnerSessionFactory {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(TubeBaseSessionFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(TubeBaseSessionFactory.class);
     private final RpcServiceFactory rpcServiceFactory;
     private final ProducerManager producerManager;
     private final TubeClientConfig tubeClientConfig;
-    private final CopyOnWriteArrayList<Shutdownable> clientLst =
-            new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Shutdownable> clientLst = new CopyOnWriteArrayList<>();
     private final DefaultBrokerRcvQltyStats brokerRcvQltyStats;
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     /**
      * Initial Session factory
      *
-     * @param clientFactory      the client factory
-     * @param tubeClientConfig   the tube client configure
+     * @param clientFactory
+     *          the client factory
+     * @param tubeClientConfig
+     *          the tube client configure
      */
     public TubeBaseSessionFactory(final ClientFactory clientFactory,
-                                  final TubeClientConfig tubeClientConfig) throws TubeClientException {
+            final TubeClientConfig tubeClientConfig)
+            throws TubeClientException {
         super();
         this.checkConfig(tubeClientConfig);
         this.tubeClientConfig = tubeClientConfig;
@@ -74,11 +77,10 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
         config.put(RpcConstants.RPC_LQ_MAX_FAIL_FORBIDDEN_RATE,
                 tubeClientConfig.getLinkStatsMaxForbiddenRate());
         config.put(RpcConstants.RPC_SERVICE_UNAVAILABLE_FORBIDDEN_DURATION,
-            tubeClientConfig.getUnAvailableFbdDurationMs());
+                tubeClientConfig.getUnAvailableFbdDurationMs());
         this.rpcServiceFactory = new RpcServiceFactory(clientFactory, config);
         this.producerManager = new ProducerManager(this, this.tubeClientConfig);
-        this.brokerRcvQltyStats =
-                new DefaultBrokerRcvQltyStats(this.getRpcServiceFactory(), this.tubeClientConfig);
+        this.brokerRcvQltyStats = new DefaultBrokerRcvQltyStats(this.getRpcServiceFactory(), this.tubeClientConfig);
         logger.info(new StringBuilder(512)
                 .append("Created Session Factory, the config is: ")
                 .append(tubeClientConfig.toJsonString()).toString());
@@ -166,8 +168,7 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
     }
 
     @Override
-    public PullMessageConsumer createPullConsumer(ConsumerConfig consumerConfig)
-            throws TubeClientException {
+    public PullMessageConsumer createPullConsumer(ConsumerConfig consumerConfig) throws TubeClientException {
         if (!tubeClientConfig.getMasterInfo().equals(consumerConfig.getMasterInfo())) {
             throw new TubeClientException(new StringBuilder(512)
                     .append("consumerConfig's masterInfo not equal!")
@@ -180,8 +181,7 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
     }
 
     @Override
-    public PushMessageConsumer createPushConsumer(final ConsumerConfig consumerConfig)
-            throws TubeClientException {
+    public PushMessageConsumer createPushConsumer(final ConsumerConfig consumerConfig) throws TubeClientException {
         if (!tubeClientConfig.getMasterInfo().equals(consumerConfig.getMasterInfo())) {
             throw new TubeClientException(new StringBuilder(512)
                     .append("consumerConfig's masterInfo not equal!")
@@ -194,8 +194,7 @@ public class TubeBaseSessionFactory implements InnerSessionFactory {
     }
 
     @Override
-    public ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig)
-            throws TubeClientException {
+    public ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig) throws TubeClientException {
         if (!tubeClientConfig.getMasterInfo().equals(consumerConfig.getMasterInfo())) {
             throw new TubeClientException(new StringBuilder(512)
                     .append("consumerConfig's masterInfo not equal!")

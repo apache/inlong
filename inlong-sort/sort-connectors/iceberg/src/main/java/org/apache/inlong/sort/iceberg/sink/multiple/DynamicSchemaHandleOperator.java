@@ -18,6 +18,12 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.base.sink.MultipleSinkOption;
+import org.apache.inlong.sort.base.sink.TableChange;
+import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.operators.AbstractStreamOperator;
@@ -39,13 +45,6 @@ import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
 import org.apache.iceberg.types.Types.NestedField;
-import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.base.sink.MultipleSinkOption;
-import org.apache.inlong.sort.base.sink.TableChange;
-import org.apache.inlong.sort.base.sink.TableChange.AddColumn;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -58,8 +57,13 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWithSchema>
-        implements OneInputStreamOperator<RowData, RecordWithSchema>, ProcessingTimeCallback {
+        implements
+            OneInputStreamOperator<RowData, RecordWithSchema>,
+            ProcessingTimeCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamicSchemaHandleOperator.class);
     private static final long HELPER_DEBUG_INTERVEL = 10 * 60 * 1000;
@@ -92,8 +96,7 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     public void open() throws Exception {
         super.open();
         this.catalog = catalogLoader.loadCatalog();
-        this.asNamespaceCatalog =
-                catalog instanceof SupportsNamespaces ? (SupportsNamespaces) catalog : null;
+        this.asNamespaceCatalog = catalog instanceof SupportsNamespaces ? (SupportsNamespaces) catalog : null;
         this.dynamicSchemaFormat = DynamicSchemaFormatFactory.getFormat(
                 multipleSinkOption.getFormat(), multipleSinkOption.getFormatOption());
 
@@ -161,7 +164,8 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         }
     }
 
-    // ======================== All coordinator interact request and response method ============================
+    // ======================== All coordinator interact request and response method
+    // ============================
     private void handleSchemaInfoEvent(TableIdentifier tableId, Schema schema) {
         schemaCache.put(tableId, schema);
         Schema latestSchema = schemaCache.get(tableId);
@@ -191,7 +195,8 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         }
     }
 
-    // ================================ All coordinator handle method ==============================================
+    // ================================ All coordinator handle method
+    // ==============================================
     private void handleTableCreateEventFromOperator(TableIdentifier tableId, Schema schema) {
         if (!catalog.tableExists(tableId)) {
             if (asNamespaceCatalog != null && !asNamespaceCatalog.namespaceExists(tableId.namespace())) {
@@ -225,10 +230,13 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
     private void handldAlterSchemaEventFromOperator(TableIdentifier tableId, Schema oldSchema, Schema newSchema) {
         Table table = catalog.loadTable(tableId);
 
-        // The transactionality of changes is guaranteed by comparing the old schema with the current schema of the
+        // The transactionality of changes is guaranteed by comparing the old schema
+        // with the current schema of the
         // table.
-        // Judging whether changes can be made by schema comparison (currently only column additions are supported),
-        // for scenarios that cannot be changed, it is always considered that there is a problem with the data.
+        // Judging whether changes can be made by schema comparison (currently only
+        // column additions are supported),
+        // for scenarios that cannot be changed, it is always considered that there is a
+        // problem with the data.
         Transaction transaction = table.newTransaction();
         if (table.schema().sameSchema(oldSchema)) {
             List<TableChange> tableChanges = SchemaChangeUtils.diffSchema(oldSchema, newSchema);
@@ -243,8 +251,10 @@ public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWi
         handleSchemaInfoEvent(tableId, table.schema());
     }
 
-    // =============================== Utils method =================================================================
-    // The way to judge compatibility is whether all the field names in the old schema exist in the new schema
+    // =============================== Utils method
+    // =================================================================
+    // The way to judge compatibility is whether all the field names in the old
+    // schema exist in the new schema
     private boolean isCompatible(Schema newSchema, Schema oldSchema) {
         for (NestedField field : oldSchema.columns()) {
             if (newSchema.findField(field.name()) == null) {

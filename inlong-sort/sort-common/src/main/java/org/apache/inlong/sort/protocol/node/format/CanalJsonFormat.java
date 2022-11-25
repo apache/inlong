@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,11 +25,14 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Data;
+
 /**
  * The Canal format.
  *
- * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/canal/">
- *         Canal Format</a>
+ * @see <a href=
+ *      "https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/canal/">
+ *      Canal Format</a>
  */
 @JsonTypeName("canalJsonFormat")
 @Data
@@ -56,8 +58,7 @@ public class CanalJsonFormat implements Format {
             @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL") String timestampFormatStandard,
             @JsonProperty(value = "mapNullKeyMode", defaultValue = "DROP") String mapNullKeyMode,
             @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null") String mapNullKeyLiteral,
-            @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true")
-                    Boolean encodeDecimalAsPlainNumber) {
+            @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true") Boolean encodeDecimalAsPlainNumber) {
         this.ignoreParseErrors = ignoreParseErrors;
         this.timestampFormatStandard = timestampFormatStandard;
         this.mapNullKeyMode = mapNullKeyMode;

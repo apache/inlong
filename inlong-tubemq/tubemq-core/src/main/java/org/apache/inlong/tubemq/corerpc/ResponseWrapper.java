@@ -17,12 +17,13 @@
 
 package org.apache.inlong.tubemq.corerpc;
 
-import java.io.Serializable;
 import org.apache.inlong.tubemq.corerpc.exception.StandbyException;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 
+import java.io.Serializable;
+
 /**
- *  Response message wrapper class.
+ * Response message wrapper class.
  */
 public class ResponseWrapper implements Serializable {
 
@@ -39,18 +40,24 @@ public class ResponseWrapper implements Serializable {
     private String stackTrace;
 
     /**
-     *  Initial a response wrapper object
+     * Initial a response wrapper object
      *
-     * @param flagId         the flag id
-     * @param serialNo       the serial no.
-     * @param serviceType    the service type
-     * @param locVersion     the local protocol version
-     * @param methodId       the method id
-     * @param responseData   the response data
+     * @param flagId
+     *          the flag id
+     * @param serialNo
+     *          the serial no.
+     * @param serviceType
+     *          the service type
+     * @param locVersion
+     *          the local protocol version
+     * @param methodId
+     *          the method id
+     * @param responseData
+     *          the response data
      */
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int locVersion,
-                           int methodId, Object responseData) {
+            int serviceType, int locVersion,
+            int methodId, Object responseData) {
         this.serialNo = serialNo;
         this.serviceType = serviceType;
         this.protocolVersion = locVersion;
@@ -61,18 +68,24 @@ public class ResponseWrapper implements Serializable {
     }
 
     /**
-     *  Initial a response wrapper object
+     * Initial a response wrapper object
      *
-     * @param flagId         the flag id
-     * @param serialNo       the serial no.
-     * @param serviceType    the service type
-     * @param rmtVersion     the remote protocol version
-     * @param locVersion     the local protocol version
-     * @param exception      the exception
+     * @param flagId
+     *          the flag id
+     * @param serialNo
+     *          the serial no.
+     * @param serviceType
+     *          the service type
+     * @param rmtVersion
+     *          the remote protocol version
+     * @param locVersion
+     *          the local protocol version
+     * @param exception
+     *          the exception
      */
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int rmtVersion,
-                           int locVersion, Throwable exception) {
+            int serviceType, int rmtVersion,
+            int locVersion, Throwable exception) {
         this.serialNo = serialNo;
         this.flagId = flagId;
         this.serviceType = serviceType;
@@ -99,18 +112,24 @@ public class ResponseWrapper implements Serializable {
     }
 
     /**
-     *  Initial a response wrapper object
+     * Initial a response wrapper object
      *
-     * @param flagId         the flag id
-     * @param serialNo       the serial no.
-     * @param serviceType    the service type
-     * @param locVersion     the local protocol version
-     * @param errorMsg       the text error message
-     * @param stackTrace     the stack trace information
+     * @param flagId
+     *          the flag id
+     * @param serialNo
+     *          the serial no.
+     * @param serviceType
+     *          the service type
+     * @param locVersion
+     *          the local protocol version
+     * @param errorMsg
+     *          the text error message
+     * @param stackTrace
+     *          the stack trace information
      */
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int locVersion,
-                           String errorMsg, String stackTrace) {
+            int serviceType, int locVersion,
+            String errorMsg, String stackTrace) {
         this.serialNo = serialNo;
         this.flagId = flagId;
         this.serviceType = serviceType;

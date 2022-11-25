@@ -17,17 +17,19 @@
 
 package org.apache.inlong.manager.pojo.source.kafka;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
-import javax.validation.constraints.NotNull;
 import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * kafka source information data transfer object.
@@ -47,17 +49,14 @@ public class KafkaSourceDTO {
     @ApiModelProperty("Kafka servers address, such as: 127.0.0.1:9092")
     private String bootstrapServers;
 
-    @ApiModelProperty(value = "Limit the amount of data read per second",
-            notes = "Greater than or equal to 0, equal to zero means no limit")
+    @ApiModelProperty(value = "Limit the amount of data read per second", notes = "Greater than or equal to 0, equal to zero means no limit")
     private String recordSpeedLimit;
 
-    @ApiModelProperty(value = "Limit the number of bytes read per second",
-            notes = "Greater than or equal to 0, equal to zero means no limit")
+    @ApiModelProperty(value = "Limit the number of bytes read per second", notes = "Greater than or equal to 0, equal to zero means no limit")
     private String byteSpeedLimit;
 
-    @ApiModelProperty(value = "Topic partition offset",
-            notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
-                    + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
+    @ApiModelProperty(value = "Topic partition offset", notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
+            + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
     private String partitionOffsets;
 
     @ApiModelProperty(value = "timestamp is millis")
@@ -66,10 +65,10 @@ public class KafkaSourceDTO {
     /**
      * The strategy of auto offset reset.
      *
-     * @see <a href="https://docs.confluent.io/platform/current/clients/consumer.html">Kafka_consumer_config</a>
+     * @see <a href=
+     *      "https://docs.confluent.io/platform/current/clients/consumer.html">Kafka_consumer_config</a>
      */
-    @ApiModelProperty(value = "The strategy of auto offset reset",
-            notes = "including earliest, latest (the default), none")
+    @ApiModelProperty(value = "The strategy of auto offset reset", notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
     @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")

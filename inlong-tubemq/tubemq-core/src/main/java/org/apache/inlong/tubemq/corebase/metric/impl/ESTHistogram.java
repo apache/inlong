@@ -17,20 +17,23 @@
 
 package org.apache.inlong.tubemq.corebase.metric.impl;
 
-import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.metric.Histogram;
+
+import java.util.Map;
 
 /**
  * ESTHistogram, Exponential Statistics for Time
  *
- *  This class performs the index statistics of the time period with the exponential power of 2.
- *  Here we count up to the 17th power of 2, a total of 18 buckets, according to the input data and
- *  the corresponding time index, the corresponding cell is selected for statistics.
- *  When outputting data, the full statistical output or
- *  only the output is not 0 according to different requirements
+ * This class performs the index statistics of the time period with the
+ * exponential power of 2. Here we count up to the 17th power of 2, a total of
+ * 18 buckets, according to the input data and the corresponding time index, the
+ * corresponding cell is selected for statistics. When outputting data, the full
+ * statistical output or only the output is not 0 according to different
+ * requirements
  */
 public class ESTHistogram extends BaseMetric implements Histogram {
+
     // Total number of exponential statistic blocks
     private static final int NUM_BUCKETS = 18;
     // The upper boundary index of exponential statistic blocks
@@ -49,16 +52,17 @@ public class ESTHistogram extends BaseMetric implements Histogram {
     /**
      * Initial Exponential Statistics for Time Histogram
      *
-     * @param metricName   metric name
-     * @param prefix       the prefix of metric item
+     * @param metricName
+     *          metric name
+     * @param prefix
+     *          the prefix of metric item
      */
     public ESTHistogram(String metricName, String prefix) {
         super(metricName, prefix);
         this.count = new LongStatsCounter("count", getFullName());
         this.min = new LongMinGauge("min", getFullName());
         this.max = new LongMaxGauge("max", getFullName());
-        StringBuilder strBuff =
-                new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
+        StringBuilder strBuff = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
         // Initialize the name and store room of each cell
         // each cell is a left-closed right-open interval, and
         // the cell name consists of left boundary value + "t" + right boundary value
@@ -82,8 +86,10 @@ public class ESTHistogram extends BaseMetric implements Histogram {
         this.count.incValue();
         this.min.update(newValue);
         this.max.update(newValue);
-        int index = (newValue <= 0L) ? 0 : ((newValue >= POWER_2_17)
-                ? MAX_BUCKET_INDEX : ((int) (Math.log(newValue) / LOG2_VALUE)));
+        int index = (newValue <= 0L) ? 0
+                : ((newValue >= POWER_2_17)
+                        ? MAX_BUCKET_INDEX
+                        : ((int) (Math.log(newValue) / LOG2_VALUE)));
         this.buckets[index].incValue();
     }
 

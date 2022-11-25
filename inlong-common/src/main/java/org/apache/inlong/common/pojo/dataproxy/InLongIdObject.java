@@ -41,7 +41,8 @@ public class InLongIdObject {
     /**
      * set inlongId
      *
-     * @param inlongId the inlongId to set
+     * @param inlongId
+     *          the inlongId to set
      */
     public void setInlongId(String inlongId) {
         this.inlongId = inlongId;
@@ -59,7 +60,8 @@ public class InLongIdObject {
     /**
      * set topic
      *
-     * @param topic the topic to set
+     * @param topic
+     *          the topic to set
      */
     public void setTopic(String topic) {
         this.topic = topic;
@@ -77,7 +79,8 @@ public class InLongIdObject {
     /**
      * set params
      *
-     * @param params the params to set
+     * @param params
+     *          the params to set
      */
     public void setParams(Map<String, String> params) {
         this.params = params;

@@ -18,17 +18,19 @@
 
 package org.apache.inlong.sdk.dataproxy.utils;
 
-import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.collections.MapUtils;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProxyUtils {
 
@@ -129,9 +131,10 @@ public class ProxyUtils {
             }
         }
         if (!clientConfig.isLocalVisit()) {
-            //if(!clientConfig.isNeedDataEncry()) {
-            //    throw new IllegalArgumentException("OutNetwork visit isNeedDataEncry must be true!");
-            //}
+            // if(!clientConfig.isNeedDataEncry()) {
+            // throw new IllegalArgumentException("OutNetwork visit isNeedDataEncry must be
+            // true!");
+            // }
             if (!clientConfig.isNeedAuthentication()) {
                 throw new IllegalArgumentException("OutNetwork visit isNeedAuthentication must be true!");
             }

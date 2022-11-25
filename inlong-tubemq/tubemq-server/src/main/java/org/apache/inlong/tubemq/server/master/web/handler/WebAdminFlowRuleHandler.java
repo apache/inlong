@@ -17,13 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
@@ -35,13 +28,22 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 @Deprecated
 public class WebAdminFlowRuleHandler extends AbstractWebHandler {
 
     private static final String blankFlowCtrlRules = "[]";
     private static final List<Integer> allowedPriorityVal = Arrays.asList(1, 2, 3);
-    private static final Set<String> rsvGroupNameSet =
-            new HashSet<>(Arrays.asList(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL));
+    private static final Set<String> rsvGroupNameSet = new HashSet<>(
+            Arrays.asList(TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL));
 
     public WebAdminFlowRuleHandler(TMaster master) {
         super(master);
@@ -64,14 +66,17 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     /**
      * query group flow control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryGroupFlowCtrlRule(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // build query entity
         GroupResCtrlEntity qryEntity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -103,8 +108,8 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
         qryEntity.updModifyInfo(qryEntity.getDataVerId(), null,
                 TBaseConstants.META_VALUE_UNDEFINED, inQryPriorityId,
                 flowCtrlEnable, TBaseConstants.META_VALUE_UNDEFINED, null);
-        Map<String, GroupResCtrlEntity> groupResCtrlEntityMap =
-                defMetaDataService.getGroupCtrlConf(groupNameSet, qryEntity);
+        Map<String, GroupResCtrlEntity> groupResCtrlEntityMap = defMetaDataService.getGroupCtrlConf(groupNameSet,
+                qryEntity);
         // build return result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -124,42 +129,51 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     /**
      * add group flow control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminSetGroupFlowCtrlRule(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdGroupFlowCtrlRule(req, sBuffer, result, true);
     }
 
     /**
      * modify group flow control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminUpdGroupFlowCtrlRule(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdGroupFlowCtrlRule(req, sBuffer, result, false);
     }
 
     /**
      * delete group flow control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminDelGroupFlowCtrlRule(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -194,15 +208,18 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     /**
      * add or modify flow control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     private StringBuilder innAddOrUpdGroupFlowCtrlRule(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result,
-                                                       boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -262,7 +279,7 @@ public class WebAdminFlowRuleHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (GroupProcessResult entry : retInfo) {

@@ -17,12 +17,11 @@
 
 package org.apache.inlong.audit.service.consume;
 
-import com.google.common.base.Preconditions;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.service.InsertData;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.Consumer;
@@ -31,14 +30,17 @@ import org.apache.pulsar.client.api.MessageListener;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.SubscriptionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 public class PulsarConsume extends BaseConsume {
 
@@ -47,6 +49,7 @@ public class PulsarConsume extends BaseConsume {
 
     /**
      * Constructor
+     * 
      * @param insertServiceList
      * @param storeConfig
      * @param mqConfig

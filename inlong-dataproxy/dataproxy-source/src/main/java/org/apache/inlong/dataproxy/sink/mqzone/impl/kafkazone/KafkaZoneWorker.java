@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mqzone.impl.kafkazone;
 
 import org.apache.inlong.dataproxy.sink.mqzone.AbstactZoneWorker;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

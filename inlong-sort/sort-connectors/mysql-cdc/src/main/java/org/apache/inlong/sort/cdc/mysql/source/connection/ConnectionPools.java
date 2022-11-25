@@ -18,9 +18,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.connection;
 
-import com.zaxxer.hikari.HikariDataSource;
-import org.apache.flink.annotation.Internal;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+
+import org.apache.flink.annotation.Internal;
+
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * A JDBC connection pools that consists of {@link HikariDataSource}.
@@ -29,8 +31,8 @@ import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 public interface ConnectionPools {
 
     /**
-     * Gets a connection pool from pools, create a new pool if the pool does not exists in the
-     * connection pools .
+     * Gets a connection pool from pools, create a new pool if the pool does not
+     * exists in the connection pools .
      */
     HikariDataSource getOrCreateConnectionPool(
             ConnectionPoolId poolId, MySqlSourceConfig sourceConfig);

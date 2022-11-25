@@ -17,12 +17,13 @@
 
 package org.apache.inlong.tubemq.manager.service.interfaces;
 
-import java.util.List;
-
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.cluster.dto.ClusterDto;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.AddClusterReq;
 import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
+
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 @Component

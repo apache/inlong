@@ -18,26 +18,28 @@
 
 package org.apache.inlong.sort.elasticsearch;
 
-import org.apache.flink.annotation.Internal;
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
+import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
+
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
 /**
- * Implementation of a {@link RequestIndexer}, using a {@link BulkProcessor}. {@link ActionRequest
- * ActionRequests} will be buffered before sending a bulk request to the Elasticsearch cluster.
+ * Implementation of a {@link RequestIndexer}, using a {@link BulkProcessor}.
+ * {@link ActionRequest ActionRequests} will be buffered before sending a bulk
+ * request to the Elasticsearch cluster.
  *
- * @deprecated This class is not binary compatible with newer Elasticsearch 6+ versions (i.e. the
- *     {@link #add(UpdateRequest...)} ). However, this module is currently compiled against a very
- *     old Elasticsearch version.
+ * @deprecated This class is not binary compatible with newer Elasticsearch 6+
+ *             versions (i.e. the {@link #add(UpdateRequest...)} ). However,
+ *             this module is currently compiled against a very old
+ *             Elasticsearch version.
  */
 @Deprecated
 @Internal

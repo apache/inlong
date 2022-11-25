@@ -18,9 +18,6 @@
 
 package org.apache.inlong.manager.service.source.tubemq;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -39,12 +36,17 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * TubeMQ source operator
@@ -95,7 +97,8 @@ public class TubeMQSourceOperator extends AbstractSourceOperator {
 
     @Override
     public Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo,
-            List<InlongStreamInfo> streamInfos, List<StreamSource> streamSources) {
+            List<InlongStreamInfo> streamInfos,
+            List<StreamSource> streamSources) {
         ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.TUBEMQ);
         TubeClusterInfo tubeClusterInfo = (TubeClusterInfo) clusterInfo;
         String masterRpc = tubeClusterInfo.getUrl();

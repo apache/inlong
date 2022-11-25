@@ -32,19 +32,21 @@ public interface IEventHandler {
     /**
      * parse
      * 
-     * @param  idConfig
-     * @param  event
+     * @param idConfig
+     * @param event
      * @return
      */
     Map<String, String> parse(ClickHouseIdConfig idConfig, ProfileEvent event);
 
     /**
      * setValue
+     * 
      * @param idConfig
      * @param columnValueMap
      * @param pstat
      * @throws SQLException
      */
-    void setValue(ClickHouseIdConfig idConfig, Map<String, String> columnValueMap, PreparedStatement pstat)
+    void setValue(ClickHouseIdConfig idConfig, Map<String, String> columnValueMap,
+            PreparedStatement pstat)
             throws SQLException;
 }

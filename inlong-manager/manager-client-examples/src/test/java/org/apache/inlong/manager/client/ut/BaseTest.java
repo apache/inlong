@@ -17,9 +17,8 @@
 
 package org.apache.inlong.manager.client.ut;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.google.common.collect.Lists;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
@@ -32,15 +31,18 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.google.common.collect.Lists;
 
 public class BaseTest {
 
@@ -143,8 +145,7 @@ public class BaseTest {
         hiveSink.setDataPath("hdfs://{ip:port}/usr/hive/warehouse/{db.name}");
         hiveSink.setSinkFieldList(Lists.newArrayList(
                 new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age"),
-                new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(), "name")
-        ));
+                new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(), "name")));
 
         hiveSink.setTableName("{table.name}");
         hiveSink.setSinkName("{hive.sink.name}");

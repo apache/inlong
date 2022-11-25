@@ -17,16 +17,6 @@
 
 package org.apache.inlong.sdk.commons.admin;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.flume.ChannelException;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -39,6 +29,17 @@ import org.apache.flume.source.http.HTTPSource;
 import org.apache.flume.source.http.HTTPSourceConfigurationConstants;
 import org.apache.flume.tools.FlumeBeanConfigurator;
 import org.apache.flume.tools.HTTPServerConstraintUtil;
+
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -60,8 +61,10 @@ import com.google.common.base.Throwables;
 /**
  * AdminHttpSource
  */
-public class AdminHttpSource extends SslContextAwareAbstractSource implements
-        EventDrivenSource, Configurable {
+public class AdminHttpSource extends SslContextAwareAbstractSource
+        implements
+            EventDrivenSource,
+            Configurable {
     /*
      * There are 2 ways of doing this: a. Have a static server instance and use connectors in each source which binds to
      * the port defined for that source. b. Each source starts its own server instance, which binds to the source's
@@ -143,7 +146,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
         }
         srv = new Server(threadPool);
 
-//Register with JMX for advanced monitoring
+        // Register with JMX for advanced monitoring
         MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
         srv.addEventListener(mbContainer);
         srv.addBean(mbContainer);
@@ -227,8 +230,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
          * @throws IOException
          */
         @Override
-        public void doPost(HttpServletRequest request, HttpServletResponse response)
-                throws IOException {
+        public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
             List<Event> events = Collections.emptyList(); // create empty list
             try {
                 events = handler.getEvents(request, response);
@@ -283,8 +285,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
          * @throws IOException
          */
         @Override
-        public void doGet(HttpServletRequest request, HttpServletResponse response)
-                throws IOException {
+        public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
             doPost(request, response);
         }
     }

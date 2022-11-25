@@ -18,14 +18,16 @@
 
 package org.apache.inlong.sort.formats.csv;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.descriptors.Descriptor;
 import org.apache.flink.table.descriptors.DescriptorTestBase;
 import org.apache.flink.table.descriptors.DescriptorValidator;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
 
 /**
@@ -33,35 +35,32 @@ import org.junit.Test;
  */
 public class CsvTest extends DescriptorTestBase {
 
-    private static final String TEST_SCHEMA =
-            "{" + "\"type\":\"row\","
-                    + "\"fieldFormats\":[{"
-                    + "\"name\":\"student_name\","
-                    + "\"format\":{\"type\":\"string\"}"
-                    + "},{"
-                    + "\"name\":\"score\","
-                    + "\"format\":{\"type\":\"int\"}"
-                    + "},{"
-                    + "\"name\":\"date\","
-                    + "\"format\":{"
-                    + "\"type\":\"date\","
-                    + "\"format\":\"yyyy-MM-dd\""
-                    + "}"
-                    + "}]"
-                    + "}";
+    private static final String TEST_SCHEMA = "{" + "\"type\":\"row\","
+            + "\"fieldFormats\":[{"
+            + "\"name\":\"student_name\","
+            + "\"format\":{\"type\":\"string\"}"
+            + "},{"
+            + "\"name\":\"score\","
+            + "\"format\":{\"type\":\"int\"}"
+            + "},{"
+            + "\"name\":\"date\","
+            + "\"format\":{"
+            + "\"type\":\"date\","
+            + "\"format\":\"yyyy-MM-dd\""
+            + "}"
+            + "}]"
+            + "}";
 
-    private static final Descriptor CUSTOM_DESCRIPTOR_WITH_SCHEMA =
-            new Csv()
-                    .schema(TEST_SCHEMA)
-                    .delimiter(';')
-                    .ignoreErrors()
-                    .escapeCharacter('\\')
-                    .quoteCharacter('\"')
-                    .nullLiteral("n/a");
+    private static final Descriptor CUSTOM_DESCRIPTOR_WITH_SCHEMA = new Csv()
+            .schema(TEST_SCHEMA)
+            .delimiter(';')
+            .ignoreErrors()
+            .escapeCharacter('\\')
+            .quoteCharacter('\"')
+            .nullLiteral("n/a");
 
-    private static final Descriptor MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA =
-            new Csv()
-                    .deriveSchema();
+    private static final Descriptor MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA = new Csv()
+            .deriveSchema();
 
     @Test(expected = ValidationException.class)
     public void testInvalidIgnoreParseErrors() {
@@ -79,8 +78,7 @@ public class CsvTest extends DescriptorTestBase {
         addPropertyAndVerify(
                 MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA,
                 "format.schema",
-                TEST_SCHEMA
-        );
+                TEST_SCHEMA);
     }
 
     // --------------------------------------------------------------------------------------------

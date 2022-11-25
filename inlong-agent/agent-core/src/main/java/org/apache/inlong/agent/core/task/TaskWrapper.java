@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.core.task;
 
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
+
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
@@ -26,8 +29,6 @@ import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.state.AbstractStateWrapper;
 import org.apache.inlong.agent.state.State;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -36,12 +37,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * TaskWrapper is used in taskManager, it maintains the life cycle of
- * running task.
+ * TaskWrapper is used in taskManager, it maintains the life cycle of running
+ * task.
  */
 public class TaskWrapper extends AbstractStateWrapper {
 
@@ -147,14 +148,13 @@ public class TaskWrapper extends AbstractStateWrapper {
     }
 
     /**
-     * In standalone mode, the job to be removed should wait until the read is finished, set
-     * timeout to WAIT_FINISH_TIME_OUT minute to wait for finishing
+     * In standalone mode, the job to be removed should wait until the read is
+     * finished, set timeout to WAIT_FINISH_TIME_OUT minute to wait for finishing
      */
     void waitForFinish() {
         LOGGER.info("set readTime out to 1 minute task id is {}", task.getTaskId());
         task.getReader().setReadTimeout(TimeUnit.MINUTES.toMillis(WAIT_FINISH_TIME_OUT));
     }
-
 
     /**
      * destroy task

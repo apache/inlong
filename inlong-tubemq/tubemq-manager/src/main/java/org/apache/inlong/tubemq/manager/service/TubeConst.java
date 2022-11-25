@@ -22,22 +22,16 @@ public class TubeConst {
     /**
      * default urls
      */
-    public static final String BROKER_RUN_STATUS =
-            "/webapi.htm?type=op_query&method=admin_query_broker_run_status";
-    public static final String TOPIC_CONFIG_INFO =
-            "/webapi.htm?type=op_query&method=admin_query_topic_info";
+    public static final String BROKER_RUN_STATUS = "/webapi.htm?type=op_query&method=admin_query_broker_run_status";
+    public static final String TOPIC_CONFIG_INFO = "/webapi.htm?type=op_query&method=admin_query_topic_info";
     public static final String QUERY_GROUP_DETAIL_INFO =
             "/webapi.htm?type=op_query&method=admin_query_consume_group_detail";
-    public static final String TOPIC_VIEW =
-            "/webapi.htm?type=op_query&method=admin_query_cluster_topic_view";
-    public static final String ADD_TUBE_TOPIC =
-            "/webapi.htm?type=op_modify&method=admin_add_new_topic_record";
-    public static final String RELOAD_BROKER =
-            "/webapi.htm?type=op_modify&method=admin_reload_broker_configure";
+    public static final String TOPIC_VIEW = "/webapi.htm?type=op_query&method=admin_query_cluster_topic_view";
+    public static final String ADD_TUBE_TOPIC = "/webapi.htm?type=op_modify&method=admin_add_new_topic_record";
+    public static final String RELOAD_BROKER = "/webapi.htm?type=op_modify&method=admin_reload_broker_configure";
     public static final String QUERY_CONSUMER_GROUP_INFO =
             "/webapi.htm?type=op_query&method=admin_query_topic_authorize_control";
-    public static final String QUERY_CONSUMER_INFO =
-            "/webapi.htm?type=op_query&method=admin_query_sub_info";
+    public static final String QUERY_CONSUMER_INFO = "/webapi.htm?type=op_query&method=admin_query_sub_info";
 
     /**
      * http method type
@@ -63,7 +57,6 @@ public class TubeConst {
     public static final String FILTER_CONDITION = "filterCondition";
     public static final String FLOW_CONTROL = "flowControl";
     public static final String BATCH_DELETE = "batchDelete";
-
 
     /**
      * status code

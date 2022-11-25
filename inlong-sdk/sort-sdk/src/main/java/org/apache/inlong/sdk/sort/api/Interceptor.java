@@ -23,8 +23,7 @@ import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import java.util.List;
 
 /**
- * Interceptor interface.
- * Use to filter messages by configured strategies.
+ * Interceptor interface. Use to filter messages by configured strategies.
  *
  */
 public interface Interceptor extends Configurable {
@@ -32,7 +31,8 @@ public interface Interceptor extends Configurable {
     /**
      * Intercept the fetched message by configured strategies.
      *
-     * @param messages message to be intercepted.
+     * @param messages
+     *          message to be intercepted.
      * @return Message after being intercepted.
      */
     List<InLongMessage> intercept(List<InLongMessage> messages);

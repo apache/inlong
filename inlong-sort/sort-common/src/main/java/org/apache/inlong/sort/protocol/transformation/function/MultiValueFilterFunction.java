@@ -17,22 +17,24 @@
 
 package org.apache.inlong.sort.protocol.transformation.function;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.LogicOperator;
 import org.apache.inlong.sort.protocol.transformation.MultiValueCompareOperator;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
 
 /**
  * filter for filtering out data with multi-values

@@ -18,17 +18,20 @@
 
 package org.apache.inlong.sort.formats.csv;
 
-import java.nio.charset.Charset;
-import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.util.StringUtils;
+
+import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.types.Row;
+
+import java.nio.charset.Charset;
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * The serializer for the records in csv format.
@@ -78,8 +81,7 @@ public class CsvSerializationSchema implements SerializationSchema<Row> {
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
-            @Nullable String nullLiteral
-    ) {
+            @Nullable String nullLiteral) {
         this.rowFormatInfo = rowFormatInfo;
         this.charset = charset;
         this.delimiter = delimiter;
@@ -89,16 +91,14 @@ public class CsvSerializationSchema implements SerializationSchema<Row> {
     }
 
     public CsvSerializationSchema(
-            @Nonnull RowFormatInfo rowFormatInfo
-    ) {
+            @Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
                 TableFormatConstants.DEFAULT_CHARSET,
                 TableFormatConstants.DEFAULT_DELIMITER,
                 null,
                 null,
-                null
-        );
+                null);
     }
 
     @Override
@@ -119,18 +119,15 @@ public class CsvSerializationSchema implements SerializationSchema<Row> {
 
         for (int i = 0; i < row.getArity(); ++i) {
 
-            String fieldText =
-                    TableFormatUtils.serializeBasicField(
-                            fieldNames[i],
-                            fieldFormatInfos[i],
-                            row.getField(i),
-                            nullLiteral
-                    );
+            String fieldText = TableFormatUtils.serializeBasicField(
+                    fieldNames[i],
+                    fieldFormatInfos[i],
+                    row.getField(i),
+                    nullLiteral);
             fieldTexts[i] = fieldText;
         }
 
-        String result =
-                StringUtils.concatCsv(fieldTexts, delimiter, escapeChar, quoteChar);
+        String result = StringUtils.concatCsv(fieldTexts, delimiter, escapeChar, quoteChar);
 
         return result.getBytes(Charset.forName(charset));
     }
@@ -151,7 +148,8 @@ public class CsvSerializationSchema implements SerializationSchema<Row> {
         /**
          * Creates a CSV serialization schema for the given type information.
          *
-         * @param rowFormatInfo Type information describing the result type.
+         * @param rowFormatInfo
+         *          Type information describing the result type.
          */
         public Builder(RowFormatInfo rowFormatInfo) {
             this.rowFormatInfo = rowFormatInfo;
@@ -189,8 +187,7 @@ public class CsvSerializationSchema implements SerializationSchema<Row> {
                     delimiter,
                     escapeChar,
                     quoteChar,
-                    nullLiteral
-            );
+                    nullLiteral);
         }
     }
 
@@ -206,11 +203,11 @@ public class CsvSerializationSchema implements SerializationSchema<Row> {
 
         CsvSerializationSchema that = (CsvSerializationSchema) o;
         return Objects.equals(rowFormatInfo, that.rowFormatInfo)
-                       && Objects.equals(charset, that.charset)
-                       && Objects.equals(delimiter, that.delimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && Objects.equals(charset, that.charset)
+                && Objects.equals(delimiter, that.delimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override

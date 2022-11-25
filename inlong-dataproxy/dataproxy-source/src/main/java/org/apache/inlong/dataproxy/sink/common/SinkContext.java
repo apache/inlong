@@ -17,9 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
@@ -28,12 +25,17 @@ import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.pulsar.PulsarHandler;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.ClassUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
 
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SinkContext
@@ -237,6 +239,7 @@ public class SinkContext {
 
     /**
      * createBufferQueue
+     * 
      * @return
      */
     public static BufferQueue<BatchPackProfile> createBufferQueue() {

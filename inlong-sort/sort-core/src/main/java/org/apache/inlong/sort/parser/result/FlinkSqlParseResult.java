@@ -17,15 +17,17 @@
 
 package org.apache.inlong.sort.parser.result;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.table.api.StatementSet;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.TableResult;
 
 import java.io.Serializable;
 import java.util.List;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Flink sql parse result, It is a concrete implementation of ParseResult
@@ -43,9 +45,12 @@ public class FlinkSqlParseResult implements ParseResult, Serializable {
     /**
      * The constructor of FlinkSqlParseResult
      *
-     * @param tableEnv        The tableEnv,it is the execution environment of flink sql
-     * @param createTableSqls The createTableSqls,it is a collection of  create table sql
-     * @param loadSqls        The loadSqls,it is a collection of sql that load data into table
+     * @param tableEnv
+     *          The tableEnv,it is the execution environment of flink sql
+     * @param createTableSqls
+     *          The createTableSqls,it is a collection of create table sql
+     * @param loadSqls
+     *          The loadSqls,it is a collection of sql that load data into table
      */
     public FlinkSqlParseResult(TableEnvironment tableEnv, List<String> createTableSqls, List<String> loadSqls) {
         this.tableEnv = Preconditions.checkNotNull(tableEnv, "tableEnv is null");

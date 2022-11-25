@@ -17,14 +17,6 @@
 
 package org.apache.inlong.tubemq.server.broker;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.aaaclient.ClientAuthenticateHandler;
 import org.apache.inlong.tubemq.corebase.aaaclient.SimpleClientAuthenticateHandler;
@@ -60,17 +52,29 @@ import org.apache.inlong.tubemq.server.broker.utils.BrokerSamplePrint;
 import org.apache.inlong.tubemq.server.broker.web.WebServer;
 import org.apache.inlong.tubemq.server.common.TubeServerVersion;
 import org.apache.inlong.tubemq.server.common.aaaserver.SimpleCertificateBrokerHandler;
+
 import org.apache.log4j.LogManager;
 import org.apache.zookeeper.client.ZKClientConfig;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tube broker server. In charge of init each components, and communicating to master.
+ * Tube broker server. In charge of init each components, and communicating to
+ * master.
  */
 public class TubeBroker implements Stoppable {
-    private static final Logger logger =
-            LoggerFactory.getLogger(TubeBroker.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(TubeBroker.class);
     // tube broker config
     private final BrokerConfig tubeConfig;
     // broker id
@@ -88,15 +92,13 @@ public class TubeBroker implements Stoppable {
     // offset record service
     private final OffsetRecordService offsetRecordService;
     private final BrokerServiceServer brokerServiceServer;
-    private final BrokerSamplePrint samplePrintCtrl =
-            new BrokerSamplePrint(logger);
+    private final BrokerSamplePrint samplePrintCtrl = new BrokerSamplePrint(logger);
     private final ScheduledExecutorService scheduledExecutorService;
     // shutdown hook.
     private final ShutdownHook shutdownHook = new ShutdownHook();
     // certificate handler.
     private final SimpleCertificateBrokerHandler serverAuthHandler;
-    private final ClientAuthenticateHandler clientAuthHandler =
-            new SimpleClientAuthenticateHandler();
+    private final ClientAuthenticateHandler clientAuthHandler = new SimpleClientAuthenticateHandler();
     private MasterService masterService;
     private BrokerPromMetricService promMetricService;
     private boolean requireReportConf = false;
@@ -111,8 +113,10 @@ public class TubeBroker implements Stoppable {
     /**
      * Initial broker instance.
      *
-     * @param tubeConfig      the initial configure
-     * @throws IOException    the exception during processing
+     * @param tubeConfig
+     *          the initial configure
+     * @throws IOException
+     *           the exception during processing
      */
     public TubeBroker(final BrokerConfig tubeConfig) throws Exception {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
@@ -129,39 +133,34 @@ public class TubeBroker implements Stoppable {
         this.offsetManager = new DefaultOffsetManager(tubeConfig);
         this.storeManager = new MessageStoreManager(this, tubeConfig);
         this.serverAuthHandler = new SimpleCertificateBrokerHandler(this);
-        this.offsetRecordService =
-                new OffsetRecordService(this, tubeConfig.getGroupOffsetScanDurMs());
+        this.offsetRecordService = new OffsetRecordService(this, tubeConfig.getGroupOffsetScanDurMs());
         // rpc config.
         RpcConfig rpcConfig = new RpcConfig();
         rpcConfig.put(RpcConstants.CONNECT_TIMEOUT, 3000);
         rpcConfig.put(RpcConstants.REQUEST_TIMEOUT, this.tubeConfig.getRpcReadTimeoutMs());
         clientFactory.configure(rpcConfig);
-        this.rpcServiceFactory =
-                new RpcServiceFactory(clientFactory);
+        this.rpcServiceFactory = new RpcServiceFactory(clientFactory);
         // broker service.
-        this.brokerServiceServer =
-                new BrokerServiceServer(this, tubeConfig);
+        this.brokerServiceServer = new BrokerServiceServer(this, tubeConfig);
         // web server.
         this.webServer = new WebServer(tubeConfig.getHostName(), tubeConfig.getWebPort(), this);
         this.webServer.start();
         // prometheus service
-        this.promMetricService =
-                new BrokerPromMetricService(this, tubeConfig.getPrometheusConfig());
+        this.promMetricService = new BrokerPromMetricService(this, tubeConfig.getPrometheusConfig());
         this.promMetricService.start();
         // used for communicate to master.
-        this.masterService =
-                rpcServiceFactory.getFailoverService(MasterService.class,
-                        new MasterInfo(tubeConfig.getMasterAddressList()), rpcConfig);
+        this.masterService = rpcServiceFactory.getFailoverService(MasterService.class,
+                new MasterInfo(tubeConfig.getMasterAddressList()), rpcConfig);
         // used for heartbeat.
-        this.scheduledExecutorService =
-                Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        Thread t = new Thread(r, "Broker Heartbeat Thread");
-                        t.setPriority(Thread.MAX_PRIORITY);
-                        return t;
-                    }
-                });
+        this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, "Broker Heartbeat Thread");
+                t.setPriority(Thread.MAX_PRIORITY);
+                return t;
+            }
+        });
         Runtime.getRuntime().addShutdownHook(this.shutdownHook);
     }
 
@@ -178,7 +177,7 @@ public class TubeBroker implements Stoppable {
     }
 
     public boolean isKeepAlive() {
-        return  this.isKeepAlive.get();
+        return this.isKeepAlive.get();
     }
 
     public long getLastRegTime() {
@@ -213,7 +212,8 @@ public class TubeBroker implements Stoppable {
     /**
      * Start broker service.
      *
-     * @throws Exception  the exception during processing
+     * @throws Exception
+     *           the exception during processing
      */
     public void start() throws Exception {
         logger.info("Starting tube server...");
@@ -224,45 +224,46 @@ public class TubeBroker implements Stoppable {
         // register to master, and heartbeat to master.
         this.register2Master();
         this.scheduledExecutorService.scheduleAtFixedRate(
-            new Runnable() {
-                @Override
-                public void run() {
-                    if (!shutdown.get()) {
-                        long currErrCnt = heartbeatErrors.get();
-                        if (currErrCnt > maxReleaseTryCnt) {
-                            if (currErrCnt % 2 == 0) {
-                                heartbeatErrors.incrementAndGet();
-                                return;
-                            }
-                        }
-                        try {
-                            HeartResponseM2B response =
-                                masterService.brokerHeartbeatB2M(createBrokerHeartBeatRequest(),
-                                    tubeConfig.getHostName(), false);
-                            if (!response.getSuccess()) {
-                                isKeepAlive.set(false);
-                                if (response.getErrCode() == TErrCodeConstants.HB_NO_NODE) {
-                                    BrokerSrvStatsHolder.incBrokerTimeoutCnt();
-                                    register2Master();
-                                    heartbeatErrors.set(0);
-                                    logger.info("Re-register to master successfully!");
+                new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (!shutdown.get()) {
+                            long currErrCnt = heartbeatErrors.get();
+                            if (currErrCnt > maxReleaseTryCnt) {
+                                if (currErrCnt % 2 == 0) {
+                                    heartbeatErrors.incrementAndGet();
+                                    return;
                                 }
-                                return;
                             }
-                            isKeepAlive.set(true);
-                            heartbeatErrors.set(0);
-                            StringBuilder sBuilder = new StringBuilder(512);
-                            procConfigFromHeartBeat(sBuilder, response);
-                        } catch (Throwable t) {
-                            isKeepAlive.set(false);
-                            heartbeatErrors.incrementAndGet();
-                            BrokerSrvStatsHolder.incBrokerHBExcCnt();
-                            samplePrintCtrl.printExceptionCaught(t);
+                            try {
+                                HeartResponseM2B response =
+                                        masterService.brokerHeartbeatB2M(createBrokerHeartBeatRequest(),
+                                                tubeConfig.getHostName(), false);
+                                if (!response.getSuccess()) {
+                                    isKeepAlive.set(false);
+                                    if (response.getErrCode() == TErrCodeConstants.HB_NO_NODE) {
+                                        BrokerSrvStatsHolder.incBrokerTimeoutCnt();
+                                        register2Master();
+                                        heartbeatErrors.set(0);
+                                        logger.info("Re-register to master successfully!");
+                                    }
+                                    return;
+                                }
+                                isKeepAlive.set(true);
+                                heartbeatErrors.set(0);
+                                StringBuilder sBuilder = new StringBuilder(512);
+                                procConfigFromHeartBeat(sBuilder, response);
+                            } catch (Throwable t) {
+                                isKeepAlive.set(false);
+                                heartbeatErrors.incrementAndGet();
+                                BrokerSrvStatsHolder.incBrokerHBExcCnt();
+                                samplePrintCtrl.printExceptionCaught(t);
+                            }
                         }
                     }
-                }
-            }, tubeConfig.getHeartbeatPeriodMs(), tubeConfig.getHeartbeatPeriodMs(),
-            TimeUnit.MILLISECONDS);
+                }, tubeConfig.getHeartbeatPeriodMs(), tubeConfig.getHeartbeatPeriodMs(),
+                TimeUnit.MILLISECONDS);
         this.storeManager.start();
         this.brokerServiceServer.start();
         isOnline = true;
@@ -327,14 +328,13 @@ public class TubeBroker implements Stoppable {
     }
 
     private void procConfigFromHeartBeat(StringBuilder strBuff,
-                                         HeartResponseM2B response) {
+            HeartResponseM2B response) {
         // process service status
         ServiceStatusHolder
                 .setReadWriteServiceStatus(response.getStopRead(),
                         response.getStopWrite(), "Master");
         // update default flow controller rules
-        FlowCtrlRuleHandler defFlowCtrlHandler =
-                metadataManager.getFlowCtrlRuleHandler();
+        FlowCtrlRuleHandler defFlowCtrlHandler = metadataManager.getFlowCtrlRuleHandler();
         if (response.hasFlowCheckId()
                 && response.getFlowCheckId() >= 0
                 && response.getFlowCheckId() != defFlowCtrlHandler.getFlowCtrlId()) {
@@ -389,12 +389,12 @@ public class TubeBroker implements Stoppable {
             serverAuthHandler.appendVisitToken(response.getBrokerAuthorizedInfo());
         }
         // process topic deletion
-        boolean needProcess =
-                metadataManager.updateBrokerRemoveTopicMap(
-                        response.getTakeRemoveTopicInfo(),
-                        response.getRemoveTopicConfInfoList(), strBuff);
+        boolean needProcess = metadataManager.updateBrokerRemoveTopicMap(
+                response.getTakeRemoveTopicInfo(),
+                response.getRemoveTopicConfInfoList(), strBuff);
         if (needProcess) {
             new Thread() {
+
                 @Override
                 public void run() {
                     storeManager.removeTopicStore();
@@ -406,16 +406,16 @@ public class TubeBroker implements Stoppable {
     /**
      * Register to master. Try multi times if failed.
      *
-     * @throws StartupException  the exception during processing
+     * @throws StartupException
+     *           the exception during processing
      */
     private void register2Master() throws StartupException {
         int remainingRetry = 5;
         StringBuilder sBuilder = new StringBuilder(512);
         while (true) {
             try {
-                final RegisterResponseM2B response =
-                        masterService.brokerRegisterB2M(createMasterRegisterRequest(),
-                                tubeConfig.getHostName(), false);
+                final RegisterResponseM2B response = masterService.brokerRegisterB2M(createMasterRegisterRequest(),
+                        tubeConfig.getHostName(), false);
                 if (!response.getSuccess()) {
                     logger.warn("Register to master failure, errInfo is " + response.getErrMsg());
                     throw new StartupException(sBuilder
@@ -438,14 +438,13 @@ public class TubeBroker implements Stoppable {
     }
 
     private void procConfigFromRegister(StringBuilder strBuff,
-                                        final RegisterResponseM2B response) {
+            final RegisterResponseM2B response) {
         // process service status
         ServiceStatusHolder
                 .setReadWriteServiceStatus(response.getStopRead(),
                         response.getStopWrite(), "Master");
         // process default flow controller rules
-        FlowCtrlRuleHandler defFlowCtrlHandler =
-                metadataManager.getFlowCtrlRuleHandler();
+        FlowCtrlRuleHandler defFlowCtrlHandler = metadataManager.getFlowCtrlRuleHandler();
         if (response.hasFlowCheckId()
                 && response.getFlowCheckId() >= 0
                 && response.getFlowCheckId() != defFlowCtrlHandler.getFlowCtrlId()) {
@@ -500,8 +499,7 @@ public class TubeBroker implements Stoppable {
 
     // build cluster configure info
     private ClientMaster.ClusterConfig.Builder buildClusterConfig() {
-        ClientMaster.ClusterConfig.Builder defSetting =
-                ClientMaster.ClusterConfig.newBuilder();
+        ClientMaster.ClusterConfig.Builder defSetting = ClientMaster.ClusterConfig.newBuilder();
         defSetting.setConfigId(ClusterConfigHolder.getConfigId());
         return defSetting;
     }
@@ -509,8 +507,9 @@ public class TubeBroker implements Stoppable {
     /**
      * Build register request to master.
      *
-     * @return             the register request object
-     * @throws Exception   the exception during processing
+     * @return the register request object
+     * @throws Exception
+     *           the exception during processing
      */
     private RegisterRequestB2M createMasterRegisterRequest() throws Exception {
         RegisterRequestB2M.Builder builder = RegisterRequestB2M.newBuilder();
@@ -522,8 +521,7 @@ public class TubeBroker implements Stoppable {
         builder.setWriteStatusRpt(ServiceStatusHolder.getWriteServiceReportStatus());
         builder.setCurBrokerConfId(metadataManager.getBrokerMetadataConfId());
         builder.setConfCheckSumId(metadataManager.getBrokerConfCheckSumId());
-        FlowCtrlRuleHandler flowCtrlRuleHandler =
-                metadataManager.getFlowCtrlRuleHandler();
+        FlowCtrlRuleHandler flowCtrlRuleHandler = metadataManager.getFlowCtrlRuleHandler();
         builder.setFlowCheckId(flowCtrlRuleHandler.getFlowCtrlId());
         builder.setQryPriorityId(flowCtrlRuleHandler.getQryPriorityId());
         String brokerDefaultConfInfo = metadataManager.getBrokerDefMetaConfInfo();
@@ -540,17 +538,17 @@ public class TubeBroker implements Stoppable {
         }
         builder.setClsConfig(buildClusterConfig());
         logger.info(new StringBuilder(512)
-            .append("[Register request] current broker report info: brokerConfId=")
-            .append(metadataManager.getBrokerMetadataConfId())
-            .append(",readStatusRpt=").append(builder.getReadStatusRpt())
-            .append(",writeStatusRpt=").append(builder.getWriteStatusRpt())
-            .append(",isTlsEnable=").append(tubeConfig.isTlsEnable())
-            .append(",TlsPort=").append(tubeConfig.getTlsPort())
-            .append(",flowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
-            .append(",QryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
-            .append(",configCheckSumId=").append(metadataManager.getBrokerConfCheckSumId())
-            .append(",brokerDefaultConfInfo=").append(brokerDefaultConfInfo)
-            .append(",brokerTopicSetConfList=").append(topicConfInfoList).toString());
+                .append("[Register request] current broker report info: brokerConfId=")
+                .append(metadataManager.getBrokerMetadataConfId())
+                .append(",readStatusRpt=").append(builder.getReadStatusRpt())
+                .append(",writeStatusRpt=").append(builder.getWriteStatusRpt())
+                .append(",isTlsEnable=").append(tubeConfig.isTlsEnable())
+                .append(",TlsPort=").append(tubeConfig.getTlsPort())
+                .append(",flowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
+                .append(",QryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
+                .append(",configCheckSumId=").append(metadataManager.getBrokerConfCheckSumId())
+                .append(",brokerDefaultConfInfo=").append(brokerDefaultConfInfo)
+                .append(",brokerTopicSetConfList=").append(topicConfInfoList).toString());
         return builder.build();
     }
 
@@ -567,8 +565,7 @@ public class TubeBroker implements Stoppable {
         builder.setWriteStatusRpt(ServiceStatusHolder.getWriteServiceReportStatus());
         builder.setCurBrokerConfId(metadataManager.getBrokerMetadataConfId());
         builder.setConfCheckSumId(metadataManager.getBrokerConfCheckSumId());
-        FlowCtrlRuleHandler flowCtrlRuleHandler =
-                metadataManager.getFlowCtrlRuleHandler();
+        FlowCtrlRuleHandler flowCtrlRuleHandler = metadataManager.getFlowCtrlRuleHandler();
         builder.setFlowCheckId(flowCtrlRuleHandler.getFlowCtrlId());
         builder.setQryPriorityId(flowCtrlRuleHandler.getQryPriorityId());
         builder.setTakeConfInfo(false);
@@ -588,18 +585,18 @@ public class TubeBroker implements Stoppable {
             builder.setBrokerDefaultConfInfo(metadataManager.getBrokerDefMetaConfInfo());
             builder.addAllBrokerTopicSetConfInfo(metadataManager.getTopicMetaConfInfoLst());
             logger.info(new StringBuilder(512)
-                .append("[HeartBeat request] current broker report info: brokerConfId=")
-                .append(metadataManager.getBrokerMetadataConfId())
-                .append(",readStatusRpt=").append(builder.getReadStatusRpt())
-                .append(",writeStatusRpt=").append(builder.getWriteStatusRpt())
-                .append(",flowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
-                .append(",QryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
-                .append(",ReadStatusRpt=").append(builder.getReadStatusRpt())
-                .append(",WriteStatusRpt=").append(builder.getWriteStatusRpt())
-                .append(",lastReportedConfigId=").append(metadataManager.getLastRptBrokerMetaConfId())
-                .append(",configCheckSumId=").append(metadataManager.getBrokerConfCheckSumId())
-                .append(",brokerDefaultConfInfo=").append(metadataManager.getBrokerDefMetaConfInfo())
-                .append(",brokerTopicSetConfList=").append(metadataManager.getTopicMetaConfInfoLst()).toString());
+                    .append("[HeartBeat request] current broker report info: brokerConfId=")
+                    .append(metadataManager.getBrokerMetadataConfId())
+                    .append(",readStatusRpt=").append(builder.getReadStatusRpt())
+                    .append(",writeStatusRpt=").append(builder.getWriteStatusRpt())
+                    .append(",flowCtrlId=").append(flowCtrlRuleHandler.getFlowCtrlId())
+                    .append(",QryPriorityId=").append(flowCtrlRuleHandler.getQryPriorityId())
+                    .append(",ReadStatusRpt=").append(builder.getReadStatusRpt())
+                    .append(",WriteStatusRpt=").append(builder.getWriteStatusRpt())
+                    .append(",lastReportedConfigId=").append(metadataManager.getLastRptBrokerMetaConfId())
+                    .append(",configCheckSumId=").append(metadataManager.getBrokerConfCheckSumId())
+                    .append(",brokerDefaultConfInfo=").append(metadataManager.getBrokerDefMetaConfInfo())
+                    .append(",brokerTopicSetConfList=").append(metadataManager.getTopicMetaConfInfoLst()).toString());
             metadataManager.setLastRptBrokerMetaConfId(metadataManager.getBrokerMetadataConfId());
             requireReportConf = false;
         }
@@ -624,7 +621,7 @@ public class TubeBroker implements Stoppable {
     /**
      * Build master certificate info.
      *
-     * @return  the MasterCertificateInfo builder
+     * @return the MasterCertificateInfo builder
      */
     private ClientMaster.MasterCertificateInfo.Builder genMasterCertificateInfo() {
         ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = null;
@@ -641,6 +638,7 @@ public class TubeBroker implements Stoppable {
      * Shutdown hook.
      */
     private final class ShutdownHook extends Thread {
+
         @Override
         public void run() {
             if (shutdownHooked.compareAndSet(false, true)) {

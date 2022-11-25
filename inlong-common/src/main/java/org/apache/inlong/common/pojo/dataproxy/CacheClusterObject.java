@@ -41,7 +41,8 @@ public class CacheClusterObject {
     /**
      * set name
      *
-     * @param name the name to set
+     * @param name
+     *          the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -59,7 +60,8 @@ public class CacheClusterObject {
     /**
      * set zone
      *
-     * @param zone the zone to set
+     * @param zone
+     *          the zone to set
      */
     public void setZone(String zone) {
         this.zone = zone;
@@ -77,7 +79,8 @@ public class CacheClusterObject {
     /**
      * set params
      *
-     * @param params the params to set
+     * @param params
+     *          the params to set
      */
     public void setParams(Map<String, String> params) {
         this.params = params;

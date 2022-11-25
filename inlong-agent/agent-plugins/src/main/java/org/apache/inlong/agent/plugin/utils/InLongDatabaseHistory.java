@@ -17,21 +17,9 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import io.debezium.config.Configuration;
-import io.debezium.config.Field;
-import io.debezium.document.DocumentReader;
-import io.debezium.document.DocumentWriter;
-import io.debezium.relational.history.AbstractDatabaseHistory;
-import io.debezium.relational.history.DatabaseHistory;
-import io.debezium.relational.history.DatabaseHistoryException;
-import io.debezium.relational.history.DatabaseHistoryListener;
-import io.debezium.relational.history.HistoryRecord;
-import io.debezium.relational.history.HistoryRecordComparator;
-import io.debezium.util.Collect;
-import io.debezium.util.FunctionalReadWriteLock;
 import org.apache.inlong.agent.plugin.message.SchemaRecord;
+
 import org.apache.kafka.connect.errors.ConnectException;
-import org.slf4j.Logger;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -50,8 +38,24 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+
+import io.debezium.config.Configuration;
+import io.debezium.config.Field;
+import io.debezium.document.DocumentReader;
+import io.debezium.document.DocumentWriter;
+import io.debezium.relational.history.AbstractDatabaseHistory;
+import io.debezium.relational.history.DatabaseHistory;
+import io.debezium.relational.history.DatabaseHistoryException;
+import io.debezium.relational.history.DatabaseHistoryListener;
+import io.debezium.relational.history.HistoryRecord;
+import io.debezium.relational.history.HistoryRecordComparator;
+import io.debezium.util.Collect;
+import io.debezium.util.FunctionalReadWriteLock;
+
 /**
- * A {@link DatabaseHistory} implementation that stores the schema history in a local file.
+ * A {@link DatabaseHistory} implementation that stores the schema history in a
+ * local file.
  */
 public class InLongDatabaseHistory extends AbstractDatabaseHistory {
 
@@ -164,8 +168,7 @@ public class InLongDatabaseHistory extends AbstractDatabaseHistory {
                             BufferedWriter historyWriter = Files
                                     .newBufferedWriter(this.path, StandardOpenOption.APPEND);
 
-                            label58:
-                            {
+                            label58: {
                                 try {
                                     try {
                                         historyWriter.append(line);

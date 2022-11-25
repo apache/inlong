@@ -17,26 +17,27 @@
 
 package org.apache.inlong.tubemq.server.broker.stats;
 
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.metric.impl.ESTHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongOnlineCounter;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongStatsCounter;
 import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
 
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * BrokerSrvStatsHolder, statistic Broker metrics information for RPC services
  *
  * The metrics are placed independently or in switchableSets according to
- * whether switchable statistics are allowed, and the value of metrics is changed
- * via the corresponding metric API.
+ * whether switchable statistics are allowed, and the value of metrics is
+ * changed via the corresponding metric API.
  */
 public class BrokerSrvStatsHolder {
+
     // Consumer client online statistic
-    private static final LongOnlineCounter csmOnlineCnt =
-            new LongOnlineCounter("consume_online_cnt", null);
+    private static final LongOnlineCounter csmOnlineCnt = new LongOnlineCounter("consume_online_cnt", null);
     // Switchable statistic items
     private static final ServiceStatsSet[] switchableSets = new ServiceStatsSet[2];
     // Current writable index
@@ -80,7 +81,8 @@ public class BrokerSrvStatsHolder {
     /**
      * Set manually the DiskSync statistic status.
      *
-     * @param enableStats  enable or disable the statistic.
+     * @param enableStats
+     *          enable or disable the statistic.
      */
     public static synchronized void setDiskSyncStatsStatus(boolean enableStats) {
         BrokerSrvStatsHolder.diskSyncClosed = !enableStats;
@@ -141,8 +143,7 @@ public class BrokerSrvStatsHolder {
     private static boolean switchWritingStatsUnit() {
         long curSnapshotTime = lstSnapshotTime.get();
         // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
+        if ((System.currentTimeMillis() - curSnapshotTime) >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
             if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
                 switchableSets[getIndex(writableIndex.incrementAndGet())].resetSinceTime();
                 return true;
@@ -152,8 +153,8 @@ public class BrokerSrvStatsHolder {
     }
 
     private static void getStatsValue(ServiceStatsSet statsSet,
-                                      boolean resetValue,
-                                      Map<String, Long> statsMap) {
+            boolean resetValue,
+            Map<String, Long> statsMap) {
         statsMap.put(statsSet.lstResetTime.getFullName(),
                 statsSet.lstResetTime.getSinceTime());
         statsMap.put("isDiskSyncClosed", (diskSyncClosed ? 1L : 0L));
@@ -191,8 +192,8 @@ public class BrokerSrvStatsHolder {
     }
 
     private static void getStatsValue(ServiceStatsSet statsSet,
-                                      boolean resetValue,
-                                      StringBuilder strBuff) {
+            boolean resetValue,
+            StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
                 .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
                 .append("\",\"isDiskSyncClosed\":").append(diskSyncClosed)
@@ -246,7 +247,8 @@ public class BrokerSrvStatsHolder {
     /**
      * Gets the metric block index based on the specified value.
      *
-     * @param origIndex    the specified value
+     * @param origIndex
+     *          the specified value
      * @return the metric block index
      */
     private static int getIndex(int origIndex) {
@@ -259,28 +261,21 @@ public class BrokerSrvStatsHolder {
      * In which the object is the metric item that can be counted in stages
      */
     private static class ServiceStatsSet {
-        protected final SinceTime lstResetTime =
-                new SinceTime("reset_time", null);
+
+        protected final SinceTime lstResetTime = new SinceTime("reset_time", null);
         // Delay statistics for syncing data to files
-        protected final ESTHistogram fileSyncDltStats =
-                new ESTHistogram("file_sync_dlt", null);
+        protected final ESTHistogram fileSyncDltStats = new ESTHistogram("file_sync_dlt", null);
         // Disk IO Exception statistics
-        protected final LongStatsCounter fileIOExcStats =
-                new LongStatsCounter("file_exc_cnt", null);
+        protected final LongStatsCounter fileIOExcStats = new LongStatsCounter("file_exc_cnt", null);
         // Delay statistics for syncing data to Zookeeper
-        protected final ESTHistogram zkSyncDltStats =
-                new ESTHistogram("zk_sync_dlt", null);
+        protected final ESTHistogram zkSyncDltStats = new ESTHistogram("zk_sync_dlt", null);
         // Zookeeper Exception statistics
-        protected final LongStatsCounter zkExcStats =
-                new LongStatsCounter("zk_exc_cnt", null);
+        protected final LongStatsCounter zkExcStats = new LongStatsCounter("zk_exc_cnt", null);
         // Broker 2 Master status statistics
-        protected final LongStatsCounter brokerTimeoutStats =
-                new LongStatsCounter("broker_timeout_cnt", null);
-        protected final LongStatsCounter brokerHBExcStats =
-                new LongStatsCounter("broker_hb_exc_cnt", null);
+        protected final LongStatsCounter brokerTimeoutStats = new LongStatsCounter("broker_timeout_cnt", null);
+        protected final LongStatsCounter brokerHBExcStats = new LongStatsCounter("broker_hb_exc_cnt", null);
         // Consumer 2 Broker status statistics
-        protected final LongStatsCounter csmTimeoutStats =
-                new LongStatsCounter("consume_timeout_cnt", null);
+        protected final LongStatsCounter csmTimeoutStats = new LongStatsCounter("consume_timeout_cnt", null);
 
         public ServiceStatsSet() {
             resetSinceTime();
@@ -291,4 +286,3 @@ public class BrokerSrvStatsHolder {
         }
     }
 }
-

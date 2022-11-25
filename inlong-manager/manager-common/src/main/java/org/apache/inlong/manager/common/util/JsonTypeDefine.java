@@ -17,12 +17,12 @@
 
 package org.apache.inlong.manager.common.util;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Define the Json type for JsonTypeInfo

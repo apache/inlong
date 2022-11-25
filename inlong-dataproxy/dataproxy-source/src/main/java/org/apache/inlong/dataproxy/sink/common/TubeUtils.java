@@ -17,8 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import java.util.Map;
-import org.apache.flume.Event;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -29,14 +27,20 @@ import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.corebase.Message;
 
+import org.apache.flume.Event;
+
+import java.util.Map;
+
 public class TubeUtils {
 
     /**
      * Build TubeMQ's client configure
      *
-     * @param clusterAddr    the TubeMQ cluster address
-     * @param tubeConfig     the TubeMQ cluster configure
-     * @return   the TubeClientConfig object
+     * @param clusterAddr
+     *          the TubeMQ cluster address
+     * @param tubeConfig
+     *          the TubeMQ cluster configure
+     * @return the TubeClientConfig object
      */
     public static TubeClientConfig buildClientConfig(String clusterAddr, MQClusterConfig tubeConfig) {
         final TubeClientConfig tubeClientConfig = new TubeClientConfig(clusterAddr);
@@ -52,9 +56,11 @@ public class TubeUtils {
     /**
      * Build TubeMQ's message
      *
-     * @param topicName      the topic name of message
-     * @param event          the DataProxy event
-     * @return   the message object
+     * @param topicName
+     *          the topic name of message
+     * @param event
+     *          the DataProxy event
+     * @return the message object
      */
     public static Message buildMessage(String topicName, Event event) {
         Map<String, String> headers = event.getHeaders();

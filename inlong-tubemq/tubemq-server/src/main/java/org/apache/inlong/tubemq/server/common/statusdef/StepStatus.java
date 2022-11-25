@@ -22,12 +22,11 @@ package org.apache.inlong.tubemq.server.common.statusdef;
  */
 public enum StepStatus {
 
-    STEP_STATUS_UNDEFINED(-2, "idle", 0, 0),
-    STEP_STATUS_LOAD_DATA(1, "load_data", 0, 0),
-    STEP_STATUS_WAIT_ONLINE(2, "wait_online", 0, 0),
-    STEP_STATUS_WAIT_SYNC(3, "wait_sync", 0, 0),
-    STEP_STATUS_WAIT_SUBSCRIBE(4, "wait_sub", 30000, 15000),
-    STEP_STATUS_WAIT_PUBLISH(5, "wait_pub", 5000, 0);
+    STEP_STATUS_UNDEFINED(-2, "idle", 0, 0), STEP_STATUS_LOAD_DATA(1, "load_data", 0, 0), STEP_STATUS_WAIT_ONLINE(2,
+            "wait_online", 0, 0),
+    STEP_STATUS_WAIT_SYNC(3, "wait_sync", 0,
+            0),
+    STEP_STATUS_WAIT_SUBSCRIBE(4, "wait_sub", 30000, 15000), STEP_STATUS_WAIT_PUBLISH(5, "wait_pub", 5000, 0);
 
     private final int code;
     private final String description;
@@ -35,7 +34,7 @@ public enum StepStatus {
     private final long shortDelayDurIdnMs;
 
     StepStatus(int code, String description,
-               long normalDelayDurIdnMs, long shortDelayDurIdnMs) {
+            long normalDelayDurIdnMs, long shortDelayDurIdnMs) {
         this.code = code;
         this.description = description;
         this.normalDelayDurIdnMs = normalDelayDurIdnMs;

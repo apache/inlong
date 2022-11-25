@@ -20,6 +20,14 @@ package org.apache.inlong.sort.cdc.oracle.debezium.internal;
 
 import static io.debezium.relational.history.TableChanges.TableChange;
 
+import org.apache.inlong.sort.cdc.oracle.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import io.debezium.config.Configuration;
 import io.debezium.relational.TableId;
 import io.debezium.relational.Tables;
@@ -31,29 +39,27 @@ import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.HistoryRecordComparator;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.schema.DatabaseSchema;
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import org.apache.inlong.sort.cdc.oracle.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil;
 
 /**
- * The {@link FlinkDatabaseSchemaHistory} only stores the latest schema of the monitored tables.
- * When recovering from the checkpoint, it should apply all the tables to the {@link
- * DatabaseSchema}, which doesn't need to replay the history anymore.
+ * The {@link FlinkDatabaseSchemaHistory} only stores the latest schema of the
+ * monitored tables. When recovering from the checkpoint, it should apply all
+ * the tables to the {@link DatabaseSchema}, which doesn't need to replay the
+ * history anymore.
  *
- * <p>Considering the data structure maintained in the {@link FlinkDatabaseSchemaHistory} is much
- * different from the {@link FlinkDatabaseHistory}, it's not compatible with the {@link
- * FlinkDatabaseHistory}. Because it only maintains the latest schema of the table rather than all
- * history DDLs, it's useful to prevent OOM when meet massive history DDLs.</p>
+ * <p>
+ * Considering the data structure maintained in the
+ * {@link FlinkDatabaseSchemaHistory} is much different from the
+ * {@link FlinkDatabaseHistory}, it's not compatible with the
+ * {@link FlinkDatabaseHistory}. Because it only maintains the latest schema of
+ * the table rather than all history DDLs, it's useful to prevent OOM when meet
+ * massive history DDLs.
+ * </p>
  */
 public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
 
     public static final String DATABASE_HISTORY_INSTANCE_NAME = "database.history.instance.name";
 
-    private final FlinkJsonTableChangeSerializer tableChangesSerializer =
-            new FlinkJsonTableChangeSerializer();
+    private final FlinkJsonTableChangeSerializer tableChangesSerializer = new FlinkJsonTableChangeSerializer();
 
     public static ConcurrentMap<TableId, SchemaRecord> latestTables;
     private String instanceName;
@@ -63,8 +69,8 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
     private boolean useCatalogBeforeSchema;
 
     /**
-     * Determine whether the {@link FlinkDatabaseSchemaHistory} is compatible with the specified
-     * state.
+     * Determine whether the {@link FlinkDatabaseSchemaHistory} is compatible with
+     * the specified state.
      */
     public static boolean isCompatible(Collection<SchemaRecord> records) {
         for (SchemaRecord record : records) {
@@ -93,9 +99,8 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
         this.latestTables = new ConcurrentHashMap<>();
         for (SchemaRecord schemaRecord : DatabaseHistoryUtil.retrieveHistory(instanceName)) {
             // validate here
-            TableChange tableChange =
-                    FlinkJsonTableChangeSerializer.fromDocument(
-                            schemaRecord.toDocument(), useCatalogBeforeSchema);
+            TableChange tableChange = FlinkJsonTableChangeSerializer.fromDocument(
+                    schemaRecord.toDocument(), useCatalogBeforeSchema);
             latestTables.put(tableChange.getId(), schemaRecord);
         }
         // register
@@ -109,7 +114,8 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
 
     @Override
     public void record(
-            Map<String, ?> source, Map<String, ?> position, String databaseName, String ddl)
+            Map<String, ?> source, Map<String, ?> position, String databaseName,
+            String ddl)
             throws DatabaseHistoryException {
         throw new UnsupportedOperationException(
                 String.format(
@@ -154,9 +160,8 @@ public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
             Map<String, ?> source, Map<String, ?> position, Tables schema, DdlParser ddlParser) {
         listener.recoveryStarted();
         for (SchemaRecord record : latestTables.values()) {
-            TableChange tableChange =
-                    FlinkJsonTableChangeSerializer.fromDocument(
-                            record.getTableChangeDoc(), useCatalogBeforeSchema);
+            TableChange tableChange = FlinkJsonTableChangeSerializer.fromDocument(
+                    record.getTableChangeDoc(), useCatalogBeforeSchema);
             schema.overwriteTable(tableChange.getTable());
         }
         listener.recoveryStopped();

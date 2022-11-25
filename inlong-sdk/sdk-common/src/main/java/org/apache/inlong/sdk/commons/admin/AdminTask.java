@@ -17,14 +17,6 @@
 
 package org.apache.inlong.sdk.commons.admin;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.SinkRunner;
@@ -33,6 +25,15 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.flume.lifecycle.LifecycleSupervisor;
 import org.apache.flume.lifecycle.LifecycleSupervisor.SupervisorPolicy;
 import org.apache.flume.node.MaterializedConfiguration;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +87,7 @@ public class AdminTask {
     /**
      * generateFlumeConfiguration
      * 
-     * @return             Map
+     * @return Map
      * @throws IOException
      */
     private Map<String, String> generateFlumeConfiguration() throws IOException {
@@ -157,7 +158,8 @@ public class AdminTask {
             LOG.info("Interrupted while trying to handle configuration event");
             return;
         } finally {
-            // If interrupted while trying to lock, we don't own the lock, so must not attempt to unlock
+            // If interrupted while trying to lock, we don't own the lock, so must not
+            // attempt to unlock
             if (lifecycleLock.isHeldByCurrentThread()) {
                 lifecycleLock.unlock();
             }

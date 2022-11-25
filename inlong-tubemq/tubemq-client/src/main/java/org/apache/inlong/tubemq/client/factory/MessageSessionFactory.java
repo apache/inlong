@@ -34,12 +34,9 @@ public interface MessageSessionFactory extends Shutdownable {
 
     MessageProducer createProducer() throws TubeClientException;
 
-    PushMessageConsumer createPushConsumer(ConsumerConfig consumerConfig)
-            throws TubeClientException;
+    PushMessageConsumer createPushConsumer(ConsumerConfig consumerConfig) throws TubeClientException;
 
-    PullMessageConsumer createPullConsumer(ConsumerConfig consumerConfig)
-            throws TubeClientException;
+    PullMessageConsumer createPullConsumer(ConsumerConfig consumerConfig) throws TubeClientException;
 
-    ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig)
-            throws TubeClientException;
+    ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig) throws TubeClientException;
 }

@@ -17,19 +17,21 @@
 
 package org.apache.inlong.agent.core;
 
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
+import org.apache.inlong.common.metric.MetricObserver;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.common.metric.MetricObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Agent entrance class
@@ -41,7 +43,8 @@ public class AgentMain {
     /**
      * Print help information
      *
-     * @param opts options
+     * @param opts
+     *          options
      */
     private static void help(Options opts) {
         HelpFormatter formatter = new HelpFormatter();
@@ -52,7 +55,8 @@ public class AgentMain {
     /**
      * Init options
      *
-     * @param args argument
+     * @param args
+     *          argument
      * @return command line
      */
     public static CommandLine initOptions(String[] args) {
@@ -70,7 +74,8 @@ public class AgentMain {
     /**
      * Init agent conf
      *
-     * @param cl commandline
+     * @param cl
+     *          commandline
      */
     public static void initAgentConf(CommandLine cl) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
@@ -87,7 +92,8 @@ public class AgentMain {
     /**
      * Stopping agent manager gracefully if it was killed.
      *
-     * @param agentManager agent manager
+     * @param agentManager
+     *          agent manager
      */
     private static void stopAgentIfKilled(AgentManager agentManager) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

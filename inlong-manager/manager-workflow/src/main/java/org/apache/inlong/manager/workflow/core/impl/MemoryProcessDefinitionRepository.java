@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionRepository;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
+
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Maps;
 
 /**
  * Memory process memory

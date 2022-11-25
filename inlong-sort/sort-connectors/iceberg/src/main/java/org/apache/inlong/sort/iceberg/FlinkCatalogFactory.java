@@ -45,18 +45,20 @@ import java.util.Map;
  * <p>
  * This supports the following catalog configuration options:
  * <ul>
- *   <li><code>type</code> - Flink catalog factory key, should be "iceberg"</li>
- *   <li><code>catalog-type</code> - iceberg catalog type, "hive" or "hadoop"</li>
- *   <li><code>uri</code> - the Hive Metastore URI (Hive catalog only)</li>
- *   <li><code>clients</code> - the Hive Client Pool Size (Hive catalog only)</li>
- *   <li><code>warehouse</code> - the warehouse path (Hadoop catalog only)</li>
- *   <li><code>default-database</code> - a database name to use as the default</li>
- *   <li><code>base-namespace</code> - a base namespace as the prefix for all databases (Hadoop catalog only)</li>
- *   <li><code>cache-enabled</code> - whether to enable catalog cache</li>
+ * <li><code>type</code> - Flink catalog factory key, should be "iceberg"</li>
+ * <li><code>catalog-type</code> - iceberg catalog type, "hive" or "hadoop"</li>
+ * <li><code>uri</code> - the Hive Metastore URI (Hive catalog only)</li>
+ * <li><code>clients</code> - the Hive Client Pool Size (Hive catalog only)</li>
+ * <li><code>warehouse</code> - the warehouse path (Hadoop catalog only)</li>
+ * <li><code>default-database</code> - a database name to use as the
+ * default</li>
+ * <li><code>base-namespace</code> - a base namespace as the prefix for all
+ * databases (Hadoop catalog only)</li>
+ * <li><code>cache-enabled</code> - whether to enable catalog cache</li>
  * </ul>
  * </p>
- * To use a custom catalog that is not a Hive or Hadoop catalog, extend this class and override
- * {@link #createCatalogLoader(String, Map, Configuration)}.
+ * To use a custom catalog that is not a Hive or Hadoop catalog, extend this
+ * class and override {@link #createCatalogLoader(String, Map, Configuration)}.
  *
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
@@ -77,11 +79,15 @@ public class FlinkCatalogFactory implements CatalogFactory {
     public static final String PROPERTY_VERSION = "property-version";
 
     /**
-     * Create an Iceberg {@link org.apache.iceberg.catalog.Catalog} loader to be used by this Flink catalog adapter.
+     * Create an Iceberg {@link org.apache.iceberg.catalog.Catalog} loader to be
+     * used by this Flink catalog adapter.
      *
-     * @param name Flink's catalog name
-     * @param properties Flink's catalog properties
-     * @param hadoopConf Hadoop configuration for catalog
+     * @param name
+     *          Flink's catalog name
+     * @param properties
+     *          Flink's catalog properties
+     * @param hadoopConf
+     *          Hadoop configuration for catalog
      * @return an Iceberg catalog loader
      */
     static CatalogLoader createCatalogLoader(String name, Map<String, String> properties, Configuration hadoopConf) {
@@ -100,7 +106,8 @@ public class FlinkCatalogFactory implements CatalogFactory {
             case ICEBERG_CATALOG_TYPE_HIVE:
                 // The values of properties 'uri', 'warehouse',
                 // 'hive-conf-dir' are allowed to be null, in that case it will
-                // fallback to parse those values from hadoop configuration which is loaded from classpath.
+                // fallback to parse those values from hadoop configuration which is loaded from
+                // classpath.
                 String hiveConfDir = properties.get(HIVE_CONF_DIR);
                 Configuration newHadoopConf = mergeHiveConf(hadoopConf, hiveConfDir);
                 return CatalogLoader.hive(name, newHadoopConf, properties);
@@ -121,8 +128,10 @@ public class FlinkCatalogFactory implements CatalogFactory {
                     "There should be a hive-site.xml file under the directory %s", hiveConfDir);
             newConf.addResource(new Path(hiveConfDir, "hive-site.xml"));
         } else {
-            // If don't provide the hive-site.xml path explicitly, it will try to load resource from classpath. If still
-            // couldn't load the configuration file, then it will throw exception in HiveCatalog.
+            // If don't provide the hive-site.xml path explicitly, it will try to load
+            // resource from classpath. If still
+            // couldn't load the configuration file, then it will throw exception in
+            // HiveCatalog.
             URL configFile = CatalogLoader.class.getClassLoader().getResource("hive-site.xml");
             if (configFile != null) {
                 newConf.addResource(configFile);

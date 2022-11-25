@@ -25,12 +25,15 @@ import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TIDS;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TOPIC;
 import static org.apache.flink.connectors.tubemq.TubemqValidator.CONNECTOR_TYPE_VALUE_TUBEMQ;
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
 import org.apache.flink.table.descriptors.ConnectorDescriptor;
 import org.apache.flink.table.descriptors.DescriptorProperties;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * The {@link ConnectorDescriptor} for tubemq sources and sinks.
@@ -64,7 +67,8 @@ public class Tubemq extends ConnectorDescriptor {
     /**
      * Sets the tubemq topic to be used.
      *
-     * @param topic The topic name.
+     * @param topic
+     *          The topic name.
      */
     public Tubemq topic(String topic) {
         checkNotNull(topic);
@@ -76,7 +80,8 @@ public class Tubemq extends ConnectorDescriptor {
     /**
      * Sets the client role to be used.
      *
-     * @param isConsumer The client role if consumer.
+     * @param isConsumer
+     *          The client role if consumer.
      */
     public Tubemq asConsumer(boolean isConsumer) {
         this.consumerRole = isConsumer;
@@ -86,7 +91,8 @@ public class Tubemq extends ConnectorDescriptor {
     /**
      * Sets the address of tubemq master to connect.
      *
-     * @param master The address of tubemq master.
+     * @param master
+     *          The address of tubemq master.
      */
     public Tubemq master(String master) {
         checkNotNull(master);
@@ -98,7 +104,8 @@ public class Tubemq extends ConnectorDescriptor {
     /**
      * Sets the tubemq (consumer or producer) group to be used.
      *
-     * @param group The group name.
+     * @param group
+     *          The group name.
      */
     public Tubemq group(String group) {
         checkNotNull(group);
@@ -110,7 +117,8 @@ public class Tubemq extends ConnectorDescriptor {
     /**
      * The tubemq consumers use these tids to filter records reading from server.
      *
-     * @param tids The filter for consume record from server.
+     * @param tids
+     *          The filter for consume record from server.
      */
     public Tubemq tids(String tids) {
 
@@ -121,8 +129,10 @@ public class Tubemq extends ConnectorDescriptor {
     /**
      * Sets the tubemq property.
      *
-     * @param key   The key of the property.
-     * @param value The value of the property.
+     * @param key
+     *          The key of the property.
+     * @param value
+     *          The value of the property.
      */
     public Tubemq property(String key, String value) {
         checkNotNull(key);

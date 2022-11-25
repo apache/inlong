@@ -17,16 +17,19 @@
 
 package org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import java.io.Serializable;
-import java.util.Date;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
 
 /*
  * store the cluster default setting
@@ -40,36 +43,36 @@ public class BdbClusterSettingEntity implements Serializable {
     @PrimaryKey
     private String recordKey = "";
     private long configId = TBaseConstants.META_VALUE_UNDEFINED;
-    //broker tcp port
+    // broker tcp port
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
-    //broker tls port
+    // broker tls port
     private int brokerTLSPort = TBaseConstants.META_VALUE_UNDEFINED;
-    //broker web port
+    // broker web port
     private int brokerWebPort = TBaseConstants.META_VALUE_UNDEFINED;
-    //store num
+    // store num
     private int numTopicStores = TBaseConstants.META_VALUE_UNDEFINED;
-    //partition num
+    // partition num
     private int numPartitions = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush disk threshold
+    // flush disk threshold
     private int unflushThreshold = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush disk interval
+    // flush disk interval
     private int unflushInterval = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush disk data count
+    // flush disk data count
     private int unflushDataHold = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush memory cache count
+    // flush memory cache count
     private int memCacheMsgCntInK = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush memory cache interval
+    // flush memory cache interval
     private int memCacheFlushIntvl = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush memory cache size
+    // flush memory cache size
     private int memCacheMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED;
-    private boolean acceptPublish = true;   //enable publish
-    private boolean acceptSubscribe = true; //enable subscribe
-    private String deletePolicy = "";              //delete policy execute time
+    private boolean acceptPublish = true; // enable publish
+    private boolean acceptSubscribe = true; // enable subscribe
+    private String deletePolicy = ""; // delete policy execute time
     private int qryPriorityId = TBaseConstants.META_VALUE_UNDEFINED;
     private int maxMsgSizeInB = TBaseConstants.META_VALUE_UNDEFINED;
-    private String attributes = "";             //extra attribute
-    private String modifyUser;               //modify user
-    private Date modifyDate;                 //modify date
+    private String attributes = ""; // extra attribute
+    private String modifyUser; // modify user
+    private Date modifyDate; // modify date
 
     public BdbClusterSettingEntity() {
     }
@@ -77,38 +80,59 @@ public class BdbClusterSettingEntity implements Serializable {
     /**
      * Build cluster setting entity
      *
-     * @param recordKey              the record key
-     * @param configId               the configure id
-     * @param brokerPort             the broker port
-     * @param brokerTLSPort          the broker TLS port
-     * @param brokerWebPort          the broker web port
-     * @param numTopicStores         the number of topic store
-     * @param numPartitions          the number of partition
-     * @param unflushThreshold       the un-flushed message count
-     * @param unflushInterval        the un-flushed time delta
-     * @param unflushDataHold        the un-flushed data size
-     * @param memCacheMsgCntInK      the memory cached message count
-     * @param memCacheFlushIntvl     the memory cached time delta
-     * @param memCacheMsgSizeInMB    the memory cached message size
-     * @param acceptPublish          whether accept publish
-     * @param acceptSubscribe        whether accept subscribe
-     * @param deletePolicy           the delete policy
-     * @param qryPriorityId          the query priority id
-     * @param maxMsgSizeInB          the default message max size
-     * @param attributes          the attribute information
-     * @param modifyUser          the modifier
-     * @param modifyDate          the modify date
+     * @param recordKey
+     *          the record key
+     * @param configId
+     *          the configure id
+     * @param brokerPort
+     *          the broker port
+     * @param brokerTLSPort
+     *          the broker TLS port
+     * @param brokerWebPort
+     *          the broker web port
+     * @param numTopicStores
+     *          the number of topic store
+     * @param numPartitions
+     *          the number of partition
+     * @param unflushThreshold
+     *          the un-flushed message count
+     * @param unflushInterval
+     *          the un-flushed time delta
+     * @param unflushDataHold
+     *          the un-flushed data size
+     * @param memCacheMsgCntInK
+     *          the memory cached message count
+     * @param memCacheFlushIntvl
+     *          the memory cached time delta
+     * @param memCacheMsgSizeInMB
+     *          the memory cached message size
+     * @param acceptPublish
+     *          whether accept publish
+     * @param acceptSubscribe
+     *          whether accept subscribe
+     * @param deletePolicy
+     *          the delete policy
+     * @param qryPriorityId
+     *          the query priority id
+     * @param maxMsgSizeInB
+     *          the default message max size
+     * @param attributes
+     *          the attribute information
+     * @param modifyUser
+     *          the modifier
+     * @param modifyDate
+     *          the modify date
      */
     public BdbClusterSettingEntity(String recordKey, long configId, int brokerPort,
-                                   int brokerTLSPort, int brokerWebPort,
-                                   int numTopicStores, int numPartitions,
-                                   int unflushThreshold, int unflushInterval,
-                                   int unflushDataHold, int memCacheMsgCntInK,
-                                   int memCacheFlushIntvl, int memCacheMsgSizeInMB,
-                                   boolean acceptPublish, boolean acceptSubscribe,
-                                   String deletePolicy, int qryPriorityId,
-                                   int maxMsgSizeInB, String attributes,
-                                   String modifyUser, Date modifyDate) {
+            int brokerTLSPort, int brokerWebPort,
+            int numTopicStores, int numPartitions,
+            int unflushThreshold, int unflushInterval,
+            int unflushDataHold, int memCacheMsgCntInK,
+            int memCacheFlushIntvl, int memCacheMsgSizeInMB,
+            boolean acceptPublish, boolean acceptSubscribe,
+            String deletePolicy, int qryPriorityId,
+            int maxMsgSizeInB, String attributes,
+            String modifyUser, Date modifyDate) {
         this.recordKey = recordKey;
         this.configId = configId;
         this.brokerPort = brokerPort;
@@ -295,9 +319,8 @@ public class BdbClusterSettingEntity implements Serializable {
     }
 
     public void setDefDataPath(String dataPath) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_PATH, dataPath);
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_PATH, dataPath);
     }
 
     public String getDefDataPath() {
@@ -306,15 +329,13 @@ public class BdbClusterSettingEntity implements Serializable {
     }
 
     public void setDefDataType(int dataType) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_TYPE, String.valueOf(dataType));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_TYPE, String.valueOf(dataType));
     }
 
     public int getDefDataType() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_TYPE);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_TYPE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -322,33 +343,30 @@ public class BdbClusterSettingEntity implements Serializable {
     }
 
     public void setEnableGloFlowCtrl(Boolean enableGloFlowCtrl) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_ENABLE_FLOW_CTRL,
-                        String.valueOf(enableGloFlowCtrl));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_ENABLE_FLOW_CTRL,
+                String.valueOf(enableGloFlowCtrl));
     }
 
     public EnableStatus getEnableGloFlowCtrl() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_ENABLE_FLOW_CTRL);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_ENABLE_FLOW_CTRL);
         if (atrVal != null) {
             return Boolean.parseBoolean(atrVal)
-                    ? EnableStatus.STATUS_ENABLE : EnableStatus.STATUS_DISABLE;
+                    ? EnableStatus.STATUS_ENABLE
+                    : EnableStatus.STATUS_DISABLE;
         }
         return EnableStatus.STATUS_UNDEFINE;
     }
 
     public void setGloFlowCtrlCnt(int flowCtrlCnt) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_FLOW_CTRL_CNT, String.valueOf(flowCtrlCnt));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_FLOW_CTRL_CNT, String.valueOf(flowCtrlCnt));
     }
 
     public int getGloFlowCtrlCnt() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_FLOW_CTRL_CNT);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_FLOW_CTRL_CNT);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -356,9 +374,8 @@ public class BdbClusterSettingEntity implements Serializable {
     }
 
     public void setGloFlowCtrlInfo(String flowCtrlInfo) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_FLOW_CTRL_INFO, flowCtrlInfo);
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_FLOW_CTRL_INFO, flowCtrlInfo);
     }
 
     public String getGloFlowCtrlInfo() {
@@ -368,15 +385,13 @@ public class BdbClusterSettingEntity implements Serializable {
 
     public void setCreateInfo(String creater, Date createDate) {
         if (TStringUtils.isNotBlank(creater)) {
-            this.attributes =
-                    TStringUtils.setAttrValToAttributes(this.attributes,
-                            TStoreConstants.TOKEN_CREATE_USER, creater);
+            this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                    TStoreConstants.TOKEN_CREATE_USER, creater);
         }
         if (createDate != null) {
             String dataStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate);
-            this.attributes =
-                    TStringUtils.setAttrValToAttributes(this.attributes,
-                            TStoreConstants.TOKEN_CREATE_DATE, dataStr);
+            this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                    TStoreConstants.TOKEN_CREATE_DATE, dataStr);
         }
     }
 

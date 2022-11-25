@@ -17,10 +17,14 @@
 
 package org.apache.inlong.dataproxy.node;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+import org.apache.inlong.common.config.IDataProxyConfigHolder;
+import org.apache.inlong.common.metric.MetricObserver;
+import org.apache.inlong.dataproxy.config.RemoteConfigManager;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.heartbeat.HeartbeatManager;
+import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.sdk.commons.admin.AdminTask;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -45,15 +49,6 @@ import org.apache.flume.node.PollingZooKeeperConfigurationProvider;
 import org.apache.flume.node.PropertiesFileConfigurationProvider;
 import org.apache.flume.node.StaticZooKeeperConfigurationProvider;
 import org.apache.flume.util.SSLUtil;
-import org.apache.inlong.common.config.IDataProxyConfigHolder;
-import org.apache.inlong.common.metric.MetricObserver;
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.dataproxy.heartbeat.HeartbeatManager;
-import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
-import org.apache.inlong.sdk.commons.admin.AdminTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +59,14 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 /**
  * DataProxy application
@@ -216,6 +219,7 @@ public class Application {
 
             final Application appReference = application;
             Runtime.getRuntime().addShutdownHook(new Thread("data-proxy-shutdown-hook") {
+
                 @Override
                 public void run() {
                     AuditUtils.send();
@@ -243,6 +247,7 @@ public class Application {
 
         final Application appReference = application;
         Runtime.getRuntime().addShutdownHook(new Thread("data-proxy-shutdown-hook") {
+
             @Override
             public void run() {
                 appReference.stop();
@@ -286,7 +291,8 @@ public class Application {
         } catch (InterruptedException e) {
             LOGGER.info("interrupted while handle the configuration event");
         } finally {
-            // If interrupted while trying to lock, we don't own the lock, so must not attempt to unlock
+            // If interrupted while trying to lock, we don't own the lock, so must not
+            // attempt to unlock
             if (lifecycleLock.isHeldByCurrentThread()) {
                 lifecycleLock.unlock();
             }

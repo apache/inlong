@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -45,13 +41,19 @@ import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.LessThanOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOrEqualOperator;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for filter parse
@@ -63,8 +65,7 @@ public class FilterParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo())
-        );
+                new FieldInfo("ts", new TimestampFormatInfo()));
         return new MySqlExtractNode("1", "mysql_input", fields, null, null,
                 "id", Collections.singletonList("mysql_table"),
                 "localhost", "inlong", "inlong",
@@ -76,26 +77,23 @@ public class FilterParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo())
-        );
+                new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
         List<FilterFunction> filters = Arrays.asList(
                 new SingleValueFilterFunction(EmptyOperator.getInstance(),
                         new FieldInfo("age", new IntFormatInfo()),
                         LessThanOperator.getInstance(), new ConstantParam(25)),
                 new SingleValueFilterFunction(AndOperator.getInstance(),
                         new FieldInfo("age", new IntFormatInfo()),
-                        MoreThanOrEqualOperator.getInstance(), new ConstantParam(18))
-        );
+                        MoreThanOrEqualOperator.getInstance(), new ConstantParam(18)));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, filters,
                 filterStrategy, "topic1", "localhost:9092",
                 new CanalJsonFormat(), null,
@@ -111,7 +109,8 @@ public class FilterParseTest extends AbstractTestBase {
     /**
      * Test filter with the strategy {@link FilterStrategy#RETAIN}
      *
-     * @throws Exception The exception may throws when execute the case
+     * @throws Exception
+     *           The exception may throws when execute the case
      */
     @Test
     public void testFilterWithRetainParse() throws Exception {
@@ -130,9 +129,7 @@ public class FilterParseTest extends AbstractTestBase {
                 Arrays.asList(mysqlInputNode, kafkaOutputNode),
                 Collections.singletonList(
                         buildNodeRelation(Collections.singletonList(mysqlInputNode),
-                                Collections.singletonList(kafkaOutputNode))
-                )
-        );
+                                Collections.singletonList(kafkaOutputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -142,7 +139,8 @@ public class FilterParseTest extends AbstractTestBase {
     /**
      * Test filter with the strategy {@link FilterStrategy#REMOVE}
      *
-     * @throws Exception The exception may throws when execute the case
+     * @throws Exception
+     *           The exception may throws when execute the case
      */
     @Test
     public void testFilterWithRemoveParse() throws Exception {
@@ -161,9 +159,7 @@ public class FilterParseTest extends AbstractTestBase {
                 Arrays.asList(mysqlInputNode, kafkaOutputNode),
                 Collections.singletonList(
                         buildNodeRelation(Collections.singletonList(mysqlInputNode),
-                                Collections.singletonList(kafkaOutputNode))
-                )
-        );
+                                Collections.singletonList(kafkaOutputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

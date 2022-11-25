@@ -21,11 +21,13 @@ package org.apache.inlong.sort.formats.kv;
 import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-import java.nio.charset.Charset;
-import java.util.Map;
+import org.apache.inlong.sort.formats.base.TableFormatConstants;
+
 import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.table.descriptors.FormatDescriptor;
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
+
+import java.nio.charset.Charset;
+import java.util.Map;
 
 /**
  * Format descriptor for KVs.
@@ -34,8 +36,7 @@ public class Kv extends FormatDescriptor {
 
     public static final String FORMAT_TYPE_VALUE = "tdkv";
 
-    private DescriptorProperties internalProperties =
-            new DescriptorProperties(true);
+    private DescriptorProperties internalProperties = new DescriptorProperties(true);
 
     public Kv() {
         super(FORMAT_TYPE_VALUE, 1);
@@ -44,7 +45,8 @@ public class Kv extends FormatDescriptor {
     /**
      * Sets the entry delimiter character ('&' by default).
      *
-     * @param delimiter the entry delimiter character
+     * @param delimiter
+     *          the entry delimiter character
      */
     public Kv entryDelimiter(char delimiter) {
         internalProperties.putCharacter(TableFormatConstants.FORMAT_ENTRY_DELIMITER, delimiter);
@@ -54,7 +56,8 @@ public class Kv extends FormatDescriptor {
     /**
      * Sets the kv delimiter character ('=' by default).
      *
-     * @param delimiter the kv delimiter character
+     * @param delimiter
+     *          the kv delimiter character
      */
     public Kv kvDelimiter(char delimiter) {
         internalProperties.putCharacter(TableFormatConstants.FORMAT_KV_DELIMITER, delimiter);
@@ -64,7 +67,8 @@ public class Kv extends FormatDescriptor {
     /**
      * Sets the escape character (disabled by default).
      *
-     * @param escapeCharacter escaping character (e.g. backslash).
+     * @param escapeCharacter
+     *          escaping character (e.g. backslash).
      */
     public Kv escapeCharacter(char escapeCharacter) {
         internalProperties
@@ -75,7 +79,8 @@ public class Kv extends FormatDescriptor {
     /**
      * Sets the quote character (disabled by default).
      *
-     * @param quoteCharacter quoting character (e.g. quotation).
+     * @param quoteCharacter
+     *          quoting character (e.g. quotation).
      */
     public Kv quoteCharacter(char quoteCharacter) {
         internalProperties.putCharacter(TableFormatConstants.FORMAT_QUOTE_CHARACTER, quoteCharacter);
@@ -83,10 +88,11 @@ public class Kv extends FormatDescriptor {
     }
 
     /**
-     * Sets the null literal string that is interpreted as a null value
-     * (disabled by default).
+     * Sets the null literal string that is interpreted as a null value (disabled by
+     * default).
      *
-     * @param nullLiteral null literal (e.g. "null" or "n/a")
+     * @param nullLiteral
+     *          null literal (e.g. "null" or "n/a")
      */
     public Kv nullLiteral(String nullLiteral) {
         checkNotNull(nullLiteral);
@@ -97,7 +103,8 @@ public class Kv extends FormatDescriptor {
     /**
      * Sets the charset of the text.
      *
-     * @param charset The charset of the text.
+     * @param charset
+     *          The charset of the text.
      */
     public Kv charset(Charset charset) {
         checkNotNull(charset);
@@ -116,7 +123,8 @@ public class Kv extends FormatDescriptor {
     /**
      * Sets the format schema. Required if schema is not derived.
      *
-     * @param schema format schema string.
+     * @param schema
+     *          format schema string.
      */
     public Kv schema(String schema) {
         checkNotNull(schema);
@@ -128,12 +136,13 @@ public class Kv extends FormatDescriptor {
      * Derives the format schema from the table's schema. Required if no format
      * schema is defined.
      *
-     * <p>This allows for defining schema information only once.
+     * <p>
+     * This allows for defining schema information only once.
      *
-     * <p>The names, types, and fields' order of the format are determined by
-     * the table's schema. Time attributes are ignored if their origin is not a
-     * field. A "from" definition is interpreted as a field renaming in the
-     * format.
+     * <p>
+     * The names, types, and fields' order of the format are determined by the
+     * table's schema. Time attributes are ignored if their origin is not a field. A
+     * "from" definition is interpreted as a field renaming in the format.
      */
     public Kv deriveSchema() {
         internalProperties.putBoolean(FORMAT_DERIVE_SCHEMA, true);

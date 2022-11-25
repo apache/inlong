@@ -17,11 +17,12 @@
 
 package org.apache.inlong.common.pojo.agent;
 
-import lombok.Data;
 import org.apache.inlong.common.db.CommandEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * Request task from agent to manager.

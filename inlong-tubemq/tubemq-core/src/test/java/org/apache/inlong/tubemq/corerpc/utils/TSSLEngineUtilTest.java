@@ -36,14 +36,14 @@ public class TSSLEngineUtilTest {
         String keyStorePassword = "tubeserver";
         // trust store file path
         InputStream trustStoreStream = this.getClass()
-            .getResourceAsStream("tubeServerTrustStore.keystore");
+                .getResourceAsStream("tubeServerTrustStore.keystore");
         // trust store file password
         String trustStorePassword = "tubeserver";
         SSLEngine sslEngine = null;
         try {
             // create engine
             sslEngine = TSSLEngineUtil.createSSLEngine(keyStoreStream, keyStorePassword,
-                trustStoreStream, trustStorePassword, true, false);
+                    trustStoreStream, trustStorePassword, true, false);
         } catch (Throwable e) {
             e.printStackTrace();
         }

@@ -17,16 +17,20 @@
 
 package org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import java.io.Serializable;
-import java.util.Date;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
+
 @Entity
 public class BdbConsumerGroupEntity implements Serializable {
+
     private static final long serialVersionUID = 4395735199580415319L;
     @PrimaryKey
     private String recordKey;
@@ -41,7 +45,7 @@ public class BdbConsumerGroupEntity implements Serializable {
     }
 
     public BdbConsumerGroupEntity(String topicName, String consumerGroupName,
-                                  String createUser, Date createDate) {
+            String createUser, Date createDate) {
         this.recordKey = new StringBuilder(512).append(topicName)
                 .append(TokenConstants.ATTR_SEP).append(consumerGroupName).toString();
         this.topicName = topicName;

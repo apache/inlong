@@ -18,14 +18,16 @@
 package org.apache.inlong.tubemq.corebase.metric;
 
 /**
- * An interface for metric types which has only one value at a specific point in time.
+ * An interface for metric types which has only one value at a specific point in
+ * time.
  */
 public interface Gauge extends Counting, Metric {
 
     /**
      * Update a new value.
      *
-     * @param newValue a new recorded value
+     * @param newValue
+     *          a new recorded value
      */
     void update(long newValue);
 }

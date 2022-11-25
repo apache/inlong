@@ -20,7 +20,9 @@ package org.apache.inlong.sort.cdc.mysql.source.split;
 
 import org.apache.flink.annotation.Internal;
 
-/** State of the reader, essentially a mutable version of the {@link MySqlSplit}. */
+/**
+ * State of the reader, essentially a mutable version of the {@link MySqlSplit}.
+ */
 public abstract class MySqlSplitState {
 
     protected final MySqlSplit split;

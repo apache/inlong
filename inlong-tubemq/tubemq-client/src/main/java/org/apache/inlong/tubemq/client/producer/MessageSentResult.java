@@ -22,6 +22,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
 public class MessageSentResult {
+
     private final boolean success;
     private final int errCode;
     private final String errMsg;
@@ -32,7 +33,7 @@ public class MessageSentResult {
     private long appendOffset = TBaseConstants.META_VALUE_UNDEFINED;
 
     public MessageSentResult(boolean success, int errCode, String errMsg,
-                             Message message, long messageId, Partition partition) {
+            Message message, long messageId, Partition partition) {
         this.success = success;
         this.errCode = errCode;
         this.errMsg = errMsg;
@@ -42,8 +43,8 @@ public class MessageSentResult {
     }
 
     public MessageSentResult(boolean success, int errCode, String errMsg,
-                             Message message, long messageId, Partition partition,
-                             long appendTime, long appendOffset) {
+            Message message, long messageId, Partition partition,
+            long appendTime, long appendOffset) {
         this.success = success;
         this.errCode = errCode;
         this.errMsg = errMsg;

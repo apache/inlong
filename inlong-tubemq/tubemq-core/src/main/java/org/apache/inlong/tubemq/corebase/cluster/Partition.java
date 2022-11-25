@@ -17,9 +17,10 @@
 
 package org.apache.inlong.tubemq.corebase.cluster;
 
-import java.io.Serializable;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
+
+import java.io.Serializable;
 
 public class Partition implements Comparable<Partition>, Serializable {
 
@@ -42,8 +43,8 @@ public class Partition implements Comparable<Partition>, Serializable {
      * @param partitionId
      */
     public Partition(final BrokerInfo broker,
-                     final String topic,
-                     final int partitionId) {
+            final String topic,
+            final int partitionId) {
         super();
         this.broker = broker;
         this.topic = topic;
@@ -54,11 +55,11 @@ public class Partition implements Comparable<Partition>, Serializable {
     /**
      * create a Partition with full part info String
      *
-     * @param strPartInfo   the partition information in string format
+     * @param strPartInfo
+     *          the partition information in string format
      */
     public Partition(String strPartInfo) {
-        this.broker =
-                new BrokerInfo(strPartInfo.split(TokenConstants.SEGMENT_SEP)[0]);
+        this.broker = new BrokerInfo(strPartInfo.split(TokenConstants.SEGMENT_SEP)[0]);
         String strInfo = strPartInfo.split(TokenConstants.SEGMENT_SEP)[1];
         this.topic = strInfo.split(TokenConstants.ATTR_SEP)[0];
         this.partitionId = Integer.parseInt(strInfo.split(TokenConstants.ATTR_SEP)[1]);
@@ -72,7 +73,7 @@ public class Partition implements Comparable<Partition>, Serializable {
      * @param partStr
      */
     public Partition(BrokerInfo broker,
-                     String partStr) {
+            String partStr) {
         this.broker = broker;
         this.topic = partStr.split(TokenConstants.ATTR_SEP)[0];
         this.partitionId = Integer.parseInt(partStr.split(TokenConstants.ATTR_SEP)[1]);

@@ -46,7 +46,8 @@ public class InlongStreamConfig {
     /**
      * set inlongGroupId
      * 
-     * @param inlongGroupId the inlongGroupId to set
+     * @param inlongGroupId
+     *          the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
         this.inlongGroupId = inlongGroupId;
@@ -64,7 +65,8 @@ public class InlongStreamConfig {
     /**
      * set inlongStreamId
      * 
-     * @param inlongStreamId the inlongStreamId to set
+     * @param inlongStreamId
+     *          the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
         this.inlongStreamId = inlongStreamId;
@@ -82,7 +84,8 @@ public class InlongStreamConfig {
     /**
      * set status
      * 
-     * @param status the status to set
+     * @param status
+     *          the status to set
      */
     public void setStatus(int status) {
         this.status = status;
@@ -100,7 +103,8 @@ public class InlongStreamConfig {
     /**
      * set sampling
      * 
-     * @param sampling the sampling to set
+     * @param sampling
+     *          the sampling to set
      */
     public void setSampling(int sampling) {
         this.sampling = sampling;

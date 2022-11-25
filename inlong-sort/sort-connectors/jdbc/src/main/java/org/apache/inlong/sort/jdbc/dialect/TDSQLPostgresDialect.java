@@ -18,12 +18,13 @@
 
 package org.apache.inlong.sort.jdbc.dialect;
 
+import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.internal.converter.PostgresRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,8 +32,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * copy from flink-jdbc
- * modify upsert statement implement
+ * copy from flink-jdbc modify upsert statement implement
  */
 public class TDSQLPostgresDialect extends AbstractJdbcDialect {
 
@@ -68,20 +68,21 @@ public class TDSQLPostgresDialect extends AbstractJdbcDialect {
         return Optional.of("org.postgresql.Driver");
     }
 
-    /** Postgres upsert query. It use ON CONFLICT ... DO UPDATE SET.. to replace into Postgres. */
+    /**
+     * Postgres upsert query. It use ON CONFLICT ... DO UPDATE SET.. to replace into
+     * Postgres.
+     */
     @Override
     public Optional<String> getUpsertStatement(
             String tableName, String[] fieldNames, String[] uniqueKeyFields) {
-        String uniqueColumns =
-                Arrays.stream(uniqueKeyFields)
-                        .map(this::quoteIdentifier)
-                        .collect(Collectors.joining(", "));
+        String uniqueColumns = Arrays.stream(uniqueKeyFields)
+                .map(this::quoteIdentifier)
+                .collect(Collectors.joining(", "));
         List<String> uniqueKeyFieldList = Arrays.asList(uniqueKeyFields);
-        String updateClause =
-                Arrays.stream(fieldNames)
-                        .filter(f -> !uniqueKeyFieldList.contains(f))
-                        .map(f -> quoteIdentifier(f) + "=EXCLUDED." + quoteIdentifier(f))
-                        .collect(Collectors.joining(", "));
+        String updateClause = Arrays.stream(fieldNames)
+                .filter(f -> !uniqueKeyFieldList.contains(f))
+                .map(f -> quoteIdentifier(f) + "=EXCLUDED." + quoteIdentifier(f))
+                .collect(Collectors.joining(", "));
         String str = getInsertIntoStatement(tableName, fieldNames);
         if (StringUtils.isNotEmpty(updateClause)) {
             str = str + " ON CONFLICT ("
@@ -129,7 +130,7 @@ public class TDSQLPostgresDialect extends AbstractJdbcDialect {
         // https://www.postgresql.org/docs/12/datatype.html
 
         // TODO: We can't convert BINARY data type to
-        //  PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO in
+        // PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO in
         // LegacyTypeInfoDataTypeConverter.
         return Arrays.asList(
                 LogicalTypeRoot.BINARY,

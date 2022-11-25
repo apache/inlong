@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.client.common;
 
-import java.time.Clock;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.metric.TrafficStatsUnit;
@@ -29,12 +24,19 @@ import org.apache.inlong.tubemq.corebase.metric.impl.ESTHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongStatsCounter;
 import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
+
+import java.time.Clock;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ClientStatsInfo {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ClientStatsInfo.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(ClientStatsInfo.class);
     private final boolean isProducer;
     private final String logPrefix;
     // statistic configure
@@ -145,7 +147,7 @@ public class ClientStatsInfo {
     }
 
     public void bookSuccSendMsg(long dltTime, String topicName,
-                                String partitionKey, int msgSize) {
+            String partitionKey, int msgSize) {
         if (this.statsConfig.getStatsLevel() == StatsLevel.ZERO) {
             return;
         }
@@ -158,7 +160,7 @@ public class ClientStatsInfo {
     }
 
     public void bookSuccGetMsg(long dltTime, String topicName,
-                               String partitionKey, int msgCnt, int msgSize) {
+            String partitionKey, int msgCnt, int msgSize) {
         if (this.statsConfig.getStatsLevel() == StatsLevel.ZERO) {
             return;
         }
@@ -173,13 +175,16 @@ public class ClientStatsInfo {
     /**
      * Self print statistics information to log file
      *
-     * @param forcePrint    whether force print statistics information
-     * @param needReset     whether reset statistics set
-     * @param strBuff       string buffer
+     * @param forcePrint
+     *          whether force print statistics information
+     * @param needReset
+     *          whether reset statistics set
+     * @param strBuff
+     *          string buffer
      */
     public void selfPrintStatsInfo(boolean forcePrint,
-                                   boolean needReset,
-                                   StringBuilder strBuff) {
+            boolean needReset,
+            StringBuilder strBuff) {
         if ((this.statsConfig.getStatsLevel() == StatsLevel.ZERO)
                 || !this.statsConfig.isEnableSelfPrint()) {
             return;
@@ -218,12 +223,15 @@ public class ClientStatsInfo {
     /**
      * Get current data encapsulated by Json format
      *
-     * @param statsSet     the statistics to be printed
-     * @param resetValue   whether to reset the current data
-     * @param strBuff      string buffer
+     * @param statsSet
+     *          the statistics to be printed
+     * @param resetValue
+     *          whether to reset the current data
+     * @param strBuff
+     *          string buffer
      */
     private void getStatsInfo(ClientStatsItemSet statsSet,
-                              boolean resetValue, StringBuilder strBuff) {
+            boolean resetValue, StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.resetTime.getFullName())
                 .append("\":\"").append(statsSet.resetTime.getStrSinceTime())
                 .append("\",\"probe_time\":\"")
@@ -275,7 +283,8 @@ public class ClientStatsInfo {
     /**
      * Gets the metric block index based on the specified value.
      *
-     * @param origIndex    the specified value
+     * @param origIndex
+     *          the specified value
      * @return the metric block index
      */
     private int getIndex(int origIndex) {
@@ -287,48 +296,34 @@ public class ClientStatsInfo {
      *
      */
     private static class ClientStatsItemSet {
+
         // The reset time of statistics set
-        protected final SinceTime resetTime =
-                new SinceTime("reset_time", null);
+        protected final SinceTime resetTime = new SinceTime("reset_time", null);
         // received or sent message traffic statistic
         protected final TrafficStatsUnit totalTrafficStats =
                 new TrafficStatsUnit("msg_cnt", "msg_size", "total_traffic");
         // topic-based traffic statistics
-        protected final ConcurrentHashMap<String, TrafficStatsUnit> topicTrafficMap =
-                new ConcurrentHashMap<>();
+        protected final ConcurrentHashMap<String, TrafficStatsUnit> topicTrafficMap = new ConcurrentHashMap<>();
         // partition-based traffic statistics
-        protected final ConcurrentHashMap<String, PartitionStatsItemSet> partDltStatsMap =
-                new ConcurrentHashMap<>();
+        protected final ConcurrentHashMap<String, PartitionStatsItemSet> partDltStatsMap = new ConcurrentHashMap<>();
         // time consumption statistics for sending or receiving messages
-        protected final ESTHistogram msgCallDltStats =
-                new ESTHistogram("msg_call_dlt", "");
+        protected final ESTHistogram msgCallDltStats = new ESTHistogram("msg_call_dlt", "");
         // statistics on consumption transaction time
-        protected final ESTHistogram csmLatencyStats =
-                new ESTHistogram("csm_latency_dlt", "");
+        protected final ESTHistogram csmLatencyStats = new ESTHistogram("csm_latency_dlt", "");
         // time consumption statistics for confirm request
-        protected final ESTHistogram confirmDltStats =
-                new ESTHistogram("msg_confirm_dlt", "");
+        protected final ESTHistogram confirmDltStats = new ESTHistogram("msg_confirm_dlt", "");
         // error response distribution statistics
-        protected final ConcurrentHashMap<Integer, LongStatsCounter> errRspStatsMap =
-                new ConcurrentHashMap<>();
+        protected final ConcurrentHashMap<Integer, LongStatsCounter> errRspStatsMap = new ConcurrentHashMap<>();
         // client 2 Master status statistics
-        protected final LongStatsCounter regMasterCnt =
-                new LongStatsCounter("reg_master_cnt", null);
-        protected final LongStatsCounter regMasterFailCnt =
-                new LongStatsCounter("reg_master_fail", null);
-        protected final LongStatsCounter regMasterTimoutCnt =
-                new LongStatsCounter("reg_master_timeout", null);
-        protected final LongStatsCounter hbMasterExcCnt =
-                new LongStatsCounter("hb_master_exception", null);
+        protected final LongStatsCounter regMasterCnt = new LongStatsCounter("reg_master_cnt", null);
+        protected final LongStatsCounter regMasterFailCnt = new LongStatsCounter("reg_master_fail", null);
+        protected final LongStatsCounter regMasterTimoutCnt = new LongStatsCounter("reg_master_timeout", null);
+        protected final LongStatsCounter hbMasterExcCnt = new LongStatsCounter("hb_master_exception", null);
         // client 2 Broker status statistics
-        protected final LongStatsCounter regBrokerCnt =
-                new LongStatsCounter("reg_broker_cnt", null);
-        protected final LongStatsCounter regBrokerFailCnt =
-                new LongStatsCounter("reg_broker_fail", null);
-        protected final LongStatsCounter regBrokerTimoutCnt =
-                new LongStatsCounter("reg_broker_timeout", null);
-        protected final LongStatsCounter hbBrokerExcCnt =
-                new LongStatsCounter("hb_broker_exception", null);
+        protected final LongStatsCounter regBrokerCnt = new LongStatsCounter("reg_broker_cnt", null);
+        protected final LongStatsCounter regBrokerFailCnt = new LongStatsCounter("reg_broker_fail", null);
+        protected final LongStatsCounter regBrokerTimoutCnt = new LongStatsCounter("reg_broker_timeout", null);
+        protected final LongStatsCounter hbBrokerExcCnt = new LongStatsCounter("hb_broker_exception", null);
 
         public ClientStatsItemSet() {
             resetStartTime();
@@ -341,20 +336,23 @@ public class ClientStatsInfo {
         /**
          * Accumulate sent or received message information
          *
-         * @param topic     the topic name
-         * @param dltTime   the latency
-         * @param msgCnt    the message count
-         * @param msgSize   the message size
+         * @param topic
+         *          the topic name
+         * @param dltTime
+         *          the latency
+         * @param msgCnt
+         *          the message count
+         * @param msgSize
+         *          the message size
          */
         public void sendOrRecvMsg(String topic, long dltTime,
-                                  int msgCnt, int msgSize) {
+                int msgCnt, int msgSize) {
             msgCallDltStats.update(dltTime);
             totalTrafficStats.addMsgCntAndSize(msgCnt, msgSize);
             // accumulate traffic information by topic
             TrafficStatsUnit curStatsUnit = topicTrafficMap.get(topic);
             if (curStatsUnit == null) {
-                TrafficStatsUnit tmpUnit =
-                        new TrafficStatsUnit("msg_cnt", "msg_size", topic);
+                TrafficStatsUnit tmpUnit = new TrafficStatsUnit("msg_cnt", "msg_size", topic);
                 curStatsUnit = topicTrafficMap.putIfAbsent(topic, tmpUnit);
                 if (curStatsUnit == null) {
                     curStatsUnit = tmpUnit;
@@ -366,7 +364,8 @@ public class ClientStatsInfo {
         /**
          * Accumulate msg count by errcode
          *
-         * @param errCode  the error code
+         * @param errCode
+         *          the error code
          */
         public void bookFailRpcCall(int errCode) {
             LongStatsCounter curItemCounter = errRspStatsMap.get(errCode);
@@ -384,14 +383,16 @@ public class ClientStatsInfo {
         /**
          * Accumulate traffic information by partition
          *
-         * @param dltTime   the latency
-         * @param msgCnt    the message count
-         * @param msgSize   the message size
+         * @param dltTime
+         *          the latency
+         * @param msgCnt
+         *          the message count
+         * @param msgSize
+         *          the message size
          */
         public void addTrafficInfoByPartKey(String partitionKey,
-                                            long dltTime, int msgCnt, int msgSize) {
-            PartitionStatsItemSet partStatsUnit =
-                    partDltStatsMap.get(partitionKey);
+                long dltTime, int msgCnt, int msgSize) {
+            PartitionStatsItemSet partStatsUnit = partDltStatsMap.get(partitionKey);
             if (partStatsUnit == null) {
                 PartitionStatsItemSet tmpUnit = new PartitionStatsItemSet(partitionKey);
                 partStatsUnit = partDltStatsMap.putIfAbsent(partitionKey, tmpUnit);
@@ -406,7 +407,8 @@ public class ClientStatsInfo {
         /**
          * Accumulate consume latency information by partition
          *
-         * @param dltTime   the latency
+         * @param dltTime
+         *          the latency
          */
         public void addCsmLatencyByPartKey(String partitionKey, long dltTime) {
             PartitionStatsItemSet partStatsUnit = partDltStatsMap.get(partitionKey);
@@ -423,7 +425,8 @@ public class ClientStatsInfo {
         /**
          * Accumulate confirm delta time information by partition
          *
-         * @param dltTime   the latency
+         * @param dltTime
+         *          the latency
          */
         public void addConfirmDltByPartKey(String partitionKey, long dltTime) {
             PartitionStatsItemSet partStatsUnit = partDltStatsMap.get(partitionKey);
@@ -440,8 +443,10 @@ public class ClientStatsInfo {
         /**
          * Get traffic statistics details by topic
          *
-         * @param strBuff      string buffer
-         * @param resetValue   whether to reset the current data
+         * @param strBuff
+         *          string buffer
+         * @param resetValue
+         *          whether to reset the current data
          */
         public void getTopicDetailInfo(StringBuilder strBuff, boolean resetValue) {
             int totalCnt = 0;
@@ -464,8 +469,10 @@ public class ClientStatsInfo {
         /**
          * Get error response statistics
          *
-         * @param strBuff      string buffer
-         * @param resetValue   whether to reset the current data
+         * @param strBuff
+         *          string buffer
+         * @param resetValue
+         *          whether to reset the current data
          */
         public void getErrorRspInfo(StringBuilder strBuff, boolean resetValue) {
             int totalCnt = 0;
@@ -489,8 +496,10 @@ public class ClientStatsInfo {
         /**
          * Get running status statistics
          *
-         * @param strBuff      string buffer
-         * @param resetValue   whether to reset the current data
+         * @param strBuff
+         *          string buffer
+         * @param resetValue
+         *          whether to reset the current data
          */
         public void getStatusInfo(StringBuilder strBuff, boolean resetValue) {
             strBuff.append("\"status_details\":{\"");
@@ -536,13 +545,16 @@ public class ClientStatsInfo {
         /**
          * Get traffic statistics by partition key
          *
-         * @param strBuff      string buffer
-         * @param isProducer   whether producer role
-         * @param resetValue   whether to reset the current data
+         * @param strBuff
+         *          string buffer
+         * @param isProducer
+         *          whether producer role
+         * @param resetValue
+         *          whether to reset the current data
          */
         public void getPartDetailsInfo(StringBuilder strBuff,
-                                       boolean isProducer,
-                                       boolean resetValue) {
+                boolean isProducer,
+                boolean resetValue) {
             int totalCnt = 0;
             strBuff.append("\"part_details\":{");
             for (PartitionStatsItemSet partStatsSet : partDltStatsMap.values()) {
@@ -566,18 +578,15 @@ public class ClientStatsInfo {
      *
      */
     private static class PartitionStatsItemSet {
+
         private final String partKey;
-        protected  final TrafficStatsUnit trafficStatsUnit =
-                new TrafficStatsUnit("msg_cnt", "msg_size", "traffic");
+        protected final TrafficStatsUnit trafficStatsUnit = new TrafficStatsUnit("msg_cnt", "msg_size", "traffic");
         // time consumption statistics for sending or receiving messages
-        protected final ESTHistogram msgCallDltStats =
-                new ESTHistogram("msg_call_dlt", "");
+        protected final ESTHistogram msgCallDltStats = new ESTHistogram("msg_call_dlt", "");
         // statistics on consumption transaction time
-        protected final ESTHistogram csmLatencyStats =
-                new ESTHistogram("csm_latency_dlt", "");
+        protected final ESTHistogram csmLatencyStats = new ESTHistogram("csm_latency_dlt", "");
         // time consumption statistics for confirm request
-        protected final ESTHistogram confirmDltStats =
-                new ESTHistogram("msg_confirm_dlt", "");
+        protected final ESTHistogram confirmDltStats = new ESTHistogram("msg_confirm_dlt", "");
 
         public PartitionStatsItemSet(String partKey) {
             this.partKey = partKey;
@@ -586,9 +595,12 @@ public class ClientStatsInfo {
         /**
          * Get partition's traffic statistics
          *
-         * @param strBuff      string buffer
-         * @param isProducer   whether producer role
-         * @param resetValue   whether to reset the current data
+         * @param strBuff
+         *          string buffer
+         * @param isProducer
+         *          whether producer role
+         * @param resetValue
+         *          whether to reset the current data
          */
         public void getValue(StringBuilder strBuff, boolean isProducer, boolean resetValue) {
             strBuff.append("\"").append(partKey).append("\":{");
@@ -615,4 +627,3 @@ public class ClientStatsInfo {
         }
     }
 }
-

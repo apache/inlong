@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sort.standalone.channel;
 
+import org.apache.inlong.sort.standalone.utils.BufferQueue;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import org.apache.flume.Transaction;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.flume.Transaction;
-import org.apache.inlong.sort.standalone.utils.BufferQueue;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
 /**

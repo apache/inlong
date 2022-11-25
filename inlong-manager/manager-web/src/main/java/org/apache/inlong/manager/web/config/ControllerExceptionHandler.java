@@ -17,26 +17,30 @@
 
 package org.apache.inlong.manager.web.config;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthorizedException;
+
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import java.util.Set;
 
 /**
  * Handler of controller exception.
@@ -74,12 +78,10 @@ public class ControllerExceptionHandler {
         BindingResult result = e.getBindingResult();
         result.getFieldErrors().forEach(
                 error -> builder.append(error.getField()).append(": ")
-                        .append(error.getDefaultMessage()).append(System.lineSeparator())
-        );
+                        .append(error.getDefaultMessage()).append(System.lineSeparator()));
 
         result.getGlobalErrors().forEach(
-                error -> builder.append(error.getDefaultMessage()).append(System.lineSeparator())
-        );
+                error -> builder.append(error.getDefaultMessage()).append(System.lineSeparator()));
 
         return Response.fail(builder.toString());
     }
@@ -101,8 +103,7 @@ public class ControllerExceptionHandler {
         StringBuilder builder = new StringBuilder();
         e.getBindingResult().getFieldErrors().forEach(
                 error -> builder.append(error.getField()).append(": ")
-                        .append(error.getDefaultMessage()).append(System.lineSeparator())
-        );
+                        .append(error.getDefaultMessage()).append(System.lineSeparator()));
         return Response.fail(builder.toString());
     }
 

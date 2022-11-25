@@ -39,10 +39,11 @@ import static org.apache.inlong.agent.metrics.AgentMetricItem.M_TASK_RUNNING_COU
 import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
 import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
 
-import io.prometheus.client.Collector;
-import io.prometheus.client.CounterMetricFamily;
-import io.prometheus.client.exporter.HTTPServer;
-import io.prometheus.client.hotspot.DefaultExports;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.common.metric.MetricItemValue;
+import org.apache.inlong.common.metric.MetricListener;
+import org.apache.inlong.common.metric.MetricValue;
+
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -52,14 +53,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.common.metric.MetricItemValue;
-import org.apache.inlong.common.metric.MetricListener;
-import org.apache.inlong.common.metric.MetricValue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.prometheus.client.Collector;
+import io.prometheus.client.CounterMetricFamily;
+import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.DefaultExports;
 
 /**
  * prometheus metric listener

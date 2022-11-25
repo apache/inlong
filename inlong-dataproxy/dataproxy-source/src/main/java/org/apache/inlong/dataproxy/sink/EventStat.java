@@ -17,9 +17,11 @@
 
 package org.apache.inlong.dataproxy.sink;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.flume.Event;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
+
+import org.apache.flume.Event;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class EventStat {
 

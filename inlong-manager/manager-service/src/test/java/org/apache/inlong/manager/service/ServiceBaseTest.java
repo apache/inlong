@@ -29,15 +29,16 @@ import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.test.BaseTest;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Test class for base test service.
@@ -98,7 +99,8 @@ public class ServiceBaseTest extends BaseTest {
     }
 
     /**
-     * Create InlongStream from the given InlongGroupInfo and specified InlongStreamId
+     * Create InlongStream from the given InlongGroupInfo and specified
+     * InlongStreamId
      *
      * @return InlongStreamInfo after saving
      */

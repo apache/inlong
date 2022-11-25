@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.sink.kafka;
 
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.IOException;
@@ -31,9 +32,9 @@ public interface IEvent2KafkaRecordHandler {
     /**
      * parse
      * 
-     * @param  context
-     * @param  event
-     * @return             ProducerRecord
+     * @param context
+     * @param event
+     * @return ProducerRecord
      * @throws IOException
      */
     ProducerRecord<String, byte[]> parse(KafkaFederationSinkContext context, ProfileEvent event) throws IOException;

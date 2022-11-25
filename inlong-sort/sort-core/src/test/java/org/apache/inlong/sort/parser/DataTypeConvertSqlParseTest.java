@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -40,13 +36,19 @@ import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test data type convert implicitly {@link FlinkSqlParser}
@@ -58,8 +60,7 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
-                metaFieldInfo
-        );
+                metaFieldInfo);
         return new KafkaExtractNode("1", "kafka_input", fields, null,
                 null, "topic_input", "localhost:9092",
                 new CanalJsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
@@ -76,28 +77,26 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
                 Arrays.asList(
                         new FieldInfo("id", new LongFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo()),
-                        new FieldInfo("PROCESS_TIME", null)
-                ), Arrays.asList(
-                new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
-                        new FieldInfo("id", new LongFormatInfo())),
-                new FieldRelation(new FieldInfo("age", "2", new IntFormatInfo()),
-                        new FieldInfo("age", new IntFormatInfo())),
-                new FieldRelation(new FieldInfo("PROCESS_TIME", "3", null),
-                        new FieldInfo("PROCESS_TIME", null))
-        ), null, null);
+                        new FieldInfo("PROCESS_TIME", null)),
+                Arrays.asList(
+                        new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
+                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldRelation(new FieldInfo("age", "2", new IntFormatInfo()),
+                                new FieldInfo("age", new IntFormatInfo())),
+                        new FieldRelation(new FieldInfo("PROCESS_TIME", "3", null),
+                                new FieldInfo("PROCESS_TIME", null))),
+                null, null);
     }
 
     private KafkaLoadNode buildKafkaLoadNode() {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("id", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo())
-        );
+                new FieldInfo("age", new IntFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new StringFormatInfo())),
+                        new FieldInfo("id", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo()))
-                );
+                                new FieldInfo("age", new IntFormatInfo())));
         return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
                 null, "topic_output", "localhost:9092",
                 new CanalJsonFormat(), 1,
@@ -113,7 +112,8 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
     /**
      * Test data type convert implicitly
      *
-     * @throws Exception The exception may throws when executing
+     * @throws Exception
+     *           The exception may throws when executing
      */
     @Test
     public void testDataTypeConvertSqlParse() throws Exception {
@@ -152,9 +152,10 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
                 Arrays.asList(new FieldInfo("cf:id", new StringFormatInfo()), new FieldInfo("cf:age",
                         new StringFormatInfo())),
                 Arrays.asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("cf:id", new StringFormatInfo())),
+                        new FieldInfo("cf:id", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("cf:age", new StringFormatInfo()))), null, null, 1, null, "mytable",
+                                new FieldInfo("cf:age", new StringFormatInfo()))),
+                null, null, 1, null, "mytable",
                 "default",
                 "localhost:2181", "MD5(CAST(`id` as String))", null, null, null, null);
     }
@@ -162,7 +163,8 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
     /**
      * Test data type convert implicitly for sinking data into HBase
      *
-     * @throws Exception The exception may throws when executing
+     * @throws Exception
+     *           The exception may throws when executing
      */
     @Test
     public void testHBaseDataTypeConvertSqlParse() throws Exception {

@@ -17,16 +17,8 @@
 
 package org.apache.inlong.tubemq.manager.service;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.repository.TopicRepository;
 import org.apache.inlong.tubemq.manager.service.interfaces.NodeService;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,21 +26,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Topic backend thread worker.
  */
 @Component
 @Slf4j
-public class TopicBackendWorker implements DisposableBean, Runnable  {
+public class TopicBackendWorker implements DisposableBean, Runnable {
+
     // old code, stop first
     private final AtomicBoolean runFlag = new AtomicBoolean(false);
-    private final ConcurrentHashMap<Integer, BlockingQueue<TopicFuture>> pendingTopics =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, BlockingQueue<TopicFuture>> pendingTopics = new ConcurrentHashMap<>();
     private final AtomicInteger notSatisfiedCount = new AtomicInteger(0);
     private final NodeService nodeService;
     private final ScheduledExecutorService workerExecutor;
@@ -80,7 +83,9 @@ public class TopicBackendWorker implements DisposableBean, Runnable  {
 
     /**
      * add topic future to pending executing queue.
-     * @param future - TopicFuture.
+     * 
+     * @param future
+     *          - TopicFuture.
      */
     public void addTopicFuture(TopicFuture future) {
         BlockingQueue<TopicFuture> tmpQueue = new LinkedBlockingQueue<>();

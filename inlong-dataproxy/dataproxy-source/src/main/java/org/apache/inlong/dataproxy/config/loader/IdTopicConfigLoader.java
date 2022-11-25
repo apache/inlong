@@ -17,8 +17,9 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
+
+import org.apache.flume.conf.Configurable;
 
 /**
  * 

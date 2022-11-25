@@ -64,10 +64,13 @@ public abstract class IcebergProcessFunction<IN, OUT> extends AbstractRichFuncti
     public abstract static class Context {
 
         /**
-         * Timestamp of the element currently being processed or timestamp of a firing timer.
+         * Timestamp of the element currently being processed or timestamp of a firing
+         * timer.
          *
-         * <p>This might be {@code null}, for example if the time characteristic of your program is
-         * set to {@link org.apache.flink.streaming.api.TimeCharacteristic#ProcessingTime}.
+         * <p>
+         * This might be {@code null}, for example if the time characteristic of your
+         * program is set to
+         * {@link org.apache.flink.streaming.api.TimeCharacteristic#ProcessingTime}.
          */
         public abstract Long timestamp();
 
@@ -77,13 +80,16 @@ public abstract class IcebergProcessFunction<IN, OUT> extends AbstractRichFuncti
         /**
          * Emits a record to the side output identified by the {@link OutputTag}.
          *
-         * @param outputTag the {@code OutputTag} that identifies the side output to emit to.
-         * @param value The record to emit.
+         * @param outputTag
+         *          the {@code OutputTag} that identifies the side output to emit to.
+         * @param value
+         *          The record to emit.
          */
         public abstract <X> void output(OutputTag<X> outputTag, X value);
     }
 
     public static class CallbackCollector<T> implements Collector<T> {
+
         final ThrowingConsumer<T, Exception> callback;
 
         CallbackCollector(ThrowingConsumer<T, Exception> callback) {

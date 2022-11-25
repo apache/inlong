@@ -17,13 +17,15 @@
 
 package org.apache.inlong.sort.protocol;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
+
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.junit.Test;
 
 public class FieldInfoTest extends SerializeBaseTest<FieldInfo> {
 
@@ -32,11 +34,11 @@ public class FieldInfoTest extends SerializeBaseTest<FieldInfo> {
         return new FieldInfo("field_name", StringFormatInfo.INSTANCE);
     }
 
-
     /**
      * Test deserialize with nodeId
      *
-     * @throws JsonProcessingException The exception may throws when execute the method
+     * @throws JsonProcessingException
+     *           The exception may throws when execute the method
      */
     @Test
     public void testDeserializeWithNodeId() throws JsonProcessingException {

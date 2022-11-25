@@ -17,14 +17,8 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.flink.api.common.JobStatus;
-import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
+import static org.apache.flink.api.common.JobStatus.RUNNING;
+
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -32,6 +26,12 @@ import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.enums.ConnectorJarType;
 import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 import org.apache.inlong.manager.plugin.util.FlinkUtils;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.flink.api.common.JobStatus;
+import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -50,7 +50,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.apache.flink.api.common.JobStatus.RUNNING;
+import lombok.extern.slf4j.Slf4j;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Flink task operation, such restart or stop flink job.
@@ -94,7 +97,8 @@ public class FlinkOperation {
     private String getConnectorJarPattern(String dataSourceType) {
         ConnectorJarType connectorJarType = ConnectorJarType.getInstance(dataSourceType);
         return connectorJarType == null
-                ? ALL_CONNECTOR_JAR_PATTERN : String.format(CONNECTOR_JAR_PATTERN, connectorJarType.getConnectorType());
+                ? ALL_CONNECTOR_JAR_PATTERN
+                : String.format(CONNECTOR_JAR_PATTERN, connectorJarType.getConnectorType());
 
     }
 
@@ -150,12 +154,14 @@ public class FlinkOperation {
     /**
      * Check whether there are duplicate NodeIds in different relations.
      * <p/>
-     * The JSON data in the dataflow is in the reverse order of the nodes in the actual dataflow.
-     * For example, data flow A -> B -> C, the generated topological relationship is [[B,C],[A,B]],
-     * then the input node B in the first relation [B,C] is the second output node B in relation [A,B].
+     * The JSON data in the dataflow is in the reverse order of the nodes in the
+     * actual dataflow. For example, data flow A -> B -> C, the generated
+     * topological relationship is [[B,C],[A,B]], then the input node B in the first
+     * relation [B,C] is the second output node B in relation [A,B].
      * <p/>
-     * The example of dataflow:
-     * <blockquote><pre>
+     * The example of dataflow: <blockquote>
+     * 
+     * <pre>
      * {
      *     "groupId": "test_group",
      *     "streams": [
@@ -176,7 +182,9 @@ public class FlinkOperation {
      *         }
      *     ]
      * }
-     * </pre></blockquote>
+     * </pre>
+     * 
+     * </blockquote>
      */
     private void checkNodeIds(String dataflow) throws Exception {
         JsonNode relations = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS)
@@ -266,8 +274,8 @@ public class FlinkOperation {
         String connectorDir = getConnectorDir(startPath);
         Set<String> connectorPaths = nodeTypes.stream().filter(
                 s -> s.endsWith(InlongConstants.LOAD) || s.endsWith(InlongConstants.EXTRACT)).map(
-                s -> FlinkUtils.listFiles(connectorDir, getConnectorJarPattern(s), -1)
-        ).flatMap(Collection::stream).collect(Collectors.toSet());
+                        s -> FlinkUtils.listFiles(connectorDir, getConnectorJarPattern(s), -1))
+                .flatMap(Collection::stream).collect(Collectors.toSet());
 
         if (CollectionUtils.isEmpty(connectorPaths)) {
             String message = String.format("no sort connectors found in %s", connectorDir);

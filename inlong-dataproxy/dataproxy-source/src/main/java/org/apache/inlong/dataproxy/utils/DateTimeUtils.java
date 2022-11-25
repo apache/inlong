@@ -23,19 +23,19 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class DateTimeUtils {
-    private static final DateTimeFormatter DATE_FORMATTER
-            = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
     private static final ZoneId defZoneId = ZoneId.systemDefault();
 
     /**
      * convert ms value to 'yyyyMMddHHmm' string
      *
-     * @param timestamp The millisecond value of the specified time
+     * @param timestamp
+     *          The millisecond value of the specified time
      * @return the time string in yyyyMMddHHmm format
      */
     public static String ms2yyyyMMddHHmm(long timestamp) {
-        LocalDateTime localDateTime =
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), defZoneId);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), defZoneId);
         return DATE_FORMATTER.format(localDateTime);
     }
 }

@@ -19,11 +19,12 @@ package org.apache.inlong.agent.state;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractStateWrapper implements Runnable {
 
@@ -50,7 +51,8 @@ public abstract class AbstractStateWrapper implements Runnable {
     /**
      * change state and execute callback functions
      *
-     * @param nextState next state
+     * @param nextState
+     *          next state
      */
     public synchronized void doChangeState(State nextState) {
         LOGGER.debug("state change, current state is {}, next state is {}", currentState, nextState);

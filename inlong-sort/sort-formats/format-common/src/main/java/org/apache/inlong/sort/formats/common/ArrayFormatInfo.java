@@ -18,10 +18,12 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import java.util.Objects;
-import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
 
 /**
  * The format information for arrays.
@@ -41,8 +43,7 @@ public class ArrayFormatInfo implements FormatInfo {
 
     @JsonCreator
     public ArrayFormatInfo(
-            @JsonProperty(FIELD_ELEMENT_FORMAT) @Nonnull FormatInfo elementFormatInfo
-    ) {
+            @JsonProperty(FIELD_ELEMENT_FORMAT) @Nonnull FormatInfo elementFormatInfo) {
         this.elementFormatInfo = elementFormatInfo;
     }
 

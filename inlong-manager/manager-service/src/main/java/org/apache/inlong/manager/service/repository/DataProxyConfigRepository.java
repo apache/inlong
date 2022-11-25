@@ -17,13 +17,6 @@
 
 package org.apache.inlong.manager.service.repository;
 
-import com.google.common.base.Splitter;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterSetObject;
@@ -53,14 +46,11 @@ import org.apache.inlong.manager.pojo.dataproxy.InlongStreamId;
 import org.apache.inlong.manager.pojo.dataproxy.ProxyCluster;
 import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.service.core.SortConfigLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -72,6 +62,20 @@ import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.base.Splitter;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * DataProxyConfigRepository
@@ -138,7 +142,8 @@ public class DataProxyConfigRepository implements IRepository {
     /**
      * set clusterSetMapper
      *
-     * @param clusterSetMapper the clusterSetMapper to set
+     * @param clusterSetMapper
+     *          the clusterSetMapper to set
      */
     public void setClusterSetMapper(ClusterSetMapper clusterSetMapper) {
         this.clusterSetMapper = clusterSetMapper;
@@ -156,7 +161,8 @@ public class DataProxyConfigRepository implements IRepository {
     /**
      * set clusterMapper
      *
-     * @param clusterMapper the clusterMapper to set
+     * @param clusterMapper
+     *          the clusterMapper to set
      */
     public void setClusterMapper(InlongClusterEntityMapper clusterMapper) {
         this.clusterMapper = clusterMapper;
@@ -174,7 +180,8 @@ public class DataProxyConfigRepository implements IRepository {
     /**
      * set inlongGroupMapper
      *
-     * @param inlongGroupMapper the inlongGroupMapper to set
+     * @param inlongGroupMapper
+     *          the inlongGroupMapper to set
      */
     public void setInlongGroupMapper(InlongGroupEntityMapper inlongGroupMapper) {
         this.inlongGroupMapper = inlongGroupMapper;
@@ -192,7 +199,8 @@ public class DataProxyConfigRepository implements IRepository {
     /**
      * set streamSinkMapper
      *
-     * @param streamSinkMapper the streamSinkMapper to set
+     * @param streamSinkMapper
+     *          the streamSinkMapper to set
      */
     public void setStreamSinkMapper(StreamSinkEntityMapper streamSinkMapper) {
         this.streamSinkMapper = streamSinkMapper;
@@ -375,7 +383,8 @@ public class DataProxyConfigRepository implements IRepository {
      * parseInlongId
      */
     private Map<String, List<InLongIdObject>> parseInlongId(Map<String, InlongGroupId> groupIdMap,
-            Map<String, Map<String, String>> groupParams, Map<String, InlongStreamId> streamIdMap,
+            Map<String, Map<String, String>> groupParams,
+            Map<String, InlongStreamId> streamIdMap,
             Map<String, Map<String, String>> streamParams) {
         Map<String, List<InLongIdObject>> inlongIdMap = new HashMap<>();
         for (Entry<String, InlongStreamId> entry : streamIdMap.entrySet()) {
@@ -597,7 +606,8 @@ public class DataProxyConfigRepository implements IRepository {
     /**
      * prepareClusterTagGroup
      */
-    private InlongGroupEntity prepareClusterTagGroup(InlongGroupEntity oldGroup, String clusterTag, String topic)
+    private InlongGroupEntity prepareClusterTagGroup(InlongGroupEntity oldGroup, String clusterTag,
+            String topic)
             throws IllegalAccessException, InvocationTargetException {
         // parse ext_params
         String extParams = oldGroup.getExtParams();

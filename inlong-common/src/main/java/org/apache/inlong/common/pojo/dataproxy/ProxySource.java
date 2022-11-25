@@ -45,7 +45,8 @@ public class ProxySource {
     /**
      * set name
      *
-     * @param name the name to set
+     * @param name
+     *          the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -63,7 +64,8 @@ public class ProxySource {
     /**
      * set type
      *
-     * @param type the type to set
+     * @param type
+     *          the type to set
      */
     public void setType(String type) {
         this.type = type;
@@ -81,7 +83,8 @@ public class ProxySource {
     /**
      * set selectorType
      *
-     * @param selectorType the selectorType to set
+     * @param selectorType
+     *          the selectorType to set
      */
     public void setSelectorType(String selectorType) {
         this.selectorType = selectorType;
@@ -99,7 +102,8 @@ public class ProxySource {
     /**
      * set channels
      *
-     * @param channels the channels to set
+     * @param channels
+     *          the channels to set
      */
     public void setChannels(List<String> channels) {
         this.channels = channels;
@@ -117,7 +121,8 @@ public class ProxySource {
     /**
      * set params
      *
-     * @param params the params to set
+     * @param params
+     *          the params to set
      */
     public void setParams(Map<String, String> params) {
         this.params = params;

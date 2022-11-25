@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.base.format;
 
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.formats.common.TimestampFormat;
@@ -52,20 +54,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
-
 /**
- * Json dynamic format class
- * This class main handle:
- * 1. deserialize data from byte array
- * 2. parse pattern and get the real value from the raw data(contains meta data and physical data)
- * Such as:
- * 1). give a pattern "${a}{b}{c}" and the root Node contains the keys(a: '1', b: '2', c: '3')
- * the result of pared will be '123'
- * 2). give a pattern "${a}_{b}_{c}" and the root Node contains the keys(a: '1', b: '2', c: '3')
- * the result of pared will be '1_2_3'
- * 3). give a pattern "prefix_${a}_{b}_{c}_suffix" and the root Node contains the keys(a: '1', b: '2', c: '3')
- * the result of pared will be 'prefix_1_2_3_suffix'
+ * Json dynamic format class This class main handle: 1. deserialize data from
+ * byte array 2. parse pattern and get the real value from the raw data(contains
+ * meta data and physical data) Such as: 1). give a pattern "${a}{b}{c}" and the
+ * root Node contains the keys(a: '1', b: '2', c: '3') the result of pared will
+ * be '123' 2). give a pattern "${a}_{b}_{c}" and the root Node contains the
+ * keys(a: '1', b: '2', c: '3') the result of pared will be '1_2_3' 3). give a
+ * pattern "prefix_${a}_{b}_{c}_suffix" and the root Node contains the keys(a:
+ * '1', b: '2', c: '3') the result of pared will be 'prefix_1_2_3_suffix'
  */
 @SuppressWarnings("LanguageDetectionInspection")
 public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaFormat<JsonNode> {
@@ -78,53 +75,53 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     private static final int DEFAULT_DECIMAL_PRECISION = 15;
     private static final int DEFAULT_DECIMAL_SCALE = 5;
 
-    private static final Map<Integer, LogicalType> SQL_TYPE_2_FLINK_TYPE_MAPPING =
-            ImmutableMap.<Integer, LogicalType>builder()
-                    .put(java.sql.Types.CHAR, new CharType())
-                    .put(java.sql.Types.VARCHAR, new VarCharType())
-                    .put(java.sql.Types.SMALLINT, new SmallIntType())
-                    .put(java.sql.Types.INTEGER, new IntType())
-                    .put(java.sql.Types.BIGINT, new BigIntType())
-                    .put(java.sql.Types.REAL, new FloatType())
-                    .put(java.sql.Types.DOUBLE, new DoubleType())
-                    .put(java.sql.Types.FLOAT, new FloatType())
-                    .put(java.sql.Types.DECIMAL, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
-                    .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
-                    .put(java.sql.Types.BIT, new BooleanType())
-                    .put(java.sql.Types.TIME, new TimeType())
-                    .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
-                    .put(java.sql.Types.TIMESTAMP, new TimestampType())
-                    .put(java.sql.Types.BINARY, new BinaryType())
-                    .put(java.sql.Types.VARBINARY, new VarBinaryType())
-                    .put(java.sql.Types.BLOB, new VarBinaryType())
-                    .put(java.sql.Types.DATE, new DateType())
-                    .put(java.sql.Types.BOOLEAN, new BooleanType())
-                    .put(java.sql.Types.OTHER, new VarCharType())
-                    .build();
+    private static final Map<Integer, LogicalType> SQL_TYPE_2_FLINK_TYPE_MAPPING = ImmutableMap
+            .<Integer, LogicalType>builder()
+            .put(java.sql.Types.CHAR, new CharType())
+            .put(java.sql.Types.VARCHAR, new VarCharType())
+            .put(java.sql.Types.SMALLINT, new SmallIntType())
+            .put(java.sql.Types.INTEGER, new IntType())
+            .put(java.sql.Types.BIGINT, new BigIntType())
+            .put(java.sql.Types.REAL, new FloatType())
+            .put(java.sql.Types.DOUBLE, new DoubleType())
+            .put(java.sql.Types.FLOAT, new FloatType())
+            .put(java.sql.Types.DECIMAL, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
+            .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
+            .put(java.sql.Types.BIT, new BooleanType())
+            .put(java.sql.Types.TIME, new TimeType())
+            .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
+            .put(java.sql.Types.TIMESTAMP, new TimestampType())
+            .put(java.sql.Types.BINARY, new BinaryType())
+            .put(java.sql.Types.VARBINARY, new VarBinaryType())
+            .put(java.sql.Types.BLOB, new VarBinaryType())
+            .put(java.sql.Types.DATE, new DateType())
+            .put(java.sql.Types.BOOLEAN, new BooleanType())
+            .put(java.sql.Types.OTHER, new VarCharType())
+            .build();
 
-    private static final Map<Integer, LogicalType> SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING =
-            ImmutableMap.<Integer, LogicalType>builder()
-                    .put(java.sql.Types.CHAR, new CharType())
-                    .put(java.sql.Types.VARCHAR, new VarCharType())
-                    .put(java.sql.Types.SMALLINT, new SmallIntType())
-                    .put(java.sql.Types.INTEGER, new IntType())
-                    .put(java.sql.Types.BIGINT, new BigIntType())
-                    .put(java.sql.Types.REAL, new FloatType())
-                    .put(java.sql.Types.DOUBLE, new DoubleType())
-                    .put(java.sql.Types.FLOAT, new FloatType())
-                    .put(java.sql.Types.DECIMAL, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
-                    .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
-                    .put(java.sql.Types.BIT, new BooleanType())
-                    .put(java.sql.Types.TIME, new VarCharType())
-                    .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
-                    .put(java.sql.Types.TIMESTAMP, new LocalZonedTimestampType())
-                    .put(java.sql.Types.BINARY, new BinaryType())
-                    .put(java.sql.Types.VARBINARY, new VarBinaryType())
-                    .put(java.sql.Types.BLOB, new VarBinaryType())
-                    .put(java.sql.Types.DATE, new DateType())
-                    .put(java.sql.Types.BOOLEAN, new BooleanType())
-                    .put(java.sql.Types.OTHER, new VarCharType())
-                    .build();
+    private static final Map<Integer, LogicalType> SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING = ImmutableMap
+            .<Integer, LogicalType>builder()
+            .put(java.sql.Types.CHAR, new CharType())
+            .put(java.sql.Types.VARCHAR, new VarCharType())
+            .put(java.sql.Types.SMALLINT, new SmallIntType())
+            .put(java.sql.Types.INTEGER, new IntType())
+            .put(java.sql.Types.BIGINT, new BigIntType())
+            .put(java.sql.Types.REAL, new FloatType())
+            .put(java.sql.Types.DOUBLE, new DoubleType())
+            .put(java.sql.Types.FLOAT, new FloatType())
+            .put(java.sql.Types.DECIMAL, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
+            .put(java.sql.Types.NUMERIC, new DecimalType(DEFAULT_DECIMAL_PRECISION, DEFAULT_DECIMAL_SCALE))
+            .put(java.sql.Types.BIT, new BooleanType())
+            .put(java.sql.Types.TIME, new VarCharType())
+            .put(java.sql.Types.TIMESTAMP_WITH_TIMEZONE, new LocalZonedTimestampType())
+            .put(java.sql.Types.TIMESTAMP, new LocalZonedTimestampType())
+            .put(java.sql.Types.BINARY, new BinaryType())
+            .put(java.sql.Types.VARBINARY, new VarBinaryType())
+            .put(java.sql.Types.BLOB, new VarBinaryType())
+            .put(java.sql.Types.DATE, new DateType())
+            .put(java.sql.Types.BOOLEAN, new BooleanType())
+            .put(java.sql.Types.OTHER, new VarCharType())
+            .build();
 
     public final ObjectMapper objectMapper = new ObjectMapper();
     protected final JsonToRowDataConverters rowDataConverters;
@@ -133,19 +130,20 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     public JsonDynamicSchemaFormat(Map<String, String> properties) {
         ReadableConfig config = Configuration.fromMap(properties);
         this.adaptSparkEngine = config.get(SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK);
-        this.rowDataConverters =
-                new JsonToRowDataConverters(
-                        false,
-                        false,
-                        TimestampFormat.ISO_8601,
-                        adaptSparkEngine);
+        this.rowDataConverters = new JsonToRowDataConverters(
+                false,
+                false,
+                TimestampFormat.ISO_8601,
+                adaptSparkEngine);
     }
 
     /**
      * Extract values by keys from the raw data
      *
-     * @param root The raw data
-     * @param keys The key list that will be used to extract
+     * @param root
+     *          The raw data
+     * @param keys
+     *          The key list that will be used to extract
      * @return The value list maps the keys
      */
     @Override
@@ -178,8 +176,10 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     /**
      * Extract value by key from ${@link JsonNode}
      *
-     * @param jsonNode The json node
-     * @param key The key that will be used to extract
+     * @param jsonNode
+     *          The json node
+     * @param key
+     *          The key that will be used to extract
      * @return The value maps the key in the json node
      */
     @Override
@@ -201,9 +201,11 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     /**
      * Deserialize from byte array and return a ${@link JsonNode}
      *
-     * @param message The byte array of raw data
+     * @param message
+     *          The byte array of raw data
      * @return The JsonNode
-     * @throws IOException The exceptions may throws when deserialize
+     * @throws IOException
+     *           The exceptions may throws when deserialize
      */
     @Override
     public JsonNode deserialize(byte[] message) throws IOException {
@@ -211,13 +213,16 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     }
 
     /**
-     * Parse msg and replace the value by key from meta data and physical.
-     * See details {@link JsonDynamicSchemaFormat#parse(JsonNode, String)}
+     * Parse msg and replace the value by key from meta data and physical. See
+     * details {@link JsonDynamicSchemaFormat#parse(JsonNode, String)}
      *
-     * @param message The source of data rows format by bytes
-     * @param pattern The pattern value
+     * @param message
+     *          The source of data rows format by bytes
+     * @param pattern
+     *          The pattern value
      * @return The result of parsed
-     * @throws IOException The exception will throws
+     * @throws IOException
+     *           The exception will throws
      */
     @Override
     public String parse(byte[] message, String pattern) throws IOException {
@@ -225,19 +230,21 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     }
 
     /**
-     * Parse msg and replace the value by key from meta data and physical.
-     * Such as:
-     * 1. give a pattern "${a}{b}{c}" and the root Node contains the keys(a: '1', b: '2', c: '3')
-     * the result of pared will be '123'
-     * 2. give a pattern "${a}_{b}_{c}" and the root Node contains the keys(a: '1', b: '2', c: '3')
-     * the result of pared will be '1_2_3'
-     * 3. give a pattern "prefix_${a}_{b}_{c}_suffix" and the root Node contains the keys(a: '1', b: '2', c: '3')
-     * the result of pared will be 'prefix_1_2_3_suffix'
+     * Parse msg and replace the value by key from meta data and physical. Such as:
+     * 1. give a pattern "${a}{b}{c}" and the root Node contains the keys(a: '1', b:
+     * '2', c: '3') the result of pared will be '123' 2. give a pattern
+     * "${a}_{b}_{c}" and the root Node contains the keys(a: '1', b: '2', c: '3')
+     * the result of pared will be '1_2_3' 3. give a pattern
+     * "prefix_${a}_{b}_{c}_suffix" and the root Node contains the keys(a: '1', b:
+     * '2', c: '3') the result of pared will be 'prefix_1_2_3_suffix'
      *
-     * @param rootNode The root node of json
-     * @param pattern The pattern value
+     * @param rootNode
+     *          The root node of json
+     * @param pattern
+     *          The pattern value
      * @return The result of parsed
-     * @throws IOException The exception will throws
+     * @throws IOException
+     *           The exception will throws
      */
     @Override
     public String parse(JsonNode rootNode, String pattern) throws IOException {
@@ -266,7 +273,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     /**
      * Get physical data from the root json node
      *
-     * @param root The json root node
+     * @param root
+     *          The json root node
      * @return The physical data node
      */
     public JsonNode getPhysicalData(JsonNode root) {
@@ -280,7 +288,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     /**
      * Get physical data of update after
      *
-     * @param root The json root node
+     * @param root
+     *          The json root node
      * @return The physical data node of update after
      */
     public abstract JsonNode getUpdateAfter(JsonNode root);
@@ -288,7 +297,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     /**
      * Get physical data of update before
      *
-     * @param root The json root node
+     * @param root
+     *          The json root node
      * @return The physical data node of update before
      */
     public abstract JsonNode getUpdateBefore(JsonNode root);
@@ -296,7 +306,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     /**
      * Convert opType to RowKind
      *
-     * @param opType The opTyoe of data
+     * @param opType
+     *          The opTyoe of data
      * @return The RowKind of data
      */
     public abstract List<RowKind> opType2RowKind(String opType);
@@ -304,7 +315,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     /**
      * Get opType of data
      *
-     * @param root The json root node
+     * @param root
+     *          The json root node
      * @return The opType of data
      */
     public abstract String getOpType(JsonNode root);
@@ -326,7 +338,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
 
     private LogicalType sqlType2FlinkType(int jdbcType) {
         Map<Integer, LogicalType> typeMap = adaptSparkEngine
-                ? SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING : SQL_TYPE_2_FLINK_TYPE_MAPPING;
+                ? SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING
+                : SQL_TYPE_2_FLINK_TYPE_MAPPING;
         if (typeMap.containsKey(jdbcType)) {
             return typeMap.get(jdbcType);
         } else {
@@ -337,9 +350,11 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
     /**
      * Convert json node to map
      *
-     * @param data The json node
+     * @param data
+     *          The json node
      * @return The List of json node
-     * @throws IOException The exception may be thrown when executing
+     * @throws IOException
+     *           The exception may be thrown when executing
      */
     public List<Map<String, String>> jsonNode2Map(JsonNode data) throws IOException {
         if (data == null) {

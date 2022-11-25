@@ -17,23 +17,28 @@
 
 package org.apache.inlong.manager.pojo.sink.mysql;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
-import io.swagger.annotations.ApiModelProperty;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.JsonUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * MySQL sink info
@@ -72,9 +77,11 @@ public class MySQLSinkDTO {
     /**
      * Get the dto instance from the request
      *
-     * @param request MySQLSinkRequest
+     * @param request
+     *          MySQLSinkRequest
      * @return {@link MySQLSinkDTO}
-     * @apiNote The config here will be saved to the database, so filter sensitive params before saving.
+     * @apiNote The config here will be saved to the database, so filter sensitive
+     *          params before saving.
      */
     public static MySQLSinkDTO getFromRequest(MySQLSinkRequest request) {
         String url = filterSensitive(request.getJdbcUrl());
@@ -91,7 +98,8 @@ public class MySQLSinkDTO {
     /**
      * Get MySQL sink info from JSON string
      *
-     * @param extParams string ext params
+     * @param extParams
+     *          string ext params
      * @return {@link MySQLSinkDTO}
      */
     public static MySQLSinkDTO getFromJson(@NotNull String extParams) {
@@ -106,8 +114,10 @@ public class MySQLSinkDTO {
     /**
      * Get MySQL table info
      *
-     * @param mySQLSink MySQL sink dto,{@link MySQLSinkDTO}
-     * @param columnList MySQL column info list,{@link MySQLColumnInfo}
+     * @param mySQLSink
+     *          MySQL sink dto,{@link MySQLSinkDTO}
+     * @param columnList
+     *          MySQL column info list,{@link MySQLColumnInfo}
      * @return {@link MySQLTableInfo}
      */
     public static MySQLTableInfo getTableInfo(MySQLSinkDTO mySQLSink, List<MySQLColumnInfo> columnList) {
@@ -123,7 +133,8 @@ public class MySQLSinkDTO {
     /**
      * Get DbName from jdbcUrl
      *
-     * @param jdbcUrl MySQL JDBC url, such as jdbc:mysql://host:port/database
+     * @param jdbcUrl
+     *          MySQL JDBC url, such as jdbc:mysql://host:port/database
      * @return database name
      */
     private static String getDbNameFromUrl(String jdbcUrl) {
@@ -170,7 +181,8 @@ public class MySQLSinkDTO {
     /**
      * Filter the sensitive params for the given URL.
      *
-     * @param url str may have some sensitive params
+     * @param url
+     *          str may have some sensitive params
      * @return str without sensitive param
      */
     @VisibleForTesting

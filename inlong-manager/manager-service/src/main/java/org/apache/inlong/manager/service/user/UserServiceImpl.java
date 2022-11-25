@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.service.user;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
@@ -36,16 +32,23 @@ import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 
 /**
  * User service layer implementation
@@ -105,7 +108,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity curUser = userMapper.selectByName(currentUser);
         Preconditions.checkTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
-                        || Objects.equals(entity.getName(), currentUser),
+                || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
         UserInfo result = new UserInfo();
@@ -118,7 +121,8 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isNotBlank(entity.getSecretKey()) && StringUtils.isNotBlank(entity.getPublicKey())) {
             try {
                 // decipher according to stored key version
-                // note that if the version is null then the string is treated as unencrypted plain text
+                // note that if the version is null then the string is treated as unencrypted
+                // plain text
                 Integer version = entity.getEncryptVersion();
                 byte[] secretKeyBytes = AESUtils.decryptAsString(entity.getSecretKey(), version);
                 byte[] publicKeyBytes = AESUtils.decryptAsString(entity.getPublicKey(), version);
@@ -194,10 +198,11 @@ public class UserServiceImpl implements UserService {
 
         UserEntity targetUserEntity = userMapper.selectByName(updateName);
         Preconditions.checkTrue(Objects.isNull(targetUserEntity)
-                        || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
+                || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
                 "Username [" + updateName + "] already exists");
 
-        // if the current user is not a manager, needs to check the password before updating user info
+        // if the current user is not a manager, needs to check the password before
+        // updating user info
         if (!isAdmin) {
             String oldPassword = request.getPassword();
             String oldPasswordHash = SHAUtils.encrypt(oldPassword);

@@ -17,10 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.zkimpl;
 
-import java.lang.reflect.Type;
-import java.util.List;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
@@ -32,15 +28,23 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsClusterConfigMapperImpl;
+
 import org.apache.zookeeper.KeeperException;
 
+import java.lang.reflect.Type;
+import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 public class ZKClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
+
     private final ZooKeeperWatcher zkWatcher;
     private final String clrConfigRootDir;
 
     public ZKClusterConfigMapperImpl(String metaNodePrefix,
-                                     ZooKeeperWatcher zkWatcher,
-                                     StringBuilder strBuff) {
+            ZooKeeperWatcher zkWatcher,
+            StringBuilder strBuff) {
         super();
         this.zkWatcher = zkWatcher;
         this.clrConfigRootDir = strBuff.append(metaNodePrefix)
@@ -69,7 +73,8 @@ public class ZKClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
         }
         String clrConfigureStr;
         Gson gson = new Gson();
-        Type type = new TypeToken<ClusterSettingEntity>() {}.getType();
+        Type type = new TypeToken<ClusterSettingEntity>() {
+        }.getType();
         // read data item, parse and store data to cache
         for (String itemKey : childNodes) {
             if (TStringUtils.isEmpty(itemKey)
@@ -77,9 +82,8 @@ public class ZKClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
                 continue;
             }
             try {
-                clrConfigureStr =
-                        ZKUtil.readDataMaybeNull(zkWatcher, strBuff.append(clrConfigRootDir)
-                                .append(TokenConstants.SLASH).append(itemKey).toString());
+                clrConfigureStr = ZKUtil.readDataMaybeNull(zkWatcher, strBuff.append(clrConfigRootDir)
+                        .append(TokenConstants.SLASH).append(itemKey).toString());
                 strBuff.delete(0, strBuff.length());
             } catch (KeeperException e) {
                 BrokerSrvStatsHolder.incZKExcCnt();
@@ -98,12 +102,13 @@ public class ZKClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
     }
 
     protected boolean putConfig2Persistent(ClusterSettingEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         String entityStr = entity.toString();
         try {
             ZKUtil.updatePersistentPath(zkWatcher,
                     strBuff.append(clrConfigRootDir).append(TokenConstants.SLASH)
-                            .append(entity.getRecordKey()).toString(), entityStr);
+                            .append(entity.getRecordKey()).toString(),
+                    entityStr);
             strBuff.delete(0, strBuff.length());
         } catch (Throwable t) {
             BrokerSrvStatsHolder.incZKExcCnt();

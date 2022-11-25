@@ -17,17 +17,19 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import java.io.Serializable;
+
 import lombok.Builder;
 import lombok.Data;
 
-import java.io.Serializable;
-
 /**
- * Sort source config entity, including cluster name, task name, zone name, topic, etc.
+ * Sort source config entity, including cluster name, task name, zone name,
+ * topic, etc.
  */
 @Data
 @Builder
 public class SortSourceConfigEntity implements Serializable {
+
     private Integer id;
     private String clusterName;
     private String taskName;

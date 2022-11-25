@@ -36,10 +36,12 @@ import java.util.function.Function;
 
 /** An extractor for a Elasticsearch key from a {@link RowData}. */
 public class KeyExtractor implements Function<RowData, String>, Serializable {
+
     private final FieldFormatter[] fieldFormatters;
     private final String keyDelimiter;
 
     private interface FieldFormatter extends Serializable {
+
         String format(RowData rowData);
     }
 
@@ -62,6 +64,7 @@ public class KeyExtractor implements Function<RowData, String>, Serializable {
     }
 
     private static class ColumnWithIndex {
+
         public TableColumn column;
         public int index;
 
@@ -92,17 +95,14 @@ public class KeyExtractor implements Function<RowData, String>, Serializable {
                                         column.getName(), new ColumnWithIndex(column, i));
                             }
 
-                            FieldFormatter[] fieldFormatters =
-                                    key.getColumns().stream()
-                                            .map(namesToColumns::get)
-                                            .map(
-                                                    column ->
-                                                            toFormatter(
-                                                                    column.index, column.getType()))
-                                            .toArray(FieldFormatter[]::new);
+                            FieldFormatter[] fieldFormatters = key.getColumns().stream()
+                                    .map(namesToColumns::get)
+                                    .map(
+                                            column -> toFormatter(
+                                                    column.index, column.getType()))
+                                    .toArray(FieldFormatter[]::new);
 
-                            return (Function<RowData, String>)
-                                    new KeyExtractor(fieldFormatters, keyDelimiter);
+                            return (Function<RowData, String>) new KeyExtractor(fieldFormatters, keyDelimiter);
                         })
                 .orElseGet(() -> (Function<RowData, String> & Serializable) (row) -> null);
     }
@@ -112,8 +112,7 @@ public class KeyExtractor implements Function<RowData, String>, Serializable {
             case DATE:
                 return (row) -> LocalDate.ofEpochDay(row.getInt(index)).toString();
             case TIME_WITHOUT_TIME_ZONE:
-                return (row) ->
-                        LocalTime.ofNanoOfDay((long) row.getInt(index) * 1_000_000L).toString();
+                return (row) -> LocalTime.ofNanoOfDay((long) row.getInt(index) * 1_000_000L).toString();
             case INTERVAL_YEAR_MONTH:
                 return (row) -> Period.ofDays(row.getInt(index)).toString();
             case INTERVAL_DAY_TIME:

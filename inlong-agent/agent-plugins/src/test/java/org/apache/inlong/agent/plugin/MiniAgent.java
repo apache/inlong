@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.plugin;
 
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
+
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.ProfileFetcher;
@@ -24,14 +26,13 @@ import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.HeartbeatManager;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
+
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.LinkedBlockingQueue;
-
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_FETCH_CENTER_INTERVAL_SECONDS;
 
 public class MiniAgent {
 

@@ -17,12 +17,20 @@
 
 package org.apache.inlong.agent.utils;
 
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_EXIT;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
+import static org.apache.inlong.agent.constant.AgentConstants.CUSTOM_FIXED_IP;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_ENABLE_OOM_EXIT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_IP;
+
+import org.apache.inlong.agent.conf.AgentConfiguration;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.File;
@@ -44,14 +52,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_EXIT;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
-import static org.apache.inlong.agent.constant.AgentConstants.CUSTOM_FIXED_IP;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_ENABLE_OOM_EXIT;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_IP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Agent utils
@@ -95,7 +97,8 @@ public class AgentUtils {
     /**
      * Finally close resources
      *
-     * @param resource resource which is closable.
+     * @param resource
+     *          resource which is closable.
      */
     public static void finallyClose(Closeable resource) {
         if (resource != null) {
@@ -110,7 +113,8 @@ public class AgentUtils {
     /**
      * Finally close resources.
      *
-     * @param resource resource which is closable.
+     * @param resource
+     *          resource which is closable.
      */
     public static void finallyClose(AutoCloseable resource) {
         if (resource != null) {
@@ -155,8 +159,10 @@ public class AgentUtils {
     /**
      * Get uniq id with timestamp and index.
      *
-     * @param id job id
-     * @param index job index
+     * @param id
+     *          job id
+     * @param index
+     *          job index
      * @return uniq id
      */
     public static String getUniqId(String prefix, String id, long index) {
@@ -212,10 +218,14 @@ public class AgentUtils {
     /**
      * Formatter with time offset
      *
-     * @param formatter formatter string
-     * @param day day offset
-     * @param hour hour offset
-     * @param min min offset
+     * @param formatter
+     *          formatter string
+     * @param day
+     *          day offset
+     * @param hour
+     *          hour offset
+     * @param min
+     *          min offset
      * @return current time with offset
      */
     public static String formatCurrentTimeWithOffset(String formatter, int day, int hour, int min) {
@@ -231,8 +241,10 @@ public class AgentUtils {
     /**
      * Whether all class of path name are matched
      *
-     * @param pathStr path string
-     * @param patternStr regex pattern
+     * @param pathStr
+     *          path string
+     * @param patternStr
+     *          regex pattern
      * @return true if all match
      */
     public static boolean regexMatch(String pathStr, String patternStr) {

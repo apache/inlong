@@ -17,34 +17,35 @@
 
 package org.apache.inlong.tubemq.server.broker.stats;
 
+import org.apache.inlong.tubemq.corebase.metric.MetricMXBean;
+import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
+
 import java.lang.management.ManagementFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import org.apache.inlong.tubemq.corebase.metric.MetricMXBean;
-import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * BrokerJMXHolder
  *
- * A wrapper class for Broker JMX metric display, which currently includes RPC service status
- * and web API call status metric data output
+ * A wrapper class for Broker JMX metric display, which currently includes RPC
+ * service status and web API call status metric data output
  */
 public class BrokerJMXHolder {
-    private static final Logger logger =
-            LoggerFactory.getLogger(BrokerJMXHolder.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(BrokerJMXHolder.class);
     // Registration status indicator
     private static final AtomicBoolean registered = new AtomicBoolean(false);
     // broker metrics information
-    private static final BrokerServiceStatusBean serviceStatusInfo =
-            new BrokerServiceStatusBean();
+    private static final BrokerServiceStatusBean serviceStatusInfo = new BrokerServiceStatusBean();
     // broker web api status information
-    private static final BrokerWebAPIStatusBean webAPIStatusInfo =
-            new BrokerWebAPIStatusBean();
+    private static final BrokerWebAPIStatusBean webAPIStatusInfo = new BrokerWebAPIStatusBean();
 
     /**
      * Register MXBean
@@ -61,8 +62,7 @@ public class BrokerJMXHolder {
                     new ObjectName("org.apache.inlong.tubemq.server.broker:type=serviceStatus");
             mbs.registerMBean(serviceStatusInfo, srvStatusMxBeanName);
             // register web api status jmx
-            ObjectName webAPIMxBeanName =
-                    new ObjectName("org.apache.inlong.tubemq.server.broker:type=webAPI");
+            ObjectName webAPIMxBeanName = new ObjectName("org.apache.inlong.tubemq.server.broker:type=webAPI");
             mbs.registerMBean(webAPIStatusInfo, webAPIMxBeanName);
 
         } catch (Exception ex) {
@@ -114,4 +114,3 @@ public class BrokerJMXHolder {
         }
     }
 }
-

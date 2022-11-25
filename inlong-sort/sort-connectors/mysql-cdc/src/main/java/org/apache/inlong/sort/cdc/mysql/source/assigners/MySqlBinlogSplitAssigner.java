@@ -18,12 +18,9 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
-import io.debezium.connector.mysql.MySqlConnection;
-import io.debezium.jdbc.JdbcConnection;
-import io.debezium.relational.RelationalTableFilters;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
-import org.apache.flink.util.FlinkRuntimeException;
+import static com.ververica.cdc.connectors.mysql.source.utils.TableDiscoveryUtils.listTables;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
+
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.BinlogPendingSplitsState;
@@ -34,8 +31,8 @@ import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flink.util.FlinkRuntimeException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -46,11 +43,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.ververica.cdc.connectors.mysql.source.utils.TableDiscoveryUtils.listTables;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.connector.mysql.MySqlConnection;
+import io.debezium.jdbc.JdbcConnection;
+import io.debezium.relational.RelationalTableFilters;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
 
 /**
- * A {@link MySqlSplitAssigner} which only read binlog from current binlog position.
+ * A {@link MySqlSplitAssigner} which only read binlog from current binlog
+ * position.
  */
 public class MySqlBinlogSplitAssigner implements MySqlSplitAssigner {
 

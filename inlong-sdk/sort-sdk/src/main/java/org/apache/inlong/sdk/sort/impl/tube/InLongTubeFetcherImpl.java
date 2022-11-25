@@ -19,18 +19,6 @@
 
 package org.apache.inlong.sdk.sort.impl.tube;
 
-import com.google.common.base.Splitter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SysConstants;
@@ -45,8 +33,23 @@ import org.apache.inlong.tubemq.client.consumer.ConsumerResult;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Splitter;
 
 @Deprecated
 public class InLongTubeFetcherImpl extends InLongTopicFetcher {
@@ -190,7 +193,8 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
         /**
          * put the received msg to onFinished method
          *
-         * @param messageRecord {@link MessageRecord}
+         * @param messageRecord
+         *          {@link MessageRecord}
          */
         private void handleAndCallbackMsg(MessageRecord messageRecord) {
             long start = System.currentTimeMillis();
@@ -216,9 +220,12 @@ public class InLongTubeFetcherImpl extends InLongTopicFetcher {
         /**
          * parseAttr from k1=v1&k2=v2 to kv map
          *
-         * @param splitter {@link Splitter}
-         * @param attr String
-         * @param entrySplitterStr String
+         * @param splitter
+         *          {@link Splitter}
+         * @param attr
+         *          String
+         * @param entrySplitterStr
+         *          String
          * @return {@link Map}
          */
         private Map<String, String> parseAttr(Splitter splitter, String attr, String entrySplitterStr) {

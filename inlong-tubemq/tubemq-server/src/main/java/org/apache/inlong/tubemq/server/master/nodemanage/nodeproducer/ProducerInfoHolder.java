@@ -17,23 +17,23 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodeproducer;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.cluster.ProducerInfo;
 import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class ProducerInfoHolder {
 
-    final ConcurrentHashMap<String/* producerId */, ProducerInfo> producerInfoMap =
-            new ConcurrentHashMap<>();
+    final ConcurrentHashMap<String/* producerId */, ProducerInfo> producerInfoMap = new ConcurrentHashMap<>();
 
     public ProducerInfo getProducerInfo(String producerId) {
         return producerInfoMap.get(producerId);
     }
 
     public void setProducerInfo(String producerId,
-                                Set<String> topicSet,
-                                String host, boolean overTLS) {
+            Set<String> topicSet,
+            String host, boolean overTLS) {
         if (producerInfoMap.put(producerId,
                 new ProducerInfo(producerId, topicSet, host, overTLS)) == null) {
             MasterSrvStatsHolder.incProducerCnt();
@@ -41,13 +41,11 @@ public class ProducerInfoHolder {
     }
 
     public void updateProducerInfo(String producerId,
-                                   Set<String> topicSet,
-                                   String host,
-                                   boolean overTLS) {
-        ProducerInfo curProducer =
-                producerInfoMap.get(producerId);
-        ProducerInfo newProducer =
-                new ProducerInfo(producerId, topicSet, host, overTLS);
+            Set<String> topicSet,
+            String host,
+            boolean overTLS) {
+        ProducerInfo curProducer = producerInfoMap.get(producerId);
+        ProducerInfo newProducer = new ProducerInfo(producerId, topicSet, host, overTLS);
         if (!newProducer.equals(curProducer)) {
             producerInfoMap.put(producerId, newProducer);
         }

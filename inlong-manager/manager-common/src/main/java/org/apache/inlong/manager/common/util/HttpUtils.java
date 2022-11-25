@@ -17,9 +17,14 @@
 
 package org.apache.inlong.manager.common.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -30,11 +35,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * HTTP utils
@@ -47,10 +49,14 @@ public class HttpUtils {
     /**
      * Check whether the host and port can connect
      *
-     * @param host target host address
-     * @param port target port
-     * @param connectTimeout connect timeout
-     * @param timeUnit time unit of timeout
+     * @param host
+     *          target host address
+     * @param port
+     *          target port
+     * @param connectTimeout
+     *          connect timeout
+     * @param timeUnit
+     *          time unit of timeout
      * @return true if connect successfully, false if connect failed
      */
     public static boolean checkConnectivity(String host, int port, int connectTimeout, TimeUnit timeUnit) {
@@ -75,7 +81,8 @@ public class HttpUtils {
      * Send an HTTP request by the given rest template.
      */
     public static <T> T request(RestTemplate restTemplate, String url, HttpMethod method,
-            String param, HttpHeaders header, Class<T> cls) throws Exception {
+            String param, HttpHeaders header, Class<T> cls)
+            throws Exception {
         ResponseEntity<String> exchange;
         try {
             HttpEntity<String> request = new HttpEntity<>(param, header);

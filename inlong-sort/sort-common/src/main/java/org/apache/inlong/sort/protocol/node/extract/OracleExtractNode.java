@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
@@ -32,16 +25,28 @@ import org.apache.inlong.sort.protocol.constant.OracleConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.base.Preconditions;
+
 /**
- * Oracle extract node for extract data from oracle(Currently support oracle 11,12,19)
+ * Oracle extract node for extract data from oracle(Currently support oracle
+ * 11,12,19)
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("oracleExtract")
@@ -91,8 +96,7 @@ public class OracleExtractNode extends ExtractNode implements InlongMetric, Meta
             @JsonProperty("schemaName") String schemaName,
             @JsonProperty("tableName") String tableName,
             @JsonProperty(value = "port", defaultValue = "1521") Integer port,
-            @Nullable @JsonProperty("scanStartupMode")
-            OracleConstant.ScanStartUpMode scanStartupMode) {
+            @Nullable @JsonProperty("scanStartupMode") OracleConstant.ScanStartUpMode scanStartupMode) {
         super(id, name, fields, watermarkField, properties);
         this.primaryKey = primaryKey;
         this.hostname = Preconditions.checkNotNull(hostname, "hostname is null");
@@ -117,7 +121,8 @@ public class OracleExtractNode extends ExtractNode implements InlongMetric, Meta
         options.put(OracleConstant.TABLE_NAME, tableName);
         if (!options.containsKey(OracleConstant.TABLENAME_CASE_INSENSITIVE)) {
             // Set a default value:false to avoid retrieving unlisted tables in oracle 11g.
-            // You can set null to replace it if your oracle version is more than oracle 11g.
+            // You can set null to replace it if your oracle version is more than oracle
+            // 11g.
             options.put(OracleConstant.TABLENAME_CASE_INSENSITIVE, "false");
         }
         if (!options.containsKey(OracleConstant.LOG_MINING_STRATEGY)) {

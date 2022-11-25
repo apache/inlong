@@ -19,15 +19,17 @@
 package org.apache.inlong.sdk.sort.util;
 
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class TimeUtil {
+
     private static final Logger logger = LoggerFactory.getLogger(TimeUtil.class);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final String KEY_SDK_START_TIME = "sortSdk.startTime";

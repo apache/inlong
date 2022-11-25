@@ -17,15 +17,17 @@
 
 package org.apache.inlong.dataproxy.metrics;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Event;
 import org.apache.inlong.common.metric.MetricDomain;
 import org.apache.inlong.common.metric.MetricItemSet;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Event;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -33,6 +35,7 @@ import org.apache.inlong.dataproxy.consts.ConfigConstants;
  */
 @MetricDomain(name = "DataProxy")
 public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
+
     private String clusterId = null;
     private String sourceDataId = null;
 
@@ -48,8 +51,10 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
     /**
      * Constructor
      *
-     * @param clusterId  the cluster id
-     * @param name    the module name
+     * @param clusterId
+     *          the cluster id
+     * @param name
+     *          the module name
      */
     public DataProxyMetricItemSet(String clusterId, String name) {
         super(name);
@@ -59,9 +64,12 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
     /**
      * Constructor
      *
-     * @param clusterId  the cluster id
-     * @param name       the module name
-     * @param sourceDataId   the source data id
+     * @param clusterId
+     *          the cluster id
+     * @param name
+     *          the module name
+     * @param sourceDataId
+     *          the source data id
      */
     public DataProxyMetricItemSet(String clusterId, String name, String sourceDataId) {
         super(name);
@@ -72,9 +80,12 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
     /**
      * Fill source metric items by event
      *
-     * @param event    the event object
-     * @param isSuccess  whether success read
-     * @param size       the message size
+     * @param event
+     *          the event object
+     * @param isSuccess
+     *          whether success read
+     * @param size
+     *          the message size
      */
     public void fillSrcMetricItemsByEvent(Event event, boolean isSuccess, long size) {
         fillMetricItemsByEvent(event, true, true, isSuccess, size, 0);
@@ -83,28 +94,37 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
     /**
      * Fill sink send metric items by event
      *
-     * @param event    the event object
-     * @param sentTime   the sent time
-     * @param isSuccess  whether success read or send
-     * @param size       the message size
+     * @param event
+     *          the event object
+     * @param sentTime
+     *          the sent time
+     * @param isSuccess
+     *          whether success read or send
+     * @param size
+     *          the message size
      */
     public void fillSinkSendMetricItemsByEvent(Event event, long sentTime,
-                                               boolean isSuccess, long size) {
+            boolean isSuccess, long size) {
         fillMetricItemsByEvent(event, false, false, isSuccess, size, sentTime);
     }
 
     /**
      * Fill metric items by event
      *
-     * @param event    the event object
-     * @param isSource   whether source part
-     * @param isReadOp   whether read operation
-     * @param isSuccess  whether success read or send
-     * @param size       the message size
+     * @param event
+     *          the event object
+     * @param isSource
+     *          whether source part
+     * @param isReadOp
+     *          whether read operation
+     * @param isSuccess
+     *          whether success read or send
+     * @param size
+     *          the message size
      */
     private void fillMetricItemsByEvent(Event event, boolean isSource,
-                                        boolean isReadOp, boolean isSuccess,
-                                        long size, long sendTime) {
+            boolean isReadOp, boolean isSuccess,
+            long size, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, clusterId);
         dimensions.put(DataProxyMetricItem.KEY_INLONG_GROUP_ID,

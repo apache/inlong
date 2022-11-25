@@ -18,24 +18,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
-import org.apache.flink.configuration.ConfigOption;
-import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.catalog.ResolvedSchema;
-import org.apache.flink.table.connector.source.DynamicTableSource;
-import org.apache.flink.table.factories.DynamicTableSourceFactory;
-import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.cdc.debezium.table.DebeziumOptions;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions;
-import org.apache.inlong.sort.cdc.mysql.source.config.ServerIdRange;
-
-import java.time.Duration;
-import java.time.ZoneId;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
@@ -67,6 +49,25 @@ import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.TABLE_NAME;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.USERNAME;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.ObjectUtils.doubleCompare;
+
+import org.apache.inlong.sort.cdc.debezium.table.DebeziumOptions;
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions;
+import org.apache.inlong.sort.cdc.mysql.source.config.ServerIdRange;
+
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.catalog.ResolvedSchema;
+import org.apache.flink.table.connector.source.DynamicTableSource;
+import org.apache.flink.table.factories.DynamicTableSourceFactory;
+import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.flink.util.Preconditions;
+
+import java.time.Duration;
+import java.time.ZoneId;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Factory for creating configured instance of {@link MySqlTableSource}.
@@ -116,8 +117,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
 
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
-        final FactoryUtil.TableFactoryHelper helper =
-                FactoryUtil.createTableFactoryHelper(this, context);
+        final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         helper.validateExcept(
                 DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX, JdbcUrlUtils.PROPERTIES_PREFIX);
 
@@ -150,7 +150,8 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         boolean scanNewlyAddedTableEnabled = config.get(SCAN_NEWLY_ADDED_TABLE_ENABLED);
         Duration heartbeatInterval = config.get(HEARTBEAT_INTERVAL);
         final String rowKindFiltered = config.get(ROW_KINDS_FILTERED).isEmpty()
-            ? ROW_KINDS_FILTERED.defaultValue() : config.get(ROW_KINDS_FILTERED);
+                ? ROW_KINDS_FILTERED.defaultValue()
+                : config.get(ROW_KINDS_FILTERED);
         boolean enableParallelRead = config.get(SCAN_INCREMENTAL_SNAPSHOT_ENABLED);
         if (enableParallelRead) {
             validatePrimaryKeyIfEnableParallel(physicalSchema);
@@ -290,9 +291,12 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
     /**
      * Checks the given regular expression's syntax is valid.
      *
-     * @param optionName the option name of the regex
-     * @param regex The regular expression to be checked
-     * @throws ValidationException If the expression's syntax is invalid
+     * @param optionName
+     *          the option name of the regex
+     * @param regex
+     *          The regular expression to be checked
+     * @throws ValidationException
+     *           If the expression's syntax is invalid
      */
     private void validateRegex(String optionName, String regex) {
         try {

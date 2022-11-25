@@ -28,7 +28,8 @@ public interface ProcessDetailHandler {
     /**
      * Processing flow details
      *
-     * @param workflowResponse WorkflowProcess details
+     * @param workflowResponse
+     *          WorkflowProcess details
      * @return WorkflowProcess details
      */
     ProcessDetailResponse handle(ProcessDetailResponse workflowResponse);

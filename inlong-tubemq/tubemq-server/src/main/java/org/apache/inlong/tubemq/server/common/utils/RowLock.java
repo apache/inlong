@@ -23,20 +23,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility to RowLock.
- * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
+ * Utility to RowLock. Copied from <a href="http://hbase.apache.org">Apache
+ * HBase Project</a>
  */
 public class RowLock {
+
     private static final Logger logger = LoggerFactory.getLogger(RowLock.class);
     private static final Random rand = new Random();
-    private final ConcurrentHashMap<HashedBytes, CountDownLatch> lockedRows =
-            new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer, HashedBytes> lockIds =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<HashedBytes, CountDownLatch> lockedRows = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, HashedBytes> lockIds = new ConcurrentHashMap<>();
     private final AtomicInteger lockIdGenerator = new AtomicInteger(1);
     private final int rowLockWaitDuration;
     private final String name;
@@ -51,8 +51,9 @@ public class RowLock {
     }
 
     protected Integer getLock(Integer lockId,
-                              HashedBytes row,
-                              boolean waitForLock) throws IOException {
+            HashedBytes row,
+            boolean waitForLock)
+            throws IOException {
         Integer lid;
         if (lockId == null) {
             lid = internalObtainRowLock(row, waitForLock);
@@ -70,11 +71,11 @@ public class RowLock {
     }
 
     private Integer internalObtainRowLock(final HashedBytes rowKey,
-                                          boolean waitForLock) throws IOException {
+            boolean waitForLock)
+            throws IOException {
         CountDownLatch rowLatch = new CountDownLatch(1);
         while (true) {
-            CountDownLatch existingLatch =
-                    lockedRows.putIfAbsent(rowKey, rowLatch);
+            CountDownLatch existingLatch = lockedRows.putIfAbsent(rowKey, rowLatch);
             if (existingLatch == null) {
                 break;
             } else {
@@ -106,7 +107,8 @@ public class RowLock {
     /**
      * Release row lock
      *
-     * @param lockId the lock id
+     * @param lockId
+     *          the lock id
      */
     public void releaseRowLock(final Integer lockId) {
         if (lockId == null) {

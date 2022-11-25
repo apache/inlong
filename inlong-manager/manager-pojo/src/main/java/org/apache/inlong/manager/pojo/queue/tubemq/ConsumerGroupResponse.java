@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.pojo.queue.tubemq;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * Topic view of TubeMQ

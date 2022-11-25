@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import java.io.Serializable;
-import java.util.Date;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
@@ -29,8 +24,17 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
+
 @Entity
 public class BdbBrokerConfEntity implements Serializable {
+
     private static final long serialVersionUID = 3961934697293763691L;
 
     @PrimaryKey
@@ -43,23 +47,23 @@ public class BdbBrokerConfEntity implements Serializable {
     private int regionId = -2;
     private int manageStatus = -2; // broker status, -2:undefine, 1:Pending for approval, 5:online, 7:offline
     private int numPartitions = -2; // number of partitions
-    private int unflushThreshold = -2;  //flush threshold
-    private int unflushInterval = -2;   //flush interval
-    private String deleteWhen;  //delete policy execute time
-    private String deletePolicy;    //delete policy
-    private int dataStoreType = -2; //date store type
-    private String dataPath;    //data path
-    private String attributes;  //extra attributes
-    private boolean acceptPublish = true;   //enable publish
-    private boolean acceptSubscribe = true; //enable subscribe
-    private boolean isConfDataUpdated = false;  //conf data update flag
-    private boolean isBrokerLoaded = false; //broker conf load flag
-    private String createUser;  //broker create user
-    private Date createDate;    //broker create date
-    private String modifyUser;  //broker modify user
-    private Date modifyDate;    //broker modify date
-    private String brokerTLSSimpleInfo; //tls simple info
-    private String brokerTLSFullInfo;   //tls full info
+    private int unflushThreshold = -2; // flush threshold
+    private int unflushInterval = -2; // flush interval
+    private String deleteWhen; // delete policy execute time
+    private String deletePolicy; // delete policy
+    private int dataStoreType = -2; // date store type
+    private String dataPath; // data path
+    private String attributes; // extra attributes
+    private boolean acceptPublish = true; // enable publish
+    private boolean acceptSubscribe = true; // enable subscribe
+    private boolean isConfDataUpdated = false; // conf data update flag
+    private boolean isBrokerLoaded = false; // broker conf load flag
+    private String createUser; // broker create user
+    private Date createDate; // broker create date
+    private String modifyUser; // broker modify user
+    private Date modifyDate; // broker modify date
+    private String brokerTLSSimpleInfo; // tls simple info
+    private String brokerTLSFullInfo; // tls full info
 
     public BdbBrokerConfEntity() {
     }
@@ -67,34 +71,52 @@ public class BdbBrokerConfEntity implements Serializable {
     /**
      * Build a broker configure entity
      *
-     * @param brokerId            the broker id
-     * @param brokerIp            the broker ip
-     * @param brokerPort          the broker port
-     * @param numPartitions       the number of partition
-     * @param unflushThreshold    the un-flushed message count
-     * @param unflushInterval     the un-flushed time delta
-     * @param deleteWhen          the delete time
-     * @param deletePolicy        the delete policy
-     * @param manageStatus        the manage status
-     * @param acceptPublish       whether accept publish
-     * @param acceptSubscribe     whether accept subscribe
-     * @param attributes          the attribute information
-     * @param isConfDataUpdated   whether the configure is updated
-     * @param isBrokerLoaded      whether the broker has loaded
-     * @param createUser          the creator
-     * @param createDate          the create date
-     * @param modifyUser          the modifier
-     * @param modifyDate          the modify date
+     * @param brokerId
+     *          the broker id
+     * @param brokerIp
+     *          the broker ip
+     * @param brokerPort
+     *          the broker port
+     * @param numPartitions
+     *          the number of partition
+     * @param unflushThreshold
+     *          the un-flushed message count
+     * @param unflushInterval
+     *          the un-flushed time delta
+     * @param deleteWhen
+     *          the delete time
+     * @param deletePolicy
+     *          the delete policy
+     * @param manageStatus
+     *          the manage status
+     * @param acceptPublish
+     *          whether accept publish
+     * @param acceptSubscribe
+     *          whether accept subscribe
+     * @param attributes
+     *          the attribute information
+     * @param isConfDataUpdated
+     *          whether the configure is updated
+     * @param isBrokerLoaded
+     *          whether the broker has loaded
+     * @param createUser
+     *          the creator
+     * @param createDate
+     *          the create date
+     * @param modifyUser
+     *          the modifier
+     * @param modifyDate
+     *          the modify date
      */
     public BdbBrokerConfEntity(final int brokerId, final String brokerIp,
-                               final int brokerPort, final int numPartitions,
-                               final int unflushThreshold, final int unflushInterval,
-                               final String deleteWhen, final String deletePolicy,
-                               final int manageStatus, final boolean acceptPublish,
-                               final boolean acceptSubscribe, final String attributes,
-                               final boolean isConfDataUpdated, final boolean isBrokerLoaded,
-                               final String createUser, final Date createDate,
-                               final String modifyUser, final Date modifyDate) {
+            final int brokerPort, final int numPartitions,
+            final int unflushThreshold, final int unflushInterval,
+            final String deleteWhen, final String deletePolicy,
+            final int manageStatus, final boolean acceptPublish,
+            final boolean acceptSubscribe, final String attributes,
+            final boolean isConfDataUpdated, final boolean isBrokerLoaded,
+            final String createUser, final Date createDate,
+            final String modifyUser, final Date modifyDate) {
         this.brokerId = brokerId;
         this.brokerIp = brokerIp;
         this.brokerPort = brokerPort;
@@ -119,8 +141,9 @@ public class BdbBrokerConfEntity implements Serializable {
     /**
      * Serialize config field to json format
      *
-     * @param sb  string buffer
-     * @return  the content in json format
+     * @param sb
+     *          string buffer
+     * @return the content in json format
      */
     public StringBuilder toJsonString(final StringBuilder sb) {
         return sb.append("{\"type\":\"BdbBrokerConfEntity\",")
@@ -280,9 +303,8 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public int getNumTopicStores() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_STORE_NUM);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_STORE_NUM);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -290,17 +312,15 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public BdbBrokerConfEntity setNumTopicStores(int numTopicStores) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_STORE_NUM,
-                        String.valueOf(numTopicStores));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_STORE_NUM,
+                String.valueOf(numTopicStores));
         return this;
     }
 
     public int getDftMemCacheMsgCntInK() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_MSG_CNT);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_MSG_CNT);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -308,16 +328,14 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public void setDftMemCacheMsgCntInK(final int memCacheMsgCntInK) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_MSG_CNT,
-                        String.valueOf(memCacheMsgCntInK));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_MSG_CNT,
+                String.valueOf(memCacheMsgCntInK));
     }
 
     public int getDftMemCacheMsgSizeInMB() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_MSG_SIZE);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_MSG_SIZE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -325,16 +343,14 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public void setDftMemCacheMsgSizeInMB(final int memCacheMsgSizeInMB) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_MSG_SIZE,
-                        String.valueOf(memCacheMsgSizeInMB));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_MSG_SIZE,
+                String.valueOf(memCacheMsgSizeInMB));
     }
 
     public int getDftMemCacheFlushIntvl() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -342,16 +358,14 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public void setDftMemCacheFlushIntvl(final int memCacheFlushIntvl) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL,
-                        String.valueOf(memCacheFlushIntvl));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL,
+                String.valueOf(memCacheFlushIntvl));
     }
 
     public int getDftUnFlushDataHold() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_UNFLUSHHOLD);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_UNFLUSHHOLD);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -359,16 +373,14 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public void setDftUnFlushDataHold(final int unFlushDataHold) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_UNFLUSHHOLD,
-                        String.valueOf(unFlushDataHold));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_UNFLUSHHOLD,
+                String.valueOf(unFlushDataHold));
     }
 
     public int getBrokerTLSPort() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_TLS_PORT);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_TLS_PORT);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -376,10 +388,9 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public void setBrokerTLSPort(final int brokerTLSPort) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_TLS_PORT,
-                        String.valueOf(brokerTLSPort));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_TLS_PORT,
+                String.valueOf(brokerTLSPort));
     }
 
     public int getRegionId() {
@@ -470,14 +481,12 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public void appendAttributes(String attrKey, String attrVal) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes, attrKey, attrVal);
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes, attrKey, attrVal);
     }
 
     public long getDataVerId() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_VERSION_ID);
         if (atrVal != null) {
             return Long.parseLong(atrVal);
         }
@@ -485,17 +494,15 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public BdbBrokerConfEntity setDataVerId(long dataVerId) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID,
-                        String.valueOf(dataVerId));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_VERSION_ID,
+                String.valueOf(dataVerId));
         return this;
     }
 
     public int getBrokerGroupId() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_BROKER_GROUP_ID);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_BROKER_GROUP_ID);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -503,16 +510,14 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public void setBrokerGroupId(long brokerGroupId) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_BROKER_GROUP_ID,
-                        String.valueOf(brokerGroupId));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_BROKER_GROUP_ID,
+                String.valueOf(brokerGroupId));
     }
 
     public int getBrokerWebPort() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_BROKER_WEBPORT);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_BROKER_WEBPORT);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -520,10 +525,9 @@ public class BdbBrokerConfEntity implements Serializable {
     }
 
     public void setBrokerWebPort(int brokerWebPort) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_BROKER_WEBPORT,
-                        String.valueOf(brokerWebPort));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_BROKER_WEBPORT,
+                String.valueOf(brokerWebPort));
     }
 
     public void buildStrInfo() {

@@ -28,8 +28,8 @@ public class InlongId {
     /**
      * generateUid
      * 
-     * @param  inlongGroupId
-     * @param  inlongStreamId
+     * @param inlongGroupId
+     * @param inlongStreamId
      * @return
      */
     public static String generateUid(String inlongGroupId, String inlongStreamId) {

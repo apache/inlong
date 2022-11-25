@@ -17,10 +17,12 @@
 
 package org.apache.inlong.tubemq.corebase.metric;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.apache.inlong.tubemq.corebase.metric.impl.ESTHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.SimpleHistogram;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,8 +30,7 @@ public class HistogramTest {
 
     @Test
     public void testSimpleHistogram() {
-        SimpleHistogram histogram =
-                new SimpleHistogram("stats", "api");
+        SimpleHistogram histogram = new SimpleHistogram("stats", "api");
         // test getValue by StringBuilder
         histogram.update(10L);
         histogram.update(100000L);
@@ -79,8 +80,7 @@ public class HistogramTest {
 
     @Test
     public void testESTHistogram() {
-        ESTHistogram estHistogram =
-                new ESTHistogram("dlt", "disk");
+        ESTHistogram estHistogram = new ESTHistogram("dlt", "disk");
         estHistogram.update(30L);
         estHistogram.update(1000L);
         estHistogram.update(-5L);

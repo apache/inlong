@@ -17,6 +17,18 @@
 
 package org.apache.inlong.sort.redis.source;
 
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.BIGINT;
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.DOUBLE;
+import static org.apache.flink.table.types.logical.LogicalTypeRoot.VARCHAR;
+
+import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
+import org.apache.inlong.sort.redis.common.config.RedisOptions;
+import org.apache.inlong.sort.redis.common.handler.InlongJedisConfigHandler;
+import org.apache.inlong.sort.redis.common.handler.RedisMapperHandler;
+import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
+import org.apache.inlong.sort.redis.common.mapper.RedisMapper;
+import org.apache.inlong.sort.redis.table.SchemaValidator;
+
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
 import org.apache.flink.streaming.connectors.redis.common.hanlder.RedisHandlerServices;
@@ -26,18 +38,8 @@ import org.apache.flink.table.connector.source.LookupTableSource;
 import org.apache.flink.table.connector.source.TableFunctionProvider;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
-import org.apache.inlong.sort.redis.common.config.RedisOptions;
-import org.apache.inlong.sort.redis.common.handler.InlongJedisConfigHandler;
-import org.apache.inlong.sort.redis.common.handler.RedisMapperHandler;
-import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
-import org.apache.inlong.sort.redis.common.mapper.RedisMapper;
-import org.apache.inlong.sort.redis.table.SchemaValidator;
 
 import java.util.Map;
-import static org.apache.flink.table.types.logical.LogicalTypeRoot.BIGINT;
-import static org.apache.flink.table.types.logical.LogicalTypeRoot.DOUBLE;
-import static org.apache.flink.table.types.logical.LogicalTypeRoot.VARCHAR;
 
 /**
  * Redis dynamic table source

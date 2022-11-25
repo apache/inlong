@@ -17,13 +17,15 @@
 
 package org.apache.inlong.sort.protocol.transformation.operator;
 
+import org.apache.inlong.sort.protocol.transformation.LogicOperator;
+
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
+import java.io.Serializable;
+
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.sort.protocol.transformation.LogicOperator;
-
-import java.io.Serializable;
 
 @JsonTypeName("or")
 @Data

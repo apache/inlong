@@ -20,7 +20,10 @@ package org.apache.inlong.sort.cdc.debezium;
 
 import java.io.Serializable;
 
-/** Validator to validate the connected database satisfies the cdc connector's requirements. */
+/**
+ * Validator to validate the connected database satisfies the cdc connector's
+ * requirements.
+ */
 public interface Validator extends Serializable {
 
     void validate();

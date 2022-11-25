@@ -17,51 +17,6 @@
 
 package org.apache.inlong.agent.plugin.fetcher;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import org.apache.inlong.agent.cache.LocalFileCache;
-import org.apache.inlong.agent.common.AbstractDaemon;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.conf.ProfileFetcher;
-import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.core.AgentManager;
-import org.apache.inlong.agent.db.CommandDb;
-import org.apache.inlong.agent.db.JobProfileDb;
-import org.apache.inlong.agent.db.StateSearchKey;
-import org.apache.inlong.agent.plugin.Trigger;
-import org.apache.inlong.agent.plugin.utils.PluginUtils;
-import org.apache.inlong.agent.pojo.ConfirmAgentIpRequest;
-import org.apache.inlong.agent.pojo.DbCollectorTaskRequestDto;
-import org.apache.inlong.agent.pojo.DbCollectorTaskResult;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.HttpManager;
-import org.apache.inlong.agent.utils.ThreadUtils;
-import org.apache.inlong.common.db.CommandEntity;
-import org.apache.inlong.common.enums.ManagerOpEnum;
-import org.apache.inlong.common.enums.PullJobTypeEnum;
-import org.apache.inlong.common.pojo.agent.CmdConfig;
-import org.apache.inlong.common.pojo.agent.DataConfig;
-import org.apache.inlong.common.pojo.agent.TaskRequest;
-import org.apache.inlong.common.pojo.agent.TaskResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HOME;
@@ -97,6 +52,53 @@ import static org.apache.inlong.agent.plugin.fetcher.ManagerResultFormatter.getR
 import static org.apache.inlong.agent.plugin.utils.PluginUtils.copyJobProfile;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalIp;
 import static org.apache.inlong.agent.utils.AgentUtils.fetchLocalUuid;
+
+import org.apache.inlong.agent.cache.LocalFileCache;
+import org.apache.inlong.agent.common.AbstractDaemon;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.ProfileFetcher;
+import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.core.AgentManager;
+import org.apache.inlong.agent.db.CommandDb;
+import org.apache.inlong.agent.db.JobProfileDb;
+import org.apache.inlong.agent.db.StateSearchKey;
+import org.apache.inlong.agent.plugin.Trigger;
+import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.apache.inlong.agent.pojo.ConfirmAgentIpRequest;
+import org.apache.inlong.agent.pojo.DbCollectorTaskRequestDto;
+import org.apache.inlong.agent.pojo.DbCollectorTaskResult;
+import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.HttpManager;
+import org.apache.inlong.agent.utils.ThreadUtils;
+import org.apache.inlong.common.db.CommandEntity;
+import org.apache.inlong.common.enums.ManagerOpEnum;
+import org.apache.inlong.common.enums.PullJobTypeEnum;
+import org.apache.inlong.common.pojo.agent.CmdConfig;
+import org.apache.inlong.common.pojo.agent.DataConfig;
+import org.apache.inlong.common.pojo.agent.TaskRequest;
+import org.apache.inlong.common.pojo.agent.TaskResult;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 /**
  * Fetch command from Inlong-Manager
@@ -156,7 +158,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private String buildBaseUrl() {
         return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
                 + ":" + conf.get(AGENT_MANAGER_VIP_HTTP_PORT) + conf.get(
-                AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
+                        AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
     }
 
     /**
@@ -180,7 +182,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build ip check url for manager according to config
      *
-     * example - http://127.0.0.1:8080/inlong/manager/openapi/fileAgent/confirmAgentIp
+     * example -
+     * http://127.0.0.1:8080/inlong/manager/openapi/fileAgent/confirmAgentIp
      */
     private String buildIpCheckUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_IP_CHECK_HTTP_PATH, DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH);
@@ -257,7 +260,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     /**
-     * request manager to get db collect task, make sure it is not throwing exceptions
+     * request manager to get db collect task, make sure it is not throwing
+     * exceptions
      */
     public void fetchDbCollectTask() {
         if (agentManager.getJobManager().sqlJobExist()) {
@@ -374,8 +378,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                     cmdConfig.getTaskId(), false);
             return;
         }
-        TriggerProfile copiedProfile =
-                TriggerProfile.parseJsonStr(trigger.getTriggerProfile().toJsonStr());
+        TriggerProfile copiedProfile = TriggerProfile.parseJsonStr(trigger.getTriggerProfile().toJsonStr());
         String dataTime = cmdConfig.getDataTime();
         // set job retry time
         copiedProfile.set(JOB_RETRY_TIME, dataTime);
@@ -412,8 +415,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                 triggerProfile, dataTime);
         Collection<File> suitFiles = PluginUtils.findSuitFiles(triggerProfile);
         // filter files exited before
-        List<File> pendingFiles = suitFiles.stream().filter(file ->
-                !agentManager.getJobManager().checkJobExist(file.getAbsolutePath()))
+        List<File> pendingFiles = suitFiles.stream()
+                .filter(file -> !agentManager.getJobManager().checkJobExist(file.getAbsolutePath()))
                 .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
             JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,
@@ -480,8 +483,10 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * fetch manager list, make sure it's not throwing exceptions
      *
-     * @param isInitial is initial
-     * @param retryTime retry time
+     * @param isInitial
+     *          is initial
+     * @param retryTime
+     *          retry time
      */
     private void fetchTdmList(boolean isInitial, int retryTime) {
         if (retryTime > MAX_RETRY) {

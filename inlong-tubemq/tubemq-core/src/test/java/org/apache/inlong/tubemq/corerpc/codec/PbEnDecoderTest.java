@@ -18,8 +18,10 @@
 package org.apache.inlong.tubemq.corerpc.codec;
 
 import static org.junit.Assert.assertEquals;
+
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
+
 import org.junit.Test;
 
 public class PbEnDecoderTest {
@@ -36,8 +38,8 @@ public class PbEnDecoderTest {
         byte[] data = PbEnDecoder.pbEncode(object);
 
         // decode bytes
-        ClientMaster.RegisterRequestP2M decodeObject = (ClientMaster.RegisterRequestP2M)
-                PbEnDecoder.pbDecode(true, RpcConstants.RPC_MSG_MASTER_PRODUCER_REGISTER, data);
+        ClientMaster.RegisterRequestP2M decodeObject = (ClientMaster.RegisterRequestP2M) PbEnDecoder.pbDecode(true,
+                RpcConstants.RPC_MSG_MASTER_PRODUCER_REGISTER, data);
 
         assertEquals(decodeObject.getClientId(), object.getClientId());
         assertEquals(decodeObject.getBrokerCheckSum(), object.getBrokerCheckSum());

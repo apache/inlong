@@ -29,12 +29,13 @@ public class DefaultEventFormatHandler implements IEventFormatHandler {
 
     /**
      * format data, the protocol is : partitionField|msgTime|rawData<br>
-     * 1. add partition field and separator; partitionField support Java Date Format;<br>
+     * 1. add partition field and separator; partitionField support Java Date
+     * Format;<br>
      * 2. add msgTime field and separator; msgTime support Java Date Format;<br>
      * 3. keep rawData;<br>
      * 
-     * @param  event
-     * @param  idConfig
+     * @param event
+     * @param idConfig
      * @return
      */
     @Override

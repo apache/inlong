@@ -17,21 +17,28 @@
 
 package org.apache.inlong.sort.standalone.config.holder;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Context;
 import org.apache.inlong.sort.standalone.config.loader.CommonPropertiesManagerUrlLoader;
 import org.apache.inlong.sort.standalone.config.loader.ManagerUrlLoader;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.flume.Context;
 
 import java.util.Optional;
+
+import org.slf4j.Logger;
 
 /**
  * Manager address get handler.
  *
- * <p> Used to acquire the ip and port of manager, which sort sdk and sort-standalone request config from. </p>
- * <p> The default implementation {@link CommonPropertiesManagerUrlLoader}
- * is base on {@link CommonPropertiesHolder} to acquire properties. </p>
+ * <p>
+ * Used to acquire the ip and port of manager, which sort sdk and
+ * sort-standalone request config from.
+ * </p>
+ * <p>
+ * The default implementation {@link CommonPropertiesManagerUrlLoader} is base
+ * on {@link CommonPropertiesHolder} to acquire properties.
+ * </p>
  */
 public class ManagerUrlHandler {
 

@@ -17,12 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
@@ -43,12 +37,21 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunMan
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterNodeVO;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.servlet.http.HttpServletRequest;
+
 public class WebMasterInfoHandler extends AbstractWebHandler {
 
     /**
      * Constructor
      *
-     * @param master tube master
+     * @param master
+     *          tube master
      */
     public WebMasterInfoHandler(TMaster master) {
         super(master);
@@ -93,14 +96,17 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
     /**
      * Get master group info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder getGroupAddressStrInfo(HttpServletRequest req,
-                                                StringBuilder sBuffer,
-                                                ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         ClusterGroupVO clusterGroupVO = defMetaDataService.getGroupAddressStrInfo();
         if (clusterGroupVO == null) {
             WebParameterUtils.buildFailResultWithBlankData(
@@ -137,14 +143,17 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
     /**
      * transfer current master to another node
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder transferCurrentMaster(HttpServletRequest req,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         try {
             defMetaDataService.transferMaster();
             WebParameterUtils.buildSuccessResult(sBuffer,
@@ -158,98 +167,119 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
     /**
      * Query cluster default setting
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryClusterDefSetting(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return buildRetInfo(sBuffer, true);
     }
 
     /**
      * query default flow control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryDefFlowCtrlRule(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return buildRetInfo(sBuffer, false);
     }
 
     /**
      * Add cluster default setting
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminSetClusterDefSetting(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdDefFlowControlRule(req, sBuffer, result, true, true);
     }
 
     /**
      * Modify cluster default setting
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminUpdClusterDefSetting(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdDefFlowControlRule(req, sBuffer, result, false, true);
     }
 
     /**
      * add default flow control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminSetDefFlowControlRule(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdDefFlowControlRule(req, sBuffer, result, true, false);
     }
 
     /**
      * update default flow control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminModDefFlowCtrlRule(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdDefFlowControlRule(req, sBuffer, result, false, false);
     }
 
     /**
      * Query cluster topic overall view
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryClusterTopicView(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
@@ -265,8 +295,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // query topic configure info
-        Map<String, List<TopicDeployEntity>> topicConfMap =
-                defMetaDataService.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
+        Map<String, List<TopicDeployEntity>> topicConfMap = defMetaDataService
+                .getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         int totalCount = 0;
         int brokerCount = 0;
@@ -295,16 +325,14 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             isSrvAcceptSubscribe = false;
             enableAuthControl = false;
             for (TopicDeployEntity entity : entry.getValue()) {
-                brokerConfEntity =
-                        defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
+                brokerConfEntity = defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
                 if (brokerConfEntity == null) {
                     continue;
                 }
                 brokerCount++;
                 topicProps = entity.getTopicProps();
                 totalCfgTopicStoreCount += topicProps.getNumTopicStores();
-                totalCfgNumPartCount +=
-                        topicProps.getNumPartitions() * topicProps.getNumTopicStores();
+                totalCfgNumPartCount += topicProps.getNumPartitions() * topicProps.getNumTopicStores();
                 brokerRunManager.getPubBrokerTopicInfo(
                         entity.getBrokerId(), entity.getTopicName(), topicInfoTuple);
                 if (topicInfoTuple.getF2() != null) {
@@ -341,14 +369,17 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
     /**
      * Query group set by topic view
      *
-     * @param req       Http Servlet Request
-     * @param strBuff   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param strBuff
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminGetOnlineGroupSetByTopic(HttpServletRequest req,
-                                                       StringBuilder strBuff,
-                                                       ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, strBuff, result)) {
@@ -358,8 +389,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         Set<String> targetTopicSet;
         // query topic-group map info
-        ConcurrentHashMap<String, ConcurrentHashSet<String>> topicGroupMap =
-                master.getConsumerHolder().getRegTopicGroupMap();
+        ConcurrentHashMap<String, ConcurrentHashSet<String>> topicGroupMap = master.getConsumerHolder()
+                .getRegTopicGroupMap();
         if (topicNameSet == null || topicNameSet.isEmpty()) {
             targetTopicSet = new HashSet<>(topicGroupMap.keySet());
         } else {
@@ -397,14 +428,17 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
     /**
      * delete flow control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminDelDefFlowControlRule(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -426,18 +460,23 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
     /**
      * add default flow control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @param isAddOp   whether add operation
-     * @param isNewVer  whether new version return
-     * @return       process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @param isAddOp
+     *          whether add operation
+     * @param isNewVer
+     *          whether new version return
+     * @return process result
      */
     private StringBuilder innAddOrUpdDefFlowControlRule(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result,
-                                                        boolean isAddOp,
-                                                        boolean isNewVer) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp,
+            boolean isNewVer) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -529,8 +568,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
 
     private StringBuilder buildRetInfo(StringBuilder sBuffer, boolean isNewVer) {
         int totalCnt = 0;
-        ClusterSettingEntity curConf =
-                defMetaDataService.getClusterDefSetting(true);
+        ClusterSettingEntity curConf = defMetaDataService.getClusterDefSetting(true);
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         if (curConf != null) {
             totalCnt++;

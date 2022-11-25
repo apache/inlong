@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
+
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
@@ -49,21 +50,24 @@ public interface WorkflowEventApi {
      */
     @POST("workflow/event/≈")
     Call<Response<Object>> executeProcessEventListener(
-            @Query("processId") Integer processId, @Query("listenerName") String listenerName);
+            @Query("processId") Integer processId,
+            @Query("listenerName") String listenerName);
 
     /**
      * Re-execute the specified listener based on the task ID
      */
     @POST("workflow/event/executeTaskEventListener")
     Call<Response<Object>> executeTaskEventListener(
-            @Query("taskId") Integer taskId, @Query("listenerName") String listenerName);
+            @Query("taskId") Integer taskId,
+            @Query("listenerName") String listenerName);
 
     /**
      * Re-trigger the process event based on the process ID
      */
     @POST("workflow/event/triggerProcessEvent")
     Call<Response<Object>> triggerProcessEvent(
-            @Query("processId") Integer processId, @Query("processEvent") ProcessEvent processEvent);
+            @Query("processId") Integer processId,
+            @Query("processEvent") ProcessEvent processEvent);
 
     /**
      * Re-trigger the process event based on the task ID

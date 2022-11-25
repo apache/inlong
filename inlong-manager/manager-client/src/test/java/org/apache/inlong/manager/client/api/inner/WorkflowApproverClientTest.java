@@ -17,7 +17,12 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.google.common.collect.Lists;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+
 import org.apache.inlong.manager.client.api.inner.client.WorkflowApproverClient;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -25,19 +30,17 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.workflow.ApproverPageRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.Lists;
 
 /**
- * Tests for {@link org.apache.inlong.manager.client.api.inner.client.WorkflowApproverClient}
+ * Tests for
+ * {@link org.apache.inlong.manager.client.api.inner.client.WorkflowApproverClient}
  */
 class WorkflowApproverClientTest extends ClientFactoryTest {
 
@@ -49,10 +52,7 @@ class WorkflowApproverClientTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/workflow/approver/save.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(11))
-                                )
-                        )
-        );
+                                        Response.success(11)))));
         ApproverRequest approverRequest = ApproverRequest.builder()
                 .processName("test")
                 .approvers("user1,user2")
@@ -82,11 +82,7 @@ class WorkflowApproverClientTest extends ClientFactoryTest {
                                                                         .taskName("task2")
                                                                         .approvers("user1,user2")
                                                                         .id(2)
-                                                                        .build()
-                                                        ))))
-                                )
-                        )
-        );
+                                                                        .build())))))));
 
         ApproverPageRequest request = ApproverPageRequest.builder()
                 .processName("process1")

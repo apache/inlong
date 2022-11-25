@@ -29,11 +29,12 @@ import static org.junit.Assert.fail;
 
 import org.apache.inlong.sort.util.InstantiationUtil;
 import org.apache.inlong.sort.util.TestLogger;
+
 import org.junit.Test;
 
 /**
- * This class contains test for the configuration package. In particular, the serialization of
- * {@link Configuration} objects is tested.
+ * This class contains test for the configuration package. In particular, the
+ * serialization of {@link Configuration} objects is tested.
  */
 public class ConfigurationTest extends TestLogger {
 
@@ -365,7 +366,8 @@ public class ConfigurationTest extends TestLogger {
         deprecatedCfg.setInteger(deprecated, 2);
         assertEquals(2, deprecatedCfg.getInteger(mainOption));
 
-        // reverse declaration of fallback and deprecated keys, fallback keys should always be
+        // reverse declaration of fallback and deprecated keys, fallback keys should
+        // always be
         // used first
         final ConfigOption<Integer> reversedMainOption = ConfigOptions
                 .key("main")
@@ -450,8 +452,7 @@ public class ConfigurationTest extends TestLogger {
     }
 
     enum TestEnum {
-        VALUE1,
-        VALUE2
+        VALUE1, VALUE2
     }
 
     private static ConfigOption<String> createStringConfigOption() {

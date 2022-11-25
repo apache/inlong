@@ -34,11 +34,13 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_ROUNDROBINR
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_SENDTIMEOUT;
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_SERVICE_URL;
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.KEY_TENANT;
-import org.apache.flume.lifecycle.LifecycleState;
+
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
 import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneClusterProducer;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
+
+import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.MessageId;
@@ -49,8 +51,6 @@ import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.SizeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
 import java.util.Map;
@@ -58,6 +58,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PulsarClusterProducer
@@ -79,9 +82,12 @@ public class PulsarClusterProducer extends AbstractZoneClusterProducer {
     /**
      * Constructor
      * 
-     * @param workerName Worker name
-     * @param config Cache cluster configuration
-     * @param context Sink context
+     * @param workerName
+     *          Worker name
+     * @param config
+     *          Cache cluster configuration
+     * @param context
+     *          Sink context
      */
     public PulsarClusterProducer(String workerName, CacheClusterConfig config, PulsarZoneSinkContext context) {
         super(workerName, config, context);
@@ -141,17 +147,17 @@ public class PulsarClusterProducer extends AbstractZoneClusterProducer {
     private CompressionType getPulsarCompressionType() {
         String type = this.producerContext.getString(KEY_COMPRESSIONTYPE, CompressionType.SNAPPY.name());
         switch (type) {
-            case "LZ4" :
+            case "LZ4":
                 return CompressionType.LZ4;
-            case "NONE" :
+            case "NONE":
                 return CompressionType.NONE;
-            case "ZLIB" :
+            case "ZLIB":
                 return CompressionType.ZLIB;
-            case "ZSTD" :
+            case "ZSTD":
                 return CompressionType.ZSTD;
-            case "SNAPPY" :
+            case "SNAPPY":
                 return CompressionType.SNAPPY;
-            default :
+            default:
                 return CompressionType.NONE;
         }
     }
@@ -180,7 +186,8 @@ public class PulsarClusterProducer extends AbstractZoneClusterProducer {
     /**
      * send DispatchProfile
      * 
-     * @param event DispatchProfile
+     * @param event
+     *          DispatchProfile
      * @return boolean sendResult
      */
     @Override
@@ -252,7 +259,8 @@ public class PulsarClusterProducer extends AbstractZoneClusterProducer {
     /**
      * getProducerTopic
      * 
-     * @param event DispatchProfile
+     * @param event
+     *          DispatchProfile
      * @return String Full topic name
      */
     private String getProducerTopic(DispatchProfile event) {

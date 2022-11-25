@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
+import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedSerializationSchema.MetadataConverter;
+
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.formats.json.JsonOptions;
@@ -28,7 +30,6 @@ import org.apache.flink.table.connector.sink.DynamicTableSink.Context;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedSerializationSchema.MetadataConverter;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,9 +39,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * {@link org.apache.flink.table.connector.format.EncodingFormat} for Canal using JSON encoding.
+ * {@link org.apache.flink.table.connector.format.EncodingFormat} for Canal
+ * using JSON encoding.
  *
- * different from flink:1.13.5. This can apply metadata, sink metadata into canal format
+ * different from flink:1.13.5. This can apply metadata, sink metadata into
+ * canal format
  */
 public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<SerializationSchema<RowData>> {
 
@@ -64,15 +67,13 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
     @Override
     public SerializationSchema<RowData> createRuntimeEncoder(Context context, DataType physicalDataType) {
-        final List<WriteableMetadata> writeableMetadata =
-                metadataKeys.stream()
-                        .map(
-                                k ->
-                                        Stream.of(WriteableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .orElseThrow(IllegalStateException::new))
-                        .collect(Collectors.toList());
+        final List<WriteableMetadata> writeableMetadata = metadataKeys.stream()
+                .map(
+                        k -> Stream.of(WriteableMetadata.values())
+                                .filter(rm -> rm.key.equals(k))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
+                .collect(Collectors.toList());
         return new CanalJsonEnhancedSerializationSchema(
                 physicalDataType,
                 writeableMetadata,
@@ -109,15 +110,16 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
     // --------------------------------------------------------------------------------------------
 
     /**
-     * List of metadata that can write into this format.
-     * canal json inner data type
+     * List of metadata that can write into this format. canal json inner data type
      */
     enum WriteableMetadata {
+
         DATABASE(
                 "database",
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("database", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -133,6 +135,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("table", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -150,6 +153,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                         "sqlType",
                         DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.INT().nullable())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -165,6 +169,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                 DataTypes.ARRAY(DataTypes.STRING()).nullable(),
                 DataTypes.FIELD("pkNames", DataTypes.ARRAY(DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -180,6 +185,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).nullable(),
                 DataTypes.FIELD("ts", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -195,6 +201,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).nullable(),
                 DataTypes.FIELD("es", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -211,6 +218,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("type", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -230,6 +238,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("opType", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -245,6 +254,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                 DataTypes.BOOLEAN().nullable(),
                 DataTypes.FIELD("isDdl", DataTypes.BOOLEAN()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -261,6 +271,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                 DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable(),
                 DataTypes.FIELD("mysqlType", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -276,6 +287,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                 DataTypes.BIGINT().nullable(),
                 DataTypes.FIELD("batchId", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -295,6 +307,7 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
                 DataTypes.FIELD("updateBefore", DataTypes.ARRAY(
                         DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()))),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

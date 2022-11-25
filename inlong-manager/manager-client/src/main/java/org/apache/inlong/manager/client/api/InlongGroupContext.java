@@ -17,25 +17,28 @@
 
 package org.apache.inlong.manager.client.api;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.enums.SimpleSourceStatus;
-import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.common.enums.SortStatus;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.util.Preconditions;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Inlong group context.
@@ -99,8 +102,10 @@ public class InlongGroupContext implements Serializable {
             if (MapUtils.isNotEmpty(sources)) {
                 for (Map.Entry<String, StreamSource> entry : sources.entrySet()) {
                     StreamSource source = entry.getValue();
-                    // when template id is null it is considered as normal source other than template source
-                    // sub sources are filtered because they are already collected in template source's sub source list
+                    // when template id is null it is considered as normal source other than
+                    // template source
+                    // sub sources are filtered because they are already collected in template
+                    // source's sub source list
                     if (source != null && source.getTemplateId() == null) {
                         groupSources.add(source);
                     }

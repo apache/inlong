@@ -17,14 +17,17 @@
 
 package org.apache.inlong.tubemq.corerpc.netty;
 
-import io.netty.buffer.ByteBuf;
+import org.apache.inlong.tubemq.corerpc.RpcDataPack;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import org.apache.inlong.tubemq.corerpc.RpcDataPack;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import io.netty.buffer.ByteBuf;
 
 /**
  * NettyProtocolEncoder test.

@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.config;
 
 import org.apache.inlong.common.util.MaskDataUtils;
+
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.pattern.ConverterKeys;
@@ -31,8 +32,10 @@ public class LogMaskerConverter extends LogEventPatternConverter {
     /**
      * Constructs an instance of LoggingEventPatternConverter.
      *
-     * @param name name of converter.
-     * @param style CSS style for output.
+     * @param name
+     *          name of converter.
+     * @param style
+     *          CSS style for output.
      */
     protected LogMaskerConverter(String name, String style) {
         super(name, style);

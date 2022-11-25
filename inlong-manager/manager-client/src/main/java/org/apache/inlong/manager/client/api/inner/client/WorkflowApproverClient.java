@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowApproverApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
@@ -33,8 +31,13 @@ import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
 /**
- * Client for {@link org.apache.inlong.manager.client.api.service.WorkflowApproverApi}.
+ * Client for
+ * {@link org.apache.inlong.manager.client.api.service.WorkflowApproverApi}.
  */
 @Slf4j
 public class WorkflowApproverClient {
@@ -49,7 +52,8 @@ public class WorkflowApproverClient {
     /**
      * Save workflow approver
      *
-     * @param request approver request
+     * @param request
+     *          approver request
      */
     public Integer save(ApproverRequest request) {
         Preconditions.checkNotEmpty(request.getProcessName(), "process name cannot be empty");
@@ -65,7 +69,8 @@ public class WorkflowApproverClient {
     /**
      * Get workflow approver by ID
      *
-     * @param id approver id
+     * @param id
+     *          approver id
      * @return approver info
      */
     public ApproverResponse get(Integer id) {
@@ -80,7 +85,8 @@ public class WorkflowApproverClient {
     /**
      * List the workflow approvers according to the query request
      *
-     * @param request page query request
+     * @param request
+     *          page query request
      * @return approver list
      */
     public List<ApproverResponse> listByCondition(ApproverPageRequest request) {
@@ -100,7 +106,8 @@ public class WorkflowApproverClient {
     /**
      * Delete workflow approver by ID
      *
-     * @param id approver id
+     * @param id
+     *          approver id
      */
     public Boolean delete(Integer id) {
         Preconditions.checkNotNull(id, "id cannot be null");
@@ -114,7 +121,8 @@ public class WorkflowApproverClient {
     /**
      * Update workflow approve.
      *
-     * @param request approver request
+     * @param request
+     *          approver request
      */
     public Integer update(ApproverRequest request) {
         Preconditions.checkNotNull(request.getId(), "id cannot be null");

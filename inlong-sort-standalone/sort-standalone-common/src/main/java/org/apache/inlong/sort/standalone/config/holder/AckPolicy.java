@@ -29,6 +29,7 @@ public enum AckPolicy {
 
     /**
      * Constructor
+     * 
      * @param value
      */
     private AckPolicy(int value) {
@@ -37,6 +38,7 @@ public enum AckPolicy {
 
     /**
      * getValue
+     * 
      * @return int
      */
     public int getValue() {
@@ -45,22 +47,24 @@ public enum AckPolicy {
 
     /**
      * getAckPolicy
+     * 
      * @param value
      * @return AckPolicy
      */
     public static AckPolicy getAckPolicy(int value) {
         switch (value) {
-            case 0 :
+            case 0:
                 return COUNT;
-            case 1 :
+            case 1:
                 return TOKEN;
-            default :
+            default:
                 return COUNT;
         }
     }
 
     /**
      * getAckPolicy
+     * 
      * @param name
      * @return AckPolicy
      */

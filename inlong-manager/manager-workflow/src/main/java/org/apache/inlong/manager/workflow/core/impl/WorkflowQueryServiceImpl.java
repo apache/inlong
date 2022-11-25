@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
@@ -57,8 +54,6 @@ import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.util.WorkflowUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -66,6 +61,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 
 /**
  * Query service
@@ -171,8 +174,8 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
             if (!taskApprovers.contains(operator)) {
                 ApproverPageRequest query = ApproverPageRequest.builder().processName(processEntity.getName()).build();
                 List<WorkflowApproverEntity> approverList = approverMapper.selectByCondition(query);
-                boolean match = approverList.stream().anyMatch(entity ->
-                        Preconditions.inSeparatedString(operator, entity.getApprovers(), InlongConstants.COMMA));
+                boolean match = approverList.stream().anyMatch(entity -> Preconditions.inSeparatedString(operator,
+                        entity.getApprovers(), InlongConstants.COMMA));
                 if (!match) {
                     throw new WorkflowException("current user is not the approver of the process");
                 }

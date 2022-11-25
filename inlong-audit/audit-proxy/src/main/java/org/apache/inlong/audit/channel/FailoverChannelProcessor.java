@@ -19,12 +19,8 @@
 
 package org.apache.inlong.audit.channel;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.inlong.audit.utils.LogCounter;
+
 import org.apache.flume.Channel;
 import org.apache.flume.ChannelException;
 import org.apache.flume.ChannelSelector;
@@ -36,12 +32,21 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.interceptor.Interceptor;
 import org.apache.flume.interceptor.InterceptorBuilderFactory;
 import org.apache.flume.interceptor.InterceptorChain;
-import org.apache.inlong.audit.utils.LogCounter;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 public class FailoverChannelProcessor
-        extends ChannelProcessor {
+        extends
+            ChannelProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FailoverChannelProcessor.class);
 
@@ -86,8 +91,7 @@ public class FailoverChannelProcessor
         // run through and instantiate all the interceptors specified in the Context
         InterceptorBuilderFactory factory = new InterceptorBuilderFactory();
         for (String interceptorName : interceptorNames) {
-            Context interceptorContext =
-                    new Context(interceptorContexts.getSubProperties(interceptorName + "."));
+            Context interceptorContext = new Context(interceptorContexts.getSubProperties(interceptorName + "."));
             String type = interceptorContext.getString("type");
             if (type == null) {
                 LOG.error("Type not specified for interceptor " + interceptorName);
@@ -134,7 +138,7 @@ public class FailoverChannelProcessor
 
             for (Channel ch : reqChannels) {
                 List<Event> eventQueue = reqChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//reqChannelQueue
+                        .computeIfAbsent(ch, k -> new ArrayList<Event>());// reqChannelQueue
                 eventQueue.add(event);
             }
 
@@ -142,7 +146,7 @@ public class FailoverChannelProcessor
 
             for (Channel ch : optChannels) {
                 List<Event> eventQueue = optChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//optChannelQueue
+                        .computeIfAbsent(ch, k -> new ArrayList<Event>());// optChannelQueue
 
                 eventQueue.add(event);
             }
@@ -285,7 +289,8 @@ public class FailoverChannelProcessor
                     } else {
                         throw new ChannelException(
                                 "FailoverChannelProcessor Unable to put event on "
-                                        + "optionalChannels: " + optChannel, t);
+                                        + "optionalChannels: " + optChannel,
+                                t);
                     }
                 } finally {
                     if (tx != null) {

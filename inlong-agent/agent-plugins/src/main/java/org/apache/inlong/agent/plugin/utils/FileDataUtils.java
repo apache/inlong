@@ -17,16 +17,12 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.dsl.PodResource;
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.inlong.agent.constant.KubernetesConstants.NAMESPACE;
+import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
+
 import org.apache.inlong.agent.conf.JobProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,8 +34,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.apache.inlong.agent.constant.KubernetesConstants.NAMESPACE;
-import static org.apache.inlong.agent.constant.KubernetesConstants.POD_NAME;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.dsl.PodResource;
 
 /**
  * File job utils
@@ -84,7 +88,7 @@ public class FileDataUtils {
      * Filter file by conditions
      */
     public static Collection<File> filterFile(Collection<File> allFiles, JobProfile jobConf) {
-        // filter file by labels 
+        // filter file by labels
         Collection<File> files = null;
         try {
             files = filterByLabels(allFiles, jobConf);

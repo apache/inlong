@@ -18,19 +18,22 @@
 
 package org.apache.inlong.sort.cdc.mysql.schema;
 
-import io.debezium.relational.TableId;
-import org.apache.flink.util.CollectionUtil;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote;
+
 import org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils;
+
+import org.apache.flink.util.CollectionUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote;
+import io.debezium.relational.TableId;
 
 /**
  * used to generate table definition in ddl with "desc table".
  */
 public class MySqlTableDefinition {
+
     TableId tableId;
     List<MySqlFieldDefinition> fieldDefinitions;
     List<String> primaryKeys;
@@ -70,5 +73,3 @@ public class MySqlTableDefinition {
         return pkDefinition.toString();
     }
 }
-
-

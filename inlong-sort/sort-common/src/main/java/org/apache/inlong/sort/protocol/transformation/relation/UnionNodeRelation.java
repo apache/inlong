@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.List;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Union relation class which defines the union relation
@@ -37,11 +38,13 @@ public class UnionNodeRelation extends NodeRelation {
     /**
      * UnionNodeRelation Constructor
      *
-     * @param inputs The inputs is a list of input node id
-     * @param outputs The outputs is a list of output node id
+     * @param inputs
+     *          The inputs is a list of input node id
+     * @param outputs
+     *          The outputs is a list of output node id
      */
     public UnionNodeRelation(@JsonProperty("inputs") List<String> inputs,
-                             @JsonProperty("outputs") List<String> outputs) {
+            @JsonProperty("outputs") List<String> outputs) {
         super(inputs, outputs);
     }
 

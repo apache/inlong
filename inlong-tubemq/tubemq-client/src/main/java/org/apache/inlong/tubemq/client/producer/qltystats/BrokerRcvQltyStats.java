@@ -17,15 +17,17 @@
 
 package org.apache.inlong.tubemq.client.producer.qltystats;
 
-import java.util.List;
-import java.util.Map;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
+
+import java.util.List;
+import java.util.Map;
 
 public interface BrokerRcvQltyStats {
 
     List<Partition> getAllowedBrokerPartitions(
-            Map<Integer, List<Partition>> brokerPartList) throws TubeClientException;
+            Map<Integer, List<Partition>> brokerPartList)
+            throws TubeClientException;
 
     void statisticDltBrokerStatus();
 

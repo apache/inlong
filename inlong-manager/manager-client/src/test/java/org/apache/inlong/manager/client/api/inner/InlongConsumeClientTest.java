@@ -17,7 +17,13 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.google.common.collect.Lists;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+
 import org.apache.inlong.manager.client.api.inner.client.InlongConsumeClient;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -30,17 +36,13 @@ import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarInfo;
 import org.apache.inlong.manager.pojo.consume.pulsar.ConsumePulsarRequest;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.Lists;
 
 /**
  * Tests for {@link InlongConsumeClient}
@@ -54,9 +56,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/consume/save.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(1)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(1)))));
 
         InlongConsumeRequest request = new ConsumePulsarRequest();
         request.setTopic("test_topic");
@@ -75,9 +75,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
         stubFor(
                 get(urlMatching("/inlong/manager/api/consume/get/1.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(response)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(response)))));
 
         InlongConsumeInfo consumeInfo = consumeClient.get(1);
         Assertions.assertEquals(1, consumeInfo.getId());
@@ -95,9 +93,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
         stubFor(
                 get(urlMatching("/inlong/manager/api/consume/countStatus.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(response)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(response)))));
 
         InlongConsumeCountInfo consumeCountInfo = consumeClient.countStatusByUser();
         Assertions.assertEquals(10, consumeCountInfo.getTotalCount());
@@ -111,15 +107,12 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
                         .mqType(MQType.PULSAR)
                         .inlongGroupId("test_group_id")
                         .consumerGroup("test_consume_group")
-                        .build()
-        );
+                        .build());
 
         stubFor(
                 get(urlMatching("/inlong/manager/api/consume/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(responses))))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(responses))))));
 
         PageResult<InlongConsumeBriefInfo> briefInfoPageResult = consumeClient.list(new InlongConsumePageRequest());
         Assertions.assertEquals(JsonUtils.toJsonString(responses),
@@ -131,9 +124,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
         stubFor(
                 post(urlMatching("/inlong/manager/api/consume/update.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(1)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(1)))));
 
         InlongConsumeRequest request = new ConsumePulsarRequest();
         request.setId(1);
@@ -147,9 +138,7 @@ public class InlongConsumeClientTest extends ClientFactoryTest {
         stubFor(
                 delete(urlMatching("/inlong/manager/api/consume/delete/1.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(true)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(true)))));
 
         InlongConsumeRequest request = new ConsumePulsarRequest();
         request.setId(1);

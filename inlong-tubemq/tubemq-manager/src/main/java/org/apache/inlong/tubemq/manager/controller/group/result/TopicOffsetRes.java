@@ -17,12 +17,13 @@
 
 package org.apache.inlong.tubemq.manager.controller.group.result;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class TopicOffsetRes {
+
     private String topicName;
     private List<OffsetPartitionRes> offsets;
     private int partCount;

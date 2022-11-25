@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.pojo.group.none;
 
-import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import io.swagger.annotations.ApiModel;
 
 /**
  * Inlong group info without MQ.

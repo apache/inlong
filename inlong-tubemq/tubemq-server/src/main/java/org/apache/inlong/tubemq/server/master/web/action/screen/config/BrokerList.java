@@ -17,12 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.action.screen.config;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
@@ -34,6 +28,14 @@ import org.apache.inlong.tubemq.server.master.web.common.BrokerQueryResult;
 import org.apache.inlong.tubemq.server.master.web.model.BrokerVO;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class BrokerList implements Action {
 
@@ -48,17 +50,18 @@ public class BrokerList implements Action {
         HttpServletRequest req = context.getReq();
         String strPageNum = req.getParameter("page_num");
         String strPageSize = req.getParameter("page_size");
-        //String strTopicName = req.getParameter("topicName");
-        //String strConsumeGroup = req.getParameter("consumeGroup");
+        // String strTopicName = req.getParameter("topicName");
+        // String strConsumeGroup = req.getParameter("consumeGroup");
         int pageNum = TStringUtils.isNotEmpty(strPageNum)
-                ? Integer.parseInt(strPageNum) : 1;
+                ? Integer.parseInt(strPageNum)
+                : 1;
         pageNum = pageNum <= 0 ? 1 : pageNum;
         int pageSize = TStringUtils.isNotEmpty(strPageSize)
-                ? Integer.parseInt(strPageSize) : 10;
+                ? Integer.parseInt(strPageSize)
+                : 10;
         pageSize = Math.max(pageSize, 10);
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
-        List<BrokerInfo> brokerInfoList =
-                new ArrayList(brokerRunManager.getBrokerInfoMap(null).values());
+        List<BrokerInfo> brokerInfoList = new ArrayList(brokerRunManager.getBrokerInfoMap(null).values());
         // *************************************************************************************
         for (int i = 0; i < 95; i++) {
             BrokerInfo info = new BrokerInfo(i, "127.0.0.1", 8123);
@@ -66,8 +69,8 @@ public class BrokerList implements Action {
         }
         // *************************************************************************************
 
-        int totalPage =
-                brokerInfoList.size() % pageSize == 0 ? brokerInfoList.size() / pageSize : brokerInfoList
+        int totalPage = brokerInfoList.size() % pageSize == 0 ? brokerInfoList.size() / pageSize
+                : brokerInfoList
                         .size() / pageSize + 1;
         if (pageNum > totalPage) {
             pageNum = totalPage;
@@ -80,8 +83,7 @@ public class BrokerList implements Action {
         if (!brokerInfoList.isEmpty()) {
             Collections.sort(brokerInfoList, new BrokerComparator());
             int fromIndex = pageSize * (pageNum - 1);
-            int toIndex =
-                    Math.min(fromIndex + pageSize, brokerInfoList.size());
+            int toIndex = Math.min(fromIndex + pageSize, brokerInfoList.size());
             Tuple3<Boolean, Boolean, List<TopicInfo>> topicInfoTuple = new Tuple3<>();
             List<BrokerInfo> firstPageList = brokerInfoList.subList(fromIndex, toIndex);
             brokerVOList = new ArrayList<>(brokerInfoList.size());
@@ -115,6 +117,7 @@ public class BrokerList implements Action {
     }
 
     public class BrokerComparator implements Comparator<BrokerInfo> {
+
         @Override
         public int compare(BrokerInfo o1, BrokerInfo o2) {
             return o1.getBrokerId() - o2.getBrokerId();

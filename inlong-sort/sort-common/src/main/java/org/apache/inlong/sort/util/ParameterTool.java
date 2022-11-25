@@ -18,8 +18,10 @@
 
 package org.apache.inlong.sort.util;
 
-import com.google.common.base.Preconditions;
 import org.apache.inlong.sort.configuration.Configuration;
+
+import org.apache.commons.lang3.math.NumberUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,13 +40,16 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.lang3.math.NumberUtils;
+
+import com.google.common.base.Preconditions;
 
 /**
- * This class provides simple utility methods for reading and parsing program arguments from
- * different sources.
+ * This class provides simple utility methods for reading and parsing program
+ * arguments from different sources.
  *
- * <p>Copied from Flink project with a bit of changing.</p>
+ * <p>
+ * Copied from Flink project with a bit of changing.
+ * </p>
  */
 public class ParameterTool implements Serializable, Cloneable {
 
@@ -56,13 +61,15 @@ public class ParameterTool implements Serializable, Cloneable {
     // ------------------ Constructors ------------------------
 
     /**
-     * Returns {@link ParameterTool} for the given arguments. The arguments are keys followed by
-     * values. Keys have to start with '-' or '--'
+     * Returns {@link ParameterTool} for the given arguments. The arguments are keys
+     * followed by values. Keys have to start with '-' or '--'
      *
-     * <p><strong>Example arguments:</strong>
-     * --key1 value1 --key2 value2 -key3 value3</p>
+     * <p>
+     * <strong>Example arguments:</strong> --key1 value1 --key2 value2 -key3 value3
+     * </p>
      *
-     * @param args Input array arguments
+     * @param args
+     *          Input array arguments
      * @return A {@link ParameterTool}
      */
     public static ParameterTool fromArgs(String[] args) {
@@ -112,9 +119,11 @@ public class ParameterTool implements Serializable, Cloneable {
     /**
      * Returns {@link ParameterTool} for the given {@link Properties} file.
      *
-     * @param path Path to the properties file
+     * @param path
+     *          Path to the properties file
      * @return A {@link ParameterTool}
-     * @throws IOException If the file does not exist
+     * @throws IOException
+     *           If the file does not exist
      * @see Properties
      */
     public static ParameterTool fromPropertiesFile(String path) throws IOException {
@@ -125,9 +134,11 @@ public class ParameterTool implements Serializable, Cloneable {
     /**
      * Returns {@link ParameterTool} for the given {@link Properties} file.
      *
-     * @param file File object to the properties file
+     * @param file
+     *          File object to the properties file
      * @return A {@link ParameterTool}
-     * @throws IOException If the file does not exist
+     * @throws IOException
+     *           If the file does not exist
      * @see Properties
      */
     public static ParameterTool fromPropertiesFile(File file) throws IOException {
@@ -141,11 +152,14 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns {@link ParameterTool} for the given InputStream from {@link Properties} file.
+     * Returns {@link ParameterTool} for the given InputStream from
+     * {@link Properties} file.
      *
-     * @param inputStream InputStream from the properties file
+     * @param inputStream
+     *          InputStream from the properties file
      * @return A {@link ParameterTool}
-     * @throws IOException If the file does not exist
+     * @throws IOException
+     *           If the file does not exist
      * @see Properties
      */
     public static ParameterTool fromPropertiesFile(InputStream inputStream) throws IOException {
@@ -157,7 +171,8 @@ public class ParameterTool implements Serializable, Cloneable {
     /**
      * Returns {@link ParameterTool} for the given map.
      *
-     * @param map A map of arguments. Both Key and Value have to be Strings
+     * @param map
+     *          A map of arguments. Both Key and Value have to be Strings
      * @return A {@link ParameterTool}
      */
     public static ParameterTool fromMap(Map<String, String> map) {
@@ -166,8 +181,8 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns {@link ParameterTool} from the system properties. Example on how to pass system
-     * properties: -Dkey1=value1 -Dkey2=value2
+     * Returns {@link ParameterTool} from the system properties. Example on how to
+     * pass system properties: -Dkey1=value1 -Dkey2=value2
      *
      * @return A {@link ParameterTool}
      */
@@ -175,7 +190,7 @@ public class ParameterTool implements Serializable, Cloneable {
         return fromMap((Map) System.getProperties());
     }
 
-    // ------------------ ParameterUtil  ------------------------
+    // ------------------ ParameterUtil ------------------------
     protected final Map<String, String> data;
 
     // data which is only used on the client and does not need to be transmitted
@@ -213,9 +228,9 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the set of parameter names which have not been requested with {@link #has(String)} or
-     * one of the {@code get} methods. Access to the map returned by {@link #toMap()} is not
-     * tracked.
+     * Returns the set of parameter names which have not been requested with
+     * {@link #has(String)} or one of the {@code get} methods. Access to the map
+     * returned by {@link #toMap()} is not tracked.
      */
     public Set<String> getUnrequestedParameters() {
         return Collections.unmodifiableSet(unrequestedParameters);
@@ -231,7 +246,8 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the String value for the given key. If the key does not exist it will return null.
+     * Returns the String value for the given key. If the key does not exist it will
+     * return null.
      */
     public String get(String key) {
         addToDefaults(key, null);
@@ -240,8 +256,8 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the String value for the given key. If the key does not exist it will return the
-     * given default value.
+     * Returns the String value for the given key. If the key does not exist it will
+     * return the given default value.
      */
     public String get(String key, String defaultValue) {
         addToDefaults(key, defaultValue);
@@ -254,8 +270,8 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the String value for the given key. If the key does not exist it will throw a {@link
-     * RuntimeException}.
+     * Returns the String value for the given key. If the key does not exist it will
+     * throw a {@link RuntimeException}.
      */
     public String getRequired(String key) {
         addToDefaults(key, null);
@@ -278,8 +294,8 @@ public class ParameterTool implements Serializable, Cloneable {
     // -------------- Integer
 
     /**
-     * Returns the Integer value for the given key. The method fails if the key does not exist or
-     * the value is not an Integer.
+     * Returns the Integer value for the given key. The method fails if the key does
+     * not exist or the value is not an Integer.
      */
     public int getInt(String key) {
         addToDefaults(key, null);
@@ -288,8 +304,9 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the Integer value for the given key. If the key does not exists it will return the
-     * default value given. The method fails if the value is not an Integer.
+     * Returns the Integer value for the given key. If the key does not exists it
+     * will return the default value given. The method fails if the value is not an
+     * Integer.
      */
     public int getInt(String key, int defaultValue) {
         addToDefaults(key, Integer.toString(defaultValue));
@@ -303,7 +320,8 @@ public class ParameterTool implements Serializable, Cloneable {
     // -------------- LONG
 
     /**
-     * Returns the Long value for the given key. The method fails if the key does not exist.
+     * Returns the Long value for the given key. The method fails if the key does
+     * not exist.
      */
     public long getLong(String key) {
         addToDefaults(key, null);
@@ -312,8 +330,8 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the Long value for the given key. If the key does not exists it will return the
-     * default value given. The method fails if the value is not a Long.
+     * Returns the Long value for the given key. If the key does not exists it will
+     * return the default value given. The method fails if the value is not a Long.
      */
     public long getLong(String key, long defaultValue) {
         addToDefaults(key, Long.toString(defaultValue));
@@ -327,7 +345,8 @@ public class ParameterTool implements Serializable, Cloneable {
     // -------------- FLOAT
 
     /**
-     * Returns the Float value for the given key. The method fails if the key does not exist.
+     * Returns the Float value for the given key. The method fails if the key does
+     * not exist.
      */
     public float getFloat(String key) {
         addToDefaults(key, null);
@@ -336,8 +355,8 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the Float value for the given key. If the key does not exists it will return the
-     * default value given. The method fails if the value is not a Float.
+     * Returns the Float value for the given key. If the key does not exists it will
+     * return the default value given. The method fails if the value is not a Float.
      */
     public float getFloat(String key, float defaultValue) {
         addToDefaults(key, Float.toString(defaultValue));
@@ -352,7 +371,8 @@ public class ParameterTool implements Serializable, Cloneable {
     // -------------- DOUBLE
 
     /**
-     * Returns the Double value for the given key. The method fails if the key does not exist.
+     * Returns the Double value for the given key. The method fails if the key does
+     * not exist.
      */
     public double getDouble(String key) {
         addToDefaults(key, null);
@@ -361,8 +381,9 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the Double value for the given key. If the key does not exists it will return the
-     * default value given. The method fails if the value is not a Double.
+     * Returns the Double value for the given key. If the key does not exists it
+     * will return the default value given. The method fails if the value is not a
+     * Double.
      */
     public double getDouble(String key, double defaultValue) {
         addToDefaults(key, Double.toString(defaultValue));
@@ -377,7 +398,8 @@ public class ParameterTool implements Serializable, Cloneable {
     // -------------- BOOLEAN
 
     /**
-     * Returns the Boolean value for the given key. The method fails if the key does not exist.
+     * Returns the Boolean value for the given key. The method fails if the key does
+     * not exist.
      */
     public boolean getBoolean(String key) {
         addToDefaults(key, null);
@@ -386,9 +408,9 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the Boolean value for the given key. If the key does not exists it will return the
-     * default value given. The method returns whether the string of the value is "true" ignoring
-     * cases.
+     * Returns the Boolean value for the given key. If the key does not exists it
+     * will return the default value given. The method returns whether the string of
+     * the value is "true" ignoring cases.
      */
     public boolean getBoolean(String key, boolean defaultValue) {
         addToDefaults(key, Boolean.toString(defaultValue));
@@ -403,7 +425,8 @@ public class ParameterTool implements Serializable, Cloneable {
     // -------------- SHORT
 
     /**
-     * Returns the Short value for the given key. The method fails if the key does not exist.
+     * Returns the Short value for the given key. The method fails if the key does
+     * not exist.
      */
     public short getShort(String key) {
         addToDefaults(key, null);
@@ -412,8 +435,8 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the Short value for the given key. If the key does not exists it will return the
-     * default value given. The method fails if the value is not a Short.
+     * Returns the Short value for the given key. If the key does not exists it will
+     * return the default value given. The method fails if the value is not a Short.
      */
     public short getShort(String key, short defaultValue) {
         addToDefaults(key, Short.toString(defaultValue));
@@ -428,7 +451,8 @@ public class ParameterTool implements Serializable, Cloneable {
     // -------------- BYTE
 
     /**
-     * Returns the Byte value for the given key. The method fails if the key does not exist.
+     * Returns the Byte value for the given key. The method fails if the key does
+     * not exist.
      */
     public byte getByte(String key) {
         addToDefaults(key, null);
@@ -437,8 +461,8 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the Byte value for the given key. If the key does not exists it will return the
-     * default value given. The method fails if the value is not a Byte.
+     * Returns the Byte value for the given key. If the key does not exists it will
+     * return the default value given. The method fails if the value is not a Byte.
      */
     public byte getByte(String key, byte defaultValue) {
         addToDefaults(key, Byte.toString(defaultValue));
@@ -468,7 +492,8 @@ public class ParameterTool implements Serializable, Cloneable {
         }
     }
 
-    // ------------------------- Export to different targets -------------------------
+    // ------------------------- Export to different targets
+    // -------------------------
 
     /**
      * Returns a {@link Configuration} object from this {@link ParameterTool}.
@@ -495,24 +520,30 @@ public class ParameterTool implements Serializable, Cloneable {
     }
 
     /**
-     * Create a properties file with all the known parameters (call after the last get*() call). Set
-     * the default value, if available.
+     * Create a properties file with all the known parameters (call after the last
+     * get*() call). Set the default value, if available.
      *
-     * <p>Use this method to create a properties file skeleton.</p>
+     * <p>
+     * Use this method to create a properties file skeleton.
+     * </p>
      *
-     * @param pathToFile Location of the default properties file.
+     * @param pathToFile
+     *          Location of the default properties file.
      */
     public void createPropertiesFile(String pathToFile) throws IOException {
         createPropertiesFile(pathToFile, true);
     }
 
     /**
-     * Create a properties file with all the known parameters (call after the last get*() call). Set
-     * the default value, if overwrite is true.
+     * Create a properties file with all the known parameters (call after the last
+     * get*() call). Set the default value, if overwrite is true.
      *
-     * @param pathToFile Location of the default properties file.
-     * @param overwrite Boolean flag indicating whether or not to overwrite the file
-     * @throws IOException If overwrite is not allowed and the file exists
+     * @param pathToFile
+     *          Location of the default properties file.
+     * @param overwrite
+     *          Boolean flag indicating whether or not to overwrite the file
+     * @throws IOException
+     *           If overwrite is not allowed and the file exists
      */
     public void createPropertiesFile(String pathToFile, boolean overwrite) throws IOException {
         final File file = new File(pathToFile);
@@ -537,12 +568,14 @@ public class ParameterTool implements Serializable, Cloneable {
         return new ParameterTool(this.data);
     }
 
-    // ------------------------- Interaction with other ParameterUtils -------------------------
+    // ------------------------- Interaction with other ParameterUtils
+    // -------------------------
 
     /**
      * Merges two {@link ParameterTool}.
      *
-     * @param other Other {@link ParameterTool} object
+     * @param other
+     *          Other {@link ParameterTool} object
      * @return The Merged {@link ParameterTool}
      */
     public ParameterTool mergeWith(ParameterTool other) {
@@ -564,13 +597,15 @@ public class ParameterTool implements Serializable, Cloneable {
         return ret;
     }
 
-    // ------------------------- ExecutionConfig.UserConfig interface -------------------------
+    // ------------------------- ExecutionConfig.UserConfig interface
+    // -------------------------
 
     public Map<String, String> toMap() {
         return data;
     }
 
-    // ------------------------- Serialization ---------------------------------------------
+    // ------------------------- Serialization
+    // ---------------------------------------------
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();

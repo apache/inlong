@@ -17,24 +17,6 @@
 
 package org.apache.inlong.tubemq.corerpc.netty;
 
-import com.google.protobuf.ByteString;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.timeout.ReadTimeoutException;
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timeout;
-import io.netty.util.Timer;
-import io.netty.util.TimerTask;
-import java.io.EOFException;
-import java.io.IOException;
-import java.nio.channels.UnresolvedAddressException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.cluster.NodeAddrInfo;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.RPCProtos;
 import org.apache.inlong.tubemq.corerpc.RequestWrapper;
@@ -48,24 +30,42 @@ import org.apache.inlong.tubemq.corerpc.codec.PbEnDecoder;
 import org.apache.inlong.tubemq.corerpc.exception.ClientClosedException;
 import org.apache.inlong.tubemq.corerpc.exception.NetworkException;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.nio.channels.UnresolvedAddressException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.protobuf.ByteString;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 
 /**
  * The network Client for tube rpc service
  */
 public class NettyClient implements Client {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(NettyClientHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
     private static final AtomicLong init = new AtomicLong(0);
     private static Timer timer;
-    private final ConcurrentHashMap<Integer, Callback<ResponseWrapper>> requests =
-            new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer, Timeout> timeouts =
-            new ConcurrentHashMap<>();
-    private final AtomicInteger serialNoGenerator =
-            new AtomicInteger(0);
+    private final ConcurrentHashMap<Integer, Callback<ResponseWrapper>> requests = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, Timeout> timeouts = new ConcurrentHashMap<>();
+    private final AtomicInteger serialNoGenerator = new AtomicInteger(0);
     private final AtomicBoolean released = new AtomicBoolean(false);
     private NodeAddrInfo addressInfo;
     private final ClientFactory clientFactory;
@@ -76,8 +76,10 @@ public class NettyClient implements Client {
     /**
      * Initial a netty client object
      *
-     * @param clientFactory    the client factory
-     * @param connectTimeout   the connection timeout
+     * @param clientFactory
+     *          the client factory
+     * @param connectTimeout
+     *          the connection timeout
      */
     public NettyClient(ClientFactory clientFactory, long connectTimeout) {
         this.clientFactory = clientFactory;
@@ -94,8 +96,10 @@ public class NettyClient implements Client {
     /**
      * Set a channel
      *
-     * @param channel      the channel
-     * @param addressInfo   the address of the channel
+     * @param channel
+     *          the channel
+     * @param addressInfo
+     *          the address of the channel
      */
     public void setChannel(Channel channel, final NodeAddrInfo addressInfo) {
         this.channel = channel;
@@ -103,33 +107,28 @@ public class NettyClient implements Client {
         this.closed.set(false);
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.inlong.tubemq.corerpc.client.Client#call(
-     *    org.apache.inlong.tubemq.corerpc.RequestWrapper,
-     *    org.apache.inlong.tubemq.corerpc.client.Callback,
-     *    long,
-     *    java.util.concurrent.TimeUnit)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.inlong.tubemq.corerpc.client.Client#call( org.apache.inlong.tubemq.corerpc.RequestWrapper,
+     * org.apache.inlong.tubemq.corerpc.client.Callback, long, java.util.concurrent.TimeUnit)
      */
     @Override
     public ResponseWrapper call(RequestWrapper request, Callback callback,
-                                long timeout, TimeUnit timeUnit) throws Exception {
+            long timeout, TimeUnit timeUnit)
+            throws Exception {
         if (closed.get()) {
             throw new ClientClosedException("Netty client has bean closed!");
         }
         request.setSerialNo(serialNoGenerator.incrementAndGet());
-        RPCProtos.RpcConnHeader.Builder builder =
-                RPCProtos.RpcConnHeader.newBuilder();
+        RPCProtos.RpcConnHeader.Builder builder = RPCProtos.RpcConnHeader.newBuilder();
         builder.setFlag(request.getFlagId());
-        final RPCProtos.RpcConnHeader connectionHeader =
-                builder.build();
-        RPCProtos.RequestHeader.Builder headerBuilder =
-                RPCProtos.RequestHeader.newBuilder();
+        final RPCProtos.RpcConnHeader connectionHeader = builder.build();
+        RPCProtos.RequestHeader.Builder headerBuilder = RPCProtos.RequestHeader.newBuilder();
         headerBuilder.setServiceType(request.getServiceType());
         headerBuilder.setProtocolVer(request.getProtocolVersion());
-        final RPCProtos.RequestHeader rpcHeader =
-                headerBuilder.build();
-        RPCProtos.RequestBody.Builder rpcBodyBuilder =
-                RPCProtos.RequestBody.newBuilder();
+        final RPCProtos.RequestHeader rpcHeader = headerBuilder.build();
+        RPCProtos.RequestBody.Builder rpcBodyBuilder = RPCProtos.RequestBody.newBuilder();
         rpcBodyBuilder.setMethod(request.getMethodId());
         rpcBodyBuilder.setTimeout(request.getTimeout());
         rpcBodyBuilder
@@ -147,8 +146,7 @@ public class NettyClient implements Client {
                 getChannel().writeAndFlush(pack);
                 return future.get(timeout, timeUnit);
             } catch (Throwable e) {
-                Callback<ResponseWrapper> callback1 =
-                    requests.remove(request.getSerialNo());
+                Callback<ResponseWrapper> callback1 = requests.remove(request.getSerialNo());
                 if (callback1 != null) {
                     if (closed.get()) {
                         throw new ClientClosedException("Netty client has bean closed!");
@@ -165,11 +163,10 @@ public class NettyClient implements Client {
                 timeouts.put(request.getSerialNo(),
                         timer.newTimeout(new TimeoutTask(request.getSerialNo()), timeout, timeUnit));
                 inserted = true;
-                //write data after build Timeout to avoid one request processed twice
+                // write data after build Timeout to avoid one request processed twice
                 getChannel().writeAndFlush(pack);
             } catch (Throwable e) {
-                Callback<ResponseWrapper> callback1 =
-                    requests.remove(request.getSerialNo());
+                Callback<ResponseWrapper> callback1 = requests.remove(request.getSerialNo());
                 if (callback1 != null) {
                     if (inserted) {
                         Timeout timeout1 = timeouts.remove(request.getSerialNo());
@@ -222,12 +219,11 @@ public class NettyClient implements Client {
     }
 
     /**
-     * stop timer
-     * remove clientFactory cache
-     * handler unfinished callbacks
-     * and close the channel
+     * stop timer remove clientFactory cache handler unfinished callbacks and close
+     * the channel
      *
-     * @param removeParent    whether remove the object from client factory
+     * @param removeParent
+     *          whether remove the object from client factory
      */
     @Override
     public void close(boolean removeParent) {
@@ -247,8 +243,7 @@ public class NettyClient implements Client {
                 this.clientFactory.removeClient(this.getServerAddressInfo());
             }
             if (!requests.isEmpty()) {
-                ClientClosedException exception =
-                        new ClientClosedException("Client has bean closed.");
+                ClientClosedException exception = new ClientClosedException("Client has bean closed.");
                 for (Integer serial : requests.keySet()) {
                     if (serial != null) {
                         Callback<ResponseWrapper> callback = requests.remove(serial);
@@ -280,8 +275,10 @@ public class NettyClient implements Client {
         /**
          * Invoked when a message object was received from a remote peer.
          *
-         * @param ctx     the channel handler context
-         * @param e       the message event
+         * @param ctx
+         *          the channel handler context
+         * @param e
+         *          the message event
          */
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object e) {
@@ -296,15 +293,13 @@ public class NettyClient implements Client {
                     ResponseWrapper responseWrapper;
                     try {
                         ByteBufferInputStream in = new ByteBufferInputStream(dataPack.getDataLst());
-                        RPCProtos.RpcConnHeader connHeader =
-                                RPCProtos.RpcConnHeader.parseDelimitedFrom(in);
+                        RPCProtos.RpcConnHeader connHeader = RPCProtos.RpcConnHeader.parseDelimitedFrom(in);
                         if (connHeader == null) {
                             // When the stream is closed, protobuf doesn't raise an EOFException,
                             // instead, it returns a null message object.
                             throw new EOFException();
                         }
-                        RPCProtos.ResponseHeader rpcResponse =
-                                RPCProtos.ResponseHeader.parseDelimitedFrom(in);
+                        RPCProtos.ResponseHeader rpcResponse = RPCProtos.ResponseHeader.parseDelimitedFrom(in);
                         if (rpcResponse == null) {
                             // When the stream is closed, protobuf doesn't raise an EOFException,
                             // instead, it returns a null message object.
@@ -312,21 +307,18 @@ public class NettyClient implements Client {
                         }
                         RPCProtos.ResponseHeader.Status status = rpcResponse.getStatus();
                         if (status == RPCProtos.ResponseHeader.Status.SUCCESS) {
-                            RPCProtos.RspResponseBody pbRpcResponse =
-                                    RPCProtos.RspResponseBody.parseDelimitedFrom(in);
+                            RPCProtos.RspResponseBody pbRpcResponse = RPCProtos.RspResponseBody.parseDelimitedFrom(in);
                             if (pbRpcResponse == null) {
                                 // When the RPCProtos parse failed , protobuf doesn't raise an Exception,
                                 // instead, it returns a null response object.
                                 throw new NetworkException("Not found PBRpcResponse data!");
                             }
-                            Object responseResult =
-                                    PbEnDecoder.pbDecode(false, pbRpcResponse.getMethod(),
-                                            pbRpcResponse.getData().toByteArray());
+                            Object responseResult = PbEnDecoder.pbDecode(false, pbRpcResponse.getMethod(),
+                                    pbRpcResponse.getData().toByteArray());
 
-                            responseWrapper =
-                                    new ResponseWrapper(connHeader.getFlag(), dataPack.getSerialNo(),
-                                            rpcResponse.getServiceType(), rpcResponse.getProtocolVer(),
-                                            pbRpcResponse.getMethod(), responseResult);
+                            responseWrapper = new ResponseWrapper(connHeader.getFlag(), dataPack.getSerialNo(),
+                                    rpcResponse.getServiceType(), rpcResponse.getProtocolVer(),
+                                    pbRpcResponse.getMethod(), responseResult);
                         } else {
                             RPCProtos.RspExceptionBody exceptionResponse =
                                     RPCProtos.RspExceptionBody.parseDelimitedFrom(in);
@@ -338,24 +330,21 @@ public class NettyClient implements Client {
                             String exceptionName = exceptionResponse.getExceptionName();
                             exceptionName = MixUtils.replaceClassNamePrefix(exceptionName,
                                     false, rpcResponse.getProtocolVer());
-                            responseWrapper =
-                                    new ResponseWrapper(connHeader.getFlag(), dataPack.getSerialNo(),
-                                            rpcResponse.getServiceType(), rpcResponse.getProtocolVer(),
-                                            exceptionName, exceptionResponse.getStackTrace());
+                            responseWrapper = new ResponseWrapper(connHeader.getFlag(), dataPack.getSerialNo(),
+                                    rpcResponse.getServiceType(), rpcResponse.getProtocolVer(),
+                                    exceptionName, exceptionResponse.getStackTrace());
                         }
                         if (!responseWrapper.isSuccess()) {
-                            Throwable remote =
-                                    MixUtils.unwrapException(new StringBuilder(512)
-                                            .append(responseWrapper.getErrMsg()).append("#")
-                                            .append(responseWrapper.getStackTrace()).toString());
+                            Throwable remote = MixUtils.unwrapException(new StringBuilder(512)
+                                    .append(responseWrapper.getErrMsg()).append("#")
+                                    .append(responseWrapper.getStackTrace()).toString());
                             if (IOException.class.isAssignableFrom(remote.getClass())) {
                                 NettyClient.this.close();
                             }
                         }
                         callback.handleResult(responseWrapper);
                     } catch (Throwable ee) {
-                        responseWrapper =
-                                new ResponseWrapper(-2, dataPack.getSerialNo(), -2, -2, -2, ee);
+                        responseWrapper = new ResponseWrapper(-2, dataPack.getSerialNo(), -2, -2, -2, ee);
                         if (ee instanceof EOFException) {
                             NettyClient.this.close();
                         }
@@ -372,14 +361,16 @@ public class NettyClient implements Client {
         /**
          * Invoked when an exception was raised by an I/O thread
          *
-         * @param ctx   the channel handler context
-         * @param e     the exception object
+         * @param ctx
+         *          the channel handler context
+         * @param e
+         *          the exception object
          */
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) throws Exception {
             Throwable t = e.getCause();
             if ((t instanceof IOException || t instanceof ReadTimeoutException
-                || t instanceof UnresolvedAddressException)) {
+                    || t instanceof UnresolvedAddressException)) {
                 if (t instanceof ReadTimeoutException) {
                     logger.info("Close client {} due to idle.", ctx.channel());
                 }
@@ -393,9 +384,11 @@ public class NettyClient implements Client {
         }
 
         /**
-         * Invoked when a {@link Channel} was closed and all its related resources were released.
+         * Invoked when a {@link Channel} was closed and all its related resources were
+         * released.
          *
-         * @param ctx   the channel handler context
+         * @param ctx
+         *          the channel handler context
          */
         @Override
         public void channelInactive(ChannelHandlerContext ctx) {

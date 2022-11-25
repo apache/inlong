@@ -17,15 +17,16 @@
 
 package org.apache.inlong.sort.base.format;
 
-import com.google.common.base.Preconditions;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Dynamic schema format base test

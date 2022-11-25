@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sort.cdc.debezium;
 
-import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.util.Collector;
@@ -31,9 +30,11 @@ import org.apache.kafka.connect.storage.ConverterType;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.debezium.relational.history.TableChanges.TableChange;
+
 /**
- * A JSON format implementation of {@link DebeziumDeserializationSchema} which deserializes the
- * received {@link SourceRecord} to JSON String.
+ * A JSON format implementation of {@link DebeziumDeserializationSchema} which
+ * deserializes the received {@link SourceRecord} to JSON String.
  */
 public class JsonDebeziumDeserializationSchema implements DebeziumDeserializationSchema<String> {
 
@@ -42,8 +43,9 @@ public class JsonDebeziumDeserializationSchema implements DebeziumDeserializatio
     private transient JsonConverter jsonConverter;
 
     /**
-     * Configuration whether to enable {@link JsonConverterConfig#SCHEMAS_ENABLE_CONFIG} to include
-     * schema in messages.
+     * Configuration whether to enable
+     * {@link JsonConverterConfig#SCHEMAS_ENABLE_CONFIG} to include schema in
+     * messages.
      */
     private final Boolean includeSchema;
 
@@ -69,14 +71,12 @@ public class JsonDebeziumDeserializationSchema implements DebeziumDeserializatio
         if (jsonConverter == null) {
             initializeJsonConverter();
         }
-        byte[] bytes =
-                jsonConverter.fromConnectData(record.topic(), record.valueSchema(), record.value());
+        byte[] bytes = jsonConverter.fromConnectData(record.topic(), record.valueSchema(), record.value());
         out.collect(new String(bytes));
     }
 
     @Override
-    public void deserialize(SourceRecord record, Collector<String> out, TableChange tableChange)
-        throws Exception {
+    public void deserialize(SourceRecord record, Collector<String> out, TableChange tableChange) throws Exception {
 
     }
 

@@ -20,14 +20,12 @@ package org.apache.inlong.sort.cdc.oracle.table;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-import com.ververica.cdc.connectors.oracle.table.StartupOptions;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.apache.inlong.sort.cdc.oracle.OracleSource;
+import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumSourceFunction;
+import org.apache.inlong.sort.cdc.oracle.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.oracle.debezium.table.RowDataDebeziumDeserializeSchema;
+
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -39,15 +37,20 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.oracle.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.oracle.debezium.table.RowDataDebeziumDeserializeSchema;
-import org.apache.inlong.sort.cdc.oracle.OracleSource;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.ververica.cdc.connectors.oracle.table.StartupOptions;
 
 /**
- * A {@link DynamicTableSource} that describes how to create a Oracle binlog from a logical
- * description.
+ * A {@link DynamicTableSource} that describes how to create a Oracle binlog
+ * from a logical description.
  */
 public class OracleTableSource implements ScanTableSource, SupportsReadingMetadata {
 
@@ -118,34 +121,31 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
 
     @Override
     public ScanRuntimeProvider getScanRuntimeProvider(ScanContext scanContext) {
-        RowType physicalDataType =
-                (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
+        RowType physicalDataType = (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
         MetadataConverter[] metadataConverters = getMetadataConverters();
         TypeInformation<RowData> typeInfo = scanContext.createTypeInformation(producedDataType);
 
-        DebeziumDeserializationSchema<RowData> deserializer =
-                RowDataDebeziumDeserializeSchema.newBuilder()
-                        .setPhysicalRowType(physicalDataType)
-                        .setMetadataConverters(metadataConverters)
-                        .setResultTypeInfo(typeInfo)
-                        .setUserDefinedConverterFactory(
-                                OracleDeserializationConverterFactory.instance())
-                        .setSourceMultipleEnable(sourceMultipleEnable)
-                        .build();
-        OracleSource.Builder<RowData> builder =
-                OracleSource.<RowData>builder()
-                        .hostname(hostname)
-                        .port(port)
-                        .database(database)
-                        .tableList(tableName)
-                        .schemaList(schemaName)
-                        .username(username)
-                        .password(password)
-                        .debeziumProperties(dbzProperties)
-                        .startupOptions(startupOptions)
-                        .deserializer(deserializer)
-                        .inlongMetric(inlongMetric)
-                        .inlongAudit(inlongAudit);
+        DebeziumDeserializationSchema<RowData> deserializer = RowDataDebeziumDeserializeSchema.newBuilder()
+                .setPhysicalRowType(physicalDataType)
+                .setMetadataConverters(metadataConverters)
+                .setResultTypeInfo(typeInfo)
+                .setUserDefinedConverterFactory(
+                        OracleDeserializationConverterFactory.instance())
+                .setSourceMultipleEnable(sourceMultipleEnable)
+                .build();
+        OracleSource.Builder<RowData> builder = OracleSource.<RowData>builder()
+                .hostname(hostname)
+                .port(port)
+                .database(database)
+                .tableList(tableName)
+                .schemaList(schemaName)
+                .username(username)
+                .password(password)
+                .debeziumProperties(dbzProperties)
+                .startupOptions(startupOptions)
+                .deserializer(deserializer)
+                .inlongMetric(inlongMetric)
+                .inlongAudit(inlongAudit);
         DebeziumSourceFunction<RowData> sourceFunction = builder.build();
 
         return SourceFunctionProvider.of(sourceFunction, false);
@@ -158,32 +158,30 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(OracleReadableMetaData.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(OracleReadableMetaData.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(OracleReadableMetaData::getConverter)
                 .toArray(MetadataConverter[]::new);
     }
 
     @Override
     public DynamicTableSource copy() {
-        OracleTableSource source =
-                new OracleTableSource(
-                        physicalSchema,
-                        port,
-                        hostname,
-                        database,
-                        tableName,
-                        schemaName,
-                        username,
-                        password,
-                        dbzProperties,
-                        startupOptions,
-                        sourceMultipleEnable,
-                        inlongMetric,
-                        inlongAudit);
+        OracleTableSource source = new OracleTableSource(
+                physicalSchema,
+                port,
+                hostname,
+                database,
+                tableName,
+                schemaName,
+                username,
+                password,
+                dbzProperties,
+                startupOptions,
+                sourceMultipleEnable,
+                inlongMetric,
+                inlongAudit);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

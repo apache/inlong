@@ -17,6 +17,18 @@
 
 package org.apache.inlong.sort.redis.table;
 
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_ASYNC;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_MAX_ROWS;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_TTL;
+import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_MAX_RETRIES;
+
+import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
+import org.apache.inlong.sort.redis.common.config.RedisOptions;
+import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
+import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
+import org.apache.inlong.sort.redis.source.RedisDynamicTableSource;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.connectors.redis.descriptor.RedisValidator;
@@ -25,22 +37,12 @@ import org.apache.flink.table.factories.DynamicTableSourceFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
-import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
-import org.apache.inlong.sort.redis.common.config.RedisOptions;
-import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
-import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
-import org.apache.inlong.sort.redis.source.RedisDynamicTableSource;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_ASYNC;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_MAX_ROWS;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_CACHE_TTL;
-import static org.apache.inlong.sort.redis.common.config.RedisOptions.LOOKUP_MAX_RETRIES;
 
 /**
  * Redis dynamic table factory
@@ -55,6 +57,7 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory {
      * Supported redis mode, contains [standalone|cluster|sentinel].
      */
     public static final Set<String> SUPPORT_REDIS_MODE = new HashSet<String>() {
+
         private static final long serialVersionUID = 1L;
 
         {
@@ -67,6 +70,7 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory {
      * Supported redis source commands, contain [GET|HGET|ZREVRANK|ZSCORE] at now.
      */
     public static Set<String> SUPPORT_SOURCE_COMMANDS = new HashSet<String>() {
+
         private static final long serialVersionUID = 1L;
 
         {

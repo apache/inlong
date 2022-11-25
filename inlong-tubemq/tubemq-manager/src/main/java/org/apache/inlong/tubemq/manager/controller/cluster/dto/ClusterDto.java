@@ -17,11 +17,13 @@
 
 package org.apache.inlong.tubemq.manager.controller.cluster.dto;
 
-import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+
+import lombok.Data;
 
 @Data
 public class ClusterDto {
+
     private Long clusterId;
     private String clusterName;
     private int reloadBrokerSize;

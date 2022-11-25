@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.client.cli;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.beust.jcommander.converters.FileConverter;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
@@ -37,6 +34,10 @@ import org.apache.inlong.manager.pojo.user.UserRequest;
 
 import java.io.File;
 import java.util.List;
+
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+import com.beust.jcommander.converters.FileConverter;
 
 /**
  * Create resource by json file.
@@ -62,9 +63,7 @@ public class CreateCommand extends AbstractCommand {
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"-f", "--file"},
-                converter = FileConverter.class,
-                description = "json file")
+        @Parameter(names = {"-f", "--file"}, converter = FileConverter.class, description = "json file")
         private File file;
 
         @Parameter(names = {"-s"}, description = "optional log string to create file")

@@ -17,20 +17,22 @@
 
 package org.apache.inlong.sdk.dataproxy.pb.channel;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicLong;
+import org.apache.inlong.sdk.commons.protocol.SdkEvent;
+import org.apache.inlong.sdk.dataproxy.pb.context.CallbackProfile;
+import org.apache.inlong.sdk.dataproxy.pb.context.Constants;
 
 import org.apache.flume.ChannelException;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.channel.AbstractChannel;
-import org.apache.inlong.sdk.commons.protocol.SdkEvent;
-import org.apache.inlong.sdk.dataproxy.pb.context.CallbackProfile;
-import org.apache.inlong.sdk.dataproxy.pb.context.Constants;
+
+import java.util.Date;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +66,7 @@ public class BufferQueueChannel extends AbstractChannel {
     /**
      * put
      * 
-     * @param  event
+     * @param event
      * @throws ChannelException
      */
     @Override
@@ -95,7 +97,7 @@ public class BufferQueueChannel extends AbstractChannel {
     /**
      * take
      * 
-     * @return                  Event
+     * @return Event
      * @throws ChannelException
      */
     @Override

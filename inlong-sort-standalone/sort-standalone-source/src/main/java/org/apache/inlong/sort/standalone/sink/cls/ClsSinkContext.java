@@ -17,17 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tencentcloudapi.cls.producer.AsyncProducerClient;
-import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
-import com.tencentcloudapi.cls.producer.errors.ProducerException;
-import com.tencentcloudapi.cls.producer.util.NetworkUtils;
-
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -38,7 +27,10 @@ import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +39,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tencentcloudapi.cls.producer.AsyncProducerClient;
+import com.tencentcloudapi.cls.producer.AsyncProducerConfig;
+import com.tencentcloudapi.cls.producer.errors.ProducerException;
+import com.tencentcloudapi.cls.producer.util.NetworkUtils;
 
 /**
  * Cls sink context.
@@ -81,9 +83,12 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Constructor
      *
-     * @param sinkName Name of sink.
-     * @param context  Basic context.
-     * @param channel  Channel which worker acquire profile event from.
+     * @param sinkName
+     *          Name of sink.
+     * @param context
+     *          Basic context.
+     * @param channel
+     *          Channel which worker acquire profile event from.
      */
     public ClsSinkContext(String sinkName, Context context, Channel channel) {
         super(sinkName, context, channel);
@@ -170,11 +175,12 @@ public class ClsSinkContext extends SinkContext {
      * Each client response for data of one secretId.
      * </p>
      * <p>
-     * First, find all secretId that are in the active clientMap but not in the updated id config (or to say EXPIRE
-     * secretId), and put those clients into deletingClientsMap. The real close process will be done at the beginning of
-     * next period of reloading. Second, find all secretIds that in the updated id config but not in the active
-     * clientMap(or to say NEW secretId), and start new clients for these secretId and put them into the active
-     * clientMap.
+     * First, find all secretId that are in the active clientMap but not in the
+     * updated id config (or to say EXPIRE secretId), and put those clients into
+     * deletingClientsMap. The real close process will be done at the beginning of
+     * next period of reloading. Second, find all secretIds that in the updated id
+     * config but not in the active clientMap(or to say NEW secretId), and start new
+     * clients for these secretId and put them into the active clientMap.
      * </p>
      */
     private void reloadClients() {
@@ -199,7 +205,8 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Start new cls client and put it to the active clientMap.
      *
-     * @param idConfig idConfig of new client.
+     * @param idConfig
+     *          idConfig of new client.
      */
     private void startNewClient(ClsIdConfig idConfig) {
         AsyncProducerConfig producerConfig = new AsyncProducerConfig(
@@ -215,7 +222,8 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Get common client config from context and set them.
      *
-     * @param config Config to be set.
+     * @param config
+     *          Config to be set.
      */
     private void setCommonClientConfig(AsyncProducerConfig config) {
         Optional.ofNullable(sinkContext.getInteger(KEY_TOTAL_SIZE_IN_BYTES))
@@ -243,11 +251,13 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Remove expire client from active clientMap and into the deleting client list.
      * <P>
-     * The reason why not close client when it remove from clientMap is to avoid <b>Race Condition</b>. Which will
-     * happen when worker thread get the client and ready to send msg, while the reload thread try to close it.
+     * The reason why not close client when it remove from clientMap is to avoid
+     * <b>Race Condition</b>. Which will happen when worker thread get the client
+     * and ready to send msg, while the reload thread try to close it.
      * </P>
      *
-     * @param secretId SecretId of expire client.
+     * @param secretId
+     *          SecretId of expire client.
      */
     private void removeExpireClient(String secretId) {
         AsyncProducerClient client = clientMap.get(secretId);
@@ -261,10 +271,14 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Add send result.
      *
-     * @param currentRecord Event to be sent.
-     * @param bid           Topic or dest ip of event.
-     * @param result        Result of send.
-     * @param sendTime      Time of sending.
+     * @param currentRecord
+     *          Event to be sent.
+     * @param bid
+     *          Topic or dest ip of event.
+     * @param result
+     *          Result of send.
+     * @param sendTime
+     *          Time of sending.
      */
     public void addSendResultMetric(ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = this.getDimensions(currentRecord, bid);
@@ -291,9 +305,11 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Get report dimensions.
      *
-     * @param  currentRecord Event.
-     * @param  bid  Topic or dest ip.
-     * @return  Prepared dimensions map.
+     * @param currentRecord
+     *          Event.
+     * @param bid
+     *          Topic or dest ip.
+     * @return Prepared dimensions map.
      */
     private Map<String, String> getDimensions(ProfileEvent currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
@@ -312,8 +328,9 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Get {@link ClsIdConfig} by uid.
      *
-     * @param  uid Uid of event.
-     * @return  Corresponding cls id config.
+     * @param uid
+     *          Uid of event.
+     * @return Corresponding cls id config.
      */
     public ClsIdConfig getIdConfig(String uid) {
         return idConfigMap.get(uid);
@@ -340,8 +357,9 @@ public class ClsSinkContext extends SinkContext {
     /**
      * Get cls client.
      *
-     * @param  secretId ID of client.
-     * @return  Client instance.
+     * @param secretId
+     *          ID of client.
+     * @return Client instance.
      */
     public AsyncProducerClient getClient(String secretId) {
         return clientMap.get(secretId);

@@ -29,8 +29,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import java.util.LinkedHashMap;
 
 /**
- * A RowPartitionComputer that converts Flink objects to Hive objects before computing the partition
- * value strings.
+ * A RowPartitionComputer that converts Flink objects to Hive objects before
+ * computing the partition value strings.
  */
 public class HiveRowPartitionComputer extends RowPartitionComputer {
 
@@ -49,9 +49,8 @@ public class HiveRowPartitionComputer extends RowPartitionComputer {
         for (int i = 0; i < partColConversions.length; i++) {
             DataType partColType = columnTypes[partitionIndexes[i]];
             ObjectInspector objectInspector = HiveInspectors.getObjectInspector(partColType);
-            partColConversions[i] =
-                    HiveInspectors.getConversion(
-                            objectInspector, partColType.getLogicalType(), hiveShim);
+            partColConversions[i] = HiveInspectors.getConversion(
+                    objectInspector, partColType.getLogicalType(), hiveShim);
         }
     }
 
@@ -62,8 +61,7 @@ public class HiveRowPartitionComputer extends RowPartitionComputer {
         for (int i = 0; i < partitionIndexes.length; i++) {
             int index = partitionIndexes[i];
             Object field = in.getField(index);
-            String partitionValue =
-                    field != null ? partColConversions[i].toHiveObject(field).toString() : null;
+            String partitionValue = field != null ? partColConversions[i].toHiveObject(field).toString() : null;
             if (StringUtils.isEmpty(partitionValue)) {
                 partitionValue = defaultPartValue;
             }

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink.mysql;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -30,14 +29,17 @@ import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * MySQL's resource operator.
@@ -74,7 +76,8 @@ public class MySQLResourceOperator implements SinkResourceOperator {
     /**
      * Create MySQL table by SinkInfo.
      *
-     * @param sinkInfo {@link SinkInfo}
+     * @param sinkInfo
+     *          {@link SinkInfo}
      */
     private void createTable(SinkInfo sinkInfo) {
         LOG.info("begin to create MySQL table for sinkId={}", sinkInfo.getId());
@@ -92,8 +95,9 @@ public class MySQLResourceOperator implements SinkResourceOperator {
 
         MySQLSinkDTO sinkDTO = MySQLSinkDTO.getFromJson(sinkInfo.getExtParams());
         MySQLTableInfo tableInfo = MySQLSinkDTO.getTableInfo(sinkDTO, columnList);
-        try (Connection conn = MySQLJdbcUtils.getConnection(sinkDTO.getJdbcUrl(), sinkDTO.getUsername(),
-                sinkDTO.getPassword())) {
+        try (
+                Connection conn = MySQLJdbcUtils.getConnection(sinkDTO.getJdbcUrl(), sinkDTO.getUsername(),
+                        sinkDTO.getPassword())) {
             // 1. create database if not exists
             MySQLJdbcUtils.createDb(conn, tableInfo.getDbName());
             // 2. table not exists, create it

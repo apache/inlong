@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
 import org.xerial.snappy.Snappy;
 
 public class Utils {
@@ -46,7 +47,6 @@ public class Utils {
     public static final long HOUR_IN_MILLIS = 60 * 60 * 1000;
 
     public static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
-
 
     private static ConcurrentHashMap<String, AtomicLong> timeMap = new ConcurrentHashMap<String, AtomicLong>();
 
@@ -183,12 +183,11 @@ public class Utils {
         return out.toByteArray();
     }
 
-    public static byte[] gzipDecompress(byte[] data, int startOffset, int dataLength)
-            throws IOException {
+    public static byte[] gzipDecompress(byte[] data, int startOffset, int dataLength) throws IOException {
         GZIPInputStream gzip = null;
         int initBufSize = 8192;
         try {
-            //int inputLength=(data.length-(startOffset==0? 0:startOffset));
+            // int inputLength=(data.length-(startOffset==0? 0:startOffset));
             ByteArrayInputStream in = new ByteArrayInputStream(data, startOffset, dataLength);
             gzip = new GZIPInputStream(in, 8192);
 
@@ -222,8 +221,7 @@ public class Utils {
         return Snappy.compress(data);
     }
 
-    public static byte[] snappyDecompress(byte[] data, int startOffset, int dataLength)
-            throws IOException {
+    public static byte[] snappyDecompress(byte[] data, int startOffset, int dataLength) throws IOException {
         int needSize = Snappy.uncompressedLength(data, startOffset, dataLength);
         byte[] result = new byte[needSize];
 

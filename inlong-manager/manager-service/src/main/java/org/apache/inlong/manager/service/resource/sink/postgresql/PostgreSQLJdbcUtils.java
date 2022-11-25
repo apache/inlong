@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.service.resource.sink.postgresql;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,6 +29,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utils for PostgreSQL JDBC.
@@ -47,14 +49,17 @@ public class PostgreSQLJdbcUtils {
     /**
      * Get PostgreSQL connection from the url and user.
      *
-     * @param url jdbc url, such as jdbc:mysql://host:port/database
-     * @param user Username for JDBC URL
-     * @param password User password
+     * @param url
+     *          jdbc url, such as jdbc:mysql://host:port/database
+     * @param user
+     *          Username for JDBC URL
+     * @param password
+     *          User password
      * @return {@link Connection}
-     * @throws Exception on get connection error
+     * @throws Exception
+     *           on get connection error
      */
-    public static Connection getConnection(String url, String user, String password)
-            throws Exception {
+    public static Connection getConnection(String url, String user, String password) throws Exception {
         if (StringUtils.isBlank(url) || !url.startsWith(POSTGRES_JDBC_PREFIX)) {
             throw new Exception("PostgreSQL server URL was invalid, it should start with jdbc:postgresql");
         }
@@ -77,9 +82,12 @@ public class PostgreSQLJdbcUtils {
     /**
      * Execute SQL command on PostgreSQL.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param sql SQL string to be executed
-     * @throws Exception on execute SQL error
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param sql
+     *          SQL string to be executed
+     * @throws Exception
+     *           on execute SQL error
      */
     public static void executeSql(final Connection conn, final String sql) throws Exception {
         try (Statement stmt = conn.createStatement()) {
@@ -91,9 +99,12 @@ public class PostgreSQLJdbcUtils {
     /**
      * Execute batch query SQL on PostgreSQL.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param sqls SQL string to be executed
-     * @throws Exception on get execute SQL batch error
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param sqls
+     *          SQL string to be executed
+     * @throws Exception
+     *           on get execute SQL batch error
      */
     public static void executeSqlBatch(final Connection conn, final List<String> sqls) throws Exception {
         conn.setAutoCommit(false);
@@ -111,12 +122,17 @@ public class PostgreSQLJdbcUtils {
     /**
      * Create PostgreSQL schema by schemaNama
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName PostgreSQL schema name
-     * @param userName PostgreSQL user name
-     * @throws Exception on create schema error
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param schemaName
+     *          PostgreSQL schema name
+     * @param userName
+     *          PostgreSQL user name
+     * @throws Exception
+     *           on create schema error
      */
-    public static void createSchema(final Connection conn, final String schemaName, final String userName)
+    public static void createSchema(final Connection conn, final String schemaName,
+            final String userName)
             throws Exception {
         if (checkSchemaExist(conn, schemaName)) {
             LOG.info("the schema [{}] are exists", schemaName);
@@ -130,10 +146,13 @@ public class PostgreSQLJdbcUtils {
     /**
      * Check whether the schema exists.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName PostgreSQL schema name
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param schemaName
+     *          PostgreSQL schema name
      * @return true if schema exist in the table, otherwise false
-     * @throws Exception on check column exist error
+     * @throws Exception
+     *           on check column exist error
      */
     public static boolean checkSchemaExist(final Connection conn, final String schemaName) throws Exception {
         boolean result = false;
@@ -141,7 +160,8 @@ public class PostgreSQLJdbcUtils {
             result = true;
         } else {
             final String checkColumnSql = PostgreSQLSqlBuilder.getCheckSchema(schemaName);
-            try (Statement statement = conn.createStatement();
+            try (
+                    Statement statement = conn.createStatement();
                     ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
                 if (Objects.nonNull(resultSet) && resultSet.next()) {
                     int count = resultSet.getInt(1);
@@ -158,18 +178,25 @@ public class PostgreSQLJdbcUtils {
     /**
      * Check whether the column exists in the table.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName PostgreSQL schema name
-     * @param tableName PostgreSQL table name
-     * @param column PostgreSQL table column name
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param schemaName
+     *          PostgreSQL schema name
+     * @param tableName
+     *          PostgreSQL table name
+     * @param column
+     *          PostgreSQL table column name
      * @return true if column exist in the table, otherwise false
-     * @throws Exception on check column exist error
+     * @throws Exception
+     *           on check column exist error
      */
     public static boolean checkColumnExist(final Connection conn, final String schemaName, final String tableName,
-            final String column) throws Exception {
+            final String column)
+            throws Exception {
         boolean result = false;
         final String checkColumnSql = PostgreSQLSqlBuilder.getCheckColumn(schemaName, tableName, column);
-        try (Statement statement = conn.createStatement();
+        try (
+                Statement statement = conn.createStatement();
                 ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
             if (Objects.nonNull(resultSet) && resultSet.next()) {
                 int count = resultSet.getInt(1);
@@ -185,12 +212,14 @@ public class PostgreSQLJdbcUtils {
     /**
      * Create Greenplum table by GreenplumTableInfo
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param tableInfo Greenplum table info  {@link PostgreSQLTableInfo}
-     * @throws Exception on create table error
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param tableInfo
+     *          Greenplum table info {@link PostgreSQLTableInfo}
+     * @throws Exception
+     *           on create table error
      */
-    public static void createTable(final Connection conn, final PostgreSQLTableInfo tableInfo)
-            throws Exception {
+    public static void createTable(final Connection conn, final PostgreSQLTableInfo tableInfo) throws Exception {
         if (checkTablesExist(conn, tableInfo.getSchemaName(), tableInfo.getTableName())) {
             LOG.info("the table [{}] are exists", tableInfo.getTableName());
         } else {
@@ -203,17 +232,23 @@ public class PostgreSQLJdbcUtils {
     /**
      * Check tables from the Greenplum information_schema.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName PostgreSQL database name
-     * @param tableName PostgreSQL table name
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param schemaName
+     *          PostgreSQL database name
+     * @param tableName
+     *          PostgreSQL table name
      * @return true if table exist, otherwise false
-     * @throws Exception on check table exist error
+     * @throws Exception
+     *           on check table exist error
      */
-    public static boolean checkTablesExist(final Connection conn, final String schemaName, final String tableName)
+    public static boolean checkTablesExist(final Connection conn, final String schemaName,
+            final String tableName)
             throws Exception {
         boolean result = false;
         final String checkTableSql = PostgreSQLSqlBuilder.getCheckTable(schemaName, tableName);
-        try (Statement statement = conn.createStatement();
+        try (
+                Statement statement = conn.createStatement();
                 ResultSet resultSet = statement.executeQuery(checkTableSql)) {
             if (null != resultSet && resultSet.next()) {
                 int size = resultSet.getInt(1);
@@ -229,18 +264,24 @@ public class PostgreSQLJdbcUtils {
     /**
      * Query all columns of the tableName.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName PostgreSQL schema name
-     * @param tableName PostgreSQL table name
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param schemaName
+     *          PostgreSQL schema name
+     * @param tableName
+     *          PostgreSQL table name
      * @return {@link List}
-     * @throws Exception on get columns error
+     * @throws Exception
+     *           on get columns error
      */
     public static List<PostgreSQLColumnInfo> getColumns(final Connection conn, final String schemaName,
-            final String tableName) throws Exception {
+            final String tableName)
+            throws Exception {
         final List<PostgreSQLColumnInfo> columnList = new ArrayList<>();
         final String querySql = PostgreSQLSqlBuilder.buildDescTableSql(schemaName, tableName);
 
-        try (Statement stmt = conn.createStatement();
+        try (
+                Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(querySql)) {
             while (rs.next()) {
                 columnList.add(new PostgreSQLColumnInfo(rs.getString(1), rs.getString(2),
@@ -253,14 +294,20 @@ public class PostgreSQLJdbcUtils {
     /**
      * Add columns for Greenpluum table.
      *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName PostgreSQL schema name
-     * @param tableName PostgreSQL table name
-     * @param columns PostgreSQL columns to be added
-     * @throws Exception on add columns error
+     * @param conn
+     *          JDBC Connection {@link Connection}
+     * @param schemaName
+     *          PostgreSQL schema name
+     * @param tableName
+     *          PostgreSQL table name
+     * @param columns
+     *          PostgreSQL columns to be added
+     * @throws Exception
+     *           on add columns error
      */
     public static void addColumns(final Connection conn, final String schemaName, final String tableName,
-            final List<PostgreSQLColumnInfo> columns) throws Exception {
+            final List<PostgreSQLColumnInfo> columns)
+            throws Exception {
         final List<PostgreSQLColumnInfo> columnInfos = new ArrayList<>();
 
         for (PostgreSQLColumnInfo columnInfo : columns) {

@@ -17,15 +17,12 @@
 
 package org.apache.inlong.manager.service.operationlog;
 
-import com.google.common.collect.Queues;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+
 import org.apache.inlong.manager.dao.entity.OperationLogEntity;
 import org.apache.inlong.manager.dao.mapper.OperationLogEntityMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -36,8 +33,15 @@ import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
-import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+import javax.annotation.PostConstruct;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Queues;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Operation log thread pool
@@ -73,8 +77,7 @@ public class OperationLogPool {
     @PostConstruct
     public void init() {
         IntStream.range(0, THREAD_NUM).forEach(
-                i -> EXECUTOR_SERVICE.submit(this::saveOperationLog)
-        );
+                i -> EXECUTOR_SERVICE.submit(this::saveOperationLog));
     }
 
     private void saveOperationLog() {

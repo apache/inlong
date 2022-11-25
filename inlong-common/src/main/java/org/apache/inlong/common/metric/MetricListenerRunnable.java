@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.metric;
 
+import org.apache.commons.lang3.ClassUtils;
+
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,6 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,7 @@ public class MetricListenerRunnable implements Runnable {
     /**
      * getItemValues
      *
-     * @return                              MetricItemValue List
+     * @return MetricItemValue List
      * @throws InstanceNotFoundException
      * @throws AttributeNotFoundException
      * @throws ReflectionException
@@ -116,11 +117,10 @@ public class MetricListenerRunnable implements Runnable {
                 itemValues.add(itemValue);
             } else if (ClassUtils.isAssignable(clazz, MetricItemSetMBean.class)) {
                 ObjectName metricObjectName = mbean.getObjectName();
-                List<MetricItem> items =
-                        (List<MetricItem>) mbs.invoke(metricObjectName,
+                List<MetricItem> items = (List<MetricItem>) mbs.invoke(metricObjectName,
                         MetricItemMBean.METHOD_SNAPSHOT, null, null);
                 /*
-                  * ut will throw classCaseException if use MetricItem without Object
+                 * ut will throw classCaseException if use MetricItem without Object
                  */
                 for (Object itemT : items) {
                     if (itemT instanceof MetricItem) {

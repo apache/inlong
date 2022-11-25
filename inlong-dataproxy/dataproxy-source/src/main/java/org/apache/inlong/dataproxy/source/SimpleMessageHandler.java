@@ -21,30 +21,6 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_DATA
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.SLA_METRIC_GROUPID;
 import static org.apache.inlong.dataproxy.source.SimpleTcpSource.blacklist;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.group.ChannelGroup;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.ChannelException;
-import org.apache.flume.Event;
-import org.apache.flume.channel.ChannelProcessor;
-import org.apache.flume.event.EventBuilder;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
@@ -57,8 +33,37 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.ChannelException;
+import org.apache.flume.Event;
+import org.apache.flume.channel.ChannelProcessor;
+import org.apache.flume.event.EventBuilder;
+
+import java.io.IOException;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
 
 /**
  * Server message handler
@@ -105,6 +110,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * SimpleMessageHandler
+     * 
      * @param source
      * @param serProcessor
      * @param allChannels
@@ -302,7 +308,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             checkGroupIdInfo(message, commonAttrMap, attrMap, topicInfo);
             topic = topicInfo.get();
 
-//                if(groupId==null)groupId="b_test";//default groupId
+            // if(groupId==null)groupId="b_test";//default groupId
 
             message.setTopic(topic);
             commonAttrMap.put(AttributeConstants.NODE_IP, strRemoteIP);
@@ -354,15 +360,16 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
     /**
      * formatMessagesAndSend
      * 
-     * @param  commonAttrMap
-     * @param  messageMap
-     * @param  strRemoteIP
-     * @param  msgType
+     * @param commonAttrMap
+     * @param messageMap
+     * @param strRemoteIP
+     * @param msgType
      * @throws MessageIDException
      */
     private void formatMessagesAndSend(Map<String, String> commonAttrMap,
             Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
-            String strRemoteIP, MsgType msgType) throws MessageIDException {
+            String strRemoteIP, MsgType msgType)
+            throws MessageIDException {
 
         int inLongMsgVer = 1;
         if (MsgType.MSG_MULTI_BODY_ATTR.equals(msgType)) {
@@ -415,10 +422,9 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
 
                 String sequenceId = commonAttrMap.get(AttributeConstants.SEQUENCE_ID);
                 if (StringUtils.isNotEmpty(sequenceId)) {
-                    StringBuilder sidBuilder =
-                            new StringBuilder().append(topicEntry.getKey())
-                                    .append(AttributeConstants.SEPARATOR).append(streamIdEntry.getKey())
-                                    .append(AttributeConstants.SEPARATOR).append(sequenceId);
+                    StringBuilder sidBuilder = new StringBuilder().append(topicEntry.getKey())
+                            .append(AttributeConstants.SEPARATOR).append(streamIdEntry.getKey())
+                            .append(AttributeConstants.SEPARATOR).append(sequenceId);
                     headers.put(ConfigConstants.SEQUENCE_ID, sidBuilder.toString());
                 }
 
@@ -454,8 +460,8 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
     /**
      * parseProxyMessage2Event
      * 
-     * @param  commonHeaders
-     * @param  proxyMessage
+     * @param commonHeaders
+     * @param proxyMessage
      * @return
      */
     private Event parseProxyMessage2Event(Map<String, String> commonHeaders, ProxyMessage proxyMessage) {
@@ -481,7 +487,8 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             Map<String, Object> resultMap,
             Channel remoteChannel,
             SocketAddress remoteSocketAddress,
-            MsgType msgType) throws Exception {
+            MsgType msgType)
+            throws Exception {
         if (!commonAttrMap.containsKey("isAck") || "true".equals(commonAttrMap.get("isAck"))) {
             if (MsgType.MSG_ACK_SERVICE.equals(msgType) || MsgType.MSG_ORIGINAL_RETURN
                     .equals(msgType)

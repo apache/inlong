@@ -18,10 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
+import java.util.Map;
+
 import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges.TableChange;
-
-import java.util.Map;
 
 /**
  * The split to describe a split of MySql metric.

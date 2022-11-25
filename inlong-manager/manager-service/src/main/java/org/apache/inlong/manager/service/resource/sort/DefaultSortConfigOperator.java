@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sort;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
@@ -38,10 +36,9 @@ import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,8 +49,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 /**
- * Default Sort config operator, used to create a Sort config for the InlongGroup with ZK disabled.
+ * Default Sort config operator, used to create a Sort config for the
+ * InlongGroup with ZK disabled.
  */
 @Service
 public class DefaultSortConfigOperator implements SortConfigOperator {
@@ -74,7 +77,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     }
 
     @Override
-    public void buildConfig(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, boolean isStream)
+    public void buildConfig(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos,
+            boolean isStream)
             throws Exception {
         if (isStream) {
             LOGGER.warn("no need to build sort config for stream process when disable zk");
@@ -126,7 +130,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
             if (InlongConstants.STANDARD_MODE.equals(groupInfo.getLightweight())) {
                 if (CollectionUtils.isNotEmpty(transformResponses)) {
                     relations = NodeRelationUtils.createNodeRelations(inlongStream);
-                    // in standard mode, replace upstream source node and transform input fields node
+                    // in standard mode, replace upstream source node and transform input fields
+                    // node
                     // to MQ node (which is inlong stream id)
                     String mqNodeName = sources.get(0).getSourceName();
                     Set<String> nodeNameSet = getInputNodeNames(sources, transformResponses);
@@ -169,8 +174,8 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     /**
      * Set origin node to mq node for transform fields if necessary.
      *
-     * In standard mode for InlongGroup, transform input node must either be
-     * mq source node or transform node, otherwise replace it with mq node name.
+     * In standard mode for InlongGroup, transform input node must either be mq
+     * source node or transform node, otherwise replace it with mq node name.
      */
     private void adjustTransformField(List<TransformResponse> transforms, Set<String> nodeNameSet, String mqNodeName) {
         for (TransformResponse transform : transforms) {
@@ -208,9 +213,12 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     /**
      * Get constant field from stream fields
      *
-     * @param nodeId node id
-     * @param fields stream fields
-     * @param constantFieldMap constant field map
+     * @param nodeId
+     *          node id
+     * @param fields
+     *          stream fields
+     * @param constantFieldMap
+     *          constant field map
      */
     private void parseConstantFieldMap(String nodeId, List<StreamField> fields,
             Map<String, StreamField> constantFieldMap) {

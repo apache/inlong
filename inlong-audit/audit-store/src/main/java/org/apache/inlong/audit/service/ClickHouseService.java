@@ -20,8 +20,6 @@ package org.apache.inlong.audit.service;
 import org.apache.inlong.audit.config.ClickHouseConfig;
 import org.apache.inlong.audit.db.entities.ClickHouseDataPo;
 import org.apache.inlong.audit.protocol.AuditData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -35,6 +33,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ClickHouseService
@@ -60,7 +61,10 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * Constructor
-     * @param chConfig ClickHouse service config, such as jdbc url, jdbc username, jdbc password.
+     * 
+     * @param chConfig
+     *          ClickHouse service config, such as jdbc url, jdbc username, jdbc
+     *          password.
      */
     public ClickHouseService(ClickHouseConfig chConfig) {
         this.chConfig = chConfig;
@@ -142,7 +146,9 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * reconnect
-     * @throws SQLException Exception when creating connection.
+     * 
+     * @throws SQLException
+     *           Exception when creating connection.
      */
     private void reconnect() throws SQLException {
         if (this.conn != null) {
@@ -160,7 +166,9 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * insert
-     * @param msgBody audit data reading from Pulsar or other MessageQueue. 
+     * 
+     * @param msgBody
+     *          audit data reading from Pulsar or other MessageQueue.
      */
     @Override
     public void insert(AuditData msgBody) {
@@ -191,7 +199,9 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * close
-     * @throws Exception Exception when closing ClickHouse connection.
+     * 
+     * @throws Exception
+     *           Exception when closing ClickHouse connection.
      */
     @Override
     public void close() throws Exception {

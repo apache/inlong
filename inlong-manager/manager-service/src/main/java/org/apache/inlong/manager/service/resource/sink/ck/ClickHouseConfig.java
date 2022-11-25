@@ -17,13 +17,15 @@
 
 package org.apache.inlong.manager.service.resource.sink.ck;
 
-import com.alibaba.druid.pool.DruidDataSourceFactory;
+import java.sql.Connection;
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.util.Properties;
+import com.alibaba.druid.pool.DruidDataSourceFactory;
 
 /**
  * Clickhouse config information, including url, user, etc.

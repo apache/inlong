@@ -17,11 +17,13 @@
 
 package org.apache.inlong.tubemq.example;
 
+import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
  * This demo shows how to collect and report message received statistics.
  */
 public class MsgSendReceiveStats implements Runnable {
+
     private final boolean isProducer;
     private static final Logger logger = LoggerFactory.getLogger(MsgSendReceiveStats.class);
     private static final ConcurrentHashMap<String, AtomicLong> counterMap = new ConcurrentHashMap<>();
@@ -73,8 +76,10 @@ public class MsgSendReceiveStats implements Runnable {
     /**
      * Record the number of messages by topicName dimension
      *
-     * @param topicName   topic name
-     * @param msgCnt      message count
+     * @param topicName
+     *          topic name
+     * @param msgCnt
+     *          message count
      */
     public void addMsgCount(final String topicName, int msgCnt) {
         if (msgCnt > 0) {

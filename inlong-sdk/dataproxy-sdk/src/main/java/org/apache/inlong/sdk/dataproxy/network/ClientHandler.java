@@ -18,13 +18,16 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+
 public class ClientHandler extends SimpleChannelInboundHandler<EncodeObject> {
+
     private static final Logger logger = LoggerFactory
             .getLogger(ClientHandler.class);
 

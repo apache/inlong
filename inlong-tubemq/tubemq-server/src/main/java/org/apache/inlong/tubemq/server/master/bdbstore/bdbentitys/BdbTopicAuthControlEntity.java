@@ -17,15 +17,18 @@
 
 package org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import java.io.Serializable;
-import java.util.Date;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
 
 @Entity
 public class BdbTopicAuthControlEntity implements Serializable {
@@ -35,8 +38,8 @@ public class BdbTopicAuthControlEntity implements Serializable {
     private String topicName;
     private int enableAuthControl = -1; // -1 : undefine; 0: disable, 1: enable
     // ** Based on the data compatibility consideration of the original version:
-    //     the creation information in this example is the last modified information,
-    //     and the modified information is the creation information
+    // the creation information in this example is the last modified information,
+    // and the modified information is the creation information
     private String createUser;
     private Date createDate;
     private String attributes;
@@ -46,7 +49,7 @@ public class BdbTopicAuthControlEntity implements Serializable {
     }
 
     public BdbTopicAuthControlEntity(String topicName, boolean enableAuthControl,
-                                     String modifyUser, Date modifyDate) {
+            String modifyUser, Date modifyDate) {
         this.topicName = topicName;
         if (enableAuthControl) {
             this.enableAuthControl = 1;
@@ -58,7 +61,7 @@ public class BdbTopicAuthControlEntity implements Serializable {
     }
 
     public BdbTopicAuthControlEntity(String topicName, boolean enableAuthControl,
-                                     String attributes,  String modifyUser, Date modifyDate) {
+            String attributes, String modifyUser, Date modifyDate) {
         this.topicName = topicName;
         if (enableAuthControl) {
             this.enableAuthControl = 1;
@@ -111,9 +114,8 @@ public class BdbTopicAuthControlEntity implements Serializable {
     }
 
     public long getDataVerId() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_VERSION_ID);
         if (atrVal != null) {
             return Long.parseLong(atrVal);
         }
@@ -121,16 +123,14 @@ public class BdbTopicAuthControlEntity implements Serializable {
     }
 
     public void setDataVerId(long dataVerId) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID,
-                        String.valueOf(dataVerId));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_VERSION_ID,
+                String.valueOf(dataVerId));
     }
 
     public int getTopicId() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_TOPICNAME_ID);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_TOPICNAME_ID);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -138,16 +138,14 @@ public class BdbTopicAuthControlEntity implements Serializable {
     }
 
     public void setTopicId(int topicId) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_TOPICNAME_ID,
-                        String.valueOf(topicId));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_TOPICNAME_ID,
+                String.valueOf(topicId));
     }
 
     public int getMaxMsgSize() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MAX_MSG_SIZE);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_MAX_MSG_SIZE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -155,23 +153,20 @@ public class BdbTopicAuthControlEntity implements Serializable {
     }
 
     public void setMaxMsgSize(int maxMsgSize) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MAX_MSG_SIZE,
-                        String.valueOf(maxMsgSize));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_MAX_MSG_SIZE,
+                String.valueOf(maxMsgSize));
     }
 
     public void setCreateInfo(String createUser, Date createDate) {
         if (TStringUtils.isNotBlank(createUser)) {
-            this.attributes =
-                    TStringUtils.setAttrValToAttributes(this.attributes,
-                            TStoreConstants.TOKEN_CREATE_USER, createUser);
+            this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                    TStoreConstants.TOKEN_CREATE_USER, createUser);
         }
         if (createDate != null) {
             String dataStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate);
-            this.attributes =
-                    TStringUtils.setAttrValToAttributes(this.attributes,
-                            TStoreConstants.TOKEN_CREATE_DATE, dataStr);
+            this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                    TStoreConstants.TOKEN_CREATE_DATE, dataStr);
         }
     }
 

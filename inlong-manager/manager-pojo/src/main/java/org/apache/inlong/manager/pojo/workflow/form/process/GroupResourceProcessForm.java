@@ -17,17 +17,18 @@
 
 package org.apache.inlong.manager.pojo.workflow.form.process;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * Form of create inlong group resource

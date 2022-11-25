@@ -22,19 +22,14 @@ package org.apache.inlong.manager.common.enums;
  */
 public enum StreamStatus {
 
-    NEW(100, "new"),
-    CONFIG_ING(110, "in configure"),
-    CONFIG_FAILED(120, "configuration failed"),
-    CONFIG_SUCCESSFUL(130, "configuration successful"),
+    NEW(100, "new"), CONFIG_ING(110, "in configure"), CONFIG_FAILED(120, "configuration failed"), CONFIG_SUCCESSFUL(130,
+            "configuration successful"),
 
-    SUSPENDING(141, "suspending"),
-    SUSPENDED(140, "suspended"),
+    SUSPENDING(141, "suspending"), SUSPENDED(140, "suspended"),
 
-    RESTARTING(151, "restarting"),
-    RESTARTED(150, "restarted"),
+    RESTARTING(151, "restarting"), RESTARTED(150, "restarted"),
 
-    DELETING(41, "deleting"),
-    DELETED(40, "deleted");
+    DELETING(41, "deleting"), DELETED(40, "deleted");
 
     private final Integer code;
     private final String description;

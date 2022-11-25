@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongConsumeApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
@@ -34,6 +33,8 @@ import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 /**
  * Client for {@link InlongConsumeApi}.
  */
@@ -48,7 +49,8 @@ public class InlongConsumeClient {
     /**
      * Save inlong consume info.
      *
-     * @param request consume request need to save
+     * @param request
+     *          consume request need to save
      * @return inlong consume id after saving
      */
     public Integer save(InlongConsumeRequest request) {
@@ -64,7 +66,8 @@ public class InlongConsumeClient {
     /**
      * Get inlong consume info based on ID
      *
-     * @param id inlong consume id
+     * @param id
+     *          inlong consume id
      * @return detail of inlong group
      */
     public InlongConsumeInfo get(Integer id) {
@@ -89,7 +92,8 @@ public class InlongConsumeClient {
     /**
      * Paging query inlong consume info list
      *
-     * @param request pagination query request
+     * @param request
+     *          pagination query request
      * @return inlong consume list
      */
     public PageResult<InlongConsumeBriefInfo> list(InlongConsumePageRequest request) {
@@ -106,7 +110,8 @@ public class InlongConsumeClient {
     /**
      * Update the inlong consume
      *
-     * @param request inlong consume request that needs to be updated
+     * @param request
+     *          inlong consume request that needs to be updated
      * @return inlong consume id after saving
      */
     public Integer update(InlongConsumeRequest request) {
@@ -120,7 +125,8 @@ public class InlongConsumeClient {
     /**
      * Delete the inlong consume by the id
      *
-     * @param id inlong consume id that needs to be deleted
+     * @param id
+     *          inlong consume id that needs to be deleted
      * @return whether succeed
      */
     public Boolean delete(Integer id) {
@@ -134,7 +140,8 @@ public class InlongConsumeClient {
     /**
      * Start the process for the specified ID.
      *
-     * @param id inlong consume id
+     * @param id
+     *          inlong consume id
      * @return workflow result
      */
     public WorkflowResult startProcess(Integer id) {

@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
@@ -28,13 +30,13 @@ import org.apache.flink.types.DeserializationException;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 /**
  * deserialization schema for {@link KafkaDynamicSource}.
@@ -43,8 +45,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
 
     private static final long serialVersionUID = 1L;
 
-    private final @Nullable
-    DeserializationSchema<RowData> keyDeserialization;
+    private final @Nullable DeserializationSchema<RowData> keyDeserialization;
 
     private final DeserializationSchema<RowData> valueDeserialization;
 
@@ -79,13 +80,12 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
         this.valueDeserialization = valueDeserialization;
         this.hasMetadata = hasMetadata;
         this.keyCollector = new BufferingCollector();
-        this.outputCollector =
-                new OutputProjectionCollector(
-                        physicalArity,
-                        keyProjection,
-                        valueProjection,
-                        metadataConverters,
-                        upsertMode);
+        this.outputCollector = new OutputProjectionCollector(
+                physicalArity,
+                keyProjection,
+                valueProjection,
+                metadataConverters,
+                upsertMode);
         this.producedTypeInfo = producedTypeInfo;
         this.upsertMode = upsertMode;
     }
@@ -113,8 +113,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
     }
 
     @Override
-    public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<RowData> collector)
-            throws Exception {
+    public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<RowData> collector) throws Exception {
         // shortcut in case no output projection is required,
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
@@ -192,18 +191,21 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
     /**
      * Emits a row with key, value, and metadata fields.
      *
-     * <p>The collector is able to handle the following kinds of keys:
+     * <p>
+     * The collector is able to handle the following kinds of keys:
      *
      * <ul>
-     *   <li>No key is used.
-     *   <li>A key is used.
-     *   <li>The deserialization schema emits multiple keys.
-     *   <li>Keys and values have overlapping fields.
-     *   <li>Keys are used and value is null.
+     * <li>No key is used.
+     * <li>A key is used.
+     * <li>The deserialization schema emits multiple keys.
+     * <li>Keys and values have overlapping fields.
+     * <li>Keys are used and value is null.
      * </ul>
      */
     private static final class OutputProjectionCollector
-            implements Collector<RowData>, Serializable {
+            implements
+                Collector<RowData>,
+                Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -273,8 +275,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             }
 
             final int metadataArity = metadataConverters.length;
-            final GenericRowData producedRow =
-                    new GenericRowData(rowKind, physicalArity + metadataArity);
+            final GenericRowData producedRow = new GenericRowData(rowKind, physicalArity + metadataArity);
 
             for (int keyPos = 0; keyPos < keyProjection.length; keyPos++) {
                 assert physicalKeyRow != null;

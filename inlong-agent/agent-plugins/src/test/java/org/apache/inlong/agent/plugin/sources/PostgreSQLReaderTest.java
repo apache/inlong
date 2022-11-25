@@ -17,19 +17,21 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import com.google.gson.Gson;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.PostgreSQLReader;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import com.google.gson.Gson;
 
 /**
  * Test for PostgreSQL reader
@@ -69,9 +71,8 @@ public class PostgreSQLReaderTest {
     }
 
     /**
-     * this test is used for testing collect data from postgreSQL in unit test,
-     * and it may cause failure in compile
-     * thus we annotate it.
+     * this test is used for testing collect data from postgreSQL in unit test, and
+     * it may cause failure in compile thus we annotate it.
      */
     // @Test
     public void postgresLoadTest() {

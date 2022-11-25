@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.client.cli;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
@@ -28,7 +25,12 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
+
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 
 /**
  * The log command was used to get log info for specified inlong groups.
@@ -57,7 +59,8 @@ public class LogCommand extends AbstractCommand {
         void run() {
             final int MAX_LOG_SIZE = 100;
             try {
-                // for now only filter by one condition. TODO:support OR and AND, make a condition filter.
+                // for now only filter by one condition. TODO:support OR and AND, make a
+                // condition filter.
                 // sample input: inlongGroupId:test_group
                 if (StringUtils.isNotBlank(input)) {
                     System.err.println("input cannot be empty, for example: inlongGroupId:test_group");

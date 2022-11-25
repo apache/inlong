@@ -17,33 +17,33 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
 
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 // AbstractEntity: entity's abstract class
 public class BaseEntity implements Serializable, Cloneable {
 
-    private long dataVersionId =
-            TBaseConstants.META_VALUE_UNDEFINED;    // -2: undefined, other: version
-    private AtomicLong serialId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private String createUser = "";        // create user
-    private Date createDate = null;        // create date
-    private String modifyUser = "";       // modify user
-    private Date modifyDate = null;        // modify date
-    private String attributes = "";        // attribute info
-    private String createDateStr = "";     // create data string
-    private String modifyDateStr = "";     // create data string
+    private long dataVersionId = TBaseConstants.META_VALUE_UNDEFINED; // -2: undefined, other: version
+    private AtomicLong serialId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private String createUser = ""; // create user
+    private Date createDate = null; // create date
+    private String modifyUser = ""; // modify user
+    private Date modifyDate = null; // modify date
+    private String attributes = ""; // attribute info
+    private String createDateStr = ""; // create data string
+    private String modifyDateStr = ""; // create data string
 
     public BaseEntity() {
 
@@ -57,7 +57,8 @@ public class BaseEntity implements Serializable, Cloneable {
     /**
      * Constructor by BaseEntity
      *
-     * @param other  the BaseEntity initial object
+     * @param other
+     *          the BaseEntity initial object
      */
     public BaseEntity(BaseEntity other) {
         this.dataVersionId = other.dataVersionId;
@@ -72,14 +73,14 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     public BaseEntity(String createUser, Date createDate,
-                      String modifyUser, Date modifyDate) {
+            String modifyUser, Date modifyDate) {
         this(TServerConstants.DEFAULT_DATA_VERSION,
                 createUser, createDate, modifyUser, modifyDate);
     }
 
     public BaseEntity(long dataVersionId,
-                      String createUser, Date createDate,
-                      String modifyUser, Date modifyDate) {
+            String createUser, Date createDate,
+            String modifyUser, Date modifyDate) {
         this.dataVersionId = dataVersionId;
         setCreateInfo(createUser, createDate);
         setModifyInfo(modifyUser, modifyDate);
@@ -89,8 +90,9 @@ public class BaseEntity implements Serializable, Cloneable {
     /**
      * Update modify key fields information
      *
-     * @param opInfoEntity   need updated BaseEntity information
-     * @return  whether changed current value
+     * @param opInfoEntity
+     *          need updated BaseEntity information
+     * @return whether changed current value
      */
     public boolean updBaseModifyInfo(BaseEntity opInfoEntity) {
         boolean changed = false;
@@ -115,14 +117,17 @@ public class BaseEntity implements Serializable, Cloneable {
     /**
      * Update query key fields information
      *
-     * @param newDataVerId   need updated data version id
-     * @param newCreateUser  need updated creator
-     * @param newModifyUser  need updated modify user
-     * @return  whether changed current value
+     * @param newDataVerId
+     *          need updated data version id
+     * @param newCreateUser
+     *          need updated creator
+     * @param newModifyUser
+     *          need updated modify user
+     * @return whether changed current value
      */
     public boolean updQueryKeyInfo(long newDataVerId,
-                                   String newCreateUser,
-                                   String newModifyUser) {
+            String newCreateUser,
+            String newModifyUser) {
         boolean changed = false;
         // check and set dataVersionId field
         if (newDataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -148,8 +153,7 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     public void setKeyAndVal(String key, String value) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes, key, value);
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes, key, value);
     }
 
     public String getValueByKey(String key) {
@@ -225,9 +229,9 @@ public class BaseEntity implements Serializable, Cloneable {
     }
 
     /**
-     * Check whether the specified query item value matches
-     * Allowed query items:
-     *   dataVersionId, createUser, modifyUser
+     * Check whether the specified query item value matches Allowed query items:
+     * dataVersionId, createUser, modifyUser
+     * 
      * @return true: matched, false: not match
      */
     public boolean isMatched(BaseEntity target) {
@@ -237,17 +241,19 @@ public class BaseEntity implements Serializable, Cloneable {
         return (target.getDataVerId() == TBaseConstants.META_VALUE_UNDEFINED
                 || this.getDataVerId() == target.getDataVerId())
                 && (TStringUtils.isBlank(target.getCreateUser())
-                || target.getCreateUser().equals(createUser))
+                        || target.getCreateUser().equals(createUser))
                 && (TStringUtils.isBlank(target.getModifyUser())
-                || target.getModifyUser().equals(modifyUser));
+                        || target.getModifyUser().equals(modifyUser));
     }
 
     /**
      * Serialize field to json format
      *
-     * @param sBuilder   build container
-     * @param isLongName if return field key is long name
-     * @return   process result
+     * @param sBuilder
+     *          build container
+     * @param isLongName
+     *          if return field key is long name
+     * @return process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder, boolean isLongName) {
         if (isLongName) {
@@ -257,7 +263,7 @@ public class BaseEntity implements Serializable, Cloneable {
                     .append(",\"createDate\":\"").append(createDateStr).append("\"")
                     .append(",\"modifyUser\":\"").append(modifyUser).append("\"")
                     .append(",\"modifyDate\":\"").append(modifyDateStr).append("\"");
-                    //.append(",\"attributes\":\"").append(attributes).append("\"");
+            // .append(",\"attributes\":\"").append(attributes).append("\"");
         } else {
             sBuilder.append(",\"dVerId\":").append(dataVersionId)
                     .append(",\"serialId\":").append(serialId.get())
@@ -265,7 +271,7 @@ public class BaseEntity implements Serializable, Cloneable {
                     .append(",\"cDate\":\"").append(createDateStr).append("\"")
                     .append(",\"mur\":\"").append(modifyUser).append("\"")
                     .append(",\"mDate\":\"").append(modifyDateStr).append("\"");
-                    //.append(",\"attrs\":\"").append(attributes).append("\"");
+            // .append(",\"attrs\":\"").append(attributes).append("\"");
         }
         return sBuilder;
     }
@@ -273,11 +279,13 @@ public class BaseEntity implements Serializable, Cloneable {
     /**
      * Get field value to key and value format.
      *
-     * @param paramMap   build container
-     * @param isLongName if return field key is long name
+     * @param paramMap
+     *          build container
+     * @param isLongName
+     *          if return field key is long name
      */
     public void getConfigureInfo(Map<String, String> paramMap,
-                                 boolean isLongName) {
+            boolean isLongName) {
         if (dataVersionId != TBaseConstants.META_VALUE_UNDEFINED) {
             paramMap.put((isLongName ? "dataVersionId" : "dVerId"),
                     String.valueOf(dataVersionId));
@@ -319,7 +327,8 @@ public class BaseEntity implements Serializable, Cloneable {
     /**
      * Check if data field values are equal
      *
-     * @param other  check object
+     * @param other
+     *          check object
      * @return if equals
      */
     public boolean isDataEquals(BaseEntity other) {
@@ -328,7 +337,7 @@ public class BaseEntity implements Serializable, Cloneable {
                 && Objects.equals(createDateStr, other.createDateStr)
                 && Objects.equals(modifyUser, other.modifyUser)
                 && Objects.equals(modifyDateStr, other.modifyDateStr);
-                // && Objects.equals(attributes, other.attributes);
+        // && Objects.equals(attributes, other.attributes);
     }
 
     @Override

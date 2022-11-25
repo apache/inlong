@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import java.io.Serializable;
-import java.util.Date;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
@@ -29,33 +24,42 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
+
 @Entity
 public class BdbGroupFlowCtrlEntity implements Serializable {
+
     private static final long serialVersionUID = 2533735122504168321L;
     @PrimaryKey
-    private String groupName;           //group name
-    private long serialId = -1L;        //serial id
-    private int statusId = -1;         // 0:not active; 1: active
+    private String groupName; // group name
+    private long serialId = -1L; // serial id
+    private int statusId = -1; // 0:not active; 1: active
     private String flowCtrlInfo;
-    private int ruleCnt = 0;            //flow control rule count
+    private int ruleCnt = 0; // flow control rule count
     private long ssdTranslateId = System.currentTimeMillis();
-    private boolean needSSDProc = false;    //ssd
-    private String attributes;          //extra attributes
+    private boolean needSSDProc = false; // ssd
+    private String attributes; // extra attributes
     // ** Based on the data compatibility consideration of the original version:
-    //     the creation information in this example is the last modified information,
-    //     and the modified information is the creation information
-    private String createUser;          //create user
-    private Date createDate;            //create date
+    // the creation information in this example is the last modified information,
+    // and the modified information is the creation information
+    private String createUser; // create user
+    private Date createDate; // create date
 
     public BdbGroupFlowCtrlEntity() {
 
     }
 
-    //Constructor
+    // Constructor
     public BdbGroupFlowCtrlEntity(final String flowCtrlInfo, final int statusId,
-                                  final int ruleCnt, final int qryPriorityId,
-                                  final String attributes, final boolean curNeedSSDProc,
-                                  final String modifyUser, final Date modifyDate) {
+            final int ruleCnt, final int qryPriorityId,
+            final String attributes, final boolean curNeedSSDProc,
+            final String modifyUser, final Date modifyDate) {
         this.statusId = statusId;
         this.groupName = TServerConstants.TOKEN_DEFAULT_FLOW_CONTROL;
         this.serialId = System.currentTimeMillis();
@@ -69,12 +73,12 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
         this.setQryPriorityId(qryPriorityId);
     }
 
-    //Constructor
+    // Constructor
     public BdbGroupFlowCtrlEntity(final String groupName, final String flowCtrlInfo,
-                                  final int statusId, final int ruleCnt,
-                                  final int qryPriorityId, final String attributes,
-                                  final boolean needSSDProc, final String modifyUser,
-                                  final Date modifyDate) {
+            final int statusId, final int ruleCnt,
+            final int qryPriorityId, final String attributes,
+            final boolean needSSDProc, final String modifyUser,
+            final Date modifyDate) {
         this.groupName = groupName;
         this.serialId = System.currentTimeMillis();
         this.statusId = statusId;
@@ -88,12 +92,12 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
         this.setQryPriorityId(qryPriorityId);
     }
 
-    //Constructor
+    // Constructor
     public BdbGroupFlowCtrlEntity(final String groupName, final String flowCtrlInfo,
-                                  final int statusId, final int ruleCnt,
-                                  final String attributes, final long ssdTranslateId,
-                                  final boolean needSSDProc, final String modifyUser,
-                                  final Date modifyDate) {
+            final int statusId, final int ruleCnt,
+            final String attributes, final long ssdTranslateId,
+            final boolean needSSDProc, final String modifyUser,
+            final Date modifyDate) {
         this.groupName = groupName;
         this.serialId = System.currentTimeMillis();
         this.statusId = statusId;
@@ -106,11 +110,11 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
         this.ssdTranslateId = ssdTranslateId;
     }
 
-    //Constructor
+    // Constructor
     public BdbGroupFlowCtrlEntity(long serialId, String groupName, String flowCtrlInfo,
-                                  int statusId, int ruleCnt, int qryPriorityId,
-                                  String attributes, String modifyUser,
-                                  Date modifyDate) {
+            int statusId, int ruleCnt, int qryPriorityId,
+            String attributes, String modifyUser,
+            Date modifyDate) {
         this.groupName = groupName;
         this.serialId = serialId;
         this.statusId = statusId;
@@ -197,9 +201,8 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
     }
 
     public int getQryPriorityId() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_QRY_PRIORITY_ID);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_QRY_PRIORITY_ID);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -207,16 +210,14 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
     }
 
     public void setQryPriorityId(int qryPriorityId) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_QRY_PRIORITY_ID,
-                        String.valueOf(qryPriorityId));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_QRY_PRIORITY_ID,
+                String.valueOf(qryPriorityId));
     }
 
     public EnableStatus getResCheckStatus() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_RES_CHECK_STATUS);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_RES_CHECK_STATUS);
         if (atrVal != null) {
             return EnableStatus.valueOf(Integer.parseInt(atrVal));
         }
@@ -224,16 +225,14 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
     }
 
     public void setResCheckStatus(EnableStatus resCheckStatus) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_RES_CHECK_STATUS,
-                        String.valueOf(resCheckStatus.getCode()));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_RES_CHECK_STATUS,
+                String.valueOf(resCheckStatus.getCode()));
     }
 
     public int getAllowedBrokerClientRate() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_BROKER_CLIENT_RATE);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_BROKER_CLIENT_RATE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -241,23 +240,20 @@ public class BdbGroupFlowCtrlEntity implements Serializable {
     }
 
     public void setAllowedBrokerClientRate(int allowedBrokerClientRate) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_BROKER_CLIENT_RATE,
-                        String.valueOf(allowedBrokerClientRate));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_BROKER_CLIENT_RATE,
+                String.valueOf(allowedBrokerClientRate));
     }
 
     public void setCreateInfo(String createUser, Date createDate) {
         if (TStringUtils.isNotBlank(createUser)) {
-            this.attributes =
-                    TStringUtils.setAttrValToAttributes(this.attributes,
-                            TStoreConstants.TOKEN_CREATE_USER, createUser);
+            this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                    TStoreConstants.TOKEN_CREATE_USER, createUser);
         }
         if (createDate != null) {
             String dataStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(createDate);
-            this.attributes =
-                    TStringUtils.setAttrValToAttributes(this.attributes,
-                            TStoreConstants.TOKEN_CREATE_DATE, dataStr);
+            this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                    TStoreConstants.TOKEN_CREATE_DATE, dataStr);
         }
     }
 

@@ -18,9 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.schema;
 
-import io.debezium.relational.Column;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.types.DataType;
+
+import io.debezium.relational.Column;
 
 /** Utilities for converting from MySQL types to Flink types. */
 public class MySqlTypeUtils {
@@ -77,8 +78,8 @@ public class MySqlTypeUtils {
     }
 
     /**
-     * Returns a corresponding Flink data type from a debezium {@link Column} with nullable always
-     * be true.
+     * Returns a corresponding Flink data type from a debezium {@link Column} with
+     * nullable always be true.
      */
     private static DataType convertFromColumn(Column column) {
         String typeName = column.typeName();

@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners.state;
 
-import io.debezium.relational.TableId;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
@@ -26,6 +25,8 @@ import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import io.debezium.relational.TableId;
 
 /**
  * A {@link PendingSplitsState} for pending snapshot splits.
@@ -38,8 +39,9 @@ public class SnapshotPendingSplitsState extends PendingSplitsState {
     private final List<TableId> remainingTables;
 
     /**
-     * The paths that are no longer in the enumerator checkpoint, but have been processed before and
-     * should this be ignored. Relevant only for sources in continuous monitoring mode.
+     * The paths that are no longer in the enumerator checkpoint, but have been
+     * processed before and should this be ignored. Relevant only for sources in
+     * continuous monitoring mode.
      */
     private final List<TableId> alreadyProcessedTables;
 
@@ -49,14 +51,14 @@ public class SnapshotPendingSplitsState extends PendingSplitsState {
     private final List<MySqlSnapshotSplit> remainingSplits;
 
     /**
-     * The snapshot splits that the {@link MySqlSourceEnumerator} has assigned to {@link
-     * MySqlSplitReader}s.
+     * The snapshot splits that the {@link MySqlSourceEnumerator} has assigned to
+     * {@link MySqlSplitReader}s.
      */
     private final Map<String, MySqlSnapshotSplit> assignedSplits;
 
     /**
-     * The offsets of finished (snapshot) splits that the {@link MySqlSourceEnumerator} has received
-     * from {@link MySqlSplitReader}s.
+     * The offsets of finished (snapshot) splits that the
+     * {@link MySqlSourceEnumerator} has received from {@link MySqlSplitReader}s.
      */
     private final Map<String, BinlogOffset> splitFinishedOffsets;
 

@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.kafka;
 
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
+import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -28,14 +32,8 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.formats.raw.RawFormatSerializationSchema;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
-import org.apache.inlong.sort.kafka.KafkaDynamicSink.WritableMetadata;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -46,6 +44,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A specific {@link KafkaSerializationSchema} for {@link KafkaDynamicSink}.
  */
@@ -55,13 +58,11 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamicKafkaSerializationSchema.class);
 
-    private final @Nullable
-    FlinkKafkaPartitioner<RowData> partitioner;
+    private final @Nullable FlinkKafkaPartitioner<RowData> partitioner;
 
     private final String topic;
 
-    private final @Nullable
-    SerializationSchema<RowData> keySerialization;
+    private final @Nullable SerializationSchema<RowData> keySerialization;
 
     private final SerializationSchema<RowData> valueSerialization;
 
@@ -138,7 +139,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
             partitioner.open(parallelInstanceId, numParallelInstances);
         }
         // Only support dynamic topic when the topicPattern is specified
-        //      and the valueSerialization is RawFormatSerializationSchema
+        // and the valueSerialization is RawFormatSerializationSchema
         if (valueSerialization instanceof RawFormatSerializationSchema && StringUtils.isNotBlank(topicPattern)) {
             multipleSink = true;
             jsonDynamicSchemaFormat =
@@ -190,10 +191,13 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
     }
 
     /**
-     * Serialize for list it is used for multiple sink scenes when a record contains mulitple real records.
+     * Serialize for list it is used for multiple sink scenes when a record contains
+     * mulitple real records.
      *
-     * @param consumedRow The consumeRow
-     * @param timestamp The timestamp
+     * @param consumedRow
+     *          The consumeRow
+     * @param timestamp
+     *          The timestamp
      * @return List of ProducerRecord
      */
     public List<ProducerRecord<byte[], byte[]>> serializeForList(RowData consumedRow, @Nullable Long timestamp) {
@@ -231,12 +235,14 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
 
     private boolean splitRequired(JsonNode updateBeforeNode, JsonNode updateAfterNode) {
         return (updateAfterNode != null && updateAfterNode.isArray()
-                && updateAfterNode.size() > 1) || (updateBeforeNode != null && updateBeforeNode.isArray()
-                && updateBeforeNode.size() > 1);
+                && updateAfterNode.size() > 1)
+                || (updateBeforeNode != null && updateBeforeNode.isArray()
+                        && updateBeforeNode.size() > 1);
     }
 
     private void split2JsonArray(JsonNode rootNode,
-            JsonNode updateBeforeNode, JsonNode updateAfterNode, List<ProducerRecord<byte[], byte[]>> values) {
+            JsonNode updateBeforeNode, JsonNode updateAfterNode,
+            List<ProducerRecord<byte[], byte[]>> values) {
         Iterator<Entry<String, JsonNode>> iterator = rootNode.fields();
         Map<String, Object> baseMap = new LinkedHashMap<>();
         String updateBeforeKey = null;
@@ -306,8 +312,9 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
     public String getTargetTopic(RowData element) {
         if (multipleSink) {
             try {
-                //  Extract the index '0' as the raw data is determined by the Raw format:
-                //  The Raw format allows to read and write raw (byte based) values as a single column
+                // Extract the index '0' as the raw data is determined by the Raw format:
+                // The Raw format allows to read and write raw (byte based) values as a single
+                // column
                 return jsonDynamicSchemaFormat.parse(element.getBinary(0), topicPattern);
             } catch (IOException e) {
                 // Ignore the parse error and it will return the default topic final.

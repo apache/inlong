@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.standalone.metrics;
 
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Event;
 import org.apache.inlong.common.metric.CountMetric;
 import org.apache.inlong.common.metric.Dimension;
 import org.apache.inlong.common.metric.MetricDomain;
@@ -26,6 +24,9 @@ import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.utils.Constants;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Event;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -139,7 +140,7 @@ public class SortMetricItem extends MetricItem {
     /**
      * getAuditFormatTime
      *
-     * @param  msgTime
+     * @param msgTime
      * @return
      */
     public static long getAuditFormatTime(long msgTime) {
@@ -150,7 +151,7 @@ public class SortMetricItem extends MetricItem {
     /**
      * getInlongGroupId
      *
-     * @param  headers
+     * @param headers
      * @return
      */
     public static String getInlongGroupId(Map<String, String> headers) {
@@ -164,7 +165,7 @@ public class SortMetricItem extends MetricItem {
     /**
      * getInlongStreamId
      *
-     * @param  headers
+     * @param headers
      * @return
      */
     public static String getInlongStreamId(Map<String, String> headers) {
@@ -178,7 +179,7 @@ public class SortMetricItem extends MetricItem {
     /**
      * getLogTime
      *
-     * @param  headers
+     * @param headers
      * @return
      */
     public static long getLogTime(Map<String, String> headers) {
@@ -199,7 +200,7 @@ public class SortMetricItem extends MetricItem {
     /**
      * getLogTime
      *
-     * @param  event
+     * @param event
      * @return
      */
     public static long getLogTime(Event event) {

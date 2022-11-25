@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sdk.sort.manager;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InlongTopicTypeEnum;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -33,11 +32,11 @@ import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
 import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,10 +49,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Inlong manager that maintain the {@link org.apache.inlong.sdk.sort.api.MultiTopicsFetcher}.
- * It is suitable to the cases that topics share the same configurations.
- * And each consumer will consume multi topic.
+ * Inlong manager that maintain the
+ * {@link org.apache.inlong.sdk.sort.api.MultiTopicsFetcher}. It is suitable to
+ * the cases that topics share the same configurations. And each consumer will
+ * consume multi topic.
  */
 public class InlongMultiTopicManager extends TopicManager {
 

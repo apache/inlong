@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.doris.util;
 
 import org.apache.flink.types.RowKind;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,14 +28,16 @@ import java.util.regex.Pattern;
 public class DorisParseUtils {
 
     /**
-     * Pattern of escape mode for hexadecimal characters, such as "hi\\x33hi\\x44hello".
+     * Pattern of escape mode for hexadecimal characters, such as
+     * "hi\\x33hi\\x44hello".
      */
     private static final Pattern HEX_PATTERN = Pattern.compile("\\\\x(\\d{2})");
 
     /**
      * A utility function used to determine the DORIS_DELETE_SIGN for a row change.
      *
-     * @param rowKind the row change
+     * @param rowKind
+     *          the row change
      * @return the doris delete sign corresponding to the change
      */
     public static String parseDeleteSign(RowKind rowKind) {
@@ -48,12 +51,14 @@ public class DorisParseUtils {
     }
 
     /**
-     * A utility used to parse a string according to the given hexadecimal escape sequence.
+     * A utility used to parse a string according to the given hexadecimal escape
+     * sequence.
      * <p/>
      * Example input: ""hi\\x33hi\\x44hello"" , where \x33 is '!', \x44 is ','
      * Example output: "hi!hi,hello"
      *
-     * @param hexStr hex string before parsing
+     * @param hexStr
+     *          hex string before parsing
      * @return the parsed string
      */
     public static String escapeString(String hexStr) {

@@ -27,7 +27,8 @@ public interface Sink extends Stage {
     /**
      * Write data into data center
      *
-     * @param message message
+     * @param message
+     *          message
      */
     void write(Message message);
 

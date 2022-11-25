@@ -19,7 +19,7 @@
 package org.apache.flink.connectors.tubemq;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import java.util.Arrays;
+
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
@@ -31,6 +31,8 @@ import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.sinks.AppendStreamTableSink;
 import org.apache.flink.table.utils.TableConnectorUtils;
 import org.apache.flink.types.Row;
+
+import java.util.Arrays;
 
 /**
  * Tubemq {@link org.apache.flink.table.sinks.StreamTableSink}.
@@ -63,43 +65,38 @@ public class TubemqTableSink implements AppendStreamTableSink<Row> {
     private final Configuration configuration;
 
     public TubemqTableSink(
-        SerializationSchema<Row> serializationSchema,
-        TableSchema schema,
-        String topic,
-        String masterAddress,
-        Configuration configuration
-    ) {
+            SerializationSchema<Row> serializationSchema,
+            TableSchema schema,
+            String topic,
+            String masterAddress,
+            Configuration configuration) {
         this.serializationSchema = checkNotNull(serializationSchema,
-            "The deserialization schema must not be null.");
+                "The deserialization schema must not be null.");
         this.schema = checkNotNull(schema,
-            "The schema must not be null.");
+                "The schema must not be null.");
         this.topic = checkNotNull(topic,
-            "Topic must not be null.");
+                "Topic must not be null.");
         this.masterAddress = checkNotNull(masterAddress,
-            "Master address must not be null.");
+                "Master address must not be null.");
         this.configuration = checkNotNull(configuration,
-            "The configuration must not be null.");
+                "The configuration must not be null.");
     }
 
     @Override
     public DataStreamSink<?> consumeDataStream(DataStream<Row> dataStream) {
 
-        final SinkFunction<Row> tubemqSinkFunction =
-            new TubemqSinkFunction<>(
+        final SinkFunction<Row> tubemqSinkFunction = new TubemqSinkFunction<>(
                 topic,
                 masterAddress,
                 serializationSchema,
-                configuration
-            );
+                configuration);
 
         return dataStream
-            .addSink(tubemqSinkFunction)
-            .name(
-                TableConnectorUtils.generateRuntimeName(
-                    getClass(),
-                    getFieldNames()
-                )
-            );
+                .addSink(tubemqSinkFunction)
+                .name(
+                        TableConnectorUtils.generateRuntimeName(
+                                getClass(),
+                                getFieldNames()));
     }
 
     @Override
@@ -120,7 +117,7 @@ public class TubemqTableSink implements AppendStreamTableSink<Row> {
     @Override
     public TubemqTableSink configure(String[] fieldNames, TypeInformation<?>[] fieldTypes) {
         if (!Arrays.equals(getFieldNames(), fieldNames)
-            || !Arrays.equals(getFieldTypes(), fieldTypes)) {
+                || !Arrays.equals(getFieldTypes(), fieldTypes)) {
             throw new ValidationException("Reconfiguration with different fields is not allowed. "
                     + "Expected: " + Arrays.toString(getFieldNames())
                     + " / " + Arrays.toString(getFieldTypes()) + ". "

@@ -19,16 +19,6 @@
 
 package org.apache.inlong.sdk.sort.impl.decode;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
 import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
@@ -39,6 +29,16 @@ import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.util.StringUtil;
 import org.apache.inlong.sdk.sort.util.Utils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public class MessageDeserializer implements Deserializer {
 
@@ -74,9 +74,10 @@ public class MessageDeserializer implements Deserializer {
             ClientContext context,
             InLongTopic inLongTopic,
             Map<String, String> headers,
-            byte[] data) throws Exception {
+            byte[] data)
+            throws Exception {
 
-        //1. version
+        // 1. version
         int version = Integer.parseInt(headers.getOrDefault(VERSION_KEY, Integer.toString(MESSAGE_VERSION_INLONG_MSG)));
         switch (version) {
             case MESSAGE_VERSION_NONE: {
@@ -113,14 +114,16 @@ public class MessageDeserializer implements Deserializer {
     /**
      * uncompress and decode byte[]
      *
-     * @param msgBytes byte[]
+     * @param msgBytes
+     *          byte[]
      * @return {@link MessageObjs}
      */
     private List<InLongMessage> decodePB(
             ClientContext context,
             InLongTopic inLongTopic,
             byte[] msgBytes,
-            Map<String, String> headers) throws IOException {
+            Map<String, String> headers)
+            throws IOException {
         int compressType = Integer.parseInt(headers.getOrDefault(COMPRESS_TYPE_KEY, "0"));
         String inlongGroupId = headers.getOrDefault(INLONG_GROUPID_KEY, "");
         String inlongStreamId = headers.getOrDefault(INLONG_STREAMID_KEY, "");
@@ -147,7 +150,8 @@ public class MessageDeserializer implements Deserializer {
     /**
      * transform MessageObjs to SortSdkMessage
      *
-     * @param messageObjs {@link MessageObjs}
+     * @param messageObjs
+     *          {@link MessageObjs}
      * @return {@link List}
      */
     private List<InLongMessage> transformMessageObjs(

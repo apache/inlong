@@ -18,24 +18,28 @@
 
 package org.apache.inlong.sort.cdc.mysql;
 
-import io.debezium.config.Configuration;
-import io.debezium.jdbc.JdbcConnection;
-import org.apache.flink.table.api.TableException;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.debezium.Validator;
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flink.table.api.TableException;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.util.FlinkRuntimeException;
 
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.config.Configuration;
+import io.debezium.jdbc.JdbcConnection;
+
 /**
- * The validator for MySql: it only cares about the version of the database is larger than or equal
- * to 5.7. It also requires the binlog format in the database is ROW and row image is FULL.
+ * The validator for MySql: it only cares about the version of the database is
+ * larger than or equal to 5.7. It also requires the binlog format in the
+ * database is ROW and row image is FULL.
  */
 public class MySqlValidator implements Validator {
 
@@ -87,15 +91,13 @@ public class MySqlValidator implements Validator {
     }
 
     private void checkVersion(JdbcConnection connection) throws SQLException {
-        String version =
-                connection.queryAndMap("SELECT VERSION()", rs -> rs.next() ? rs.getString(1) : "");
+        String version = connection.queryAndMap("SELECT VERSION()", rs -> rs.next() ? rs.getString(1) : "");
 
         // Only care about the major version and minor version
-        Integer[] versionNumbers =
-                Arrays.stream(version.split("\\."))
-                        .limit(2)
-                        .map(Integer::new)
-                        .toArray(Integer[]::new);
+        Integer[] versionNumbers = Arrays.stream(version.split("\\."))
+                .limit(2)
+                .map(Integer::new)
+                .toArray(Integer[]::new);
         boolean isSatisfied;
         if (versionNumbers[0] > 5) {
             isSatisfied = true;
@@ -117,12 +119,11 @@ public class MySqlValidator implements Validator {
      * Check whether the binlog format is ROW.
      */
     private void checkBinlogFormat(JdbcConnection connection) throws SQLException {
-        String mode =
-                connection
-                        .queryAndMap(
-                                "SHOW GLOBAL VARIABLES LIKE 'binlog_format'",
-                                rs -> rs.next() ? rs.getString(2) : "")
-                        .toUpperCase();
+        String mode = connection
+                .queryAndMap(
+                        "SHOW GLOBAL VARIABLES LIKE 'binlog_format'",
+                        rs -> rs.next() ? rs.getString(2) : "")
+                .toUpperCase();
         if (!BINLOG_FORMAT_ROW.equals(mode)) {
             throw new ValidationException(
                     String.format(
@@ -138,20 +139,19 @@ public class MySqlValidator implements Validator {
      * Check whether the binlog row image is FULL.
      */
     private void checkBinlogRowImage(JdbcConnection connection) throws SQLException {
-        String rowImage =
-                connection
-                        .queryAndMap(
-                                "SHOW GLOBAL VARIABLES LIKE 'binlog_row_image'",
-                                rs -> {
-                                    if (rs.next()) {
-                                        return rs.getString(2);
-                                    }
-                                    // This setting was introduced in MySQL 5.6+ with default of
-                                    // 'FULL'.
-                                    // For older versions, assume 'FULL'.
-                                    return BINLOG_FORMAT_IMAGE_FULL;
-                                })
-                        .toUpperCase();
+        String rowImage = connection
+                .queryAndMap(
+                        "SHOW GLOBAL VARIABLES LIKE 'binlog_row_image'",
+                        rs -> {
+                            if (rs.next()) {
+                                return rs.getString(2);
+                            }
+                            // This setting was introduced in MySQL 5.6+ with default of
+                            // 'FULL'.
+                            // For older versions, assume 'FULL'.
+                            return BINLOG_FORMAT_IMAGE_FULL;
+                        })
+                .toUpperCase();
         if (!rowImage.equals(BINLOG_FORMAT_IMAGE_FULL)) {
             throw new ValidationException(
                     String.format(

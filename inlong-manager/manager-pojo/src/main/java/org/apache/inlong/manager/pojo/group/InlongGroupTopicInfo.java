@@ -17,13 +17,16 @@
 
 package org.apache.inlong.manager.pojo.group;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 
 import java.util.List;
+
+import lombok.Data;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Inlong group and topic info

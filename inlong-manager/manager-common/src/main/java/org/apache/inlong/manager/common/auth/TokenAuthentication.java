@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.common.auth;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Map;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Token authentication.

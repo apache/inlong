@@ -34,7 +34,8 @@ public class Tuple2<T0, T1> {
     /**
      * Creates a new tuple with field 0 specified.
      *
-     * @param value0 The value for field 0
+     * @param value0
+     *          The value for field 0
      */
     public Tuple2(T0 value0) {
         this.f0 = value0;
@@ -43,8 +44,10 @@ public class Tuple2<T0, T1> {
     /**
      * Creates a new tuple and assigns the given values to the tuple's fields.
      *
-     * @param value0 The value for field 0
-     * @param value1 The value for field 1
+     * @param value0
+     *          The value for field 0
+     * @param value1
+     *          The value for field 1
      */
     public Tuple2(T0 value0, T1 value1) {
         setF0AndF1(value0, value1);
@@ -61,8 +64,10 @@ public class Tuple2<T0, T1> {
     /**
      * Set all field values
      *
-     * @param value0 The value for field 0
-     * @param value1 The value for field 1
+     * @param value0
+     *          The value for field 0
+     * @param value1
+     *          The value for field 1
      */
     public void setF0AndF1(T0 value0, T1 value1) {
         this.f0 = value0;

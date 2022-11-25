@@ -17,16 +17,17 @@
 
 package org.apache.inlong.manager.pojo.sink.iceberg;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
+import org.apache.commons.lang3.StringUtils;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Iceberg column info
@@ -55,7 +56,8 @@ public class IcebergColumnInfo {
     @ApiModelProperty("Width param of truncate partition")
     private Integer width;
 
-    // The following are passed from base field and need not be part of API for extra param
+    // The following are passed from base field and need not be part of API for
+    // extra param
     private String name;
     private String type;
     private String desc;

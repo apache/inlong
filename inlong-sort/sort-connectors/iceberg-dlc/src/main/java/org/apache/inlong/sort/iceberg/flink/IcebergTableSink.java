@@ -19,6 +19,10 @@
 
 package org.apache.inlong.sort.iceberg.flink;
 
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
+import org.apache.inlong.sort.iceberg.flink.sink.FlinkSink;
+
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -30,22 +34,22 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
-import org.apache.inlong.sort.iceberg.flink.sink.FlinkSink;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
- * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
- * Add a table property `write.compact.enable` to support small file compact.
- * Add option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect inlong metrics and audit
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2 Add an option
+ * `sink.ignore.changelog` to support insert-only mode without primaryKey. Add a
+ * table property `write.compact.enable` to support small file compact. Add
+ * option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect
+ * inlong metrics and audit
  */
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
+
     private static final Logger LOG = LoggerFactory.getLogger(IcebergTableSink.class);
     private final TableLoader tableLoader;
     private final TableSchema tableSchema;
@@ -99,7 +103,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
 
     @Override
     public void applyStaticPartition(Map<String, String> partition) {
-        // The flink's PartitionFanoutWriter will handle the static partition write policy automatically.
+        // The flink's PartitionFanoutWriter will handle the static partition write
+        // policy automatically.
     }
 
     @Override

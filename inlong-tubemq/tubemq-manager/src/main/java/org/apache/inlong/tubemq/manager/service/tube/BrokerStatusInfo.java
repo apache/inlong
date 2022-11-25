@@ -23,6 +23,7 @@ import lombok.Data;
 
 @Data
 public class BrokerStatusInfo {
+
     private int code;
     private String errMsg;
     /**

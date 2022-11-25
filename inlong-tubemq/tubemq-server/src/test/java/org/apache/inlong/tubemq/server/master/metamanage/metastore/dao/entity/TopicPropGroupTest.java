@@ -19,10 +19,12 @@ package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.server.common.statusdef.CleanPolType;
-import org.junit.Assert;
-import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 public class TopicPropGroupTest {
 
@@ -57,11 +59,10 @@ public class TopicPropGroupTest {
         String deletePolicy = "delete,12h";
         int dataStoreType = 9;
         String dataPath = "test\\test";
-        TopicPropGroup propsCase2 =
-                new TopicPropGroup(numTopicStores, numPartitions, unflushThreshold,
-                        unflushInterval, unflushDataHold, memCacheMsgSizeInMB,
-                        memCacheMsgCntInK, memCacheFlushIntvl, acceptPublish,
-                        acceptSubscribe, deletePolicy, dataStoreType, dataPath);
+        TopicPropGroup propsCase2 = new TopicPropGroup(numTopicStores, numPartitions, unflushThreshold,
+                unflushInterval, unflushDataHold, memCacheMsgSizeInMB,
+                memCacheMsgCntInK, memCacheFlushIntvl, acceptPublish,
+                acceptSubscribe, deletePolicy, dataStoreType, dataPath);
         Assert.assertEquals(propsCase2.getNumTopicStores(), numTopicStores);
         Assert.assertEquals(propsCase2.getNumPartitions(), numPartitions);
         Assert.assertEquals(propsCase2.getUnflushThreshold(), unflushThreshold);

@@ -17,8 +17,9 @@
 
 package org.apache.inlong.agent.conf;
 
-import com.google.gson.Gson;
 import org.apache.inlong.agent.constant.JobConstants;
+
+import com.google.gson.Gson;
 
 /**
  * job profile which contains details describing properties of one job.
@@ -41,7 +42,8 @@ public class JobProfile extends AbstractConfiguration {
     /**
      * parse properties file
      *
-     * @param fileName file name.
+     * @param fileName
+     *          file name.
      * @return jobConfiguration.
      */
     public static JobProfile parsePropertiesFile(String fileName) {
@@ -53,7 +55,8 @@ public class JobProfile extends AbstractConfiguration {
     /**
      * parse json file.
      *
-     * @param fileName json file name.
+     * @param fileName
+     *          json file name.
      * @return jobConfiguration.
      */
     public static JobProfile parseJsonFile(String fileName) {

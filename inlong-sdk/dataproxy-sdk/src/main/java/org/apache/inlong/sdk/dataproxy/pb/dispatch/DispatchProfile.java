@@ -17,10 +17,10 @@
 
 package org.apache.inlong.sdk.dataproxy.pb.dispatch;
 
+import org.apache.inlong.sdk.dataproxy.pb.context.ProfileEvent;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.inlong.sdk.dataproxy.pb.context.ProfileEvent;
 
 /**
  * 
@@ -56,9 +56,9 @@ public class DispatchProfile {
     /**
      * addEvent
      * 
-     * @param  event
-     * @param  maxPackCount
-     * @param  maxPackSize
+     * @param event
+     * @param maxPackCount
+     * @param maxPackSize
      * @return
      */
     public boolean addEvent(ProfileEvent event, long maxPackCount, long maxPackSize) {
@@ -75,7 +75,7 @@ public class DispatchProfile {
     /**
      * isTimeout
      * 
-     * @param  createThreshold
+     * @param createThreshold
      * @return
      */
     public boolean isTimeout(long createThreshold) {
@@ -103,7 +103,8 @@ public class DispatchProfile {
     /**
      * set events
      * 
-     * @param events the events to set
+     * @param events
+     *          the events to set
      */
     public void setEvents(List<ProfileEvent> events) {
         this.events = events;
@@ -121,7 +122,8 @@ public class DispatchProfile {
     /**
      * set count
      * 
-     * @param count the count to set
+     * @param count
+     *          the count to set
      */
     public void setCount(long count) {
         this.count = count;
@@ -139,7 +141,8 @@ public class DispatchProfile {
     /**
      * set size
      * 
-     * @param size the size to set
+     * @param size
+     *          the size to set
      */
     public void setSize(long size) {
         this.size = size;
@@ -184,7 +187,8 @@ public class DispatchProfile {
     /**
      * set sendTime
      * 
-     * @param sendTime the sendTime to set
+     * @param sendTime
+     *          the sendTime to set
      */
     public void setSendTime(long sendTime) {
         this.sendTime = sendTime;

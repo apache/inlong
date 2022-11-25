@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.function;
 
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.transformation.ConstantParam;
+import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
+import org.apache.inlong.sort.protocol.transformation.function.SplitIndexFunction;
+
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -28,16 +34,12 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.CloseableIterator;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.ConstantParam;
-import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
-import org.apache.inlong.sort.protocol.transformation.function.SplitIndexFunction;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for {@link SplitIndexFunction}
@@ -47,7 +49,8 @@ public class SplitIndexFunctionTest extends AbstractTestBase {
     /**
      * Test SplitIndexFunction
      *
-     * @throws Exception The exception that may throws when test SplitIndexFunction
+     * @throws Exception
+     *           The exception that may throws when test SplitIndexFunction
      */
     @Test
     public void testSplitIndexFunction() throws Exception {
@@ -75,8 +78,8 @@ public class SplitIndexFunctionTest extends AbstractTestBase {
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
+                .hasNext();) {
             String ss = it.next();
             result.add(ss);
         }

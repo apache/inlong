@@ -42,9 +42,11 @@ public interface SourceOperateListener extends TaskEventListener {
     };
 
     /**
-     * Check whether the process form from the workflow context is {@link GroupResourceProcessForm}
+     * Check whether the process form from the workflow context is
+     * {@link GroupResourceProcessForm}
      *
-     * @param context workflow context
+     * @param context
+     *          workflow context
      * @return true if the process form is instanceof GroupResourceProcessForm
      */
     default boolean isGroupProcessForm(WorkflowContext context) {

@@ -18,7 +18,12 @@
 
 package org.apache.inlong.sort.cdc.sqlserver.table;
 
-import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
+import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
+import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
+import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
@@ -32,79 +37,65 @@ import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.ververica.cdc.debezium.table.DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX;
-import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
-import static com.ververica.cdc.debezium.utils.ResolvedSchemaUtils.getPhysicalSchema;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
 
 /** Factory for creating configured instance of {@link SqlServerTableSource}. */
 public class SqlServerTableFactory implements DynamicTableSourceFactory {
 
     private static final String IDENTIFIER = "sqlserver-cdc-inlong";
 
-    private static final ConfigOption<String> HOSTNAME =
-            ConfigOptions.key("hostname")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("IP address or hostname of the SqlServer database server.");
+    private static final ConfigOption<String> HOSTNAME = ConfigOptions.key("hostname")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("IP address or hostname of the SqlServer database server.");
 
-    private static final ConfigOption<Integer> PORT =
-            ConfigOptions.key("port")
-                    .intType()
-                    .defaultValue(1433)
-                    .withDescription("Integer port number of the SqlServer database server.");
+    private static final ConfigOption<Integer> PORT = ConfigOptions.key("port")
+            .intType()
+            .defaultValue(1433)
+            .withDescription("Integer port number of the SqlServer database server.");
 
-    private static final ConfigOption<String> USERNAME =
-            ConfigOptions.key("username")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "Name of the SqlServer database to use when connecting to the SqlServer database server.");
+    private static final ConfigOption<String> USERNAME = ConfigOptions.key("username")
+            .stringType()
+            .noDefaultValue()
+            .withDescription(
+                    "Name of the SqlServer database to use when connecting to the SqlServer database server.");
 
-    private static final ConfigOption<String> PASSWORD =
-            ConfigOptions.key("password")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "Password to use when connecting to the SqlServer database server.");
+    private static final ConfigOption<String> PASSWORD = ConfigOptions.key("password")
+            .stringType()
+            .noDefaultValue()
+            .withDescription(
+                    "Password to use when connecting to the SqlServer database server.");
 
-    private static final ConfigOption<String> DATABASE_NAME =
-            ConfigOptions.key("database-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Database name of the SqlServer server to monitor.");
+    private static final ConfigOption<String> DATABASE_NAME = ConfigOptions.key("database-name")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Database name of the SqlServer server to monitor.");
 
-    private static final ConfigOption<String> SCHEMA_NAME =
-            ConfigOptions.key("schema-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Schema name of the SqlServer database to monitor.");
+    private static final ConfigOption<String> SCHEMA_NAME = ConfigOptions.key("schema-name")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Schema name of the SqlServer database to monitor.");
 
-    private static final ConfigOption<String> TABLE_NAME =
-            ConfigOptions.key("table-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Table name of the SqlServer database to monitor.");
+    private static final ConfigOption<String> TABLE_NAME = ConfigOptions.key("table-name")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Table name of the SqlServer database to monitor.");
 
-    public static final ConfigOption<String> SERVER_TIME_ZONE =
-            ConfigOptions.key("server-time-zone")
-                    .stringType()
-                    .defaultValue("UTC")
-                    .withDescription("The session time zone in database server.");
+    public static final ConfigOption<String> SERVER_TIME_ZONE = ConfigOptions.key("server-time-zone")
+            .stringType()
+            .defaultValue("UTC")
+            .withDescription("The session time zone in database server.");
 
-    public static final ConfigOption<String> SCAN_STARTUP_MODE =
-            ConfigOptions.key("scan.startup.mode")
-                    .stringType()
-                    .defaultValue("initial")
-                    .withDescription(
-                            "Optional startup mode for SqlServer CDC consumer, valid enumerations are "
-                                    + "\"initial\", \"initial-only\", \"latest-offset\"");
+    public static final ConfigOption<String> SCAN_STARTUP_MODE = ConfigOptions.key("scan.startup.mode")
+            .stringType()
+            .defaultValue("initial")
+            .withDescription(
+                    "Optional startup mode for SqlServer CDC consumer, valid enumerations are "
+                            + "\"initial\", \"initial-only\", \"latest-offset\"");
 
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
-        final FactoryUtil.TableFactoryHelper helper =
-                FactoryUtil.createTableFactoryHelper(this, context);
+        final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         helper.validateExcept(DEBEZIUM_OPTIONS_PREFIX);
 
         final ReadableConfig config = helper.getOptions();
@@ -119,8 +110,7 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
         ZoneId serverTimeZone = ZoneId.of(config.get(SERVER_TIME_ZONE));
         int port = config.get(PORT);
         StartupOptions startupOptions = getStartupOptions(config);
-        ResolvedSchema physicalSchema =
-                getPhysicalSchema(context.getCatalogTable().getResolvedSchema());
+        ResolvedSchema physicalSchema = getPhysicalSchema(context.getCatalogTable().getResolvedSchema());
 
         return new SqlServerTableSource(
                 physicalSchema,
@@ -134,7 +124,7 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
                 startupOptions,
-            inlongMetric, auditHostAndPorts);
+                inlongMetric, auditHostAndPorts);
     }
 
     @Override

@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mq;
 
 import org.apache.flume.lifecycle.LifecycleState;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

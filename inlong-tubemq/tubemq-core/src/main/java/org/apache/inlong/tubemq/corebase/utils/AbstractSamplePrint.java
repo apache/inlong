@@ -36,9 +36,9 @@ public abstract class AbstractSamplePrint {
     }
 
     public AbstractSamplePrint(long sampleDetailDur,
-                               long sampleResetDur,
-                               long maxDetailCount,
-                               long maxTotalCount) {
+            long sampleResetDur,
+            long maxDetailCount,
+            long maxTotalCount) {
         this.sampleDetailDur = sampleDetailDur;
         this.sampleResetDur = sampleResetDur;
         this.maxDetailCount = maxDetailCount;

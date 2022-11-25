@@ -17,11 +17,14 @@
 
 package org.apache.inlong.dataproxy.admin;
 
+import static org.apache.inlong.dataproxy.admin.ProxyServiceMBean.MBEAN_TYPE;
+
+import org.apache.inlong.sdk.commons.admin.AbstractAdminEventHandler;
+
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
-import org.apache.inlong.sdk.commons.admin.AbstractAdminEventHandler;
 
 import java.lang.management.ManagementFactory;
 import java.util.Set;
@@ -30,8 +33,6 @@ import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.servlet.http.HttpServletResponse;
-
-import static org.apache.inlong.dataproxy.admin.ProxyServiceMBean.MBEAN_TYPE;
 
 /**
  * StopServiceAdminEventHandler

@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongConsumeEntityMapper;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +62,10 @@ public abstract class AbstractConsumeOperator implements InlongConsumeOperator {
     /**
      * Set the parameters of the target entity.
      *
-     * @param request inlong consume request
-     * @param targetEntity targetEntity which will set the new parameters
+     * @param request
+     *          inlong consume request
+     * @param targetEntity
+     *          targetEntity which will set the new parameters
      */
     protected abstract void setTargetEntity(InlongConsumeRequest request, InlongConsumeEntity targetEntity);
 

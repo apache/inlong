@@ -27,22 +27,26 @@ public interface InlongRedisCommandsContainer extends RedisCommandsContainer {
     /**
      * Delete value from specified key.
      *
-     * @param key the key  to be delete
+     * @param key
+     *          the key to be delete
      */
     void del(String key);
 
     /**
      * Delete field in the hash stored .
      *
-     * @param key Hash name
-     * @param hashField Hash field
+     * @param key
+     *          Hash name
+     * @param hashField
+     *          Hash field
      */
     void hdel(String key, String hashField);
 
     /**
      * Get value from specified key
      *
-     * @param key The specified key
+     * @param key
+     *          The specified key
      * @return The value of specified key
      */
     String get(String key);
@@ -50,8 +54,10 @@ public interface InlongRedisCommandsContainer extends RedisCommandsContainer {
     /**
      * Get value from specified key with hashField
      *
-     * @param key The specified key
-     * @param hashField The hash field
+     * @param key
+     *          The specified key
+     * @param hashField
+     *          The hash field
      * @return The value of specified key
      */
     String hget(String key, String hashField);
@@ -59,8 +65,10 @@ public interface InlongRedisCommandsContainer extends RedisCommandsContainer {
     /**
      * Get value from specified key with hashField
      *
-     * @param key The specified key
-     * @param member The member of sorted-set
+     * @param key
+     *          The specified key
+     * @param member
+     *          The member of sorted-set
      * @return The value of specified key
      */
     Double zscore(String key, String member);
@@ -68,8 +76,10 @@ public interface InlongRedisCommandsContainer extends RedisCommandsContainer {
     /**
      * Get value from specified key with member
      *
-     * @param key The specified key
-     * @param member The member of sorted-set
+     * @param key
+     *          The specified key
+     * @param member
+     *          The member of sorted-set
      * @return The value of specified key with member
      */
     Long zrevrank(String key, String member);

@@ -17,13 +17,6 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongCluster;
@@ -55,9 +48,19 @@ import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Inlong client service implementation.
@@ -164,8 +167,8 @@ public class InlongClientImpl implements InlongClient {
         if (CollectionUtils.isNotEmpty(sortStatusInfos)) {
             Map<String, SortStatus> sortStatusMap = sortStatusInfos.stream()
                     .collect(Collectors.toMap(SortStatusInfo::getInlongGroupId, SortStatusInfo::getSortStatus));
-            groupStatusMap.forEach((groupId, groupStatusInfo) ->
-                    groupStatusInfo.setSortStatus(sortStatusMap.getOrDefault(groupId, SortStatus.NOT_EXISTS)));
+            groupStatusMap.forEach((groupId, groupStatusInfo) -> groupStatusInfo
+                    .setSortStatus(sortStatusMap.getOrDefault(groupId, SortStatus.NOT_EXISTS)));
         }
 
         return groupStatusMap;

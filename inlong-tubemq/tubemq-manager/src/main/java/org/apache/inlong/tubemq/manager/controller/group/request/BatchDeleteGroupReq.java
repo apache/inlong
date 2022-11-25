@@ -17,13 +17,14 @@
 
 package org.apache.inlong.tubemq.manager.controller.group.request;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.GroupAuthItem;
 
 import java.util.List;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Batch delete group info
@@ -32,6 +33,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class BatchDeleteGroupReq extends BaseReq {
+
     private List<GroupAuthItem> groupNameJsonSet;
     private String confModAuthToken;
     private String modifyUser;

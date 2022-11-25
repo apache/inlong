@@ -17,10 +17,10 @@
 
 package org.apache.inlong.sdk.commons.protocol;
 
+import org.apache.flume.event.SimpleEvent;
+
 import java.nio.charset.Charset;
 import java.util.Map;
-
-import org.apache.flume.event.SimpleEvent;
 
 /**
  * 
@@ -38,9 +38,9 @@ public class SdkEvent extends SimpleEvent {
     /**
      * Constructor
      */
-    public SdkEvent(){
+    public SdkEvent() {
     }
-    
+
     /**
      * Constructor
      * 
@@ -84,7 +84,8 @@ public class SdkEvent extends SimpleEvent {
     /**
      * set sourceIp
      * 
-     * @param sourceIp the sourceIp to set
+     * @param sourceIp
+     *          the sourceIp to set
      */
     public void setSourceIp(String sourceIp) {
         this.sourceIp = sourceIp;
@@ -130,7 +131,8 @@ public class SdkEvent extends SimpleEvent {
     /**
      * set inlongGroupId
      * 
-     * @param inlongGroupId the inlongGroupId to set
+     * @param inlongGroupId
+     *          the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
         this.inlongGroupId = inlongGroupId;
@@ -139,7 +141,8 @@ public class SdkEvent extends SimpleEvent {
     /**
      * set inlongStreamId
      * 
-     * @param inlongStreamId the inlongStreamId to set
+     * @param inlongStreamId
+     *          the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
         this.inlongStreamId = inlongStreamId;
@@ -148,7 +151,8 @@ public class SdkEvent extends SimpleEvent {
     /**
      * set uid
      * 
-     * @param uid the uid to set
+     * @param uid
+     *          the uid to set
      */
     public void setUid(String uid) {
         this.uid = uid;
@@ -157,7 +161,8 @@ public class SdkEvent extends SimpleEvent {
     /**
      * set msgTime
      * 
-     * @param msgTime the msgTime to set
+     * @param msgTime
+     *          the msgTime to set
      */
     public void setMsgTime(long msgTime) {
         this.msgTime = msgTime;

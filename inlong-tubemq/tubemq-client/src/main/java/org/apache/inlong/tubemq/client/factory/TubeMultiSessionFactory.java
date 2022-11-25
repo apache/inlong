@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.client.factory;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfigUtils;
@@ -29,6 +28,8 @@ import org.apache.inlong.tubemq.client.producer.MessageProducer;
 import org.apache.inlong.tubemq.corebase.Shutdownable;
 import org.apache.inlong.tubemq.corerpc.RpcConfig;
 import org.apache.inlong.tubemq.corerpc.netty.NettyClientFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TubeMultiSessionFactory implements MessageSessionFactory {
 
@@ -68,8 +69,7 @@ public class TubeMultiSessionFactory implements MessageSessionFactory {
     }
 
     @Override
-    public PushMessageConsumer createPushConsumer(final ConsumerConfig consumerConfig)
-            throws TubeClientException {
+    public PushMessageConsumer createPushConsumer(final ConsumerConfig consumerConfig) throws TubeClientException {
         if (isShutDown.get()) {
             throw new TubeClientException("Please initialize the object first!");
         }
@@ -77,8 +77,7 @@ public class TubeMultiSessionFactory implements MessageSessionFactory {
     }
 
     @Override
-    public PullMessageConsumer createPullConsumer(ConsumerConfig consumerConfig)
-            throws TubeClientException {
+    public PullMessageConsumer createPullConsumer(ConsumerConfig consumerConfig) throws TubeClientException {
         if (isShutDown.get()) {
             throw new TubeClientException("Please initialize the object first!");
         }
@@ -86,8 +85,7 @@ public class TubeMultiSessionFactory implements MessageSessionFactory {
     }
 
     @Override
-    public ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig)
-            throws TubeClientException {
+    public ClientBalanceConsumer createBalanceConsumer(ConsumerConfig consumerConfig) throws TubeClientException {
         if (isShutDown.get()) {
             throw new TubeClientException("Please initialize the object first!");
         }

@@ -17,23 +17,28 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import org.apache.inlong.common.monitor.MonitorIndex;
+import org.apache.inlong.common.monitor.MonitorIndexExt;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+
+import org.apache.flume.channel.ChannelProcessor;
+
+import java.lang.reflect.Constructor;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import java.lang.reflect.Constructor;
-import java.util.concurrent.TimeUnit;
-import org.apache.flume.channel.ChannelProcessor;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.common.monitor.MonitorIndex;
-import org.apache.inlong.common.monitor.MonitorIndexExt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ServerMessageFactory
-        extends ChannelInitializer<SocketChannel> {
+        extends
+            ChannelInitializer<SocketChannel> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerMessageFactory.class);
 
@@ -129,9 +134,9 @@ public class ServerMessageFactory
 
         if (processor != null) {
             try {
-                Class<? extends ChannelInboundHandlerAdapter> clazz
-                        = (Class<? extends ChannelInboundHandlerAdapter>) Class
-                        .forName(messageHandlerName);
+                Class<? extends ChannelInboundHandlerAdapter> clazz =
+                        (Class<? extends ChannelInboundHandlerAdapter>) Class
+                                .forName(messageHandlerName);
 
                 Constructor<?> ctor = clazz.getConstructor(
                         BaseSource.class, ServiceDecoder.class, ChannelGroup.class,
@@ -142,8 +147,7 @@ public class ServerMessageFactory
                 ChannelInboundHandlerAdapter messageHandler = (ChannelInboundHandlerAdapter) ctor
                         .newInstance(source, serviceDecoder, allChannels, topic, attr,
                                 filterEmptyMsg, maxConnections,
-                                isCompressed,  monitorIndex, monitorIndexExt, protocolType
-                        );
+                                isCompressed, monitorIndex, monitorIndexExt, protocolType);
 
                 ch.pipeline().addLast("messageHandler", messageHandler);
             } catch (Exception e) {

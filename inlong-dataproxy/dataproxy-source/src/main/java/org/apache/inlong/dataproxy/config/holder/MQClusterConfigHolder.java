@@ -17,13 +17,14 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import com.google.common.base.Splitter;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.base.Splitter;
 
 /**
  * Holder of the MQ cluster config.

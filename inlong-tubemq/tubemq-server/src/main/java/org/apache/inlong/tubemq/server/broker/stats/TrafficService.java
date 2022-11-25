@@ -22,31 +22,36 @@ import java.util.Map;
 /**
  * TrafficService, incoming and outgoing traffic statistics service
  *
- * Supports adding new metric data one by one or in batches,
- * and outputting metric data to a file at specified intervals.
+ * Supports adding new metric data one by one or in batches, and outputting
+ * metric data to a file at specified intervals.
  */
 public interface TrafficService {
 
     /**
      * Close service.
      *
-     * @param waitTimeMs  the wait time
+     * @param waitTimeMs
+     *          the wait time
      */
     void close(long waitTimeMs);
 
     /**
      * Add traffic information in batches
      *
-     * @param trafficInfos  the traffic information
+     * @param trafficInfos
+     *          the traffic information
      */
     void add(Map<String, TrafficInfo> trafficInfos);
 
     /**
      * Add a traffic information record
      *
-     * @param statsKey  the statistical key
-     * @param msgCnt    the total message count
-     * @param msgSize   the total message size
+     * @param statsKey
+     *          the statistical key
+     * @param msgCnt
+     *          the total message count
+     * @param msgSize
+     *          the total message size
      */
     void add(String statsKey, long msgCnt, long msgSize);
 }

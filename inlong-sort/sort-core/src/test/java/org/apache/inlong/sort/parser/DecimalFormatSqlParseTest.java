@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
@@ -35,13 +31,19 @@ import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for {@link DecimalFormatInfo} and {@link FlinkSqlParser}
@@ -62,10 +64,9 @@ public class DecimalFormatSqlParseTest extends AbstractTestBase {
                 new FieldInfo("salary", new DecimalFormatInfo(13, 9)));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("salary", new DecimalFormatInfo(13, 9)),
-                                new FieldInfo("salary", new DecimalFormatInfo(13, 9)))
-                );
+                                new FieldInfo("salary", new DecimalFormatInfo(13, 9))));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
                 null, "kafka_output", "localhost:9092",
                 new CanalJsonFormat(), null,
@@ -81,7 +82,8 @@ public class DecimalFormatSqlParseTest extends AbstractTestBase {
     /**
      * Test precision, scale for {@link DecimalFormatInfo}
      *
-     * @throws Exception The exception may throws when executing
+     * @throws Exception
+     *           The exception may throws when executing
      */
     @Test
     public void testDecimalFormatSqlParse() throws Exception {
@@ -98,8 +100,8 @@ public class DecimalFormatSqlParseTest extends AbstractTestBase {
         Node outputNode = buildKafkaLoadNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(
-                        buildNodeRelation(Collections.singletonList(inputNode), Collections.singletonList(outputNode))
-                ));
+                        buildNodeRelation(Collections.singletonList(inputNode),
+                                Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

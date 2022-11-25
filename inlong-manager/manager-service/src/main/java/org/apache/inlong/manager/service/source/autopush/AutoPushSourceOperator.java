@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.source.autopush;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceStatus;
@@ -31,6 +30,9 @@ import org.apache.inlong.manager.pojo.source.autopush.AutoPushSourceDTO;
 import org.apache.inlong.manager.pojo.source.autopush.AutoPushSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * DataProxy SDK source operator

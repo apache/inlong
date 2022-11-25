@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.consume;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -37,8 +35,13 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarTopicInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
+
+import org.apache.commons.lang3.StringUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Inlong consume operator for Pulsar.
@@ -118,8 +121,9 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
             throw new BusinessException(ErrorCodeEnum.PULSAR_DLQ_RLQ_ERROR);
         }
 
-        // TODO when saving, save the enabled DLQ / RLQ into inlong_stream, then create Pulsar topic for them
-        //  when updating, delete the related DLQ / RLQ info if they were disabled.
+        // TODO when saving, save the enabled DLQ / RLQ into inlong_stream, then create
+        // Pulsar topic for them
+        // when updating, delete the related DLQ / RLQ info if they were disabled.
         String groupId = targetEntity.getInlongGroupId();
         if (dlqEnable) {
             String dlqTopic = PREFIX_DLQ + "_" + pulsarRequest.getDeadLetterTopic();

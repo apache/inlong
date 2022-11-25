@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.pojo.audit;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Audit info, including audit count, audit log timestamp.

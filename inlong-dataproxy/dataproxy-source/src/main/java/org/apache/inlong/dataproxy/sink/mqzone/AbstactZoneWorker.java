@@ -17,12 +17,15 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone;
 
-import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
+
+import org.apache.flume.lifecycle.LifecycleState;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AbstactZoneWorker extends Thread {
+
     public static final Logger LOG = LoggerFactory.getLogger(AbstactZoneWorker.class);
 
     protected final String workerName;
@@ -41,7 +44,7 @@ public class AbstactZoneWorker extends Thread {
      * @param context
      */
     public AbstactZoneWorker(String sinkName, int workerIndex, AbstractZoneSinkContext context,
-                             AbstractZoneProducer zoneProducer) {
+            AbstractZoneProducer zoneProducer) {
         super();
         this.workerName = sinkName + "-worker-" + workerIndex;
         this.workerIndex = workerIndex;

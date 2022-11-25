@@ -58,9 +58,9 @@ public class DispatchProfile {
     /**
      * addEvent
      * 
-     * @param  event
-     * @param  maxPackCount
-     * @param  maxPackSize
+     * @param event
+     * @param maxPackCount
+     * @param maxPackSize
      * @return
      */
     public boolean addEvent(ProxyEvent event, long maxPackCount, long maxPackSize) {
@@ -77,7 +77,7 @@ public class DispatchProfile {
     /**
      * isTimeout
      * 
-     * @param  createThreshold
+     * @param createThreshold
      * @return
      */
     public boolean isTimeout(long createThreshold) {
@@ -105,7 +105,8 @@ public class DispatchProfile {
     /**
      * set events
      * 
-     * @param events the events to set
+     * @param events
+     *          the events to set
      */
     public void setEvents(List<ProxyEvent> events) {
         this.events = events;
@@ -123,7 +124,8 @@ public class DispatchProfile {
     /**
      * set count
      * 
-     * @param count the count to set
+     * @param count
+     *          the count to set
      */
     public void setCount(long count) {
         this.count = count;
@@ -141,7 +143,8 @@ public class DispatchProfile {
     /**
      * set size
      * 
-     * @param size the size to set
+     * @param size
+     *          the size to set
      */
     public void setSize(long size) {
         this.size = size;
@@ -185,6 +188,7 @@ public class DispatchProfile {
 
     /**
      * fail
+     * 
      * @return
      */
     public void fail() {
@@ -195,6 +199,7 @@ public class DispatchProfile {
 
     /**
      * isResend
+     * 
      * @return
      */
     public boolean isResend() {
@@ -203,6 +208,7 @@ public class DispatchProfile {
 
     /**
      * get callback
+     * 
      * @return the callback
      */
     public DispatchProfileCallback getCallback() {
@@ -211,7 +217,9 @@ public class DispatchProfile {
 
     /**
      * set callback
-     * @param callback the callback to set
+     * 
+     * @param callback
+     *          the callback to set
      */
     public void setCallback(DispatchProfileCallback callback) {
         this.callback = callback;

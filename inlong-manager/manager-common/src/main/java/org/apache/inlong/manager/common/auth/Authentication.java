@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.common.auth;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.util.Locale;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
 public interface Authentication {
@@ -30,10 +30,8 @@ public interface Authentication {
     void configure(Map<String, String> properties);
 
     enum AuthType {
-        UNAME_PASSWD,
-        TOKEN,
-        SECRET,
-        SECRET_AND_TOKEN;
+
+        UNAME_PASSWD, TOKEN, SECRET, SECRET_AND_TOKEN;
 
         public static AuthType forType(String type) {
             for (AuthType authType : values()) {

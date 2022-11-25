@@ -24,12 +24,7 @@ import lombok.Getter;
  */
 public enum CompressFormat {
 
-    NONE("none"),
-    DEFLATE("deflate"),
-    GZIP("gzip"),
-    BZIP2("bzip2"),
-    LZ4("lz4"),
-    SNAPPY("snappy");
+    NONE("none"), DEFLATE("deflate"), GZIP("gzip"), BZIP2("bzip2"), LZ4("lz4"), SNAPPY("snappy");
 
     @Getter
     private final String name;

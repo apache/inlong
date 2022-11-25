@@ -29,7 +29,8 @@ public interface DBCollectorTaskService {
     /**
      * Get task by request condition.
      *
-     * @param req request conditions.
+     * @param req
+     *          request conditions.
      * @return Database collector task info.
      */
     DBCollectorTaskInfo getTask(DBCollectorTaskRequest req);
@@ -37,7 +38,8 @@ public interface DBCollectorTaskService {
     /**
      * Report task.
      *
-     * @param req request conditions
+     * @param req
+     *          request conditions
      * @return whether succeed
      */
     Integer reportTask(DBCollectorReportTaskRequest req);

@@ -17,12 +17,11 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import org.apache.flume.Context;
+import static org.junit.Assert.assertEquals;
+
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flume.Context;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -32,7 +31,10 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test for {@link ContextCacheClusterConfigLoader}

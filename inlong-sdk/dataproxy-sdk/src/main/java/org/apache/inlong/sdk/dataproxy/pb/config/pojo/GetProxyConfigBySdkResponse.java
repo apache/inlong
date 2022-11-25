@@ -42,7 +42,8 @@ public class GetProxyConfigBySdkResponse {
     /**
      * set result
      * 
-     * @param result the result to set
+     * @param result
+     *          the result to set
      */
     public void setResult(boolean result) {
         this.result = result;
@@ -60,7 +61,8 @@ public class GetProxyConfigBySdkResponse {
     /**
      * set errCode
      * 
-     * @param errCode the errCode to set
+     * @param errCode
+     *          the errCode to set
      */
     public void setErrCode(int errCode) {
         this.errCode = errCode;
@@ -78,7 +80,8 @@ public class GetProxyConfigBySdkResponse {
     /**
      * set data
      * 
-     * @param data the data to set
+     * @param data
+     *          the data to set
      */
     public void setData(Map<String, ProxyClusterResult> data) {
         this.data = data;

@@ -17,14 +17,6 @@
 
 package org.apache.inlong.tubemq.corebase.utils;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.MessageExt;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
@@ -35,6 +27,15 @@ import org.apache.inlong.tubemq.corebase.cluster.SubscribeInfo;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Tube meta info converter tools
  */
@@ -43,7 +44,8 @@ public class DataConverterUtil {
     /**
      * convert string info to @link SubscribeInfo
      *
-     * @param strSubInfoList return a list of SubscribeInfos
+     * @param strSubInfoList
+     *          return a list of SubscribeInfos
      */
     public static List<SubscribeInfo> convertSubInfo(List<String> strSubInfoList) {
         List<SubscribeInfo> subInfoList = new ArrayList<>();
@@ -61,7 +63,8 @@ public class DataConverterUtil {
     /**
      * format SubscribeInfo to String info the reverse operator of convertSubInfo
      *
-     * @param subInfoList return a list of String SubscribeInfos
+     * @param subInfoList
+     *          return a list of String SubscribeInfos
      */
     public static List<String> formatSubInfo(List<SubscribeInfo> subInfoList) {
         List<String> strSubInfoList = new ArrayList<>();
@@ -96,11 +99,14 @@ public class DataConverterUtil {
     /**
      * convert string info with a brokerInfo list to @link TopicInfo
      *
-     * @param brokerInfoMap  broker configure map
-     * @param strTopicInfos return a list of TopicInfo
+     * @param brokerInfoMap
+     *          broker configure map
+     * @param strTopicInfos
+     *          return a list of TopicInfo
      */
     public static Tuple2<Map<String, Integer>, List<TopicInfo>> convertTopicInfo(
-            Map<Integer, BrokerInfo> brokerInfoMap, List<String> strTopicInfos) {
+            Map<Integer, BrokerInfo> brokerInfoMap,
+            List<String> strTopicInfos) {
         List<TopicInfo> topicList = new ArrayList<>();
         Map<String, Integer> topicMaxSizeInBMap = new ConcurrentHashMap<>();
         if (strTopicInfos == null || strTopicInfos.isEmpty()) {
@@ -141,20 +147,21 @@ public class DataConverterUtil {
     /**
      * convert string info to @link BrokerInfo
      *
-     * @param strBrokerInfos return a BrokerInfo Map
-     * @param enableTLS   Whether to enable TLS
+     * @param strBrokerInfos
+     *          return a BrokerInfo Map
+     * @param enableTLS
+     *          Whether to enable TLS
      */
     public static Map<Integer, BrokerInfo> convertBrokerInfo(List<String> strBrokerInfos,
-                                                             boolean enableTLS) {
-        Map<Integer, BrokerInfo> brokerInfoMap =
-                new ConcurrentHashMap<>();
+            boolean enableTLS) {
+        Map<Integer, BrokerInfo> brokerInfoMap = new ConcurrentHashMap<>();
         if (strBrokerInfos != null) {
             int brokerPort = enableTLS
-                    ? TBaseConstants.META_DEFAULT_BROKER_TLS_PORT : TBaseConstants.META_DEFAULT_BROKER_PORT;
+                    ? TBaseConstants.META_DEFAULT_BROKER_TLS_PORT
+                    : TBaseConstants.META_DEFAULT_BROKER_PORT;
             for (String info : strBrokerInfos) {
                 if (info != null) {
-                    BrokerInfo brokerInfo =
-                            new BrokerInfo(info, brokerPort);
+                    BrokerInfo brokerInfo = new BrokerInfo(info, brokerPort);
                     brokerInfoMap.put(brokerInfo.getBrokerId(), brokerInfo);
                 }
             }
@@ -163,14 +170,14 @@ public class DataConverterUtil {
     }
 
     /**
-     * convert string info to  a map of TopicCondition TreeSet
+     * convert string info to a map of TopicCondition TreeSet
      *
-     * @param strTopicConditions return a map of TopicCondition TreeSet
+     * @param strTopicConditions
+     *          return a map of TopicCondition TreeSet
      */
     public static Map<String, TreeSet<String>> convertTopicConditions(
             final List<String> strTopicConditions) {
-        Map<String, TreeSet<String>> topicConditions =
-                new HashMap<>();
+        Map<String, TreeSet<String>> topicConditions = new HashMap<>();
         if (strTopicConditions == null || strTopicConditions.isEmpty()) {
             return topicConditions;
         }
@@ -185,8 +192,7 @@ public class DataConverterUtil {
             }
             String topicName = strInfo[0].trim();
             String[] strCondInfo = strInfo[1].split(TokenConstants.ARRAY_SEP);
-            TreeSet<String> conditionSet =
-                    topicConditions.computeIfAbsent(topicName, k -> new TreeSet<>());
+            TreeSet<String> conditionSet = topicConditions.computeIfAbsent(topicName, k -> new TreeSet<>());
             for (String cond : strCondInfo) {
                 if (TStringUtils.isNotBlank(cond)) {
                     conditionSet.add(cond.trim());
@@ -197,14 +203,15 @@ public class DataConverterUtil {
     }
 
     /**
-     * convert a list of @link ClientBroker.TransferedMessage with topicName
-     * to a list of @link Message
+     * convert a list of @link ClientBroker.TransferedMessage with topicName to a
+     * list of @link Message
      *
      * @param topicName
-     * @param transferedMessageList return a list of @link Message
+     * @param transferedMessageList
+     *          return a list of @link Message
      */
     public static List<Message> convertMessage(final String topicName,
-                                               List<ClientBroker.TransferedMessage> transferedMessageList) {
+            List<ClientBroker.TransferedMessage> transferedMessageList) {
         if (transferedMessageList == null || transferedMessageList.isEmpty()) {
             return new ArrayList<>();
         }

@@ -20,10 +20,12 @@ package org.apache.inlong.tubemq.server.common.utils;
 import java.lang.Thread.UncaughtExceptionHandler;
 
 /**
- * Abstract class which contains a Thread and delegates the common Thread methods to that instance.
- * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
+ * Abstract class which contains a Thread and delegates the common Thread
+ * methods to that instance. Copied from
+ * <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public abstract class HasThread implements Runnable {
+
     private final Thread thread;
 
     public HasThread() {

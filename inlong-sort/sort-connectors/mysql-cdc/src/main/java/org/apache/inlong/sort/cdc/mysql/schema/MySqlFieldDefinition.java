@@ -18,14 +18,15 @@
 
 package org.apache.inlong.sort.cdc.mysql.schema;
 
-import org.apache.commons.lang3.StringUtils;
-
 import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * used to generate field definition in ddl with "desc table".
  */
 class MySqlFieldDefinition {
+
     private String columnName;
     private String columnType;
     private boolean nullable;

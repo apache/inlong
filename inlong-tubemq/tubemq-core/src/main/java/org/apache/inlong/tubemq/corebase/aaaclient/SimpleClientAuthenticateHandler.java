@@ -17,11 +17,13 @@
 
 package org.apache.inlong.tubemq.corebase.aaaclient;
 
-import java.security.SecureRandom;
-import org.apache.commons.codec.binary.StringUtils;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+
+import org.apache.commons.codec.binary.StringUtils;
+
+import java.security.SecureRandom;
 
 public class SimpleClientAuthenticateHandler implements ClientAuthenticateHandler {
 
@@ -31,14 +33,13 @@ public class SimpleClientAuthenticateHandler implements ClientAuthenticateHandle
 
     @Override
     public ClientMaster.AuthenticateInfo.Builder genMasterAuthenticateToken(
-            final String userName, final String usrPassWord) {
+            final String userName,
+            final String usrPassWord) {
         long timestamp = System.currentTimeMillis();
 
-        int nonce =
-                new SecureRandom(StringUtils.getBytesUtf8(String.valueOf(timestamp))).nextInt(Integer.MAX_VALUE);
+        int nonce = new SecureRandom(StringUtils.getBytesUtf8(String.valueOf(timestamp))).nextInt(Integer.MAX_VALUE);
         String signature = TStringUtils.getAuthSignature(userName, usrPassWord, timestamp, nonce);
-        ClientMaster.AuthenticateInfo.Builder authBuilder =
-                ClientMaster.AuthenticateInfo.newBuilder();
+        ClientMaster.AuthenticateInfo.Builder authBuilder = ClientMaster.AuthenticateInfo.newBuilder();
         authBuilder.setUserName(userName);
         authBuilder.setTimestamp(timestamp);
         authBuilder.setNonce(nonce);
@@ -50,8 +51,7 @@ public class SimpleClientAuthenticateHandler implements ClientAuthenticateHandle
     @Override
     public String genBrokerAuthenticateToken(final String userName, final String usrPassWord) {
         long timestamp = System.currentTimeMillis();
-        int nonce =
-                new SecureRandom(StringUtils.getBytesUtf8(String.valueOf(timestamp))).nextInt(Integer.MAX_VALUE);
+        int nonce = new SecureRandom(StringUtils.getBytesUtf8(String.valueOf(timestamp))).nextInt(Integer.MAX_VALUE);
         String signature = TStringUtils.getAuthSignature(userName, usrPassWord, timestamp, nonce);
         return new StringBuilder(512).append(userName)
                 .append(TokenConstants.BLANK).append(timestamp)

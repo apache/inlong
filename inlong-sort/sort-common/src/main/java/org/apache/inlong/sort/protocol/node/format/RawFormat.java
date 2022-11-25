@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-import lombok.Data;
-import lombok.ToString;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,11 +25,15 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Data;
+import lombok.ToString;
+
 /**
  * The Raw format
  *
- * @see <a herf="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/raw/">
- *         Raw Format</a>
+ * @see <a herf=
+ *      "https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/raw/">
+ *      Raw Format</a>
  */
 @Data
 @JsonTypeName("rawFormat")

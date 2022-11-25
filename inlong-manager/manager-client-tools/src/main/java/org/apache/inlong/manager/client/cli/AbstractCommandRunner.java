@@ -18,8 +18,7 @@
 package org.apache.inlong.manager.client.cli;
 
 /**
- * The runner of command.
- * of command for creat connect by config file.
+ * The runner of command. of command for creat connect by config file.
  */
 public abstract class AbstractCommandRunner {
 

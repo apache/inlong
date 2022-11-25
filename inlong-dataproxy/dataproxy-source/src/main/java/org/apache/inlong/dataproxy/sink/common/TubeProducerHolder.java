@@ -17,7 +17,15 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import com.google.common.base.Preconditions;
+import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
+import org.apache.inlong.tubemq.client.config.TubeClientConfig;
+import org.apache.inlong.tubemq.client.exception.TubeClientException;
+import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
+import org.apache.inlong.tubemq.client.producer.MessageProducer;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.FlumeException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,19 +36,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.FlumeException;
-import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
-import org.apache.inlong.tubemq.client.config.TubeClientConfig;
-import org.apache.inlong.tubemq.client.exception.TubeClientException;
-import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
-import org.apache.inlong.tubemq.client.producer.MessageProducer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
+
 public class TubeProducerHolder {
-    private static final Logger logger =
-            LoggerFactory.getLogger(TubeProducerHolder.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(TubeProducerHolder.class);
     private static final long SEND_FAILURE_WAIT = 30000L;
     private static final long PUBLISH_FAILURE_WAIT = 60000L;
     private final AtomicBoolean started = new AtomicBoolean(false);
@@ -51,8 +55,7 @@ public class TubeProducerHolder {
     private final Map<String, MessageProducer> producerMap = new ConcurrentHashMap<>();
     private MessageProducer lastProducer = null;
     private final AtomicInteger lastPubTopicCnt = new AtomicInteger(0);
-    private static final ConcurrentHashMap<String, AtomicLong> FROZEN_TOPIC_MAP
-            = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, AtomicLong> FROZEN_TOPIC_MAP = new ConcurrentHashMap<>();
 
     public TubeProducerHolder(String sinkName, String clusterAddr, MQClusterConfig tubeConfig) {
         Preconditions.checkState(StringUtils.isNotBlank(clusterAddr),
@@ -119,19 +122,18 @@ public class TubeProducerHolder {
     }
 
     /**
-     * Get producer by topic name:
-     *   i. if the topic is judged to be an illegal topic, return null;
-     *   ii. if it is not an illegal topic or the status has expired, check:
-     *    a. if the topic has been published before, return the corresponding producer directly;
-     *    b. if the topic is not in the published list, perform the topic's publish action.
-     *  If the topic is thrown exception during the publishing process,
-     *     set the topic to an illegal topic
+     * Get producer by topic name: i. if the topic is judged to be an illegal topic,
+     * return null; ii. if it is not an illegal topic or the status has expired,
+     * check: a. if the topic has been published before, return the corresponding
+     * producer directly; b. if the topic is not in the published list, perform the
+     * topic's publish action. If the topic is thrown exception during the
+     * publishing process, set the topic to an illegal topic
      *
-     * @param topicName  the topic name
+     * @param topicName
+     *          the topic name
      *
-     * @return  the producer
-     *          if topic is illegal, return null
-     * @throws  TubeClientException
+     * @return the producer if topic is illegal, return null
+     * @throws TubeClientException
      */
     public MessageProducer getProducer(String topicName) throws TubeClientException {
         AtomicLong fbdTime = FROZEN_TOPIC_MAP.get(topicName);
@@ -178,12 +180,15 @@ public class TubeProducerHolder {
     }
 
     /**
-     * Whether frozen production according to the exceptions returned by message sending
+     * Whether frozen production according to the exceptions returned by message
+     * sending
      *
-     * @param topicName  the topic name sent message
-     * @param throwable  the exception information thrown when sending a message
+     * @param topicName
+     *          the topic name sent message
+     * @param throwable
+     *          the exception information thrown when sending a message
      *
-     * @return  whether illegal topic
+     * @return whether illegal topic
      */
     public boolean needFrozenSent(String topicName, Throwable throwable) {
         if (throwable instanceof TubeClientException) {
@@ -206,10 +211,11 @@ public class TubeProducerHolder {
     }
 
     /**
-     * Create sink producers by configured topic set
-     * group topicSet to different group, each group is associated with a producer
+     * Create sink producers by configured topic set group topicSet to different
+     * group, each group is associated with a producer
      *
-     * @param cfgTopicSet  the configured topic set
+     * @param cfgTopicSet
+     *          the configured topic set
      */
     public synchronized void createProducersByTopicSet(Set<String> cfgTopicSet) throws Exception {
         if (cfgTopicSet == null || cfgTopicSet.isEmpty()) {
@@ -234,7 +240,8 @@ public class TubeProducerHolder {
         int allocTotalCnt = filteredTopics.size();
         List<Integer> topicGroupCnt = new ArrayList<>();
         int paddingCnt = (lastPubTopicCnt.get() <= 0)
-                ? 0 : (maxPublishTopicCnt - lastPubTopicCnt.get());
+                ? 0
+                : (maxPublishTopicCnt - lastPubTopicCnt.get());
         while (allocTotalCnt > 0) {
             if (paddingCnt > 0) {
                 topicGroupCnt.add(Math.min(allocTotalCnt, paddingCnt));

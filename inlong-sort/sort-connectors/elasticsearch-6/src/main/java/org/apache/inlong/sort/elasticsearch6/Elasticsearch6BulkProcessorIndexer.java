@@ -18,8 +18,12 @@
 
 package org.apache.inlong.sort.elasticsearch6;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.bulk.BulkProcessor;
@@ -27,15 +31,13 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
 /**
- * Implementation of a {@link RequestIndexer}, using a {@link BulkProcessor}. {@link ActionRequest
- * ActionRequests} will be buffered before sending a bulk request to the Elasticsearch cluster.
+ * Implementation of a {@link RequestIndexer}, using a {@link BulkProcessor}.
+ * {@link ActionRequest ActionRequests} will be buffered before sending a bulk
+ * request to the Elasticsearch cluster.
  *
- * <p>Note: This class is binary compatible to Elasticsearch 6.
+ * <p>
+ * Note: This class is binary compatible to Elasticsearch 6.
  */
 @Internal
 class Elasticsearch6BulkProcessorIndexer implements RequestIndexer {

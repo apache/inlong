@@ -19,10 +19,11 @@ package org.apache.inlong.manager.service.consume;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Factory for {@link InlongConsumeOperator}.
@@ -41,7 +42,6 @@ public class InlongConsumeOperatorFactory {
                 .filter(inst -> inst.accept(mqType))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException(
-                        String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType))
-                );
+                        String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType)));
     }
 }

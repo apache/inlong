@@ -21,6 +21,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
 public class ConsumeOffsetInfo {
+
     private String partitionKey;
     private long currOffset = TBaseConstants.META_VALUE_UNDEFINED;
     private long maxOffset = TBaseConstants.META_VALUE_UNDEFINED;
@@ -34,9 +35,9 @@ public class ConsumeOffsetInfo {
     }
 
     public ConsumeOffsetInfo(String partitionKey,
-                             long currOffset,
-                             long maxOffset,
-                             long updateTime) {
+            long currOffset,
+            long maxOffset,
+            long updateTime) {
         this.partitionKey = partitionKey;
         this.currOffset = currOffset;
         this.maxOffset = maxOffset;
@@ -77,7 +78,7 @@ public class ConsumeOffsetInfo {
     @Override
     public String toString() {
         return this.partitionKey
-            + TokenConstants.SEGMENT_SEP + this.currOffset
-            + TokenConstants.ATTR_SEP + this.maxOffset;
+                + TokenConstants.SEGMENT_SEP + this.currOffset
+                + TokenConstants.ATTR_SEP + this.maxOffset;
     }
 }

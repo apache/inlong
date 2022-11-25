@@ -18,23 +18,25 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
-import io.debezium.jdbc.JdbcConnection;
-import io.debezium.relational.Column;
-import io.debezium.relational.Table;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
-import org.apache.flink.table.types.DataType;
-import org.apache.flink.table.types.logical.LogicalTypeRoot;
-import org.apache.flink.table.types.logical.RowType;
-import org.apache.flink.util.FlinkRuntimeException;
+import static java.math.BigDecimal.ROUND_CEILING;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.ObjectUtils.doubleCompare;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.queryApproximateRowCnt;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.queryMin;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.queryMinMax;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.queryNextChunkMax;
+
 import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
 import org.apache.inlong.sort.cdc.mysql.schema.MySqlTypeUtils;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.utils.ChunkUtils;
 import org.apache.inlong.sort.cdc.mysql.source.utils.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.table.types.logical.LogicalTypeRoot;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.flink.util.FlinkRuntimeException;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -46,17 +48,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static java.math.BigDecimal.ROUND_CEILING;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.ObjectUtils.doubleCompare;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.queryApproximateRowCnt;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.queryMin;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.queryMinMax;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.queryNextChunkMax;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.jdbc.JdbcConnection;
+import io.debezium.relational.Column;
+import io.debezium.relational.Table;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
 
 /**
- * The {@code ChunkSplitter}'s task is to split table into a set of chunks or called splits (i.e.
- * {@link MySqlSnapshotSplit}).
+ * The {@code ChunkSplitter}'s task is to split table into a set of chunks or
+ * called splits (i.e. {@link MySqlSnapshotSplit}).
  */
 class ChunkSplitter {
 
@@ -77,7 +80,8 @@ class ChunkSplitter {
         DataType flinkType = MySqlTypeUtils.fromDbzColumn(splitColumn);
         LogicalTypeRoot typeRoot = flinkType.getLogicalType().getTypeRoot();
 
-        // currently, we only support the optimization that split column with type BIGINT, INT,
+        // currently, we only support the optimization that split column with type
+        // BIGINT, INT,
         // DECIMAL
         return typeRoot == LogicalTypeRoot.BIGINT
                 || typeRoot == LogicalTypeRoot.INTEGER
@@ -127,14 +131,13 @@ class ChunkSplitter {
             RowType splitType = ChunkUtils.getSplitType(splitColumn);
             for (int i = 0; i < chunks.size(); i++) {
                 ChunkRange chunk = chunks.get(i);
-                MySqlSnapshotSplit split =
-                        createSnapshotSplit(
-                                jdbc,
-                                tableId,
-                                i,
-                                splitType,
-                                chunk.getChunkStart(),
-                                chunk.getChunkEnd());
+                MySqlSnapshotSplit split = createSnapshotSplit(
+                        jdbc,
+                        tableId,
+                        i,
+                        splitType,
+                        chunk.getChunkStart(),
+                        chunk.getChunkEnd());
                 splits.add(split);
             }
 
@@ -152,12 +155,14 @@ class ChunkSplitter {
     }
 
     /**
-     * We can use evenly-sized chunks or unevenly-sized chunks when split table into chunks, using
-     * evenly-sized chunks which is much efficient, using unevenly-sized chunks which will request
-     * many queries and is not efficient.
+     * We can use evenly-sized chunks or unevenly-sized chunks when split table into
+     * chunks, using evenly-sized chunks which is much efficient, using
+     * unevenly-sized chunks which will request many queries and is not efficient.
      */
     private List<ChunkRange> splitTableIntoChunks(
-            JdbcConnection jdbc, TableId tableId, Column splitColumn) throws SQLException {
+            JdbcConnection jdbc, TableId tableId,
+            Column splitColumn)
+            throws SQLException {
         final String splitColumnName = splitColumn.name();
         final Object[] minMaxOfSplitColumn = queryMinMax(jdbc, tableId, splitColumnName);
         final Object min = minMaxOfSplitColumn[0];
@@ -173,12 +178,10 @@ class ChunkSplitter {
 
         if (isEvenlySplitColumn(splitColumn)) {
             long approximateRowCnt = queryApproximateRowCnt(jdbc, tableId);
-            double distributionFactor =
-                    calculateDistributionFactor(tableId, min, max, approximateRowCnt);
+            double distributionFactor = calculateDistributionFactor(tableId, min, max, approximateRowCnt);
 
-            boolean dataIsEvenlyDistributed =
-                    doubleCompare(distributionFactor, distributionFactorLower) >= 0
-                            && doubleCompare(distributionFactor, distributionFactorUpper) <= 0;
+            boolean dataIsEvenlyDistributed = doubleCompare(distributionFactor, distributionFactorLower) >= 0
+                    && doubleCompare(distributionFactor, distributionFactorUpper) <= 0;
 
             if (dataIsEvenlyDistributed) {
                 // the minimum dynamic chunk size is at least 1
@@ -195,11 +198,12 @@ class ChunkSplitter {
     }
 
     /**
-     * Split table into evenly sized chunks based on the numeric min and max value of split column,
-     * and tumble chunks in step size.
+     * Split table into evenly sized chunks based on the numeric min and max value
+     * of split column, and tumble chunks in step size.
      */
     private List<ChunkRange> splitEvenlySizedChunks(
-            TableId tableId, Object min, Object max, long approximateRowCnt, int chunkSize) {
+            TableId tableId, Object min, Object max, long approximateRowCnt,
+            int chunkSize) {
         LOG.info(
                 "Use evenly-sized chunk optimization for table {}, "
                         + "the approximate row count is {}, the chunk size is {}",
@@ -227,7 +231,8 @@ class ChunkSplitter {
     // ------------------------------------------------------------------------------------------
 
     /**
-     * Split table into unevenly sized chunks by continuously calculating next chunk max value.
+     * Split table into unevenly sized chunks by continuously calculating next chunk
+     * max value.
      */
     private List<ChunkRange> splitUnevenlySizedChunks(
             JdbcConnection jdbc,
@@ -265,8 +270,7 @@ class ChunkSplitter {
             int chunkSize)
             throws SQLException {
         // chunk end might be null when max values are removed
-        Object chunkEnd =
-                queryNextChunkMax(jdbc, tableId, splitColumnName, chunkSize, previousChunkEnd);
+        Object chunkEnd = queryNextChunkMax(jdbc, tableId, splitColumnName, chunkSize, previousChunkEnd);
         if (Objects.equals(previousChunkEnd, chunkEnd)) {
             // we don't allow equal chunk start and end,
             // should query the next one larger than chunkEnd
@@ -319,8 +323,7 @@ class ChunkSplitter {
         BigDecimal difference = ObjectUtils.minus(max, min);
         // factor = (max - min + 1) / rowCount
         final BigDecimal subRowCnt = difference.add(BigDecimal.valueOf(1));
-        double distributionFactor =
-                subRowCnt.divide(new BigDecimal(approximateRowCnt), 4, ROUND_CEILING).doubleValue();
+        double distributionFactor = subRowCnt.divide(new BigDecimal(approximateRowCnt), 4, ROUND_CEILING).doubleValue();
         LOG.info(
                 "The distribution factor of table {} is {} according to "
                         + "the min split key {}, max split key {} and approximate row count {}",

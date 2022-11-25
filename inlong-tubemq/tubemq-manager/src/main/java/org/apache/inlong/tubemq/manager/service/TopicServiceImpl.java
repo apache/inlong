@@ -17,20 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.service;
 
-import com.google.gson.Gson;
-
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.QueryConsumerGroupReq;
@@ -55,9 +41,26 @@ import org.apache.inlong.tubemq.manager.service.tube.TopicView;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpGroupDetailInfo;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Objects;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.google.gson.Gson;
 
 /**
  * node service to query broker/master/standby status of tube cluster.
@@ -86,10 +89,9 @@ public class TopicServiceImpl implements TopicService {
                 + TubeConst.QUERY_GROUP_DETAIL_INFO + TubeConst.CONSUME_GROUP + group;
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-            TubeHttpGroupDetailInfo groupDetailInfo =
-                    gson.fromJson(new InputStreamReader(response.getEntity()
-                                    .getContent(), StandardCharsets.UTF_8),
-                            TubeHttpGroupDetailInfo.class);
+            TubeHttpGroupDetailInfo groupDetailInfo = gson.fromJson(new InputStreamReader(response.getEntity()
+                    .getContent(), StandardCharsets.UTF_8),
+                    TubeHttpGroupDetailInfo.class);
             if (groupDetailInfo.getErrCode() == 0) {
                 return groupDetailInfo;
             }
@@ -122,7 +124,7 @@ public class TopicServiceImpl implements TopicService {
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
             return gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
-                            StandardCharsets.UTF_8),
+                    StandardCharsets.UTF_8),
                     TopicView.class);
         } catch (Exception ex) {
             log.error("exception caught while requesting group status", ex);
@@ -160,10 +162,9 @@ public class TopicServiceImpl implements TopicService {
                 + TubeConst.TOPIC_CONFIG_INFO + "&topicName=" + topic;
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-            TubeHttpTopicInfoList topicInfoList =
-                    gson.fromJson(new InputStreamReader(response.getEntity()
-                                    .getContent(), StandardCharsets.UTF_8),
-                            TubeHttpTopicInfoList.class);
+            TubeHttpTopicInfoList topicInfoList = gson.fromJson(new InputStreamReader(response.getEntity()
+                    .getContent(), StandardCharsets.UTF_8),
+                    TubeHttpTopicInfoList.class);
             if (topicInfoList.getErrCode() == TubeConst.SUCCESS_CODE) {
                 return topicInfoList;
             }
@@ -193,7 +194,7 @@ public class TopicServiceImpl implements TopicService {
                     consumerId);
             String url = TubeConst.SCHEMA + master.getIp() + ":" + master.getWebPort()
                     + "/" + TubeConst.TUBE_REQUEST_PATH + "?" + ConvertUtils
-                    .convertReqToQueryStr(rebalanceConsumerReq);
+                            .convertReqToQueryStr(rebalanceConsumerReq);
             TubeMQResult result = masterService.requestMaster(url);
             if (result.getErrCode() != 0) {
                 rebalanceGroupResult.getFailConsumers().add(consumerId);
@@ -285,8 +286,8 @@ public class TopicServiceImpl implements TopicService {
     }
 
     private void generateOffsetInfo(List<OffsetInfo> offsetPerBroker,
-                                    TubeHttpTopicInfoList.TopicInfoList.TopicInfo topicInfo,
-                                    OffsetQueryRes res) {
+            TubeHttpTopicInfoList.TopicInfoList.TopicInfo topicInfo,
+            OffsetQueryRes res) {
         OffsetInfo offsetInfo = new OffsetInfo();
         offsetInfo.setBrokerId(topicInfo.getBrokerId());
         offsetInfo.setBrokerIp(topicInfo.getBrokerIp());

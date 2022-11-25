@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mqzone.impl.pulsarzone;
 
 import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneSink;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +36,8 @@ public class PulsarZoneSink extends AbstractZoneSink {
     public void start() {
         try {
             super.context = new PulsarZoneSinkContext(getName(), parentContext, getChannel(), super.dispatchQueues);
-            super.start((sinkName, workIndex, context)
-                    -> new PulsarZoneWorker(sinkName, workIndex, (PulsarZoneSinkContext) context));
+            super.start((sinkName, workIndex, context) -> new PulsarZoneWorker(sinkName, workIndex,
+                    (PulsarZoneSinkContext) context));
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

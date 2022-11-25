@@ -19,13 +19,14 @@ package org.apache.inlong.sort.standalone.metrics;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricUtils;
+import org.apache.inlong.common.metric.MetricValue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.common.metric.MetricUtils;
-import org.apache.inlong.common.metric.MetricValue;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -78,7 +79,7 @@ public class TestMetricListenerRunnable {
         itemSink.inlongStreamId = INLONG_STREAM_ID;
         dimSink = itemSink.getDimensions();
     }
-    
+
     /**
      * setdown
      */

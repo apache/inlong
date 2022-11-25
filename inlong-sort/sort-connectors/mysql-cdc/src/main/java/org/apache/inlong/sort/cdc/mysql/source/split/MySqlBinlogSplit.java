@@ -18,16 +18,18 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import javax.annotation.Nullable;
+
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
 
 /**
  * The split to describe the binlog of MySql table(s).
@@ -80,7 +82,8 @@ public class MySqlBinlogSplit extends MySqlSplit {
     // factory utils to build new MySqlBinlogSplit instance
     // -------------------------------------------------------------------
     public static MySqlBinlogSplit appendFinishedSplitInfos(
-            MySqlBinlogSplit binlogSplit, List<FinishedSnapshotSplitInfo> splitInfos) {
+            MySqlBinlogSplit binlogSplit,
+            List<FinishedSnapshotSplitInfo> splitInfos) {
         splitInfos.addAll(binlogSplit.getFinishedSnapshotSplitInfos());
         return new MySqlBinlogSplit(
                 binlogSplit.splitId,
@@ -93,7 +96,8 @@ public class MySqlBinlogSplit extends MySqlSplit {
     }
 
     public static MySqlBinlogSplit fillTableSchemas(
-            MySqlBinlogSplit binlogSplit, Map<TableId, TableChange> tableSchemas) {
+            MySqlBinlogSplit binlogSplit,
+            Map<TableId, TableChange> tableSchemas) {
         tableSchemas.putAll(binlogSplit.getTableSchemas());
         return new MySqlBinlogSplit(
                 binlogSplit.splitId,
@@ -106,7 +110,8 @@ public class MySqlBinlogSplit extends MySqlSplit {
     }
 
     public static MySqlBinlogSplit toNormalBinlogSplit(
-            MySqlBinlogSplit suspendedBinlogSplit, int totalFinishedSplitSize) {
+            MySqlBinlogSplit suspendedBinlogSplit,
+            int totalFinishedSplitSize) {
         return new MySqlBinlogSplit(
                 suspendedBinlogSplit.splitId,
                 suspendedBinlogSplit.getStartingOffset(),

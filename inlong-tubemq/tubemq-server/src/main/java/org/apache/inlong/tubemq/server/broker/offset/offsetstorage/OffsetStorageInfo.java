@@ -17,10 +17,11 @@
 
 package org.apache.inlong.tubemq.server.broker.offset.offsetstorage;
 
-import java.io.Serializable;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
+
+import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class OffsetStorageInfo implements Serializable {
 
@@ -36,29 +37,40 @@ public class OffsetStorageInfo implements Serializable {
     /**
      * Initial offset storage information
      *
-     * @param topic          the topic name
-     * @param brokerId       the broker id
-     * @param partitionId    the partition id
-     * @param offset         the offset
-     * @param messageId      the message id
+     * @param topic
+     *          the topic name
+     * @param brokerId
+     *          the broker id
+     * @param partitionId
+     *          the partition id
+     * @param offset
+     *          the offset
+     * @param messageId
+     *          the message id
      */
     public OffsetStorageInfo(String topic, int brokerId, int partitionId,
-                             long offset, long messageId) {
+            long offset, long messageId) {
         this(topic, brokerId, partitionId, offset, messageId, true);
     }
 
     /**
      * Initial offset storage information
      *
-     * @param topic          the topic name
-     * @param brokerId       the broker id
-     * @param partitionId    the partition id
-     * @param offset         the offset
-     * @param messageId      the message id
-     * @param firstCreate    whether is the first record creation
+     * @param topic
+     *          the topic name
+     * @param brokerId
+     *          the broker id
+     * @param partitionId
+     *          the partition id
+     * @param offset
+     *          the offset
+     * @param messageId
+     *          the message id
+     * @param firstCreate
+     *          whether is the first record creation
      */
     public OffsetStorageInfo(String topic, int brokerId, int partitionId,
-                             long offset, long messageId, boolean firstCreate) {
+            long offset, long messageId, boolean firstCreate) {
         this.topic = topic;
         this.brokerId = brokerId;
         this.partitionId = partitionId;

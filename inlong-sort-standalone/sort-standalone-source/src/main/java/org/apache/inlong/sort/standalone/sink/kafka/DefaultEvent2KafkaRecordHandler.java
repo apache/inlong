@@ -20,13 +20,15 @@ package org.apache.inlong.sort.standalone.sink.kafka;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.slf4j.Logger;
 
 /**
  * 
@@ -44,13 +46,14 @@ public class DefaultEvent2KafkaRecordHandler implements IEvent2KafkaRecordHandle
     /**
      * parse
      * 
-     * @param  context
-     * @param  event
-     * @return             ProducerRecord
+     * @param context
+     * @param event
+     * @return ProducerRecord
      * @throws IOException
      */
     @Override
-    public ProducerRecord<String, byte[]> parse(KafkaFederationSinkContext context, ProfileEvent event)
+    public ProducerRecord<String, byte[]> parse(KafkaFederationSinkContext context,
+            ProfileEvent event)
             throws IOException {
         String uid = event.getUid();
         KafkaIdConfig idConfig = context.getIdConfig(uid);
@@ -63,7 +66,7 @@ public class DefaultEvent2KafkaRecordHandler implements IEvent2KafkaRecordHandle
         byte separator = (byte) delimiter.charAt(0);
         outMsg.reset();
         switch (idConfig.getDataType()) {
-            case TEXT :
+            case TEXT:
                 currentDate.setTime(event.getRawLogTime());
                 String ftime = dateFormat.format(currentDate);
                 outMsg.write(ftime.getBytes());
@@ -72,11 +75,11 @@ public class DefaultEvent2KafkaRecordHandler implements IEvent2KafkaRecordHandle
                 outMsg.write(extinfo.getBytes());
                 outMsg.write(separator);
                 break;
-            case PB :
-            case JCE :
-            case UNKNOWN :
+            case PB:
+            case JCE:
+            case UNKNOWN:
                 break;
-            default :
+            default:
                 break;
         }
         outMsg.write(event.getBody());
@@ -88,7 +91,7 @@ public class DefaultEvent2KafkaRecordHandler implements IEvent2KafkaRecordHandle
     /**
      * getExtInfo
      * 
-     * @param  event
+     * @param event
      * @return
      */
     public String getExtInfo(ProfileEvent event) {

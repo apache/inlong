@@ -21,20 +21,13 @@ import java.util.Locale;
 
 public enum ServiceTaskType {
 
-    INIT_SOURCE,
-    INIT_MQ,
-    INIT_SORT,
-    INIT_SINK,
+    INIT_SOURCE, INIT_MQ, INIT_SORT, INIT_SINK,
 
-    STOP_SOURCE,
-    STOP_SORT,
+    STOP_SOURCE, STOP_SORT,
 
-    RESTART_SOURCE,
-    RESTART_SORT,
+    RESTART_SOURCE, RESTART_SORT,
 
-    DELETE_SOURCE,
-    DELETE_MQ,
-    DELETE_SORT;
+    DELETE_SOURCE, DELETE_MQ, DELETE_SORT;
 
     @Override
     public String toString() {

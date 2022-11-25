@@ -18,5 +18,6 @@
 package org.apache.inlong.tubemq.server.common.heartbeat;
 
 public interface TimeoutListener {
+
     void onTimeout(String nodeId, TimeoutInfo timeoutInfo) throws Exception;
 }

@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sort.redis.common.config;
 
+import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
-import org.apache.inlong.sort.redis.common.descriptor.InlongRedisValidator;
 
 /**
  * Redis options
@@ -166,39 +167,35 @@ public class RedisOptions {
     /**
      * Lookup cache max rows
      */
-    public static final ConfigOption<Long> LOOKUP_CACHE_MAX_ROWS =
-            ConfigOptions.key("lookup.cache.max-rows")
-                    .longType()
-                    .defaultValue(-1L)
-                    .withDescription(
-                            "The max number of rows of lookup cache, over this value, the oldest rows will "
-                                    + "be eliminated. \"cache.max-rows\" and \"cache.ttl\" "
-                                    + "options must all be specified if any of them is "
-                                    + "specified.");
+    public static final ConfigOption<Long> LOOKUP_CACHE_MAX_ROWS = ConfigOptions.key("lookup.cache.max-rows")
+            .longType()
+            .defaultValue(-1L)
+            .withDescription(
+                    "The max number of rows of lookup cache, over this value, the oldest rows will "
+                            + "be eliminated. \"cache.max-rows\" and \"cache.ttl\" "
+                            + "options must all be specified if any of them is "
+                            + "specified.");
     /**
      * Lookup cache ttl
      */
-    public static final ConfigOption<Long> LOOKUP_CACHE_TTL =
-            ConfigOptions.key("lookup.cache.ttl")
-                    .longType()
-                    .defaultValue(10000L)
-                    .withDescription("The cache time to live.");
+    public static final ConfigOption<Long> LOOKUP_CACHE_TTL = ConfigOptions.key("lookup.cache.ttl")
+            .longType()
+            .defaultValue(10000L)
+            .withDescription("The cache time to live.");
     /**
      * Lookup max retries
      */
-    public static final ConfigOption<Integer> LOOKUP_MAX_RETRIES =
-            ConfigOptions.key("lookup.max-retries")
-                    .intType()
-                    .defaultValue(3)
-                    .withDescription("The max retry times if lookup database failed.");
+    public static final ConfigOption<Integer> LOOKUP_MAX_RETRIES = ConfigOptions.key("lookup.max-retries")
+            .intType()
+            .defaultValue(3)
+            .withDescription("The max retry times if lookup database failed.");
     /**
      * Lookup async
      */
-    public static final ConfigOption<Boolean> LOOKUP_ASYNC =
-            ConfigOptions.key("lookup.async")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("whether to set async lookup.");
+    public static final ConfigOption<Boolean> LOOKUP_ASYNC = ConfigOptions.key("lookup.async")
+            .booleanType()
+            .defaultValue(false)
+            .withDescription("whether to set async lookup.");
 
     private RedisOptions() {
     }

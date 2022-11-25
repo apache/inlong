@@ -21,14 +21,15 @@ import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.get
 import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.getWebApiRegInfo;
 import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.registerWebMethod;
 
-import java.io.IOException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
 import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
 import org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.WebApiRegInfo;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public abstract class AbstractWebHandler extends HttpServlet {
 
@@ -40,7 +41,8 @@ public abstract class AbstractWebHandler extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req,
-            HttpServletResponse resp) throws IOException {
+            HttpServletResponse resp)
+            throws IOException {
         doPost(req, resp);
     }
 
@@ -50,7 +52,8 @@ public abstract class AbstractWebHandler extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req,
-            HttpServletResponse resp) throws IOException {
+            HttpServletResponse resp)
+            throws IOException {
         String method = null;
         StringBuilder sBuffer = new StringBuilder(1024);
         long startTime = System.currentTimeMillis();

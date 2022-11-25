@@ -42,13 +42,15 @@ import java.util.function.Supplier;
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 public class FlinkManifestUtil {
+
     private static final int FORMAT_V2 = 2;
     private static final Long DUMMY_SNAPSHOT_ID = 0L;
 
     private FlinkManifestUtil() {
     }
 
-    public static ManifestFile writeDataFiles(OutputFile outputFile, PartitionSpec spec, List<DataFile> dataFiles)
+    public static ManifestFile writeDataFiles(OutputFile outputFile, PartitionSpec spec,
+            List<DataFile> dataFiles)
             throws IOException {
         ManifestWriter<DataFile> writer = ManifestFiles.write(FORMAT_V2, spec, outputFile, DUMMY_SNAPSHOT_ID);
 
@@ -73,7 +75,8 @@ public class FlinkManifestUtil {
 
     public static DeltaManifests writeCompletedFiles(WriteResult result,
             Supplier<OutputFile> outputFileSupplier,
-            PartitionSpec spec) throws IOException {
+            PartitionSpec spec)
+            throws IOException {
 
         ManifestFile dataManifest = null;
         ManifestFile deleteManifest = null;
@@ -111,8 +114,9 @@ public class FlinkManifestUtil {
 
         // Read the completed delete files from persisted delete manifests file.
         if (deltaManifests.deleteManifest() != null) {
-            try (CloseableIterable<DeleteFile> deleteFiles = ManifestFiles
-                    .readDeleteManifest(deltaManifests.deleteManifest(), io, null)) {
+            try (
+                    CloseableIterable<DeleteFile> deleteFiles = ManifestFiles
+                            .readDeleteManifest(deltaManifests.deleteManifest(), io, null)) {
                 builder.addDeleteFiles(deleteFiles);
             }
         }

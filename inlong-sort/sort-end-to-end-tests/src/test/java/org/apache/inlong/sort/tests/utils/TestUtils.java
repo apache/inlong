@@ -18,7 +18,7 @@
 
 package org.apache.inlong.sort.tests.utils;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -33,39 +33,41 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * Test util for test container.
  */
 public class TestUtils {
-    private static final ParameterProperty<Path> MODULE_DIRECTORY =
-            new ParameterProperty<>("moduleDir", Paths::get);
+
+    private static final ParameterProperty<Path> MODULE_DIRECTORY = new ParameterProperty<>("moduleDir", Paths::get);
 
     /**
-     * Searches for a resource file matching the given regex in the given directory. This method is
-     * primarily intended to be used for the initialization of static {@link Path} fields for
-     * resource file(i.e. jar, config file) that reside in the modules {@code target} directory.
+     * Searches for a resource file matching the given regex in the given directory.
+     * This method is primarily intended to be used for the initialization of static
+     * {@link Path} fields for resource file(i.e. jar, config file) that reside in
+     * the modules {@code target} directory.
      *
-     * @param resourceNameRegex regex pattern to match against
+     * @param resourceNameRegex
+     *          regex pattern to match against
      * @return Path pointing to the matching jar
-     * @throws RuntimeException if none or multiple resource files could be found
+     * @throws RuntimeException
+     *           if none or multiple resource files could be found
      */
     public static Path getResource(final String resourceNameRegex) {
-        // if the property is not set then we are most likely running in the IDE, where the working
+        // if the property is not set then we are most likely running in the IDE, where
+        // the working
         // directory is the
         // module of the test that is currently running, which is exactly what we want
         Path moduleDirectory = MODULE_DIRECTORY.get(Paths.get("").toAbsolutePath());
 
         try (Stream<Path> dependencyResources = Files.walk(moduleDirectory)) {
-            final List<Path> matchingResources =
-                    dependencyResources
-                            .filter(
-                                    jar ->
-                                            Pattern.compile(resourceNameRegex)
-                                                    .matcher(jar.toAbsolutePath().toString())
-                                                    .find())
-                            .collect(Collectors.toList());
+            final List<Path> matchingResources = dependencyResources
+                    .filter(
+                            jar -> Pattern.compile(resourceNameRegex)
+                                    .matcher(jar.toAbsolutePath().toString())
+                                    .find())
+                    .collect(Collectors.toList());
             switch (matchingResources.size()) {
                 case 0:
                     throw new RuntimeException(
@@ -89,7 +91,9 @@ public class TestUtils {
     }
 
     /**
-     * A simple system properties value getter with default value when could not find the system property.
+     * A simple system properties value getter with default value when could not
+     * find the system property.
+     * 
      * @param <V>
      */
     static class ParameterProperty<V> {
@@ -103,7 +107,8 @@ public class TestUtils {
         }
 
         /**
-         * Retrieves the value of this property, or the given default if no value was set.
+         * Retrieves the value of this property, or the given default if no value was
+         * set.
          *
          * @return the value of this property, or the given default if no value was set
          */

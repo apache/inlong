@@ -17,15 +17,18 @@
 
 package org.apache.inlong.tubemq.corebase.metric.impl;
 
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * SinceTime, store the start time of the metric items set
  *
- * After calling the snapshot() function, it need to be updated to the snapshot time.
+ * After calling the snapshot() function, it need to be updated to the snapshot
+ * time.
  */
 public class SinceTime extends BaseMetric {
+
     private final AtomicLong sinceTime = new AtomicLong();
 
     public SinceTime(String metricName, String prefix) {

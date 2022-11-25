@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -29,13 +28,16 @@ import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLTableInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.sink.postgresql.PostgreSQLJdbcUtils;
+
+import java.sql.Connection;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * PostgreSQL sink service test
@@ -137,16 +139,17 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
         List<PostgreSQLColumnInfo> addColums = Lists.newArrayList(
                 new PostgreSQLColumnInfo("test1", "int", "test1"),
                 new PostgreSQLColumnInfo("test2", "varchar(30)", "test2"),
-                new PostgreSQLColumnInfo("Test1", "varchar(50)", "Test1")
-        );
+                new PostgreSQLColumnInfo("Test1", "varchar(50)", "Test1"));
         return addColums;
     }
 
     /**
      * Build test PostgreSQL table info.
      *
-     * @param userName PostgreSQL database name
-     * @param tableName PostgreSQL table name
+     * @param userName
+     *          PostgreSQL database name
+     * @param tableName
+     *          PostgreSQL table name
      * @return {@link PostgreSQLTableInfo}
      */
     private PostgreSQLTableInfo bulidTestPostgreSQLTableInfo(final String userName, final String schemaName,
@@ -154,8 +157,7 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
         List<PostgreSQLColumnInfo> columns = Lists.newArrayList(
                 new PostgreSQLColumnInfo("id", "int", "id"),
                 new PostgreSQLColumnInfo("cell", "varchar(25)", "cell"),
-                new PostgreSQLColumnInfo("name", "varchar(50)", "name")
-        );
+                new PostgreSQLColumnInfo("name", "varchar(50)", "name"));
         final PostgreSQLTableInfo tableInfo = new PostgreSQLTableInfo();
         tableInfo.setColumns(columns);
         tableInfo.setTableName(tableName);

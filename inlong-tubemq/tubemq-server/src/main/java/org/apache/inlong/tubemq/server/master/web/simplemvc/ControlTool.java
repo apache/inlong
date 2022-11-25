@@ -22,8 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class ControlTool {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(ControlTool.class);
+    private static final Logger logger = LoggerFactory.getLogger(ControlTool.class);
 
     private final RequestDispatcher dispatcher;
 

@@ -21,6 +21,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 
 public class GroupOffsetInfo {
+
     public int partitionId = TBaseConstants.META_VALUE_UNDEFINED;
     public long offsetMin = TBaseConstants.META_VALUE_UNDEFINED;
     public long offsetMax = TBaseConstants.META_VALUE_UNDEFINED;

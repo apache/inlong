@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.group;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -31,11 +29,16 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamExtEntityMapper;
 import org.apache.inlong.manager.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.stream.InlongStreamService;
+
+import org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Default operator of inlong group.
@@ -82,8 +85,10 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
     /**
      * Set the parameters of the target entity.
      *
-     * @param request inlong group request
-     * @param targetEntity entity which will set the new parameters
+     * @param request
+     *          inlong group request
+     * @param targetEntity
+     *          entity which will set the new parameters
      */
     protected abstract void setTargetEntity(InlongGroupRequest request, InlongGroupEntity targetEntity);
 

@@ -17,15 +17,17 @@
 
 package org.apache.inlong.agent.plugin.filter;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.plugin.Filter;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * date format with regex string for absolute file path.
@@ -109,12 +111,12 @@ public class DateFormatRegex implements Filter {
         for (String regexStr : regexList) {
             if (regexStr.contains(YEAR) || regexStr.contains(YEAR_LOWERCASE)) {
                 String tmpRegexStr = regexStr.replace(YEAR, time.substring(0, 4))
-                        .replace(YEAR_LOWERCASE,time.substring(0, 4))
+                        .replace(YEAR_LOWERCASE, time.substring(0, 4))
                         .replace(MONTH, time.substring(4, 6))
                         .replace(DAY, time.substring(6, 8))
-                        .replace(DAY_LOWERCASE,time.substring(6, 8))
+                        .replace(DAY_LOWERCASE, time.substring(6, 8))
                         .replace(HOUR, time.substring(8, 10))
-                        .replace(MINUTE,time.substring(10));
+                        .replace(MINUTE, time.substring(10));
                 formattedList.add(tmpRegexStr);
                 formattedTime = time;
             } else {

@@ -17,10 +17,11 @@
 
 package org.apache.inlong.tubemq.manager.controller.group.request;
 
+import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
 /**
  * Consumer group flow control rules
@@ -29,6 +30,7 @@ import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class FlowControlGroupReq extends BaseReq {
+
     private String groupName;
     private Integer statusId;
     private Integer qryPriorityId;

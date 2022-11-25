@@ -17,14 +17,15 @@
 
 package org.apache.inlong.manager.pojo.node.ck;
 
-import io.swagger.annotations.ApiModel;
-import lombok.Builder;
-import lombok.Data;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
+
+import lombok.Builder;
+import lombok.Data;
+import io.swagger.annotations.ApiModel;
 
 /**
  * ClickHouse data node info

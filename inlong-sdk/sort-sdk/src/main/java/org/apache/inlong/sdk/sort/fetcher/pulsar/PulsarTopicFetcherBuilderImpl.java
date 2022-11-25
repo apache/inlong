@@ -18,12 +18,13 @@
 
 package org.apache.inlong.sdk.sort.fetcher.pulsar;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.AbstractTopicFetcherBuilder;
 import org.apache.inlong.sdk.sort.api.TopicFetcher;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.pulsar.client.api.PulsarClient;
 
 import java.util.Objects;
@@ -61,8 +62,7 @@ public class PulsarTopicFetcherBuilderImpl extends AbstractTopicFetcherBuilder {
     private TopicFetcher subscribeSingleTopic() {
         interceptor = Optional.ofNullable(interceptor).orElse(new MsgTimeInterceptor());
         interceptor.configure(topic);
-        TopicFetcher fetcher =
-                new PulsarSingleTopicFetcher(topic, context, interceptor, deserializer, pulsarClient);
+        TopicFetcher fetcher = new PulsarSingleTopicFetcher(topic, context, interceptor, deserializer, pulsarClient);
         if (!fetcher.init()) {
             throw new IllegalStateException("init pulsar single topic fetcher failed");
         }

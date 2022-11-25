@@ -36,8 +36,10 @@ public interface InlongConsumeService {
     /**
      * Save inlong consume info.
      *
-     * @param request consume request need to save
-     * @param operator name of operator
+     * @param request
+     *          consume request need to save
+     * @param operator
+     *          name of operator
      * @return inlong consume id after saving
      */
     Integer save(InlongConsumeRequest request, String operator);
@@ -52,7 +54,8 @@ public interface InlongConsumeService {
     /**
      * Get inlong consume info based on ID
      *
-     * @param id inlong consume id
+     * @param id
+     *          inlong consume id
      * @return detail of inlong group
      */
     InlongConsumeInfo get(Integer id);
@@ -60,8 +63,10 @@ public interface InlongConsumeService {
     /**
      * Check whether the consumer group exists or not
      *
-     * @param consumerGroup consumer group
-     * @param excludeSelfId exclude the ID of this record
+     * @param consumerGroup
+     *          consumer group
+     * @param excludeSelfId
+     *          exclude the ID of this record
      * @return true if exists, false if not exists
      */
     boolean consumerGroupExists(String consumerGroup, Integer excludeSelfId);
@@ -69,7 +74,8 @@ public interface InlongConsumeService {
     /**
      * Paging query inlong consume info list
      *
-     * @param request pagination query request
+     * @param request
+     *          pagination query request
      * @return inlong consume list
      */
     PageResult<InlongConsumeBriefInfo> list(InlongConsumePageRequest request);
@@ -77,7 +83,8 @@ public interface InlongConsumeService {
     /**
      * Query the inlong consume statistics info via the username
      *
-     * @param username username
+     * @param username
+     *          username
      * @return inlong consume status statistics
      */
     InlongConsumeCountInfo countStatus(String username);
@@ -85,8 +92,10 @@ public interface InlongConsumeService {
     /**
      * Update the inlong consume
      *
-     * @param request inlong consume request that needs to be updated
-     * @param operator name of operator
+     * @param request
+     *          inlong consume request that needs to be updated
+     * @param operator
+     *          name of operator
      * @return inlong consume id after saving
      */
     Integer update(@Valid @NotNull(message = "inlong consume request cannot be null") InlongConsumeRequest request,
@@ -95,9 +104,12 @@ public interface InlongConsumeService {
     /**
      * Update the inlong consume status to the specified status
      *
-     * @param id inlong consume id
-     * @param status modified status
-     * @param operator name of operator
+     * @param id
+     *          inlong consume id
+     * @param status
+     *          modified status
+     * @param operator
+     *          name of operator
      * @return whether succeed
      */
     Boolean updateStatus(Integer id, Integer status, String operator);
@@ -105,8 +117,10 @@ public interface InlongConsumeService {
     /**
      * Delete the inlong consume by the id
      *
-     * @param id inlong consume id that needs to be deleted
-     * @param operator name of operator
+     * @param id
+     *          inlong consume id that needs to be deleted
+     * @param operator
+     *          name of operator
      * @return whether succeed
      */
     Boolean delete(Integer id, String operator);

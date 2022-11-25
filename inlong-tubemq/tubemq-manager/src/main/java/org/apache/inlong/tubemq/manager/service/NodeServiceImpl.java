@@ -19,24 +19,6 @@ package org.apache.inlong.tubemq.manager.service;
 
 import static org.apache.inlong.tubemq.manager.controller.node.request.AddBrokersReq.getAddBrokerReq;
 
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.dto.MasterDto;
 import org.apache.inlong.tubemq.manager.controller.node.request.AddBrokersReq;
@@ -59,9 +41,30 @@ import org.apache.inlong.tubemq.manager.service.tube.TubeHttpBrokerInfoList;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpResponse;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 
 /**
  * node service to query broker/master/standby status of tube cluster.
@@ -97,7 +100,8 @@ public class NodeServiceImpl implements NodeService {
     /**
      * request node status via http.
      *
-     * @param masterEntry - node entry
+     * @param masterEntry
+     *          - node entry
      * @return
      */
     @Override
@@ -106,9 +110,9 @@ public class NodeServiceImpl implements NodeService {
                 + masterEntry.getWebPort() + TubeConst.BROKER_RUN_STATUS;
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-            TubeHttpBrokerInfoList brokerInfoList =
-                    gson.fromJson(new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8),
-                            TubeHttpBrokerInfoList.class);
+            TubeHttpBrokerInfoList brokerInfoList = gson.fromJson(
+                    new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8),
+                    TubeHttpBrokerInfoList.class);
             // request return normal.
             if (brokerInfoList.getCode() == TubeConst.SUCCESS_CODE) {
                 // divide by state.
@@ -123,12 +127,14 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
-     * clone source broker to generate brokers with the same config and copy the topics in it.
+     * clone source broker to generate brokers with the same config and copy the
+     * topics in it.
      *
      * @param req
      * @return
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
     @Override
     public TubeMQResult cloneBrokersWithTopic(CloneBrokersReq req) throws Exception {
@@ -157,7 +163,7 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public TubeMQResult addTopicsToBrokers(MasterEntry masterEntry, List<Integer> brokerIds,
-                                           List<AddTopicReq> addTopicReqs) {
+            List<AddTopicReq> addTopicReqs) {
         TubeMQResult tubeResult = new TubeMQResult();
         AddTopicsResult addTopicsResult = new AddTopicsResult();
 
@@ -225,7 +231,7 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public boolean configBrokersForTopics(MasterEntry masterEntry,
-                                          Set<String> topics, List<Integer> brokerList, int maxBrokers) {
+            Set<String> topics, List<Integer> brokerList, int maxBrokers) {
         if (maxBrokers == 0) {
             return false;
         }
@@ -239,9 +245,9 @@ public class NodeServiceImpl implements NodeService {
         log.info("config topics {} to brokers ids {}, masterEntry is : {}",
                 topics, finalBrokerList, masterEntry.getIp());
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-            TubeHttpResponse result =
-                    gson.fromJson(new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8),
-                            TubeHttpResponse.class);
+            TubeHttpResponse result = gson.fromJson(
+                    new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8),
+                    TubeHttpResponse.class);
             if (result.getErrCode() != TubeConst.SUCCESS_CODE) {
                 log.error("config topics {} to brokers ids {} fail : master return with status {}",
                         topics, finalBrokerList, result.getErrMsg());
@@ -277,9 +283,8 @@ public class NodeServiceImpl implements NodeService {
                     + masterEntry.getToken() + TubeConst.MODIFY_USER + "tubeadmin";
             HttpGet httpget = new HttpGet(url);
             try (CloseableHttpResponse response = httpclient.execute(httpget)) {
-                TubeHttpResponse result =
-                        gson.fromJson(new InputStreamReader(response.getEntity()
-                                .getContent(), StandardCharsets.UTF_8), TubeHttpResponse.class);
+                TubeHttpResponse result = gson.fromJson(new InputStreamReader(response.getEntity()
+                        .getContent(), StandardCharsets.UTF_8), TubeHttpResponse.class);
                 if (result.getErrCode() != TubeConst.SUCCESS_CODE) {
                     log.info("reload tube broker : {} to master {}, fail with msg: {}",
                             brokerStr, masterEntry.getIp(), result.getErrMsg());
@@ -293,9 +298,8 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
-     * handle result, if success, complete it,
-     * if not success, add back to queue without exceeding max retry,
-     * otherwise complete it with exception.
+     * handle result, if success, complete it, if not success, add back to queue
+     * without exceeding max retry, otherwise complete it with exception.
      *
      * @param isSuccess
      * @param topics
@@ -322,12 +326,14 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
-     * Adding topic is an async operation, so this method should
-     * 1. check whether pendingTopic contains topic that has failed/succeeded to be added.
-     * 2. async add topic to tubemq cluster
+     * Adding topic is an async operation, so this method should 1. check whether
+     * pendingTopic contains topic that has failed/succeeded to be added. 2. async
+     * add topic to tubemq cluster
      *
-     * @param brokerInfoList - broker list
-     * @param pendingTopic - topicMap
+     * @param brokerInfoList
+     *          - broker list
+     * @param pendingTopic
+     *          - topicMap
      */
     private void handleAddingTopic(MasterEntry masterEntry,
             TubeHttpBrokerInfoList brokerInfoList,
@@ -343,8 +349,7 @@ public class NodeServiceImpl implements NodeService {
                     brandNewTopics.add(topic);
                 } else {
                     // remove brokers which have been added.
-                    List<Integer> configurableBrokerIdList =
-                            brokerInfoList.getConfigurableBrokerIdList();
+                    List<Integer> configurableBrokerIdList = brokerInfoList.getConfigurableBrokerIdList();
                     configurableBrokerIdList.removeAll(topicBrokerList);
                     // add topic to satisfy max broker number.
                     Set<String> singleTopic = new HashSet<>();
@@ -393,7 +398,7 @@ public class NodeServiceImpl implements NodeService {
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
             return gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
-                            StandardCharsets.UTF_8),
+                    StandardCharsets.UTF_8),
                     AddBrokerResult.class);
         } catch (Exception ex) {
             log.error("exception caught while requesting broker status", ex);
@@ -402,13 +407,14 @@ public class NodeServiceImpl implements NodeService {
     }
 
     /**
-     * given one topic, copy its config and clone to brokers
-     * if no broker is is provided, topics will be cloned to all brokers in cluster
+     * given one topic, copy its config and clone to brokers if no broker is is
+     * provided, topics will be cloned to all brokers in cluster
      *
      * @param req
      * @return
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
     @Override
     public TubeMQResult cloneTopicToBrokers(CloneTopicReq req) throws Exception {

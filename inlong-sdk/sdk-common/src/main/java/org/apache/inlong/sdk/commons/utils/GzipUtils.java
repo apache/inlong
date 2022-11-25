@@ -36,8 +36,8 @@ public class GzipUtils {
     /**
      * compress
      * 
-     * @param  data
-     * @return      byte array
+     * @param data
+     * @return byte array
      */
     public static byte[] compress(byte[] data) {
         if (data == null || data.length == 0) {
@@ -67,8 +67,8 @@ public class GzipUtils {
     /**
      * decompress
      * 
-     * @param  bytes
-     * @return       byte array
+     * @param bytes
+     * @return byte array
      */
     public static byte[] decompress(byte[] bytes) {
         if (bytes == null || bytes.length == 0) {

@@ -27,9 +27,12 @@ public interface SortSourceService {
     /**
      * Get {@link SortSourceConfigResponse} by cluster name and task name.
      *
-     * @param clusterName Target cluster name.
-     * @param taskName Target task name.
-     * @param md5 Last update Md5.
+     * @param clusterName
+     *          Target cluster name.
+     * @param taskName
+     *          Target task name.
+     * @param md5
+     *          Last update Md5.
      * @return SortSourceConfigResponse
      */
     SortSourceConfigResponse getSourceConfig(String clusterName, String taskName, String md5);

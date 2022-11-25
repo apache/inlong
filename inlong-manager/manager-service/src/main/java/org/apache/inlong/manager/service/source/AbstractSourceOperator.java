@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.source;
 
-import com.github.pagehelper.Page;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -38,16 +35,22 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.github.pagehelper.Page;
 
 /**
  * Default operator of stream source.
@@ -73,8 +76,10 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     /**
      * Setting the parameters of the latest entity.
      *
-     * @param request source request
-     * @param targetEntity entity object which will set the new parameters.
+     * @param request
+     *          source request
+     * @param targetEntity
+     *          entity object which will set the new parameters.
      */
     protected abstract void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity);
 

@@ -25,10 +25,10 @@ import java.util.Map;
 public class InLongMsgAttrBuilder {
 
     public enum PartitionUnit {
-        DAY("d"), HOUR("h"), HALFHOUR("n"),
-        QUARTER("q"), TENMINS("t"), FIVEMINS("f");
-        private static final Map<String, PartitionUnit> STRING_TO_TYPE_MAP =
-                new HashMap<String, PartitionUnit>();
+
+        DAY("d"), HOUR("h"), HALFHOUR("n"), QUARTER("q"), TENMINS("t"), FIVEMINS("f");
+
+        private static final Map<String, PartitionUnit> STRING_TO_TYPE_MAP = new HashMap<String, PartitionUnit>();
 
         static {
             for (PartitionUnit type : PartitionUnit.values()) {
@@ -57,11 +57,10 @@ public class InLongMsgAttrBuilder {
     }
 
     public enum TimeType {
-        MS("#ms"), S("#s"),
-        STANDARD("#")/* yyyy-MM-dd HH:mm:ss */,
-        NORMAL("#n")/* yyyyMMddHH */;
-        private static final Map<String, TimeType> STRING_TO_TYPE_MAP =
-                new HashMap<String, TimeType>();
+
+        MS("#ms"), S("#s"), STANDARD("#")/* yyyy-MM-dd HH:mm:ss */, NORMAL("#n")/* yyyyMMddHH */;
+
+        private static final Map<String, TimeType> STRING_TO_TYPE_MAP = new HashMap<String, TimeType>();
 
         static {
             for (TimeType type : TimeType.values()) {
@@ -90,6 +89,7 @@ public class InLongMsgAttrBuilder {
     }
 
     public static class MsgAttrProtocolM0 {
+
         private final StringBuffer attrBuffer;
         private String id = null;
         private String t = null;
@@ -142,6 +142,7 @@ public class InLongMsgAttrBuilder {
 
         /**
          * buildAttr
+         * 
          * @return
          *
          * @throws Exception
@@ -166,8 +167,7 @@ public class InLongMsgAttrBuilder {
                 SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                 tstr = f.format(d);
             } else if (this.p == PartitionUnit.QUARTER) {
-                int idx =
-                        (int) ((d.getTime() % (60L * 60 * 1000)) / (15L * 60 * 1000));
+                int idx = (int) ((d.getTime() % (60L * 60 * 1000)) / (15L * 60 * 1000));
                 SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                 tstr = f.format(d) + "q" + idx;
             }
@@ -241,6 +241,7 @@ public class InLongMsgAttrBuilder {
 
         /**
          * buildAttr
+         * 
          * @return
          *
          * @throws Exception
@@ -270,23 +271,19 @@ public class InLongMsgAttrBuilder {
                         SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                         tstr = f.format(d);
                     } else if (this.p == PartitionUnit.HALFHOUR) {
-                        int idx =
-                                (int) ((d.getTime() % (60L * 60 * 1000)) / (30L * 60 * 1000));
+                        int idx = (int) ((d.getTime() % (60L * 60 * 1000)) / (30L * 60 * 1000));
                         SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                         tstr = f.format(d) + "n" + idx;
                     } else if (this.p == PartitionUnit.QUARTER) {
-                        int idx =
-                                (int) ((d.getTime() % (60L * 60 * 1000)) / (15L * 60 * 1000));
+                        int idx = (int) ((d.getTime() % (60L * 60 * 1000)) / (15L * 60 * 1000));
                         SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                         tstr = f.format(d) + "q" + idx;
                     } else if (this.p == PartitionUnit.TENMINS) {
-                        int idx =
-                                (int) ((d.getTime() % (60L * 60 * 1000)) / (10L * 60 * 1000));
+                        int idx = (int) ((d.getTime() % (60L * 60 * 1000)) / (10L * 60 * 1000));
                         SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                         tstr = f.format(d) + "t" + idx;
                     } else if (this.p == PartitionUnit.FIVEMINS) {
-                        int idx =
-                                (int) ((d.getTime() % (60L * 60 * 1000)) / (5L * 60 * 1000));
+                        int idx = (int) ((d.getTime() % (60L * 60 * 1000)) / (5L * 60 * 1000));
                         SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHH");
                         tstr = f.format(d) + "f" + idx;
                     }
@@ -325,16 +322,15 @@ public class InLongMsgAttrBuilder {
     }
 
     /**
-     *  main
+     * main
+     * 
      * @param args
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
 
-        SimpleDateFormat f =
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat f1 =
-                new SimpleDateFormat("yyyyMMddHH");
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat f1 = new SimpleDateFormat("yyyyMMddHH");
 
         System.out.println(InLongMsgAttrBuilder.getProtocolM0()
                 .setId("interfaceid").setTimeType(TimeType.S)

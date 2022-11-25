@@ -43,8 +43,10 @@ public interface DataNodeOperator {
     /**
      * Save the data node info.
      *
-     * @param request request of the data node
-     * @param operator name of the operator
+     * @param request
+     *          request of the data node
+     * @param operator
+     *          name of the operator
      * @return data node id after saving
      */
     Integer saveOpt(DataNodeRequest request, String operator);
@@ -52,7 +54,8 @@ public interface DataNodeOperator {
     /**
      * Get the data node info from the given entity.
      *
-     * @param entity get field value from the entity
+     * @param entity
+     *          get field value from the entity
      * @return cluster info after encapsulating
      */
     DataNodeInfo getFromEntity(DataNodeEntity entity);
@@ -60,14 +63,18 @@ public interface DataNodeOperator {
     /**
      * Update the data node info.
      *
-     * @param request request of update
-     * @param operator name of operator
+     * @param request
+     *          request of update
+     * @param operator
+     *          name of operator
      */
     void updateOpt(DataNodeRequest request, String operator);
 
     /**
      * Parse data node info to sort-standalone sink params
-     * @param info DataNodeInfo
+     * 
+     * @param info
+     *          DataNodeInfo
      * @return Sink params
      */
     Map<String, String> parse2SinkParams(DataNodeInfo info);

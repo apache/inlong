@@ -17,18 +17,19 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+
 import org.apache.inlong.manager.client.api.inner.client.NoAuthClient;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.user.UserRequest;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 
 /**
  * Tests for {@link NoAuthClient}
@@ -43,10 +44,7 @@ public class NoAuthClientTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/anno/register.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(1))
-                                )
-                        )
-        );
+                                        Response.success(1)))));
 
         UserRequest request = UserRequest.builder()
                 .name("username")

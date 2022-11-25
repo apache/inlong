@@ -17,14 +17,16 @@
 
 package org.apache.inlong.tubemq.manager.controller.cluster.request;
 
+import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class SwitchClusterReq extends BaseReq {
+
     private String confModAuthToken;
 }

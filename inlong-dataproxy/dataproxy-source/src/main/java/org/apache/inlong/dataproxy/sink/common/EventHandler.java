@@ -33,11 +33,13 @@ public interface EventHandler {
      * parseHeader
      */
     Map<String, String> parseHeader(IdTopicConfig idConfig, BatchPackProfile profile, String nodeId,
-            INLONG_COMPRESSED_TYPE compressType) throws Exception;
+            INLONG_COMPRESSED_TYPE compressType)
+            throws Exception;
 
     /**
      * parseBody
      */
-    byte[] parseBody(IdTopicConfig idConfig, BatchPackProfile profile, INLONG_COMPRESSED_TYPE compressType)
+    byte[] parseBody(IdTopicConfig idConfig, BatchPackProfile profile,
+            INLONG_COMPRESSED_TYPE compressType)
             throws Exception;
 }

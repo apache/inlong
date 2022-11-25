@@ -41,15 +41,18 @@ public interface InlongConsumeOperator {
     /**
      * Check whether the topic in inlong consume belongs to its inlong group id.
      *
-     * @param request inlong consume request
+     * @param request
+     *          inlong consume request
      */
     void checkTopicInfo(InlongConsumeRequest request);
 
     /**
      * Save the inlong consume info.
      *
-     * @param request request of the group
-     * @param operator name of the operator
+     * @param request
+     *          request of the group
+     * @param operator
+     *          name of the operator
      * @return inlong consume id after saving
      */
     Integer saveOpt(InlongConsumeRequest request, String operator);
@@ -57,7 +60,8 @@ public interface InlongConsumeOperator {
     /**
      * Get the inlong consume info from the given entity.
      *
-     * @param entity get field value from the entity
+     * @param entity
+     *          get field value from the entity
      * @return inlong consume info after encapsulating
      */
     InlongConsumeInfo getFromEntity(InlongConsumeEntity entity);
@@ -65,8 +69,10 @@ public interface InlongConsumeOperator {
     /**
      * Update the inlong consume info.
      *
-     * @param request request of update
-     * @param operator name of operator
+     * @param request
+     *          request of update
+     * @param operator
+     *          name of operator
      */
     void updateOpt(InlongConsumeRequest request, String operator);
 

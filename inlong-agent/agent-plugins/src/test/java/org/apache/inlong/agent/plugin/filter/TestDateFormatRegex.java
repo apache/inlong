@@ -17,16 +17,17 @@
 
 package org.apache.inlong.agent.plugin.filter;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.TextFileSource;
 import org.apache.inlong.agent.plugin.trigger.PathPattern;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -36,10 +37,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TestDateFormatRegex {
 
@@ -65,7 +66,7 @@ public class TestDateFormatRegex {
         dateFormatRegex.match();
         dateFormatRegex.getFormattedTime();
         Assert.assertEquals(helper.getParentPath().toString() + "/\\w{3}"
-                        + AgentUtils.formatCurrentTime("yyyyMMdd_HH") + ".log",
+                + AgentUtils.formatCurrentTime("yyyyMMdd_HH") + ".log",
                 dateFormatRegex.getFormattedRegex());
     }
 

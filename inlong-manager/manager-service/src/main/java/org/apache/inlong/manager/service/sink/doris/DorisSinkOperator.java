@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.sink.doris;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
-import javax.validation.constraints.NotNull;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -33,10 +30,17 @@ import org.apache.inlong.manager.pojo.sink.doris.DorisSink;
 import org.apache.inlong.manager.pojo.sink.doris.DorisSinkDTO;
 import org.apache.inlong.manager.pojo.sink.doris.DorisSinkRequest;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
+
+import java.util.List;
+
+import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Doris sink operator, such as save or update doris field, etc.

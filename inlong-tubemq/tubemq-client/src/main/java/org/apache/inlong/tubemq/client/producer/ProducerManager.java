@@ -17,22 +17,6 @@
 
 package org.apache.inlong.tubemq.client.producer;
 
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.inlong.tubemq.client.common.ClientStatsInfo;
 import org.apache.inlong.tubemq.client.common.TubeClientVersion;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
@@ -59,6 +43,23 @@ import org.apache.inlong.tubemq.corerpc.RpcServiceFactory;
 import org.apache.inlong.tubemq.corerpc.exception.ClientClosedException;
 import org.apache.inlong.tubemq.corerpc.exception.LocalConnException;
 import org.apache.inlong.tubemq.corerpc.service.MasterService;
+
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,28 +67,22 @@ import org.slf4j.LoggerFactory;
  * Produce messages through rpc.
  */
 public class ProducerManager {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ProducerManager.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(ProducerManager.class);
     private static final int BROKER_UPDATED_TIME_AFTER_RETRY_FAIL = 2 * 60 * 60 * 1000;
-    private static final AtomicInteger producerCounter =
-            new AtomicInteger(0);
+    private static final AtomicInteger producerCounter = new AtomicInteger(0);
     private final String producerId;
     private final int producerAddrId;
     private final TubeClientConfig tubeClientConfig;
     private final InnerSessionFactory sessionFactory;
     private final RpcServiceFactory rpcServiceFactory;
-    private final ConcurrentHashMap<String, AtomicInteger> publishTopics =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, AtomicInteger> publishTopics = new ConcurrentHashMap<>();
     private final RpcConfig rpcConfig = new RpcConfig();
     private final ScheduledExecutorService heartbeatService;
-    private final AtomicLong visitToken =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private final MaxMsgSizeHolder msgSizeHolder =
-            new MaxMsgSizeHolder();
-    private final AtomicReference<String> authAuthorizedTokenRef =
-            new AtomicReference<>("");
-    private final ClientAuthenticateHandler authenticateHandler =
-            new SimpleClientAuthenticateHandler();
+    private final AtomicLong visitToken = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final MaxMsgSizeHolder msgSizeHolder = new MaxMsgSizeHolder();
+    private final AtomicReference<String> authAuthorizedTokenRef = new AtomicReference<>("");
+    private final ClientAuthenticateHandler authenticateHandler = new SimpleClientAuthenticateHandler();
     private final MasterService masterService;
     private Map<Integer, BrokerInfo> brokersMap = new ConcurrentHashMap<>();
     private long brokerInfoCheckSum = -1L;
@@ -99,21 +94,23 @@ public class ProducerManager {
     private final AtomicInteger heartBeatStatus = new AtomicInteger(-1);
     private volatile long lastHeartbeatTime = System.currentTimeMillis();
     private final AtomicInteger nodeStatus = new AtomicInteger(-1);
-    private Map<String, Map<Integer, List<Partition>>> topicPartitionMap =
-            new ConcurrentHashMap<>();
-    private final AtomicBoolean nextWithAuthInfo2M =
-            new AtomicBoolean(false);
+    private Map<String, Map<Integer, List<Partition>>> topicPartitionMap = new ConcurrentHashMap<>();
+    private final AtomicBoolean nextWithAuthInfo2M = new AtomicBoolean(false);
     private final ClientStatsInfo clientStatsInfo;
 
     /**
      * Initial a producer manager
      *
-     * @param sessionFactory         the session factory
-     * @param tubeClientConfig       the client configure
-     * @throws TubeClientException   the exception while creating object
+     * @param sessionFactory
+     *          the session factory
+     * @param tubeClientConfig
+     *          the client configure
+     * @throws TubeClientException
+     *           the exception while creating object
      */
     public ProducerManager(final InnerSessionFactory sessionFactory,
-                           final TubeClientConfig tubeClientConfig) throws TubeClientException {
+            final TubeClientConfig tubeClientConfig)
+            throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
         if (sessionFactory == null
@@ -129,8 +126,7 @@ public class ProducerManager {
         } catch (Exception e) {
             throw new TubeClientException("Generate producer id failed!", e);
         }
-        this.rpcServiceFactory =
-                this.sessionFactory.getRpcServiceFactory();
+        this.rpcServiceFactory = this.sessionFactory.getRpcServiceFactory();
         rpcConfig.put(RpcConstants.CONNECT_TIMEOUT, 3000);
         rpcConfig.put(RpcConstants.REQUEST_TIMEOUT, tubeClientConfig.getRpcTimeoutMs());
         rpcConfig.put(RpcConstants.NETTY_WRITE_HIGH_MARK,
@@ -142,24 +138,22 @@ public class ProducerManager {
         rpcConfig.put(RpcConstants.CALLBACK_WORKER_COUNT,
                 tubeClientConfig.getRpcRspCallBackThreadCnt());
         // initial client statistics configure
-        this.clientStatsInfo =
-                new ClientStatsInfo(true, this.producerId,
-                        this.tubeClientConfig.getStatsConfig());
+        this.clientStatsInfo = new ClientStatsInfo(true, this.producerId,
+                this.tubeClientConfig.getStatsConfig());
         heartBeatStatus.set(0);
-        this.masterService =
-                this.rpcServiceFactory.getFailoverService(MasterService.class,
-                        tubeClientConfig.getMasterInfo(), rpcConfig);
-        this.heartbeatService =
-                Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        Thread t = new Thread(r, new StringBuilder(256)
-                                .append("Producer-Heartbeat-Thread-")
-                                .append(producerId).toString());
-                        t.setPriority(Thread.MAX_PRIORITY);
-                        return t;
-                    }
-                });
+        this.masterService = this.rpcServiceFactory.getFailoverService(MasterService.class,
+                tubeClientConfig.getMasterInfo(), rpcConfig);
+        this.heartbeatService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, new StringBuilder(256)
+                        .append("Producer-Heartbeat-Thread-")
+                        .append(producerId).toString());
+                t.setPriority(Thread.MAX_PRIORITY);
+                return t;
+            }
+        });
     }
 
     public String getClientVersion() {
@@ -169,7 +163,8 @@ public class ProducerManager {
     /**
      * Start the producer manager.
      *
-     * @throws Throwable  the exception
+     * @throws Throwable
+     *           the exception
      */
     public void start() throws Throwable {
         if (nodeStatus.get() <= 0) {
@@ -183,8 +178,10 @@ public class ProducerManager {
     /**
      * Publish a topic.
      *
-     * @param topic topic name
-     * @throws TubeClientException  the exception at publish
+     * @param topic
+     *          topic name
+     * @throws TubeClientException
+     *           the exception at publish
      */
     public void publish(final String topic) throws TubeClientException {
         checkServiceStatus();
@@ -227,9 +224,11 @@ public class ProducerManager {
     /**
      * Publish a set of topic.
      *
-     * @param topicSet a set of topic names
+     * @param topicSet
+     *          a set of topic names
      * @return a set of successful published topic names
-     * @throws TubeClientException   the exception at publish
+     * @throws TubeClientException
+     *           the exception at publish
      */
     public Set<String> publish(Set<String> topicSet) throws TubeClientException {
         checkServiceStatus();
@@ -288,7 +287,8 @@ public class ProducerManager {
     /**
      * Shutdown the produce manager.
      *
-     * @throws Throwable   the exception at shutdown
+     * @throws Throwable
+     *           the exception at shutdown
      */
     public void shutdown() throws Throwable {
         StringBuilder strBuff = new StringBuilder(512);
@@ -342,7 +342,8 @@ public class ProducerManager {
     /**
      * Get allowed message size.
      *
-     * @param topicName  the topic name
+     * @param topicName
+     *          the topic name
      * @return max allowed message size
      */
     public int getMaxMsgSize(String topicName) {
@@ -361,13 +362,13 @@ public class ProducerManager {
     /**
      * Set the authorized token information.
      *
-     * @param builder message builder
+     * @param builder
+     *          message builder
      * @return the passed in builder
      */
     public ClientBroker.SendMessageRequestP2B.Builder setAuthorizedTokenInfo(
             ClientBroker.SendMessageRequestP2B.Builder builder) {
-        ClientBroker.AuthorizedInfo.Builder authInfoBuilder =
-                ClientBroker.AuthorizedInfo.newBuilder();
+        ClientBroker.AuthorizedInfo.Builder authInfoBuilder = ClientBroker.AuthorizedInfo.newBuilder();
         authInfoBuilder.setVisitAuthorizedToken(this.visitToken.get());
         String authAuthorizedToken = this.authAuthorizedTokenRef.get();
         if (TStringUtils.isNotBlank(authAuthorizedToken)) {
@@ -380,7 +381,8 @@ public class ProducerManager {
     /**
      * Remove published topics. We will ignore null topics or non-published topics.
      *
-     * @param topicSet   the topic set need to delete
+     * @param topicSet
+     *          the topic set need to delete
      */
     public void removeTopic(Set<String> topicSet) {
         for (String topic : topicSet) {
@@ -400,7 +402,8 @@ public class ProducerManager {
     /**
      * Get partitions of the given topic.
      *
-     * @param topic topic name
+     * @param topic
+     *          topic name
      * @return partition map
      */
     public Map<Integer, List<Partition>> getTopicPartition(String topic) {
@@ -417,8 +420,7 @@ public class ProducerManager {
     }
 
     private void register2Master() throws Throwable {
-        int remainingRetry =
-                this.tubeClientConfig.getMaxRegisterRetryTimes();
+        int remainingRetry = this.tubeClientConfig.getMaxRegisterRetryTimes();
         StringBuilder sBuilder = new StringBuilder(512);
         do {
             if (isShutdown()) {
@@ -470,15 +472,13 @@ public class ProducerManager {
     }
 
     private ClientMaster.RegisterRequestP2M createRegisterRequest() throws Exception {
-        ClientMaster.RegisterRequestP2M.Builder builder =
-                ClientMaster.RegisterRequestP2M.newBuilder();
+        ClientMaster.RegisterRequestP2M.Builder builder = ClientMaster.RegisterRequestP2M.newBuilder();
         builder.setClientId(producerId);
         builder.addAllTopicList(publishTopics.keySet());
         builder.setBrokerCheckSum(this.brokerInfoCheckSum);
         builder.setHostName(AddressUtils.getLocalAddress());
         builder.setJdkVersion(MixedUtils.getJavaVersion());
-        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder =
-                genMasterCertificateInfo(true);
+        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = genMasterCertificateInfo(true);
         if (authInfoBuilder != null) {
             builder.setAuthInfo(authInfoBuilder.build());
         }
@@ -487,13 +487,11 @@ public class ProducerManager {
     }
 
     private ClientMaster.HeartRequestP2M createHeartbeatRequest() throws Exception {
-        ClientMaster.HeartRequestP2M.Builder builder =
-                ClientMaster.HeartRequestP2M.newBuilder();
+        ClientMaster.HeartRequestP2M.Builder builder = ClientMaster.HeartRequestP2M.newBuilder();
         builder.setClientId(producerId);
         builder.addAllTopicList(publishTopics.keySet());
         builder.setBrokerCheckSum(this.brokerInfoCheckSum);
-        if ((System.currentTimeMillis() - this.lastBrokerUpdatedTime)
-                > BROKER_UPDATED_TIME_AFTER_RETRY_FAIL) {
+        if ((System.currentTimeMillis() - this.lastBrokerUpdatedTime) > BROKER_UPDATED_TIME_AFTER_RETRY_FAIL) {
             builder.setBrokerCheckSum(-1L);
             this.lastBrokerUpdatedTime = System.currentTimeMillis();
         }
@@ -507,11 +505,9 @@ public class ProducerManager {
     }
 
     private ClientMaster.CloseRequestP2M createCloseProducerRequest() {
-        ClientMaster.CloseRequestP2M.Builder builder =
-                ClientMaster.CloseRequestP2M.newBuilder();
+        ClientMaster.CloseRequestP2M.Builder builder = ClientMaster.CloseRequestP2M.newBuilder();
         builder.setClientId(producerId);
-        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder =
-                genMasterCertificateInfo(true);
+        ClientMaster.MasterCertificateInfo.Builder authInfoBuilder = genMasterCertificateInfo(true);
         if (authInfoBuilder != null) {
             builder.setAuthInfo(authInfoBuilder);
         }
@@ -527,11 +523,9 @@ public class ProducerManager {
         // update topic max msg size
         msgSizeHolder.updTopicMaxSizeInB(topicInfoTuple.getF0());
         // update topic Partition info
-        Map<String, Map<Integer, List<Partition>>> partitionListMap =
-                new ConcurrentHashMap<>();
+        Map<String, Map<Integer, List<Partition>>> partitionListMap = new ConcurrentHashMap<>();
         for (TopicInfo topicInfo : topicInfoTuple.getF1()) {
-            brokerPartList =
-                    partitionListMap.get(topicInfo.getTopic());
+            brokerPartList = partitionListMap.get(topicInfo.getTopic());
             if (brokerPartList == null) {
                 brokerPartList = new ConcurrentHashMap<>();
                 partitionListMap.put(topicInfo.getTopic(), brokerPartList);
@@ -564,7 +558,7 @@ public class ProducerManager {
     }
 
     private void updateBrokerInfoList(boolean isRegister, List<String> pkgBrokerInfos,
-                                      long pkgCheckSum, StringBuilder sBuilder) {
+            long pkgCheckSum, StringBuilder sBuilder) {
         if (pkgCheckSum != brokerInfoCheckSum) {
             if (pkgBrokerInfos != null) {
                 brokersMap = DataConverterUtil.convertBrokerInfo(
@@ -607,7 +601,7 @@ public class ProducerManager {
     }
 
     private void processHeartBeatSyncInfo(ClientMaster.HeartResponseM2P response,
-                                          StringBuilder strBuff) {
+            StringBuilder strBuff) {
         if (response.hasRequireAuth()) {
             nextWithAuthInfo2M.set(response.getRequireAuth());
         }
@@ -664,8 +658,8 @@ public class ProducerManager {
             }
             if (needAdd) {
                 authInfoBuilder.setAuthInfo(authenticateHandler
-                    .genMasterAuthenticateToken(tubeClientConfig.getUsrName(),
-                        tubeClientConfig.getUsrPassWord()));
+                        .genMasterAuthenticateToken(tubeClientConfig.getUsrName(),
+                                tubeClientConfig.getUsrPassWord()));
             } else {
                 authInfoBuilder.setAuthorizedToken(authAuthorizedTokenRef.get());
             }
@@ -675,14 +669,14 @@ public class ProducerManager {
 
     // build allowed configure info
     private ClientMaster.ApprovedClientConfig.Builder buildAllowedConfig4P() {
-        ClientMaster.ApprovedClientConfig.Builder appdConfig =
-                ClientMaster.ApprovedClientConfig.newBuilder();
+        ClientMaster.ApprovedClientConfig.Builder appdConfig = ClientMaster.ApprovedClientConfig.newBuilder();
         appdConfig.setConfigId(msgSizeHolder.getConfigId());
         return appdConfig;
     }
 
     // #lizard forgives
     private class ProducerHeartbeatTask implements Runnable {
+
         @Override
         public void run() {
             StringBuilder strBuff = new StringBuilder(512);
@@ -696,9 +690,8 @@ public class ProducerManager {
                 return;
             }
             try {
-                ClientMaster.HeartResponseM2P response =
-                        masterService.producerHeartbeatP2M(createHeartbeatRequest(),
-                                AddressUtils.getLocalAddress(), tubeClientConfig.isTlsEnable());
+                ClientMaster.HeartResponseM2P response = masterService.producerHeartbeatP2M(createHeartbeatRequest(),
+                        AddressUtils.getLocalAddress(), tubeClientConfig.isTlsEnable());
                 if (response == null || !response.getSuccess()) {
                     heartbeatRetryTimes++;
                     if (response == null) {
@@ -714,8 +707,8 @@ public class ProducerManager {
                                 register2Master();
                             } catch (Throwable ee) {
                                 logger.error(strBuff
-                                    .append("[Heartbeat Failed] re-register failure, error is ")
-                                    .append(ee.getMessage()).toString());
+                                        .append("[Heartbeat Failed] re-register failure, error is ")
+                                        .append(ee.getMessage()).toString());
                                 strBuff.delete(0, strBuff.length());
                             }
                         } else {
@@ -730,8 +723,7 @@ public class ProducerManager {
                 processHeartBeatSyncInfo(response, strBuff);
                 heartbeatRetryTimes = 0;
                 long currentTime = System.currentTimeMillis();
-                if ((currentTime - lastHeartbeatTime)
-                        > (tubeClientConfig.getHeartbeatPeriodMs() * 4)) {
+                if ((currentTime - lastHeartbeatTime) > (tubeClientConfig.getHeartbeatPeriodMs() * 4)) {
                     logger.warn(strBuff.append(producerId)
                             .append(" heartbeat interval is too long, please check! Total time : ")
                             .append(currentTime - lastHeartbeatTime).toString());
@@ -757,10 +749,10 @@ public class ProducerManager {
             lastHeartbeatTime = System.currentTimeMillis();
             heartbeatRetryTimes++;
             if ((nodeStatus.get() != 1)
-                && heartbeatRetryTimes > tubeClientConfig.getMaxHeartBeatRetryTimes()) {
+                    && heartbeatRetryTimes > tubeClientConfig.getMaxHeartBeatRetryTimes()) {
                 logger.warn(sBuilder.append("Adjust HeartbeatPeriod for ").append(reason)
-                    .append(", sleep ").append(tubeClientConfig.getHeartbeatPeriodAfterFail())
-                    .append(" Ms").toString());
+                        .append(", sleep ").append(tubeClientConfig.getHeartbeatPeriodAfterFail())
+                        .append(" Ms").toString());
                 sBuilder.delete(0, sBuilder.length());
                 try {
                     Thread.sleep(tubeClientConfig.getHeartbeatPeriodAfterFail());

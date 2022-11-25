@@ -17,11 +17,6 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Context;
-import org.apache.flume.EventDrivenSource;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -38,8 +33,12 @@ import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
 import org.apache.inlong.sort.standalone.config.holder.SortSourceConfigType;
 import org.apache.inlong.sort.standalone.config.loader.ClassResourceQueryConsumeConfig;
 import org.apache.inlong.sort.standalone.utils.FlumeConfigGenerator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.flume.Context;
+import org.apache.flume.EventDrivenSource;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.source.AbstractSource;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -51,26 +50,36 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Default Source implementation of InLong.
  *
  * <p>
- * SortSdkSource acquired msg from different upstream data store by register {@link SortClient} for each sort task. The
- * only things SortSdkSource should do is to get one client by the sort task id, or remove one client when the task is
- * finished or schedule to other source instance.
+ * SortSdkSource acquired msg from different upstream data store by register
+ * {@link SortClient} for each sort task. The only things SortSdkSource should
+ * do is to get one client by the sort task id, or remove one client when the
+ * task is finished or schedule to other source instance.
  * </p>
  *
  * <p>
- * The Default Manager of InLong will schedule the partition and topic automatically.
+ * The Default Manager of InLong will schedule the partition and topic
+ * automatically.
  * </p>
  *
  * <p>
- * Because all sources should implement {@link Configurable}, the SortSdkSource should have default constructor
- * <b>WITHOUT</b> any arguments, and parameters will be configured by {@link Configurable#configure(Context)}.
+ * Because all sources should implement {@link Configurable}, the SortSdkSource
+ * should have default constructor <b>WITHOUT</b> any arguments, and parameters
+ * will be configured by {@link Configurable#configure(Context)}.
  * </p>
  */
 public final class SortSdkSource extends AbstractSource
-        implements Configurable, Runnable, EventDrivenSource, ConsumerServiceMBean {
+        implements
+            Configurable,
+            Runnable,
+            EventDrivenSource,
+            ConsumerServiceMBean {
 
     // Log of {@link SortSdkSource}.
     private static final Logger LOG = LoggerFactory.getLogger(SortSdkSource.class);
@@ -129,7 +138,8 @@ public final class SortSdkSource extends AbstractSource
     }
 
     /**
-     * Entrance of {@link #pool} to reload clients with fix rate {@link #reloadInterval}.
+     * Entrance of {@link #pool} to reload clients with fix rate
+     * {@link #reloadInterval}.
      */
     @Override
     public void run() {
@@ -142,7 +152,8 @@ public final class SortSdkSource extends AbstractSource
     /**
      * Configure parameters.
      *
-     * @param context Context of source.
+     * @param context
+     *          Context of source.
      */
     @Override
     public void configure(Context context) {
@@ -167,12 +178,13 @@ public final class SortSdkSource extends AbstractSource
      * Create one {@link SortClient} with specific sort task.
      *
      * <p>
-     * In current version, the {@link FetchCallback} will hold the client to ACK. For more details see
-     * {@link FetchCallback#onFinished}
+     * In current version, the {@link FetchCallback} will hold the client to ACK.
+     * For more details see {@link FetchCallback#onFinished}
      * </p>
      *
-     * @param  sortTaskName Sort in of new client.
-     * @return        New sort client.
+     * @param sortTaskName
+     *          Sort in of new client.
+     * @return New sort client.
      */
     private SortClient newClient(final String sortTaskName) {
         LOG.info("Start to new sort client for task: {}", sortTaskName);
@@ -235,6 +247,7 @@ public final class SortSdkSource extends AbstractSource
 
     /**
      * getSortClientConfigParameters
+     * 
      * @return Map
      */
     private Map<String, String> getSortClientConfigParameters() {

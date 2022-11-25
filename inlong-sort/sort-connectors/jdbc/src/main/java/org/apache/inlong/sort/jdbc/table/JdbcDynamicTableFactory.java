@@ -18,6 +18,12 @@
 
 package org.apache.inlong.sort.jdbc.table;
 
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
+import org.apache.inlong.sort.base.util.JdbcUrlUtils;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
@@ -42,153 +48,128 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.inlong.sort.base.util.JdbcUrlUtils;
-
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /**
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
  * <p>
- * Factory for creating configured instances of {@link JdbcDynamicTableSource} and {@link
- * JdbcDynamicTableSink}.
- * We modify it to strengthen capacity of registering other dialect.
- * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
+ * Factory for creating configured instances of {@link JdbcDynamicTableSource}
+ * and {@link JdbcDynamicTableSink}. We modify it to strengthen capacity of
+ * registering other dialect. Add an option `sink.ignore.changelog` to support
+ * insert-only mode without primaryKey.
  * </p>
  */
 public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "jdbc-inlong";
 
-    public static final ConfigOption<String> DIALECT_IMPL =
-            ConfigOptions.key("dialect-impl")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("The JDBC Custom Dialect.");
-    public static final ConfigOption<String> URL =
-            ConfigOptions.key("url")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("The JDBC database URL.");
-    public static final ConfigOption<String> TABLE_NAME =
-            ConfigOptions.key("table-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("The JDBC table name.");
-    public static final ConfigOption<String> USERNAME =
-            ConfigOptions.key("username")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("The JDBC user name.");
-    public static final ConfigOption<String> PASSWORD =
-            ConfigOptions.key("password")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("The JDBC password.");
-    public static final ConfigOption<Duration> MAX_RETRY_TIMEOUT =
-            ConfigOptions.key("connection.max-retry-timeout")
-                    .durationType()
-                    .defaultValue(Duration.ofSeconds(60))
-                    .withDescription("Maximum timeout between retries.");
-    private static final ConfigOption<String> DRIVER =
-            ConfigOptions.key("driver")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "The class name of the JDBC driver to use to connect to this URL. "
-                                    + "If not set, it will automatically be derived from the URL.");
+    public static final ConfigOption<String> DIALECT_IMPL = ConfigOptions.key("dialect-impl")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("The JDBC Custom Dialect.");
+    public static final ConfigOption<String> URL = ConfigOptions.key("url")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("The JDBC database URL.");
+    public static final ConfigOption<String> TABLE_NAME = ConfigOptions.key("table-name")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("The JDBC table name.");
+    public static final ConfigOption<String> USERNAME = ConfigOptions.key("username")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("The JDBC user name.");
+    public static final ConfigOption<String> PASSWORD = ConfigOptions.key("password")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("The JDBC password.");
+    public static final ConfigOption<Duration> MAX_RETRY_TIMEOUT = ConfigOptions.key("connection.max-retry-timeout")
+            .durationType()
+            .defaultValue(Duration.ofSeconds(60))
+            .withDescription("Maximum timeout between retries.");
+    private static final ConfigOption<String> DRIVER = ConfigOptions.key("driver")
+            .stringType()
+            .noDefaultValue()
+            .withDescription(
+                    "The class name of the JDBC driver to use to connect to this URL. "
+                            + "If not set, it will automatically be derived from the URL.");
     // read config options
-    private static final ConfigOption<String> SCAN_PARTITION_COLUMN =
-            ConfigOptions.key("scan.partition.column")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("The column name used for partitioning the input.");
-    private static final ConfigOption<Integer> SCAN_PARTITION_NUM =
-            ConfigOptions.key("scan.partition.num")
-                    .intType()
-                    .noDefaultValue()
-                    .withDescription("The number of partitions.");
-    private static final ConfigOption<Long> SCAN_PARTITION_LOWER_BOUND =
-            ConfigOptions.key("scan.partition.lower-bound")
-                    .longType()
-                    .noDefaultValue()
-                    .withDescription("The smallest value of the first partition.");
-    private static final ConfigOption<Long> SCAN_PARTITION_UPPER_BOUND =
-            ConfigOptions.key("scan.partition.upper-bound")
-                    .longType()
-                    .noDefaultValue()
-                    .withDescription("The largest value of the last partition.");
-    private static final ConfigOption<Integer> SCAN_FETCH_SIZE =
-            ConfigOptions.key("scan.fetch-size")
-                    .intType()
-                    .defaultValue(0)
-                    .withDescription(
-                            "Gives the reader a hint as to the number of rows that should be fetched "
-                                    + "from the database per round-trip when reading. "
-                                    + "If the value is zero, this hint is ignored.");
-    private static final ConfigOption<Boolean> SCAN_AUTO_COMMIT =
-            ConfigOptions.key("scan.auto-commit")
-                    .booleanType()
-                    .defaultValue(true)
-                    .withDescription("Sets whether the driver is in auto-commit mode.");
+    private static final ConfigOption<String> SCAN_PARTITION_COLUMN = ConfigOptions.key("scan.partition.column")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("The column name used for partitioning the input.");
+    private static final ConfigOption<Integer> SCAN_PARTITION_NUM = ConfigOptions.key("scan.partition.num")
+            .intType()
+            .noDefaultValue()
+            .withDescription("The number of partitions.");
+    private static final ConfigOption<Long> SCAN_PARTITION_LOWER_BOUND = ConfigOptions.key("scan.partition.lower-bound")
+            .longType()
+            .noDefaultValue()
+            .withDescription("The smallest value of the first partition.");
+    private static final ConfigOption<Long> SCAN_PARTITION_UPPER_BOUND = ConfigOptions.key("scan.partition.upper-bound")
+            .longType()
+            .noDefaultValue()
+            .withDescription("The largest value of the last partition.");
+    private static final ConfigOption<Integer> SCAN_FETCH_SIZE = ConfigOptions.key("scan.fetch-size")
+            .intType()
+            .defaultValue(0)
+            .withDescription(
+                    "Gives the reader a hint as to the number of rows that should be fetched "
+                            + "from the database per round-trip when reading. "
+                            + "If the value is zero, this hint is ignored.");
+    private static final ConfigOption<Boolean> SCAN_AUTO_COMMIT = ConfigOptions.key("scan.auto-commit")
+            .booleanType()
+            .defaultValue(true)
+            .withDescription("Sets whether the driver is in auto-commit mode.");
 
     // look up config options
-    private static final ConfigOption<Long> LOOKUP_CACHE_MAX_ROWS =
-            ConfigOptions.key("lookup.cache.max-rows")
-                    .longType()
-                    .defaultValue(-1L)
-                    .withDescription(
-                            "The max number of rows of lookup cache, over this value, the oldest rows will "
-                                    + "be eliminated. \"cache.max-rows\" and \"cache.ttl\""
-                                    + " options must all be specified if any of them is specified.");
-    private static final ConfigOption<Duration> LOOKUP_CACHE_TTL =
-            ConfigOptions.key("lookup.cache.ttl")
-                    .durationType()
-                    .defaultValue(Duration.ofSeconds(10))
-                    .withDescription("The cache time to live.");
-    private static final ConfigOption<Integer> LOOKUP_MAX_RETRIES =
-            ConfigOptions.key("lookup.max-retries")
-                    .intType()
-                    .defaultValue(3)
-                    .withDescription("The max retry times if lookup database failed.");
+    private static final ConfigOption<Long> LOOKUP_CACHE_MAX_ROWS = ConfigOptions.key("lookup.cache.max-rows")
+            .longType()
+            .defaultValue(-1L)
+            .withDescription(
+                    "The max number of rows of lookup cache, over this value, the oldest rows will "
+                            + "be eliminated. \"cache.max-rows\" and \"cache.ttl\""
+                            + " options must all be specified if any of them is specified.");
+    private static final ConfigOption<Duration> LOOKUP_CACHE_TTL = ConfigOptions.key("lookup.cache.ttl")
+            .durationType()
+            .defaultValue(Duration.ofSeconds(10))
+            .withDescription("The cache time to live.");
+    private static final ConfigOption<Integer> LOOKUP_MAX_RETRIES = ConfigOptions.key("lookup.max-retries")
+            .intType()
+            .defaultValue(3)
+            .withDescription("The max retry times if lookup database failed.");
 
     // write config options
-    private static final ConfigOption<Integer> SINK_BUFFER_FLUSH_MAX_ROWS =
-            ConfigOptions.key("sink.buffer-flush.max-rows")
-                    .intType()
-                    .defaultValue(100)
-                    .withDescription(
-                            "The flush max size (includes all append, upsert and delete records), over this number"
-                                    + " of records, will flush data.");
-    private static final ConfigOption<Duration> SINK_BUFFER_FLUSH_INTERVAL =
-            ConfigOptions.key("sink.buffer-flush.interval")
-                    .durationType()
-                    .defaultValue(Duration.ofSeconds(1))
-                    .withDescription(
-                            "The flush interval mills, over this time, asynchronous threads will flush data.");
-    private static final ConfigOption<Integer> SINK_MAX_RETRIES =
-            ConfigOptions.key("sink.max-retries")
-                    .intType()
-                    .defaultValue(3)
-                    .withDescription("The max retry times if writing records to database failed.");
-    private static final ConfigOption<Boolean> SINK_APPEND_MODE =
-            ConfigOptions.key("sink.ignore.changelog")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("Whether to support sink update/delete data without primaryKey.");
+    private static final ConfigOption<Integer> SINK_BUFFER_FLUSH_MAX_ROWS = ConfigOptions
+            .key("sink.buffer-flush.max-rows")
+            .intType()
+            .defaultValue(100)
+            .withDescription(
+                    "The flush max size (includes all append, upsert and delete records), over this number"
+                            + " of records, will flush data.");
+    private static final ConfigOption<Duration> SINK_BUFFER_FLUSH_INTERVAL = ConfigOptions
+            .key("sink.buffer-flush.interval")
+            .durationType()
+            .defaultValue(Duration.ofSeconds(1))
+            .withDescription(
+                    "The flush interval mills, over this time, asynchronous threads will flush data.");
+    private static final ConfigOption<Integer> SINK_MAX_RETRIES = ConfigOptions.key("sink.max-retries")
+            .intType()
+            .defaultValue(3)
+            .withDescription("The max retry times if writing records to database failed.");
+    private static final ConfigOption<Boolean> SINK_APPEND_MODE = ConfigOptions.key("sink.ignore.changelog")
+            .booleanType()
+            .defaultValue(false)
+            .withDescription("Whether to support sink update/delete data without primaryKey.");
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
-        final FactoryUtil.TableFactoryHelper helper =
-                FactoryUtil.createTableFactoryHelper(this, context);
+        final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         final ReadableConfig config = helper.getOptions();
 
         helper.validate();
         validateConfigOptions(config);
         JdbcOptions jdbcOptions = getJdbcOptions(config);
-        TableSchema physicalSchema =
-                TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
+        TableSchema physicalSchema = TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
         boolean appendMode = config.get(SINK_APPEND_MODE);
         String inlongMetric = config.getOptional(INLONG_METRIC).orElse(null);
         String auditHostAndPorts = config.getOptional(INLONG_AUDIT).orElse(null);
@@ -204,14 +185,12 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
 
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
-        final FactoryUtil.TableFactoryHelper helper =
-                FactoryUtil.createTableFactoryHelper(this, context);
+        final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         final ReadableConfig config = helper.getOptions();
 
         helper.validate();
         validateConfigOptions(config);
-        TableSchema physicalSchema =
-                TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
+        TableSchema physicalSchema = TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
         return new JdbcDynamicTableSource(
                 getJdbcOptions(helper.getOptions()),
                 getJdbcReadOptions(helper.getOptions()),
@@ -228,17 +207,16 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
         } else {
             jdbcDialect = JdbcDialects.get(url);
         }
-        final JdbcOptions.Builder builder =
-                JdbcOptions.builder()
-                        .setDBUrl(url)
-                        .setTableName(readableConfig.get(TABLE_NAME))
-                        .setDialect(jdbcDialect.get())
-                        .setParallelism(
-                                readableConfig
-                                        .getOptional(FactoryUtil.SINK_PARALLELISM)
-                                        .orElse(null))
-                        .setConnectionCheckTimeoutSeconds(
-                                (int) readableConfig.get(MAX_RETRY_TIMEOUT).getSeconds());
+        final JdbcOptions.Builder builder = JdbcOptions.builder()
+                .setDBUrl(url)
+                .setTableName(readableConfig.get(TABLE_NAME))
+                .setDialect(jdbcDialect.get())
+                .setParallelism(
+                        readableConfig
+                                .getOptional(FactoryUtil.SINK_PARALLELISM)
+                                .orElse(null))
+                .setConnectionCheckTimeoutSeconds(
+                        (int) readableConfig.get(MAX_RETRY_TIMEOUT).getSeconds());
 
         readableConfig.getOptional(DRIVER).ifPresent(builder::setDriverName);
         readableConfig.getOptional(USERNAME).ifPresent(builder::setUsername);
@@ -247,8 +225,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
     }
 
     private JdbcReadOptions getJdbcReadOptions(ReadableConfig readableConfig) {
-        final Optional<String> partitionColumnName =
-                readableConfig.getOptional(SCAN_PARTITION_COLUMN);
+        final Optional<String> partitionColumnName = readableConfig.getOptional(SCAN_PARTITION_COLUMN);
         final JdbcReadOptions.Builder builder = JdbcReadOptions.builder();
         if (partitionColumnName.isPresent()) {
             builder.setPartitionColumnName(partitionColumnName.get());
@@ -277,10 +254,9 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
     }
 
     private JdbcDmlOptions getJdbcDmlOptions(JdbcOptions jdbcOptions, TableSchema schema) {
-        String[] keyFields =
-                schema.getPrimaryKey()
-                        .map(pk -> pk.getColumns().toArray(new String[0]))
-                        .orElse(null);
+        String[] keyFields = schema.getPrimaryKey()
+                .map(pk -> pk.getColumns().toArray(new String[0]))
+                .orElse(null);
 
         return JdbcDmlOptions.builder()
                 .withTableName(jdbcOptions.getTableName())
@@ -397,8 +373,7 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                 presentCount++;
             }
         }
-        String[] propertyNames =
-                Arrays.stream(configOptions).map(ConfigOption::key).toArray(String[]::new);
+        String[] propertyNames = Arrays.stream(configOptions).map(ConfigOption::key).toArray(String[]::new);
         Preconditions.checkArgument(
                 configOptions.length == presentCount || presentCount == 0,
                 "Either all or none of the following options should be provided:\n"

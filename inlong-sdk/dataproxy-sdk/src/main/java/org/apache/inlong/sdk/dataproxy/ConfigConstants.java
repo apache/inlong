@@ -50,12 +50,10 @@ public class ConfigConstants {
 
     public static final int MAX_LINE_CNT = 30;
 
-    /* Default connection,connect timeout in milliseconds.*/
-    public static final long DEFAULT_CONNECT_TIMEOUT_MILLIS =
-            TimeUnit.MILLISECONDS.convert(40, TimeUnit.SECONDS);
+    /* Default connection,connect timeout in milliseconds. */
+    public static final long DEFAULT_CONNECT_TIMEOUT_MILLIS = TimeUnit.MILLISECONDS.convert(40, TimeUnit.SECONDS);
 
-    public static final long DEFAULT_REQUEST_TIMEOUT_MILLIS =
-            TimeUnit.MILLISECONDS.convert(40, TimeUnit.SECONDS);
+    public static final long DEFAULT_REQUEST_TIMEOUT_MILLIS = TimeUnit.MILLISECONDS.convert(40, TimeUnit.SECONDS);
 
     public static final int DEFAULT_SEND_BUFFER_SIZE = 16777216;
     public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;

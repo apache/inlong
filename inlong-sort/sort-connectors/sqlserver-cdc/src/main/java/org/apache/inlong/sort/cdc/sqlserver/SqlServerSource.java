@@ -18,19 +18,20 @@
 
 package org.apache.inlong.sort.cdc.sqlserver;
 
-import com.ververica.cdc.connectors.sqlserver.SqlServerValidator;
-import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import org.apache.inlong.sort.cdc.sqlserver.table.DebeziumSourceFunction;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import io.debezium.connector.sqlserver.SqlServerConnector;
 
 import java.util.Properties;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import com.ververica.cdc.connectors.sqlserver.SqlServerValidator;
+import com.ververica.cdc.connectors.sqlserver.table.StartupOptions;
+import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
+import io.debezium.connector.sqlserver.SqlServerConnector;
 
 /**
- * A builder to build a SourceFunction which can read snapshot and continue to consume transaction
- * log for SqlServer.
+ * A builder to build a SourceFunction which can read snapshot and continue to
+ * consume transaction log for SqlServer.
  */
 public class SqlServerSource {
 
@@ -73,11 +74,12 @@ public class SqlServerSource {
         }
 
         /**
-         * An optional comma-separated list of regular expressions that match fully-qualified table
-         * identifiers for tables that you want Debezium to capture; any table that is not included
-         * in table.include.list is excluded from capture. Each identifier is of the form
-         * schemaName.tableName. By default, the connector captures all non-system tables for the
-         * designated schemas. Must not be used with table.exclude.list.
+         * An optional comma-separated list of regular expressions that match
+         * fully-qualified table identifiers for tables that you want Debezium to
+         * capture; any table that is not included in table.include.list is excluded
+         * from capture. Each identifier is of the form schemaName.tableName. By
+         * default, the connector captures all non-system tables for the designated
+         * schemas. Must not be used with table.exclude.list.
          */
         public Builder<T> tableList(String... tableList) {
             this.tableList = tableList;
@@ -96,15 +98,17 @@ public class SqlServerSource {
             return this;
         }
 
-        /** The Debezium SqlServer connector properties. For example, "snapshot.mode". */
+        /**
+         * The Debezium SqlServer connector properties. For example, "snapshot.mode".
+         */
         public Builder<T> debeziumProperties(Properties properties) {
             this.dbzProperties = properties;
             return this;
         }
 
         /**
-         * The deserializer used to convert from consumed {@link
-         * org.apache.kafka.connect.source.SourceRecord}.
+         * The deserializer used to convert from consumed
+         * {@link org.apache.kafka.connect.source.SourceRecord}.
          */
         public Builder<T> deserializer(DebeziumDeserializationSchema<T> deserializer) {
             this.deserializer = deserializer;
@@ -131,10 +135,13 @@ public class SqlServerSource {
             Properties props = new Properties();
             props.setProperty("connector.class", SqlServerConnector.class.getCanonicalName());
             // hard code server name, because we don't need to distinguish it, docs:
-            // Logical name that identifies and provides a namespace for the SQL Server database
-            // server that you want Debezium to capture. The logical name should be unique across
+            // Logical name that identifies and provides a namespace for the SQL Server
+            // database
+            // server that you want Debezium to capture. The logical name should be unique
+            // across
             // all other connectors, since it is used as a prefix for all Kafka topic names
-            // emanating from this connector. Only alphanumeric characters and underscores should be
+            // emanating from this connector. Only alphanumeric characters and underscores
+            // should be
             // used.
             props.setProperty("database.server.name", DATABASE_SERVER_NAME);
             props.setProperty("database.hostname", checkNotNull(hostname));
@@ -168,7 +175,7 @@ public class SqlServerSource {
 
             return new DebeziumSourceFunction<>(
                     deserializer, props, null, new SqlServerValidator(props),
-                inlongMetric, auditHostAndPorts);
+                    inlongMetric, auditHostAndPorts);
         }
     }
 }

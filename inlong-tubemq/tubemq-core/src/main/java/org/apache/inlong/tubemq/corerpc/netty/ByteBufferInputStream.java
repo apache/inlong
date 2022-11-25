@@ -24,10 +24,12 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * Utility to present {@link java.nio.ByteBuffer} data as an {@link java.io.InputStream}.
- * Copied from <a href="http://avro.apache.org">Apache Avro Project</a>
+ * Utility to present {@link java.nio.ByteBuffer} data as an
+ * {@link java.io.InputStream}. Copied from
+ * <a href="http://avro.apache.org">Apache Avro Project</a>
  */
 public class ByteBufferInputStream extends InputStream {
+
     private final List<ByteBuffer> buffers;
     private int current;
 
@@ -39,7 +41,8 @@ public class ByteBufferInputStream extends InputStream {
      * Read a byte at this buffer
      *
      * @return the read value
-     * @throws java.io.EOFException if EOF is reached.
+     * @throws java.io.EOFException
+     *           if EOF is reached.
      * @see java.io.InputStream#read()
      */
     @Override
@@ -50,10 +53,14 @@ public class ByteBufferInputStream extends InputStream {
     /**
      * Read content of specified length
      *
-     * @param b     the content buffer
-     * @param off   the offset position
-     * @param len   the content length
-     * @throws java.io.EOFException if EOF is reached before reading all the bytes.
+     * @param b
+     *          the content buffer
+     * @param off
+     *          the offset position
+     * @param len
+     *          the content length
+     * @throws java.io.EOFException
+     *           if EOF is reached before reading all the bytes.
      * @see java.io.InputStream#read(byte[], int, int)
      */
     @Override
@@ -75,8 +82,10 @@ public class ByteBufferInputStream extends InputStream {
     /**
      * Read a buffer from the input without copying, if possible.
      *
-     * @param length    the need read data length
-     * @throws java.io.EOFException if EOF is reached before reading all the bytes.
+     * @param length
+     *          the need read data length
+     * @throws java.io.EOFException
+     *           if EOF is reached before reading all the bytes.
      */
     public ByteBuffer readBuffer(int length) throws IOException {
         if (length == 0) {
@@ -99,7 +108,8 @@ public class ByteBufferInputStream extends InputStream {
     /**
      * Returns the next non-empty buffer.
      *
-     * @throws java.io.EOFException if EOF is reached before reading all the bytes.
+     * @throws java.io.EOFException
+     *           if EOF is reached before reading all the bytes.
      */
     private ByteBuffer getBuffer() throws IOException {
         while (current < buffers.size()) {

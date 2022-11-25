@@ -18,13 +18,6 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
@@ -33,6 +26,11 @@ import org.apache.inlong.sort.protocol.constant.PostgresConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
@@ -40,6 +38,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Postgres extract node for extract data from postgres
@@ -100,8 +103,9 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
      * generate table options
      *
      * @return options
-     * @see <a href="https://ververica.github.io/flink-cdc-connectors/master/content/connectors/postgres-cdc.html">postgres
-     * cdc</a>
+     * @see <a href=
+     *      "https://ververica.github.io/flink-cdc-connectors/master/content/connectors/postgres-cdc.html">postgres
+     *      cdc</a>
      */
     @Override
     public Map<String, String> tableOptions() {
@@ -113,8 +117,8 @@ public class PostgresExtractNode extends ExtractNode implements Metadata, Inlong
         options.put(PostgresConstant.DATABASE_NAME, database);
         options.put(PostgresConstant.SCHEMA_NAME, schema);
         options.put(PostgresConstant.PORT, port.toString());
-        String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
-                String.format("(%s)", StringUtils.join(tableNames, "|"));
+        String formatTable = tableNames.size() == 1 ? tableNames.get(0)
+                : String.format("(%s)", StringUtils.join(tableNames, "|"));
         options.put(PostgresConstant.TABLE_NAME, String.format("%s", formatTable));
         String decodingPluginNameOption;
         if (StringUtils.isNotEmpty(decodingPluginName)) {

@@ -18,12 +18,9 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.reader;
 
-import com.github.shyiko.mysql.binlog.BinaryLogClient;
-import io.debezium.connector.mysql.MySqlConnection;
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
-import org.apache.flink.connector.base.source.reader.splitreader.SplitReader;
-import org.apache.flink.connector.base.source.reader.splitreader.SplitsAddition;
-import org.apache.flink.connector.base.source.reader.splitreader.SplitsChange;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.createBinaryClient;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.createMySqlConnection;
+
 import org.apache.inlong.sort.cdc.mysql.debezium.reader.BinlogSplitReader;
 import org.apache.inlong.sort.cdc.mysql.debezium.reader.DebeziumReader;
 import org.apache.inlong.sort.cdc.mysql.debezium.reader.SnapshotSplitReader;
@@ -32,18 +29,25 @@ import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlRecords;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
-import org.apache.kafka.connect.source.SourceRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+import org.apache.flink.connector.base.source.reader.splitreader.SplitReader;
+import org.apache.flink.connector.base.source.reader.splitreader.SplitsAddition;
+import org.apache.flink.connector.base.source.reader.splitreader.SplitsChange;
+import org.apache.kafka.connect.source.SourceRecord;
+
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Queue;
 
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.createBinaryClient;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.createMySqlConnection;
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.github.shyiko.mysql.binlog.BinaryLogClient;
+import io.debezium.connector.mysql.MySqlConnection;
 
 /**
  * The {@link SplitReader} implementation for the {@link MySqlSource}.
@@ -140,12 +144,11 @@ public class MySqlSplitReader implements SplitReader<SourceRecord, MySqlSplit> {
                     currentReader = null;
                 }
                 if (currentReader == null) {
-                    final MySqlConnection jdbcConnection =
-                            createMySqlConnection(sourceConfig.getDbzConfiguration());
-                    final BinaryLogClient binaryLogClient =
-                            createBinaryClient(sourceConfig.getDbzConfiguration());
+                    final MySqlConnection jdbcConnection = createMySqlConnection(sourceConfig.getDbzConfiguration());
+                    final BinaryLogClient binaryLogClient = createBinaryClient(sourceConfig.getDbzConfiguration());
                     final StatefulTaskContext statefulTaskContext =
-                            new StatefulTaskContext(sourceConfig, binaryLogClient, jdbcConnection);
+                            new StatefulTaskContext(sourceConfig, binaryLogClient,
+                                    jdbcConnection);
                     currentReader = new SnapshotSplitReader(statefulTaskContext, subtaskId);
                 }
             } else {
@@ -154,12 +157,10 @@ public class MySqlSplitReader implements SplitReader<SourceRecord, MySqlSplit> {
                     LOG.info("It's turn to read binlog split, close current snapshot reader");
                     currentReader.close();
                 }
-                final MySqlConnection jdbcConnection =
-                        createMySqlConnection(sourceConfig.getDbzConfiguration());
-                final BinaryLogClient binaryLogClient =
-                        createBinaryClient(sourceConfig.getDbzConfiguration());
-                final StatefulTaskContext statefulTaskContext =
-                        new StatefulTaskContext(sourceConfig, binaryLogClient, jdbcConnection);
+                final MySqlConnection jdbcConnection = createMySqlConnection(sourceConfig.getDbzConfiguration());
+                final BinaryLogClient binaryLogClient = createBinaryClient(sourceConfig.getDbzConfiguration());
+                final StatefulTaskContext statefulTaskContext = new StatefulTaskContext(sourceConfig, binaryLogClient,
+                        jdbcConnection);
                 currentReader = new BinlogSplitReader(statefulTaskContext, subtaskId);
                 LOG.info("BinlogSplitReader is created.");
             }

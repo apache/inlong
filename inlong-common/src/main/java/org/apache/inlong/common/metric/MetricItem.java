@@ -17,9 +17,6 @@
 
 package org.apache.inlong.common.metric;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -28,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * MetricItem
@@ -105,7 +105,8 @@ public abstract class MetricItem implements MetricItemMBean {
     /**
      * set dimensions
      *
-     * @param dimensions the dimensions to set
+     * @param dimensions
+     *          the dimensions to set
      */
     public void setDimensions(Map<String, String> dimensions) {
         this.dimensions = new HashMap<String, String>();

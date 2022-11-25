@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.pojo.sink.sqlserver;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * SQLServer table info.

@@ -17,10 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -29,7 +26,12 @@ import org.apache.flume.EventDeliveryException;
 import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +95,7 @@ public class PulsarFederationSink extends AbstractSink implements Configurable {
     /**
      * process
      * 
-     * @return                        Status
+     * @return Status
      * @throws EventDeliveryException
      */
     @Override

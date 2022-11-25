@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.manager.repository;
 
 import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClusterRepository extends JpaRepository<ClusterEntry, Long> {
@@ -40,6 +41,7 @@ public interface ClusterRepository extends JpaRepository<ClusterEntry, Long> {
 
     /**
      * find clusterEntry by clusterName
+     * 
      * @param clusterName
      * @return
      */

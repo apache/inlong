@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.pojo.workflow;
 
-import io.swagger.annotations.ApiModelProperty;
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Workflow listener execution log

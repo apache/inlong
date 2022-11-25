@@ -18,11 +18,12 @@
 
 package org.apache.inlong.sort.doris.model;
 
-import lombok.Data;
 import org.apache.doris.shaded.com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.doris.shaded.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.doris.shaded.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.doris.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Data;
 
 /**
  * RespContent copy from {@link org.apache.doris.flink.rest.models.RespContent}
@@ -93,4 +94,3 @@ public class RespContent {
         }
     }
 }
-

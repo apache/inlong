@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
-import com.sleepycat.je.rep.ReplicatedEnvironment;
-import com.sleepycat.persist.EntityCursor;
-import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.PrimaryIndex;
-import com.sleepycat.persist.StoreConfig;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
@@ -29,7 +24,14 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsConsumeCtrlMapperImpl;
 
+import com.sleepycat.je.rep.ReplicatedEnvironment;
+import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.PrimaryIndex;
+import com.sleepycat.persist.StoreConfig;
+
 public class BdbConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
+
     // consume control store
     private EntityStore groupConsumeStore;
     private final PrimaryIndex<String/* recordKey */, BdbGroupFilterCondEntity> groupConsumeIndex;
@@ -38,8 +40,7 @@ public class BdbConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
         super();
         groupConsumeStore = new EntityStore(repEnv,
                 TBDBStoreTables.BDB_GROUP_FILTER_COND_STORE_NAME, storeConfig);
-        groupConsumeIndex =
-                groupConsumeStore.getPrimaryIndex(String.class, BdbGroupFilterCondEntity.class);
+        groupConsumeIndex = groupConsumeStore.getPrimaryIndex(String.class, BdbGroupFilterCondEntity.class);
     }
 
     @Override
@@ -86,9 +87,8 @@ public class BdbConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
     }
 
     protected boolean putConfig2Persistent(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
-        BdbGroupFilterCondEntity bdbEntity =
-                entity.buildBdbGroupFilterCondEntity();
+            StringBuilder strBuff, ProcessResult result) {
+        BdbGroupFilterCondEntity bdbEntity = entity.buildBdbGroupFilterCondEntity();
         try {
             groupConsumeIndex.put(bdbEntity);
         } catch (Throwable e) {

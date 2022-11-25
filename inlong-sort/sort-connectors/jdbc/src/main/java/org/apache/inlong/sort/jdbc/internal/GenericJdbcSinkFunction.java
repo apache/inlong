@@ -27,8 +27,9 @@ import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.util.Preconditions;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
+
+import javax.annotation.Nonnull;
 
 /**
  * A generic SinkFunction for JDBC.
@@ -37,7 +38,8 @@ import java.io.IOException;
  */
 @Internal
 public class GenericJdbcSinkFunction<T> extends RichSinkFunction<T>
-        implements CheckpointedFunction {
+        implements
+            CheckpointedFunction {
 
     private final AbstractJdbcOutputFormat<T> outputFormat;
 

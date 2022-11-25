@@ -18,13 +18,6 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.constant.PostgresConstant;
@@ -33,9 +26,19 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Greenplum load node can load data into Greenplum
@@ -60,8 +63,9 @@ public class GreenplumLoadNode extends LoadNode implements InlongMetric, Seriali
     @JsonProperty("tableName")
     private String tableName;
     /**
-     * Please declare primary key for sink table when query contains update/delete record if your version support
-     * upsert. You can change source stream mode is "append" if your version can't support upsert.
+     * Please declare primary key for sink table when query contains update/delete
+     * record if your version support upsert. You can change source stream mode is
+     * "append" if your version can't support upsert.
      */
     @JsonProperty("primaryKey")
     private String primaryKey;

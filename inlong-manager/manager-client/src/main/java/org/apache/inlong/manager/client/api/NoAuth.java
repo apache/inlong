@@ -27,7 +27,8 @@ public interface NoAuth {
     /**
      * Save user info
      *
-     * @param request user info request
+     * @param request
+     *          user info request
      * @return user id after saving
      */
     Integer register(UserRequest request);

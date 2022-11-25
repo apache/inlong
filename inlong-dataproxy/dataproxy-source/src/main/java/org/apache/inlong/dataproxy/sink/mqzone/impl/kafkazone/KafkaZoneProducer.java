@@ -24,6 +24,7 @@ import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneSinkContext;
 import org.apache.inlong.dataproxy.sink.mqzone.ZoneClusterProducerCalculator;
 
 public class KafkaZoneProducer extends AbstractZoneProducer implements ZoneClusterProducerCalculator {
+
     /**
      * Constructor
      * 
@@ -43,7 +44,7 @@ public class KafkaZoneProducer extends AbstractZoneProducer implements ZoneClust
 
     @Override
     public AbstractZoneClusterProducer calculator(String workerName, CacheClusterConfig config,
-                                                  AbstractZoneSinkContext context) {
-        return  new KafkaClusterProducer(workerName, config, (KafkaZoneSinkContext) context);
+            AbstractZoneSinkContext context) {
+        return new KafkaClusterProducer(workerName, config, (KafkaZoneSinkContext) context);
     }
 }

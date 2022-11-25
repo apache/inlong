@@ -18,32 +18,41 @@
 
 package org.apache.inlong.sort.cdc.debezium.internal;
 
-import io.debezium.engine.ChangeEvent;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
 import java.io.Closeable;
 import java.util.Collections;
 import java.util.List;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.engine.ChangeEvent;
 
 /**
- * The Handover is a utility to hand over data (a buffer of records) and exception from a
- * <i>producer</i> thread to a <i>consumer</i> thread. It effectively behaves like a "size one
- * blocking queue", with some extras around exception reporting, closing, and waking up thread
- * without {@link Thread#interrupt() interrupting} threads.
+ * The Handover is a utility to hand over data (a buffer of records) and
+ * exception from a <i>producer</i> thread to a <i>consumer</i> thread. It
+ * effectively behaves like a "size one blocking queue", with some extras around
+ * exception reporting, closing, and waking up thread without
+ * {@link Thread#interrupt() interrupting} threads.
  *
- * <p>This class is used in the Flink Debezium Engine Consumer to hand over data and exceptions
- * between the thread that runs the DebeziumEngine class and the main thread.</p>
+ * <p>
+ * This class is used in the Flink Debezium Engine Consumer to hand over data
+ * and exceptions between the thread that runs the DebeziumEngine class and the
+ * main thread.
+ * </p>
  *
- * <p>The Handover can also be "closed", signalling from one thread to the other that it the thread
- * has terminated.</p>
+ * <p>
+ * The Handover can also be "closed", signalling from one thread to the other
+ * that it the thread has terminated.
+ * </p>
  */
 @ThreadSafe
 @Internal
@@ -61,15 +70,22 @@ public class Handover implements Closeable {
     private boolean wakeupProducer;
 
     /**
-     * Polls the next element from the Handover, possibly blocking until the next element is
-     * available. This method behaves similar to polling from a blocking queue.
+     * Polls the next element from the Handover, possibly blocking until the next
+     * element is available. This method behaves similar to polling from a blocking
+     * queue.
      *
-     * <p>If an exception was handed in by the producer ({@link #reportError(Throwable)}), then that
-     * exception is thrown rather than an element being returned.</p>
+     * <p>
+     * If an exception was handed in by the producer
+     * ({@link #reportError(Throwable)}), then that exception is thrown rather than
+     * an element being returned.
+     * </p>
      *
      * @return The next element (buffer of records, never null).
-     * @throws ClosedException Thrown if the Handover was {@link #close() closed}.
-     * @throws Exception Rethrows exceptions from the {@link #reportError(Throwable)} method.
+     * @throws ClosedException
+     *           Thrown if the Handover was {@link #close() closed}.
+     * @throws Exception
+     *           Rethrows exceptions from the {@link #reportError(Throwable)}
+     *           method.
      */
     public List<ChangeEvent<SourceRecord, SourceRecord>> pollNext() throws Exception {
         synchronized (lock) {
@@ -92,18 +108,21 @@ public class Handover implements Closeable {
     }
 
     /**
-     * Hands over an element from the producer. If the Handover already has an element that was not
-     * yet picked up by the consumer thread, this call blocks until the consumer picks up that
-     * previous element.
+     * Hands over an element from the producer. If the Handover already has an
+     * element that was not yet picked up by the consumer thread, this call blocks
+     * until the consumer picks up that previous element.
      *
-     * <p>This behavior is similar to a "size one" blocking queue.</p>
+     * <p>
+     * This behavior is similar to a "size one" blocking queue.
+     * </p>
      *
-     * @param element The next element to hand over.
-     * @throws InterruptedException Thrown, if the thread is interrupted while blocking for the
-     *     Handover to be empty.
+     * @param element
+     *          The next element to hand over.
+     * @throws InterruptedException
+     *           Thrown, if the thread is interrupted while blocking for the
+     *           Handover to be empty.
      */
-    public void produce(final List<ChangeEvent<SourceRecord, SourceRecord>> element)
-            throws InterruptedException {
+    public void produce(final List<ChangeEvent<SourceRecord, SourceRecord>> element) throws InterruptedException {
 
         checkNotNull(element);
 
@@ -126,17 +145,27 @@ public class Handover implements Closeable {
     }
 
     /**
-     * Reports an exception. The consumer will throw the given exception immediately, if it is
-     * currently blocked in the {@link #pollNext()} method, or the next time it calls that method.
+     * Reports an exception. The consumer will throw the given exception
+     * immediately, if it is currently blocked in the {@link #pollNext()} method, or
+     * the next time it calls that method.
      *
-     * <p>After this method has been called, no call to either {@link #produce( List)} or {@link
-     * #pollNext()} will ever return regularly any more, but will always return exceptionally.</p>
+     * <p>
+     * After this method has been called, no call to either {@link #produce( List)}
+     * or {@link #pollNext()} will ever return regularly any more, but will always
+     * return exceptionally.
+     * </p>
      *
-     * <p>If another exception was already reported, this method does nothing.</p>
+     * <p>
+     * If another exception was already reported, this method does nothing.
+     * </p>
      *
-     * <p>For the producer, the Handover will appear as if it was {@link #close() closed}.</p>
+     * <p>
+     * For the producer, the Handover will appear as if it was {@link #close()
+     * closed}.
+     * </p>
      *
-     * @param t The exception to report.
+     * @param t
+     *          The exception to report.
      */
     public void reportError(Throwable t) {
         checkNotNull(t);
@@ -162,12 +191,16 @@ public class Handover implements Closeable {
     }
 
     /**
-     * Closes the handover. Both the {@link #produce(List)} method and the {@link #pollNext()} will
-     * throw a {@link ClosedException} on any currently blocking and future invocations.
+     * Closes the handover. Both the {@link #produce(List)} method and the
+     * {@link #pollNext()} will throw a {@link ClosedException} on any currently
+     * blocking and future invocations.
      *
-     * <p>If an exception was previously reported via the {@link #reportError(Throwable)} method,
-     * that exception will not be overridden. The consumer thread will throw that exception upon
-     * calling {@link #pollNext()}, rather than the {@code ClosedException}.</p>
+     * <p>
+     * If an exception was previously reported via the
+     * {@link #reportError(Throwable)} method, that exception will not be
+     * overridden. The consumer thread will throw that exception upon calling
+     * {@link #pollNext()}, rather than the {@code ClosedException}.
+     * </p>
      */
     @Override
     public void close() {
@@ -185,8 +218,9 @@ public class Handover implements Closeable {
     // ------------------------------------------------------------------------
 
     /**
-     * An exception thrown by the Handover in the {@link #pollNext()} or {@link #produce(List)}
-     * method, after the Handover was closed via {@link #close()}.
+     * An exception thrown by the Handover in the {@link #pollNext()} or
+     * {@link #produce(List)} method, after the Handover was closed via
+     * {@link #close()}.
      */
     public static final class ClosedException extends Exception {
 

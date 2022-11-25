@@ -19,6 +19,7 @@
 package org.apache.inlong.sort.formats.csv;
 
 import org.apache.inlong.sort.formats.util.StringUtils;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,48 +33,39 @@ public class CsvUtilsTest {
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b", "c", "d"},
-                StringUtils.splitCsv("a|b|c|d", '|', null, null)
-        );
+                StringUtils.splitCsv("a|b|c|d", '|', null, null));
 
         Assert.assertArrayEquals(
                 new String[]{"", "a", "b", "c", "d"},
-                StringUtils.splitCsv("|a|b|c|d", '|', null, null)
-        );
+                StringUtils.splitCsv("|a|b|c|d", '|', null, null));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b", "c", "d", ""},
-                StringUtils.splitCsv("a|b|c|d|", '|', null, null)
-        );
+                StringUtils.splitCsv("a|b|c|d|", '|', null, null));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b|c", "d"},
-                StringUtils.splitCsv("a|b\\|c|d", '|', '\\', null)
-        );
+                StringUtils.splitCsv("a|b\\|c|d", '|', '\\', null));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b\\", "c", "d"},
-                StringUtils.splitCsv("a|b\\\\|c|d", '|', '\\', null)
-        );
+                StringUtils.splitCsv("a|b\\\\|c|d", '|', '\\', null));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b|c", "d"},
-                StringUtils.splitCsv("a|\"b|c\"|d", '|', '\\', '\"')
-        );
+                StringUtils.splitCsv("a|\"b|c\"|d", '|', '\\', '\"'));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "|b|c|", "d"},
-                StringUtils.splitCsv("a|\"|b|c|\"|d", '|', '\\', '\"')
-        );
+                StringUtils.splitCsv("a|\"|b|c|\"|d", '|', '\\', '\"'));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "b\\c", "d"},
-                StringUtils.splitCsv("a|\"b\\c\"|d", '|', '\\', '\"')
-        );
+                StringUtils.splitCsv("a|\"b\\c\"|d", '|', '\\', '\"'));
 
         Assert.assertArrayEquals(
                 new String[]{"a", "\"b", "c\"", "d"},
-                StringUtils.splitCsv("a|\\\"b|c\\\"|d", '|', '\\', '\"')
-        );
+                StringUtils.splitCsv("a|\\\"b|c\\\"|d", '|', '\\', '\"'));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -90,28 +82,23 @@ public class CsvUtilsTest {
     public void testConcatNormal() {
         Assert.assertEquals(
                 "a|b|c|d",
-                StringUtils.concatCsv(new String[]{"a", "b", "c", "d"}, '|', null, null)
-        );
+                StringUtils.concatCsv(new String[]{"a", "b", "c", "d"}, '|', null, null));
 
         Assert.assertEquals(
                 "a|\\|b|c|d",
-                StringUtils.concatCsv(new String[]{"a", "|b", "c", "d"}, '|', '\\', null)
-        );
+                StringUtils.concatCsv(new String[]{"a", "|b", "c", "d"}, '|', '\\', null));
 
         Assert.assertEquals(
                 "a|\\\\b|c|d",
-                StringUtils.concatCsv(new String[]{"a", "\\b", "c", "d"}, '|', '\\', null)
-        );
+                StringUtils.concatCsv(new String[]{"a", "\\b", "c", "d"}, '|', '\\', null));
 
         Assert.assertEquals(
                 "a|\\\"b|c|d",
-                StringUtils.concatCsv(new String[]{"a", "\"b", "c", "d"}, '|', '\\', '\"')
-        );
+                StringUtils.concatCsv(new String[]{"a", "\"b", "c", "d"}, '|', '\\', '\"'));
 
         Assert.assertEquals(
                 "a|\"|\"b|c|d",
-                StringUtils.concatCsv(new String[]{"a", "|b", "c", "d"}, '|', null, '\"')
-        );
+                StringUtils.concatCsv(new String[]{"a", "|b", "c", "d"}, '|', null, '\"'));
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -20,29 +20,34 @@ package org.apache.inlong.agent.constant;
 public class OracleConstants {
 
     /**
-     * The snapshot includes the structure and data of the captured tables.
-     * Specify this value to populate topics with a complete representation of the data from the captured tables.
+     * The snapshot includes the structure and data of the captured tables. Specify
+     * this value to populate topics with a complete representation of the data from
+     * the captured tables.
      */
     public static final String INITIAL = "initial";
 
     /**
-     * The snapshot includes the structure and data of the captured tables.
-     * The connector performs an initial snapshot and then stops, without processing any subsequent changes.
+     * The snapshot includes the structure and data of the captured tables. The
+     * connector performs an initial snapshot and then stops, without processing any
+     * subsequent changes.
      */
     public static final String INITIAL_ONLY = "initial_only";
 
     /**
-     * The snapshot includes only the structure of captured tables.
-     * Specify this value if you want the connector to capture data only for changes that occur after the snapshot.
+     * The snapshot includes only the structure of captured tables. Specify this
+     * value if you want the connector to capture data only for changes that occur
+     * after the snapshot.
      */
     public static final String SCHEMA_ONLY = "schema_only";
 
     /**
-     * This is a recovery setting for a connector that has already been capturing changes.
-     * When you restart the connector, this setting enables recovery of a corrupted or lost database history topic.
-     * You might set it periodically to "clean up" a database history topic that has been growing unexpectedly.
-     * Database history topics require infinite retention. Note this mode is only safe to be used when it is guaranteed
-     * that no schema changes happened since the point in time the connector was shut down before and the point in time
+     * This is a recovery setting for a connector that has already been capturing
+     * changes. When you restart the connector, this setting enables recovery of a
+     * corrupted or lost database history topic. You might set it periodically to
+     * "clean up" a database history topic that has been growing unexpectedly.
+     * Database history topics require infinite retention. Note this mode is only
+     * safe to be used when it is guaranteed that no schema changes happened since
+     * the point in time the connector was shut down before and the point in time
      * the snapshot is taken.
      */
     public static final String SCHEMA_ONLY_RECOVERY = "schema_only_recovery";

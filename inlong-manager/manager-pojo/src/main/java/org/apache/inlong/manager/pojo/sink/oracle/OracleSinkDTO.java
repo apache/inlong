@@ -17,20 +17,24 @@
 
 package org.apache.inlong.manager.pojo.sink.oracle;
 
-import io.swagger.annotations.ApiModelProperty;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.JsonUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Oracle sink info
@@ -91,8 +95,10 @@ public class OracleSinkDTO {
     /**
      * Get Oracle table info
      *
-     * @param oracleSink Oracle sink dto,{@link OracleSinkDTO}
-     * @param columnList Oracle column info list,{@link OracleColumnInfo}
+     * @param oracleSink
+     *          Oracle sink dto,{@link OracleSinkDTO}
+     * @param columnList
+     *          Oracle column info list,{@link OracleColumnInfo}
      * @return {@link OracleTableInfo}
      */
     public static OracleTableInfo getTableInfo(OracleSinkDTO oracleSink, List<OracleColumnInfo> columnList) {

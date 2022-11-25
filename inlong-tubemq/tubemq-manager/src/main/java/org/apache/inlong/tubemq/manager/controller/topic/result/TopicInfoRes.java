@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class TopicInfoRes {
+
     private String topicName;
     private String topicStatusId;
     private String brokerId;
@@ -47,6 +48,7 @@ public class TopicInfoRes {
 
     @Data
     private static class TopicRunInfo {
+
         private boolean acceptPublish;
         private boolean acceptSubscribe;
         private String numPartitions;

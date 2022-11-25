@@ -23,11 +23,12 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Service of inlong group check.
@@ -41,7 +42,8 @@ public class GroupCheckService {
     /**
      * Check whether the inlong group status is temporary
      *
-     * @param groupId inlong group id
+     * @param groupId
+     *          inlong group id
      * @return inlong group entity, for caller reuse
      */
     public InlongGroupEntity checkGroupStatus(String groupId, String operator) {

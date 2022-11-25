@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sdk.sort.fetcher.pulsar;
 
-import com.google.common.base.Preconditions;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.Deserializer;
 import org.apache.inlong.sdk.sort.api.Interceptor;
@@ -30,6 +27,9 @@ import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageId;
@@ -39,8 +39,6 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.api.SubscriptionInitialPosition;
 import org.apache.pulsar.client.api.SubscriptionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -51,10 +49,16 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+
 /**
  * MultiTopicsFetcher for pulsar.
  */
 public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarMultiTopicsFetcher.class);
     private PulsarConsumer currentConsumer;
     private List<PulsarConsumer> toBeRemovedConsumers = new LinkedList<>();
@@ -312,7 +316,8 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
         /**
          * put the received msg to onFinished method
          *
-         * @param messageRecords {@link List}
+         * @param messageRecords
+         *          {@link List}
          */
         private void handleAndCallbackMsg(List<MessageRecord> messageRecords) {
             long start = System.currentTimeMillis();
@@ -347,7 +352,7 @@ public class PulsarMultiTopicsFetcher extends MultiTopicsFetcher {
                 String offsetKey = getOffset(msg.getMessageId());
                 currentConsumer.put(offsetKey, topic, msg.getMessageId());
 
-                //deserialize
+                // deserialize
                 List<InLongMessage> inLongMessages = deserializer
                         .deserialize(context, topic, msg.getProperties(), msg.getData());
                 // intercept

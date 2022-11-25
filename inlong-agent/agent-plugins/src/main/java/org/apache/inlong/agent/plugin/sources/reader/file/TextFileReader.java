@@ -18,9 +18,11 @@
 
 package org.apache.inlong.agent.plugin.sources.reader.file;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_DEFAULT_STATUS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_STATUS;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +35,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_DEFAULT_STATUS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MONITOR_STATUS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Text file reader
@@ -61,7 +62,7 @@ public final class TextFileReader extends AbstractFileReader {
         LOGGER.info("path is {}, position is {}, data reads size {}", fileReaderOperator.file.getName(),
                 fileReaderOperator.position, lines.size());
         List<String> resultLines = new ArrayList<>();
-        //TODO line regular expression matching
+        // TODO line regular expression matching
         if (fileReaderOperator.jobConf.hasKey(JOB_FILE_LINE_END_PATTERN)) {
             Pattern pattern = Pattern.compile(fileReaderOperator.jobConf.get(JOB_FILE_LINE_END_PATTERN));
             lines.forEach(line -> {

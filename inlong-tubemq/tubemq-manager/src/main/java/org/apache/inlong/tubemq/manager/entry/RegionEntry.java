@@ -17,7 +17,10 @@
 
 package org.apache.inlong.tubemq.manager.entry;
 
+import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
+
 import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
@@ -27,20 +30,20 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import lombok.Data;
-import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "region", uniqueConstraints =
-        {
-                @UniqueConstraint(columnNames = {"clusterId", "regionId"}),
-                @UniqueConstraint(columnNames = {"id"})
-        })
+@Table(name = "region", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"clusterId", "regionId"}),
+        @UniqueConstraint(columnNames = {"id"})
+})
 @Data
 @EntityListeners(AuditingEntityListener.class)
 public class RegionEntry {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

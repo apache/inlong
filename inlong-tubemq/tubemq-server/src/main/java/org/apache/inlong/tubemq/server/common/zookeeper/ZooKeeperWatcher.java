@@ -17,40 +17,46 @@
 
 package org.apache.inlong.tubemq.server.common.zookeeper;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
+
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Acts as the single ZooKeeper Watcher. One instance of this is instantiated for each Master,
- * RegionServer, and client process.
+ * Acts as the single ZooKeeper Watcher. One instance of this is instantiated
+ * for each Master, RegionServer, and client process.
  * <p/>
  * <p/>
- * This is the only class that implements {@link Watcher}. Other internal classes which need to be
- * notified of ZooKeeper events must register with the local instance of this watcher via {@link
- * #registerListener}.
+ * This is the only class that implements {@link Watcher}. Other internal
+ * classes which need to be notified of ZooKeeper events must register with the
+ * local instance of this watcher via {@link #registerListener}.
  * <p/>
  * <p/>
- * This class also holds and manages the connection to ZooKeeper. Code to deal with connection
- * related events and exceptions are handled here.
+ * This class also holds and manages the connection to ZooKeeper. Code to deal
+ * with connection related events and exceptions are handled here.
  *
- * modified version of <a href="http://hbase.apache.org">Apache HBase Project</a>
+ * modified version of <a href="http://hbase.apache.org">Apache HBase
+ * Project</a>
  */
 public class ZooKeeperWatcher implements Watcher, Abortable {
+
     // Certain ZooKeeper nodes need to be world-readable
     @SuppressWarnings("serial")
     public static final ArrayList<ACL> CREATOR_ALL_AND_WORLD_READABLE = new ArrayList<ACL>() {
+
         {
             add(new ACL(ZooDefs.Perms.READ, ZooDefs.Ids.ANYONE_ID_UNSAFE));
             add(new ACL(ZooDefs.Perms.ALL, ZooDefs.Ids.AUTH_IDS));
@@ -87,8 +93,8 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
     /**
      * Instantiate a ZooKeeper connection and watcher.
      * <p/>
-     * Descriptive string that is added to zookeeper sessionid and used as identifier for this
-     * instance.
+     * Descriptive string that is added to zookeeper sessionid and used as
+     * identifier for this instance.
      */
     public ZooKeeperWatcher(ZKConfig conf, Abortable abortable) throws ZooKeeperConnectionException,
             IOException {
@@ -98,11 +104,12 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
     /**
      * Instantiate a ZooKeeper connection and watcher.
      * <p/>
-     * Descriptive string that is added to zookeeper sessionid and used as identifier for this
-     * instance.
+     * Descriptive string that is added to zookeeper sessionid and used as
+     * identifier for this instance.
      */
     public ZooKeeperWatcher(ZKConfig conf, Abortable abortable, boolean canCreateBaseZNode)
-            throws IOException, ZooKeeperConnectionException {
+            throws IOException,
+            ZooKeeperConnectionException {
         this.conf = conf;
         // Capture a stack trace now. Will print it out later if problem so we
         // can
@@ -136,14 +143,16 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
 
     @Override
     public String toString() {
-        return recoverableZooKeeper == null ? "" : Long.toHexString(this.recoverableZooKeeper
-                .getSessionId());
+        return recoverableZooKeeper == null ? ""
+                : Long.toHexString(this.recoverableZooKeeper
+                        .getSessionId());
     }
 
     /**
      * Adds this instance's identifier as a prefix to the passed <code>str</code>
      *
-     * @param str String to amend.
+     * @param str
+     *          String to amend.
      * @return A new string with this instance's identifier as prefix
      */
     public String prefix(final String str) {
@@ -174,8 +183,8 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
     }
 
     /**
-     * Register the specified listener to receive ZooKeeper events and add it as the first in the
-     * list of current listeners.
+     * Register the specified listener to receive ZooKeeper events and add it as the
+     * first in the list of current listeners.
      */
     public void registerListenerFirst(ZooKeeperListener listener) {
         listeners.add(0, listener);
@@ -221,8 +230,8 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
     /**
      * Method called from ZooKeeper for events and connection status.
      * <p/>
-     * Valid events are passed along to listeners. Connection status changes are dealt with
-     * locally.
+     * Valid events are passed along to listeners. Connection status changes are
+     * dealt with locally.
      */
     @Override
     public void process(WatchedEvent event) {
@@ -276,10 +285,10 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
     /**
      * Called when there is a connection-related event via the Watcher callback.
      * <p/>
-     * If Disconnected or Expired, this should shutdown the cluster. But, since we send a
-     * KeeperException.SessionExpiredException along with the abort call, it's possible for the
-     * Abortable to catch it and try to create a new session with ZooKeeper. This is what the client
-     * does in HCM.
+     * If Disconnected or Expired, this should shutdown the cluster. But, since we
+     * send a KeeperException.SessionExpiredException along with the abort call,
+     * it's possible for the Abortable to catch it and try to create a new session
+     * with ZooKeeper. This is what the client does in HCM.
      * <p/>
      */
     protected void connectionEvent(WatchedEvent event) {
@@ -297,7 +306,7 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
                 }
                 if (this.recoverableZooKeeper == null) {
                     logger.error("ZK is null on connection event -- see stack trace "
-                                    + "for the stack trace when constructor was called on this zkw",
+                            + "for the stack trace when constructor was called on this zkw",
                             this.constructorCaller);
                     throw new NullPointerException("ZK is null");
                 }
@@ -341,9 +350,8 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
                     // client should proceed to do cleanup.
                     saslLatch.countDown();
                 }
-                String msg =
-                        prefix(Long.toHexString(this.recoverableZooKeeper.getSessionId())
-                                + " received expired from " + "ZooKeeper, aborting");
+                String msg = prefix(Long.toHexString(this.recoverableZooKeeper.getSessionId())
+                        + " received expired from " + "ZooKeeper, aborting");
                 // TODO: One thought is to add call to ZooKeeperListener so say,
                 // ZooKeeperNodeTracker can zero out its data values.
                 if (this.abortable != null) {
@@ -358,12 +366,14 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
     /**
      * Forces a synchronization of this ZooKeeper client connection.
      * <p/>
-     * Executing this method before running other methods will ensure that the subsequent operations
-     * are up-to-date and consistent as of the time that the sync is complete.
+     * Executing this method before running other methods will ensure that the
+     * subsequent operations are up-to-date and consistent as of the time that the
+     * sync is complete.
      * <p/>
-     * This is used for compareAndSwap type operations where we need to read the data of an existing
-     * node and delete or transition that node, utilizing the previously read version and data. We
-     * want to ensure that the version read is up-to-date from when we begin the operation.
+     * This is used for compareAndSwap type operations where we need to read the
+     * data of an existing node and delete or transition that node, utilizing the
+     * previously read version and data. We want to ensure that the version read is
+     * up-to-date from when we begin the operation.
      */
     public void sync(String path) {
         this.recoverableZooKeeper.sync(path, null, null);
@@ -387,8 +397,9 @@ public class ZooKeeperWatcher implements Watcher, Abortable {
      * <p/>
      * This may be temporary but for now this gives one place to deal with these.
      * <p/>
-     * TODO: Currently, this method does nothing. Is this ever expected to happen? Do we abort or
-     * can we let it run? Maybe this should be logged as WARN? It shouldn't happen?
+     * TODO: Currently, this method does nothing. Is this ever expected to happen?
+     * Do we abort or can we let it run? Maybe this should be logged as WARN? It
+     * shouldn't happen?
      * <p/>
      */
     public void interruptedException(InterruptedException ie) {

@@ -18,17 +18,20 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
-import javax.annotation.Nullable;
-import java.io.Serializable;
-
 import static org.apache.flink.util.Preconditions.checkArgument;
 
+import java.io.Serializable;
+
+import javax.annotation.Nullable;
+
 /**
- * This class defines a range of server id. The boundaries of the range are inclusive.
+ * This class defines a range of server id. The boundaries of the range are
+ * inclusive.
  *
  * @see MySqlSourceOptions#SERVER_ID
  */
 public class ServerIdRange implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     /** Start of the range (inclusive). */
@@ -78,8 +81,8 @@ public class ServerIdRange implements Serializable {
     }
 
     /**
-     * Returns a {@link ServerIdRange} from a server id range string which likes '5400-5408' or a
-     * single server id likes '5400'.
+     * Returns a {@link ServerIdRange} from a server id range string which likes
+     * '5400-5408' or a single server id likes '5400'.
      */
     public static @Nullable ServerIdRange from(@Nullable String range) {
         if (range == null) {

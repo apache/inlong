@@ -18,7 +18,13 @@
 
 package org.apache.inlong.sort.cdc.oracle.table;
 
-import com.ververica.cdc.connectors.oracle.table.StartupOptions;
+import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SOURCE_MULTIPLE_ENABLE;
+
+import org.apache.inlong.sort.cdc.oracle.debezium.table.DebeziumOptions;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
@@ -30,12 +36,8 @@ import org.apache.flink.table.factories.FactoryUtil;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.inlong.sort.cdc.oracle.debezium.table.DebeziumOptions;
 
-import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.base.Constants.SOURCE_MULTIPLE_ENABLE;
+import com.ververica.cdc.connectors.oracle.table.StartupOptions;
 
 /**
  * Factory for creating configured instance of {@link OracleTableSource}.
@@ -44,62 +46,53 @@ public class OracleTableSourceFactory implements DynamicTableSourceFactory {
 
     private static final String IDENTIFIER = "oracle-cdc-inlong";
 
-    private static final ConfigOption<String> HOSTNAME =
-            ConfigOptions.key("hostname")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("IP address or hostname of the Oracle database server.");
+    private static final ConfigOption<String> HOSTNAME = ConfigOptions.key("hostname")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("IP address or hostname of the Oracle database server.");
 
-    private static final ConfigOption<Integer> PORT =
-            ConfigOptions.key("port")
-                    .intType()
-                    .defaultValue(1521)
-                    .withDescription("Integer port number of the Oracle database server.");
+    private static final ConfigOption<Integer> PORT = ConfigOptions.key("port")
+            .intType()
+            .defaultValue(1521)
+            .withDescription("Integer port number of the Oracle database server.");
 
-    private static final ConfigOption<String> USERNAME =
-            ConfigOptions.key("username")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "Name of the Oracle database to use when connecting to the Oracle database server.");
+    private static final ConfigOption<String> USERNAME = ConfigOptions.key("username")
+            .stringType()
+            .noDefaultValue()
+            .withDescription(
+                    "Name of the Oracle database to use when connecting to the Oracle database server.");
 
-    private static final ConfigOption<String> PASSWORD =
-            ConfigOptions.key("password")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "Password to use when connecting to the oracle database server.");
+    private static final ConfigOption<String> PASSWORD = ConfigOptions.key("password")
+            .stringType()
+            .noDefaultValue()
+            .withDescription(
+                    "Password to use when connecting to the oracle database server.");
 
-    private static final ConfigOption<String> DATABASE_NAME =
-            ConfigOptions.key("database-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Database name of the Oracle server to monitor.");
+    private static final ConfigOption<String> DATABASE_NAME = ConfigOptions.key("database-name")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Database name of the Oracle server to monitor.");
 
-    private static final ConfigOption<String> SCHEMA_NAME =
-            ConfigOptions.key("schema-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Schema name of the Oracle database to monitor.");
+    private static final ConfigOption<String> SCHEMA_NAME = ConfigOptions.key("schema-name")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Schema name of the Oracle database to monitor.");
 
-    private static final ConfigOption<String> TABLE_NAME =
-            ConfigOptions.key("table-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Table name of the Oracle database to monitor.");
+    private static final ConfigOption<String> TABLE_NAME = ConfigOptions.key("table-name")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Table name of the Oracle database to monitor.");
 
-    public static final ConfigOption<String> SCAN_STARTUP_MODE =
-            ConfigOptions.key("scan.startup.mode")
-                    .stringType()
-                    .defaultValue("initial")
-                    .withDescription(
-                            "Optional startup mode for Oracle CDC consumer, valid enumerations are "
-                                    + "\"initial\", \"latest-offset\"");
+    public static final ConfigOption<String> SCAN_STARTUP_MODE = ConfigOptions.key("scan.startup.mode")
+            .stringType()
+            .defaultValue("initial")
+            .withDescription(
+                    "Optional startup mode for Oracle CDC consumer, valid enumerations are "
+                            + "\"initial\", \"latest-offset\"");
 
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
-        final FactoryUtil.TableFactoryHelper helper =
-                FactoryUtil.createTableFactoryHelper(this, context);
+        final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         helper.validateExcept(DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX);
 
         final ReadableConfig config = helper.getOptions();

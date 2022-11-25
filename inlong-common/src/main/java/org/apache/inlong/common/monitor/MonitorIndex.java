@@ -20,6 +20,7 @@ package org.apache.inlong.common.monitor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,7 @@ public class MonitorIndex {
 
     /**
      * addAndGet
+     * 
      * @param key
      * @param cnt
      * @param packcnt
@@ -98,7 +100,8 @@ public class MonitorIndex {
     }
 
     private class IndexCollectThread
-            extends Thread {
+            extends
+                Thread {
 
         private boolean bShutDown = false;
 
@@ -135,4 +138,3 @@ public class MonitorIndex {
         }
     }
 }
-

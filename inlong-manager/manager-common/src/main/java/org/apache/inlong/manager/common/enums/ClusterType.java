@@ -35,6 +35,7 @@ public class ClusterType {
     public static final String ELASTICSEARCH = "ELASTICSEARCH";
 
     private static final Set<String> TYPE_SET = new HashSet<String>() {
+
         {
             add(ClusterType.AGENT);
             add(ClusterType.TUBEMQ);
@@ -48,7 +49,8 @@ public class ClusterType {
     /**
      * Check whether the cluster type is supported
      *
-     * @param clusterType cluster type
+     * @param clusterType
+     *          cluster type
      * @return cluster type
      */
     public static String checkType(String clusterType) {

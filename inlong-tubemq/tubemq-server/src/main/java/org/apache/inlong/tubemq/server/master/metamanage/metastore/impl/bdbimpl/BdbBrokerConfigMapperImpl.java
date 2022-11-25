@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
-import com.sleepycat.je.rep.ReplicatedEnvironment;
-import com.sleepycat.persist.EntityCursor;
-import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.PrimaryIndex;
-import com.sleepycat.persist.StoreConfig;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfEntity;
@@ -29,7 +24,14 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsBrokerConfigMapperImpl;
 
+import com.sleepycat.je.rep.ReplicatedEnvironment;
+import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.PrimaryIndex;
+import com.sleepycat.persist.StoreConfig;
+
 public class BdbBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
+
     // broker config store
     private EntityStore brokerConfStore;
     private final PrimaryIndex<Integer/* brokerId */, BdbBrokerConfEntity> brokerConfIndex;
@@ -38,8 +40,7 @@ public class BdbBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
         super();
         brokerConfStore = new EntityStore(repEnv,
                 TBDBStoreTables.BDB_BROKER_CONFIG_STORE_NAME, storeConfig);
-        brokerConfIndex =
-                brokerConfStore.getPrimaryIndex(Integer.class, BdbBrokerConfEntity.class);
+        brokerConfIndex = brokerConfStore.getPrimaryIndex(Integer.class, BdbBrokerConfEntity.class);
     }
 
     @Override
@@ -88,10 +89,9 @@ public class BdbBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
     }
 
     protected boolean putConfig2Persistent(BrokerConfEntity entity,
-                                           StringBuilder strBuff,
-                                           ProcessResult result) {
-        BdbBrokerConfEntity bdbEntity =
-                entity.buildBdbBrokerConfEntity();
+            StringBuilder strBuff,
+            ProcessResult result) {
+        BdbBrokerConfEntity bdbEntity = entity.buildBdbBrokerConfEntity();
         try {
             brokerConfIndex.put(bdbEntity);
         } catch (Throwable e) {

@@ -20,43 +20,45 @@ package org.apache.inlong.sort.redis.common.mapper;
 import org.apache.flink.streaming.connectors.redis.common.mapper.RedisDataType;
 
 /**
- * All available commands for Redis. Each command belongs to a {@link RedisDataType} group.
- * Copy from {@link org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommand}
+ * All available commands for Redis. Each command belongs to a
+ * {@link RedisDataType} group. Copy from
+ * {@link org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommand}
  */
 public enum RedisCommand {
 
     /**
-     * Insert the specified value at the head of the list stored at key.
-     * If key does not exist, it is created as empty list before performing the push operations.
+     * Insert the specified value at the head of the list stored at key. If key does
+     * not exist, it is created as empty list before performing the push operations.
      */
     LPUSH(RedisDataType.LIST),
 
     /**
-     * Insert the specified value at the tail of the list stored at key.
-     * If key does not exist, it is created as empty list before performing the push operation.
+     * Insert the specified value at the tail of the list stored at key. If key does
+     * not exist, it is created as empty list before performing the push operation.
      */
     RPUSH(RedisDataType.LIST),
 
     /**
-     * Add the specified member to the set stored at key.
-     * Specified member that is already a member of this set is ignored.
+     * Add the specified member to the set stored at key. Specified member that is
+     * already a member of this set is ignored.
      */
     SADD(RedisDataType.SET),
 
     /**
-     * Set key to hold the string value. If key already holds a value,
-     * it is overwritten, regardless of its type.
+     * Set key to hold the string value. If key already holds a value, it is
+     * overwritten, regardless of its type.
      */
     SET(RedisDataType.STRING),
 
     /**
-     * Set key to hold the string value, with a time to live (TTL). If key already holds a value,
-     * it is overwritten, regardless of its type.
+     * Set key to hold the string value, with a time to live (TTL). If key already
+     * holds a value, it is overwritten, regardless of its type.
      */
     SETEX(RedisDataType.STRING),
 
     /**
-     * Adds the element to the HyperLogLog data structure stored at the variable name specified as first argument.
+     * Adds the element to the HyperLogLog data structure stored at the variable
+     * name specified as first argument.
      */
     PFADD(RedisDataType.HYPER_LOG_LOG),
 
@@ -66,7 +68,8 @@ public enum RedisCommand {
     PUBLISH(RedisDataType.PUBSUB),
 
     /**
-     * Adds the specified members with the specified score to the sorted set stored at key.
+     * Adds the specified members with the specified score to the sorted set stored
+     * at key.
      */
     ZADD(RedisDataType.SORTED_SET),
 
@@ -78,8 +81,9 @@ public enum RedisCommand {
     ZREM(RedisDataType.SORTED_SET),
 
     /**
-     * Sets field in the hash stored at key to value. If key does not exist,
-     * a new key holding a hash is created. If field already exists in the hash, it is overwritten.
+     * Sets field in the hash stored at key to value. If key does not exist, a new
+     * key holding a hash is created. If field already exists in the hash, it is
+     * overwritten.
      */
     HSET(RedisDataType.HASH),
 

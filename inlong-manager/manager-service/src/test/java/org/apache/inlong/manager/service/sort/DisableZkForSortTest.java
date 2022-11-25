@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.sort;
 
-import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
@@ -44,13 +43,16 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.util.WorkflowUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Lists;
 
 /**
  * Test class for listen delete sort event.
@@ -82,15 +84,15 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         sinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         List<SinkField> sinkFields = createStreamFields(streamInfo.getInlongGroupId(),
                 streamInfo.getInlongStreamId())
-                .stream()
-                .map(streamField -> {
-                    SinkField fieldInfo = new SinkField();
-                    fieldInfo.setFieldName(streamField.getFieldName());
-                    fieldInfo.setFieldType(streamField.getFieldType());
-                    fieldInfo.setFieldComment(streamField.getFieldComment());
-                    return fieldInfo;
-                })
-                .collect(Collectors.toList());
+                        .stream()
+                        .map(streamField -> {
+                            SinkField fieldInfo = new SinkField();
+                            fieldInfo.setFieldName(streamField.getFieldName());
+                            fieldInfo.setFieldType(streamField.getFieldType());
+                            fieldInfo.setFieldComment(streamField.getFieldComment());
+                            return fieldInfo;
+                        })
+                        .collect(Collectors.toList());
         sinkRequest.setSinkFieldList(sinkFields);
         sinkRequest.setEnableCreateResource(0);
         sinkRequest.setUsername(OPERATOR);
@@ -120,7 +122,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         return kafkaSourceRequest;
     }
 
-    //    @Test
+    // @Test
     public void testCreateSortConfigInUpdateWorkflow() {
         InlongGroupInfo groupInfo = createInlongGroup("test20", MQType.PULSAR);
         groupInfo.setEnableZookeeper(InlongConstants.ENABLE_ZK);

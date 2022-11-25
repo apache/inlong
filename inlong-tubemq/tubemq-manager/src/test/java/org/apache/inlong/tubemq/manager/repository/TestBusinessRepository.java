@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.manager.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.apache.inlong.tubemq.manager.entry.TopicEntry;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class TestBusinessRepository {
+
     @Autowired
     private TestEntityManager entityManager;
 

@@ -17,11 +17,12 @@
 
 package org.apache.inlong.dataproxy.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.apache.http.entity.StringEntity;
 
 import java.io.UnsupportedEncodingException;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class HttpUtils {
 

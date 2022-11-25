@@ -19,9 +19,6 @@ package org.apache.inlong.manager.service.plugin;
 
 import org.apache.inlong.manager.common.plugin.Plugin;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.net.URI;
@@ -29,6 +26,10 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Test class for reload plugin.

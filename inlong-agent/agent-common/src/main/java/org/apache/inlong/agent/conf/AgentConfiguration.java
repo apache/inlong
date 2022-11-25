@@ -17,10 +17,9 @@
 
 package org.apache.inlong.agent.conf;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -30,9 +29,12 @@ import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * agent configuration. Only one instance in the process.
- * Basically it use properties file to store configurations.
+ * agent configuration. Only one instance in the process. Basically it use
+ * properties file to store configurations.
  */
 public class AgentConfiguration extends AbstractConfiguration {
 

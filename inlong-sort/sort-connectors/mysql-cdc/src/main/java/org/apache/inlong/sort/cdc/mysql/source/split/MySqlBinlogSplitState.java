@@ -18,12 +18,14 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
-import javax.annotation.Nullable;
 import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
 
 /**
  * The state of split to describe the binlog of MySql table(s).

@@ -18,14 +18,13 @@
 
 package org.apache.inlong.sdk.sort.fetcher.kafka;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.Seeker;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +36,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
@@ -54,8 +56,7 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
     public AckOffsetOnRebalance(
             String clusterId,
             Seeker seeker,
-            ConcurrentHashMap<TopicPartition,
-            OffsetAndMetadata> commitOffsetMap,
+            ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap,
             KafkaConsumer<byte[], byte[]> consumer) {
         this(clusterId, seeker, commitOffsetMap, null, consumer);
     }

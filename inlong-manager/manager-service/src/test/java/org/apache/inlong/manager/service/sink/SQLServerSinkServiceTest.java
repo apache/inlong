@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -29,13 +28,16 @@ import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerTableInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.sink.sqlserver.SQLServerJdbcUtils;
+
+import java.sql.Connection;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * SQLServer sink service test
@@ -138,16 +140,17 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
     private final List<SQLServerColumnInfo> buildAddColumns() {
         List<SQLServerColumnInfo> addCloums = Lists.newArrayList(
                 new SQLServerColumnInfo("test1", "varchar(40)", "test1"),
-                new SQLServerColumnInfo("test2", "varchar(40)", "test2")
-        );
+                new SQLServerColumnInfo("test2", "varchar(40)", "test2"));
         return addCloums;
     }
 
     /**
      * Build test SQLServer table info.
      *
-     * @param schemaName SqlServer schema name
-     * @param tableName SqlServer table name
+     * @param schemaName
+     *          SqlServer schema name
+     * @param tableName
+     *          SqlServer table name
      * @return {@link SQLServerTableInfo}
      */
     private final SQLServerTableInfo bulidTableInfo(final String schemaName, final String tableName) {
@@ -160,8 +163,7 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
         List<SQLServerColumnInfo> columnInfos = Lists.newArrayList(
                 new SQLServerColumnInfo("id", "int", "id"),
                 new SQLServerColumnInfo("cell", "varchar(20)", "cell"),
-                new SQLServerColumnInfo("name", "varchar(40)", "name")
-        );
+                new SQLServerColumnInfo("name", "varchar(40)", "name"));
         tableInfo.setColumns(columnInfos);
         return tableInfo;
     }

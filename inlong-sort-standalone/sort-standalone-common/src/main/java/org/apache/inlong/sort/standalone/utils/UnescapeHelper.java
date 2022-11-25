@@ -28,8 +28,10 @@ public class UnescapeHelper {
     /**
      * Unescape String format field values to String List format by separator.
      *
-     * @param  fieldValues FiledValues in String format.
-     * @param  separator Separator.
+     * @param fieldValues
+     *          FiledValues in String format.
+     * @param separator
+     *          Separator.
      * @return FiledValues in String List format.
      */
     public static List<String> toFiledList(String fieldValues, char separator) {

@@ -17,13 +17,11 @@
 
 package org.apache.inlong.sort.standalone.sink.kafka;
 
-import com.google.common.base.Preconditions;
-
-import org.apache.flume.Transaction;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.flume.Transaction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,6 +32,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+
+import com.google.common.base.Preconditions;
 
 /**
  * KafkaProducerFederation.
@@ -56,8 +58,10 @@ public class KafkaProducerFederation implements Runnable {
     /**
      * constructor of KafkaProducerFederation
      *
-     * @param workerName workerName
-     * @param context    context
+     * @param workerName
+     *          workerName
+     * @param context
+     *          context
      */
     public KafkaProducerFederation(String workerName, KafkaFederationSinkContext context) {
         this.workerName = Preconditions.checkNotNull(workerName);
@@ -139,9 +143,11 @@ public class KafkaProducerFederation implements Runnable {
     /**
      * send event
      *
-     * @param  profileEvent event to send
-     * @param  tx           transaction
-     * @return              send result
+     * @param profileEvent
+     *          event to send
+     * @param tx
+     *          transaction
+     * @return send result
      * @throws IOException
      */
     public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {
@@ -156,7 +162,9 @@ public class KafkaProducerFederation implements Runnable {
         return clusterProducer.send(profileEvent, tx);
     }
 
-    /** Init ScheduledExecutorService with fix reload rate {@link #reloadInterval}. */
+    /**
+     * Init ScheduledExecutorService with fix reload rate {@link #reloadInterval}.
+     */
     private void initReloadExecutor() {
         this.pool = Executors.newScheduledThreadPool(CORE_POOL_SIZE);
         pool.scheduleAtFixedRate(this, reloadInterval, reloadInterval, TimeUnit.SECONDS);

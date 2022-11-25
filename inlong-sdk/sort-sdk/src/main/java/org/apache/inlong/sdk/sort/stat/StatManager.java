@@ -17,16 +17,17 @@
 
 package org.apache.inlong.sdk.sort.stat;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.sort.api.Cleanable;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.MetricReporter;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.util.PeriodicTask;
 import org.apache.inlong.sdk.sort.util.StringUtil;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class StatManager implements Cleanable {
 
@@ -41,8 +42,10 @@ public class StatManager implements Cleanable {
     /**
      * StatManager Constructor
      *
-     * @param context {@link ClientContext}
-     * @param reporter {@link MetricReporter}
+     * @param context
+     *          {@link ClientContext}
+     * @param reporter
+     *          {@link MetricReporter}
      */
     public StatManager(ClientContext context, MetricReporter reporter) {
         this.config = context.getConfig();
@@ -79,7 +82,8 @@ public class StatManager implements Cleanable {
     /**
      * use for sortTaskId
      *
-     * @param sortTaskId String
+     * @param sortTaskId
+     *          String
      * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter getStatistics(String sortTaskId) {
@@ -92,9 +96,12 @@ public class StatManager implements Cleanable {
     /**
      * use for pulsar type
      *
-     * @param sortTaskId String
-     * @param clusterId String
-     * @param topic String
+     * @param sortTaskId
+     *          String
+     * @param clusterId
+     *          String
+     * @param topic
+     *          String
      * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter getStatistics(String sortTaskId, String clusterId, String topic) {
@@ -107,10 +114,14 @@ public class StatManager implements Cleanable {
     /**
      * use for common SortClientStateCounter
      *
-     * @param sortTaskId String
-     * @param clusterId String
-     * @param topic String
-     * @param partitionId int
+     * @param sortTaskId
+     *          String
+     * @param clusterId
+     *          String
+     * @param topic
+     *          String
+     * @param partitionId
+     *          int
      * @return {@link SortClientStateCounter}
      */
     public SortClientStateCounter getStatistics(String sortTaskId, String clusterId, String topic, int partitionId) {

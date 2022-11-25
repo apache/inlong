@@ -17,19 +17,22 @@
 
 package org.apache.inlong.sort.protocol;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
+
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Data;
+
+import com.google.common.base.Preconditions;
+
 /**
- * The concept of StreamInfo is the same as that of inlong stream
- * It belongs to a group, and a group can contain one or more stream
+ * The concept of StreamInfo is the same as that of inlong stream It belongs to
+ * a group, and a group can contain one or more stream
  */
 @Data
 public class StreamInfo implements Serializable {
@@ -46,10 +49,13 @@ public class StreamInfo implements Serializable {
     /**
      * Information of stream.
      * 
-     * @param streamId Uniquely identifies of GroupInfo
-     * @param nodes The node list that StreamInfo contains
-     * @param relations The relation list that StreamInfo contains,
-     *         it represents the relation between nodes of StreamInfo
+     * @param streamId
+     *          Uniquely identifies of GroupInfo
+     * @param nodes
+     *          The node list that StreamInfo contains
+     * @param relations
+     *          The relation list that StreamInfo contains, it represents the
+     *          relation between nodes of StreamInfo
      */
     @JsonCreator
     public StreamInfo(@JsonProperty("streamId") String streamId, @JsonProperty("nodes") List<Node> nodes,

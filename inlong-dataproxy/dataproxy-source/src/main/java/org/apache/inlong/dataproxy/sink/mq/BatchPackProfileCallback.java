@@ -33,6 +33,7 @@ public class BatchPackProfileCallback {
 
     /**
      * Constructor
+     * 
      * @param totalCount
      * @param callback
      */
@@ -43,6 +44,7 @@ public class BatchPackProfileCallback {
 
     /**
      * ack
+     * 
      * @param eventCount
      */
     public void ack(int eventCount) {

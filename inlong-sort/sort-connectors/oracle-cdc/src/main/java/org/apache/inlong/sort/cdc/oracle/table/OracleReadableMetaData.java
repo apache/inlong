@@ -17,19 +17,9 @@
 
 package org.apache.inlong.sort.cdc.oracle.table;
 
-import io.debezium.connector.AbstractSourceInfo;
-import io.debezium.data.Envelope;
-import io.debezium.data.Envelope.FieldName;
-import io.debezium.relational.Column;
-import io.debezium.relational.Table;
-import io.debezium.relational.history.TableChanges;
-import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nullable;
+import org.apache.inlong.sort.cdc.oracle.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.formats.json.canal.CanalJson;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
@@ -39,10 +29,24 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
-import org.apache.inlong.sort.cdc.oracle.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.formats.json.canal.CanalJson;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import io.debezium.connector.AbstractSourceInfo;
+import io.debezium.data.Envelope;
+import io.debezium.data.Envelope.FieldName;
+import io.debezium.relational.Column;
+import io.debezium.relational.Table;
+import io.debezium.relational.history.TableChanges;
+import io.debezium.relational.history.TableChanges.TableChange;
 
 /** Defines the supported metadata columns for {@link OracleTableSource}. */
 public enum OracleReadableMetaData {
@@ -54,6 +58,7 @@ public enum OracleReadableMetaData {
             "table_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -69,6 +74,7 @@ public enum OracleReadableMetaData {
             "schema_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -84,6 +90,7 @@ public enum OracleReadableMetaData {
             "database_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -99,6 +106,7 @@ public enum OracleReadableMetaData {
             "op_ts",
             DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -117,6 +125,7 @@ public enum OracleReadableMetaData {
             "meta.table_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -132,6 +141,7 @@ public enum OracleReadableMetaData {
             "meta.schema_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -147,6 +157,7 @@ public enum OracleReadableMetaData {
             "meta.database_name",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -162,6 +173,7 @@ public enum OracleReadableMetaData {
             "meta.op_ts",
             DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -177,6 +189,7 @@ public enum OracleReadableMetaData {
             "meta.data",
             DataTypes.STRING(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -195,6 +208,7 @@ public enum OracleReadableMetaData {
             "meta.data_canal",
             DataTypes.STRING(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -216,6 +230,7 @@ public enum OracleReadableMetaData {
             "meta.op_type",
             DataTypes.STRING().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -231,6 +246,7 @@ public enum OracleReadableMetaData {
             "meta.is_ddl",
             DataTypes.BOOLEAN().notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -243,6 +259,7 @@ public enum OracleReadableMetaData {
             "meta.oracle_type",
             DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.STRING().nullable()).nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -265,6 +282,7 @@ public enum OracleReadableMetaData {
             "meta.pk_names",
             DataTypes.ARRAY(DataTypes.STRING().nullable()).nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -289,6 +307,7 @@ public enum OracleReadableMetaData {
             "meta.sql",
             DataTypes.STRING().nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -301,6 +320,7 @@ public enum OracleReadableMetaData {
             "meta.sql_type",
             DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.INT().nullable()).nullable(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -332,6 +352,7 @@ public enum OracleReadableMetaData {
             "meta.ts",
             DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
             new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override

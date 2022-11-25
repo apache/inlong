@@ -26,20 +26,20 @@ import java.util.List;
 public class ByteUtil {
 
     /**
-     * Splits the source array into multiple array segments using the given separator, up to a
-     * maximum of count items. This will naturally produce copied byte arrays for each of the split
-     * segments. To identify the split ranges without the array copies, see {@link
-     * ByteUtil#splitRanges(byte[], byte[])}.
+     * Splits the source array into multiple array segments using the given
+     * separator, up to a maximum of count items. This will naturally produce copied
+     * byte arrays for each of the split segments. To identify the split ranges
+     * without the array copies, see {@link ByteUtil#splitRanges(byte[], byte[])}.
      */
     public static byte[][] split(byte[] source, byte[] separator) {
         return split(source, separator, -1);
     }
 
     /**
-     * Splits the source array into multiple array segments using the given separator, up to a
-     * maximum of count items. This will naturally produce copied byte arrays for each of the split
-     * segments. To identify the split ranges without the array copies, see {@link
-     * ByteUtil#splitRanges(byte[], byte[])}.
+     * Splits the source array into multiple array segments using the given
+     * separator, up to a maximum of count items. This will naturally produce copied
+     * byte arrays for each of the split segments. To identify the split ranges
+     * without the array copies, see {@link ByteUtil#splitRanges(byte[], byte[])}.
      */
     public static byte[][] split(byte[] source, byte[] separator, int limit) {
         List<Range> segments = splitRanges(source, separator, limit);
@@ -57,26 +57,30 @@ public class ByteUtil {
     }
 
     /**
-     * Returns a list of ranges identifying [start, end) -- closed, open -- positions within the
-     * source byte array that would be split using the separator byte array.
+     * Returns a list of ranges identifying [start, end) -- closed, open --
+     * positions within the source byte array that would be split using the
+     * separator byte array.
      */
     public static List<Range> splitRanges(byte[] source, byte[] separator) {
         return splitRanges(source, separator, -1);
     }
 
     /**
-     * Returns a list of ranges identifying [start, end) -- closed, open -- positions within the
-     * source byte array that would be split using the separator byte array.
+     * Returns a list of ranges identifying [start, end) -- closed, open --
+     * positions within the source byte array that would be split using the
+     * separator byte array.
      *
-     * @param source the source data
-     * @param separator the separator pattern to look for
-     * @param limit the maximum number of splits to identify in the source
+     * @param source
+     *          the source data
+     * @param separator
+     *          the separator pattern to look for
+     * @param limit
+     *          the maximum number of splits to identify in the source
      */
     public static List<Range> splitRanges(byte[] source, byte[] separator, int limit) {
         List<Range> segments = new ArrayList<Range>();
         int start = 0;
-        itersource:
-        for (int i = 0; i < source.length; i++) {
+        itersource: for (int i = 0; i < source.length; i++) {
             for (int j = 0; j < separator.length; j++) {
                 if (source[i + j] != separator[j]) {
                     continue itersource;
@@ -101,8 +105,8 @@ public class ByteUtil {
     }
 
     /**
-     * Returns a single byte array containing all of the individual component arrays separated by
-     * the separator array.
+     * Returns a single byte array containing all of the individual component arrays
+     * separated by the separator array.
      */
     public static byte[] join(byte[] separator, byte[]... components) {
         if (components == null || components.length == 0) {
@@ -131,17 +135,21 @@ public class ByteUtil {
     }
 
     /**
-     * Returns the index (start position) of the first occurrence of the specified {@code target}
-     * within {@code array} starting at {@code fromIndex} , or {@code -1} if there is no such
-     * occurrence.
+     * Returns the index (start position) of the first occurrence of the specified
+     * {@code target} within {@code array} starting at {@code fromIndex} , or
+     * {@code -1} if there is no such occurrence.
      *
-     * Returns the lowest index {@code k} such that {@code k >= fromIndex} and {@code
-     * java.util.Arrays.copyOfRange(array, k, k + target.length)} contains exactly the same elements
-     * as {@code target}.
+     * Returns the lowest index {@code k} such that {@code k >= fromIndex} and
+     * {@code
+     * java.util.Arrays.copyOfRange(array, k, k + target.length)} contains exactly
+     * the same elements as {@code target}.
      *
-     * @param array the array to search for the sequence {@code target}
-     * @param target the array to search for as a sub-sequence of {@code array}
-     * @param fromIndex the index to start the search from in {@code array}
+     * @param array
+     *          the array to search for the sequence {@code target}
+     * @param target
+     *          the array to search for as a sub-sequence of {@code array}
+     * @param fromIndex
+     *          the index to start the search from in {@code array}
      */
     public static int indexOf(byte[] array, byte[] target, int fromIndex) {
 
@@ -160,8 +168,7 @@ public class ByteUtil {
             return fromIndex;
         }
 
-        firstbyte:
-        for (int i = fromIndex; i < array.length - target.length + 1; i++) {
+        firstbyte: for (int i = fromIndex; i < array.length - target.length + 1; i++) {
             for (int j = 0; j < target.length; j++) {
                 if (array[i + j] != target[j]) {
                     continue firstbyte;
@@ -173,8 +180,8 @@ public class ByteUtil {
     }
 
     /**
-     * Returns a copy of the source byte array, starting at offset for the given length.  If the
-     * offset + length is out of bounds for the array, returns null.
+     * Returns a copy of the source byte array, starting at offset for the given
+     * length. If the offset + length is out of bounds for the array, returns null.
      */
     public static byte[] safeCopy(byte[] source, int offset, int length) {
         if (length < 0 || source.length < offset + length) {
@@ -193,8 +200,10 @@ public class ByteUtil {
         /**
          * Defines a range from start index (inclusive) to end index (exclusive).
          *
-         * @param start Starting index position
-         * @param end Ending index position (exclusive)
+         * @param start
+         *          Starting index position
+         * @param end
+         *          Ending index position (exclusive)
          */
         public Range(int start, int end) {
             if (start < 0 || end < start) {

@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.controller.group;
 
-import com.google.gson.Gson;
-
-import java.util.Map;
-
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.group.request.AddBlackGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.BatchDeleteGroupReq;
@@ -40,6 +35,11 @@ import org.apache.inlong.tubemq.manager.service.TopicServiceImpl;
 import org.apache.inlong.tubemq.manager.service.TubeConst;
 import org.apache.inlong.tubemq.manager.service.TubeMQErrorConst;
 import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
+
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,6 +48,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.google.gson.Gson;
 
 @RestController
 @RequestMapping(path = "/v1/group")
@@ -65,8 +67,10 @@ public class GroupController {
     /**
      * Consumer group related request operations
      *
-     * @param method method type
-     * @param req incoming data
+     * @param method
+     *          method type
+     * @param req
+     *          incoming data
      * @return return request data
      */
     @ResponseBody
@@ -96,6 +100,7 @@ public class GroupController {
 
     /**
      * query group exist
+     * 
      * @param req
      * @return
      */
@@ -125,19 +130,19 @@ public class GroupController {
      * @param req
      * @return
      *
-     * @throws Exception the exception
+     * @throws Exception
+     *           the exception
      */
     @GetMapping("/")
-    public @ResponseBody
-        String queryConsumer(
-            @RequestParam Map<String, String> req) throws Exception {
+    public @ResponseBody String queryConsumer(
+            @RequestParam Map<String, String> req)
+            throws Exception {
         String url = masterService.getQueryUrl(req);
         return masterService.queryMaster(url);
     }
 
     @PostMapping("/offset")
-    public @ResponseBody
-        TubeMQResult offsetProxy(
+    public @ResponseBody TubeMQResult offsetProxy(
             @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.CLONE:
@@ -152,8 +157,7 @@ public class GroupController {
     }
 
     @PostMapping("/blackGroup")
-    public @ResponseBody
-        TubeMQResult blackGroupProxy(
+    public @ResponseBody TubeMQResult blackGroupProxy(
             @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD:
@@ -173,12 +177,13 @@ public class GroupController {
      * @param req
      * @return
      *
-     * @throws Exception the exception
+     * @throws Exception
+     *           the exception
      */
     @GetMapping("/blackGroup")
-    public @ResponseBody
-        String queryBlackGroup(
-            @RequestParam Map<String, String> req) throws Exception {
+    public @ResponseBody String queryBlackGroup(
+            @RequestParam Map<String, String> req)
+            throws Exception {
         String url = masterService.getQueryUrl(req);
         return masterService.queryMaster(url);
     }

@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sdk.sort.impl;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.inlong.sdk.sort.api.MetricReporter;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.metrics.SortSdkMetricItem;
 import org.apache.inlong.sdk.sort.metrics.SortSdkPrometheusMetricListener;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +44,12 @@ public class MetricReporterImpl implements MetricReporter {
     /**
      * report metric
      *
-     * @param monitorName String
-     * @param keys metric key
-     * @param values metric val
+     * @param monitorName
+     *          String
+     * @param keys
+     *          metric key
+     * @param values
+     *          metric val
      * @return true/false
      */
     @Override

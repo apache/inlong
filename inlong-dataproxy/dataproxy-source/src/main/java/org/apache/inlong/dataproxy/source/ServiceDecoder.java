@@ -17,9 +17,10 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import java.util.Map;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import java.util.Map;
 
 public interface ServiceDecoder {
 
@@ -28,13 +29,18 @@ public interface ServiceDecoder {
     /**
      * extract data from buffer and convert it into map.
      * 
-     * @param cb           the message Byte buffer
-     * @param strRemoteIP  the remote ip message sent
-     * @param msgRcvTime   the received message time
-     * @param channel      the channel
-     * @return Map         the message map
+     * @param cb
+     *          the message Byte buffer
+     * @param strRemoteIP
+     *          the remote ip message sent
+     * @param msgRcvTime
+     *          the received message time
+     * @param channel
+     *          the channel
+     * @return Map the message map
      * @throws Exception
      */
     Map<String, Object> extractData(ByteBuf cb, String strRemoteIP,
-                                    long msgRcvTime, Channel channel) throws Exception;
+            long msgRcvTime, Channel channel)
+            throws Exception;
 }

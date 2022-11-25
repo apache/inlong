@@ -17,8 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master;
 
-import java.util.Set;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.config.TLSConfig;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
@@ -30,6 +28,11 @@ import org.apache.inlong.tubemq.server.common.fileconfig.AbstractFileConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.PrometheusConfig;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKMetaConfig;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.Set;
+
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 import org.slf4j.Logger;
@@ -39,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * Basic config for master service
  */
 public class MasterConfig extends AbstractFileConfig {
+
     private static final Logger logger = LoggerFactory.getLogger(MasterConfig.class);
 
     private String hostName;
@@ -68,8 +72,7 @@ public class MasterConfig extends AbstractFileConfig {
     private long socketSendBuffer = -1;
     private long socketRecvBuffer = -1;
     private boolean startOffsetResetCheck = false;
-    private int rowLockWaitDurMs =
-            TServerConstants.CFG_ROWLOCK_DEFAULT_DURATION;
+    private int rowLockWaitDurMs = TServerConstants.CFG_ROWLOCK_DEFAULT_DURATION;
     private boolean startVisitTokenCheck = false;
     private boolean startProduceAuthenticate = false;
     private boolean startProduceAuthorize = false;
@@ -158,7 +161,8 @@ public class MasterConfig extends AbstractFileConfig {
     /**
      * Setter
      *
-     * @param webResourcePath TODO: Have no usage, could be removed?
+     * @param webResourcePath
+     *          TODO: Have no usage, could be removed?
      */
     public void setWebResourcePath(String webResourcePath) {
         this.webResourcePath = webResourcePath;
@@ -279,7 +283,8 @@ public class MasterConfig extends AbstractFileConfig {
     /**
      * Load file section attributes
      *
-     * @param iniConf  the master ini object
+     * @param iniConf
+     *          the master ini object
      */
     @Override
     protected void loadFileSectAttributes(final Ini iniConf) {
@@ -299,7 +304,7 @@ public class MasterConfig extends AbstractFileConfig {
             int promHttpPort = this.promConfig.getPromHttpPort();
             if ((promHttpPort == this.port || promHttpPort == this.webPort
                     || (tlsConfig.isTlsEnable()
-                    && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
+                            && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
                 throw new IllegalArgumentException(new StringBuilder(512)
                         .append("Illegal port value configuration, the value of ")
                         .append("port or webPort or tlsPort cannot be the same as the value of promHttpPort!")
@@ -334,7 +339,8 @@ public class MasterConfig extends AbstractFileConfig {
     /**
      * Load system config
      *
-     * @param iniConf  the master ini object
+     * @param iniConf
+     *          the master ini object
      */
     // #lizard forgives
     private void loadSystemConf(final Ini iniConf) {
@@ -362,8 +368,8 @@ public class MasterConfig extends AbstractFileConfig {
                 this.hostName = AddressUtils.getIPV4LocalAddress();
             } catch (Throwable e) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Get default master hostName failure : ")
-                    .append(e.getMessage()).toString());
+                        .append("Get default master hostName failure : ")
+                        .append(e.getMessage()).toString());
             }
         }
         // web port
@@ -380,25 +386,20 @@ public class MasterConfig extends AbstractFileConfig {
         this.webResourcePath = masterConf.get("webResourcePath").trim();
 
         if (TStringUtils.isNotBlank(masterConf.get("consumerBalancePeriodMs"))) {
-            this.consumerBalancePeriodMs =
-                    this.getInt(masterConf, "consumerBalancePeriodMs");
+            this.consumerBalancePeriodMs = this.getInt(masterConf, "consumerBalancePeriodMs");
         }
 
         if (TStringUtils.isNotBlank(masterConf.get("firstBalanceDelayAfterStartMs"))) {
-            this.firstBalanceDelayAfterStartMs =
-                    this.getInt(masterConf, "firstBalanceDelayAfterStartMs");
+            this.firstBalanceDelayAfterStartMs = this.getInt(masterConf, "firstBalanceDelayAfterStartMs");
         }
         if (TStringUtils.isNotBlank(masterConf.get("consumerHeartbeatTimeoutMs"))) {
-            this.consumerHeartbeatTimeoutMs =
-                    this.getInt(masterConf, "consumerHeartbeatTimeoutMs");
+            this.consumerHeartbeatTimeoutMs = this.getInt(masterConf, "consumerHeartbeatTimeoutMs");
         }
         if (TStringUtils.isNotBlank(masterConf.get("producerHeartbeatTimeoutMs"))) {
-            this.producerHeartbeatTimeoutMs =
-                    this.getInt(masterConf, "producerHeartbeatTimeoutMs");
+            this.producerHeartbeatTimeoutMs = this.getInt(masterConf, "producerHeartbeatTimeoutMs");
         }
         if (TStringUtils.isNotBlank(masterConf.get("brokerHeartbeatTimeoutMs"))) {
-            this.brokerHeartbeatTimeoutMs =
-                    this.getInt(masterConf, "brokerHeartbeatTimeoutMs");
+            this.brokerHeartbeatTimeoutMs = this.getInt(masterConf, "brokerHeartbeatTimeoutMs");
         }
         if (TStringUtils.isNotBlank(masterConf.get("socketSendBuffer"))) {
             this.socketSendBuffer = this.getLong(masterConf, "socketSendBuffer");
@@ -407,28 +408,22 @@ public class MasterConfig extends AbstractFileConfig {
             this.socketRecvBuffer = this.getLong(masterConf, "socketRecvBuffer");
         }
         if (TStringUtils.isNotBlank(masterConf.get("rpcReadTimeoutMs"))) {
-            this.rpcReadTimeoutMs =
-                    this.getLong(masterConf, "rpcReadTimeoutMs");
+            this.rpcReadTimeoutMs = this.getLong(masterConf, "rpcReadTimeoutMs");
         }
         if (TStringUtils.isNotBlank(masterConf.get("nettyWriteBufferHighWaterMark"))) {
-            this.nettyWriteBufferHighWaterMark =
-                    this.getLong(masterConf, "nettyWriteBufferHighWaterMark");
+            this.nettyWriteBufferHighWaterMark = this.getLong(masterConf, "nettyWriteBufferHighWaterMark");
         }
         if (TStringUtils.isNotBlank(masterConf.get("nettyWriteBufferLowWaterMark"))) {
-            this.nettyWriteBufferLowWaterMark =
-                    this.getLong(masterConf, "nettyWriteBufferLowWaterMark");
+            this.nettyWriteBufferLowWaterMark = this.getLong(masterConf, "nettyWriteBufferLowWaterMark");
         }
         if (TStringUtils.isNotBlank(masterConf.get("onlineOnlyReadToRWPeriodMs"))) {
-            this.onlineOnlyReadToRWPeriodMs =
-                    this.getLong(masterConf, "onlineOnlyReadToRWPeriodMs");
+            this.onlineOnlyReadToRWPeriodMs = this.getLong(masterConf, "onlineOnlyReadToRWPeriodMs");
         }
         if (TStringUtils.isNotBlank(masterConf.get("stepChgWaitPeriodMs"))) {
-            this.stepChgWaitPeriodMs =
-                    this.getLong(masterConf, "stepChgWaitPeriodMs");
+            this.stepChgWaitPeriodMs = this.getLong(masterConf, "stepChgWaitPeriodMs");
         }
         if (TStringUtils.isNotBlank(masterConf.get("offlineOnlyReadToRWPeriodMs"))) {
-            this.offlineOnlyReadToRWPeriodMs =
-                    this.getLong(masterConf, "offlineOnlyReadToRWPeriodMs");
+            this.offlineOnlyReadToRWPeriodMs = this.getLong(masterConf, "offlineOnlyReadToRWPeriodMs");
         }
         if (TStringUtils.isNotBlank(masterConf.get("confModAuthToken"))) {
             String tmpAuthToken = masterConf.get("confModAuthToken").trim();
@@ -440,28 +435,23 @@ public class MasterConfig extends AbstractFileConfig {
             this.confModAuthToken = tmpAuthToken;
         }
         if (TStringUtils.isNotBlank(masterConf.get("maxGroupBrokerConsumeRate"))) {
-            this.maxGroupBrokerConsumeRate =
-                    this.getInt(masterConf, "maxGroupBrokerConsumeRate");
+            this.maxGroupBrokerConsumeRate = this.getInt(masterConf, "maxGroupBrokerConsumeRate");
             if (this.maxGroupBrokerConsumeRate <= 0) {
                 throw new IllegalArgumentException(
                         "Invalid value: maxGroupBrokerConsumeRate's value must > 0 !");
             }
         }
         if (TStringUtils.isNotBlank(masterConf.get("maxGroupRebalanceWaitPeriod"))) {
-            this.maxGroupRebalanceWaitPeriod =
-                    this.getInt(masterConf, "maxGroupRebalanceWaitPeriod");
+            this.maxGroupRebalanceWaitPeriod = this.getInt(masterConf, "maxGroupRebalanceWaitPeriod");
         }
         if (TStringUtils.isNotBlank(masterConf.get("startOffsetResetCheck"))) {
-            this.startOffsetResetCheck =
-                    this.getBoolean(masterConf, "startOffsetResetCheck");
+            this.startOffsetResetCheck = this.getBoolean(masterConf, "startOffsetResetCheck");
         }
         if (TStringUtils.isNotBlank(masterConf.get("rowLockWaitDurMs"))) {
-            this.rowLockWaitDurMs =
-                    this.getInt(masterConf, "rowLockWaitDurMs");
+            this.rowLockWaitDurMs = this.getInt(masterConf, "rowLockWaitDurMs");
         }
         if (TStringUtils.isNotBlank(masterConf.get("maxAutoForbiddenCnt"))) {
-            this.maxAutoForbiddenCnt =
-                    this.getInt(masterConf, "maxAutoForbiddenCnt");
+            this.maxAutoForbiddenCnt = this.getInt(masterConf, "maxAutoForbiddenCnt");
         }
         if (TStringUtils.isNotBlank(masterConf.get("visitTokenValidPeriodMs"))) {
             long tmpPeriodMs = this.getLong(masterConf, "visitTokenValidPeriodMs");
@@ -473,8 +463,7 @@ public class MasterConfig extends AbstractFileConfig {
         if (TStringUtils.isNotBlank(masterConf.get("authValidTimeStampPeriodMs"))) {
             long tmpPeriodMs = this.getLong(masterConf, "authValidTimeStampPeriodMs");
             // must between 5,000 ms and 120,000 ms
-            this.authValidTimeStampPeriodMs =
-                    tmpPeriodMs < 5000 ? 5000 : tmpPeriodMs > 120000 ? 120000 : tmpPeriodMs;
+            this.authValidTimeStampPeriodMs = tmpPeriodMs < 5000 ? 5000 : tmpPeriodMs > 120000 ? 120000 : tmpPeriodMs;
         }
         if (TStringUtils.isNotBlank(masterConf.get("startVisitTokenCheck"))) {
             this.startVisitTokenCheck = this.getBoolean(masterConf, "startVisitTokenCheck");
@@ -535,7 +524,8 @@ public class MasterConfig extends AbstractFileConfig {
     /**
      * Load meta-data section config
      *
-     * @param iniConf  the master ini object
+     * @param iniConf
+     *          the master ini object
      */
     private void loadMetaDataSectConf(final Ini iniConf) {
         if (iniConf.get(SECT_TOKEN_META_BDB) != null
@@ -578,8 +568,9 @@ public class MasterConfig extends AbstractFileConfig {
     /**
      * Load ZooKeeper store section configure as meta-data storage
      *
-     * @param iniConf  the master ini object
-     * @return   the configured information
+     * @param iniConf
+     *          the master ini object
+     * @return the configured information
      */
 
     private ZKMetaConfig loadZkMetaSectConf(final Ini iniConf) {
@@ -628,8 +619,9 @@ public class MasterConfig extends AbstractFileConfig {
     /**
      * Load Berkeley DB store section configure as meta-data storage
      *
-     * @param iniConf  the master ini object
-     * @return   the configured information
+     * @param iniConf
+     *          the master ini object
+     * @return the configured information
      */
     private BdbMetaConfig loadBdbMetaSectConf(final Ini iniConf) {
         final Profile.Section repSect = iniConf.get(SECT_TOKEN_META_BDB);
@@ -677,11 +669,12 @@ public class MasterConfig extends AbstractFileConfig {
     }
 
     /**
-     * Deprecated: Load Berkeley DB store section config
-     * Just keep `loadBdbStoreSectConf` for backward compatibility
+     * Deprecated: Load Berkeley DB store section config Just keep
+     * `loadBdbStoreSectConf` for backward compatibility
      *
-     * @param iniConf  the master ini object
-     * @return   the configured information
+     * @param iniConf
+     *          the master ini object
+     * @return the configured information
      */
     private BdbMetaConfig loadBdbStoreSectConf(final Ini iniConf) {
         final Profile.Section bdbSect = iniConf.get(SECT_TOKEN_BDB);
@@ -736,11 +729,12 @@ public class MasterConfig extends AbstractFileConfig {
     }
 
     /**
-     * Deprecated: Load Berkeley DB store section config
-     * Just keep `loadReplicationSectConf` for backward compatibility
+     * Deprecated: Load Berkeley DB store section config Just keep
+     * `loadReplicationSectConf` for backward compatibility
      *
-     * @param iniConf  the master ini object
-     * @return   the configured information
+     * @param iniConf
+     *          the master ini object
+     * @return the configured information
      */
     private BdbMetaConfig loadReplicationSectConf(final Ini iniConf) {
         final Profile.Section repSect = iniConf.get(SECT_TOKEN_REPLICATION);

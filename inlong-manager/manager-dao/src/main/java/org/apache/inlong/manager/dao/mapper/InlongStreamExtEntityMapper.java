@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
+
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.mapping.ResultSetType;
-import org.apache.inlong.manager.dao.entity.InlongStreamExtEntity;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InlongStreamExtEntityMapper {
@@ -34,14 +36,16 @@ public interface InlongStreamExtEntityMapper {
     /**
      * Insert data in batches
      *
-     * @param extList need to insert data
+     * @param extList
+     *          need to insert data
      */
     int insertAll(@Param("extList") List<InlongStreamExtEntity> extList);
 
     /**
      * Insert data in batches, update if it exists, create new if it does not exist
      *
-     * @param extList need to insertOnDuplicateUpdate data
+     * @param extList
+     *          need to insertOnDuplicateUpdate data
      */
     int insertOnDuplicateKeyUpdate(@Param("extList") List<InlongStreamExtEntity> extList);
 

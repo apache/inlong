@@ -18,13 +18,13 @@
 
 package org.apache.inlong.sort.base.metric;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * Unit testing of {@link ThreadSafeCounter}.

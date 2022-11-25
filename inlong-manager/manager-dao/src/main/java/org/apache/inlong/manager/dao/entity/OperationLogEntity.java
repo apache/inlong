@@ -19,6 +19,7 @@ package org.apache.inlong.manager.dao.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import lombok.Data;
 
 /**

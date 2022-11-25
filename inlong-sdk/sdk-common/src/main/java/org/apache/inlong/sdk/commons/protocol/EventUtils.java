@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sdk.commons.protocol;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
@@ -28,6 +24,11 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePack;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePackHeader;
 import org.apache.inlong.sdk.commons.utils.GzipUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.xerial.snappy.Snappy;
 
 import com.google.protobuf.ByteString;
@@ -40,15 +41,17 @@ public class EventUtils {
     /**
      * encode
      * 
-     * @param  inlongGroupId
-     * @param  inlongStreamId
-     * @param  compressedType
-     * @param  events
+     * @param inlongGroupId
+     * @param inlongStreamId
+     * @param compressedType
+     * @param events
      * @return MessagePack
      * @throws IOException
      */
     public static MessagePack encodeSdkEvents(String inlongGroupId, String inlongStreamId,
-            INLONG_COMPRESSED_TYPE compressedType, List<SdkEvent> events) throws IOException {
+            INLONG_COMPRESSED_TYPE compressedType,
+            List<SdkEvent> events)
+            throws IOException {
         // MessageObjs
         MessageObjs.Builder objsBuilder = MessageObjs.newBuilder();
         for (SdkEvent event : events) {
@@ -62,14 +65,14 @@ public class EventUtils {
         byte[] srcBytes = objs.toByteArray();
         byte[] compressedBytes = null;
         switch (compressedType) {
-            case INLONG_SNAPPY :
+            case INLONG_SNAPPY:
                 compressedBytes = Snappy.compress(srcBytes);
                 break;
-            case INLONG_GZ :
+            case INLONG_GZ:
                 compressedBytes = GzipUtils.compress(srcBytes);
                 break;
-            case INLONG_NO_COMPRESS :
-            default :
+            case INLONG_NO_COMPRESS:
+            default:
                 compressedBytes = srcBytes;
                 break;
         }
@@ -102,7 +105,7 @@ public class EventUtils {
     /**
      * decodeSdkPack
      * 
-     * @param  packObject
+     * @param packObject
      * @return List,ProxyEvent
      * @throws IOException
      */
@@ -112,14 +115,14 @@ public class EventUtils {
         byte[] compressBytes = packObject.getCompressBytes().toByteArray();
         byte[] srcBytes = null;
         switch (header.getCompressType()) {
-            case INLONG_SNAPPY :
+            case INLONG_SNAPPY:
                 srcBytes = Snappy.uncompress(compressBytes);
                 break;
-            case INLONG_GZ :
+            case INLONG_GZ:
                 srcBytes = GzipUtils.decompress(compressBytes);
                 break;
-            case INLONG_NO_COMPRESS :
-            default :
+            case INLONG_NO_COMPRESS:
+            default:
                 srcBytes = compressBytes;
                 break;
         }
@@ -138,12 +141,13 @@ public class EventUtils {
     /**
      * encodeCacheMessageBody
      * 
-     * @param  compressedType
-     * @param  events
+     * @param compressedType
+     * @param events
      * @return byte array
      * @throws IOException
      */
-    public static byte[] encodeCacheMessageBody(INLONG_COMPRESSED_TYPE compressedType, List<ProxyEvent> events)
+    public static byte[] encodeCacheMessageBody(INLONG_COMPRESSED_TYPE compressedType,
+            List<ProxyEvent> events)
             throws IOException {
         // encode
         MessageObjs.Builder objs = MessageObjs.newBuilder();
@@ -161,14 +165,14 @@ public class EventUtils {
         // compress
         byte[] compressBytes = null;
         switch (compressedType) {
-            case INLONG_SNAPPY :
+            case INLONG_SNAPPY:
                 compressBytes = Snappy.compress(srcBytes);
                 break;
-            case INLONG_GZ :
+            case INLONG_GZ:
                 compressBytes = GzipUtils.compress(srcBytes);
                 break;
-            case INLONG_NO_COMPRESS :
-            default :
+            case INLONG_NO_COMPRESS:
+            default:
                 compressBytes = srcBytes;
                 break;
         }
@@ -178,26 +182,28 @@ public class EventUtils {
     /**
      * decodeCacheMessageBody
      * 
-     * @param  inlongGroupId
-     * @param  inlongStreamId
-     * @param  compressedType
-     * @param  msgBody
+     * @param inlongGroupId
+     * @param inlongStreamId
+     * @param compressedType
+     * @param msgBody
      * @return List,SortEvent
      * @throws IOException
      */
     public static List<SortEvent> decodeCacheMessageBody(String inlongGroupId, String inlongStreamId,
-            INLONG_COMPRESSED_TYPE compressedType, byte[] msgBody) throws IOException {
+            INLONG_COMPRESSED_TYPE compressedType,
+            byte[] msgBody)
+            throws IOException {
         // uncompress
         byte[] srcBytes = null;
         switch (compressedType) {
-            case INLONG_SNAPPY :
+            case INLONG_SNAPPY:
                 srcBytes = Snappy.uncompress(msgBody);
                 break;
-            case INLONG_GZ :
+            case INLONG_GZ:
                 srcBytes = GzipUtils.decompress(msgBody);
                 break;
-            case INLONG_NO_COMPRESS :
-            default :
+            case INLONG_NO_COMPRESS:
+            default:
                 srcBytes = msgBody;
                 break;
         }

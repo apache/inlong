@@ -17,9 +17,14 @@
 
 package org.apache.inlong.agent.plugin;
 
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_EXIT;
+
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.utils.ThreadUtils;
+
+import java.util.concurrent.TimeUnit;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,10 +34,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.TimeUnit;
-
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_EXIT;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ThreadUtils.class)
@@ -55,6 +56,7 @@ public class TestOOMExit {
     }
 
     static class MockJobManager extends AbstractDaemon {
+
         private static final Logger LOGGER = LoggerFactory.getLogger(MockJobManager.class);
 
         @Override

@@ -17,16 +17,18 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.base.SinkRspEvent;
 import org.apache.inlong.dataproxy.source.MsgType;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -43,6 +45,7 @@ public class OrderBatchPackProfileV0 extends BatchPackProfile {
 
     /**
      * Constructor
+     * 
      * @param uid
      * @param inlongGroupId
      * @param inlongStreamId
@@ -54,6 +57,7 @@ public class OrderBatchPackProfileV0 extends BatchPackProfile {
 
     /**
      * create
+     * 
      * @param event
      * @return
      */
@@ -74,6 +78,7 @@ public class OrderBatchPackProfileV0 extends BatchPackProfile {
 
     /**
      * get event
+     * 
      * @return the event
      */
     public SinkRspEvent getOrderProfile() {
@@ -108,8 +113,10 @@ public class OrderBatchPackProfileV0 extends BatchPackProfile {
      * Convert String to ByteBuf
      *
      * @param backattrs
-     * @param msgType message type
-     * @param sequenceId sequence Id
+     * @param msgType
+     *          message type
+     * @param sequenceId
+     *          sequence Id
      * @return ByteBuf
      */
     public static ByteBuf getResponsePackage(String backattrs, MsgType msgType, String sequenceId) {

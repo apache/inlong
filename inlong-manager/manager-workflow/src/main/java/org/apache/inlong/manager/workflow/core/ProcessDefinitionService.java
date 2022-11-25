@@ -27,14 +27,16 @@ public interface ProcessDefinitionService {
     /**
      * Register the process
      *
-     * @param process WorkflowProcess definition
+     * @param process
+     *          WorkflowProcess definition
      */
     void register(WorkflowProcess process);
 
     /**
      * Get process definition by name
      *
-     * @param name WorkflowProcess name
+     * @param name
+     *          WorkflowProcess name
      * @return WorkflowProcess definition
      */
     WorkflowProcess getByName(String name);

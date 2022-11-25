@@ -17,30 +17,34 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
-import com.google.common.base.Preconditions;
+import org.apache.inlong.dataproxy.admin.ProxyServiceMBean;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.source.SimpleTcpSource;
+import org.apache.inlong.dataproxy.source.SourceContext;
+import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.FlumeException;
 import org.apache.flume.conf.Configurable;
-import org.apache.inlong.dataproxy.admin.ProxyServiceMBean;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.source.SimpleTcpSource;
-import org.apache.inlong.dataproxy.source.SourceContext;
-import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelInitializer;
 
 /**
  * Inlong tcp source
  */
 public class InlongTcpSource extends SimpleTcpSource
-        implements Configurable, EventDrivenSource, ProxyServiceMBean {
+        implements
+            Configurable,
+            EventDrivenSource,
+            ProxyServiceMBean {
 
     public static final Logger LOG = LoggerFactory.getLogger(InlongTcpSource.class);
 

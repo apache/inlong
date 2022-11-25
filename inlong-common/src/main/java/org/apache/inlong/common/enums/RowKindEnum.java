@@ -47,8 +47,8 @@ public enum RowKindEnum {
     private final byte value;
 
     /**
-     * Creates a {@link RowKindEnum} enum with the given short string and byte value representation of
-     * the {@link RowKindEnum}.
+     * Creates a {@link RowKindEnum} enum with the given short string and byte value
+     * representation of the {@link RowKindEnum}.
      */
     RowKindEnum(String shortString, byte value) {
         this.shortString = shortString;
@@ -56,8 +56,8 @@ public enum RowKindEnum {
     }
 
     /**
-     * Creates a {@link RowKindEnum} from the given byte value. Each {@link RowKindEnum} has a byte value
-     * representation.
+     * Creates a {@link RowKindEnum} from the given byte value. Each
+     * {@link RowKindEnum} has a byte value representation.
      *
      * @see #toByteValue() for mapping of byte value and {@link RowKindEnum}.
      */
@@ -80,10 +80,10 @@ public enum RowKindEnum {
      * Returns a short string representation of this {@link RowKindEnum}.
      *
      * <ul>
-     *   <li>"+I" represents {@link #INSERT}.
-     *   <li>"-U" represents {@link #UPDATE_BEFORE}.
-     *   <li>"+U" represents {@link #UPDATE_AFTER}.
-     *   <li>"-D" represents {@link #DELETE}.
+     * <li>"+I" represents {@link #INSERT}.
+     * <li>"-U" represents {@link #UPDATE_BEFORE}.
+     * <li>"+U" represents {@link #UPDATE_AFTER}.
+     * <li>"-D" represents {@link #DELETE}.
      * </ul>
      */
     public String shortString() {
@@ -91,16 +91,16 @@ public enum RowKindEnum {
     }
 
     /**
-     * Returns the byte value representation of this {@link RowKindEnum}. The byte value is used for
-     * serialization and deserialization.
+     * Returns the byte value representation of this {@link RowKindEnum}. The byte
+     * value is used for serialization and deserialization.
      *
      * <p>
      *
      * <ul>
-     *   <li>"0" represents {@link #INSERT}.
-     *   <li>"1" represents {@link #UPDATE_BEFORE}.
-     *   <li>"2" represents {@link #UPDATE_AFTER}.
-     *   <li>"3" represents {@link #DELETE}.
+     * <li>"0" represents {@link #INSERT}.
+     * <li>"1" represents {@link #UPDATE_BEFORE}.
+     * <li>"2" represents {@link #UPDATE_AFTER}.
+     * <li>"3" represents {@link #DELETE}.
      * </ul>
      */
     public byte toByteValue() {

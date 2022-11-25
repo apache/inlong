@@ -17,12 +17,13 @@
 
 package org.apache.inlong.tubemq.manager.controller.group.result;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class ConsumerGroupInfoRes {
+
     private String topicName;
     private boolean isEnable;
     private String createUser;
@@ -34,6 +35,7 @@ public class ConsumerGroupInfoRes {
 
     @Data
     private static class AuthConsumeGroup {
+
         private String topicName;
         private String groupName;
         private String createUser;
@@ -42,6 +44,7 @@ public class ConsumerGroupInfoRes {
 
     @Data
     private static class AuthFilterCondSet {
+
         private String topicName;
         private String groupName;
         private double condStatus;

@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.configuration;
 
-import java.time.Duration;
 import static org.apache.inlong.sort.configuration.ConfigOptions.key;
+
+import java.time.Duration;
 
 /**
  * Constants used in sort
@@ -66,7 +67,7 @@ public class Constants {
     public static final String NODE_ID = "nodeId";
 
     // ------------------------------------------------------------------------
-    //  Operator uid
+    // Operator uid
     // ------------------------------------------------------------------------
     public static final String SOURCE_UID = "source_uid";
 
@@ -77,7 +78,8 @@ public class Constants {
     public static final String SINK_UID = "sink_uid";
 
     /**
-     * It uses dt as the built-in data time field name. It's a work-around solution and should be replaced by later.
+     * It uses dt as the built-in data time field name. It's a work-around solution
+     * and should be replaced by later.
      */
     public static final String DATA_TIME_FIELD = "dt";
 
@@ -87,11 +89,11 @@ public class Constants {
     public static final String PULSAR_SOURCE_PREFIX = "pulsar.source.";
 
     // ------------------------------------------------------------------------
-    //  Common configs
+    // Common configs
     // ------------------------------------------------------------------------
     /**
-     * The pipeline name is the key of configuration
-     * that represents the configuration of {@link this#JOB_NAME} in Flink Table API
+     * The pipeline name is the key of configuration that represents the
+     * configuration of {@link this#JOB_NAME} in Flink Table API
      */
     public static final String PIPELINE_NAME = "pipeline.name";
 
@@ -119,8 +121,8 @@ public class Constants {
     public static final ConfigOption<String> ZOOKEEPER_ROOT = key("zookeeper.path.root").defaultValue("/inlong-sort")
             .withDescription("The root path in ZooKeeper.");
 
-    public static final ConfigOption<Integer> ETL_RECORD_SERIALIZATION_BUFFER_SIZE =
-            key("etl.record.serialization.buffer.size").defaultValue(1024);
+    public static final ConfigOption<Integer> ETL_RECORD_SERIALIZATION_BUFFER_SIZE = key(
+            "etl.record.serialization.buffer.size").defaultValue(1024);
 
     public static final ConfigOption<String> SOURCE_TYPE = key("source.type").noDefaultValue()
             .withDescription("The type of source, currently only 'tubemq' is supported");
@@ -129,22 +131,22 @@ public class Constants {
             .withDescription("The type of sink, currently only 'clickhouse' and 'iceberg' are supported");
 
     // ------------------------------------------------------------------------
-    //  Operator parallelism configs
+    // Operator parallelism configs
     // ------------------------------------------------------------------------
     public static final ConfigOption<Integer> SOURCE_PARALLELISM = key("source.parallelism").defaultValue(1);
 
-    public static final ConfigOption<Integer> DESERIALIZATION_PARALLELISM =
-            key("deserialization.parallelism").defaultValue(1);
+    public static final ConfigOption<Integer> DESERIALIZATION_PARALLELISM = key("deserialization.parallelism")
+            .defaultValue(1);
 
-    public static final ConfigOption<Integer> TRANSFORMATION_PARALLELISM =
-            key("transformation.parallelism").defaultValue(1);
+    public static final ConfigOption<Integer> TRANSFORMATION_PARALLELISM = key("transformation.parallelism")
+            .defaultValue(1);
 
     public static final ConfigOption<Integer> SINK_PARALLELISM = key("sink.parallelism").defaultValue(1);
 
     public static final ConfigOption<Integer> COMMITTER_PARALLELISM = key("committer.parallelism").defaultValue(1);
 
     // ------------------------------------------------------------------------
-    //  TubeMQ source configs
+    // TubeMQ source configs
     // ------------------------------------------------------------------------
     public static final ConfigOption<String> TUBE_MASTER_ADDRESS = key("tubemq.master.address").noDefaultValue()
             .withDescription("The address of tubeMQ master.");
@@ -156,8 +158,8 @@ public class Constants {
             .defaultValue(false)
             .withDescription("Consume tubeMQ from max offset.");
 
-    public static final ConfigOption<String> TUBE_MESSAGE_NOT_FOUND_WAIT_PERIOD =
-            key("tubemq.message.not.found.wait.period").defaultValue("350ms")
+    public static final ConfigOption<String> TUBE_MESSAGE_NOT_FOUND_WAIT_PERIOD = key(
+            "tubemq.message.not.found.wait.period").defaultValue("350ms")
                     .withDescription("The time of waiting period if "
                             + "tubeMQ broker return message not found.");
 
@@ -165,11 +167,11 @@ public class Constants {
             .defaultValue(300000L)
             .withDescription("The time of subscribing tubeMQ timeout, in millisecond");
 
-    public static final ConfigOption<Integer> SOURCE_EVENT_QUEUE_CAPACITY =
-            key("source.event.queue.capacity").defaultValue(1024);
+    public static final ConfigOption<Integer> SOURCE_EVENT_QUEUE_CAPACITY = key("source.event.queue.capacity")
+            .defaultValue(1024);
 
     // ------------------------------------------------------------------------
-    //  ZooKeeper Client Settings
+    // ZooKeeper Client Settings
     // ------------------------------------------------------------------------
 
     public static final ConfigOption<Integer> ZOOKEEPER_SESSION_TIMEOUT = key("zookeeper.client.session-timeout")
@@ -201,47 +203,48 @@ public class Constants {
             key("zookeeper.sasl.disable").defaultValue(false);
 
     // ------------------------------------------------------------------------
-    //  Sink field nullable related
+    // Sink field nullable related
     // ------------------------------------------------------------------------
     public static final ConfigOption<Boolean> SINK_FIELD_TYPE_STRING_NULLABLE = key("sink.field.type.string.nullable")
             .defaultValue(false)
             .withDescription("The default value of string is empty string.");
 
-    public static final ConfigOption<Boolean> SINK_FIELD_TYPE_INT_NULLABLE =
-            key("sink.field.type.int.nullable").defaultValue(true);
+    public static final ConfigOption<Boolean> SINK_FIELD_TYPE_INT_NULLABLE = key("sink.field.type.int.nullable")
+            .defaultValue(true);
 
-    public static final ConfigOption<Boolean> SINK_FIELD_TYPE_SHORT_NULLABLE =
-            key("sink.field.type.short.nullable").defaultValue(true);
+    public static final ConfigOption<Boolean> SINK_FIELD_TYPE_SHORT_NULLABLE = key("sink.field.type.short.nullable")
+            .defaultValue(true);
 
-    public static final ConfigOption<Boolean> SINK_FIELD_TYPE_LONG_NULLABLE =
-            key("sink.field.type.long.nullable").defaultValue(true);
-
-    // ------------------------------------------------------------------------
-    //  Kafka sink related configs
-    // ------------------------------------------------------------------------
-    public static final ConfigOption<Integer> SINK_KAFKA_PRODUCER_POOL_SIZE =
-            key("sink.kafka.producer.pool.size").defaultValue(5);
+    public static final ConfigOption<Boolean> SINK_FIELD_TYPE_LONG_NULLABLE = key("sink.field.type.long.nullable")
+            .defaultValue(true);
 
     // ------------------------------------------------------------------------
-    //  Hive sink related configs
+    // Kafka sink related configs
+    // ------------------------------------------------------------------------
+    public static final ConfigOption<Integer> SINK_KAFKA_PRODUCER_POOL_SIZE = key("sink.kafka.producer.pool.size")
+            .defaultValue(5);
+
+    // ------------------------------------------------------------------------
+    // Hive sink related configs
     // ------------------------------------------------------------------------
 
-    public static final ConfigOption<Integer> SINK_HIVE_COMMITTED_PARTITIONS_CACHE_SIZE =
-            key("sink.hive.committed.partitions.cache.size").defaultValue(1024);
+    public static final ConfigOption<Integer> SINK_HIVE_COMMITTED_PARTITIONS_CACHE_SIZE = key(
+            "sink.hive.committed.partitions.cache.size").defaultValue(1024);
 
     public static final ConfigOption<Long> SINK_HIVE_ROLLING_POLICY_FILE_SIZE =
-            key("sink.hive.rolling-policy.file-size").defaultValue(128L << 20)
+            key("sink.hive.rolling-policy.file-size")
+                    .defaultValue(128L << 20)
                     .withDescription("The maximum part file size before rolling.");
 
-    public static final ConfigOption<Long> SINK_HIVE_ROLLING_POLICY_ROLLOVER_INTERVAL =
-            key("sink.hive.rolling-policy.rollover-interval")
+    public static final ConfigOption<Long> SINK_HIVE_ROLLING_POLICY_ROLLOVER_INTERVAL = key(
+            "sink.hive.rolling-policy.rollover-interval")
                     .defaultValue(Duration.ofMinutes(30).toMillis())
                     .withDescription("The maximum time duration a part file can stay open before rolling"
                             + " (by default long enough to avoid too many small files). The frequency at which"
                             + " this is checked is controlled by the 'sink.rolling-policy.check-interval' option.");
 
-    public static final ConfigOption<Long> SINK_HIVE_ROLLING_POLICY_CHECK_INTERVAL =
-            key("sink.hive.rolling-policy.check-interval")
+    public static final ConfigOption<Long> SINK_HIVE_ROLLING_POLICY_CHECK_INTERVAL = key(
+            "sink.hive.rolling-policy.check-interval")
                     .defaultValue(Duration.ofMinutes(1).toMillis())
                     .withDescription("The interval for checking time based rolling policies. "
                             + "This controls the frequency to check whether a part file should rollover based on"
@@ -253,7 +256,7 @@ public class Constants {
                     + "default size is 256KB");
 
     // ------------------------------------------------------------------------
-    //  Checkpoint related configs
+    // Checkpoint related configs
     // ------------------------------------------------------------------------
     public static final ConfigOption<Integer> CHECKPOINT_INTERVAL_MS = key("checkpoint.interval")
             .defaultValue(600000)
@@ -262,27 +265,24 @@ public class Constants {
     public static final ConfigOption<Integer> MIN_PAUSE_BETWEEN_CHECKPOINTS_MS = key("min.pause.between.checkpoints.ms")
             .defaultValue(500);
 
-    public static final ConfigOption<Integer> CHECKPOINT_TIMEOUT_MS =
-            key("checkpoint.timeout.ms").defaultValue(600000);
+    public static final ConfigOption<Integer> CHECKPOINT_TIMEOUT_MS = key("checkpoint.timeout.ms").defaultValue(600000);
 
     // ------------------------------------------------------------------------
-    //  Metrics related
+    // Metrics related
     // ------------------------------------------------------------------------
-    public static final ConfigOption<Boolean> METRICS_ENABLE_OUTPUT =
-            key("metrics.enable.output").defaultValue(true);
+    public static final ConfigOption<Boolean> METRICS_ENABLE_OUTPUT = key("metrics.enable.output").defaultValue(true);
 
-    public static final ConfigOption<Integer> METRICS_TIMESTAMP_WATERMARK_ASSIGNER_PARALLELISM =
-            key("metrics.timestamp.watermark.assigner.parallelism").defaultValue(1);
+    public static final ConfigOption<Integer> METRICS_TIMESTAMP_WATERMARK_ASSIGNER_PARALLELISM = key(
+            "metrics.timestamp.watermark.assigner.parallelism").defaultValue(1);
 
-    public static final ConfigOption<Integer> METRICS_AGGREGATOR_PARALLELISM =
-            key("metrics.aggregator.parallelism").defaultValue(1);
+    public static final ConfigOption<Integer> METRICS_AGGREGATOR_PARALLELISM = key("metrics.aggregator.parallelism")
+            .defaultValue(1);
 
-    public static final ConfigOption<Integer> METRICS_SINK_PARALLELISM =
-            key("metrics.sink.parallelism").defaultValue(1)
-                    .withDeprecatedKeys("metrics.mysql.sink.parallelism");
+    public static final ConfigOption<Integer> METRICS_SINK_PARALLELISM = key("metrics.sink.parallelism").defaultValue(1)
+            .withDeprecatedKeys("metrics.mysql.sink.parallelism");
 
-    public static final String METRICS_TIMESTAMP_AND_WATERMARK_ASSIGNER_UID
-            = "metrics_timestamp_and_watermark_assigner_uid";
+    public static final String METRICS_TIMESTAMP_AND_WATERMARK_ASSIGNER_UID =
+            "metrics_timestamp_and_watermark_assigner_uid";
 
     public static final String METRICS_AGGREGATOR_UID = "metrics_aggregator_uid";
 
@@ -292,29 +292,26 @@ public class Constants {
             .defaultValue(5)
             .withDescription("minutes");
 
-    public static final ConfigOption<String> METRICS_LABELS =
-            ConfigOptions.key("inlong.metric.labels")
-                    .noDefaultValue()
-                    .withDescription("INLONG metric labels, format is 'key1=value1&key2=value2',"
-                            + "default is 'groupId=xxx&streamId=xxx&nodeId=xxx'");
+    public static final ConfigOption<String> METRICS_LABELS = ConfigOptions.key("inlong.metric.labels")
+            .noDefaultValue()
+            .withDescription("INLONG metric labels, format is 'key1=value1&key2=value2',"
+                    + "default is 'groupId=xxx&streamId=xxx&nodeId=xxx'");
 
-
-    public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS =
-            ConfigOptions.key("metrics.audit.proxy.hosts")
-                    .noDefaultValue()
-                    .withDescription("Audit proxy host address for reporting audit metrics. \n"
-                            + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
+    public static final ConfigOption<String> METRICS_AUDIT_PROXY_HOSTS = ConfigOptions.key("metrics.audit.proxy.hosts")
+            .noDefaultValue()
+            .withDescription("Audit proxy host address for reporting audit metrics. \n"
+                    + "e.g. 127.0.0.1:10081,0.0.0.1:10081");
 
     // ------------------------------------------------------------------------
-    //  Single tenant related
+    // Single tenant related
     // ------------------------------------------------------------------------
     public static final ConfigOption<String> DATAFLOW_INFO_FILE = key("dataflow.info.file").noDefaultValue()
             .withDescription("The file which contains dataflow info for a single tenant job");
 
     public static final ConfigOption<Boolean> JOB_ORDERLY_OUTPUT = key("job.orderly.output").defaultValue(false)
             .withDescription("Whether to ensure orderly output or not");
-    public static final ConfigOption<Integer> ORC_SINK_BATCH_SIZE =
-            key(HIVE_SINK_PREFIX + "orc.row.batch.size").defaultValue(64);
+    public static final ConfigOption<Integer> ORC_SINK_BATCH_SIZE = key(HIVE_SINK_PREFIX + "orc.row.batch.size")
+            .defaultValue(64);
 
     public static final String CHDFS_CONFIG_PREFIX = "fs.ofs.";
 
@@ -328,12 +325,10 @@ public class Constants {
             .withDescription("The file which is sql script and contains multi statement");
 
     // ------------------------------------------------------------------------
-    //  File format and compression related
+    // File format and compression related
     // ------------------------------------------------------------------------
     public enum CompressionType {
-        NONE,
-        GZIP,
-        LZO
+        NONE, GZIP, LZO
     }
 
 }

@@ -17,16 +17,19 @@
 
 package org.apache.inlong.tubemq.server.master.web.simplemvc.conf;
 
+import org.apache.inlong.tubemq.server.master.web.simplemvc.exception.InvalidConfigException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
-import org.apache.inlong.tubemq.server.master.web.simplemvc.exception.InvalidConfigException;
+
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 public class ConfigFileParser {
+
     private static final String ROOT_ELEMENT = "simpleMVConfig";
     private static final String DEFAULT_PAGE = "default-page";
     private static final String RESOURCES = "resources";
@@ -63,7 +66,7 @@ public class ConfigFileParser {
     /**
      * Parse website configure file information
      *
-     * @return    the website configure object
+     * @return the website configure object
      */
     public WebConfig parse() throws Exception {
         SAXReader reader = new SAXReader();

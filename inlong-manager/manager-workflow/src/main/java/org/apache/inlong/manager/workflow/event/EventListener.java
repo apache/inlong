@@ -45,14 +45,17 @@ public interface EventListener<EventType extends WorkflowEvent> {
     /**
      * Monitor event processing
      *
-     * @param context WorkflowProcess context
+     * @param context
+     *          WorkflowProcess context
      * @return ListenerResult Listener execution result
-     * @throws WorkflowListenerException Listener execution exception
+     * @throws WorkflowListenerException
+     *           Listener execution exception
      */
     ListenerResult listen(WorkflowContext context) throws Exception;
 
     /**
-     * Whether to ignore the execution log, if ignored, it will not be recorded in the log table
+     * Whether to ignore the execution log, if ignored, it will not be recorded in
+     * the log table
      *
      * @return yes/no
      */

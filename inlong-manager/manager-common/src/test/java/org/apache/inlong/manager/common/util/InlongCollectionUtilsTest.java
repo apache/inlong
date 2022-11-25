@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.common.util;
 
-import com.google.common.collect.Lists;
+import java.util.Map;
+import java.util.function.Function;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-import java.util.function.Function;
+import com.google.common.collect.Lists;
 
 /**
  * Inlong collection util test.
@@ -31,13 +32,13 @@ public class InlongCollectionUtilsTest {
 
     @Test
     public void transformToImmutableMap() {
-        Map<String, String> emptyMap =
-                InlongCollectionUtils.transformToImmutableMap(null, Function.identity(), Function.identity());
+        Map<String, String> emptyMap = InlongCollectionUtils.transformToImmutableMap(null, Function.identity(),
+                Function.identity());
         Assertions.assertTrue(emptyMap.isEmpty());
 
-        Map<String, Integer> stringIntegerMap =
-                InlongCollectionUtils.transformToImmutableMap(Lists.newArrayList("1", "2", "3"),
-                        Function.identity(), Integer::valueOf);
+        Map<String, Integer> stringIntegerMap = InlongCollectionUtils.transformToImmutableMap(
+                Lists.newArrayList("1", "2", "3"),
+                Function.identity(), Integer::valueOf);
         Assertions.assertEquals(1, (int) stringIntegerMap.get("1"));
 
     }

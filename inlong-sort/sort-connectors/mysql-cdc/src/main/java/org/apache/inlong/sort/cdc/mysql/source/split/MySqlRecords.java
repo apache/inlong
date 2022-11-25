@@ -21,19 +21,24 @@ package org.apache.inlong.sort.cdc.mysql.source.split;
 import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
 import org.apache.kafka.connect.source.SourceRecord;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 /**
- * An implementation of {@link RecordsWithSplitIds} which contains the records of one table split.
+ * An implementation of {@link RecordsWithSplitIds} which contains the records
+ * of one table split.
  */
 public final class MySqlRecords implements RecordsWithSplitIds<SourceRecord> {
 
-    @Nullable private String splitId;
-    @Nullable private Iterator<SourceRecord> recordsForCurrentSplit;
-    @Nullable private final Iterator<SourceRecord> recordsForSplit;
+    @Nullable
+    private String splitId;
+    @Nullable
+    private Iterator<SourceRecord> recordsForCurrentSplit;
+    @Nullable
+    private final Iterator<SourceRecord> recordsForSplit;
     private final Set<String> finishedSnapshotSplits;
 
     public MySqlRecords(
@@ -52,7 +57,8 @@ public final class MySqlRecords implements RecordsWithSplitIds<SourceRecord> {
         final String nextSplit = this.splitId;
         this.splitId = null;
 
-        // move the iterator, from null to value (if first move) or to null (if second move)
+        // move the iterator, from null to value (if first move) or to null (if second
+        // move)
         this.recordsForCurrentSplit = nextSplit != null ? this.recordsForSplit : null;
         return nextSplit;
     }

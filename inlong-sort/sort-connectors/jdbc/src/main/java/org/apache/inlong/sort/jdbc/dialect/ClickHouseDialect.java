@@ -18,18 +18,19 @@
 
 package org.apache.inlong.sort.jdbc.dialect;
 
+import static java.lang.String.format;
+
+import org.apache.inlong.sort.jdbc.converter.clickhouse.ClickHouseRowConverter;
+import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
+
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.jdbc.converter.clickhouse.ClickHouseRowConverter;
-import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.lang.String.format;
 
 /**
  * JDBC dialect for ClickHouse SQL.
@@ -129,14 +130,12 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
     @Override
     public String getUpdateStatement(
             String tableName, String[] fieldNames, String[] conditionFields) {
-        String setClause =
-                Arrays.stream(fieldNames)
-                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
-                        .collect(Collectors.joining(", "));
-        String conditionClause =
-                Arrays.stream(conditionFields)
-                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
-                        .collect(Collectors.joining(" AND "));
+        String setClause = Arrays.stream(fieldNames)
+                .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                .collect(Collectors.joining(", "));
+        String conditionClause = Arrays.stream(conditionFields)
+                .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                .collect(Collectors.joining(" AND "));
         return "ALTER TABLE "
                 + quoteIdentifier(tableName)
                 + " UPDATE "
@@ -150,10 +149,9 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
      */
     @Override
     public String getDeleteStatement(String tableName, String[] conditionFields) {
-        String conditionClause =
-                Arrays.stream(conditionFields)
-                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
-                        .collect(Collectors.joining(" AND "));
+        String conditionClause = Arrays.stream(conditionFields)
+                .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                .collect(Collectors.joining(" AND "));
         return "ALTER TABLE " + quoteIdentifier(tableName) + " DELETE WHERE " + conditionClause;
     }
 }

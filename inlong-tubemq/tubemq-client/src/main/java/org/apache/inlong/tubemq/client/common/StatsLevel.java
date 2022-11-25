@@ -18,9 +18,9 @@
 package org.apache.inlong.tubemq.client.common;
 
 public enum StatsLevel {
-    ZERO(0, "closed", "Statistics are turned off"),
-    SIMPLEST(1, "simplest", "Simplest statistics"),
-    MEDIUM(2, "medium", "Medium statistics"),
+
+    ZERO(0, "closed", "Statistics are turned off"), SIMPLEST(1, "simplest", "Simplest statistics"), MEDIUM(2, "medium",
+            "Medium statistics"),
     FULL(3, "full", "Full statistics");
 
     StatsLevel(int id, String name, String desc) {

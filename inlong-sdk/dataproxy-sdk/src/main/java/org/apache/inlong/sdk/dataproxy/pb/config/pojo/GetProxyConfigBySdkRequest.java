@@ -40,7 +40,8 @@ public class GetProxyConfigBySdkRequest {
     /**
      * set proxys
      * 
-     * @param proxys the proxys to set
+     * @param proxys
+     *          the proxys to set
      */
     public void setProxys(List<ProxyInfo> proxys) {
         this.proxys = proxys;

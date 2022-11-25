@@ -44,7 +44,8 @@ public class DataProxyConfigResponse {
     /**
      * set result
      *
-     * @param result the result to set
+     * @param result
+     *          the result to set
      */
     public void setResult(Boolean result) {
         this.result = result;
@@ -62,7 +63,8 @@ public class DataProxyConfigResponse {
     /**
      * set errCode
      *
-     * @param errCode the errCode to set
+     * @param errCode
+     *          the errCode to set
      */
     public void setErrCode(Integer errCode) {
         this.errCode = errCode;
@@ -80,7 +82,8 @@ public class DataProxyConfigResponse {
     /**
      * set md5
      *
-     * @param md5 the md5 to set
+     * @param md5
+     *          the md5 to set
      */
     public void setMd5(String md5) {
         this.md5 = md5;
@@ -98,7 +101,8 @@ public class DataProxyConfigResponse {
     /**
      * set data
      *
-     * @param data the data to set
+     * @param data
+     *          the data to set
      */
     public void setData(DataProxyCluster data) {
         this.data = data;

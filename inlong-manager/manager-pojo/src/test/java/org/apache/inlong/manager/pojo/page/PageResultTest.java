@@ -17,16 +17,18 @@
 
 package org.apache.inlong.manager.pojo.page;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
+
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * Tests for the {@link org.apache.inlong.manager.pojo.common.PageResult}.

@@ -17,10 +17,9 @@
 
 package org.apache.inlong.dataproxy.channel;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import org.apache.inlong.common.msg.AttributeConstants;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
@@ -28,9 +27,12 @@ import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
 import org.apache.flume.channel.AbstractChannelSelector;
-import org.apache.inlong.common.msg.AttributeConstants;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.utils.MessageUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +99,8 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
     /**
      * split channel name into name list.
      *
-     * @param channelName - channel name
+     * @param channelName
+     *          - channel name
      * @return - name list
      */
     private List<String> splitChannelName(String channelName) {
@@ -112,7 +115,7 @@ public class FailoverChannelSelector extends AbstractChannelSelector {
 
     @Override
     public void configure(Context context) {
-//        LOG.info(context.toString());
+        // LOG.info(context.toString());
         String masters = context.getString(MASTER_CHANNEL);
         String transfer = context.getString(TRANSFER_CHANNEL);
         String fileMertic = context.getString(FILE_METRIC_CHANNEL);

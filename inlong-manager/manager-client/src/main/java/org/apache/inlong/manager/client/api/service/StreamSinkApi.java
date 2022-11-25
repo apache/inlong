@@ -22,6 +22,7 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -53,6 +54,7 @@ public interface StreamSinkApi {
 
     @GET("sink/list")
     Call<Response<PageResult<StreamSink>>> list(@Query("inlongGroupId") String groupId,
-            @Query("inlongStreamId") String streamId, @Query("sinkType") String sinkType);
+            @Query("inlongStreamId") String streamId,
+            @Query("sinkType") String sinkType);
 
 }

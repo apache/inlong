@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.service.interfaces;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.dto.MasterDto;
 import org.apache.inlong.tubemq.manager.controller.node.request.AddTopicReq;
@@ -31,6 +26,11 @@ import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 import org.apache.inlong.tubemq.manager.service.TopicFuture;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpBrokerInfoList;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface NodeService {
 
@@ -48,7 +48,8 @@ public interface NodeService {
      * @param req
      * @return
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
     TubeMQResult cloneBrokersWithTopic(CloneBrokersReq req) throws Exception;
 
@@ -61,7 +62,7 @@ public interface NodeService {
      * @return
      */
     TubeMQResult addTopicsToBrokers(MasterEntry masterEntry, List<Integer> brokerIds,
-                                    List<AddTopicReq> addTopicReqs);
+            List<AddTopicReq> addTopicReqs);
 
     /**
      * add one topic to brokers
@@ -70,7 +71,8 @@ public interface NodeService {
      * @param masterEntry
      * @return
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
     TubeMQResult addTopicToBrokers(AddTopicReq req, MasterEntry masterEntry) throws Exception;
 
@@ -84,12 +86,13 @@ public interface NodeService {
      * @return
      */
     boolean configBrokersForTopics(MasterEntry masterEntry,
-                                   Set<String> topics, List<Integer> brokerList, int maxBrokers);
+            Set<String> topics, List<Integer> brokerList, int maxBrokers);
 
     void handleReloadBroker(MasterEntry masterEntry, List<Integer> needReloadList, ClusterEntry clusterEntry);
 
     /**
      * update broker status
+     * 
      * @param clusterId
      * @param pendingTopic
      */
@@ -103,7 +106,8 @@ public interface NodeService {
      * @param req
      * @return
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
     TubeMQResult cloneTopicToBrokers(CloneTopicReq req) throws Exception;
 

@@ -17,13 +17,14 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.inlong.common.metric.MetricListener;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.junit.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * Test for {@link ClassResourceCommonPropertiesLoader}

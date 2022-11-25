@@ -19,11 +19,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class StatRunner
-        implements Runnable {
+        implements
+            Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(StatRunner.class);
     private boolean shutDownFlag = false;
@@ -109,4 +111,3 @@ public class StatRunner
         this.shutDownFlag = true;
     }
 }
-

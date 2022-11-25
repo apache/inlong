@@ -19,11 +19,15 @@
 package org.apache.inlong.sort.cdc.mysql.debezium.task.context;
 
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
+
 import io.debezium.connector.mysql.MySqlConnectorConfig;
 import io.debezium.connector.mysql.MySqlDatabaseSchema;
 import io.debezium.connector.mysql.MySqlTaskContext;
 
-/** A subclass implementation of {@link MySqlTaskContext} which reuses one BinaryLogClient. */
+/**
+ * A subclass implementation of {@link MySqlTaskContext} which reuses one
+ * BinaryLogClient.
+ */
 public class MySqlTaskContextImpl extends MySqlTaskContext {
 
     private final BinaryLogClient reusedBinaryLogClient;

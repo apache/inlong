@@ -17,29 +17,30 @@
 
 package org.apache.inlong.sort.protocol.transformation.function;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.GroupTimeWindowFunction;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
 
 /**
- * A tumbling windows assigner assigns each element to a window of a
- * specified window size. Tumbling windows have a fixed size and
- * do not overlap. For example, if you specify a tumbling window
- * with a size of 5 minutes, the current window will be evaluated
- * and a new window will be started every five minutes
- * as illustrated by the following figure.
+ * A tumbling windows assigner assigns each element to a window of a specified
+ * window size. Tumbling windows have a fixed size and do not overlap. For
+ * example, if you specify a tumbling window with a size of 5 minutes, the
+ * current window will be evaluated and a new window will be started every five
+ * minutes as illustrated by the following figure.
  */
 @JsonTypeName("tumble")
 @Data

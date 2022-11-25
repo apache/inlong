@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.google.common.base.Splitter;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.LowLevelInlongClient;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
@@ -32,7 +28,14 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 
+import org.apache.commons.collections.MapUtils;
+
 import java.util.Map;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.base.Splitter;
 
 /**
  * Low level inlong client service implementation.

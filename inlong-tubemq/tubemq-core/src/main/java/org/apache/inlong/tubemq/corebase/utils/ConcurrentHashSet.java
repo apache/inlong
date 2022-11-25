@@ -23,13 +23,12 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * ConcurrentHashSet, construct the set collection through ConcurrentHashMap
- *  to complete the operation management of the concurrent set
+ * ConcurrentHashSet, construct the set collection through ConcurrentHashMap to
+ * complete the operation management of the concurrent set
  */
 public class ConcurrentHashSet<E> extends AbstractSet<E> {
 
-    private final ConcurrentHashMap<E, Long> keyValMap
-            = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<E, Long> keyValMap = new ConcurrentHashMap<>();
 
     public ConcurrentHashSet() {
 
@@ -37,8 +36,7 @@ public class ConcurrentHashSet<E> extends AbstractSet<E> {
 
     @Override
     public boolean add(E item) {
-        Long value =
-                keyValMap.putIfAbsent(item, System.currentTimeMillis());
+        Long value = keyValMap.putIfAbsent(item, System.currentTimeMillis());
         return (value == null);
     }
 

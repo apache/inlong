@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.filesystem;
 
+import static java.time.ZoneId.SHORT_IDS;
+import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.api.ValidationException;
@@ -47,20 +52,16 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.time.ZoneId.SHORT_IDS;
-import static org.apache.inlong.sort.base.Constants.IGNORE_ALL_CHANGELOG;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-
 /**
  * File system {@link TableFactory}.
  *
- * <p>1.The partition information should be in the file system path, whether it's a temporary table
- * or a catalog table. 2.Support insert into (append) and insert overwrite. 3.Support static and
- * dynamic partition inserting.
+ * <p>
+ * 1.The partition information should be in the file system path, whether it's a
+ * temporary table or a catalog table. 2.Support insert into (append) and insert
+ * overwrite. 3.Support static and dynamic partition inserting.
  *
- * copy from flink-table-runtime-blink:1.13.2-rc2
- * Add inlong metric option and inlong audit option for computing metric
+ * copy from flink-table-runtime-blink:1.13.2-rc2 Add inlong metric option and
+ * inlong audit option for computing metric
  */
 public class FileSystemTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
@@ -130,14 +131,14 @@ public class FileSystemTableFactory implements DynamicTableSourceFactory, Dynami
     }
 
     private void validate(FactoryUtil.TableFactoryHelper helper) {
-        // Except format options, some formats like parquet and orc can not list all supported
+        // Except format options, some formats like parquet and orc can not list all
+        // supported
         // options.
         helper.validateExcept(helper.getOptions().get(FactoryUtil.FORMAT) + ".");
 
         // validate time zone of watermark
-        String watermarkTimeZone =
-                helper.getOptions()
-                        .get(FileSystemOptions.SINK_PARTITION_COMMIT_WATERMARK_TIME_ZONE);
+        String watermarkTimeZone = helper.getOptions()
+                .get(FileSystemOptions.SINK_PARTITION_COMMIT_WATERMARK_TIME_ZONE);
         if (watermarkTimeZone.startsWith("UTC+")
                 || watermarkTimeZone.startsWith("UTC-")
                 || SHORT_IDS.containsKey(watermarkTimeZone)) {
@@ -151,7 +152,8 @@ public class FileSystemTableFactory implements DynamicTableSourceFactory, Dynami
     }
 
     private <I, F extends DecodingFormatFactory<I>> DecodingFormat<I> discoverDecodingFormat(
-            Context context, Class<F> formatFactoryClass) {
+            Context context,
+            Class<F> formatFactoryClass) {
         FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         if (formatFactoryExists(context, formatFactoryClass)) {
             return helper.discoverDecodingFormat(formatFactoryClass, FactoryUtil.FORMAT);
@@ -161,7 +163,8 @@ public class FileSystemTableFactory implements DynamicTableSourceFactory, Dynami
     }
 
     private <I, F extends EncodingFormatFactory<I>> EncodingFormat<I> discoverEncodingFormat(
-            Context context, Class<F> formatFactoryClass) {
+            Context context,
+            Class<F> formatFactoryClass) {
         FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         if (formatFactoryExists(context, formatFactoryClass)) {
             return helper.discoverEncodingFormat(formatFactoryClass, FactoryUtil.FORMAT);
@@ -184,8 +187,8 @@ public class FileSystemTableFactory implements DynamicTableSourceFactory, Dynami
     }
 
     /**
-     * Returns true if the format factory can be found using the given factory base class and
-     * identifier.
+     * Returns true if the format factory can be found using the given factory base
+     * class and identifier.
      */
     private boolean formatFactoryExists(Context context, Class<?> factoryClass) {
         Configuration options = Configuration.fromMap(context.getCatalogTable().getOptions());
@@ -202,15 +205,13 @@ public class FileSystemTableFactory implements DynamicTableSourceFactory, Dynami
                 .iterator()
                 .forEachRemaining(factories::add);
 
-        final List<Factory> foundFactories =
-                factories.stream()
-                        .filter(f -> factoryClass.isAssignableFrom(f.getClass()))
-                        .collect(Collectors.toList());
+        final List<Factory> foundFactories = factories.stream()
+                .filter(f -> factoryClass.isAssignableFrom(f.getClass()))
+                .collect(Collectors.toList());
 
-        final List<Factory> matchingFactories =
-                foundFactories.stream()
-                        .filter(f -> f.factoryIdentifier().equals(identifier))
-                        .collect(Collectors.toList());
+        final List<Factory> matchingFactories = foundFactories.stream()
+                .filter(f -> f.factoryIdentifier().equals(identifier))
+                .collect(Collectors.toList());
 
         return !matchingFactories.isEmpty();
     }

@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.cdc.oracle.debezium.history;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import io.debezium.document.Array;
 import io.debezium.document.Array.Entry;
 import io.debezium.document.Document;
@@ -30,24 +34,20 @@ import io.debezium.relational.TableId;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 import io.debezium.relational.history.TableChanges.TableChangeType;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
- * The serializer responsible for converting of {@link TableChanges} into a JSON format. Copied from
- * io.debezium.relational.history.JsonTableChangeSerializer, but add serialization/deserialization
- * for column's enumValues
+ * The serializer responsible for converting of {@link TableChanges} into a JSON
+ * format. Copied from io.debezium.relational.history.JsonTableChangeSerializer,
+ * but add serialization/deserialization for column's enumValues
  */
 public class FlinkJsonTableChangeSerializer implements TableChanges.TableChangesSerializer<Array> {
 
     @Override
     public Array serialize(TableChanges tableChanges) {
-        List<Value> values =
-                StreamSupport.stream(tableChanges.spliterator(), false)
-                        .map(this::toDocument)
-                        .map(Value::create)
-                        .collect(Collectors.toList());
+        List<Value> values = StreamSupport.stream(tableChanges.spliterator(), false)
+                .map(this::toDocument)
+                .map(Value::create)
+                .collect(Collectors.toList());
 
         return Array.create(values);
     }
@@ -67,8 +67,7 @@ public class FlinkJsonTableChangeSerializer implements TableChanges.TableChanges
         document.set("defaultCharsetName", table.defaultCharsetName());
         document.set("primaryKeyColumnNames", Array.create(table.primaryKeyColumnNames()));
 
-        List<Document> columns =
-                table.columns().stream().map(this::toDocument).collect(Collectors.toList());
+        List<Document> columns = table.columns().stream().map(this::toDocument).collect(Collectors.toList());
 
         document.setArray("columns", Array.create(columns));
 
@@ -112,8 +111,7 @@ public class FlinkJsonTableChangeSerializer implements TableChanges.TableChanges
         TableChanges tableChanges = new TableChanges();
 
         for (Entry entry : array) {
-            TableChange change =
-                    fromDocument(entry.getValue().asDocument(), useCatalogBeforeSchema);
+            TableChange change = fromDocument(entry.getValue().asDocument(), useCatalogBeforeSchema);
 
             if (change.getType() == TableChangeType.CREATE) {
                 tableChanges.create(change.getTable());
@@ -128,20 +126,18 @@ public class FlinkJsonTableChangeSerializer implements TableChanges.TableChanges
     }
 
     private static Table fromDocument(TableId id, Document document) {
-        TableEditor editor =
-                Table.editor()
-                        .tableId(id)
-                        .setDefaultCharsetName(document.getString("defaultCharsetName"));
+        TableEditor editor = Table.editor()
+                .tableId(id)
+                .setDefaultCharsetName(document.getString("defaultCharsetName"));
 
         document.getArray("columns")
                 .streamValues()
                 .map(Value::asDocument)
                 .map(
                         v -> {
-                            ColumnEditor columnEditor =
-                                    Column.editor()
-                                            .name(v.getString("name"))
-                                            .jdbcType(v.getInteger("jdbcType"));
+                            ColumnEditor columnEditor = Column.editor()
+                                    .name(v.getString("name"))
+                                    .jdbcType(v.getInteger("jdbcType"));
 
                             Integer nativeType = v.getInteger("nativeType");
                             if (nativeType != null) {

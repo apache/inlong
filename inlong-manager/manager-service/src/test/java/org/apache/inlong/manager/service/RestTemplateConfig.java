@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.service;
 
-import lombok.Data;
+import org.apache.inlong.common.constant.ProtocolType;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
@@ -29,7 +30,12 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
-import org.apache.inlong.common.constant.ProtocolType;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import lombok.Data;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,9 +45,6 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * Test class for rest template config.
@@ -63,16 +66,18 @@ public class RestTemplateConfig {
     private final int validateAfterInactivity = 5000;
 
     /**
-     * Time to connect to the server (successful handshake), timeout throws connect timeout
+     * Time to connect to the server (successful handshake), timeout throws connect
+     * timeout
      */
     private final int connectionTimeout = 3000;
     /**
-     * The time for the server to return data (response), timeout throws read timeout
+     * The time for the server to return data (response), timeout throws read
+     * timeout
      */
     private final int readTimeout = 10000;
     /**
-     * Get the timeout time of the connection from the connection pool,
-     * and throw ConnectionPoolTimeoutException when timeout
+     * Get the timeout time of the connection from the connection pool, and throw
+     * ConnectionPoolTimeoutException when timeout
      */
     private final int connectionRequestTimeout = 3000;
 
@@ -104,9 +109,11 @@ public class RestTemplateConfig {
     public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
         // httpClient connection configuration
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient());
-        // Time to connect to the server (successful handshake), timeout throws connect timeout
+        // Time to connect to the server (successful handshake), timeout throws connect
+        // timeout
         factory.setConnectTimeout(connectionTimeout);
-        // The time for the server to return data (response), timeout throws read timeout
+        // The time for the server to return data (response), timeout throws read
+        // timeout
         factory.setReadTimeout(readTimeout);
         // Get the timeout of the connection from the connection pool
         factory.setConnectionRequestTimeout(connectionRequestTimeout);

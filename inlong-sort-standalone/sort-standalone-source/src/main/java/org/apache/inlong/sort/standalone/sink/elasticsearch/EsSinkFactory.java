@@ -29,7 +29,7 @@ public class EsSinkFactory {
     /**
      * createEsOutputChannel
      * 
-     * @param  context
+     * @param context
      * @return
      */
     public static EsOutputChannel createEsOutputChannel(EsSinkContext context) {
@@ -40,7 +40,7 @@ public class EsSinkFactory {
      *
      * createRestHighLevelClient
      *
-     * @param  builder
+     * @param builder
      * @return
      */
     public static RestHighLevelClient createRestHighLevelClient(RestClientBuilder builder) {

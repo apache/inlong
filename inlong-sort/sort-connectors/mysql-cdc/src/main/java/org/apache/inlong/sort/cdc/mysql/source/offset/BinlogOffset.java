@@ -18,24 +18,28 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.offset;
 
-import io.debezium.connector.mysql.GtidSet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.connect.errors.ConnectException;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
+import io.debezium.connector.mysql.GtidSet;
+
 /**
- * A structure describes a fine grained offset in a binlog event including binlog position and gtid
- * set etc.
+ * A structure describes a fine grained offset in a binlog event including
+ * binlog position and gtid set etc.
  *
- * <p>This structure can also be used to deal the binlog event in transaction, a transaction may
- * contains multiple change events, and each change event may contain multiple rows. When restart
- * from a specific {@link BinlogOffset}, we need to skip the processed change events and the
- * processed rows.</p>
+ * <p>
+ * This structure can also be used to deal the binlog event in transaction, a
+ * transaction may contains multiple change events, and each change event may
+ * contain multiple rows. When restart from a specific {@link BinlogOffset}, we
+ * need to skip the processed change events and the processed rows.
+ * </p>
  */
 public class BinlogOffset implements Comparable<BinlogOffset>, Serializable {
 
@@ -138,7 +142,8 @@ public class BinlogOffset implements Comparable<BinlogOffset>, Serializable {
     }
 
     /**
-     * This method is inspired by {@link io.debezium.relational.history.HistoryRecordComparator}.
+     * This method is inspired by
+     * {@link io.debezium.relational.history.HistoryRecordComparator}.
      */
     @Override
     public int compareTo(BinlogOffset that) {
@@ -166,7 +171,8 @@ public class BinlogOffset implements Comparable<BinlogOffset>, Serializable {
                     long targetRestartSkipEvents = that.getRestartSkipEvents();
                     return Long.compare(restartSkipEvents, targetRestartSkipEvents);
                 }
-                // The GTIDs are not an exact match, so figure out if this is a subset of the target
+                // The GTIDs are not an exact match, so figure out if this is a subset of the
+                // target
                 // offset
                 // ...
                 return gtidSet.isContainedWithin(targetGtidSet) ? -1 : 1;
@@ -176,16 +182,21 @@ public class BinlogOffset implements Comparable<BinlogOffset>, Serializable {
             // And if they are disabled,
             // it is likely that this offset would not include GTIDs as we would be trying
             // to read the binlog of a
-            // server that no longer has GTIDs. And if they are enabled, disabled, and re-enabled,
+            // server that no longer has GTIDs. And if they are enabled, disabled, and
+            // re-enabled,
             // per
-            // https://dev.mysql.com/doc/refman/5.7/en/replication-gtids-failover.html all properly
+            // https://dev.mysql.com/doc/refman/5.7/en/replication-gtids-failover.html all
+            // properly
             // configured slaves that
-            // use GTIDs should always have the complete set of GTIDs copied from the master, in
+            // use GTIDs should always have the complete set of GTIDs copied from the
+            // master, in
             // which case
-            // again we know that this offset not having GTIDs is before the target offset ...
+            // again we know that this offset not having GTIDs is before the target offset
+            // ...
             return -1;
         } else if (StringUtils.isNotEmpty(gtidSetStr)) {
-            // This offset has a GTID but the target offset does not, so per the previous paragraph
+            // This offset has a GTID but the target offset does not, so per the previous
+            // paragraph
             // we
             // assume that previous
             // is not at or before ...
@@ -197,9 +208,11 @@ public class BinlogOffset implements Comparable<BinlogOffset>, Serializable {
         long targetServerId = that.getServerId();
 
         if (serverId != targetServerId) {
-            // These are from different servers, and their binlog coordinates are not related. So
+            // These are from different servers, and their binlog coordinates are not
+            // related. So
             // the only thing we can do
-            // is compare timestamps, and we have to assume that the server timestamps can be
+            // is compare timestamps, and we have to assume that the server timestamps can
+            // be
             // compared ...
             long timestamp = this.getTimestamp();
             long targetTimestamp = that.getTimestamp();
@@ -216,7 +229,8 @@ public class BinlogOffset implements Comparable<BinlogOffset>, Serializable {
             return Long.compare(this.getPosition(), that.getPosition());
         }
 
-        // The positions are the same, so compare the completed events in the transaction ...
+        // The positions are the same, so compare the completed events in the
+        // transaction ...
         if (this.getRestartSkipEvents() != that.getRestartSkipEvents()) {
             return Long.compare(this.getRestartSkipEvents(), that.getRestartSkipEvents());
         }

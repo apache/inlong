@@ -17,13 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.codec.binary.StringUtils;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
@@ -31,26 +24,32 @@ import org.apache.inlong.tubemq.server.common.utils.RowLock;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
+
+import org.apache.commons.codec.binary.StringUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsumerInfoHolder {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(ConsumerInfoHolder.class);
-    private final MasterConfig masterConfig;     // master configure
-    private final RowLock groupRowLock;    //lock
-    private final ConcurrentHashMap<String/* group */, ConsumeGroupInfo> groupInfoMap =
-            new ConcurrentHashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(ConsumerInfoHolder.class);
+    private final MasterConfig masterConfig; // master configure
+    private final RowLock groupRowLock; // lock
+    private final ConcurrentHashMap<String/* group */, ConsumeGroupInfo> groupInfoMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String/* consumerId */, String/* group */> consumerIndexMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashSet<String/* group */> serverBalanceGroupSet =
-            new ConcurrentHashSet<>();
-    private final ConcurrentHashSet<String/* group */> clientBalanceGroupSet =
-            new ConcurrentHashSet<>();
+    private final ConcurrentHashSet<String/* group */> serverBalanceGroupSet = new ConcurrentHashSet<>();
+    private final ConcurrentHashSet<String/* group */> clientBalanceGroupSet = new ConcurrentHashSet<>();
     // topic-group map
-    private final ConcurrentHashMap<String/* topic */, ConcurrentHashSet<String>> topicGroupMap
-            = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* topic */, ConcurrentHashSet<String>> topicGroupMap =
+            new ConcurrentHashMap<>();
 
     public ConsumerInfoHolder(TMaster tMaster) {
         this.masterConfig = tMaster.getMasterConfig();
@@ -65,7 +64,8 @@ public class ConsumerInfoHolder {
     /**
      * Judge whether the consumer group is empty
      *
-     * @param groupName group name
+     * @param groupName
+     *          group name
      * @return true: empty, false: not empty
      */
     public boolean isConsumeGroupEmpty(String groupName) {
@@ -79,7 +79,8 @@ public class ConsumerInfoHolder {
     /**
      * Get consumer id list in a group
      *
-     * @param group the consumer group name
+     * @param group
+     *          the consumer group name
      * @return the consumer id list of the group
      */
     public List<String> getConsumerIdList(String group) {
@@ -96,10 +97,11 @@ public class ConsumerInfoHolder {
     /**
      * Get the client information of the consumer group
      *
-     * The query content of this API is the content presented when
-     *  the Web API queries the client information.
+     * The query content of this API is the content presented when the Web API
+     * queries the client information.
      *
-     * @param group the consumer group name
+     * @param group
+     *          the consumer group name
      * @return the consumer id with subscribed topic and link type of the group
      */
     public List<String> getConsumerViewList(String group) {
@@ -118,7 +120,8 @@ public class ConsumerInfoHolder {
      *
      * include consumerId and isOverTLS information.
      *
-     * @param group the consumer group name
+     * @param group
+     *          the consumer group name
      * @return the consumer info of the group
      */
     public List<Tuple2<String, Boolean>> getConsumerIdAndTlsInfos(String group) {
@@ -135,7 +138,8 @@ public class ConsumerInfoHolder {
     /**
      * Get consume group information
      *
-     * @param group group name
+     * @param group
+     *          group name
      * @return consume group information
      */
     public ConsumeGroupInfo getConsumeGroupInfo(String group) {
@@ -148,7 +152,8 @@ public class ConsumerInfoHolder {
     /**
      * Add current check cycle
      *
-     * @param group group name
+     * @param group
+     *          group name
      * @return updated check cycle value
      */
     public Long addCurCheckCycle(String group) {
@@ -165,7 +170,8 @@ public class ConsumerInfoHolder {
     /**
      * get subscribed topic set of group
      *
-     * @param group group name
+     * @param group
+     *          group name
      * @return subscribed topic set
      */
     public Set<String> getGroupTopicSet(String group) {
@@ -182,7 +188,8 @@ public class ConsumerInfoHolder {
     /**
      * get current consumer count of group
      *
-     * @param group group name
+     * @param group
+     *          group name
      * @return consumer count
      */
     public int getConsumerCnt(String group) {
@@ -199,7 +206,8 @@ public class ConsumerInfoHolder {
     /**
      * get need rebalanced consumer of group
      *
-     * @param group group name
+     * @param group
+     *          group name
      * @return need rebalanced consumer
      */
     public RebProcessInfo getNeedRebNodeList(String group) {
@@ -217,11 +225,13 @@ public class ConsumerInfoHolder {
     /**
      * set rebalanced consumer id of group
      *
-     * @param group group name
-     * @param processList rebalanced consumer id
+     * @param group
+     *          group name
+     * @param processList
+     *          rebalanced consumer id
      */
     public void setRebNodeProcessed(String group,
-                                    List<String> processList) {
+            List<String> processList) {
         if (group == null) {
             return;
         }
@@ -234,9 +244,12 @@ public class ConsumerInfoHolder {
     /**
      * booked need re-balance consumer of group
      *
-     * @param group group name
-     * @param consumerIdSet need re-balance consumerId
-     * @param waitDuration wait duration
+     * @param group
+     *          group name
+     * @param consumerIdSet
+     *          need re-balance consumerId
+     * @param waitDuration
+     *          wait duration
      */
     public void addRebConsumerInfo(String group, Set<String> consumerIdSet, int waitDuration) {
         ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
@@ -253,15 +266,15 @@ public class ConsumerInfoHolder {
     /**
      * Check if allocated
      *
-     * @param group group name
+     * @param group
+     *          group name
      * @return allocate status
      */
     public boolean isNotAllocated(String group) {
         if (group == null) {
             return false;
         }
-        ConsumeGroupInfo consumeGroupInfo =
-                groupInfoMap.get(group);
+        ConsumeGroupInfo consumeGroupInfo = groupInfoMap.get(group);
         if (consumeGroupInfo != null) {
             return consumeGroupInfo.isNotAllocate();
         }
@@ -271,7 +284,8 @@ public class ConsumerInfoHolder {
     /**
      * get group name of consumer
      *
-     * @param consumerId consumer id
+     * @param consumerId
+     *          consumer id
      * @return the group name of consumer
      */
     public String getGroupName(String consumerId) {
@@ -326,7 +340,8 @@ public class ConsumerInfoHolder {
     /**
      * get all registered group name
      *
-     * @param consumerId  the consumer id
+     * @param consumerId
+     *          the consumer id
      * @return the consumer info
      */
     public ConsumerInfo getConsumerInfo(String consumerId) {
@@ -342,17 +357,21 @@ public class ConsumerInfoHolder {
     }
 
     /**
-     * Add consumer and return group object,
-     * if the consumer is the first one, then create the group object
+     * Add consumer and return group object, if the consumer is the first one, then
+     * create the group object
      *
-     * @param consumer consumer info
-     * @param isNotAllocated whether balanced
-     * @param sBuffer  string buffer
-     * @param result   check result
+     * @param consumer
+     *          consumer info
+     * @param isNotAllocated
+     *          whether balanced
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          check result
      * @return process result
      */
     public boolean addConsumer(ConsumerInfo consumer, boolean isNotAllocated,
-                               StringBuilder sBuffer, ParamCheckResult result) {
+            StringBuilder sBuffer, ParamCheckResult result) {
         ConsumeGroupInfo consumeGroupInfo;
         String group = consumer.getGroupName();
         Integer lid = null;
@@ -372,7 +391,7 @@ public class ConsumerInfoHolder {
                     }
                     // add topic-group map information
                     ConcurrentHashSet<String> groupSet;
-                    for (String topicName: consumeGroupInfo.getTopicSet()) {
+                    for (String topicName : consumeGroupInfo.getTopicSet()) {
                         groupSet = topicGroupMap.get(topicName);
                         if (groupSet == null) {
                             ConcurrentHashSet<String> tmpGroupSet = new ConcurrentHashSet<>();
@@ -410,12 +429,15 @@ public class ConsumerInfoHolder {
     }
 
     /**
-     * remove the consumer and return consumer object,
-     * if the consumer is the latest one, then removed the group object
+     * remove the consumer and return consumer object, if the consumer is the latest
+     * one, then removed the group object
      *
-     * @param group group name of consumer
-     * @param consumerId consumer id
-     * @param isTimeout if timeout
+     * @param group
+     *          group name of consumer
+     * @param consumerId
+     *          consumer id
+     * @param isTimeout
+     *          if timeout
      * @return ConsumerInfo
      */
     public ConsumerInfo removeConsumer(String group, String consumerId, boolean isTimeout) {
@@ -442,7 +464,7 @@ public class ConsumerInfoHolder {
                     }
                     // remove topic-group map information
                     ConcurrentHashSet<String> groupSet;
-                    for (String topicName: consumeGroupInfo.getTopicSet()) {
+                    for (String topicName : consumeGroupInfo.getTopicSet()) {
                         groupSet = topicGroupMap.get(topicName);
                         if (groupSet == null) {
                             continue;

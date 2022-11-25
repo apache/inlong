@@ -17,21 +17,16 @@
 
 package org.apache.inlong.manager.pojo.source.kafka;
 
-import lombok.Getter;
-
 import java.util.Locale;
+
+import lombok.Getter;
 
 /**
  * Enum of auto offset reset strategy of Kafka.
  */
 public enum KafkaOffset {
 
-    EARLIEST("earliest"),
-    LATEST("latest"),
-    SPECIFIC("specific"),
-    TIMESTAMP_MILLIS("timestamp_millis"),
-    NONE("none");
-
+    EARLIEST("earliest"), LATEST("latest"), SPECIFIC("specific"), TIMESTAMP_MILLIS("timestamp_millis"), NONE("none");
 
     @Getter
     private final String name;

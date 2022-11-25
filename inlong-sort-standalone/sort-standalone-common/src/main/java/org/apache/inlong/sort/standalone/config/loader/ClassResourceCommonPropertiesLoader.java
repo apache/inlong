@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.standalone.config.loader;
 
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -24,7 +26,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 /**
  * 
@@ -48,7 +49,7 @@ public class ClassResourceCommonPropertiesLoader implements CommonPropertiesLoad
     /**
      * loadProperties
      * 
-     * @param  fileName
+     * @param fileName
      * @return
      */
     protected Map<String, String> loadProperties(String fileName) {

@@ -17,24 +17,20 @@
 
 package org.apache.inlong.manager.service.source;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -43,10 +39,18 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
-import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
-import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
-import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Operate the source snapshot
@@ -73,6 +77,7 @@ public class SourceSnapshotOperator implements AutoCloseable {
     private Cache<String, ConcurrentHashMap<Integer, Integer>> agentTaskCache = CacheBuilder.newBuilder()
             .maximumSize(1000).expireAfterWrite(30, TimeUnit.SECONDS).build(
                     new CacheLoader<String, ConcurrentHashMap<Integer, Integer>>() {
+
                         @Override
                         public ConcurrentHashMap<Integer, Integer> load(String agentIp) {
                             List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIp(agentIp);
@@ -131,10 +136,12 @@ public class SourceSnapshotOperator implements AutoCloseable {
         }
 
         try {
-            // Offer the request of snapshot to the queue, and another thread will parse the data in the queue.
+            // Offer the request of snapshot to the queue, and another thread will parse the
+            // data in the queue.
             snapshotQueue.offer(request);
 
-            // Modify the task status based on the tasks reported in the snapshot and the tasks in the cache.
+            // Modify the task status based on the tasks reported in the snapshot and the
+            // tasks in the cache.
             ConcurrentHashMap<Integer, Integer> idStatusMap = agentTaskCache.getIfPresent(agentIp);
             if (MapUtils.isEmpty(idStatusMap)) {
                 if (LOGGER.isDebugEnabled()) {

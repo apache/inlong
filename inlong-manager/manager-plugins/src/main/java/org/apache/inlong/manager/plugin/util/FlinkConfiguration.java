@@ -17,9 +17,15 @@
 
 package org.apache.inlong.manager.plugin.util;
 
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.ADDRESS;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.DRAIN;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.JOB_MANAGER_PORT;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.METRICS_AUDIT_PROXY_HOSTS;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.PARALLELISM;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.PORT;
+import static org.apache.inlong.manager.plugin.flink.enums.Constants.SAVEPOINT_DIRECTORY;
+
 import org.apache.inlong.manager.plugin.flink.dto.FlinkConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,17 +33,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.ADDRESS;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.JOB_MANAGER_PORT;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.METRICS_AUDIT_PROXY_HOSTS;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.DRAIN;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.PARALLELISM;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.PORT;
-import static org.apache.inlong.manager.plugin.flink.enums.Constants.SAVEPOINT_DIRECTORY;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Configuration file for Flink, only one instance in the process.
- * Basically it used properties file to store.
+ * Configuration file for Flink, only one instance in the process. Basically it
+ * used properties file to store.
  */
 public class FlinkConfiguration {
 
@@ -107,4 +108,3 @@ public class FlinkConfiguration {
     }
 
 }
-

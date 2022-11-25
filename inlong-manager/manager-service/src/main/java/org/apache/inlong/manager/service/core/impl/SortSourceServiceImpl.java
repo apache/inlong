@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.google.gson.Gson;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.ClusterSwitch;
 import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
@@ -36,14 +33,10 @@ import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamSinkInfo;
 import org.apache.inlong.manager.service.core.SortConfigLoader;
 import org.apache.inlong.manager.service.core.SortSourceService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -58,6 +51,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.gson.Gson;
+
 /**
  * Implementation of {@link SortSourceService}.
  */
@@ -69,6 +73,7 @@ public class SortSourceServiceImpl implements SortSourceService {
 
     private static final Gson GSON = new Gson();
     private static final Set<String> SUPPORTED_MQ_TYPE = new HashSet<String>() {
+
         {
             add(MQType.KAFKA);
             add(MQType.TUBEMQ);
@@ -192,17 +197,18 @@ public class SortSourceServiceImpl implements SortSourceService {
                 .filter(SortSourceClusterInfo::isConsumable)
                 .collect(Collectors.groupingBy(SortSourceClusterInfo::getClusterTags));
 
-        // reload all stream sinks, to Map<clusterName, Map<taskName, List<groupId>>> format
+        // reload all stream sinks, to Map<clusterName, Map<taskName, List<groupId>>>
+        // format
         List<SortSourceStreamSinkInfo> allStreamSinks = configLoader.loadAllStreamSinks();
         streamSinkMap = new HashMap<>();
         allStreamSinks.stream()
                 .filter(sink -> sink.getSortClusterName() != null)
                 .filter(sink -> sink.getSortTaskName() != null)
                 .forEach(sink -> {
-                    Map<String, List<SortSourceStreamSinkInfo>> task2groupsMap =
-                            streamSinkMap.computeIfAbsent(sink.getSortClusterName(), k -> new ConcurrentHashMap<>());
-                    List<SortSourceStreamSinkInfo> sinkInfoList =
-                            task2groupsMap.computeIfAbsent(sink.getSortTaskName(), k -> new ArrayList<>());
+                    Map<String, List<SortSourceStreamSinkInfo>> task2groupsMap = streamSinkMap
+                            .computeIfAbsent(sink.getSortClusterName(), k -> new ConcurrentHashMap<>());
+                    List<SortSourceStreamSinkInfo> sinkInfoList = task2groupsMap.computeIfAbsent(sink.getSortTaskName(),
+                            k -> new ArrayList<>());
                     sinkInfoList.add(sink);
                 });
 
@@ -248,13 +254,11 @@ public class SortSourceServiceImpl implements SortSourceService {
 
             task2SinkList.forEach((taskName, sinkList) -> {
                 try {
-                    CacheZoneConfig cacheZoneConfig =
-                            CacheZoneConfig.builder()
-                                    .sortClusterName(sortClusterName)
-                                    .sortTaskId(taskName)
-                                    .build();
-                    Map<String, CacheZone> cacheZoneMap =
-                            this.parseCacheZones(sinkList);
+                    CacheZoneConfig cacheZoneConfig = CacheZoneConfig.builder()
+                            .sortClusterName(sortClusterName)
+                            .sortTaskId(taskName)
+                            .build();
+                    Map<String, CacheZone> cacheZoneMap = this.parseCacheZones(sinkList);
                     cacheZoneConfig.setCacheZones(cacheZoneMap);
 
                     // prepare md5
@@ -288,8 +292,8 @@ public class SortSourceServiceImpl implements SortSourceService {
         // get group infos
         List<SortSourceStreamSinkInfo> sinkInfoList = sinkList.stream()
                 .filter(sinkInfo -> groupInfos.containsKey(sinkInfo.getGroupId())
-                                && allStreams.containsKey(sinkInfo.getGroupId())
-                                && allStreams.get(sinkInfo.getGroupId()).containsKey(sinkInfo.getStreamId()))
+                        && allStreams.containsKey(sinkInfo.getGroupId())
+                        && allStreams.get(sinkInfo.getGroupId()).containsKey(sinkInfo.getStreamId()))
                 .collect(Collectors.toList());
 
         // group them by cluster tag.
@@ -315,8 +319,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                         (zone1, zone2) -> {
                             zone1.getTopics().addAll(zone2.getTopics());
                             return zone1;
-                        })
-                );
+                        }));
     }
 
     private List<CacheZone> parseCacheZonesByTag(
@@ -347,7 +350,8 @@ public class SortSourceServiceImpl implements SortSourceService {
             SortSourceClusterInfo cluster,
             boolean isBackupTag) {
         switch (cluster.getType()) {
-            case ClusterType.PULSAR: return parsePulsarZone(sinks, cluster, isBackupTag);
+            case ClusterType.PULSAR:
+                return parsePulsarZone(sinks, cluster, isBackupTag);
             default:
                 throw new BusinessException(String.format("do not support cluster type=%s of cluster=%s",
                         cluster.getType(), cluster));

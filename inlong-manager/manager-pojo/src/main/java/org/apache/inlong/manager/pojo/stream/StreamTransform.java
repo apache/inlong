@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.pojo.stream;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import org.apache.inlong.manager.pojo.transform.TransformDefinition;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.pojo.transform.TransformDefinition;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Stream Transform configuration

@@ -18,16 +18,18 @@
 
 package org.apache.inlong.sdk.dataproxy.codec;
 
-import com.google.common.base.Splitter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.google.common.base.Splitter;
 
 public class EncodeObject {
 
@@ -199,7 +201,7 @@ public class EncodeObject {
             if (StringUtils.isBlank(errMsg)) {
                 this.errMsg = DataProxyErrCode.valueOf(Integer.parseInt(errCode)).getErrMsg();
             }
-            //sendResult
+            // sendResult
             this.sendResult = convertToSendResult(Integer.parseInt(errCode));
         }
     }

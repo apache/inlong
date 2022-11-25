@@ -18,11 +18,12 @@
 
 package org.apache.inlong.sort.jdbc.dialect;
 
+import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
+
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.internal.converter.PostgresRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
 import java.util.Arrays;
 import java.util.List;
@@ -64,18 +65,19 @@ public class PostgresDialect extends AbstractJdbcDialect {
         return Optional.of("org.postgresql.Driver");
     }
 
-    /** Postgres upsert query. It use ON CONFLICT ... DO UPDATE SET.. to replace into Postgres. */
+    /**
+     * Postgres upsert query. It use ON CONFLICT ... DO UPDATE SET.. to replace into
+     * Postgres.
+     */
     @Override
     public Optional<String> getUpsertStatement(
             String tableName, String[] fieldNames, String[] uniqueKeyFields) {
-        String uniqueColumns =
-                Arrays.stream(uniqueKeyFields)
-                        .map(this::quoteIdentifier)
-                        .collect(Collectors.joining(", "));
-        String updateClause =
-                Arrays.stream(fieldNames)
-                        .map(f -> quoteIdentifier(f) + "=EXCLUDED." + quoteIdentifier(f))
-                        .collect(Collectors.joining(", "));
+        String uniqueColumns = Arrays.stream(uniqueKeyFields)
+                .map(this::quoteIdentifier)
+                .collect(Collectors.joining(", "));
+        String updateClause = Arrays.stream(fieldNames)
+                .map(f -> quoteIdentifier(f) + "=EXCLUDED." + quoteIdentifier(f))
+                .collect(Collectors.joining(", "));
         return Optional.of(
                 getInsertIntoStatement(tableName, fieldNames)
                         + " ON CONFLICT ("
@@ -121,7 +123,7 @@ public class PostgresDialect extends AbstractJdbcDialect {
         // https://www.postgresql.org/docs/12/datatype.html
 
         // TODO: We can't convert BINARY data type to
-        //  PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO in
+        // PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO in
         // LegacyTypeInfoDataTypeConverter.
         return Arrays.asList(
                 LogicalTypeRoot.BINARY,

@@ -18,9 +18,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
@@ -34,8 +31,10 @@ import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.load.DLCIcebergLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,10 +43,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
  * test DLC search sql parse
  */
 public class DLCIcebergSqlParseTest {
+
     private MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("id", new IntFormatInfo()),
@@ -83,7 +86,7 @@ public class DLCIcebergSqlParseTest {
 
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
-                                new FieldInfo("id", new IntFormatInfo())),
+                        new FieldInfo("id", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())));
         List<FieldInfo> fields = Arrays.asList(
@@ -108,8 +111,10 @@ public class DLCIcebergSqlParseTest {
     /**
      * build node relation
      *
-     * @param inputs  extract node
-     * @param outputs load node
+     * @param inputs
+     *          extract node
+     * @param outputs
+     *          load node
      * @return node relation
      */
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -121,7 +126,8 @@ public class DLCIcebergSqlParseTest {
     /**
      * Test mysql to DLC
      *
-     * @throws Exception The exception may throws when execute the case
+     * @throws Exception
+     *           The exception may throws when execute the case
      */
     @Test
     public void testDLCIceberg() throws Exception {

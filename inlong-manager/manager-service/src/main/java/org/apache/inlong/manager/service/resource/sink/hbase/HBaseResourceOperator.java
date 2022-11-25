@@ -17,23 +17,22 @@
 
 package org.apache.inlong.manager.service.resource.sink.hbase;
 
-import org.apache.commons.collections.CollectionUtils;
+import static java.util.stream.Collectors.toList;
+
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.hbase.HBaseColumnFamilyInfo;
 import org.apache.inlong.manager.pojo.sink.hbase.HBaseSinkDTO;
 import org.apache.inlong.manager.pojo.sink.hbase.HBaseTableInfo;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,7 +40,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * HBase's resource operator
@@ -110,7 +112,7 @@ public class HBaseResourceOperator implements SinkResourceOperator {
             } else {
                 // 4. or update table columns
                 List<HBaseColumnFamilyInfo> existColumnFamilies = HBaseApiUtils.getColumnFamilies(zkAddress, zkNode,
-                                namespace, tableName).stream()
+                        namespace, tableName).stream()
                         .sorted(Comparator.comparing(HBaseColumnFamilyInfo::getCfName)).collect(toList());
                 List<HBaseColumnFamilyInfo> requestColumnFamilies = tableInfo.getColumnFamilies().stream()
                         .sorted(Comparator.comparing(HBaseColumnFamilyInfo::getCfName)).collect(toList());

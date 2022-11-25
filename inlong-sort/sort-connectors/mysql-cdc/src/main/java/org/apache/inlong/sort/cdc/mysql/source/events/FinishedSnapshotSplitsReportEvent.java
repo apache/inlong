@@ -18,16 +18,18 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.events;
 
-import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.inlong.sort.cdc.mysql.source.enumerator.MySqlSourceEnumerator;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
 
+import org.apache.flink.api.connector.source.SourceEvent;
+
 import java.util.Map;
 
 /**
- * The {@link SourceEvent} that {@link MySqlSourceReader} sends to {@link MySqlSourceEnumerator} to
- * notify the snapshot split has read finished with the consistent binlog position.
+ * The {@link SourceEvent} that {@link MySqlSourceReader} sends to
+ * {@link MySqlSourceEnumerator} to notify the snapshot split has read finished
+ * with the consistent binlog position.
  */
 public class FinishedSnapshotSplitsReportEvent implements SourceEvent {
 

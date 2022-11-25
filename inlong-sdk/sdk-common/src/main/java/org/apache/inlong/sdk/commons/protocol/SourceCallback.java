@@ -20,7 +20,7 @@ package org.apache.inlong.sdk.commons.protocol;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
 
 /**
- * SourceCallback 
+ * SourceCallback
  */
 public interface SourceCallback {
 

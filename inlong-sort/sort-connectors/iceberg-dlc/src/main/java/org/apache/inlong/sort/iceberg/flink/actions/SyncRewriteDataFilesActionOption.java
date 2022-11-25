@@ -19,21 +19,6 @@
 
 package org.apache.inlong.sort.iceberg.flink.actions;
 
-import com.qcloud.dlc.common.Constants;
-import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
-import org.apache.iceberg.util.PropertyUtil;
-import org.apache.inlong.sort.iceberg.flink.FlinkCatalogFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.ACTION_AUTO_COMPACT_OPTIONS;
 import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_INTERVAL;
 import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_INTERVAL_DEFAULT;
@@ -43,7 +28,26 @@ import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPAC
 import static org.apache.inlong.sort.iceberg.flink.FlinkDynamicTableFactory.CATALOG_DATABASE;
 import static org.apache.inlong.sort.iceberg.flink.FlinkDynamicTableFactory.CATALOG_TABLE;
 
+import org.apache.inlong.sort.iceberg.flink.FlinkCatalogFactory;
+
+import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
+import org.apache.iceberg.util.PropertyUtil;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.qcloud.dlc.common.Constants;
+
 public class SyncRewriteDataFilesActionOption implements Serializable {
+
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(SyncRewriteDataFilesAction.class);
 
@@ -125,8 +129,8 @@ public class SyncRewriteDataFilesActionOption implements Serializable {
                     properties.getOrDefault(COMPACT_RESOUCE_POOL, COMPACT_RESOUCE_POOL_DEFAULT));
 
         }
-        List<String> urlParamsList =
-                urlParams.entrySet().stream().map(kv -> kv.getKey() + "=" + kv.getValue()).collect(Collectors.toList());
+        List<String> urlParamsList = urlParams.entrySet().stream().map(kv -> kv.getKey() + "=" + kv.getValue())
+                .collect(Collectors.toList());
         return jdbcPrefix + endpoint + "?" + String.join("&", urlParamsList);
 
     }
@@ -147,20 +151,19 @@ public class SyncRewriteDataFilesActionOption implements Serializable {
         String wholeTableName = String.format("%s.%s", dbName, tableName);
         String rewriteOptions = String.join(",",
                 ACTION_AUTO_COMPACT_OPTIONS.stream()
-                    .filter(properties::containsKey)
-                    .map(k -> String.format("'%s', '%s'", k.substring(COMPACT_PREFIX.length()), properties.get(k)))
-                    .collect(Collectors.toList()));
+                        .filter(properties::containsKey)
+                        .map(k -> String.format("'%s', '%s'", k.substring(COMPACT_PREFIX.length()), properties.get(k)))
+                        .collect(Collectors.toList()));
         String rewriteTableSql;
         if (rewriteOptions.isEmpty()) {
             rewriteTableSql = String.format(
                     "CALL `DataLakeCatalog`.`system`.rewrite_data_files (`table` => '%s')",
                     wholeTableName);
         } else {
-            rewriteTableSql =
-                    String.format(
-                            "CALL `DataLakeCatalog`.`system`.rewrite_data_files"
-                                    + "(`table` => '%s', options => map(%s))",
-                            wholeTableName, rewriteOptions);
+            rewriteTableSql = String.format(
+                    "CALL `DataLakeCatalog`.`system`.rewrite_data_files"
+                            + "(`table` => '%s', options => map(%s))",
+                    wholeTableName, rewriteOptions);
         }
         return rewriteTableSql;
     }

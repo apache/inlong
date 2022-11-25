@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
+
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
@@ -37,14 +38,15 @@ import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarTopicInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Inlong group operator for Pulsar.
@@ -116,7 +118,8 @@ public class InlongGroupOperator4Pulsar extends AbstractGroupOperator {
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(
                 groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
         String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                ? InlongConstants.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+                ? InlongConstants.DEFAULT_PULSAR_TENANT
+                : pulsarCluster.getTenant();
 
         InlongPulsarTopicInfo topicInfo = new InlongPulsarTopicInfo();
         topicInfo.setTenant(tenant);

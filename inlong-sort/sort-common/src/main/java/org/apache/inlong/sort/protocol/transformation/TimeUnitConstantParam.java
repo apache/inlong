@@ -17,18 +17,21 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
 import javax.annotation.Nonnull;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
+
 /**
- * TimeUnitConstantParam class is used for the definition and encapsulation of time unit constant param.
+ * TimeUnitConstantParam class is used for the definition and encapsulation of
+ * time unit constant param.
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("timeUnitConstant")
@@ -44,7 +47,8 @@ public class TimeUnitConstantParam extends ConstantParam {
     /**
      * TimeUnitConstantParam constructor
      *
-     * @param timeUnit It is used to store time unit constant value
+     * @param timeUnit
+     *          It is used to store time unit constant value
      */
     @JsonCreator
     public TimeUnitConstantParam(@JsonProperty("timeUnit") @Nonnull TimeUnit timeUnit) {

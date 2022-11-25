@@ -28,16 +28,20 @@ public interface EventListenerNotifier<E extends WorkflowEvent> {
     /**
      * Notification event listener
      *
-     * @param event event
-     * @param context context
+     * @param event
+     *          event
+     * @param context
+     *          context
      */
     ListenerResult notify(E event, WorkflowContext context);
 
     /**
      * Notify the specified listener
      *
-     * @param listenerName listener
-     * @param context context
+     * @param listenerName
+     *          listener
+     * @param context
+     *          context
      */
     ListenerResult notify(String listenerName, WorkflowContext context);
 

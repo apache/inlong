@@ -17,7 +17,6 @@
 
 package org.apache.inlong.audit.sink;
 
-import com.google.common.base.Charsets;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -29,13 +28,17 @@ import org.apache.flume.conf.Configurables;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.lifecycle.LifecycleController;
 import org.apache.flume.lifecycle.LifecycleState;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Charsets;
+
 public class PulsarSinkTest {
+
     private static final Logger logger = LoggerFactory
             .getLogger(PulsarSinkTest.class);
     private static final String hostname = "127.0.0.1";

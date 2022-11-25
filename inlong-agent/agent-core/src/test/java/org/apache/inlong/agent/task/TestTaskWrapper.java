@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.task;
 
+import static org.awaitility.Awaitility.await;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.AgentBaseTestsHelper;
 import org.apache.inlong.agent.core.AgentManager;
@@ -28,18 +30,17 @@ import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Sink;
+
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import static org.awaitility.Awaitility.await;
 
 public class TestTaskWrapper {
 
@@ -76,8 +77,7 @@ public class TestTaskWrapper {
             LOGGER.info("waiting for success");
             TimeUnit.MILLISECONDS.sleep(100);
         }
-        await().atMost(80, TimeUnit.SECONDS).until(()
-                -> writer.getWriterCount() > 0);
+        await().atMost(80, TimeUnit.SECONDS).until(() -> writer.getWriterCount() > 0);
         Assert.assertEquals("reader and writer are running",
                 reader.getCount() > 0, writer.getWriterCount() > 0);
     }

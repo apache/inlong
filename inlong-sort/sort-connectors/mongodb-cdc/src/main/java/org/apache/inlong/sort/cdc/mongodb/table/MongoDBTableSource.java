@@ -18,10 +18,14 @@
 
 package org.apache.inlong.sort.cdc.mongodb.table;
 
-import com.ververica.cdc.connectors.mongodb.table.MongoDBConnectorDeserializationSchema;
-import com.ververica.cdc.connectors.mongodb.table.MongoDBReadableMetadata;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.table.MetadataConverter;
+import static com.mongodb.MongoNamespace.checkCollectionNameValidity;
+import static com.mongodb.MongoNamespace.checkDatabaseNameValidity;
+import static com.ververica.cdc.connectors.mongodb.utils.CollectionDiscoveryUtils.containsRegexMetaCharacters;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import org.apache.inlong.sort.cdc.mongodb.DebeziumSourceFunction;
+import org.apache.inlong.sort.cdc.mongodb.MongoDBSource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
@@ -34,10 +38,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.cdc.mongodb.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.mongodb.MongoDBSource;
 
-import javax.annotation.Nullable;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
@@ -47,14 +48,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.mongodb.MongoNamespace.checkCollectionNameValidity;
-import static com.mongodb.MongoNamespace.checkDatabaseNameValidity;
-import static com.ververica.cdc.connectors.mongodb.utils.CollectionDiscoveryUtils.containsRegexMetaCharacters;
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import javax.annotation.Nullable;
+
+import com.ververica.cdc.connectors.mongodb.table.MongoDBConnectorDeserializationSchema;
+import com.ververica.cdc.connectors.mongodb.table.MongoDBReadableMetadata;
+import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
+import com.ververica.cdc.debezium.table.MetadataConverter;
 
 /**
- * A {@link DynamicTableSource} that describes how to create a MongoDB change stream events source
- * from a logical description.
+ * A {@link DynamicTableSource} that describes how to create a MongoDB change
+ * stream events source from a logical description.
  */
 public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetadata {
 
@@ -143,14 +146,12 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
 
     @Override
     public ScanRuntimeProvider getScanRuntimeProvider(ScanContext scanContext) {
-        RowType physicalDataType =
-                (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
+        RowType physicalDataType = (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
         MetadataConverter[] metadataConverters = getMetadataConverters();
         TypeInformation<RowData> typeInfo = scanContext.createTypeInformation(producedDataType);
 
-        DebeziumDeserializationSchema<RowData> deserializer =
-                new MongoDBConnectorDeserializationSchema(
-                        physicalDataType, metadataConverters, typeInfo, localTimeZone);
+        DebeziumDeserializationSchema<RowData> deserializer = new MongoDBConnectorDeserializationSchema(
+                physicalDataType, metadataConverters, typeInfo, localTimeZone);
 
         MongoDBSource.Builder<RowData> builder =
                 MongoDBSource.<RowData>builder().hosts(hosts).deserializer(deserializer);
@@ -201,11 +202,10 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(MongoDBReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(MongoDBReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(MongoDBReadableMetadata::getConverter)
                 .toArray(MetadataConverter[]::new);
     }
@@ -227,27 +227,26 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
 
     @Override
     public DynamicTableSource copy() {
-        MongoDBTableSource source =
-                new MongoDBTableSource(
-                        physicalSchema,
-                        hosts,
-                        username,
-                        password,
-                        database,
-                        collection,
-                        connectionOptions,
-                        errorsTolerance,
-                        errorsLogEnable,
-                        copyExisting,
-                        copyExistingPipeline,
-                        copyExistingMaxThreads,
-                        copyExistingQueueSize,
-                        pollMaxBatchSize,
-                        pollAwaitTimeMillis,
-                        heartbeatIntervalMillis,
-                        localTimeZone,
-                        inlongMetric,
-                        inlongAudit);
+        MongoDBTableSource source = new MongoDBTableSource(
+                physicalSchema,
+                hosts,
+                username,
+                password,
+                database,
+                collection,
+                connectionOptions,
+                errorsTolerance,
+                errorsLogEnable,
+                copyExisting,
+                copyExistingPipeline,
+                copyExistingMaxThreads,
+                copyExistingQueueSize,
+                pollMaxBatchSize,
+                pollAwaitTimeMillis,
+                heartbeatIntervalMillis,
+                localTimeZone,
+                inlongMetric,
+                inlongAudit);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

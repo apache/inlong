@@ -17,7 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.mq.pulsar;
 
-import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.sink.common.EventHandler;
@@ -26,6 +25,8 @@ import org.apache.inlong.dataproxy.sink.mq.MessageQueueHandler;
 import org.apache.inlong.dataproxy.sink.mq.MessageQueueZoneSinkContext;
 import org.apache.inlong.dataproxy.sink.mq.OrderBatchPackProfileV0;
 import org.apache.inlong.dataproxy.sink.mq.SimpleBatchPackProfileV0;
+
+import org.apache.flume.Context;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.CompressionType;
 import org.apache.pulsar.client.api.MessageId;
@@ -36,8 +37,6 @@ import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.SizeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
 import java.util.Map;
@@ -45,6 +44,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PulsarHandler
@@ -92,6 +94,7 @@ public class PulsarHandler implements MessageQueueHandler {
 
     /**
      * init
+     * 
      * @param config
      * @param sinkContext
      */
@@ -168,6 +171,7 @@ public class PulsarHandler implements MessageQueueHandler {
 
     /**
      * send
+     * 
      * @param event
      * @return
      */
@@ -264,17 +268,17 @@ public class PulsarHandler implements MessageQueueHandler {
         Context context = sinkContext.getProducerContext();
         String type = context.getString(KEY_COMPRESSIONTYPE, CompressionType.SNAPPY.name());
         switch (type) {
-            case "LZ4" :
+            case "LZ4":
                 return CompressionType.LZ4;
-            case "NONE" :
+            case "NONE":
                 return CompressionType.NONE;
-            case "ZLIB" :
+            case "ZLIB":
                 return CompressionType.ZLIB;
-            case "ZSTD" :
+            case "ZSTD":
                 return CompressionType.ZSTD;
-            case "SNAPPY" :
+            case "SNAPPY":
                 return CompressionType.SNAPPY;
-            default :
+            default:
                 return CompressionType.NONE;
         }
     }
@@ -283,7 +287,8 @@ public class PulsarHandler implements MessageQueueHandler {
      * sendProfileV1
      */
     private void sendProfileV1(BatchPackProfile event, IdTopicConfig idConfig, Producer<byte[]> producer,
-            String producerTopic) throws Exception {
+            String producerTopic)
+            throws Exception {
         // headers
         Map<String, String> headers = this.handler.parseHeader(idConfig, event, sinkContext.getNodeId(),
                 sinkContext.getCompressType());
@@ -312,7 +317,8 @@ public class PulsarHandler implements MessageQueueHandler {
      */
     private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
             Producer<byte[]> producer,
-            String producerTopic) throws Exception {
+            String producerTopic)
+            throws Exception {
         // headers
         Map<String, String> headers = event.getSimpleProfile().getHeaders();
         // compress
@@ -339,7 +345,8 @@ public class PulsarHandler implements MessageQueueHandler {
      * sendOrderProfileV0
      */
     private void sendOrderProfileV0(OrderBatchPackProfileV0 event, IdTopicConfig idConfig, Producer<byte[]> producer,
-            String producerTopic) throws Exception {
+            String producerTopic)
+            throws Exception {
         // headers
         Map<String, String> headers = event.getOrderProfile().getHeaders();
         // compress

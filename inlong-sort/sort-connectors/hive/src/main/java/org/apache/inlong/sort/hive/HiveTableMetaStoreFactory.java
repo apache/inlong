@@ -36,8 +36,8 @@ import java.util.LinkedHashMap;
 import java.util.Optional;
 
 /**
- * Hive {@link TableMetaStoreFactory}, use {@link HiveMetastoreClientWrapper} to communicate with
- * hive meta store.
+ * Hive {@link TableMetaStoreFactory}, use {@link HiveMetastoreClientWrapper} to
+ * communicate with hive meta store.
  */
 public class HiveTableMetaStoreFactory implements TableMetaStoreFactory {
 
@@ -66,9 +66,8 @@ public class HiveTableMetaStoreFactory implements TableMetaStoreFactory {
         private StorageDescriptor sd;
 
         private HiveTableMetaStore() throws TException {
-            client =
-                    HiveMetastoreClientFactory.create(
-                            HiveConfUtils.create(conf.conf()), hiveVersion);
+            client = HiveMetastoreClientFactory.create(
+                    HiveConfUtils.create(conf.conf()), hiveVersion);
             sd = client.getTable(database, tableName).getSd();
         }
 
@@ -78,15 +77,14 @@ public class HiveTableMetaStoreFactory implements TableMetaStoreFactory {
         }
 
         @Override
-        public Optional<Path> getPartition(LinkedHashMap<String, String> partSpec)
-                throws Exception {
+        public Optional<Path> getPartition(LinkedHashMap<String, String> partSpec) throws Exception {
             try {
                 return Optional.of(
                         new Path(
                                 client.getPartition(
-                                                database,
-                                                tableName,
-                                                new ArrayList<>(partSpec.values()))
+                                        database,
+                                        tableName,
+                                        new ArrayList<>(partSpec.values()))
                                         .getSd()
                                         .getLocation()));
             } catch (NoSuchObjectException ignore) {
@@ -96,12 +94,13 @@ public class HiveTableMetaStoreFactory implements TableMetaStoreFactory {
 
         @Override
         public void createOrAlterPartition(
-                LinkedHashMap<String, String> partitionSpec, Path partitionPath) throws Exception {
+                LinkedHashMap<String, String> partitionSpec,
+                Path partitionPath)
+                throws Exception {
             Partition partition;
             try {
-                partition =
-                        client.getPartition(
-                                database, tableName, new ArrayList<>(partitionSpec.values()));
+                partition = client.getPartition(
+                        database, tableName, new ArrayList<>(partitionSpec.values()));
             } catch (NoSuchObjectException e) {
                 createPartition(partitionSpec, partitionPath);
                 return;
@@ -109,17 +108,15 @@ public class HiveTableMetaStoreFactory implements TableMetaStoreFactory {
             alterPartition(partitionSpec, partitionPath, partition);
         }
 
-        private void createPartition(LinkedHashMap<String, String> partSpec, Path path)
-                throws Exception {
+        private void createPartition(LinkedHashMap<String, String> partSpec, Path path) throws Exception {
             StorageDescriptor newSd = new StorageDescriptor(sd);
             newSd.setLocation(path.toString());
-            Partition partition =
-                    HiveTableUtil.createHivePartition(
-                            database,
-                            tableName,
-                            new ArrayList<>(partSpec.values()),
-                            newSd,
-                            new HashMap<>());
+            Partition partition = HiveTableUtil.createHivePartition(
+                    database,
+                    tableName,
+                    new ArrayList<>(partSpec.values()),
+                    newSd,
+                    new HashMap<>());
             partition.setValues(new ArrayList<>(partSpec.values()));
             client.add_partition(partition);
         }

@@ -24,8 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Generate uniq sequential id, reset base id if max number
- * of sequence uuid are satisfied.
+ * Generate uniq sequential id, reset base id if max number of sequence uuid are
+ * satisfied.
  */
 public class SequentialID {
 

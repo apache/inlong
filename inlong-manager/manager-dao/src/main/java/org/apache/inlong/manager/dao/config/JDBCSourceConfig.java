@@ -17,8 +17,12 @@
 
 package org.apache.inlong.manager.dao.config;
 
-import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 import org.apache.ibatis.session.SqlSessionFactory;
+
+import java.util.Objects;
+
+import javax.sql.DataSource;
+
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
@@ -28,16 +32,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import javax.sql.DataSource;
-import java.util.Objects;
+import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 
 /**
  * Main data source config
  */
 @Configuration
-@MapperScan(
-        basePackages = "org.apache.inlong.manager.dao.mapper",
-        sqlSessionTemplateRef = "sqlSessionTemplate")
+@MapperScan(basePackages = "org.apache.inlong.manager.dao.mapper", sqlSessionTemplateRef = "sqlSessionTemplate")
 public class JDBCSourceConfig {
 
     @Bean(name = "dataSource")

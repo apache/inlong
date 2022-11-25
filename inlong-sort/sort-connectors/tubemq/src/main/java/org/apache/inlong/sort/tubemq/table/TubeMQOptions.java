@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
+import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRoot;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
@@ -41,9 +44,6 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
-import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRoot;
-
 /**
  * Option utils for tubeMQ table source and sink.
  */
@@ -56,11 +56,12 @@ public class TubeMQOptions {
     public static final String PROPERTIES_PREFIX = "properties.";
 
     // Start up offset.
-    //Always start from the max consume position.
+    // Always start from the max consume position.
     public static final String CONSUMER_FROM_MAX_OFFSET_ALWAYS = "max";
-    //Start from the latest position for the first time. Otherwise start from last consume position.
+    // Start from the latest position for the first time. Otherwise start from last
+    // consume position.
     public static final String CONSUMER_FROM_LATEST_OFFSET = "latest";
-    //Start from 0 for the first time. Otherwise start from last consume position.
+    // Start from 0 for the first time. Otherwise start from last consume position.
     public static final String CONSUMER_FROM_FIRST_OFFSET = "earliest";
 
     // --------------------------------------------------------------------------------------------
@@ -74,108 +75,97 @@ public class TubeMQOptions {
             .withDescription("Defines the format identifier for encoding key data. "
                     + "The identifier is used to discover a suitable format factory.");
 
-    public static final ConfigOption<List<String>> KEY_FIELDS =
-            ConfigOptions.key("key.fields")
-                    .stringType()
-                    .asList()
-                    .defaultValues()
-                    .withDescription(
-                            "Defines an explicit list of physical columns from the table schema "
-                                    + "that configure the data type for the key format. By default, this list is "
-                                    + "empty and thus a key is undefined.");
+    public static final ConfigOption<List<String>> KEY_FIELDS = ConfigOptions.key("key.fields")
+            .stringType()
+            .asList()
+            .defaultValues()
+            .withDescription(
+                    "Defines an explicit list of physical columns from the table schema "
+                            + "that configure the data type for the key format. By default, this list is "
+                            + "empty and thus a key is undefined.");
 
     // --------------------------------------------------------------------------------------------
     // TubeMQ specific options
     // --------------------------------------------------------------------------------------------
 
-    public static final ConfigOption<String> TOPIC =
-            ConfigOptions.key("topic")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "Topic names from which the table is read. Either 'topic' "
-                                    + "or 'topic-pattern' must be set for source.");
+    public static final ConfigOption<String> TOPIC = ConfigOptions.key("topic")
+            .stringType()
+            .noDefaultValue()
+            .withDescription(
+                    "Topic names from which the table is read. Either 'topic' "
+                            + "or 'topic-pattern' must be set for source.");
 
-    public static final ConfigOption<String> TOPIC_PATTERN =
-            ConfigOptions.key("topic-pattern")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "Optional topic pattern from which the table is read for source."
-                                    + " Either 'topic' or 'topic-pattern' must be set.");
+    public static final ConfigOption<String> TOPIC_PATTERN = ConfigOptions.key("topic-pattern")
+            .stringType()
+            .noDefaultValue()
+            .withDescription(
+                    "Optional topic pattern from which the table is read for source."
+                            + " Either 'topic' or 'topic-pattern' must be set.");
 
-    public static final ConfigOption<String> MASTER_RPC =
-            ConfigOptions.key("master.rpc")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Required TubeMQ master connection string");
+    public static final ConfigOption<String> MASTER_RPC = ConfigOptions.key("master.rpc")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Required TubeMQ master connection string");
 
-    public static final ConfigOption<String> GROUP_ID =
-            ConfigOptions.key("group.id")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            "Required consumer group in TubeMQ consumer");
+    public static final ConfigOption<String> GROUP_ID = ConfigOptions.key("group.id")
+            .stringType()
+            .noDefaultValue()
+            .withDescription(
+                    "Required consumer group in TubeMQ consumer");
 
-    public static final ConfigOption<String> TUBE_MESSAGE_NOT_FOUND_WAIT_PERIOD =
-            ConfigOptions.key("tubemq.message.not.found.wait.period")
-                    .stringType()
-                    .defaultValue("350ms")
-                    .withDescription("The time of waiting period if "
-                            + "tubeMQ broker return message not found.");
+    public static final ConfigOption<String> TUBE_MESSAGE_NOT_FOUND_WAIT_PERIOD = ConfigOptions
+            .key("tubemq.message.not.found.wait.period")
+            .stringType()
+            .defaultValue("350ms")
+            .withDescription("The time of waiting period if "
+                    + "tubeMQ broker return message not found.");
 
-    public static final ConfigOption<Long> TUBE_SUBSCRIBE_RETRY_TIMEOUT =
-            ConfigOptions.key("tubemq.subscribe.retry.timeout")
-                    .longType()
-                    .defaultValue(300000L)
-                    .withDescription("The time of subscribing tubeMQ timeout, in millisecond");
+    public static final ConfigOption<Long> TUBE_SUBSCRIBE_RETRY_TIMEOUT = ConfigOptions
+            .key("tubemq.subscribe.retry.timeout")
+            .longType()
+            .defaultValue(300000L)
+            .withDescription("The time of subscribing tubeMQ timeout, in millisecond");
 
-    public static final ConfigOption<Integer> SOURCE_EVENT_QUEUE_CAPACITY =
-            ConfigOptions.key("source.event.queue.capacity")
-                    .intType()
-                    .defaultValue(1024);
+    public static final ConfigOption<Integer> SOURCE_EVENT_QUEUE_CAPACITY = ConfigOptions
+            .key("source.event.queue.capacity")
+            .intType()
+            .defaultValue(1024);
 
-    public static final ConfigOption<String> SESSION_KEY =
-            ConfigOptions.key("session.key")
-                    .stringType()
-                    .defaultValue("default_session_key")
-                    .withDescription("The session key for this consumer group at startup.");
+    public static final ConfigOption<String> SESSION_KEY = ConfigOptions.key("session.key")
+            .stringType()
+            .defaultValue("default_session_key")
+            .withDescription("The session key for this consumer group at startup.");
 
-    public static final ConfigOption<List<String>> TID =
-            ConfigOptions.key("topic.tid")
-                    .stringType()
-                    .asList()
-                    .noDefaultValue()
-                    .withDescription("The tid owned this topic.");
+    public static final ConfigOption<List<String>> TID = ConfigOptions.key("topic.tid")
+            .stringType()
+            .asList()
+            .noDefaultValue()
+            .withDescription("The tid owned this topic.");
 
-    public static final ConfigOption<Integer> MAX_RETRIES =
-            ConfigOptions.key("max.retries")
-                    .intType()
-                    .defaultValue(5)
-                    .withDescription("The maximum number of retries when an "
-                            + "exception is caught.");
+    public static final ConfigOption<Integer> MAX_RETRIES = ConfigOptions.key("max.retries")
+            .intType()
+            .defaultValue(5)
+            .withDescription("The maximum number of retries when an "
+                    + "exception is caught.");
 
-    public static final ConfigOption<Boolean> BOOTSTRAP_FROM_MAX =
-            ConfigOptions.key("bootstrap.from.max")
-                    .booleanType()
-                    .defaultValue(true)
-                    .withDescription("True if consuming from the most recent "
-                            + "position when the tubemq source starts.. It only takes "
-                            + "effect when the tubemq source does not recover from "
-                            + "checkpoints.");
+    public static final ConfigOption<Boolean> BOOTSTRAP_FROM_MAX = ConfigOptions.key("bootstrap.from.max")
+            .booleanType()
+            .defaultValue(true)
+            .withDescription("True if consuming from the most recent "
+                    + "position when the tubemq source starts.. It only takes "
+                    + "effect when the tubemq source does not recover from "
+                    + "checkpoints.");
 
-    public static final ConfigOption<String> SOURCE_MAX_IDLE_TIME =
-            ConfigOptions.key("source.task.max.idle.time")
-                    .stringType()
-                    .defaultValue("5min")
-                    .withDescription("The max time of the source marked as temporarily idle.");
+    public static final ConfigOption<String> SOURCE_MAX_IDLE_TIME = ConfigOptions.key("source.task.max.idle.time")
+            .stringType()
+            .defaultValue("5min")
+            .withDescription("The max time of the source marked as temporarily idle.");
 
-    public static final ConfigOption<String> MESSAGE_NOT_FOUND_WAIT_PERIOD =
-            ConfigOptions.key("message.not.found.wait.period")
-                    .stringType()
-                    .defaultValue("500ms")
-                    .withDescription("The time of waiting period if tubemq broker return message not found.");
-
+    public static final ConfigOption<String> MESSAGE_NOT_FOUND_WAIT_PERIOD = ConfigOptions
+            .key("message.not.found.wait.period")
+            .stringType()
+            .defaultValue("500ms")
+            .withDescription("The time of waiting period if tubemq broker return message not found.");
 
     public static final ConfigOption<ValueFieldsStrategy> VALUE_FIELDS_INCLUDE =
             ConfigOptions.key("value.fields-include")
@@ -190,34 +180,33 @@ public class TubeMQOptions {
                                             + "appear in the data type for both the key and value format.",
                                     ValueFieldsStrategy.ALL));
 
-    public static final ConfigOption<String> KEY_FIELDS_PREFIX =
-            ConfigOptions.key("key.fields-prefix")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription(
-                            Description.builder()
-                                    .text(
-                                            "Defines a custom prefix for all fields of the key format to avoid "
-                                                    + "name clashes with fields of the value format. "
-                                                    + "By default, the prefix is empty.")
-                                    .linebreak()
-                                    .text(
-                                            String.format(
-                                                    "If a custom prefix is defined, both the table schema "
-                                                            + "and '%s' will work with prefixed names.",
-                                                    KEY_FIELDS.key()))
-                                    .linebreak()
-                                    .text(
-                                            "When constructing the data type of the key format, "
-                                                    + "the prefix will be removed and the "
-                                                    + "non-prefixed names will be used within the key format.")
-                                    .linebreak()
-                                    .text(
-                                            String.format(
-                                                    "Please note that this option requires that '%s' must be '%s'.",
-                                                    VALUE_FIELDS_INCLUDE.key(),
-                                                    ValueFieldsStrategy.EXCEPT_KEY))
-                                    .build());
+    public static final ConfigOption<String> KEY_FIELDS_PREFIX = ConfigOptions.key("key.fields-prefix")
+            .stringType()
+            .noDefaultValue()
+            .withDescription(
+                    Description.builder()
+                            .text(
+                                    "Defines a custom prefix for all fields of the key format to avoid "
+                                            + "name clashes with fields of the value format. "
+                                            + "By default, the prefix is empty.")
+                            .linebreak()
+                            .text(
+                                    String.format(
+                                            "If a custom prefix is defined, both the table schema "
+                                                    + "and '%s' will work with prefixed names.",
+                                            KEY_FIELDS.key()))
+                            .linebreak()
+                            .text(
+                                    "When constructing the data type of the key format, "
+                                            + "the prefix will be removed and the "
+                                            + "non-prefixed names will be used within the key format.")
+                            .linebreak()
+                            .text(
+                                    String.format(
+                                            "Please note that this option requires that '%s' must be '%s'.",
+                                            VALUE_FIELDS_INCLUDE.key(),
+                                            ValueFieldsStrategy.EXCEPT_KEY))
+                            .build());
 
     // --------------------------------------------------------------------------------------------
     // Validation
@@ -246,11 +235,13 @@ public class TubeMQOptions {
     }
 
     /**
-     * Creates an array of indices that determine which physical fields of the table schema to
-     * include in the value format.
+     * Creates an array of indices that determine which physical fields of the table
+     * schema to include in the value format.
      *
-     * <p>See  {@link #VALUE_FIELDS_INCLUDE}, and {@link #KEY_FIELDS_PREFIX}
-     * for more information.</p>
+     * <p>
+     * See {@link #VALUE_FIELDS_INCLUDE}, and {@link #KEY_FIELDS_PREFIX} for more
+     * information.
+     * </p>
      */
     public static int[] createValueFormatProjection(
             ReadableConfig options, DataType physicalDataType) {
@@ -284,10 +275,13 @@ public class TubeMQOptions {
     }
 
     /**
-     * Creates an array of indices that determine which physical fields of the table schema to
-     * include in the key format and the order that those fields have in the key format.
+     * Creates an array of indices that determine which physical fields of the table
+     * schema to include in the key format and the order that those fields have in
+     * the key format.
      *
-     * <p>See {@link #KEY_FIELDS}for more information.</p>
+     * <p>
+     * See {@link #KEY_FIELDS}for more information.
+     * </p>
      */
     public static int[] createKeyFormatProjection(
             ReadableConfig options, DataType physicalDataType) {
@@ -370,8 +364,8 @@ public class TubeMQOptions {
     // --------------------------------------------------------------------------------------------
 
     /**
-     * Decides if the table options contains TubeMQ client properties that start with prefix
-     * 'properties'.
+     * Decides if the table options contains TubeMQ client properties that start
+     * with prefix 'properties'.
      */
     private static boolean hasTubeMQClientProperties(Map<String, String> tableOptions) {
         return tableOptions.keySet().stream().anyMatch(k -> k.startsWith(PROPERTIES_PREFIX));
@@ -388,6 +382,7 @@ public class TubeMQOptions {
     public static TreeSet<String> getTiSet(ReadableConfig tableOptions) {
         TreeSet<String> set = new TreeSet<>();
         tableOptions.getOptional(TID).ifPresent(new Consumer<List<String>>() {
+
             @Override
             public void accept(List<String> strings) {
                 set.addAll(strings);
@@ -405,7 +400,8 @@ public class TubeMQOptions {
     }
 
     /**
-     * Strategies to derive the data type of a value format by considering a key format.
+     * Strategies to derive the data type of a value format by considering a key
+     * format.
      */
     public enum ValueFieldsStrategy {
 

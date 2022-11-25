@@ -17,12 +17,6 @@
 
 package org.apache.inlong.manager.workflow.processor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableSet;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ProcessEvent;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.enums.TaskStatus;
@@ -44,12 +38,22 @@ import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventNotifier;
 import org.apache.inlong.manager.workflow.event.task.TaskEventNotifier;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * System task processor
@@ -60,8 +64,7 @@ import java.util.Set;
 public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
 
     private static final Set<TaskStatus> ALLOW_COMPLETE_STATE = ImmutableSet.of(
-            TaskStatus.PENDING, TaskStatus.FAILED
-    );
+            TaskStatus.PENDING, TaskStatus.FAILED);
 
     @Autowired
     private ObjectMapper objectMapper;

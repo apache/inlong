@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.web.auth.web;
 
-import com.google.common.collect.Sets;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
-import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.user.UserService;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -33,6 +33,8 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 
 import java.util.Date;
+
+import com.google.common.collect.Sets;
 
 /**
  * Web user authorization.
@@ -56,7 +58,8 @@ public class WebAuthorizingRealm extends AuthorizingRealm {
         Preconditions.checkNotNull(userInfo, "User not exist with name=" + username);
         Preconditions.checkTrue(userInfo.getDueDate().after(new Date()), "User " + username + " was expired");
         userInfo.setRoles(Sets.newHashSet(userInfo.getAccountType() == 0
-                ? UserTypeEnum.ADMIN.name() : UserTypeEnum.OPERATOR.name()));
+                ? UserTypeEnum.ADMIN.name()
+                : UserTypeEnum.OPERATOR.name()));
         return new SimpleAuthenticationInfo(userInfo, userInfo.getPassword(), getName());
     }
 

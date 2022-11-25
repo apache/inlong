@@ -24,10 +24,11 @@ import org.apache.inlong.manager.workflow.core.ProcessorExecutor;
 import org.apache.inlong.manager.workflow.core.TaskService;
 import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * WorkflowTask service

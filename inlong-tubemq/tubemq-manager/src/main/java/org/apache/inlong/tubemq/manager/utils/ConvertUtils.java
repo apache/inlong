@@ -21,7 +21,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.inlong.tubemq.manager.service.TubeConst.OP_MODIFY;
 import static org.apache.inlong.tubemq.manager.service.TubeConst.REBALANCE_GROUP;
 
-import com.google.gson.Gson;
+import org.apache.inlong.tubemq.manager.controller.cluster.vo.ClusterVo;
+import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
+import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceGroupReq;
+import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
+import org.apache.inlong.tubemq.manager.entry.MasterEntry;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -31,13 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.tubemq.manager.controller.cluster.vo.ClusterVo;
-import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
-import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceGroupReq;
-import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
-import org.apache.inlong.tubemq.manager.entry.MasterEntry;
+
+import com.google.gson.Gson;
 
 @Slf4j
 public class ConvertUtils {
@@ -56,7 +58,8 @@ public class ConvertUtils {
         return StringUtils.join(queryList, "&");
     }
 
-    private static void getQueryFields(Object req, List<String> queryList, List<Field[]> fieldsList)
+    private static void getQueryFields(Object req, List<String> queryList,
+            List<Field[]> fieldsList)
             throws IllegalAccessException, UnsupportedEncodingException {
         for (Object fields : fieldsList) {
             Field[] f = (Field[]) fields;
@@ -112,7 +115,7 @@ public class ConvertUtils {
     }
 
     public static ClusterVo convertToClusterVo(ClusterEntry clusterEntry,
-                                               List<MasterEntry> masterEntries, ClusterVo clusterVo) {
+            List<MasterEntry> masterEntries, ClusterVo clusterVo) {
         ClusterVo cluster = new ClusterVo();
         cluster.setClusterId(clusterEntry.getClusterId());
         cluster.setMasterEntries(masterEntries);

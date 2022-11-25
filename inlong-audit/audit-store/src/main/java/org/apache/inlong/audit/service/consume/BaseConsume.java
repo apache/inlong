@@ -17,16 +17,17 @@
 
 package org.apache.inlong.audit.service.consume;
 
-import com.google.gson.Gson;
-
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.protocol.AuditData;
 import org.apache.inlong.audit.service.InsertData;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import com.google.gson.Gson;
 
 public abstract class BaseConsume {
 
@@ -49,6 +50,7 @@ public abstract class BaseConsume {
 
     /**
      * handleMessage
+     * 
      * @param body
      * @throws Exception
      */

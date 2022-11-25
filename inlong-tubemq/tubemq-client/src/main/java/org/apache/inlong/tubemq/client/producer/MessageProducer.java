@@ -17,10 +17,11 @@
 
 package org.apache.inlong.tubemq.client.producer;
 
-import java.util.Set;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.Shutdownable;
+
+import java.util.Set;
 
 public interface MessageProducer extends Shutdownable {
 
@@ -32,9 +33,7 @@ public interface MessageProducer extends Shutdownable {
 
     boolean isTopicCurAcceptPublish(String topic) throws TubeClientException;
 
-    MessageSentResult sendMessage(Message message)
-            throws TubeClientException, InterruptedException;
+    MessageSentResult sendMessage(Message message) throws TubeClientException, InterruptedException;
 
-    void sendMessage(Message message, MessageSentCallback cb)
-            throws TubeClientException, InterruptedException;
+    void sendMessage(Message message, MessageSentCallback cb) throws TubeClientException, InterruptedException;
 }

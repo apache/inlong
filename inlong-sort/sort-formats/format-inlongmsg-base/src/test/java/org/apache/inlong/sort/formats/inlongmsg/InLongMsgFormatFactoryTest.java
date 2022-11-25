@@ -18,6 +18,14 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import static org.apache.flink.table.factories.utils.FactoryMocks.PHYSICAL_TYPE;
+import static org.apache.flink.table.factories.utils.FactoryMocks.SCHEMA;
+import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSink;
+import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSource;
+import static org.junit.Assert.assertEquals;
+
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -33,8 +41,6 @@ import org.apache.flink.table.runtime.connector.sink.SinkRuntimeProviderContext;
 import org.apache.flink.table.runtime.connector.source.ScanRuntimeProviderContext;
 import org.apache.flink.table.runtime.typeutils.InternalTypeInfo;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
-import org.junit.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -42,22 +48,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static org.apache.flink.table.factories.utils.FactoryMocks.PHYSICAL_TYPE;
-import static org.apache.flink.table.factories.utils.FactoryMocks.SCHEMA;
-import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSink;
-import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSource;
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class InLongMsgFormatFactoryTest {
 
     @Test
     public void testUserDefinedOptions()
             throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        final Map<String, String> tableOptions =
-                getModifiedOptions(opts -> {
-                    opts.put("inlong-msg.inner.format", "csv");
-                    opts.put("inlong-msg.ignore-parse-errors", "true");
-                });
+        final Map<String, String> tableOptions = getModifiedOptions(opts -> {
+            opts.put("inlong-msg.inner.format", "csv");
+            opts.put("inlong-msg.ignore-parse-errors", "true");
+        });
 
         // test Deser
         Constructor[] constructors = CsvRowDataDeserializationSchema.class.getDeclaredConstructors();
@@ -75,10 +76,11 @@ public class InLongMsgFormatFactoryTest {
     }
 
     // ------------------------------------------------------------------------
-    //  Public Tools
+    // Public Tools
     // ------------------------------------------------------------------------
     public static DeserializationSchema<RowData> createDeserializationSchema(
-            Map<String, String> options, ResolvedSchema schema) {
+            Map<String, String> options,
+            ResolvedSchema schema) {
         DynamicTableSource source = createTableSource(schema, options);
 
         assert source instanceof TestDynamicTableFactory.DynamicTableSourceMock;
@@ -90,21 +92,23 @@ public class InLongMsgFormatFactoryTest {
     }
 
     public static SerializationSchema<RowData> createSerializationSchema(
-            Map<String, String> options, ResolvedSchema schema) {
+            Map<String, String> options,
+            ResolvedSchema schema) {
         DynamicTableSink sink = createTableSink(schema, options);
 
         assert sink instanceof TestDynamicTableFactory.DynamicTableSinkMock;
-        TestDynamicTableFactory.DynamicTableSinkMock sinkMock =
-                (TestDynamicTableFactory.DynamicTableSinkMock) sink;
+        TestDynamicTableFactory.DynamicTableSinkMock sinkMock = (TestDynamicTableFactory.DynamicTableSinkMock) sink;
 
         return sinkMock.valueFormat.createRuntimeEncoder(
                 new SinkRuntimeProviderContext(false), schema.toPhysicalRowDataType());
     }
 
     /**
-     * Returns the full options modified by the given consumer {@code optionModifier}.
+     * Returns the full options modified by the given consumer
+     * {@code optionModifier}.
      *
-     * @param optionModifier Consumer to modify the options
+     * @param optionModifier
+     *          Consumer to modify the options
      */
     public static Map<String, String> getModifiedOptions(Consumer<Map<String, String>> optionModifier) {
         Map<String, String> options = getAllOptions();

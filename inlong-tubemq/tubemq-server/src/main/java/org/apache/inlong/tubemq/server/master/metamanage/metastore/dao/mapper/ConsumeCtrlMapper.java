@@ -17,24 +17,25 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper;
 
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 
 public interface ConsumeCtrlMapper extends AbstractMapper {
 
     boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean delGroupConsumeCtrlConf(String recordKey, StringBuilder strBuff, ProcessResult result);
 
     boolean delGroupConsumeCtrlConf(String groupName, String topicName,
-                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean isTopicNameInUse(String topicName);
 
@@ -53,7 +54,9 @@ public interface ConsumeCtrlMapper extends AbstractMapper {
     GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(String groupName, String topicName);
 
     Map<String/* group */, List<GroupConsumeCtrlEntity>> getConsumeCtrlInfoMap(
-            Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry);
+            Set<String> groupSet,
+            Set<String> topicSet,
+            GroupConsumeCtrlEntity qryEntry);
 
     List<GroupConsumeCtrlEntity> getGroupConsumeCtrlConf(GroupConsumeCtrlEntity qryEntity);
 

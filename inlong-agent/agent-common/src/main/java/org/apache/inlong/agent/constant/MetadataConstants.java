@@ -18,7 +18,7 @@
 package org.apache.inlong.agent.constant;
 
 /**
- *  Metadata type
+ * Metadata type
  */
 public class MetadataConstants {
 

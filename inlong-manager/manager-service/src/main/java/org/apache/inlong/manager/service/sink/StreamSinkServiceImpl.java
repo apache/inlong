@@ -17,12 +17,6 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -48,12 +42,9 @@ import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,6 +52,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Implementation of sink service interface
@@ -83,7 +86,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
 
-    // To avoid circular dependencies, you cannot use @Autowired, it will be injected by AutowireCapableBeanFactory
+    // To avoid circular dependencies, you cannot use @Autowired, it will be
+    // injected by AutowireCapableBeanFactory
     private InlongStreamProcessService streamProcessOperation;
 
     @Override
@@ -96,7 +100,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String groupId = request.getInlongGroupId();
         groupCheckService.checkGroupStatus(groupId, operator);
 
-        // Make sure that there is no same sink name under the current groupId and streamId
+        // Make sure that there is no same sink name under the current groupId and
+        // streamId
         String streamId = request.getInlongStreamId();
         String sinkName = request.getSinkName();
         // Check whether the stream exist or not
@@ -126,7 +131,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             sinkMapper.updateStatus(sinkEntity);
         }
 
-        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
+        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the
+        // [CREATE_STREAM_RESOURCE] process
         if (streamSuccess && request.getStartProcess()) {
             this.startProcessForSink(groupId, streamId, operator);
         }
@@ -212,7 +218,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             PageResult<? extends StreamSink> pageInfo = sinkOperator.getPageInfo(entry.getValue());
             responseList.addAll(pageInfo.getList());
         }
-        // Encapsulate the paging query results into the PageInfo object to obtain related paging information
+        // Encapsulate the paging query results into the PageInfo object to obtain
+        // related paging information
         PageResult<StreamSink> pageResult = new PageResult<>(responseList);
 
         LOGGER.debug("success to list sink page, result size {}", pageResult.getList().size());
@@ -251,7 +258,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         StreamSinkOperator sinkOperator = operatorFactory.getInstance(request.getSinkType());
         sinkOperator.updateOpt(request, nextStatus, operator);
 
-        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the [CREATE_STREAM_RESOURCE] process
+        // If the stream is [CONFIG_SUCCESSFUL], then asynchronously start the
+        // [CREATE_STREAM_RESOURCE] process
         if (streamSuccess && request.getStartProcess()) {
             this.startProcessForSink(groupId, streamId, operator);
         }

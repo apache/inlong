@@ -22,11 +22,7 @@ package org.apache.inlong.common.enums;
  */
 public enum ComponentTypeEnum {
 
-    Agent("AGENT"),
-    DataProxy("DATAPROXY"),
-    Cache("CACHE"),
-    Sort("SORT"),
-    SDK("SDK"),
+    Agent("AGENT"), DataProxy("DATAPROXY"), Cache("CACHE"), Sort("SORT"), SDK("SDK"),
 
     ;
 

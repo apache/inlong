@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.tubemq.table;
 
+import org.apache.inlong.sort.tubemq.FlinkTubeMQConsumer;
+import org.apache.inlong.sort.tubemq.table.DynamicTubeMQDeserializationSchema.MetadataConverter;
+import org.apache.inlong.tubemq.corebase.Message;
+
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -37,11 +41,7 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.tubemq.FlinkTubeMQConsumer;
-import org.apache.inlong.sort.tubemq.table.DynamicTubeMQDeserializationSchema.MetadataConverter;
-import org.apache.inlong.tubemq.corebase.Message;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -53,6 +53,8 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 /**
  * .
@@ -73,7 +75,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      */
     private final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat;
 
-    //-------------------------------------------------------------------
+    // -------------------------------------------------------------------
     /**
      * The address of TubeMQ master, format eg: 127.0.0.1:8715,127.0.0.2:8715.
      */
@@ -99,8 +101,8 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      */
     private final String sessionKey;
     /**
-     * Field name of the processing time attribute, null if no processing time
-     * field is defined.
+     * Field name of the processing time attribute, null if no processing time field
+     * is defined.
      */
     private final Optional<String> proctimeAttribute;
     /**
@@ -207,20 +209,18 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     @Override
     public void applyReadableMetadata(List<String> metadataKeys, DataType producedDataType) {
         // separate connector and format metadata
-        final List<String> formatMetadataKeys =
-                metadataKeys.stream()
-                        .filter(k -> k.startsWith(VALUE_METADATA_PREFIX))
-                        .collect(Collectors.toList());
+        final List<String> formatMetadataKeys = metadataKeys.stream()
+                .filter(k -> k.startsWith(VALUE_METADATA_PREFIX))
+                .collect(Collectors.toList());
         final List<String> connectorMetadataKeys = new ArrayList<>(metadataKeys);
         connectorMetadataKeys.removeAll(formatMetadataKeys);
 
         // push down format metadata
         final Map<String, DataType> formatMetadata = valueDecodingFormat.listReadableMetadata();
         if (formatMetadata.size() > 0) {
-            final List<String> requestedFormatMetadataKeys =
-                    formatMetadataKeys.stream()
-                            .map(k -> k.substring(VALUE_METADATA_PREFIX.length()))
-                            .collect(Collectors.toList());
+            final List<String> requestedFormatMetadataKeys = formatMetadataKeys.stream()
+                    .map(k -> k.substring(VALUE_METADATA_PREFIX.length()))
+                    .collect(Collectors.toList());
             valueDecodingFormat.applyReadableMetadata(requestedFormatMetadataKeys);
         }
         this.metadataKeys = connectorMetadataKeys;
@@ -290,14 +290,13 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
             DeserializationSchema<RowData> deserialization,
             TypeInformation<RowData> producedTypeInfo,
             boolean ignoreErrors) {
-        final MetadataConverter[] metadataConverters =
-                metadataKeys.stream()
-                        .map(k -> Stream.of(ReadableMetadata.values())
-                                .filter(rm -> rm.key.equals(k))
-                                .findFirst()
-                                .orElseThrow(IllegalStateException::new))
-                        .map(m -> m.converter)
-                        .toArray(MetadataConverter[]::new);
+        final MetadataConverter[] metadataConverters = metadataKeys.stream()
+                .map(k -> Stream.of(ReadableMetadata.values())
+                        .filter(rm -> rm.key.equals(k))
+                        .findFirst()
+                        .orElseThrow(IllegalStateException::new))
+                .map(m -> m.converter)
+                .toArray(MetadataConverter[]::new);
         final DeserializationSchema<RowData> tubeMQDeserializer = new DynamicTubeMQDeserializationSchema(
                 deserialization, metadataConverters, producedTypeInfo, ignoreErrors);
 
@@ -311,10 +310,12 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
+
         TOPIC(
                 "topic",
                 DataTypes.STRING().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

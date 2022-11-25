@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -76,10 +73,15 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.function.CustomFunction;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.Lists;
 
 /**
  * Util for load node info.
@@ -171,7 +173,7 @@ public class LoadNodeUtils {
                 break;
             case DEBEZIUM_JSON:
                 format = new DebeziumJsonFormat();
-                break; 
+                break;
             case RAW:
                 format = new RawFormat();
                 break;
@@ -191,8 +193,7 @@ public class LoadNodeUtils {
                 format,
                 sinkParallelism,
                 properties,
-                kafkaSink.getPrimaryKey()
-        );
+                kafkaSink.getPrimaryKey());
     }
 
     /**
@@ -205,7 +206,8 @@ public class LoadNodeUtils {
             partitionFields = hiveSink.getPartitionFieldList().stream()
                     .map(partitionField -> new FieldInfo(partitionField.getFieldName(), hiveSink.getSinkName(),
                             FieldInfoUtils.convertFieldFormat(partitionField.getFieldType(),
-                                    partitionField.getFieldFormat()))).collect(Collectors.toList());
+                                    partitionField.getFieldFormat())))
+                    .collect(Collectors.toList());
         }
         return new HiveLoadNode(
                 hiveSink.getSinkName(),
@@ -222,8 +224,7 @@ public class LoadNodeUtils {
                 hiveSink.getHiveConfDir(),
                 hiveSink.getHiveVersion(),
                 null,
-                partitionFields
-        );
+                partitionFields);
     }
 
     /**
@@ -247,8 +248,7 @@ public class LoadNodeUtils {
                 hbaseSink.getBufferFlushMaxSize(),
                 hbaseSink.getZkNodeParent(),
                 hbaseSink.getBufferFlushMaxRows(),
-                hbaseSink.getBufferFlushInterval()
-        );
+                hbaseSink.getBufferFlushInterval());
     }
 
     /**
@@ -269,15 +269,15 @@ public class LoadNodeUtils {
                 postgreSQLSink.getUsername(),
                 postgreSQLSink.getPassword(),
                 postgreSQLSink.getDbName() + "." + postgreSQLSink.getTableName(),
-                postgreSQLSink.getPrimaryKey()
-        );
+                postgreSQLSink.getPrimaryKey());
     }
 
     /**
      * Create load node of ClickHouse.
      */
     public static ClickHouseLoadNode createLoadNode(ClickHouseSink ckSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new ClickHouseLoadNode(
                 ckSink.getSinkName(),
                 ckSink.getSinkName(),
@@ -291,8 +291,7 @@ public class LoadNodeUtils {
                 ckSink.getJdbcUrl() + "/" + ckSink.getDbName(),
                 ckSink.getUsername(),
                 ckSink.getPassword(),
-                ckSink.getPrimaryKey()
-        );
+                ckSink.getPrimaryKey());
     }
 
     /**
@@ -332,8 +331,7 @@ public class LoadNodeUtils {
                 dorisSink.getSinkMultipleEnable(),
                 format,
                 dorisSink.getDatabasePattern(),
-                dorisSink.getTablePattern()
-        );
+                dorisSink.getTablePattern());
     }
 
     /**
@@ -356,8 +354,7 @@ public class LoadNodeUtils {
                 icebergSink.getPrimaryKey(),
                 catalogType,
                 icebergSink.getCatalogUri(),
-                icebergSink.getWarehouse()
-        );
+                icebergSink.getWarehouse());
     }
 
     /**
@@ -379,15 +376,15 @@ public class LoadNodeUtils {
                 sqlServerSink.getPassword(),
                 sqlServerSink.getSchemaName(),
                 sqlServerSink.getTableName(),
-                sqlServerSink.getPrimaryKey()
-        );
+                sqlServerSink.getPrimaryKey());
     }
 
     /**
      * Create Elasticsearch load node
      */
     public static ElasticsearchLoadNode createLoadNode(ElasticsearchSink elasticsearchSink,
-            List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new ElasticsearchLoadNode(
                 elasticsearchSink.getSinkName(),
                 elasticsearchSink.getSinkName(),
@@ -403,15 +400,15 @@ public class LoadNodeUtils {
                 elasticsearchSink.getPassword(),
                 elasticsearchSink.getDocumentType(),
                 elasticsearchSink.getPrimaryKey(),
-                elasticsearchSink.getEsVersion()
-        );
+                elasticsearchSink.getEsVersion());
     }
 
     /**
      * Create load node of HDFS.
      */
     public static FileSystemLoadNode createLoadNode(HDFSSink hdfsSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         List<FieldInfo> partitionFields = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(hdfsSink.getPartitionFieldList())) {
             partitionFields = hdfsSink.getPartitionFieldList().stream()
@@ -432,8 +429,7 @@ public class LoadNodeUtils {
                 null,
                 properties,
                 partitionFields,
-                hdfsSink.getServerTimeZone()
-        );
+                hdfsSink.getServerTimeZone());
     }
 
     /**
@@ -503,7 +499,8 @@ public class LoadNodeUtils {
      * Create load node of TDSQLPostgreSQL.
      */
     public static TDSQLPostgresLoadNode createLoadNode(TDSQLPostgreSQLSink tdsqlPostgreSQLSink,
-            List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldInfo> fieldInfos, List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new TDSQLPostgresLoadNode(
                 tdsqlPostgreSQLSink.getSinkName(),
                 tdsqlPostgreSQLSink.getSinkName(),
@@ -524,7 +521,8 @@ public class LoadNodeUtils {
      * Create load node of DLCIceberg.
      */
     public static DLCIcebergLoadNode createLoadNode(DLCIcebergSink dlcIcebergSink, List<FieldInfo> fieldInfos,
-            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+            List<FieldRelation> fieldRelations,
+            Map<String, String> properties) {
         return new DLCIcebergLoadNode(
                 dlcIcebergSink.getSinkName(),
                 dlcIcebergSink.getSinkName(),
@@ -538,8 +536,7 @@ public class LoadNodeUtils {
                 dlcIcebergSink.getTableName(),
                 dlcIcebergSink.getPrimaryKey(),
                 dlcIcebergSink.getCatalogUri(),
-                dlcIcebergSink.getWarehouse()
-        );
+                dlcIcebergSink.getWarehouse());
     }
 
     /**

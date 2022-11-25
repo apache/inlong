@@ -17,15 +17,13 @@
 
 package org.apache.inlong.dataproxy.dispatch;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.flume.Context;
-import org.apache.flume.Event;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flume.Context;
+import org.apache.flume.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +31,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DispatchManager
@@ -120,6 +122,7 @@ public class DispatchManager {
 
     /**
      * addPackEvent
+     * 
      * @param packEvent
      */
     public void addPackEvent(ProxyPackEvent packEvent) {

@@ -57,8 +57,8 @@ public class TubeTopicFetcherBuilderImpl extends AbstractTopicFetcherBuilder {
         interceptor = Optional.ofNullable(interceptor).orElse(new MsgTimeInterceptor());
         interceptor.configure(topic);
         deserializer = Optional.ofNullable(deserializer).orElse(new MessageDeserializer());
-        TubeSingleTopicFetcher fetcher =
-                new TubeSingleTopicFetcher(topic, context, interceptor, deserializer, tubeConsumerCreator);
+        TubeSingleTopicFetcher fetcher = new TubeSingleTopicFetcher(topic, context, interceptor, deserializer,
+                tubeConsumerCreator);
         if (!fetcher.init()) {
             throw new IllegalStateException("init tube single topic fetcher failed");
         }

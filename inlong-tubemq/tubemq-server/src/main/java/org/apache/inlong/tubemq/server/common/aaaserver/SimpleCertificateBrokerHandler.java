@@ -17,28 +17,28 @@
 
 package org.apache.inlong.tubemq.server.common.aaaserver;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(SimpleCertificateBrokerHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpleCertificateBrokerHandler.class);
     private static final int MAX_VISIT_TOKEN_SIZE = 6; // at least 3 items
     private long inValidTokenCheckTimeMs = 120000; // 2 minutes
     private final TubeBroker tubeBroker;
-    private final AtomicReference<List<Long>> visitTokenList =
-            new AtomicReference<>();
+    private final AtomicReference<List<Long>> visitTokenList = new AtomicReference<>();
     private String lastUpdatedVisitTokens = "";
     private boolean enableVisitTokenCheck = false;
     private boolean enableProduceAuthenticate = false;
@@ -49,8 +49,7 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
     public SimpleCertificateBrokerHandler(final TubeBroker tubeBroker) {
         this.tubeBroker = tubeBroker;
         this.visitTokenList.set(new ArrayList<Long>());
-        this.inValidTokenCheckTimeMs =
-            tubeBroker.getTubeConfig().getVisitTokenCheckInValidTimeMs();
+        this.inValidTokenCheckTimeMs = tubeBroker.getTubeConfig().getVisitTokenCheckInValidTimeMs();
     }
 
     @Override
@@ -74,7 +73,7 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
         }
         String curBrokerVisitTokens = authorizedInfo.getVisitAuthorizedToken();
         if (TStringUtils.isBlank(curBrokerVisitTokens)
-            || lastUpdatedVisitTokens.equals(curBrokerVisitTokens)) {
+                || lastUpdatedVisitTokens.equals(curBrokerVisitTokens)) {
             return;
         }
         lastUpdatedVisitTokens = curBrokerVisitTokens;
@@ -110,11 +109,11 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
 
     @Override
     public CertifiedResult identityValidUserInfo(final ClientBroker.AuthorizedInfo authorizedInfo,
-                                                 boolean isProduce) {
+            boolean isProduce) {
         CertifiedResult result = new CertifiedResult();
         if (authorizedInfo == null) {
             result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
-                "Authorized Info is required!");
+                    "Authorized Info is required!");
             return result;
         }
         if (enableVisitTokenCheck) {
@@ -122,15 +121,15 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
             List<Long> currList = visitTokenList.get();
             if (tubeBroker.isKeepAlive()) {
                 if (!currList.contains(curVisitToken)
-                    && (System.currentTimeMillis() - tubeBroker.getLastRegTime() > inValidTokenCheckTimeMs)) {
+                        && (System.currentTimeMillis() - tubeBroker.getLastRegTime() > inValidTokenCheckTimeMs)) {
                     result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
-                        "Visit Authorized Token is invalid!");
+                            "Visit Authorized Token is invalid!");
                     return result;
                 }
             }
         }
         if ((isProduce && !enableProduceAuthenticate)
-            || (!isProduce && !enableConsumeAuthenticate)) {
+                || (!isProduce && !enableConsumeAuthenticate)) {
             result.setSuccessResult("", "");
             return result;
         }
@@ -148,8 +147,8 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
 
     @Override
     public CertifiedResult validConsumeAuthorizeInfo(final String userName, final String groupName,
-                                                     final String topicName, final Set<String> msgTypeLst,
-                                                     boolean isRegister, String clientIp) {
+            final String topicName, final Set<String> msgTypeLst,
+            boolean isRegister, String clientIp) {
         CertifiedResult result = new CertifiedResult();
         if (!enableConsumeAuthorize) {
             result.setSuccessResult("", "");
@@ -164,7 +163,7 @@ public class SimpleCertificateBrokerHandler implements CertificateBrokerHandler 
 
     @Override
     public CertifiedResult validProduceAuthorizeInfo(final String userName, final String topicName,
-                                                     final String msgType, String clientIp) {
+            final String msgType, String clientIp) {
         CertifiedResult result = new CertifiedResult();
         if (!enableProduceAuthorize) {
             result.setSuccessResult("", "");

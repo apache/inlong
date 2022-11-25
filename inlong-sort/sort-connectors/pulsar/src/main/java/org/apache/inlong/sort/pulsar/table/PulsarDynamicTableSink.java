@@ -42,7 +42,6 @@ import org.apache.flink.util.Preconditions;
 import org.apache.pulsar.client.api.MessageRouter;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -52,6 +51,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 /**
  * pulsar dynamic table sink.
@@ -83,28 +84,29 @@ public class PulsarDynamicTableSink implements DynamicTableSink, SupportsWriting
     /**
      * Optional format for encoding keys to Pulsar.
      */
-    protected final @Nullable
-    EncodingFormat<SerializationSchema<RowData>> keyEncodingFormat;
+    protected final @Nullable EncodingFormat<SerializationSchema<RowData>> keyEncodingFormat;
     /**
      * Sink format for encoding records to pulsar.
      */
     protected final EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat;
     /**
-     * Indices that determine the key fields and the source position in the consumed row.
+     * Indices that determine the key fields and the source position in the consumed
+     * row.
      */
     protected final int[] keyProjection;
     /**
-     * Indices that determine the value fields and the source position in the consumed row.
+     * Indices that determine the value fields and the source position in the
+     * consumed row.
      */
     protected final int[] valueProjection;
     /**
-     * Prefix that needs to be removed from fields when constructing the physical data type.
+     * Prefix that needs to be removed from fields when constructing the physical
+     * data type.
      */
-    protected final @Nullable
-    String keyPrefix;
+    protected final @Nullable String keyPrefix;
     /**
-     * Flag to determine sink mode. In upsert mode sink transforms the delete/update-before message to
-     * tombstone message.
+     * Flag to determine sink mode. In upsert mode sink transforms the
+     * delete/update-before message to tombstone message.
      */
     protected final boolean upsertMode;
     /**
@@ -165,13 +167,14 @@ public class PulsarDynamicTableSink implements DynamicTableSink, SupportsWriting
     @Override
     public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
         final SerializationSchema<RowData> keySerialization =
-                createSerialization(context, keyEncodingFormat, keyProjection, keyPrefix);
+                createSerialization(context, keyEncodingFormat, keyProjection,
+                        keyPrefix);
 
-        final SerializationSchema<RowData> valueSerialization =
-                createSerialization(context, valueEncodingFormat, valueProjection, null);
+        final SerializationSchema<RowData> valueSerialization = createSerialization(context, valueEncodingFormat,
+                valueProjection, null);
 
-        final PulsarSerializationSchema<RowData> pulsarSerializer =
-                createPulsarSerializer(keySerialization, valueSerialization);
+        final PulsarSerializationSchema<RowData> pulsarSerializer = createPulsarSerializer(keySerialization,
+                valueSerialization);
 
         final SinkFunction<RowData> pulsarSink = createPulsarSink(
                 this.topic,
@@ -182,7 +185,7 @@ public class PulsarDynamicTableSink implements DynamicTableSink, SupportsWriting
     }
 
     private PulsarSerializationSchema<RowData> createPulsarSerializer(SerializationSchema<RowData> keySerialization,
-                                                                      SerializationSchema<RowData> valueSerialization) {
+            SerializationSchema<RowData> valueSerialization) {
         final List<LogicalType> physicalChildren = physicalDataType.getLogicalType().getChildren();
 
         final RowData.FieldGetter[] keyFieldGetters = Arrays.stream(keyProjection)
@@ -208,7 +211,7 @@ public class PulsarDynamicTableSink implements DynamicTableSink, SupportsWriting
         final boolean hasMetadata = metadataKeys.size() > 0;
 
         final long delayMilliseconds = Optional.ofNullable(this.properties
-                        .getProperty(PulsarOptions.SEND_DELAY_MILLISECONDS, "0"))
+                .getProperty(PulsarOptions.SEND_DELAY_MILLISECONDS, "0"))
                 .filter(StringUtils::isNumeric)
                 .map(Long::valueOf)
                 .orElse(0L);
@@ -227,7 +230,7 @@ public class PulsarDynamicTableSink implements DynamicTableSink, SupportsWriting
     }
 
     private SinkFunction<RowData> createPulsarSink(String topic, Properties properties,
-                                                   PulsarSerializationSchema<RowData> pulsarSerializer) {
+            PulsarSerializationSchema<RowData> pulsarSerializer) {
         final ClientConfigurationData configurationData = PulsarClientUtils
                 .newClientConf(serviceUrl, properties);
         return new FlinkPulsarSink<RowData>(
@@ -237,16 +240,14 @@ public class PulsarDynamicTableSink implements DynamicTableSink, SupportsWriting
                 properties,
                 pulsarSerializer,
                 messageRouter,
-                PulsarSinkSemantic.valueOf(semantic.toString())
-        );
+                PulsarSinkSemantic.valueOf(semantic.toString()));
     }
 
     public MessageRouter getMessageRouter() {
         return messageRouter;
     }
 
-    private @Nullable
-    SerializationSchema<RowData> createSerialization(
+    private @Nullable SerializationSchema<RowData> createSerialization(
             Context context,
             @Nullable EncodingFormat<SerializationSchema<RowData>> format,
             int[] projection,
@@ -309,9 +310,9 @@ public class PulsarDynamicTableSink implements DynamicTableSink, SupportsWriting
 
     @Override
     public int hashCode() {
-        int result =
-                Objects.hash(metadataKeys, physicalDataType, topic, serviceUrl, adminUrl, properties, keyEncodingFormat,
-                        valueEncodingFormat, keyPrefix, upsertMode, parallelism, semantic, formatType, messageRouter);
+        int result = Objects.hash(metadataKeys, physicalDataType, topic, serviceUrl, adminUrl, properties,
+                keyEncodingFormat,
+                valueEncodingFormat, keyPrefix, upsertMode, parallelism, semantic, formatType, messageRouter);
         result = 31 * result + Arrays.hashCode(keyProjection);
         result = 31 * result + Arrays.hashCode(valueProjection);
         return result;
@@ -357,8 +358,7 @@ public class PulsarDynamicTableSink implements DynamicTableSink, SupportsWriting
                         }
                     }
                     return properties;
-                }
-        ),
+                }),
 
         EVENT_TIME(
                 "eventTime",
@@ -369,6 +369,7 @@ public class PulsarDynamicTableSink implements DynamicTableSink, SupportsWriting
                     }
                     return row.getTimestamp(pos, 3).getMillisecond();
                 });
+
         final String key;
 
         final DataType dataType;
@@ -382,4 +383,3 @@ public class PulsarDynamicTableSink implements DynamicTableSink, SupportsWriting
         }
     }
 }
-

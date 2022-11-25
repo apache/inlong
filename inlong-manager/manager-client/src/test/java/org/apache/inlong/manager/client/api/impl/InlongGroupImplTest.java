@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for {@link InlongGroupImpl}
@@ -88,8 +89,7 @@ class InlongGroupImplTest {
                 + "  } ]\n"
                 + "}";
 
-        ApplyGroupProcessForm applyGroupProcessForm =
-                JsonUtils.parseObject(json, ApplyGroupProcessForm.class);
+        ApplyGroupProcessForm applyGroupProcessForm = JsonUtils.parseObject(json, ApplyGroupProcessForm.class);
 
         assertNotNull(applyGroupProcessForm);
         assertNotNull(applyGroupProcessForm.getGroupInfo());

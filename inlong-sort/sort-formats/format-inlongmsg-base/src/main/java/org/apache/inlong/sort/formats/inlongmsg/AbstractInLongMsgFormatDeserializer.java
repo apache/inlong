@@ -18,14 +18,18 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
+
+import org.apache.flink.types.Row;
+import org.apache.flink.util.Collector;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Objects;
+
 import javax.annotation.Nonnull;
-import org.apache.flink.types.Row;
-import org.apache.flink.util.Collector;
-import org.apache.inlong.common.msg.InLongMsg;
-import org.apache.inlong.sort.formats.base.TableFormatDeserializer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +70,8 @@ public abstract class AbstractInLongMsgFormatDeserializer implements TableFormat
     @Override
     public void flatMap(
             byte[] bytes,
-            Collector<Row> collector
-    ) throws Exception {
+            Collector<Row> collector)
+            throws Exception {
         InLongMsg inLongMsg = InLongMsg.parseFrom(bytes);
 
         for (String attr : inLongMsg.getAttrs()) {

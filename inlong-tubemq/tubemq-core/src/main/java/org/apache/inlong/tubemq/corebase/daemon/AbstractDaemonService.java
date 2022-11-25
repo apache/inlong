@@ -17,19 +17,20 @@
 
 package org.apache.inlong.tubemq.corebase.daemon;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDaemonService implements Service, Runnable {
-    private static final Logger logger =
-            LoggerFactory.getLogger(AbstractDaemonService.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(AbstractDaemonService.class);
     private final String name;
     private final long intervalMs;
     private final Thread daemon;
-    private final AtomicBoolean shutdown =
-            new AtomicBoolean(false);
+    private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public AbstractDaemonService(final String serviceName, final long intervalMs) {
         this.name = serviceName;
@@ -40,8 +41,7 @@ public abstract class AbstractDaemonService implements Service, Runnable {
 
     @Override
     public void run() {
-        StringBuilder strBuff =
-                new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
+        StringBuilder strBuff = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
         logger.info(strBuff.append(name)
                 .append("-daemon-thread started").toString());
         strBuff.delete(0, strBuff.length());

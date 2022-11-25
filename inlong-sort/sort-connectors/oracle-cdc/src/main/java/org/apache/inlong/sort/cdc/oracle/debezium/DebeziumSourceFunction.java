@@ -22,26 +22,22 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 
-import com.ververica.cdc.debezium.Validator;
-import io.debezium.document.DocumentReader;
-import io.debezium.document.DocumentWriter;
-import io.debezium.embedded.Connect;
-import io.debezium.engine.DebeziumEngine;
-import io.debezium.engine.spi.OffsetCommitPolicy;
-import io.debezium.heartbeat.Heartbeat;
-import io.debezium.relational.history.TableChanges.TableChange;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeConsumer;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeFetcher;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumOffset;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumOffsetSerializer;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkDatabaseSchemaHistory;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkOffsetBackingStore;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.Handover;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil;
+
 import org.apache.commons.collections.map.LinkedMap;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -65,57 +61,87 @@ import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeFetcher;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumChangeConsumer;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumOffset;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumOffsetSerializer;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkDatabaseHistory;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkDatabaseSchemaHistory;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.FlinkOffsetBackingStore;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.Handover;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.SchemaRecord;
-import org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil;
 import org.apache.kafka.connect.source.SourceRecord;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ververica.cdc.debezium.Validator;
+
+import io.debezium.document.DocumentReader;
+import io.debezium.document.DocumentWriter;
+import io.debezium.embedded.Connect;
+import io.debezium.engine.DebeziumEngine;
+import io.debezium.engine.spi.OffsetCommitPolicy;
+import io.debezium.heartbeat.Heartbeat;
+import io.debezium.relational.history.TableChanges.TableChange;
 
 /**
- * The {@link DebeziumSourceFunction} is a streaming data source that pulls captured change data
- * from databases into Flink.
+ * The {@link DebeziumSourceFunction} is a streaming data source that pulls
+ * captured change data from databases into Flink.
  *
- * <p>There are two workers during the runtime. One worker periodically pulls records from the
- * database and pushes the records into the {@link Handover}. The other worker consumes the records
- * from the {@link Handover} and convert the records to the data in Flink style. The reason why
- * don't use one workers is because debezium has different behaviours in snapshot phase and
- * streaming phase.</p>
+ * <p>
+ * There are two workers during the runtime. One worker periodically pulls
+ * records from the database and pushes the records into the {@link Handover}.
+ * The other worker consumes the records from the {@link Handover} and convert
+ * the records to the data in Flink style. The reason why don't use one workers
+ * is because debezium has different behaviours in snapshot phase and streaming
+ * phase.
+ * </p>
  *
- * <p>Here we use the {@link Handover} as the buffer to submit data from the producer to the
- * consumer. Because the two threads don't communicate to each other directly, the error reporting
- * also relies on {@link Handover}. When the engine gets errors, the engine uses the {@link
- * DebeziumEngine.CompletionCallback} to report errors to the {@link Handover} and wakes up the
- * consumer to check the error. However, the source function just closes the engine and wakes up the
- * producer if the error is from the Flink side.</p>
+ * <p>
+ * Here we use the {@link Handover} as the buffer to submit data from the
+ * producer to the consumer. Because the two threads don't communicate to each
+ * other directly, the error reporting also relies on {@link Handover}. When the
+ * engine gets errors, the engine uses the
+ * {@link DebeziumEngine.CompletionCallback} to report errors to the
+ * {@link Handover} and wakes up the consumer to check the error. However, the
+ * source function just closes the engine and wakes up the producer if the error
+ * is from the Flink side.
+ * </p>
  *
- * <p>If the execution is canceled or finish(only snapshot phase), the exit logic is as same as the
- * logic in the error reporting.</p>
+ * <p>
+ * If the execution is canceled or finish(only snapshot phase), the exit logic
+ * is as same as the logic in the error reporting.
+ * </p>
  *
- * <p>The source function participates in checkpointing and guarantees that no data is lost during a
- * failure, and that the computation processes elements "exactly once".</p>
+ * <p>
+ * The source function participates in checkpointing and guarantees that no data
+ * is lost during a failure, and that the computation processes elements
+ * "exactly once".
+ * </p>
  *
- * <p>Note: currently, the source function can't run in multiple parallel instances.</p>
+ * <p>
+ * Note: currently, the source function can't run in multiple parallel
+ * instances.
+ * </p>
  *
- * <p>Please refer to Debezium's documentation for the available configuration properties:
- * https://debezium.io/documentation/reference/1.5/development/engine.html#engine-properties</p>
+ * <p>
+ * Please refer to Debezium's documentation for the available configuration
+ * properties:
+ * https://debezium.io/documentation/reference/1.5/development/engine.html#engine-properties
+ * </p>
  */
 @PublicEvolving
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
-        implements CheckpointedFunction, CheckpointListener, ResultTypeQueryable<T> {
+        implements
+            CheckpointedFunction,
+            CheckpointListener,
+            ResultTypeQueryable<T> {
 
     /**
      * State name of the consumer's partition offset states.
@@ -126,12 +152,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      */
     public static final String HISTORY_RECORDS_STATE_NAME = "history-records-states";
     /**
-     * The maximum number of pending non-committed checkpoints to track, to avoid memory leaks.
+     * The maximum number of pending non-committed checkpoints to track, to avoid
+     * memory leaks.
      */
     public static final int MAX_NUM_PENDING_CHECKPOINTS = 100;
     /**
-     * The configuration represents the Debezium MySQL Connector uses the legacy implementation or
-     * not.
+     * The configuration represents the Debezium MySQL Connector uses the legacy
+     * implementation or not.
      */
     public static final String LEGACY_IMPLEMENTATION_KEY = "internal.implementation";
     /**
@@ -157,15 +184,15 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /**
      * The specific binlog offset to read from when the first startup.
      */
-    private final @Nullable
-    DebeziumOffset specificOffset;
+    private final @Nullable DebeziumOffset specificOffset;
 
     /**
      * Data for pending but uncommitted offsets.
      */
     private final LinkedMap pendingOffsetsToCommit = new LinkedMap();
     /**
-     * Validator to validate the connected database satisfies the cdc connector's requirements.
+     * Validator to validate the connected database satisfies the cdc connector's
+     * requirements.
      */
     private final Validator validator;
     /**
@@ -179,10 +206,14 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /**
      * The offsets to restore to, if the consumer restores state from a checkpoint.
      *
-     * <p>This map will be populated by the {@link #initializeState(FunctionInitializationContext)}
-     * method.</p>
+     * <p>
+     * This map will be populated by the
+     * {@link #initializeState(FunctionInitializationContext)} method.
+     * </p>
      *
-     * <p>Using a String because we are encoding the offset state in JSON bytes.</p>
+     * <p>
+     * Using a String because we are encoding the offset state in JSON bytes.
+     * </p>
      */
     private transient volatile String restoredOffsetState;
 
@@ -206,8 +237,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     private transient ExecutorService executor;
     private transient DebeziumEngine<?> engine;
     /**
-     * Unique name of this Debezium Engine instance across all the jobs. Currently we randomly
-     * generate a UUID for it. This is used for {@link FlinkDatabaseHistory}.
+     * Unique name of this Debezium Engine instance across all the jobs. Currently
+     * we randomly generate a UUID for it. This is used for
+     * {@link FlinkDatabaseHistory}.
      */
     private transient String engineInstanceName;
 
@@ -257,35 +289,31 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     public void open(Configuration parameters) throws Exception {
         validator.validate();
         super.open(parameters);
-        ThreadFactory threadFactory =
-                new ThreadFactoryBuilder().setNameFormat("debezium-engine").build();
+        ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("debezium-engine").build();
         this.executor = Executors.newSingleThreadExecutor(threadFactory);
         this.handover = new Handover();
         this.changeConsumer = new DebeziumChangeConsumer(handover);
     }
 
     // ------------------------------------------------------------------------
-    //  Checkpoint and restore
+    // Checkpoint and restore
     // ------------------------------------------------------------------------
 
     @Override
     public void initializeState(FunctionInitializationContext context) throws Exception {
         OperatorStateStore stateStore = context.getOperatorStateStore();
-        this.offsetState =
-                stateStore.getUnionListState(
-                        new ListStateDescriptor<>(
-                                OFFSETS_STATE_NAME,
-                                PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO));
-        this.schemaRecordsState =
-                stateStore.getUnionListState(
-                        new ListStateDescriptor<>(
-                                HISTORY_RECORDS_STATE_NAME, BasicTypeInfo.STRING_TYPE_INFO));
+        this.offsetState = stateStore.getUnionListState(
+                new ListStateDescriptor<>(
+                        OFFSETS_STATE_NAME,
+                        PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO));
+        this.schemaRecordsState = stateStore.getUnionListState(
+                new ListStateDescriptor<>(
+                        HISTORY_RECORDS_STATE_NAME, BasicTypeInfo.STRING_TYPE_INFO));
 
         if (this.inlongMetric != null) {
-            this.metricStateListState =
-                    stateStore.getUnionListState(
-                            new ListStateDescriptor<>(
-                                    INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+            this.metricStateListState = stateStore.getUnionListState(
+                    new ListStateDescriptor<>(
+                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
                             })));
         }
 
@@ -296,8 +324,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                     getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
         } else {
             if (specificOffset != null) {
-                byte[] serializedOffset =
-                        DebeziumOffsetSerializer.INSTANCE.serialize(specificOffset);
+                byte[] serializedOffset = DebeziumOffsetSerializer.INSTANCE.serialize(specificOffset);
                 restoredOffsetState = new String(serializedOffset, StandardCharsets.UTF_8);
                 LOG.info(
                         "Consumer subtask {} starts to read from specified offset {}.",
@@ -338,7 +365,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 this.engineInstanceName = record;
                 firstEntry = false;
             } else {
-                // Put the records into the state. The database history should read, reorganize and
+                // Put the records into the state. The database history should read, reorganize
+                // and
                 // register the state.
                 historyRecords.add(new SchemaRecord(reader.read(record)));
                 recordsCount++;
@@ -422,12 +450,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     @Override
     public void run(SourceContext<T> sourceContext) throws Exception {
         // initialize metrics
-        // make RuntimeContext#getMetricGroup compatible between Flink 1.13 and Flink 1.14
-        final Method getMetricGroupMethod =
-                getRuntimeContext().getClass().getMethod("getMetricGroup");
+        // make RuntimeContext#getMetricGroup compatible between Flink 1.13 and Flink
+        // 1.14
+        final Method getMetricGroupMethod = getRuntimeContext().getClass().getMethod("getMetricGroup");
         getMetricGroupMethod.setAccessible(true);
-        final MetricGroup metricGroup =
-                (MetricGroup) getMetricGroupMethod.invoke(getRuntimeContext());
+        final MetricGroup metricGroup = (MetricGroup) getMetricGroupMethod.invoke(getRuntimeContext());
 
         metricGroup.gauge(
                 "currentFetchEventTimeLag",
@@ -467,64 +494,66 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         // history instance name to initialize FlinkDatabaseHistory
         properties.setProperty(
                 FlinkDatabaseHistory.DATABASE_HISTORY_INSTANCE_NAME, engineInstanceName);
-        // we have to use a persisted DatabaseHistory implementation, otherwise, recovery can't
+        // we have to use a persisted DatabaseHistory implementation, otherwise,
+        // recovery can't
         // continue to read binlog
         // see
         // https://stackoverflow.com/questions/57147584/debezium-error-schema-isnt-know-to-this-connector
-        // and https://debezium.io/blog/2018/03/16/note-on-database-history-topic-configuration/
+        // and
+        // https://debezium.io/blog/2018/03/16/note-on-database-history-topic-configuration/
         properties.setProperty("database.history", determineDatabase().getCanonicalName());
 
-        // we have to filter out the heartbeat events, otherwise the deserializer will fail
-        String dbzHeartbeatPrefix =
-                properties.getProperty(
-                        Heartbeat.HEARTBEAT_TOPICS_PREFIX.name(),
-                        Heartbeat.HEARTBEAT_TOPICS_PREFIX.defaultValueAsString());
-        this.debeziumChangeFetcher =
-                new DebeziumChangeFetcher<>(
-                        sourceContext,
-                        new DebeziumDeserializationSchema<T>() {
-                            @Override
-                            public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                if (sourceMetricData != null) {
-                                    sourceMetricData.outputMetricsWithEstimate(record.value());
-                                }
-                                deserializer.deserialize(record, out);
-                            }
+        // we have to filter out the heartbeat events, otherwise the deserializer will
+        // fail
+        String dbzHeartbeatPrefix = properties.getProperty(
+                Heartbeat.HEARTBEAT_TOPICS_PREFIX.name(),
+                Heartbeat.HEARTBEAT_TOPICS_PREFIX.defaultValueAsString());
+        this.debeziumChangeFetcher = new DebeziumChangeFetcher<>(
+                sourceContext,
+                new DebeziumDeserializationSchema<T>() {
 
-                            @Override
-                            public void deserialize(SourceRecord record, Collector<T> out,
-                                    TableChange tableSchema) throws Exception {
-                                if (sourceMetricData != null) {
-                                    sourceMetricData.outputMetricsWithEstimate(record.value());
-                                }
-                                deserializer.deserialize(record, out, tableSchema);
-                            }
+                    @Override
+                    public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
+                        if (sourceMetricData != null) {
+                            sourceMetricData.outputMetricsWithEstimate(record.value());
+                        }
+                        deserializer.deserialize(record, out);
+                    }
 
-                            @Override
-                            public TypeInformation<T> getProducedType() {
-                                return deserializer.getProducedType();
-                            }
-                        },
-                        restoredOffsetState == null, // DB snapshot phase if restore state is null
-                        dbzHeartbeatPrefix,
-                        handover);
+                    @Override
+                    public void deserialize(SourceRecord record, Collector<T> out,
+                            TableChange tableSchema)
+                            throws Exception {
+                        if (sourceMetricData != null) {
+                            sourceMetricData.outputMetricsWithEstimate(record.value());
+                        }
+                        deserializer.deserialize(record, out, tableSchema);
+                    }
+
+                    @Override
+                    public TypeInformation<T> getProducedType() {
+                        return deserializer.getProducedType();
+                    }
+                },
+                restoredOffsetState == null, // DB snapshot phase if restore state is null
+                dbzHeartbeatPrefix,
+                handover);
 
         // create the engine with this configuration ...
-        this.engine =
-                DebeziumEngine.create(Connect.class)
-                        .using(properties)
-                        .notifying(changeConsumer)
-                        .using(OffsetCommitPolicy.always())
-                        .using(
-                                (success, message, error) -> {
-                                    if (success) {
-                                        // Close the handover and prepare to exit.
-                                        handover.close();
-                                    } else {
-                                        handover.reportError(error);
-                                    }
-                                })
-                        .build();
+        this.engine = DebeziumEngine.create(Connect.class)
+                .using(properties)
+                .notifying(changeConsumer)
+                .using(OffsetCommitPolicy.always())
+                .using(
+                        (success, message, error) -> {
+                            if (success) {
+                                // Close the handover and prepare to exit.
+                                handover.close();
+                            } else {
+                                handover.reportError(error);
+                            }
+                        })
+                .build();
 
         // run the engine asynchronously
         executor.execute(engine);
@@ -571,8 +600,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 return;
             }
 
-            DebeziumOffset offset =
-                    DebeziumOffsetSerializer.INSTANCE.deserialize(serializedOffsets);
+            DebeziumOffset offset = DebeziumOffsetSerializer.INSTANCE.deserialize(serializedOffsets);
             changeConsumer.commitOffset(offset);
         } catch (Exception e) {
             // ignore exception if we are no longer running
@@ -639,8 +667,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     }
 
     private Class<?> determineDatabase() {
-        boolean isCompatibleWithLegacy =
-                FlinkDatabaseHistory.isCompatible(DatabaseHistoryUtil.retrieveHistory(engineInstanceName));
+        boolean isCompatibleWithLegacy = FlinkDatabaseHistory
+                .isCompatible(DatabaseHistoryUtil.retrieveHistory(engineInstanceName));
         if (LEGACY_IMPLEMENTATION_VALUE.equals(properties.get(LEGACY_IMPLEMENTATION_KEY))) {
             // specifies the legacy implementation but the state may be incompatible
             if (isCompatibleWithLegacy) {

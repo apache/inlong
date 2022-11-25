@@ -17,13 +17,15 @@
 
 package org.apache.inlong.tubemq.corerpc.protocol;
 
-import java.util.concurrent.ExecutorService;
 import org.apache.inlong.tubemq.corerpc.server.RequestContext;
+
+import java.util.concurrent.ExecutorService;
 
 public interface Protocol {
 
     void registerService(boolean isOverTLS, String serviceName,
-                         Object instance, ExecutorService threadPool) throws Exception;
+            Object instance, ExecutorService threadPool)
+            throws Exception;
 
     void removeService(String serviceName) throws Exception;
 

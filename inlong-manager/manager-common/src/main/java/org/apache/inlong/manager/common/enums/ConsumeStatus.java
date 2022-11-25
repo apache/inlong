@@ -17,27 +17,25 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Inlong consume status
  */
 public enum ConsumeStatus {
 
-    TO_BE_SUBMIT(100, "waiting for submit"),
-    TO_BE_APPROVAL(101, "waiting for approval"),
+    TO_BE_SUBMIT(100, "waiting for submit"), TO_BE_APPROVAL(101, "waiting for approval"),
 
-    APPROVE_REJECTED(102, "approval rejected"),
-    APPROVE_PASSED(103, "approval passed"),
-    APPROVE_CANCELED(104, "approval canceled"),
+    APPROVE_REJECTED(102, "approval rejected"), APPROVE_PASSED(103, "approval passed"), APPROVE_CANCELED(104,
+            "approval canceled"),
 
-    DELETING(41, "deleting"),
-    DELETED(40, "deleted"),
+    DELETING(41, "deleting"), DELETED(40, "deleted"),
 
     ;
 
@@ -73,7 +71,8 @@ public enum ConsumeStatus {
     /**
      * Get the ConsumeStatus instance from the given code
      *
-     * @param code status code
+     * @param code
+     *          status code
      * @return instance of ConsumeStatus
      */
     public static ConsumeStatus forCode(int code) {
@@ -88,8 +87,10 @@ public enum ConsumeStatus {
     /**
      * Check whether the current status can be transferred to the next status
      *
-     * @param cur current status
-     * @param next next status
+     * @param cur
+     *          current status
+     * @param next
+     *          next status
      * @return true if transferred, false if not
      */
     public static boolean notAllowedTransfer(ConsumeStatus cur, ConsumeStatus next) {

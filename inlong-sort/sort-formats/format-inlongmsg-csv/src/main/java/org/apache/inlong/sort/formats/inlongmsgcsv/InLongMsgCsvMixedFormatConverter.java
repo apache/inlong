@@ -18,17 +18,21 @@
 
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
+import org.apache.inlong.sort.formats.common.RowFormatInfo;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatConverter;
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
+
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.types.Row;
+import org.apache.flink.util.Collector;
+
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 import javax.annotation.Nonnull;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.types.Row;
-import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgMixedFormatConverter;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,8 +78,7 @@ public class InLongMsgCsvMixedFormatConverter implements InLongMsgMixedFormatCon
             @Nonnull String timeFieldName,
             @Nonnull String attributesFieldName,
             String nullLiteral,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         this.rowFormatInfo = rowFormatInfo;
         this.timeFieldName = timeFieldName;
         this.attributesFieldName = attributesFieldName;
@@ -126,10 +129,10 @@ public class InLongMsgCsvMixedFormatConverter implements InLongMsgMixedFormatCon
 
         InLongMsgCsvMixedFormatConverter that = (InLongMsgCsvMixedFormatConverter) o;
         return ignoreErrors == that.ignoreErrors
-                       && rowFormatInfo.equals(that.rowFormatInfo)
-                       && timeFieldName.equals(that.timeFieldName)
-                       && attributesFieldName.equals(that.attributesFieldName)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && rowFormatInfo.equals(that.rowFormatInfo)
+                && timeFieldName.equals(that.timeFieldName)
+                && attributesFieldName.equals(that.attributesFieldName)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override

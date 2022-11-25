@@ -20,32 +20,38 @@ package org.apache.inlong.tubemq.server.master.utils;
 import org.apache.inlong.tubemq.server.Stoppable;
 import org.apache.inlong.tubemq.server.common.utils.HasThread;
 import org.apache.inlong.tubemq.server.common.utils.Sleeper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Chore is a task performed on a period in tubeMQ. The chore is run in its own thread. This base
- * abstract class provides while loop and sleeping facility. If an unhandled exception, the threads
- * exit is logged. Implementers just need to add checking if there is work to be done and if so, do
- * it.
+ * Chore is a task performed on a period in tubeMQ. The chore is run in its own
+ * thread. This base abstract class provides while loop and sleeping facility.
+ * If an unhandled exception, the threads exit is logged. Implementers just need
+ * to add checking if there is work to be done and if so, do it.
  *
- * Don't subclass Chore if the task relies on being woken up for something to do, such as an entry
- * being added to a queue, etc.
+ * Don't subclass Chore if the task relies on being woken up for something to
+ * do, such as an entry being added to a queue, etc.
  *
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public abstract class Chore extends HasThread {
+
     protected final Stoppable stopper;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Sleeper sleeper;
 
     /**
      * Initial Chore object
-     * @param name    the chore thread name
-     * @param p       Period at which we should run. Will be adjusted appropriately should we find
-     *                work and it takes time to complete.
-     * @param stopper When {@link Stoppable#isStopped()} is true, this thread will cleanup and exit
-     *                cleanly.
+     * 
+     * @param name
+     *          the chore thread name
+     * @param p
+     *          Period at which we should run. Will be adjusted appropriately should
+     *          we find work and it takes time to complete.
+     * @param stopper
+     *          When {@link Stoppable#isStopped()} is true, this thread will cleanup
+     *          and exit cleanly.
      */
     public Chore(String name, final int p, final Stoppable stopper) {
         super(name);
@@ -85,8 +91,9 @@ public abstract class Chore extends HasThread {
     }
 
     /**
-     * If the thread is currently sleeping, trigger the core to happen immediately. If it's in the
-     * middle of its operation, will begin another operation immediately after finishing this one.
+     * If the thread is currently sleeping, trigger the core to happen immediately.
+     * If it's in the middle of its operation, will begin another operation
+     * immediately after finishing this one.
      */
     public void triggerNow() {
         this.sleeper.skipSleepCycle();
@@ -122,7 +129,8 @@ public abstract class Chore extends HasThread {
     }
 
     /**
-     * Called when the chore has completed, allowing subclasses to cleanup any extra overhead
+     * Called when the chore has completed, allowing subclasses to cleanup any extra
+     * overhead
      */
     protected void cleanup() {
     }

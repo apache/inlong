@@ -18,8 +18,6 @@
 
 package org.apache.inlong.sort.parser.impl;
 
-import com.google.common.base.Preconditions;
-import org.apache.flink.table.api.TableEnvironment;
 import org.apache.inlong.sort.function.EncryptFunction;
 import org.apache.inlong.sort.function.JsonGetterFunction;
 import org.apache.inlong.sort.function.RegexpReplaceFirstFunction;
@@ -27,16 +25,20 @@ import org.apache.inlong.sort.function.RegexpReplaceFunction;
 import org.apache.inlong.sort.parser.Parser;
 import org.apache.inlong.sort.parser.result.FlinkSqlParseResult;
 import org.apache.inlong.sort.parser.result.ParseResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flink.table.api.TableEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+
 /**
- * parse flink sql script file
- * script file include CREATE TABLE statement
+ * parse flink sql script file script file include CREATE TABLE statement
  */
 public class NativeFlinkSqlParser implements Parser {
 
@@ -54,8 +56,10 @@ public class NativeFlinkSqlParser implements Parser {
     /**
      * Get a instance of NativeFlinkSqlParser
      *
-     * @param tableEnv The tableEnv,it is the execution environment of flink sql
-     * @param statements The statements, it is statement set
+     * @param tableEnv
+     *          The tableEnv,it is the execution environment of flink sql
+     * @param statements
+     *          The statements, it is statement set
      * @return NativeFlinkSqlParser The flink sql parse handler
      */
     public static NativeFlinkSqlParser getInstance(TableEnvironment tableEnv, String statements) {

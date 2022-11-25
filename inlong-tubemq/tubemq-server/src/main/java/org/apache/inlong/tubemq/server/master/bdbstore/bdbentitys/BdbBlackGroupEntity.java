@@ -17,16 +17,19 @@
 
 package org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import java.io.Serializable;
-import java.util.Date;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
 
 @Entity
 public class BdbBlackGroupEntity implements Serializable {
@@ -45,7 +48,7 @@ public class BdbBlackGroupEntity implements Serializable {
     }
 
     public BdbBlackGroupEntity(String topicName, String consumerGroupName,
-                               String createUser, Date createDate) {
+            String createUser, Date createDate) {
         this.recordKey = new StringBuilder(512).append(topicName)
                 .append(TokenConstants.ATTR_SEP).append(consumerGroupName).toString();
         this.topicName = topicName;
@@ -55,8 +58,8 @@ public class BdbBlackGroupEntity implements Serializable {
     }
 
     public BdbBlackGroupEntity(String topicName, String groupName,
-                               String attributes, String createUser,
-                               Date createDate) {
+            String attributes, String createUser,
+            Date createDate) {
         this.recordKey = new StringBuilder(512).append(topicName)
                 .append(TokenConstants.ATTR_SEP).append(consumerGroupName).toString();
         this.topicName = topicName;
@@ -111,9 +114,8 @@ public class BdbBlackGroupEntity implements Serializable {
     }
 
     public long getDataVerId() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_VERSION_ID);
         if (atrVal != null) {
             return Long.parseLong(atrVal);
         }
@@ -121,16 +123,14 @@ public class BdbBlackGroupEntity implements Serializable {
     }
 
     public void setDataVerId(long dataVerId) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID,
-                        String.valueOf(dataVerId));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_VERSION_ID,
+                String.valueOf(dataVerId));
     }
 
     public void setReason(String reason) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_BLK_REASON, reason);
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_BLK_REASON, reason);
     }
 
     public String getReason() {

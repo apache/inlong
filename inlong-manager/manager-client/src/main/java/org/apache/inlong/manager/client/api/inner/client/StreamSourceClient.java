@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.StreamSourceApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
@@ -27,6 +26,8 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
@@ -92,8 +93,10 @@ public class StreamSourceClient {
     /**
      * Force deletes the stream source by groupId and streamId
      *
-     * @param groupId The belongs group id.
-     * @param streamId The belongs stream id.
+     * @param groupId
+     *          The belongs group id.
+     * @param streamId
+     *          The belongs stream id.
      * @return Whether succeed
      */
     public boolean forceDelete(String groupId, String streamId) {

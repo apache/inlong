@@ -17,17 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink;
 
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.FlumeException;
-import org.apache.flume.Transaction;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.sink.AbstractSink;
-import org.apache.flume.source.shaded.guava.RateLimiter;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.dataproxy.config.ConfigManager;
@@ -47,8 +36,17 @@ import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
 import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.flume.EventDeliveryException;
+import org.apache.flume.FlumeException;
+import org.apache.flume.Transaction;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.sink.AbstractSink;
+import org.apache.flume.source.shaded.guava.RateLimiter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +60,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 public class SimpleMessageTubeSink extends AbstractSink implements Configurable {
 
@@ -139,8 +142,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
     private Map<String, String> dimensions;
     private DataProxyMetricItemSet metricItemSet;
     private static final MsgDedupHandler msgDedupHandler = new MsgDedupHandler();
-    private static ConcurrentHashMap<String, Long> illegalTopicMap =
-            new ConcurrentHashMap<String, Long>();
+    private static ConcurrentHashMap<String, Long> illegalTopicMap = new ConcurrentHashMap<String, Long>();
 
     private boolean overflow = false;
 
@@ -204,13 +206,14 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
     }
 
     /**
-     * If this function is called successively without calling {@see #destroyConnection()}, only the
-     * first call has any effect.
+     * If this function is called successively without calling
+     * {@see #destroyConnection()}, only the first call has any effect.
      *
-     * @throws FlumeException if an RPC client connection could not be opened
+     * @throws FlumeException
+     *           if an RPC client connection could not be opened
      */
     private void createConnection() throws FlumeException {
-//        synchronized (tubeSessionLock) {
+        // synchronized (tubeSessionLock) {
         // if already connected, just skip
         if (sessionFactory != null) {
             return;
@@ -218,7 +221,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
 
         try {
             TubeClientConfig conf = initTubeConfig();
-            //sessionFactory = new TubeMutilMessageSessionFactory(conf);
+            // sessionFactory = new TubeMutilMessageSessionFactory(conf);
             sessionFactory = new TubeMultiSessionFactory(conf);
         } catch (TubeClientException e) {
             logger.error("create connnection error in metasink, "
@@ -227,7 +230,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                     + "maybe zkstr/zkroot set error, please re-check");
         } catch (Throwable e) {
             logger.error("create connnection error in metasink, "
-                            + "maybe tube master set error/shutdown in progress, please re-check. ex2 {}",
+                    + "maybe tube master set error/shutdown in progress, please re-check. ex2 {}",
                     e.getMessage());
             throw new FlumeException("connect to meta error2, "
                     + "maybe tube master set error/shutdown in progress, please re-check");
@@ -237,7 +240,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             producerMap = new HashMap<String, MessageProducer>();
         }
         logger.debug("building tube producer");
-//        }
+        // }
     }
 
     private void destroyConnection() {
@@ -310,11 +313,11 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
         this.dimensions = new HashMap<>();
         this.dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
         this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
-        //register metrics
+        // register metrics
         this.metricItemSet = new DataProxyMetricItemSet(this.getName());
         MetricRegister.register(metricItemSet);
-        
-        //create tube connection
+
+        // create tube connection
         try {
             createConnection();
         } catch (FlumeException e) {
@@ -347,8 +350,9 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
 
     class SinkTask implements Runnable {
 
-        private void sendMessage(Event event, String topic, AtomicBoolean flag, EventStat es)
-            throws TubeClientException, InterruptedException {
+        private void sendMessage(Event event, String topic, AtomicBoolean flag,
+                EventStat es)
+                throws TubeClientException, InterruptedException {
             if (msgDedupHandler.judgeDupAndPutMsgSeqId(
                     event.getHeaders().get(ConfigConstants.SEQUENCE_ID))) {
                 logger.info("{} agent package {} existed,just discard.",
@@ -364,7 +368,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             if (t instanceof TubeClientException) {
                 String message = t.getMessage();
                 if (message != null && (message.contains("No available queue for topic")
-                    || message.contains("The brokers of topic are all forbidden"))) {
+                        || message.contains("The brokers of topic are all forbidden"))) {
                     illegalTopicMap.put(topic, System.currentTimeMillis() + 60 * 1000);
                     logger.info("IllegalTopicMap.put " + topic);
                     return;
@@ -372,13 +376,13 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        //ignore..
+                        // ignore..
                     }
                 }
             }
             logger.error("Sink task fail to send the message, decrementFlag=" + decrementFlag + ",sink.name="
-                + Thread.currentThread().getName()
-                + ",event.headers=" + es.getEvent().getHeaders(), t);
+                    + Thread.currentThread().getName()
+                    + ",event.headers=" + es.getEvent().getHeaders(), t);
         }
 
         @Override
@@ -408,7 +412,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                     } else {
                         event = eventQueue.take();
                         es = new EventStat(event);
-//                            sendCnt.incrementAndGet();
+                        // sendCnt.incrementAndGet();
                         if (event.getHeaders().containsKey(TOPIC)) {
                             topic = event.getHeaders().get(TOPIC);
                         }
@@ -431,7 +435,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
                         if (expireTime > currentTime) {
 
                             // TODO: need to be improved.
-//                            reChannelEvent(es, topic);
+                            // reChannelEvent(es, topic);
                             continue;
                         } else {
 
@@ -466,6 +470,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
     }
 
     public class MyCallback implements MessageSentCallback {
+
         private EventStat myEventStat;
         private long sendTime;
 
@@ -511,7 +516,7 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             dimensions.put(DataProxyMetricItem.KEY_SINK_DATA_ID, event.getHeaders().getOrDefault(TOPIC, ""));
             DataProxyMetricItem.fillInlongId(event, dimensions);
             DataProxyMetricItem.fillAuditFormatTime(event, dimensions);
-            
+
             DataProxyMetricItem metricItem = SimpleMessageTubeSink.this.metricItemSet.findMetricItem(dimensions);
             if (result) {
                 metricItem.sendSuccessCount.incrementAndGet();
@@ -622,11 +627,12 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
     @Override
     public void configure(Context context) {
         logger.info(context.toString());
-//        logger.info("sinktest:"+getName()+getChannel());//sinktest:meta-sink-msg2null
+        // logger.info("sinktest:"+getName()+getChannel());//sinktest:meta-sink-msg2null
 
         configManager = ConfigManager.getInstance();
         topicProperties = configManager.getTopicProperties();
         configManager.getTopicConfig().addUpdateCallback(new ConfigUpdateCallback() {
+
             @Override
             public void update() {
 
@@ -703,10 +709,11 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
 
     /**
      * get metricItemSet
+     * 
      * @return the metricItemSet
      */
     public DataProxyMetricItemSet getMetricItemSet() {
         return metricItemSet;
     }
-    
+
 }

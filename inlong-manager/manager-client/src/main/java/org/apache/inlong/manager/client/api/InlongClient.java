@@ -31,9 +31,10 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupStatusInfo;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 /**
  * An interface to manipulate Inlong Cluster
@@ -62,8 +63,10 @@ public interface InlongClient {
     /**
      * Create inlong client.
      *
-     * @param serviceUrl the service url
-     * @param configuration the configuration
+     * @param serviceUrl
+     *          the service url
+     * @param configuration
+     *          the configuration
      * @return the inlong client
      */
     static InlongClient create(String serviceUrl, ClientConfiguration configuration) {
@@ -81,9 +84,11 @@ public interface InlongClient {
     /**
      * Create inlong group by the given group info
      *
-     * @param groupInfo the group info
+     * @param groupInfo
+     *          the group info
      * @return the inlong group
-     * @throws Exception the exception
+     * @throws Exception
+     *           the exception
      */
     InlongGroup forGroup(InlongGroupInfo groupInfo) throws Exception;
 
@@ -91,42 +96,51 @@ public interface InlongClient {
      * List group list.
      *
      * @return the list
-     * @throws Exception the exception
+     * @throws Exception
+     *           the exception
      */
     List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) throws Exception;
 
     /**
      * List group status
      *
-     * @param groupIds inlong group id list
+     * @param groupIds
+     *          inlong group id list
      * @return map of inlong group status list
-     * @throws Exception the exception
+     * @throws Exception
+     *           the exception
      */
     Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds) throws Exception;
 
     /**
      * List group status
      *
-     * @param groupIds inlong group id list
-     * @param credentials auth info to query sort task such as sort cluster token
+     * @param groupIds
+     *          inlong group id list
+     * @param credentials
+     *          auth info to query sort task such as sort cluster token
      * @return map of inlong group status list
-     * @throws Exception the exception
+     * @throws Exception
+     *           the exception
      */
     Map<String, InlongGroupStatusInfo> listGroupStatus(List<String> groupIds, String credentials) throws Exception;
 
     /**
      * Gets group.
      *
-     * @param groupName the group name
+     * @param groupName
+     *          the group name
      * @return the group
-     * @throws Exception the exception
+     * @throws Exception
+     *           the exception
      */
     InlongGroup getGroup(String groupName) throws Exception;
 
     /**
      * Save cluster tag.
      *
-     * @param request cluster tag
+     * @param request
+     *          cluster tag
      * @return saved cluster tag id
      */
     Integer saveTag(ClusterTagRequest request);
@@ -134,7 +148,8 @@ public interface InlongClient {
     /**
      * Get cluster tag by id.
      *
-     * @param id cluster tag id
+     * @param id
+     *          cluster tag id
      * @return cluster tag info
      */
     ClusterTagResponse getTag(Integer id);
@@ -142,7 +157,8 @@ public interface InlongClient {
     /**
      * Paging query cluster tags according to conditions.
      *
-     * @param request page request conditions
+     * @param request
+     *          page request conditions
      * @return cluster tag list
      */
     PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request);
@@ -150,7 +166,8 @@ public interface InlongClient {
     /**
      * Update cluster tag.
      *
-     * @param request cluster tag to be modified
+     * @param request
+     *          cluster tag to be modified
      * @return whether succeed
      */
     Boolean updateTag(ClusterTagRequest request);
@@ -158,7 +175,8 @@ public interface InlongClient {
     /**
      * Delete cluster tag.
      *
-     * @param id cluster tag id to be deleted
+     * @param id
+     *          cluster tag id to be deleted
      * @return whether succeed
      */
     Boolean deleteTag(Integer id);
@@ -166,7 +184,8 @@ public interface InlongClient {
     /**
      * Save component cluster for Inlong.
      *
-     * @param request cluster create request
+     * @param request
+     *          cluster create request
      * @return clusterIndex
      */
     Integer saveCluster(ClusterRequest request);
@@ -174,7 +193,8 @@ public interface InlongClient {
     /**
      * Get cluster info by id.
      *
-     * @param id cluster id
+     * @param id
+     *          cluster id
      * @return cluster info
      */
     ClusterInfo get(Integer id);
@@ -182,7 +202,8 @@ public interface InlongClient {
     /**
      * Paging query clusters according to conditions.
      *
-     * @param request query conditions
+     * @param request
+     *          query conditions
      * @return cluster list
      */
     PageResult<ClusterInfo> list(ClusterPageRequest request);
@@ -190,7 +211,8 @@ public interface InlongClient {
     /**
      * Update cluster information.
      *
-     * @param request cluster to be modified
+     * @param request
+     *          cluster to be modified
      * @return whether succeed
      */
     Boolean update(ClusterRequest request);
@@ -198,7 +220,8 @@ public interface InlongClient {
     /**
      * Bind or unbind cluster tag for clusters.
      *
-     * @param request cluster to be modified
+     * @param request
+     *          cluster to be modified
      * @return whether succeed
      */
     Boolean bindTag(BindTagRequest request);
@@ -206,7 +229,8 @@ public interface InlongClient {
     /**
      * Delete cluster information.
      *
-     * @param id cluster id to be deleted
+     * @param id
+     *          cluster id to be deleted
      * @return whether succeed
      */
     Boolean delete(Integer id);
@@ -214,7 +238,8 @@ public interface InlongClient {
     /**
      * Save cluster node info.
      *
-     * @param request cluster info
+     * @param request
+     *          cluster info
      * @return id after saving
      */
     Integer saveNode(ClusterNodeRequest request);
@@ -222,7 +247,8 @@ public interface InlongClient {
     /**
      * Get cluster node info by id.
      *
-     * @param id cluster id
+     * @param id
+     *          cluster id
      * @return cluster info
      */
     ClusterNodeResponse getNode(Integer id);
@@ -230,7 +256,8 @@ public interface InlongClient {
     /**
      * Paging query cluster nodes according to conditions.
      *
-     * @param request page request conditions
+     * @param request
+     *          page request conditions
      * @return cluster node list
      */
     PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request);
@@ -238,9 +265,12 @@ public interface InlongClient {
     /**
      * List cluster nodes
      *
-     * @param inlongGroupId inlong group id
-     * @param clusterType cluster type
-     * @param protocolType protocol type, such as: TCP, HTTP
+     * @param inlongGroupId
+     *          inlong group id
+     * @param clusterType
+     *          cluster type
+     * @param protocolType
+     *          protocol type, such as: TCP, HTTP
      * @return cluster node list
      */
     List<ClusterNodeResponse> listNode(String inlongGroupId, String clusterType, @Nullable String protocolType);
@@ -248,7 +278,8 @@ public interface InlongClient {
     /**
      * Update cluster node.
      *
-     * @param request cluster node to be modified
+     * @param request
+     *          cluster node to be modified
      * @return whether succeed
      */
     Boolean updateNode(ClusterNodeRequest request);
@@ -256,7 +287,8 @@ public interface InlongClient {
     /**
      * Delete cluster node.
      *
-     * @param id cluster node id to be deleted
+     * @param id
+     *          cluster node id to be deleted
      * @return whether succeed
      */
     Boolean deleteNode(Integer id);

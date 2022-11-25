@@ -39,7 +39,7 @@ public class MetricValue {
     /**
      * of
      * 
-     * @param  value
+     * @param value
      * @return
      */
     public static MetricValue of(String name, long value) {

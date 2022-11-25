@@ -23,13 +23,14 @@ import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for {@link KafkaLoadNode}
@@ -41,7 +42,8 @@ public class KafkaLoadNodeTest extends SerializeBaseTest<KafkaLoadNode> {
         return new KafkaLoadNode("1", null,
                 Arrays.asList(new FieldInfo("field", new StringFormatInfo())),
                 Arrays.asList(new FieldRelation(new FieldInfo("field", new StringFormatInfo()),
-                        new FieldInfo("field", new StringFormatInfo()))), null, null,
+                        new FieldInfo("field", new StringFormatInfo()))),
+                null, null,
                 "topic", "localhost:9092", new CanalJsonFormat(),
                 1, new TreeMap<>(), null);
     }

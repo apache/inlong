@@ -17,7 +17,14 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import io.netty.util.concurrent.DefaultThreadFactory;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
+
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -34,8 +41,6 @@ import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.SendResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,13 +53,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
  * proxy client
@@ -65,8 +67,7 @@ public class SenderManager {
     private static final SequentialID SEQUENTIAL_ID = SequentialID.getInstance();
     private static final AtomicInteger SENDER_INDEX = new AtomicInteger(0);
     // cache for group and sender list, share the map cross agent lifecycle.
-    private static final ConcurrentHashMap<String, List<DefaultMessageSender>> SENDER_MAP =
-            new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, List<DefaultMessageSender>> SENDER_MAP = new ConcurrentHashMap<>();
 
     // sharing worker threads between sender client
     // in case of thread abusing.
@@ -166,7 +167,8 @@ public class SenderManager {
     /**
      * Select by group.
      *
-     * @param group inlong group id
+     * @param group
+     *          inlong group id
      * @return default message sender
      */
     private DefaultMessageSender selectSender(String group) {
@@ -186,7 +188,8 @@ public class SenderManager {
     /**
      * sender
      *
-     * @param tagName group id
+     * @param tagName
+     *          group id
      * @return DefaultMessageSender
      */
     private DefaultMessageSender createMessageSender(String tagName) throws Exception {

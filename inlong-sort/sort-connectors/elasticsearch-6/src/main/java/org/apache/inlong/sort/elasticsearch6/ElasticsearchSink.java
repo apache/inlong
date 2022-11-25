@@ -17,47 +17,56 @@
 
 package org.apache.inlong.sort.elasticsearch6;
 
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
+
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
 import org.apache.flink.streaming.connectors.elasticsearch.util.NoOpFailureHandler;
 import org.apache.flink.streaming.connectors.elasticsearch6.RestClientFactory;
 import org.apache.flink.util.Preconditions;
 import org.apache.http.HttpHost;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
-import org.elasticsearch.action.ActionRequest;
-import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.client.RestHighLevelClient;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.client.RestHighLevelClient;
+
 /**
- * Elasticsearch 6.x sink that requests multiple {@link ActionRequest ActionRequests} against a
- * cluster for each incoming element.
+ * Elasticsearch 6.x sink that requests multiple {@link ActionRequest
+ * ActionRequests} against a cluster for each incoming element.
  *
- * <p>The sink internally uses a {@link RestHighLevelClient} to communicate with an Elasticsearch
- * cluster. The sink will fail if no cluster can be connected to using the provided transport
- * addresses passed to the constructor.
+ * <p>
+ * The sink internally uses a {@link RestHighLevelClient} to communicate with an
+ * Elasticsearch cluster. The sink will fail if no cluster can be connected to
+ * using the provided transport addresses passed to the constructor.
  *
- * <p>Internally, the sink will use a {@link BulkProcessor} to send {@link ActionRequest
- * ActionRequests}. This will buffer elements before sending a request to the cluster. The behaviour
- * of the {@code BulkProcessor} can be configured using these config keys:
+ * <p>
+ * Internally, the sink will use a {@link BulkProcessor} to send
+ * {@link ActionRequest ActionRequests}. This will buffer elements before
+ * sending a request to the cluster. The behaviour of the {@code BulkProcessor}
+ * can be configured using these config keys:
  *
  * <ul>
- *   <li>{@code bulk.flush.max.actions}: Maximum amount of elements to buffer
- *   <li>{@code bulk.flush.max.size.mb}: Maximum amount of data (in megabytes) to buffer
- *   <li>{@code bulk.flush.interval.ms}: Interval at which to flush data regardless of the other two
- *       settings in milliseconds
+ * <li>{@code bulk.flush.max.actions}: Maximum amount of elements to buffer
+ * <li>{@code bulk.flush.max.size.mb}: Maximum amount of data (in megabytes) to
+ * buffer
+ * <li>{@code bulk.flush.interval.ms}: Interval at which to flush data
+ * regardless of the other two settings in milliseconds
  * </ul>
  *
- * <p>You also have to provide an {@link ElasticsearchSinkFunction}. This is used to create multiple
- * {@link ActionRequest ActionRequests} for each incoming element. See the class level documentation
- * of {@link ElasticsearchSinkFunction} for an example.
+ * <p>
+ * You also have to provide an {@link ElasticsearchSinkFunction}. This is used
+ * to create multiple {@link ActionRequest ActionRequests} for each incoming
+ * element. See the class level documentation of
+ * {@link ElasticsearchSinkFunction} for an example.
  *
- * @param <T> Type of the elements handled by this sink
+ * @param <T>
+ *          Type of the elements handled by this sink
  */
 @PublicEvolving
 public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevelClient> {
@@ -83,7 +92,8 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
     /**
      * A builder for creating an {@link ElasticsearchSink}.
      *
-     * @param <T> Type of the elements handled by the sink this builder creates.
+     * @param <T>
+     *          Type of the elements handled by the sink this builder creates.
      */
     @PublicEvolving
     public static class Builder<T> {
@@ -98,13 +108,15 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         private String inlongMetric = null;
 
         /**
-         * Creates a new {@code ElasticsearchSink} that connects to the cluster using a {@link
-         * RestHighLevelClient}.
+         * Creates a new {@code ElasticsearchSink} that connects to the cluster using a
+         * {@link RestHighLevelClient}.
          *
-         * @param httpHosts The list of {@link HttpHost} to which the {@link RestHighLevelClient}
-         *         connects to.
-         * @param elasticsearchSinkFunction This is used to generate multiple {@link ActionRequest}
-         *         from the incoming element.
+         * @param httpHosts
+         *          The list of {@link HttpHost} to which the
+         *          {@link RestHighLevelClient} connects to.
+         * @param elasticsearchSinkFunction
+         *          This is used to generate multiple {@link ActionRequest} from the
+         *          incoming element.
          */
         public Builder(
                 List<HttpHost> httpHosts, ElasticsearchSinkFunction<T> elasticsearchSinkFunction) {
@@ -114,6 +126,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
 
         /**
          * set InLongMetric for reporting metrics
+         * 
          * @param inlongMetric
          */
         public void setInLongMetric(String inlongMetric) {
@@ -121,10 +134,11 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         }
 
         /**
-         * Sets the maximum number of actions to buffer for each bulk request. You can pass -1 to
-         * disable it.
+         * Sets the maximum number of actions to buffer for each bulk request. You can
+         * pass -1 to disable it.
          *
-         * @param numMaxActions the maximum number of actions to buffer per bulk request.
+         * @param numMaxActions
+         *          the maximum number of actions to buffer per bulk request.
          */
         public void setBulkFlushMaxActions(int numMaxActions) {
             Preconditions.checkArgument(
@@ -136,10 +150,11 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         }
 
         /**
-         * Sets the maximum size of buffered actions, in mb, per bulk request. You can pass -1 to
-         * disable it.
+         * Sets the maximum size of buffered actions, in mb, per bulk request. You can
+         * pass -1 to disable it.
          *
-         * @param maxSizeMb the maximum size of buffered actions, in mb.
+         * @param maxSizeMb
+         *          the maximum size of buffered actions, in mb.
          */
         public void setBulkFlushMaxSizeMb(int maxSizeMb) {
             Preconditions.checkArgument(
@@ -153,7 +168,8 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         /**
          * Sets the bulk flush interval, in milliseconds. You can pass -1 to disable it.
          *
-         * @param intervalMillis the bulk flush interval, in milliseconds.
+         * @param intervalMillis
+         *          the bulk flush interval, in milliseconds.
          */
         public void setBulkFlushInterval(long intervalMillis) {
             Preconditions.checkArgument(
@@ -167,7 +183,8 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         /**
          * Sets whether or not to enable bulk flush backoff behaviour.
          *
-         * @param enabled whether or not to enable backoffs.
+         * @param enabled
+         *          whether or not to enable backoffs.
          */
         public void setBulkFlushBackoff(boolean enabled) {
             this.bulkRequestsConfig.put(
@@ -177,7 +194,8 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         /**
          * Sets the type of back of to use when flushing bulk requests.
          *
-         * @param flushBackoffType the backoff type to use.
+         * @param flushBackoffType
+         *          the backoff type to use.
          */
         public void setBulkFlushBackoffType(FlushBackoffType flushBackoffType) {
             this.bulkRequestsConfig.put(
@@ -186,10 +204,12 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         }
 
         /**
-         * Sets the maximum number of retries for a backoff attempt when flushing bulk requests.
+         * Sets the maximum number of retries for a backoff attempt when flushing bulk
+         * requests.
          *
-         * @param maxRetries the maximum number of retries for a backoff attempt when flushing bulk
-         *         requests
+         * @param maxRetries
+         *          the maximum number of retries for a backoff attempt when flushing
+         *          bulk requests
          */
         public void setBulkFlushBackoffRetries(int maxRetries) {
             Preconditions.checkArgument(
@@ -200,11 +220,12 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         }
 
         /**
-         * Sets the amount of delay between each backoff attempt when flushing bulk requests, in
-         * milliseconds.
+         * Sets the amount of delay between each backoff attempt when flushing bulk
+         * requests, in milliseconds.
          *
-         * @param delayMillis the amount of delay between each backoff attempt when flushing bulk
-         *         requests, in milliseconds.
+         * @param delayMillis
+         *          the amount of delay between each backoff attempt when flushing bulk
+         *          requests, in milliseconds.
          */
         public void setBulkFlushBackoffDelay(long delayMillis) {
             Preconditions.checkArgument(
@@ -217,7 +238,8 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         /**
          * Sets a failure handler for action requests.
          *
-         * @param failureHandler This is used to handle failed {@link ActionRequest}.
+         * @param failureHandler
+         *          This is used to handle failed {@link ActionRequest}.
          */
         public void setFailureHandler(ActionRequestFailureHandler failureHandler) {
             this.failureHandler = Preconditions.checkNotNull(failureHandler);
@@ -226,7 +248,8 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
         /**
          * Sets a REST client factory for custom client configuration.
          *
-         * @param restClientFactory the factory that configures the rest client.
+         * @param restClientFactory
+         *          the factory that configures the rest client.
          */
         public void setRestClientFactory(RestClientFactory restClientFactory) {
             this.restClientFactory = Preconditions.checkNotNull(restClientFactory);
@@ -244,8 +267,7 @@ public class ElasticsearchSink<T> extends ElasticsearchSinkBase<T, RestHighLevel
                     elasticsearchSinkFunction,
                     failureHandler,
                     restClientFactory,
-                    inlongMetric
-                    );
+                    inlongMetric);
         }
 
         @Override

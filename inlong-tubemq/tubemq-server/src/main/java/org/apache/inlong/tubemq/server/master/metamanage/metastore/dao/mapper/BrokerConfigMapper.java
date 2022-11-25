@@ -17,65 +17,81 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper;
 
-import java.util.Map;
-import java.util.Set;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
+
+import java.util.Map;
+import java.util.Set;
 
 public interface BrokerConfigMapper extends AbstractMapper {
 
     /**
      * Add a new broker configure info into store
      *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
-     * @param result   process result with old value
-     * @return  the process result
+     * @param entity
+     *          need add record
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          process result with old value
+     * @return the process result
      */
     boolean addBrokerConf(BrokerConfEntity entity,
-                          StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update a broker configure info into store
      *
-     * @param entity   need update record
-     * @param strBuff  the string buffer
-     * @param result   process result with old value
-     * @return  the process result
+     * @param entity
+     *          need update record
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          process result with old value
+     * @return the process result
      */
     boolean updBrokerConf(BrokerConfEntity entity,
-                          StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update a broker manage status
      *
-     * @param opEntity      the operator information
-     * @param brokerId      the broker id need to updated
-     * @param newMngStatus  the new manage status
-     * @param strBuff       the string buffer
-     * @param result        process result with old value
-     * @return  the process result
+     * @param opEntity
+     *          the operator information
+     * @param brokerId
+     *          the broker id need to updated
+     * @param newMngStatus
+     *          the new manage status
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          process result with old value
+     * @return the process result
      */
     boolean updBrokerMngStatus(BaseEntity opEntity,
-                               int brokerId, ManageStatus newMngStatus,
-                               StringBuilder strBuff, ProcessResult result);
+            int brokerId, ManageStatus newMngStatus,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete broker configure info from store
      *
-     * @param brokerId  the broker id to be deleted
-     * @param strBuff   the string buffer
-     * @param result    the process result
-     * @return          whether success
+     * @param brokerId
+     *          the broker id to be deleted
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          the process result
+     * @return whether success
      */
     boolean delBrokerConf(int brokerId, StringBuilder strBuff, ProcessResult result);
 
     /**
      * get broker configure info from store
      *
-     * @param qryEntity    the query conditions
+     * @param qryEntity
+     *          the query conditions
      * @return result, only read
      */
     Map<Integer, BrokerConfEntity> getBrokerConfInfo(BrokerConfEntity qryEntity);
@@ -83,19 +99,23 @@ public interface BrokerConfigMapper extends AbstractMapper {
     /**
      * get broker configure info from store
      *
-     * @param brokerIdSet  need matched broker id set
-     * @param brokerIpSet  need matched broker ip set
-     * @param qryEntity    need matched properties
+     * @param brokerIdSet
+     *          need matched broker id set
+     * @param brokerIpSet
+     *          need matched broker ip set
+     * @param qryEntity
+     *          need matched properties
      * @return result, only read
      */
     Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
-                                                     Set<String> brokerIpSet,
-                                                     BrokerConfEntity qryEntity);
+            Set<String> brokerIpSet,
+            BrokerConfEntity qryEntity);
 
     /**
      * get broker configure info from store
      *
-     * @param brokerId  the broker id to be queried
+     * @param brokerId
+     *          the broker id to be queried
      * @return result, only read
      */
     BrokerConfEntity getBrokerConfByBrokerId(int brokerId);
@@ -103,7 +123,8 @@ public interface BrokerConfigMapper extends AbstractMapper {
     /**
      * get broker configure info from store
      *
-     * @param brokerIp   the broker ip to be queried
+     * @param brokerIp
+     *          the broker ip to be queried
      * @return result, only read
      */
     BrokerConfEntity getBrokerConfByBrokerIp(String brokerIp);
@@ -111,8 +132,9 @@ public interface BrokerConfigMapper extends AbstractMapper {
     /**
      * get broker id set by region id set
      *
-     * @param regionIdSet   the region id set
-     * @return  the regionId and brokerId set map
+     * @param regionIdSet
+     *          the region id set
+     * @return the regionId and brokerId set map
      */
     Map<Integer, Set<Integer>> getBrokerIdByRegionId(Set<Integer> regionIdSet);
 }

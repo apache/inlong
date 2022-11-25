@@ -33,9 +33,8 @@ import java.util.regex.Pattern;
  */
 public class AgentDbUtils {
 
-    private static final Pattern PATTERN =
-            Pattern.compile("\\$\\{(((0x)|(0X)|o|O)??[0-9a-fA-F]+?) *, "
-                    + "*(((0x)|(0X)|o|O)??[0-9a-fA-F]+?) *(, *[0-9]*?)??}");
+    private static final Pattern PATTERN = Pattern.compile("\\$\\{(((0x)|(0X)|o|O)??[0-9a-fA-F]+?) *, "
+            + "*(((0x)|(0X)|o|O)??[0-9a-fA-F]+?) *(, *[0-9]*?)??}");
     private static final Pattern OCT_PATTERN = Pattern.compile("^o[0-7]+?$");
     private static final Pattern DEC_PATTERN = Pattern.compile("^[0-9]+?$");
     private static final int HEX_MODE = 16;
@@ -44,15 +43,16 @@ public class AgentDbUtils {
     private static final String O_PREFIX = "o";
 
     /**
-     * Attempts to establish a connection to the database from the XML configurations. If failed,
-     * try use alternative standby database.
+     * Attempts to establish a connection to the database from the XML
+     * configurations. If failed, try use alternative standby database.
      *
      * @return Database connection
      */
     public static Connection getConnectionFailover(String driverClassName,
             String connectionUrl,
             String userName,
-            String password) throws Exception {
+            String password)
+            throws Exception {
 
         int totalRetryTimes = 3;
         int timeInterval = 10;
@@ -64,8 +64,7 @@ public class AgentDbUtils {
         /* TODO: try to decrypt password, if failed then use raw password */
 
         /*
-         * NOTE: THIS MAY CAUSE DEADLOAK WHEN MULTIPLE THREADS CALLED AT THE
-         * SAME TIME
+         * NOTE: THIS MAY CAUSE DEADLOAK WHEN MULTIPLE THREADS CALLED AT THE SAME TIME
          * sun.security.jca.ProviderConfig.getProvider(ProviderConfig.java:188)
          */
         synchronized (AgentDbUtils.class) {
@@ -137,16 +136,18 @@ public class AgentDbUtils {
     }
 
     /**
-     * Transfer string pattern into a list of real string.
-     * For example: ${1, 99} = 1, 2, 3, ... 98,
-     * 99 <br> ${01, 99} = 01, 02, ... 98, 99 <br>
-     * ${0x0,0xff} = 1, 2, ... fe, ff <br> ${0x00,0xff}
-     * = 01, 02, ... fe, ff <br> ${O1,O10} = 1, 2,... 7, 10<br>
+     * Transfer string pattern into a list of real string. For example: ${1, 99} =
+     * 1, 2, 3, ... 98, 99 <br>
+     * ${01, 99} = 01, 02, ... 98, 99 <br>
+     * ${0x0,0xff} = 1, 2, ... fe, ff <br>
+     * ${0x00,0xff} = 01, 02, ... fe, ff <br>
+     * ${O1,O10} = 1, 2,... 7, 10<br>
      * ${O01,O10} = 01, 02,... 07, 10<br>
      *
      * test_${0x00,0x12,5} = test_00, test_05, test_0a, test_0f<br>
      *
-     * @param str source string
+     * @param str
+     *          source string
      * @return string list.
      */
     public static String[] replaceDynamicSeq(String str) {

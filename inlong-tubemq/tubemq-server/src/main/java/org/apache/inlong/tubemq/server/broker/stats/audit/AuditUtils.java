@@ -39,7 +39,8 @@ public class AuditUtils {
     /**
      * init audit instance
      *
-     * @param adConfig the initial configure
+     * @param adConfig
+     *          the initial configure
      */
     public static void initAudit(ADConfig adConfig) {
         // check whether enable audit
@@ -51,20 +52,24 @@ public class AuditUtils {
 
         // initial audit instance
         AuditOperator.getInstance().setAuditProxy(adConfig.getAuditProxyAddrSet());
-        AuditConfig auditConfig =
-                new AuditConfig(adConfig.getAuditCacheFilePath(),
-                        adConfig.getAuditCacheMaxRows());
+        AuditConfig auditConfig = new AuditConfig(adConfig.getAuditCacheFilePath(),
+                adConfig.getAuditCacheMaxRows());
         AuditOperator.getInstance().setAuditConfig(auditConfig);
     }
 
     /**
      * add produce record
      *
-     * @param groupId the group id
-     * @param streamId the stream id
-     * @param logTime the record time
-     * @param count the record count
-     * @param size the record size
+     * @param groupId
+     *          the group id
+     * @param streamId
+     *          the stream id
+     * @param logTime
+     *          the record time
+     * @param count
+     *          the record count
+     * @param size
+     *          the record size
      */
     public static void addProduceRecord(String groupId, String streamId, String logTime, long count, long size) {
         if (!auditConfig.isAuditEnable()) {
@@ -77,7 +82,8 @@ public class AuditUtils {
     /**
      * add consume record
      *
-     * @param trafficInfos the consumed traffic information
+     * @param trafficInfos
+     *          the consumed traffic information
      */
     public static void addConsumeRecord(Map<String, TrafficInfo> trafficInfos) {
         if (!auditConfig.isAuditEnable() || trafficInfos == null || trafficInfos.isEmpty()) {
@@ -95,10 +101,11 @@ public class AuditUtils {
             if (TStringUtils.isEmpty(statKeyItems[0])) {
                 continue;
             }
-            // like: test_1#127.0.0.1#test_consume_127.0.0.1-32677-1656672066382-1-Pull-3.9.2
-            //       #127.0.0.1#32677#test_consume#2#202207041219
-            //       topicName, brokerIP, clientId,
-            //       clientIP, client processId, consume group, partitionId, msgTime
+            // like:
+            // test_1#127.0.0.1#test_consume_127.0.0.1-32677-1656672066382-1-Pull-3.9.2
+            // #127.0.0.1#32677#test_consume#2#202207041219
+            // topicName, brokerIP, clientId,
+            // clientIP, client processId, consume group, partitionId, msgTime
             AuditOperator.getInstance().add(auditConfig.getAuditIdConsume(),
                     statKeyItems[0], statKeyItems[5], DateTimeConvertUtils.yyyyMMddHHmm2ms(statKeyItems[7]),
                     entry.getValue().getMsgCount(), entry.getValue().getMsgSize());

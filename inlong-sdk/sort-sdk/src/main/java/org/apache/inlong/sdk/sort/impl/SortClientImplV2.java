@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.sort.impl;
 
 import org.apache.inlong.sdk.sort.api.Cleanable;
 import org.apache.inlong.sdk.sort.api.ClientContext;
+import org.apache.inlong.sdk.sort.api.InlongTopicManagerFactory;
 import org.apache.inlong.sdk.sort.api.ManagerReportHandler;
 import org.apache.inlong.sdk.sort.api.MetricReporter;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
@@ -27,7 +28,7 @@ import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.api.TopicFetcher;
 import org.apache.inlong.sdk.sort.api.TopicManager;
 import org.apache.inlong.sdk.sort.exception.NotExistException;
-import org.apache.inlong.sdk.sort.api.InlongTopicManagerFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,8 @@ public class SortClientImplV2 extends SortClient {
     /**
      * SortClient Constructor
      *
-     * @param sortClientConfig SortClientConfig
+     * @param sortClientConfig
+     *          SortClientConfig
      */
     public SortClientImplV2(SortClientConfig sortClientConfig) {
         try {
@@ -64,15 +66,20 @@ public class SortClientImplV2 extends SortClient {
     }
 
     /**
-     * SortClient Constructor with user defined QueryConsumeConfig,MetricReporter and ManagerReportHandler
+     * SortClient Constructor with user defined QueryConsumeConfig,MetricReporter
+     * and ManagerReportHandler
      *
-     * @param sortClientConfig SortClientConfig
-     * @param queryConsumeConfig QueryConsumeConfig
-     * @param metricReporter MetricReporter
-     * @param managerReportHandler ManagerReportHandler
+     * @param sortClientConfig
+     *          SortClientConfig
+     * @param queryConsumeConfig
+     *          QueryConsumeConfig
+     * @param metricReporter
+     *          MetricReporter
+     * @param managerReportHandler
+     *          ManagerReportHandler
      */
     public SortClientImplV2(SortClientConfig sortClientConfig, QueryConsumeConfig queryConsumeConfig,
-                          MetricReporter metricReporter, ManagerReportHandler managerReportHandler) {
+            MetricReporter metricReporter, ManagerReportHandler managerReportHandler) {
         try {
             this.sortClientConfig = sortClientConfig;
             this.context = new ClientContextImpl(this.sortClientConfig, metricReporter);
@@ -101,13 +108,14 @@ public class SortClientImplV2 extends SortClient {
     /**
      * ack offset to msgKey
      *
-     * @param msgKey String
-     * @param msgOffset String
+     * @param msgKey
+     *          String
+     * @param msgOffset
+     *          String
      * @throws Exception
      */
     @Override
-    public void ack(String msgKey, String msgOffset)
-            throws Exception {
+    public void ack(String msgKey, String msgOffset) throws Exception {
         logger.debug("ack:{} offset:{}", msgKey, msgOffset);
         TopicFetcher topicFetcher = getFetcher(msgKey);
         topicFetcher.ack(msgOffset);

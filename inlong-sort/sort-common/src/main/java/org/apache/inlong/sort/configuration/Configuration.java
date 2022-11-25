@@ -27,13 +27,17 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Lightweight configuration object which stores key/value pairs.
  *
- * <p>Copied from Flink project(org.apache.flink/flink-core) with a bit of changing.</p>
+ * <p>
+ * Copied from Flink project(org.apache.flink/flink-core) with a bit of
+ * changing.
+ * </p>
  */
 public class Configuration implements java.io.Serializable, Cloneable {
 
@@ -69,7 +73,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Creates a new configuration with the copy of the given configuration.
      *
-     * @param other The configuration to copy the entries from.
+     * @param other
+     *          The configuration to copy the entries from.
      */
     public Configuration(Configuration other) {
         this.confData = new HashMap<>(other.confData);
@@ -80,16 +85,21 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the class associated with the given key as a string.
      *
-     * @param <T> The type of the class to return.
-     * @param key The key pointing to the associated value
-     * @param defaultValue The optional default value returned if no entry exists
-     * @param classLoader The class loader used to resolve the class.
-     * @return The value associated with the given key, or the default value, if to entry for the
-     *         key exists.
+     * @param <T>
+     *          The type of the class to return.
+     * @param key
+     *          The key pointing to the associated value
+     * @param defaultValue
+     *          The optional default value returned if no entry exists
+     * @param classLoader
+     *          The class loader used to resolve the class.
+     * @return The value associated with the given key, or the default value, if to
+     *         entry for the key exists.
      */
     @SuppressWarnings("unchecked")
     public <T> Class<T> getClass(String key, Class<? extends T> defaultValue,
-            ClassLoader classLoader) throws ClassNotFoundException {
+            ClassLoader classLoader)
+            throws ClassNotFoundException {
         Object o = getRawValue(key);
         if (o == null) {
             return (Class<T>) defaultValue;
@@ -104,12 +114,14 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Adds the given key/value pair to the configuration object. The class can be retrieved by
-     * invoking {@link #getClass(String, Class, ClassLoader)} if it is in the scope of the class
-     * loader on the caller.
+     * Adds the given key/value pair to the configuration object. The class can be
+     * retrieved by invoking {@link #getClass(String, Class, ClassLoader)} if it is
+     * in the scope of the class loader on the caller.
      *
-     * @param key The key of the pair to be added
-     * @param klazz The value of the pair to be added
+     * @param key
+     *          The key of the pair to be added
+     * @param klazz
+     *          The value of the pair to be added
      * @see #getClass(String, Class, ClassLoader)
      */
     public void setClass(String key, Class<?> klazz) {
@@ -119,9 +131,11 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given key as a string.
      *
-     * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param key
+     *          the key pointing to the associated value
+     * @param defaultValue
+     *          the default value which is returned in case there is no value
+     *          associated with the given key
      * @return the (default) value associated with the given key
      */
     public String getString(String key, String defaultValue) {
@@ -136,7 +150,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given config option as a string.
      *
-     * @param configOption The configuration option
+     * @param configOption
+     *          The configuration option
      * @return the (default) value associated with the given config option
      */
     public String getString(ConfigOption<String> configOption) {
@@ -145,11 +160,12 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Returns the value associated with the given config option as a string. If no value is mapped
-     * under any key of the option, it returns the specified default instead of the option's default
-     * value.
+     * Returns the value associated with the given config option as a string. If no
+     * value is mapped under any key of the option, it returns the specified default
+     * instead of the option's default value.
      *
-     * @param configOption The configuration option
+     * @param configOption
+     *          The configuration option
      * @return the (default) value associated with the given config option
      */
     public String getString(ConfigOption<String> configOption, String overrideDefault) {
@@ -160,19 +176,23 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Adds the given key/value pair to the configuration object.
      *
-     * @param key the key of the key/value pair to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the key of the key/value pair to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setString(String key, String value) {
         setValueInternal(key, value);
     }
 
     /**
-     * Adds the given value to the configuration object. The main key of the config option will be
-     * used to map the value.
+     * Adds the given value to the configuration object. The main key of the config
+     * option will be used to map the value.
      *
-     * @param key the option specifying the key to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the option specifying the key to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setString(ConfigOption<String> key, String value) {
         setValueInternal(key.key(), value);
@@ -181,9 +201,11 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given key as an integer.
      *
-     * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param key
+     *          the key pointing to the associated value
+     * @param defaultValue
+     *          the default value which is returned in case there is no value
+     *          associated with the given key
      * @return the (default) value associated with the given key
      */
     public int getInteger(String key, int defaultValue) {
@@ -198,7 +220,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given config option as an integer.
      *
-     * @param configOption The configuration option
+     * @param configOption
+     *          The configuration option
      * @return the (default) value associated with the given config option
      */
     public int getInteger(ConfigOption<Integer> configOption) {
@@ -207,14 +230,16 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Returns the value associated with the given config option as an integer. If no value is
-     * mapped under any key of the option, it returns the specified default instead of the option's
-     * default value.
+     * Returns the value associated with the given config option as an integer. If
+     * no value is mapped under any key of the option, it returns the specified
+     * default instead of the option's default value.
      *
-     * @param configOption The configuration option
-     * @param overrideDefault The value to return if no value was mapper for any key of the
-     *         option
-     * @return the configured value associated with the given config option, or the overrideDefault
+     * @param configOption
+     *          The configuration option
+     * @param overrideDefault
+     *          The value to return if no value was mapper for any key of the option
+     * @return the configured value associated with the given config option, or the
+     *         overrideDefault
      */
     public int getInteger(ConfigOption<Integer> configOption, int overrideDefault) {
         Object o = getRawValueFromOption(configOption);
@@ -227,19 +252,23 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Adds the given key/value pair to the configuration object.
      *
-     * @param key the key of the key/value pair to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the key of the key/value pair to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setInteger(String key, int value) {
         setValueInternal(key, value);
     }
 
     /**
-     * Adds the given value to the configuration object. The main key of the config option will be
-     * used to map the value.
+     * Adds the given value to the configuration object. The main key of the config
+     * option will be used to map the value.
      *
-     * @param key the option specifying the key to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the option specifying the key to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setInteger(ConfigOption<Integer> key, int value) {
         setValueInternal(key.key(), value);
@@ -248,9 +277,11 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given key as a long.
      *
-     * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param key
+     *          the key pointing to the associated value
+     * @param defaultValue
+     *          the default value which is returned in case there is no value
+     *          associated with the given key
      * @return the (default) value associated with the given key
      */
     public long getLong(String key, long defaultValue) {
@@ -265,7 +296,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given config option as a long integer.
      *
-     * @param configOption The configuration option
+     * @param configOption
+     *          The configuration option
      * @return the (default) value associated with the given config option
      */
     public long getLong(ConfigOption<Long> configOption) {
@@ -274,14 +306,16 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Returns the value associated with the given config option as a long integer. If no value is
-     * mapped under any key of the option, it returns the specified default instead of the option's
-     * default value.
+     * Returns the value associated with the given config option as a long integer.
+     * If no value is mapped under any key of the option, it returns the specified
+     * default instead of the option's default value.
      *
-     * @param configOption The configuration option
-     * @param overrideDefault The value to return if no value was mapper for any key of the
-     *         option
-     * @return the configured value associated with the given config option, or the overrideDefault
+     * @param configOption
+     *          The configuration option
+     * @param overrideDefault
+     *          The value to return if no value was mapper for any key of the option
+     * @return the configured value associated with the given config option, or the
+     *         overrideDefault
      */
     public long getLong(ConfigOption<Long> configOption, long overrideDefault) {
         Object o = getRawValueFromOption(configOption);
@@ -294,19 +328,23 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Adds the given key/value pair to the configuration object.
      *
-     * @param key the key of the key/value pair to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the key of the key/value pair to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setLong(String key, long value) {
         setValueInternal(key, value);
     }
 
     /**
-     * Adds the given value to the configuration object. The main key of the config option will be
-     * used to map the value.
+     * Adds the given value to the configuration object. The main key of the config
+     * option will be used to map the value.
      *
-     * @param key the option specifying the key to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the option specifying the key to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setLong(ConfigOption<Long> key, long value) {
         setValueInternal(key.key(), value);
@@ -315,9 +353,11 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given key as a boolean.
      *
-     * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param key
+     *          the key pointing to the associated value
+     * @param defaultValue
+     *          the default value which is returned in case there is no value
+     *          associated with the given key
      * @return the (default) value associated with the given key
      */
     public boolean getBoolean(String key, boolean defaultValue) {
@@ -332,7 +372,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given config option as a boolean.
      *
-     * @param configOption The configuration option
+     * @param configOption
+     *          The configuration option
      * @return the (default) value associated with the given config option
      */
     public boolean getBoolean(ConfigOption<Boolean> configOption) {
@@ -341,14 +382,16 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Returns the value associated with the given config option as a boolean. If no value is mapped
-     * under any key of the option, it returns the specified default instead of the option's default
-     * value.
+     * Returns the value associated with the given config option as a boolean. If no
+     * value is mapped under any key of the option, it returns the specified default
+     * instead of the option's default value.
      *
-     * @param configOption The configuration option
-     * @param overrideDefault The value to return if no value was mapper for any key of the
-     *         option
-     * @return the configured value associated with the given config option, or the overrideDefault
+     * @param configOption
+     *          The configuration option
+     * @param overrideDefault
+     *          The value to return if no value was mapper for any key of the option
+     * @return the configured value associated with the given config option, or the
+     *         overrideDefault
      */
     public boolean getBoolean(ConfigOption<Boolean> configOption, boolean overrideDefault) {
         Object o = getRawValueFromOption(configOption);
@@ -361,19 +404,23 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Adds the given key/value pair to the configuration object.
      *
-     * @param key the key of the key/value pair to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the key of the key/value pair to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setBoolean(String key, boolean value) {
         setValueInternal(key, value);
     }
 
     /**
-     * Adds the given value to the configuration object. The main key of the config option will be
-     * used to map the value.
+     * Adds the given value to the configuration object. The main key of the config
+     * option will be used to map the value.
      *
-     * @param key the option specifying the key to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the option specifying the key to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setBoolean(ConfigOption<Boolean> key, boolean value) {
         setValueInternal(key.key(), value);
@@ -382,9 +429,11 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given key as a float.
      *
-     * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param key
+     *          the key pointing to the associated value
+     * @param defaultValue
+     *          the default value which is returned in case there is no value
+     *          associated with the given key
      * @return the (default) value associated with the given key
      */
     public float getFloat(String key, float defaultValue) {
@@ -399,7 +448,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given config option as a float.
      *
-     * @param configOption The configuration option
+     * @param configOption
+     *          The configuration option
      * @return the (default) value associated with the given config option
      */
     public float getFloat(ConfigOption<Float> configOption) {
@@ -408,14 +458,16 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Returns the value associated with the given config option as a float. If no value is mapped
-     * under any key of the option, it returns the specified default instead of the option's default
-     * value.
+     * Returns the value associated with the given config option as a float. If no
+     * value is mapped under any key of the option, it returns the specified default
+     * instead of the option's default value.
      *
-     * @param configOption The configuration option
-     * @param overrideDefault The value to return if no value was mapper for any key of the
-     *         option
-     * @return the configured value associated with the given config option, or the overrideDefault
+     * @param configOption
+     *          The configuration option
+     * @param overrideDefault
+     *          The value to return if no value was mapper for any key of the option
+     * @return the configured value associated with the given config option, or the
+     *         overrideDefault
      */
     public float getFloat(ConfigOption<Float> configOption, float overrideDefault) {
         Object o = getRawValueFromOption(configOption);
@@ -428,19 +480,23 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Adds the given key/value pair to the configuration object.
      *
-     * @param key the key of the key/value pair to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the key of the key/value pair to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setFloat(String key, float value) {
         setValueInternal(key, value);
     }
 
     /**
-     * Adds the given value to the configuration object. The main key of the config option will be
-     * used to map the value.
+     * Adds the given value to the configuration object. The main key of the config
+     * option will be used to map the value.
      *
-     * @param key the option specifying the key to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the option specifying the key to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setFloat(ConfigOption<Float> key, float value) {
         setValueInternal(key.key(), value);
@@ -449,9 +505,11 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given key as a double.
      *
-     * @param key the key pointing to the associated value
-     * @param defaultValue the default value which is returned in case there is no value
-     *         associated with the given key
+     * @param key
+     *          the key pointing to the associated value
+     * @param defaultValue
+     *          the default value which is returned in case there is no value
+     *          associated with the given key
      * @return the (default) value associated with the given key
      */
     public double getDouble(String key, double defaultValue) {
@@ -464,9 +522,11 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Returns the value associated with the given config option as a {@code double}.
+     * Returns the value associated with the given config option as a
+     * {@code double}.
      *
-     * @param configOption The configuration option
+     * @param configOption
+     *          The configuration option
      * @return the (default) value associated with the given config option
      */
     public double getDouble(ConfigOption<Double> configOption) {
@@ -475,14 +535,16 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Returns the value associated with the given config option as a {@code double}. If no value is
-     * mapped under any key of the option, it returns the specified default instead of the option's
-     * default value.
+     * Returns the value associated with the given config option as a
+     * {@code double}. If no value is mapped under any key of the option, it returns
+     * the specified default instead of the option's default value.
      *
-     * @param configOption The configuration option
-     * @param overrideDefault The value to return if no value was mapper for any key of the
-     *         option
-     * @return the configured value associated with the given config option, or the overrideDefault
+     * @param configOption
+     *          The configuration option
+     * @param overrideDefault
+     *          The value to return if no value was mapper for any key of the option
+     * @return the configured value associated with the given config option, or the
+     *         overrideDefault
      */
     public double getDouble(ConfigOption<Double> configOption, double overrideDefault) {
         Object o = getRawValueFromOption(configOption);
@@ -495,19 +557,23 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Adds the given key/value pair to the configuration object.
      *
-     * @param key the key of the key/value pair to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the key of the key/value pair to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setDouble(String key, double value) {
         setValueInternal(key, value);
     }
 
     /**
-     * Adds the given value to the configuration object. The main key of the config option will be
-     * used to map the value.
+     * Adds the given value to the configuration object. The main key of the config
+     * option will be used to map the value.
      *
-     * @param key the option specifying the key to be added
-     * @param value the value of the key/value pair to be added
+     * @param key
+     *          the option specifying the key to be added
+     * @param value
+     *          the value of the key/value pair to be added
      */
     public void setDouble(ConfigOption<Double> key, double value) {
         setValueInternal(key.key(), value);
@@ -516,9 +582,11 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given key as a byte array.
      *
-     * @param key The key pointing to the associated value.
-     * @param defaultValue The default value which is returned in case there is no value
-     *         associated with the given key.
+     * @param key
+     *          The key pointing to the associated value.
+     * @param defaultValue
+     *          The default value which is returned in case there is no value
+     *          associated with the given key.
      * @return the (default) value associated with the given key.
      */
     @SuppressWarnings("EqualsBetweenInconvertibleTypes")
@@ -536,11 +604,13 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Adds the given byte array to the configuration object. If key is <code>null</code> then
-     * nothing is added.
+     * Adds the given byte array to the configuration object. If key is
+     * <code>null</code> then nothing is added.
      *
-     * @param key The key under which the bytes are added.
-     * @param bytes The bytes to be added.
+     * @param key
+     *          The key under which the bytes are added.
+     * @param bytes
+     *          The bytes to be added.
      */
     public void setBytes(String key, byte[] bytes) {
         setValueInternal(key, bytes);
@@ -549,7 +619,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given config option as a string.
      *
-     * @param configOption The configuration option
+     * @param configOption
+     *          The configuration option
      * @return the (default) value associated with the given config option
      */
     public String getValue(ConfigOption<?> configOption) {
@@ -560,10 +631,13 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Returns the value associated with the given config option as an enum.
      *
-     * @param enumClass The return enum class
-     * @param configOption The configuration option
-     * @throws IllegalArgumentException If the string associated with the given config
-     *         option cannot be parsed as a value of the provided enum class.
+     * @param enumClass
+     *          The return enum class
+     * @param configOption
+     *          The configuration option
+     * @throws IllegalArgumentException
+     *           If the string associated with the given config option cannot be
+     *           parsed as a value of the provided enum class.
      */
     public <T extends Enum<T>> T getEnum(
             final Class<T> enumClass,
@@ -587,9 +661,11 @@ public class Configuration implements java.io.Serializable, Cloneable {
     // --------------------------------------------------------------------------------------------
 
     /**
-     * Returns the keys of all key/value pairs stored inside this configuration object.
+     * Returns the keys of all key/value pairs stored inside this configuration
+     * object.
      *
-     * @return the keys of all key/value pairs stored inside this configuration object
+     * @return the keys of all key/value pairs stored inside this configuration
+     *         object
      */
     public Set<String> keySet() {
         synchronized (this.confData) {
@@ -598,7 +674,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Adds all entries in this {@code Configuration} to the given {@link Properties}.
+     * Adds all entries in this {@code Configuration} to the given
+     * {@link Properties}.
      */
     public void addAllToProperties(Properties props) {
         synchronized (this.confData) {
@@ -623,11 +700,13 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     /**
-     * Adds all entries from the given configuration into this configuration. The keys are prepended
-     * with the given prefix.
+     * Adds all entries from the given configuration into this configuration. The
+     * keys are prepended with the given prefix.
      *
-     * @param other The configuration whose entries are added to this configuration.
-     * @param prefix The prefix to prepend.
+     * @param other
+     *          The configuration whose entries are added to this configuration.
+     * @param prefix
+     *          The prefix to prepend.
      */
     public void addAll(Configuration other, String prefix) {
         final StringBuilder bld = new StringBuilder();
@@ -656,7 +735,8 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Checks whether there is an entry with the specified key.
      *
-     * @param key key of entry
+     * @param key
+     *          key of entry
      * @return true if the key is stored, false otherwise
      */
     public boolean containsKey(String key) {
@@ -668,9 +748,10 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Checks whether there is an entry for the given config option.
      *
-     * @param configOption The configuration option
-     * @return <tt>true</tt> if a valid (current or deprecated) key of the config option is stored,
-     *         <tt>false</tt> otherwise
+     * @param configOption
+     *          The configuration option
+     * @return <tt>true</tt> if a valid (current or deprecated) key of the config
+     *         option is stored, <tt>false</tt> otherwise
      */
     public boolean contains(ConfigOption<?> configOption) {
         synchronized (this.confData) {
@@ -706,8 +787,10 @@ public class Configuration implements java.io.Serializable, Cloneable {
     /**
      * Removes given config option from the configuration.
      *
-     * @param configOption config option to remove
-     * @param <T> Type of the config option
+     * @param configOption
+     *          config option to remove
+     * @param <T>
+     *          Type of the config option
      * @return true is config has been removed, false otherwise
      */
     public <T> boolean removeConfig(ConfigOption<T> configOption) {
@@ -790,7 +873,7 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     // --------------------------------------------------------------------------------------------
-    //  Type conversion
+    // Type conversion
     // --------------------------------------------------------------------------------------------
 
     private int convertToInt(Object o, int defaultValue) {

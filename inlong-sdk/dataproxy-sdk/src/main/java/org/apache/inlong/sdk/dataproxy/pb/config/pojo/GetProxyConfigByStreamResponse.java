@@ -40,7 +40,8 @@ public class GetProxyConfigByStreamResponse {
     /**
      * set result
      * 
-     * @param result the result to set
+     * @param result
+     *          the result to set
      */
     public void setResult(boolean result) {
         this.result = result;
@@ -58,7 +59,8 @@ public class GetProxyConfigByStreamResponse {
     /**
      * set errCode
      * 
-     * @param errCode the errCode to set
+     * @param errCode
+     *          the errCode to set
      */
     public void setErrCode(int errCode) {
         this.errCode = errCode;
@@ -76,7 +78,8 @@ public class GetProxyConfigByStreamResponse {
     /**
      * set md5
      * 
-     * @param md5 the md5 to set
+     * @param md5
+     *          the md5 to set
      */
     public void setMd5(String md5) {
         this.md5 = md5;
@@ -94,7 +97,8 @@ public class GetProxyConfigByStreamResponse {
     /**
      * set data
      * 
-     * @param data the data to set
+     * @param data
+     *          the data to set
      */
     public void setData(ProxyClusterConfig data) {
         this.data = data;

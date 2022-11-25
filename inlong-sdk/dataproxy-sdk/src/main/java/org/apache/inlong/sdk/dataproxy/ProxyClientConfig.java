@@ -18,10 +18,12 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
-import lombok.Data;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
+
+import org.apache.commons.lang3.StringUtils;
+
+import lombok.Data;
 
 @Data
 public class ProxyClientConfig {
@@ -101,10 +103,11 @@ public class ProxyClientConfig {
 
     private int maxRetry;
 
-    /*pay attention to the last url parameter ip*/
+    /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
             int managerPort, String groupId, String netTag, String authSecretId, String authSecretKey,
-            LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {
+            LoadBalance loadBalance, int virtualNode, int maxRetry)
+            throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
         }
@@ -114,8 +117,8 @@ public class ProxyClientConfig {
         if (Utils.isBlank(groupId)) {
             throw new ProxysdkException("groupId is blank!");
         }
-        this.proxyIPServiceURL =
-                "http://" + managerIp + ":" + managerPort + ConfigConstants.MANAGER_DATAPROXY_API + groupId;
+        this.proxyIPServiceURL = "http://" + managerIp + ":" + managerPort + ConfigConstants.MANAGER_DATAPROXY_API
+                + groupId;
         this.groupId = groupId;
         this.netTag = netTag;
         this.isLocalVisit = isLocalVisit;
@@ -138,7 +141,8 @@ public class ProxyClientConfig {
     }
 
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp, int managerPort, String groupId,
-            String netTag, String authSecretId, String authSecretKey) throws ProxysdkException {
+            String netTag, String authSecretId, String authSecretKey)
+            throws ProxysdkException {
         this(localHost, isLocalVisit, managerIp, managerPort, groupId, netTag, authSecretId, authSecretKey,
                 ConfigConstants.DEFAULT_LOAD_BALANCE, ConfigConstants.DEFAULT_VIRTUAL_NODE,
                 ConfigConstants.DEFAULT_RANDOM_MAX_RETRY);

@@ -19,10 +19,14 @@
 package org.apache.flink.connectors.tubemq;
 
 import static org.apache.flink.connectors.tubemq.TubemqOptions.MAX_RETRIES;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
+
+import org.apache.inlong.tubemq.client.config.TubeClientConfig;
+import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
+import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
+import org.apache.inlong.tubemq.client.producer.MessageProducer;
+import org.apache.inlong.tubemq.client.producer.MessageSentResult;
+import org.apache.inlong.tubemq.corebase.Message;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.Configuration;
@@ -32,12 +36,12 @@ import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.tubemq.client.config.TubeClientConfig;
-import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
-import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
-import org.apache.inlong.tubemq.client.producer.MessageProducer;
-import org.apache.inlong.tubemq.client.producer.MessageSentResult;
-import org.apache.inlong.tubemq.corebase.Message;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,17 +86,17 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
     private final int maxRetries;
 
     public TubemqSinkFunction(String topic,
-                              String masterAddress,
-                              SerializationSchema<T> serializationSchema,
-                              Configuration configuration) {
+            String masterAddress,
+            SerializationSchema<T> serializationSchema,
+            Configuration configuration) {
         Preconditions.checkNotNull(topic,
-            "The topic must not be null.");
+                "The topic must not be null.");
         Preconditions.checkNotNull(masterAddress,
-            "The master address must not be null.");
+                "The master address must not be null.");
         Preconditions.checkNotNull(serializationSchema,
-            "The serialization schema must not be null.");
+                "The serialization schema must not be null.");
         Preconditions.checkNotNull(configuration,
-            "The configuration must not be null.");
+                "The configuration must not be null.");
 
         this.topic = topic;
         this.masterAddress = masterAddress;
@@ -145,7 +149,7 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
                     return;
                 } else {
                     LOG.warn("Send msg fail, error code: {}, error message: {}",
-                        sendResult.getErrCode(), sendResult.getErrMsg());
+                            sendResult.getErrCode(), sendResult.getErrMsg());
                 }
             } catch (Exception e) {
                 LOG.warn("Could not properly send the message to hippo "

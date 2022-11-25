@@ -38,7 +38,8 @@ public class NoAuthClient {
     /**
      * Save user info
      *
-     * @param request user info request
+     * @param request
+     *          user info request
      * @return user id after saving
      */
     public Integer register(UserRequest request) {

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone;
 
+import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -25,8 +28,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
-import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +47,7 @@ public abstract class AbstractZoneProducer {
     protected AtomicInteger clusterIndex = new AtomicInteger(0);
 
     public AbstractZoneProducer(String workerName,
-                                AbstractZoneSinkContext context) {
+            AbstractZoneSinkContext context) {
         this.workerName = workerName;
         this.context = context;
     }
@@ -125,14 +127,14 @@ public abstract class AbstractZoneProducer {
                 }
             }
             // remove
-            for (AbstractZoneClusterProducer cluster :  this.clusterList) {
+            for (AbstractZoneClusterProducer cluster : this.clusterList) {
                 if (newClusterNames.contains(cluster.getCacheClusterName())) {
                     newClusterList.add(cluster);
                 } else {
                     deletingClusterList.add(cluster);
                 }
             }
-            this.clusterList =  newClusterList;
+            this.clusterList = newClusterList;
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }

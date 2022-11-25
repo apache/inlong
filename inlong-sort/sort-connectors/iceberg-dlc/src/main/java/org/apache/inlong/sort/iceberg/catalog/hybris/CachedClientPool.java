@@ -19,8 +19,6 @@
 
 package org.apache.inlong.sort.iceberg.catalog.hybris;
 
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.IMetaStoreClient;
@@ -31,11 +29,16 @@ import org.apache.iceberg.shaded.com.github.benmanes.caffeine.cache.Cache;
 import org.apache.iceberg.shaded.com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.iceberg.util.PropertyUtil;
 import org.apache.thrift.TException;
+
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CachedClientPool implements ClientPool<IMetaStoreClient, TException> {
-    private static final Logger LOG  = LoggerFactory.getLogger(CachedClientPool.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(CachedClientPool.class);
     private static Cache<String, DLCWrappedHybrisClientPool> clientPoolCache;
 
     private final Configuration conf;
@@ -79,7 +82,8 @@ public class CachedClientPool implements ClientPool<IMetaStoreClient, TException
     }
 
     @Override
-    public <R> R run(Action<R, IMetaStoreClient, TException> action, boolean retry)
+    public <R> R run(Action<R, IMetaStoreClient, TException> action,
+            boolean retry)
             throws TException, InterruptedException {
         return clientPool().run(action, retry);
     }

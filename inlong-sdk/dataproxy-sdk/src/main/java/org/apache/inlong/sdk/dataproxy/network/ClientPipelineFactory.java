@@ -18,13 +18,15 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.apache.inlong.sdk.dataproxy.codec.ProtocolDecoder;
 import org.apache.inlong.sdk.dataproxy.codec.ProtocolEncoder;
 
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+
 public class ClientPipelineFactory extends ChannelInitializer<SocketChannel> {
+
     private final ClientMgr clientMgr;
     private final Sender sender;
 

@@ -59,7 +59,8 @@ public class VarBinaryFormatInfo implements BasicFormatInfo<byte[]> {
     /**
      * Serializes the given record.
      *
-     * @param record The record to be serialized.
+     * @param record
+     *          The record to be serialized.
      * @return The text serialized from the given record.
      */
     @Override
@@ -70,7 +71,8 @@ public class VarBinaryFormatInfo implements BasicFormatInfo<byte[]> {
     /**
      * Deserializes the given text.
      *
-     * @param text The text to be deserialized.
+     * @param text
+     *          The text to be deserialized.
      * @return The record deserialized from the given text.
      */
     @Override

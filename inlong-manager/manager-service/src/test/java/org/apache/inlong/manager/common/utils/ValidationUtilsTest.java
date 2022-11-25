@@ -17,16 +17,17 @@
 
 package org.apache.inlong.manager.common.utils;
 
-import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
-import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.common.util.ValidationUtils;
+import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link ValidationUtils}

@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
@@ -31,9 +28,15 @@ import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.OrderDirection;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Lists;
 
 /**
  * Parse TransformResponse to TransformNode which sort needed
@@ -67,7 +70,8 @@ public class TransformNodeUtils {
      * Create distinct node based on deDuplicationDefinition
      */
     public static DistinctNode createDistinctNode(DeDuplicationDefinition deDuplicationDefinition,
-            TransformResponse transformResponse, Map<String, StreamField> constantFieldMap) {
+            TransformResponse transformResponse,
+            Map<String, StreamField> constantFieldMap) {
         List<StreamField> streamFields = deDuplicationDefinition.getDupFields();
         List<FieldInfo> distinctFields = streamFields.stream()
                 .map(FieldInfoUtils::parseStreamField)

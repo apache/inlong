@@ -17,50 +17,61 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper;
 
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 
 public interface TopicCtrlMapper extends AbstractMapper {
 
     /**
      * Add a new topic control configure info into store
      *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
-     * @param result   process result with old value
-     * @return  the process result
+     * @param entity
+     *          need add record
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          process result with old value
+     * @return the process result
      */
     boolean addTopicCtrlConf(TopicCtrlEntity entity,
-                             StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update a topic control configure info into store
      *
-     * @param entity   need update record
-     * @param strBuff  the string buffer
-     * @param result   process result with old value
-     * @return  the process result
+     * @param entity
+     *          need update record
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          process result with old value
+     * @return the process result
      */
     boolean updTopicCtrlConf(TopicCtrlEntity entity,
-                             StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete topic control configure info from store
      *
-     * @param topicName  the topic name to be deleted
-     * @param strBuff  the string buffer
-     * @param result    the process result
-     * @return          whether success
+     * @param topicName
+     *          the topic name to be deleted
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          the process result
+     * @return whether success
      */
     boolean delTopicCtrlConf(String topicName, StringBuilder strBuff, ProcessResult result);
 
     /**
      * get topic control configure info from store
      *
-     * @param topicName    the topic name to be queried
+     * @param topicName
+     *          the topic name to be queried
      * @return result, only read
      */
     TopicCtrlEntity getTopicCtrlConf(String topicName);
@@ -68,7 +79,8 @@ public interface TopicCtrlMapper extends AbstractMapper {
     /**
      * get topic control configure info from store
      *
-     * @param qryEntity    the query conditions
+     * @param qryEntity
+     *          the query conditions
      * @return result, only read
      */
     List<TopicCtrlEntity> getTopicCtrlConf(TopicCtrlEntity qryEntity);
@@ -76,20 +88,24 @@ public interface TopicCtrlMapper extends AbstractMapper {
     /**
      * get topic control configure info from store
      *
-     * @param topicNameSet  need matched topic name set
-     * @param qryEntity     need matched properties
+     * @param topicNameSet
+     *          need matched topic name set
+     * @param qryEntity
+     *          need matched properties
      * @return result, only read
      */
     Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
-                                                  TopicCtrlEntity qryEntity);
+            TopicCtrlEntity qryEntity);
 
     /**
      * get topic max message size configure info from store
      *
-     * @param defMaxMsgSizeInB  the default max message size in B
-     * @param topicNameSet  need matched topic name set
+     * @param defMaxMsgSizeInB
+     *          the default max message size in B
+     * @param topicNameSet
+     *          need matched topic name set
      * @return result, only read
      */
     Map<String, Integer> getMaxMsgSizeInBByTopics(int defMaxMsgSizeInB,
-                                                  Set<String> topicNameSet);
+            Set<String> topicNameSet);
 }

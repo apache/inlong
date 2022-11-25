@@ -17,23 +17,27 @@
 
 package org.apache.inlong.tubemq.server.common.fileconfig;
 
+import org.apache.inlong.tubemq.corebase.TokenConstants;
+import org.apache.inlong.tubemq.corebase.config.TLSConfig;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.server.broker.exception.StartupException;
+
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.io.FileUtils;
-import org.apache.inlong.tubemq.corebase.TokenConstants;
-import org.apache.inlong.tubemq.corebase.config.TLSConfig;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.broker.exception.StartupException;
+
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFileConfig {
+
     protected static final String SECT_TOKEN_MASTER = "master";
     protected static final String SECT_TOKEN_BROKER = "broker";
     protected static final String SECT_TOKEN_BDB = "bdbStore";
@@ -45,8 +49,7 @@ public abstract class AbstractFileConfig {
     protected static final String SECT_TOKEN_META_AUDIT = "audit";
     protected static final String SECT_TOKEN_META_PROMETHEUS = "prometheus";
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(AbstractFileConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractFileConfig.class);
     private String basePath;
     private String configPath;
     private long loadFileChkSum = -1;
@@ -75,7 +78,8 @@ public abstract class AbstractFileConfig {
     /**
      * load configuration from the specific path.
      *
-     * @param path the path of the configuration file
+     * @param path
+     *          the path of the configuration file
      */
     public void loadFromFile(final String path) {
         this.configPath = path;
@@ -90,12 +94,15 @@ public abstract class AbstractFileConfig {
     }
 
     /**
-     * Get integer configuration value from a specific section with key. It returns a default value if no value
-     * is found in the section of the file.
+     * Get integer configuration value from a specific section with key. It returns
+     * a default value if no value is found in the section of the file.
      *
-     * @param section      the section of the key/value comes from.
-     * @param key          the key of the configuration
-     * @param defaultValue the default value if no value is found in the specific section
+     * @param section
+     *          the section of the key/value comes from.
+     * @param key
+     *          the key of the configuration
+     * @param defaultValue
+     *          the default value if no value is found in the specific section
      * @return the integer value of the specific key
      */
     public int getInt(final Profile.Section section, final String key, final int defaultValue) {
@@ -115,9 +122,12 @@ public abstract class AbstractFileConfig {
     /**
      * Get integer configuration value from a specific section in the config file.
      *
-     * @param section the specific section where the configure locates
-     * @param key     the key of the configuration
-     * @return the integer value of the configuration, if no value is found, it throws NPE
+     * @param section
+     *          the specific section where the configure locates
+     * @param key
+     *          the key of the configuration
+     * @return the integer value of the configuration, if no value is found, it
+     *         throws NPE
      */
     public int getInt(final Profile.Section section, final String key) {
         final String value = section.get(key);
@@ -138,9 +148,12 @@ public abstract class AbstractFileConfig {
     /**
      * Get boolean configuration value from a specific section in the config file.
      *
-     * @param section the specific section where the configure locates
-     * @param key     the key of the configuration
-     * @return the boolean value of the configuration, if no value is found, it throws NPE
+     * @param section
+     *          the specific section where the configure locates
+     * @param key
+     *          the key of the configuration
+     * @return the boolean value of the configuration, if no value is found, it
+     *         throws NPE
      */
     public boolean getBoolean(final Profile.Section section, final String key) {
         final String value = section.get(key);
@@ -161,9 +174,12 @@ public abstract class AbstractFileConfig {
     /**
      * Get long configuration value from a specific section in the config file.
      *
-     * @param section the specific section where the configure locates
-     * @param key     the key of the configuration
-     * @return the long value of the configuration, if no value is found, it throws NPE
+     * @param section
+     *          the specific section where the configure locates
+     * @param key
+     *          the key of the configuration
+     * @return the long value of the configuration, if no value is found, it throws
+     *         NPE
      */
     public long getLong(final Profile.Section section, final String key) {
         final String value = section.get(key);
@@ -182,11 +198,15 @@ public abstract class AbstractFileConfig {
     }
 
     /**
-     * Retrieve similar configurations within a set of specific configurations according to the given configuration.
+     * Retrieve similar configurations within a set of specific configurations
+     * according to the given configuration.
      *
-     * @param section      the section within file to be searched.
-     * @param configFields the set of configurations to be searched.
-     * @param checkItem    the given configuration to be compared.
+     * @param section
+     *          the section within file to be searched.
+     * @param configFields
+     *          the set of configurations to be searched.
+     * @param checkItem
+     *          the given configuration to be compared.
      */
 
     public void getSimilarConfigField(String section, Set<String> configFields, String checkItem) {
@@ -306,8 +326,7 @@ public abstract class AbstractFileConfig {
                 throw new IllegalArgumentException(
                         "Illegal parameter: auditProxyAddr's value must like \"ip1:port,ip2:port\"!");
             }
-            String[] hostAndPortArray =
-                    auditProxyAddrs.split(TokenConstants.ARRAY_SEP);
+            String[] hostAndPortArray = auditProxyAddrs.split(TokenConstants.ARRAY_SEP);
             for (String addr : hostAndPortArray) {
                 if (TStringUtils.isBlank(addr)) {
                     throw new IllegalArgumentException(

@@ -20,13 +20,13 @@ package org.apache.inlong.tubemq.server.tools;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BrokerStartup {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(BrokerStartup.class);
+    private static final Logger logger = LoggerFactory.getLogger(BrokerStartup.class);
 
     public static void main(final String[] args) throws Exception {
         // get configure file path

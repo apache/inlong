@@ -19,11 +19,6 @@ package org.apache.inlong.tubemq.manager.service;
 
 import static org.apache.inlong.tubemq.manager.service.TubeConst.DELETE_FAIL;
 
-import java.util.Date;
-import java.util.List;
-import javax.transaction.Transactional;
-
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.cluster.dto.ClusterDto;
 import org.apache.inlong.tubemq.manager.controller.cluster.request.AddClusterReq;
@@ -33,6 +28,14 @@ import org.apache.inlong.tubemq.manager.repository.ClusterRepository;
 import org.apache.inlong.tubemq.manager.service.interfaces.ClusterService;
 import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
 import org.apache.inlong.tubemq.manager.service.interfaces.NodeService;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

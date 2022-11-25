@@ -29,6 +29,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.common.UpdateResult;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -91,7 +92,8 @@ public interface InlongClusterApi {
 
     @GET("cluster/node/listByGroupId")
     Call<Response<List<ClusterNodeResponse>>> listNodeByGroupId(@Query("inlongGroupId") String inlongGroupId,
-            @Query("clusterType") String clusterType, @Query("protocolType") String protocolType);
+            @Query("clusterType") String clusterType,
+            @Query("protocolType") String protocolType);
 
     @POST("cluster/node/update")
     Call<Response<Boolean>> updateNode(@Body ClusterNodeRequest request);

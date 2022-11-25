@@ -21,13 +21,6 @@ package org.apache.inlong.sort.formats.kv;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.function.Consumer;
-import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.BasicFormatInfo;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.ByteFormatInfo;
@@ -43,6 +36,16 @@ import org.apache.inlong.sort.formats.common.ShortFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
+
+import org.apache.flink.types.Row;
+
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.function.Consumer;
+
 import org.junit.Test;
 
 /**
@@ -50,16 +53,14 @@ import org.junit.Test;
  */
 public class KvSerializationSchemaTest {
 
-    private static final RowFormatInfo TEST_ROW_INFO =
-            new RowFormatInfo(
-                    new String[]{"f1", "f2", "f3", "f4"},
-                    new FormatInfo[]{
-                            IntFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE
-                    }
-            );
+    private static final RowFormatInfo TEST_ROW_INFO = new RowFormatInfo(
+            new String[]{"f1", "f2", "f3", "f4"},
+            new FormatInfo[]{
+                    IntFormatInfo.INSTANCE,
+                    StringFormatInfo.INSTANCE,
+                    StringFormatInfo.INSTANCE,
+                    StringFormatInfo.INSTANCE
+            });
 
     @Test
     public void testNormal() {
@@ -86,8 +87,7 @@ public class KvSerializationSchemaTest {
     public void testNullIteral() {
         String nullLiteral = "n/a";
         String nullField = "f=n/a";
-        Consumer<KvSerializationSchema.Builder> config = builder ->
-                                                                 builder.setNullLiteral(nullLiteral);
+        Consumer<KvSerializationSchema.Builder> config = builder -> builder.setNullLiteral(nullLiteral);
 
         testBasicSerialization(config, StringFormatInfo.INSTANCE, null, nullField);
         testBasicSerialization(config, BooleanFormatInfo.INSTANCE, null, nullField);
@@ -105,61 +105,51 @@ public class KvSerializationSchemaTest {
 
     @Test
     public void testDelimiter() {
-        Consumer<KvSerializationSchema.Builder> config = builder ->
-                                                                 builder.setEntryDelimiter('|').setKvDelimiter(',');
+        Consumer<KvSerializationSchema.Builder> config = builder -> builder.setEntryDelimiter('|').setKvDelimiter(',');
 
         testRowSerialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "f1,10|f2,field1|f3,field2|f4,field3".getBytes()
-        );
+                "f1,10|f2,field1|f3,field2|f4,field3".getBytes());
     }
 
     @Test
     public void testEscape() {
-        Consumer<KvSerializationSchema.Builder> config = builder ->
-                                                                 builder.setEscapeCharacter('\\')
-                                                                         .setQuoteCharacter('\"');
+        Consumer<KvSerializationSchema.Builder> config = builder -> builder.setEscapeCharacter('\\')
+                .setQuoteCharacter('\"');
 
         testRowSerialization(
                 config,
                 Row.of(10, "field1&field2", "field3", "field4"),
-                "f1=10&f2=field1\\&field2&f3=field3&f4=field4".getBytes()
-        );
+                "f1=10&f2=field1\\&field2&f3=field3&f4=field4".getBytes());
         testRowSerialization(
                 config,
                 Row.of(10, "field1\\", "field2", "field3"),
-                "f1=10&f2=field1\\\\&f3=field2&f4=field3".getBytes()
-        );
+                "f1=10&f2=field1\\\\&f3=field2&f4=field3".getBytes());
         testRowSerialization(
                 config,
                 Row.of(10, "field1\"", "field2", "field3"),
-                "f1=10&f2=field1\\\"&f3=field2&f4=field3".getBytes()
-        );
+                "f1=10&f2=field1\\\"&f3=field2&f4=field3".getBytes());
     }
 
     @Test
     public void testQuote() {
-        Consumer<KvSerializationSchema.Builder> config = builder ->
-                                                                 builder.setQuoteCharacter('\"');
+        Consumer<KvSerializationSchema.Builder> config = builder -> builder.setQuoteCharacter('\"');
 
         testRowSerialization(
                 config,
                 Row.of(10, "field1&field2", "field3", "field4"),
-                "f1=10&f2=field1\"&\"field2&f3=field3&f4=field4".getBytes()
-        );
+                "f1=10&f2=field1\"&\"field2&f3=field3&f4=field4".getBytes());
     }
 
     @Test
     public void testCharset() {
-        Consumer<KvSerializationSchema.Builder> config = builder ->
-                                                                 builder.setCharset(StandardCharsets.UTF_16.name());
+        Consumer<KvSerializationSchema.Builder> config = builder -> builder.setCharset(StandardCharsets.UTF_16.name());
 
         testRowSerialization(
                 config,
                 Row.of(10, "field1", "field2", "field3"),
-                "f1=10&f2=field1&f3=field2&f4=field3".getBytes(StandardCharsets.UTF_16)
-        );
+                "f1=10&f2=field1&f3=field2&f4=field3".getBytes(StandardCharsets.UTF_16));
     }
 
     @Test(expected = RuntimeException.class)
@@ -169,24 +159,19 @@ public class KvSerializationSchemaTest {
         testRowSerialization(
                 config,
                 Row.of("na", "field1", "field2", "field3"),
-                "f1=&f2=field1&f3=field2&f4=field3".getBytes()
-        );
+                "f1=&f2=field1&f3=field2&f4=field3".getBytes());
     }
 
     private static <T> void testBasicSerialization(
             Consumer<KvSerializationSchema.Builder> config,
             BasicFormatInfo<T> basicFormatInfo,
             T record,
-            String expectedText
-    ) {
-        RowFormatInfo rowFormatInfo =
-                new RowFormatInfo(
-                        new String[]{"f"},
-                        new FormatInfo[]{basicFormatInfo}
-                );
+            String expectedText) {
+        RowFormatInfo rowFormatInfo = new RowFormatInfo(
+                new String[]{"f"},
+                new FormatInfo[]{basicFormatInfo});
 
-        KvSerializationSchema.Builder builder =
-                new KvSerializationSchema.Builder(rowFormatInfo);
+        KvSerializationSchema.Builder builder = new KvSerializationSchema.Builder(rowFormatInfo);
         config.accept(builder);
 
         KvSerializationSchema serializer = builder.build();
@@ -198,10 +183,8 @@ public class KvSerializationSchemaTest {
     private static void testRowSerialization(
             Consumer<KvSerializationSchema.Builder> config,
             Row row,
-            byte[] expectedBytes
-    ) {
-        KvSerializationSchema.Builder builder =
-                new KvSerializationSchema.Builder(TEST_ROW_INFO);
+            byte[] expectedBytes) {
+        KvSerializationSchema.Builder builder = new KvSerializationSchema.Builder(TEST_ROW_INFO);
         config.accept(builder);
 
         KvSerializationSchema serializer = builder.build();

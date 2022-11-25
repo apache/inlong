@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.transformation.function.AddFunction;
@@ -58,15 +55,16 @@ import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.NotInOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
- * FunctionParam is used to define and encapsulate function parameters
- * and it is the top-level interface for function parameters.
- * It mainly includes several categories such as fields, constants, functions, operators etc
+ * FunctionParam is used to define and encapsulate function parameters and it is
+ * the top-level interface for function parameters. It mainly includes several
+ * categories such as fields, constants, functions, operators etc
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FieldInfo.class, name = "field"),
         @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField"),

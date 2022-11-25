@@ -17,12 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
@@ -33,6 +27,14 @@ import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class WebGroupResCtrlHandler extends AbstractWebHandler {
 
@@ -64,98 +66,119 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     /**
      * query booked resource-control group set
      *
-     * @param req       Http Servlet Request
-     * @param strBuff   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param strBuff
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryBookedResCtrlGroups(HttpServletRequest req,
-                                                       StringBuilder strBuff,
-                                                       ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         return innQueryGroupResCtrlInfo(req, strBuff, result, true);
     }
 
     /**
      * query group resource control info
      *
-     * @param req       Http Servlet Request
-     * @param strBuff   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param strBuff
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryGroupResCtrlConf(HttpServletRequest req,
-                                                    StringBuilder strBuff,
-                                                    ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         return innQueryGroupResCtrlInfo(req, strBuff, result, false);
     }
 
     /**
      * add group resource control info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminAddGroupResCtrlConf(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdGroupResCtrlConf(req, sBuffer, result, true);
     }
 
     /**
      * Add group resource control info in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchAddGroupResCtrlConf(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdGroupResCtrlConf(req, sBuffer, result, true);
     }
 
     /**
      * update group resource control info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminModGroupResCtrlConf(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdGroupResCtrlConf(req, sBuffer, result, false);
     }
 
     /**
      * update group resource control info in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchUpdGroupResCtrlConf(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdGroupResCtrlConf(req, sBuffer, result, false);
     }
 
     /**
      * delete group resource control rule
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminDelGroupResCtrlConf(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -181,16 +204,20 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     /**
      * query resource-control information
      *
-     * @param req       Http Servlet Request
-     * @param strBuff   string buffer
-     * @param result    process result
-     * @param onlyRetGroup only return group information
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param strBuff
+     *          string buffer
+     * @param result
+     *          process result
+     * @param onlyRetGroup
+     *          only return group information
+     * @return process result
      */
     private StringBuilder innQueryGroupResCtrlInfo(HttpServletRequest req,
-                                                   StringBuilder strBuff,
-                                                   ProcessResult result,
-                                                   boolean onlyRetGroup) {
+            StringBuilder strBuff,
+            ProcessResult result,
+            boolean onlyRetGroup) {
         // build query entity
         GroupResCtrlEntity qryEntity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -262,9 +289,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdGroupResCtrlConf(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result,
-                                                      boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -295,8 +322,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
         }
         int allowedBClientRate = (int) result.getRetData();
         // get def cluster setting info
-        ClusterSettingEntity defClusterSetting =
-                defMetaDataService.getClusterDefSetting(false);
+        ClusterSettingEntity defClusterSetting = defMetaDataService.getClusterDefSetting(false);
         // get and valid qryPriorityId info
         if (!WebParameterUtils.getQryPriorityIdParameter(req,
                 false, (isAddOp ? defClusterSetting.getQryPriorityId()
@@ -332,9 +358,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innBatchAddOrUpdGroupResCtrlConf(HttpServletRequest req,
-                                                           StringBuilder sBuffer,
-                                                           ProcessResult result,
-                                                           boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -346,8 +372,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Map<String, GroupResCtrlEntity> addRecordMap =
-                (Map<String, GroupResCtrlEntity>) result.getRetData();
+        Map<String, GroupResCtrlEntity> addRecordMap = (Map<String, GroupResCtrlEntity>) result.getRetData();
         // add or update group resource record
         List<GroupProcessResult> retInfo = new ArrayList<>();
         for (GroupResCtrlEntity newResCtrlEntity : addRecordMap.values()) {
@@ -358,17 +383,15 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private boolean getGroupResCtrlJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                               BaseEntity defOpEntity, StringBuilder sBuffer,
-                                               ProcessResult result) {
+            BaseEntity defOpEntity, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.GROUPRESCTRLSET, true, null, result)) {
             return result.isSuccess();
         }
-        List<Map<String, String>> ctrlJsonArray =
-                (List<Map<String, String>>) result.getRetData();
+        List<Map<String, String>> ctrlJsonArray = (List<Map<String, String>>) result.getRetData();
         // get default qryPriorityId
-        ClusterSettingEntity defClusterSetting =
-                defMetaDataService.getClusterDefSetting(false);
+        ClusterSettingEntity defClusterSetting = defMetaDataService.getClusterDefSetting(false);
         int defQryPriorityId = defClusterSetting.getQryPriorityId();
         // check and get topic control configure
         GroupResCtrlEntity itemEntity;
@@ -423,8 +446,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
                 return result.isSuccess();
             }
             String flowCtrlInfo = (String) result.getRetData();
-            itemEntity =
-                    new GroupResCtrlEntity(itemOpEntity, groupName);
+            itemEntity = new GroupResCtrlEntity(itemOpEntity, groupName);
             itemEntity.updModifyInfo(itemEntity.getDataVerId(),
                     resCheckEnable, allowedBClientRate, qryPriorityId,
                     flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
@@ -444,7 +466,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (GroupProcessResult entry : retInfo) {

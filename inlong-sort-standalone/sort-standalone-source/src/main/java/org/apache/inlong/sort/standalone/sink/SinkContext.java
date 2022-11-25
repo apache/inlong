@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
@@ -29,12 +26,17 @@ import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;
 import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import org.slf4j.Logger;
 
 /**
  * 
@@ -243,6 +245,7 @@ public class SinkContext {
 
     /**
      * createBufferQueue
+     * 
      * @return
      */
     public static <U> BufferQueue<U> createBufferQueue() {

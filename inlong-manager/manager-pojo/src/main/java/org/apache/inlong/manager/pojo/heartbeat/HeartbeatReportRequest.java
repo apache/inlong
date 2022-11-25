@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.pojo.heartbeat;
 
-import io.swagger.annotations.ApiModel;
-import lombok.Data;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
+
+import lombok.Data;
+import io.swagger.annotations.ApiModel;
 
 /**
  * Heartbeat report request

@@ -21,14 +21,6 @@ package org.apache.inlong.sort.tests;
 import org.apache.inlong.sort.tests.utils.FlinkContainerTestEnv;
 import org.apache.inlong.sort.tests.utils.JdbcProxy;
 import org.apache.inlong.sort.tests.utils.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.ClickHouseContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -41,9 +33,17 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.ClickHouseContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
+
 /**
- * End-to-end tests
- * Test flink sql mysql cdc to clickHouse
+ * End-to-end tests Test flink sql mysql cdc to clickHouse
  */
 public class ClickHouseCase extends FlinkContainerTestEnv {
 
@@ -66,9 +66,9 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
     @ClassRule
     public static final ClickHouseContainer CLICK_HOUSE_CONTAINER = (ClickHouseContainer) new ClickHouseContainer(
             "yandex/clickhouse-server:20.1.8.41")
-            .withNetwork(NETWORK)
-            .withNetworkAliases("clickhouse")
-            .withLogConsumer(new Slf4jLogConsumer(LOG));
+                    .withNetwork(NETWORK)
+                    .withNetworkAliases("clickhouse")
+                    .withLogConsumer(new Slf4jLogConsumer(LOG));
 
     @Before
     public void setup() {
@@ -104,8 +104,9 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
     }
 
     private void initializeMysqlTable() {
-        try (Connection conn =
-                DriverManager.getConnection(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
+        try (
+                Connection conn =
+                        DriverManager.getConnection(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
                 Statement stat = conn.createStatement()) {
             stat.execute(
                     "CREATE TABLE test_input1 (\n"
@@ -118,11 +119,11 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
         }
     }
 
-
     /**
      * Test flink sql mysql cdc to clickHouse
      *
-     * @throws Exception The exception may throws when execute the case
+     * @throws Exception
+     *           The exception may throws when execute the case
      */
     @Test
     public void testClickHouseUpdateAndDelete() throws Exception {
@@ -130,8 +131,9 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
         waitUntilJobRunning(Duration.ofSeconds(30));
 
         // generate input
-        try (Connection conn =
-                DriverManager.getConnection(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
+        try (
+                Connection conn =
+                        DriverManager.getConnection(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword());
                 Statement stat = conn.createStatement()) {
             stat.execute(
                     "INSERT INTO test_input1 "
@@ -147,12 +149,10 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
             throw e;
         }
 
-        JdbcProxy proxy =
-                new JdbcProxy(CLICK_HOUSE_CONTAINER.getJdbcUrl(), CLICK_HOUSE_CONTAINER.getUsername(),
-                        CLICK_HOUSE_CONTAINER.getPassword(),
-                        CLICK_HOUSE_CONTAINER.getDriverClassName());
-        List<String> expectResult =
-                Arrays.asList("2,tom,Big 2-wheel scooter ");
+        JdbcProxy proxy = new JdbcProxy(CLICK_HOUSE_CONTAINER.getJdbcUrl(), CLICK_HOUSE_CONTAINER.getUsername(),
+                CLICK_HOUSE_CONTAINER.getPassword(),
+                CLICK_HOUSE_CONTAINER.getDriverClassName());
+        List<String> expectResult = Arrays.asList("2,tom,Big 2-wheel scooter ");
         proxy.checkResultWithTimeout(
                 expectResult,
                 "test_output1",

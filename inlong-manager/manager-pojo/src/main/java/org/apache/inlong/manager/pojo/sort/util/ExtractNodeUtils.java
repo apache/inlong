@@ -17,11 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -62,9 +57,17 @@ import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.format.RawFormat;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 /**
  * Parse SourceInfo to ExtractNode which sort needed
@@ -113,7 +116,8 @@ public class ExtractNodeUtils {
     /**
      * Create MySql extract node
      *
-     * @param binlogSource MySql binlog source info
+     * @param binlogSource
+     *          MySql binlog source info
      * @return MySql extract node info
      */
     public static MySqlExtractNode createExtractNode(MySQLBinlogSource binlogSource) {
@@ -164,7 +168,8 @@ public class ExtractNodeUtils {
     /**
      * Create Kafka extract node
      *
-     * @param kafkaSource Kafka source info
+     * @param kafkaSource
+     *          Kafka source info
      * @return Kafka extract node info
      */
     public static KafkaExtractNode createExtractNode(KafkaSource kafkaSource) {
@@ -228,14 +233,14 @@ public class ExtractNodeUtils {
                 primaryKey,
                 groupId,
                 partitionOffset,
-                scanTimestampMillis
-        );
+                scanTimestampMillis);
     }
 
     /**
      * Create Pulsar extract node
      *
-     * @param pulsarSource Pulsar source info
+     * @param pulsarSource
+     *          Pulsar source info
      * @return Pulsar extract node info
      */
     public static PulsarExtractNode createExtractNode(PulsarSource pulsarSource) {
@@ -298,7 +303,8 @@ public class ExtractNodeUtils {
     /**
      * Create PostgreSQL extract node
      *
-     * @param postgreSQLSource PostgreSQL source info
+     * @param postgreSQLSource
+     *          PostgreSQL source info
      * @return PostgreSQL extract node info
      */
     public static PostgresExtractNode createExtractNode(PostgreSQLSource postgreSQLSource) {
@@ -315,13 +321,15 @@ public class ExtractNodeUtils {
     /**
      * Create Oracle extract node
      *
-     * @param source Oracle source info
+     * @param source
+     *          Oracle source info
      * @return oracle extract node info
      */
     public static OracleExtractNode createExtractNode(OracleSource source) {
         List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
         ScanStartUpMode scanStartupMode = StringUtils.isBlank(source.getScanStartupMode())
-                ? null : ScanStartUpMode.forName(source.getScanStartupMode());
+                ? null
+                : ScanStartUpMode.forName(source.getScanStartupMode());
         Map<String, String> properties = parseProperties(source.getProperties());
         return new OracleExtractNode(
                 source.getSourceName(),
@@ -337,14 +345,14 @@ public class ExtractNodeUtils {
                 source.getSchemaName(),
                 source.getTableName(),
                 source.getPort(),
-                scanStartupMode
-        );
+                scanStartupMode);
     }
 
     /**
      * Create SQLServer extract node
      *
-     * @param source SQLServer source info
+     * @param source
+     *          SQLServer source info
      * @return SQLServer extract node info
      */
     public static SqlServerExtractNode createExtractNode(SQLServerSource source) {
@@ -364,14 +372,14 @@ public class ExtractNodeUtils {
                 source.getDatabase(),
                 source.getSchemaName(),
                 source.getTableName(),
-                source.getServerTimezone()
-        );
+                source.getServerTimezone());
     }
 
     /**
      * Create MongoDB extract node
      *
-     * @param source MongoDB source info
+     * @param source
+     *          MongoDB source info
      * @return MongoDB extract node info
      */
     public static MongoExtractNode createExtractNode(MongoDBSource source) {
@@ -387,14 +395,14 @@ public class ExtractNodeUtils {
                 source.getHosts(),
                 source.getUsername(),
                 source.getPassword(),
-                source.getDatabase()
-        );
+                source.getDatabase());
     }
 
     /**
      * Create TubeMQ extract node
      *
-     * @param source TubeMQ source info
+     * @param source
+     *          TubeMQ source info
      * @return TubeMQ extract node info
      */
     public static TubeMQExtractNode createExtractNode(TubeMQSource source) {
@@ -411,14 +419,14 @@ public class ExtractNodeUtils {
                 source.getSerializationType(),
                 source.getGroupId(),
                 source.getSessionKey(),
-                source.getTid()
-        );
+                source.getTid());
     }
 
     /**
      * Create Redis extract node
      *
-     * @param source redis source info
+     * @param source
+     *          redis source info
      * @return redis extract source info
      */
     public static RedisExtractNode createExtractNode(RedisSource source) {
@@ -450,15 +458,16 @@ public class ExtractNodeUtils {
                 source.getMaxTotal(),
                 source.getMaxIdle(),
                 source.getMinIdle(),
-                lookupOptions
-        );
+                lookupOptions);
     }
 
     /**
      * Parse FieldInfos
      *
-     * @param streamFields The stream fields
-     * @param nodeId The node id
+     * @param streamFields
+     *          The stream fields
+     * @param nodeId
+     *          The node id
      * @return FieldInfo list
      */
     private static List<FieldInfo> parseFieldInfos(List<StreamField> streamFields, String nodeId) {
@@ -471,7 +480,8 @@ public class ExtractNodeUtils {
     /**
      * Parse properties
      *
-     * @param properties The properties with string key and object value
+     * @param properties
+     *          The properties with string key and object value
      * @return The properties with string key and string value
      */
     private static Map<String, String> parseProperties(Map<String, Object> properties) {

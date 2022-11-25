@@ -19,14 +19,17 @@ package org.apache.inlong.tubemq.corebase.policies;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
 import java.util.Calendar;
 import java.util.TimeZone;
+
 import org.junit.Test;
 
 public class TestFlowCtrlRuleHandler {
 
     private static String mockFlowCtrlInfo() {
-        // 0: current limit, 1: frequency limit, 2: SSD transfer 3: request frequency control
+        // 0: current limit, 1: frequency limit, 2: SSD transfer 3: request frequency
+        // control
         return "[{\"type\":0,\"rule\":[{\"start\":\"08:00\",\"end\":\"17:59\",\"dltInM\":1024,"
                 + "\"limitInM\":20,\"freqInMs\":1000},{\"start\":\"18:00\",\"end\":\"22:00\","
                 + "\"dltInM\":1024,\"limitInM\":20,\"freqInMs\":5000}]},{\"type\":2,\"rule\""
@@ -62,13 +65,13 @@ public class TestFlowCtrlRuleHandler {
             result = handler.getCurDataLimit(1000);
             assertNull("result should be null", result);
 
-            //  request frequency control
+            // request frequency control
             FlowCtrlItem item = handler.getFilterCtrlItem();
             assertEquals(item.getDataLtInSZ(), 0);
             assertEquals(item.getZeroCnt(), 400);
             assertEquals(item.getFreqLtInMs(), 100);
 
-            //check values
+            // check values
             assertEquals(handler.getNormFreqInMs(), 100);
             assertEquals(handler.getFlowCtrlId(), 10);
             assertEquals(handler.getMinDataFreqInMs(), 400);

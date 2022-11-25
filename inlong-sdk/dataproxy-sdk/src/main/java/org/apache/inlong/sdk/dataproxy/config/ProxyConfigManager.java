@@ -18,11 +18,16 @@
 
 package org.apache.inlong.sdk.dataproxy.config;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
+import org.apache.inlong.common.util.BasicAuth;
+import org.apache.inlong.sdk.dataproxy.ConfigConstants;
+import org.apache.inlong.sdk.dataproxy.LoadBalance;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
+import org.apache.inlong.sdk.dataproxy.network.HashRing;
+import org.apache.inlong.sdk.dataproxy.network.Utils;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -45,19 +50,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
-import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
-import org.apache.inlong.common.util.BasicAuth;
-import org.apache.inlong.sdk.dataproxy.ConfigConstants;
-import org.apache.inlong.sdk.dataproxy.LoadBalance;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
-import org.apache.inlong.sdk.dataproxy.network.HashRing;
-import org.apache.inlong.sdk.dataproxy.network.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLContext;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -79,11 +72,22 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.net.ssl.SSLContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
+
 /**
- * This thread requests dataproxy-host list from manager, including these functions:
- * 1. request dataproxy-host, support retry
- * 2. local file disaster
- * 3. based on request result, do update (including cache, local file, ClientMgr.proxyInfoList and ClientMgr.channels)
+ * This thread requests dataproxy-host list from manager, including these
+ * functions: 1. request dataproxy-host, support retry 2. local file disaster 3.
+ * based on request result, do update (including cache, local file,
+ * ClientMgr.proxyInfoList and ClientMgr.channels)
  */
 public class ProxyConfigManager extends Thread {
 
@@ -97,7 +101,9 @@ public class ProxyConfigManager extends Thread {
     private final Gson gson = new Gson();
     private final HashRing hashRing = HashRing.getInstance();
     private List<HostInfo> proxyInfoList = new ArrayList<HostInfo>();
-    /*the status of the cluster.if this value is changed,we need rechoose  three proxy*/
+    /*
+     * the status of the cluster.if this value is changed,we need rechoose three proxy
+     */
     private int oldStat = 0;
     private String groupId;
     private String localMd5;
@@ -248,7 +254,8 @@ public class ProxyConfigManager extends Thread {
     }
 
     /**
-     * request proxyHost list from manager, update ClientMgr.proxyHostList and channels
+     * request proxyHost list from manager, update ClientMgr.proxyHostList and
+     * channels
      *
      * @throws Exception
      */
@@ -277,7 +284,7 @@ public class ProxyConfigManager extends Thread {
             if (proxyEntry != null) {
                 tryToWriteCacheProxyEntry(proxyEntry, configAddr);
             }
-            /* We should exit if no local IP list and can't request it from manager.*/
+            /* We should exit if no local IP list and can't request it from manager. */
             if (localMd5 == null && proxyEntry == null) {
                 LOGGER.error("Can't connect manager at the start of proxy API {}",
                         this.clientConfig.getProxyIPServiceURL());
@@ -331,7 +338,7 @@ public class ProxyConfigManager extends Thread {
                     clientManager.setProxyInfoList(proxyInfoList);
                     doworkTime = System.currentTimeMillis();
                 } else if (proxyEntry.getSwitchStat() != oldStat) {
-                    /*judge  cluster's switch state*/
+                    /* judge cluster's switch state */
                     oldStat = proxyEntry.getSwitchStat();
                     if ((System.currentTimeMillis() - doworkTime) > 3 * 60 * 1000) {
                         LOGGER.info("switch the cluster!");
@@ -433,7 +440,7 @@ public class ProxyConfigManager extends Thread {
                 fis = new FileInputStream(file);
                 is = new ObjectInputStream(fis);
                 entry = (EncryptConfigEntry) is.readObject();
-                //is.close();
+                // is.close();
                 fis.close();
                 return entry;
             } else {
@@ -470,7 +477,7 @@ public class ProxyConfigManager extends Thread {
             p = new ObjectOutputStream(fos);
             p.writeObject(entry);
             p.flush();
-            //p.close();
+            // p.close();
         } catch (Throwable e) {
             LOGGER.error("store EncryptConfigEntry " + entry.toString() + " exception ", e);
             e.printStackTrace();

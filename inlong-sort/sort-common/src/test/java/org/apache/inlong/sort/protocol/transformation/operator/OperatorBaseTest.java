@@ -17,12 +17,14 @@
 
 package org.apache.inlong.sort.protocol.transformation.operator;
 
-import com.google.common.base.Preconditions;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.protocol.transformation.Operator;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Test {@link Operator} base class

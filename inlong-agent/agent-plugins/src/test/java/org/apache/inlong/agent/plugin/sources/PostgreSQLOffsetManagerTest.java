@@ -17,17 +17,19 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.apache.inlong.agent.plugin.sources.snapshot.PostgreSQLSnapshotBase;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.apache.commons.codec.binary.Base64;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Test for PostgreSQL snapshot
@@ -55,13 +57,13 @@ public class PostgreSQLOffsetManagerTest {
     @Test
     public void testOffset() {
         PostgreSQLSnapshotBase snapshotManager = new PostgreSQLSnapshotBase(filePath.toString());
-        byte[] snapshotBytes = new byte[]{-65,-14,23};
+        byte[] snapshotBytes = new byte[]{-65, -14, 23};
         final Base64 base64 = new Base64();
         String encodeSnapshot = base64.encodeAsString(snapshotBytes);
         snapshotManager.save(encodeSnapshot, snapshotManager.getFile());
-        Assert.assertEquals(snapshotManager.getSnapshot(),encodeSnapshot);
+        Assert.assertEquals(snapshotManager.getSnapshot(), encodeSnapshot);
         File file = new File(filePath.toString());
-        Assert.assertEquals(file.exists(),true);
+        Assert.assertEquals(file.exists(), true);
         System.out.println(file.getAbsolutePath());
     }
 }

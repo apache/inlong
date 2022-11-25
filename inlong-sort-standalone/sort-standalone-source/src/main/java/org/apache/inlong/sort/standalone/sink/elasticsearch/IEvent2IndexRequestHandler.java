@@ -28,8 +28,8 @@ public interface IEvent2IndexRequestHandler {
     /**
      * parse
      * 
-     * @param  context
-     * @param  event
+     * @param context
+     * @param event
      * @return
      */
     EsIndexRequest parse(EsSinkContext context, ProfileEvent event);

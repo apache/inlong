@@ -22,8 +22,7 @@ import java.util.Map;
 
 public class ProtocolFactory {
 
-    private static final Map<Integer, Class<? extends Protocol>> protocols =
-            new HashMap<>();
+    private static final Map<Integer, Class<? extends Protocol>> protocols = new HashMap<>();
 
     static {
         registerProtocol(RpcProtocol.RPC_PROTOCOL_TCP, RpcProtocol.class);

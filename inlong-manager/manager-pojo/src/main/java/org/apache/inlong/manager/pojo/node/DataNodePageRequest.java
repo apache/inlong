@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.pojo.node;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import org.apache.inlong.manager.pojo.common.PageRequest;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.pojo.common.PageRequest;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Data node paging query conditions

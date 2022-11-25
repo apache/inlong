@@ -17,30 +17,33 @@
 
 package org.apache.inlong.sort.kafka.partitioner;
 
+import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.format.AbstractDynamicSchemaFormat;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * The Raw Data Hash Partitioner is used to extract partition from raw data(bytes array):
- * It needs a partitionPattern used to parse the pattern and a format {@link RawDataHashPartitioner#sinkMultipleFormat}
- * to deserialization the raw data(bytes array)
- * This partitioner will extract primary key from raw data as the partition key used hash if the 'partitionPattern'
- * equals 'PRIMARY_KEY' else it will parse partition key from raw data.
+ * The Raw Data Hash Partitioner is used to extract partition from raw
+ * data(bytes array): It needs a partitionPattern used to parse the pattern and
+ * a format {@link RawDataHashPartitioner#sinkMultipleFormat} to deserialization
+ * the raw data(bytes array) This partitioner will extract primary key from raw
+ * data as the partition key used hash if the 'partitionPattern' equals
+ * 'PRIMARY_KEY' else it will parse partition key from raw data.
  *
  * @param <T>
  */
 public class RawDataHashPartitioner<T> extends FlinkKafkaPartitioner<T> {
 
     /**
-     * The primary key constant, this partitioner will extract primary key from raw data if the 'partitionPattern'
-     * equals 'PRIMARY_KEY'
+     * The primary key constant, this partitioner will extract primary key from raw
+     * data if the 'partitionPattern' equals 'PRIMARY_KEY'
      */
     public static final String PRIMARY_KEY = "PRIMARY_KEY";
     private static final Logger LOG = LoggerFactory.getLogger(RawDataHashPartitioner.class);

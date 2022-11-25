@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.corerpc;
 
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.tubemq.corebase.cluster.NodeAddrInfo;
 import org.apache.inlong.tubemq.corerpc.client.Callback;
 import org.apache.inlong.tubemq.corerpc.client.Client;
@@ -28,11 +27,14 @@ import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
 import org.apache.inlong.tubemq.corerpc.protocol.RpcProtocol;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
 
+import java.util.concurrent.TimeUnit;
+
 public class RpcServiceInvoker extends AbstractServiceInvoker {
+
     private NodeAddrInfo targetAddress;
 
     public RpcServiceInvoker(ClientFactory clientFactory, Class serviceClass,
-                             RpcConfig conf, NodeAddrInfo targetAddress) {
+            RpcConfig conf, NodeAddrInfo targetAddress) {
         super(clientFactory, serviceClass, conf);
         this.targetAddress = targetAddress;
     }
@@ -43,9 +45,9 @@ public class RpcServiceInvoker extends AbstractServiceInvoker {
 
     @Override
     public Object callMethod(String targetInterface, String method,
-                             Object arg, Callback callback) throws Throwable {
-        Client client =
-                clientFactory.getClient(targetAddress, this.conf);
+            Object arg, Callback callback)
+            throws Throwable {
+        Client client = clientFactory.getClient(targetAddress, this.conf);
         if (client == null) {
             throw new NetworkException("Client is null, Channel is not connected!");
         }
@@ -56,18 +58,15 @@ public class RpcServiceInvoker extends AbstractServiceInvoker {
                 throw new OverflowException("Channel is not writable, please try later!");
             }
         }
-        int requestTimeout =
-                this.conf.getInt(RpcConstants.REQUEST_TIMEOUT, 10000);
-        RequestWrapper requestWrapper =
-                new RequestWrapper(PbEnDecoder.getServiceIdByServiceName(targetInterface),
-                        RpcProtocol.RPC_PROTOCOL_VERSION,
-                        RpcConstants.RPC_FLAG_MSG_TYPE_REQUEST,
-                        requestTimeout);
+        int requestTimeout = this.conf.getInt(RpcConstants.REQUEST_TIMEOUT, 10000);
+        RequestWrapper requestWrapper = new RequestWrapper(PbEnDecoder.getServiceIdByServiceName(targetInterface),
+                RpcProtocol.RPC_PROTOCOL_VERSION,
+                RpcConstants.RPC_FLAG_MSG_TYPE_REQUEST,
+                requestTimeout);
         requestWrapper.setMethodId(PbEnDecoder.getMethIdByName(method));
         requestWrapper.setRequestData(arg);
-        ResponseWrapper responseWrapper =
-                client.call(requestWrapper, callback,
-                        requestTimeout, TimeUnit.MILLISECONDS);
+        ResponseWrapper responseWrapper = client.call(requestWrapper, callback,
+                requestTimeout, TimeUnit.MILLISECONDS);
         if (responseWrapper != null) {
             if (responseWrapper.isSuccess()) {
                 return responseWrapper.getResponseData();

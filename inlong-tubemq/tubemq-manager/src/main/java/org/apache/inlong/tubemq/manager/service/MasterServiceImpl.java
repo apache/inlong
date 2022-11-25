@@ -18,8 +18,22 @@
 package org.apache.inlong.tubemq.manager.service;
 
 import static org.apache.inlong.tubemq.manager.controller.TubeMQResult.errorResult;
+import static org.apache.inlong.tubemq.manager.service.TubeConst.DELETE_FAIL;
 
-import com.google.gson.Gson;
+import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
+import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
+import org.apache.inlong.tubemq.manager.entry.MasterEntry;
+import org.apache.inlong.tubemq.manager.repository.MasterRepository;
+import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
+import org.apache.inlong.tubemq.manager.service.tube.TubeHttpResponse;
+import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -27,22 +41,11 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
-import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
-import org.apache.inlong.tubemq.manager.entry.MasterEntry;
-import org.apache.inlong.tubemq.manager.repository.MasterRepository;
-import static org.apache.inlong.tubemq.manager.service.TubeConst.DELETE_FAIL;
-import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
-import org.apache.inlong.tubemq.manager.service.tube.TubeHttpResponse;
-import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.gson.Gson;
 
 @Slf4j
 @Component
@@ -62,11 +65,10 @@ public class MasterServiceImpl implements MasterService {
         TubeMQResult defaultResult = new TubeMQResult();
 
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
-            TubeHttpResponse tubeResponse =
-                    gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
-                            StandardCharsets.UTF_8), TubeHttpResponse.class);
-            if (tubeResponse.getCode() == TubeConst.SUCCESS_CODE && tubeResponse.getErrCode()
-                    == TubeConst.SUCCESS_CODE) {
+            TubeHttpResponse tubeResponse = gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
+                    StandardCharsets.UTF_8), TubeHttpResponse.class);
+            if (tubeResponse.getCode() == TubeConst.SUCCESS_CODE
+                    && tubeResponse.getErrCode() == TubeConst.SUCCESS_CODE) {
                 return defaultResult;
             } else {
                 defaultResult = errorResult(tubeResponse.getErrMsg());

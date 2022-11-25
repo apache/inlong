@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.resource.sink.hbase;
 
+import org.apache.inlong.manager.pojo.sink.hbase.HBaseColumnFamilyInfo;
+import org.apache.inlong.manager.pojo.sink.hbase.HBaseTableInfo;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
@@ -28,14 +31,13 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
-import org.apache.inlong.manager.pojo.sink.hbase.HBaseColumnFamilyInfo;
-import org.apache.inlong.manager.pojo.sink.hbase.HBaseTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utils for hbase api
@@ -98,7 +100,8 @@ public class HBaseApiUtils {
     /**
      * Check hbase table already exists or not
      */
-    public static boolean tableExists(String zkAddress, String zkNode, String namespace, String qualifier)
+    public static boolean tableExists(String zkAddress, String zkNode, String namespace,
+            String qualifier)
             throws Exception {
         TableName tableName = TableName.valueOf(namespace, qualifier);
         try (Connection conn = getConnection(zkAddress, zkNode)) {
@@ -111,7 +114,8 @@ public class HBaseApiUtils {
      * Query hbase table column families
      */
     public static List<HBaseColumnFamilyInfo> getColumnFamilies(String zkAddress, String zkNode, String namespace,
-            String qualifier) throws Exception {
+            String qualifier)
+            throws Exception {
         List<HBaseColumnFamilyInfo> cfList = new ArrayList<>();
         TableName tableName = TableName.valueOf(namespace, qualifier);
         try (Connection conn = getConnection(zkAddress, zkNode)) {
@@ -130,7 +134,8 @@ public class HBaseApiUtils {
      * Add column families for hbase table
      */
     public static void addColumnFamilies(String zkAddress, String zkNode, String namespace, String qualifier,
-            List<HBaseColumnFamilyInfo> columnFamilies) throws Exception {
+            List<HBaseColumnFamilyInfo> columnFamilies)
+            throws Exception {
         TableName tableName = TableName.valueOf(namespace, qualifier);
         try (Connection conn = getConnection(zkAddress, zkNode)) {
             Admin admin = conn.getAdmin();

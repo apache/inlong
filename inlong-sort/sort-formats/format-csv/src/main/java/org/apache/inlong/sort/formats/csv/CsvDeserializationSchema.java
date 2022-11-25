@@ -18,18 +18,22 @@
 
 package org.apache.inlong.sort.formats.csv;
 
-import java.nio.charset.Charset;
-import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.util.StringUtils;
+
+import org.apache.flink.api.common.serialization.DeserializationSchema;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.types.Row;
+
+import java.nio.charset.Charset;
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +88,7 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
-            @Nullable String nullLiteral
-    ) {
+            @Nullable String nullLiteral) {
         this.rowFormatInfo = rowFormatInfo;
         this.charset = charset;
         this.delimiter = delimiter;
@@ -95,16 +98,14 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
     }
 
     public CsvDeserializationSchema(
-            @Nonnull RowFormatInfo rowFormatInfo
-    ) {
+            @Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
                 TableFormatConstants.DEFAULT_CHARSET,
                 TableFormatConstants.DEFAULT_DELIMITER,
                 null,
                 null,
-                null
-        );
+                null);
     }
 
     @SuppressWarnings("unchecked")
@@ -125,12 +126,11 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
-        String[] fieldTexts =
-                StringUtils.splitCsv(text, delimiter, escapeChar, quoteChar);
+        String[] fieldTexts = StringUtils.splitCsv(text, delimiter, escapeChar, quoteChar);
 
         if (fieldTexts.length != fieldNames.length) {
             LOG.warn("The number of fields mismatches: " + fieldNames.length
-                     + " expected, but was " + fieldTexts.length + ".");
+                    + " expected, but was " + fieldTexts.length + ".");
         }
 
         Row row = new Row(fieldNames.length);
@@ -139,13 +139,11 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
             if (i >= fieldTexts.length) {
                 row.setField(i, null);
             } else {
-                Object field =
-                        TableFormatUtils.deserializeBasicField(
-                                fieldNames[i],
-                                fieldFormatInfos[i],
-                                fieldTexts[i],
-                                nullLiteral
-                        );
+                Object field = TableFormatUtils.deserializeBasicField(
+                        fieldNames[i],
+                        fieldFormatInfos[i],
+                        fieldTexts[i],
+                        nullLiteral);
 
                 row.setField(i, field);
             }
@@ -170,7 +168,8 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
         /**
          * Creates a CSV deserialization schema for the given type information.
          *
-         * @param rowFormatInfo Type information describing the result type.
+         * @param rowFormatInfo
+         *          Type information describing the result type.
          */
         public Builder(RowFormatInfo rowFormatInfo) {
             this.rowFormatInfo = rowFormatInfo;
@@ -208,8 +207,7 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
                     delimiter,
                     escapeChar,
                     quoteChar,
-                    nullLiteral
-            );
+                    nullLiteral);
         }
     }
 
@@ -225,11 +223,11 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
 
         CsvDeserializationSchema that = (CsvDeserializationSchema) o;
         return rowFormatInfo.equals(that.rowFormatInfo)
-                       && Objects.equals(charset, that.charset)
-                       && Objects.equals(delimiter, that.delimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && Objects.equals(charset, that.charset)
+                && Objects.equals(delimiter, that.delimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override

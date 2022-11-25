@@ -17,6 +17,26 @@
 
 package org.apache.inlong.sdk.sort.impl;
 
+import org.apache.inlong.sdk.sort.api.ClientContext;
+import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
+import org.apache.inlong.sdk.sort.api.InlongTopicManager;
+import org.apache.inlong.sdk.sort.api.InlongTopicTypeEnum;
+import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
+import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
+import org.apache.inlong.sdk.sort.entity.InLongTopic;
+import org.apache.inlong.sdk.sort.fetcher.tube.TubeConsumerCreator;
+import org.apache.inlong.sdk.sort.impl.kafka.InLongKafkaFetcherImpl;
+import org.apache.inlong.sdk.sort.impl.pulsar.InLongPulsarFetcherImpl;
+import org.apache.inlong.sdk.sort.impl.tube.InLongTubeFetcherImpl;
+import org.apache.inlong.sdk.sort.util.PeriodicTask;
+import org.apache.inlong.sdk.sort.util.StringUtil;
+import org.apache.inlong.tubemq.client.config.TubeClientConfig;
+import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
+import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
+
+import org.apache.pulsar.client.api.AuthenticationFactory;
+import org.apache.pulsar.client.api.PulsarClient;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,24 +48,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import org.apache.inlong.sdk.sort.api.ClientContext;
-import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
-import org.apache.inlong.sdk.sort.api.InlongTopicManager;
-import org.apache.inlong.sdk.sort.api.InlongTopicTypeEnum;
-import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
-import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
-import org.apache.inlong.sdk.sort.impl.kafka.InLongKafkaFetcherImpl;
-import org.apache.inlong.sdk.sort.impl.pulsar.InLongPulsarFetcherImpl;
-import org.apache.inlong.sdk.sort.impl.tube.InLongTubeFetcherImpl;
-import org.apache.inlong.sdk.sort.fetcher.tube.TubeConsumerCreator;
-import org.apache.inlong.sdk.sort.util.PeriodicTask;
-import org.apache.inlong.sdk.sort.util.StringUtil;
-import org.apache.inlong.tubemq.client.config.TubeClientConfig;
-import org.apache.inlong.tubemq.client.factory.MessageSessionFactory;
-import org.apache.inlong.tubemq.client.factory.TubeSingleSessionFactory;
-import org.apache.pulsar.client.api.AuthenticationFactory;
-import org.apache.pulsar.client.api.PulsarClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +57,7 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
 
     private final Logger logger = LoggerFactory.getLogger(InlongTopicManagerImpl.class);
 
-    private final ConcurrentHashMap<String, InLongTopicFetcher> fetchers
-            = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, InLongTopicFetcher> fetchers = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, PulsarClient> pulsarClients = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, TubeConsumerCreator> tubeFactories = new ConcurrentHashMap<>();
 
@@ -127,7 +129,8 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
     /**
      * create fetcher (pulsar,tube,kafka)
      *
-     * @param inLongTopic {@link InLongTopic}
+     * @param inLongTopic
+     *          {@link InLongTopic}
      * @return {@link InLongTopicFetcher}
      */
     private InLongTopicFetcher createInLongTopicFetcher(InLongTopic inLongTopic) {
@@ -289,23 +292,24 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
 
         List<String> oldInLongTopics = new ArrayList<>(fetchers.keySet());
         logger.debug("oldInLongTopics :{}", Arrays.toString(oldInLongTopics.toArray()));
-        //get need be offlined topics
+        // get need be offlined topics
         oldInLongTopics.removeAll(newTopics);
         logger.debug("removed oldInLongTopics :{}", Arrays.toString(oldInLongTopics.toArray()));
 
-        //get new topics
+        // get new topics
         newTopics.removeAll(new ArrayList<>(fetchers.keySet()));
         logger.debug("really new topics :{}", Arrays.toString(newTopics.toArray()));
-        //offline need be offlined topics
+        // offline need be offlined topics
         offlineRmovedTopic(oldInLongTopics);
-        //online new topics
+        // online new topics
         onlineNewTopic(newConsumeConfig, newTopics);
     }
 
     /**
      * offline inlong topic which not belong the sortTaskId
      *
-     * @param oldInLongTopics {@link List}
+     * @param oldInLongTopics
+     *          {@link List}
      */
     private void offlineRmovedTopic(List<String> oldInLongTopics) {
         for (String fetchKey : oldInLongTopics) {
@@ -332,8 +336,10 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
     /**
      * online new inlong topic
      *
-     * @param newSubscribedInLongTopics List
-     * @param reallyNewTopic List
+     * @param newSubscribedInLongTopics
+     *          List
+     * @param reallyNewTopic
+     *          List
      */
     private void onlineNewTopic(List<InLongTopic> newSubscribedInLongTopics, List<String> reallyNewTopic) {
         for (InLongTopic inLongTopic : newSubscribedInLongTopics) {
@@ -399,7 +405,7 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
         if (!tubeFactories.containsKey(inLongTopic.getInLongCluster().getClusterId())) {
             if (inLongTopic.getInLongCluster().getBootstraps() != null) {
                 try {
-                    //create MessageSessionFactory
+                    // create MessageSessionFactory
                     TubeClientConfig tubeConfig = new TubeClientConfig(inLongTopic.getInLongCluster().getBootstraps());
                     MessageSessionFactory messageSessionFactory = new TubeSingleSessionFactory(tubeConfig);
                     TubeConsumerCreator tubeConsumerCreator = new TubeConsumerCreator(messageSessionFactory,
@@ -467,7 +473,7 @@ public class InlongTopicManagerImpl extends InlongTopicManager {
                 logger.warn("assign is stoped");
                 return;
             }
-            //get sortTask conf from manager
+            // get sortTask conf from manager
             if (queryConsumeConfig != null) {
                 long start = System.currentTimeMillis();
                 context.getStatManager().getStatistics(context.getConfig().getSortTaskId())

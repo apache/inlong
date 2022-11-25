@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -41,13 +37,19 @@ import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for meta field sync
@@ -70,8 +72,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new MetaFieldInfo("mysql_type", MetaField.MYSQL_TYPE),
                 new MetaFieldInfo("sql_type", MetaField.SQL_TYPE),
                 new MetaFieldInfo("meta_ts", MetaField.TS),
-                new MetaFieldInfo("up_before", MetaField.UPDATE_BEFORE)
-        );
+                new MetaFieldInfo("up_before", MetaField.UPDATE_BEFORE));
         return new MySqlExtractNode("1", "mysql_input", fields, null, null,
                 "id", Collections.singletonList("mysql_table"),
                 "localhost", "inlong", "inlong",
@@ -94,11 +95,10 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new MetaFieldInfo("mysql_type", MetaField.MYSQL_TYPE),
                 new MetaFieldInfo("sql_type", MetaField.SQL_TYPE),
                 new MetaFieldInfo("meta_ts", MetaField.TS),
-                new MetaFieldInfo("up_before", MetaField.UPDATE_BEFORE)
-        );
+                new MetaFieldInfo("up_before", MetaField.UPDATE_BEFORE));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
@@ -126,8 +126,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("meta_ts", new TimestampFormatInfo()),
                                 new FieldInfo("meta_ts", new TimestampFormatInfo())),
                         new FieldRelation(new FieldInfo("up_before", new TimestampFormatInfo()),
-                                new FieldInfo("up_before", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("up_before", new TimestampFormatInfo())));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
                 null, "topic1", "localhost:9092",
                 new CanalJsonFormat(), null,
@@ -150,8 +149,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new MetaFieldInfo("mysql_type", MetaField.MYSQL_TYPE),
                 new MetaFieldInfo("sql_type", MetaField.SQL_TYPE),
                 new MetaFieldInfo("meta_ts", MetaField.TS),
-                new MetaFieldInfo("up_before", MetaField.UPDATE_BEFORE)
-        );
+                new MetaFieldInfo("up_before", MetaField.UPDATE_BEFORE));
         return new KafkaExtractNode("3", "kafka_input", fields,
                 null, null, "topic1", "localhost:9092",
                 new CanalJsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
@@ -174,11 +172,10 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new MetaFieldInfo("mysql_type", MetaField.MYSQL_TYPE),
                 new MetaFieldInfo("sql_type", MetaField.SQL_TYPE),
                 new MetaFieldInfo("meta_ts", MetaField.TS),
-                new MetaFieldInfo("up_before", MetaField.UPDATE_BEFORE)
-        );
+                new MetaFieldInfo("up_before", MetaField.UPDATE_BEFORE));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
@@ -206,8 +203,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("meta_ts", new TimestampFormatInfo()),
                                 new FieldInfo("meta_ts", new TimestampFormatInfo())),
                         new FieldRelation(new FieldInfo("up_before", new TimestampFormatInfo()),
-                                new FieldInfo("up_before", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("up_before", new TimestampFormatInfo())));
         return new KafkaLoadNode("4", "kafka_output2", fields, relations, null,
                 null, "topic2", "localhost:9092",
                 new CanalJsonFormat(), null,
@@ -221,10 +217,11 @@ public class MetaFieldSyncTest extends AbstractTestBase {
     }
 
     /**
-     * Test meta field sync test
-     * It contains mysql cdc to kafka canal-json, kafka canal-json to kafka canal-json test
+     * Test meta field sync test It contains mysql cdc to kafka canal-json, kafka
+     * canal-json to kafka canal-json test
      *
-     * @throws Exception The exception may throws when execute the case
+     * @throws Exception
+     *           The exception may throws when execute the case
      */
     @Test
     public void testMetaFieldSyncTest() throws Exception {
@@ -247,9 +244,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                         buildNodeRelation(Collections.singletonList(mysqlInputNode),
                                 Collections.singletonList(kafkaOutputNode)),
                         buildNodeRelation(Collections.singletonList(kafkaInputNode),
-                                Collections.singletonList(kafkaOutputNode2))
-                )
-        );
+                                Collections.singletonList(kafkaOutputNode2))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

@@ -27,7 +27,8 @@ public interface ManagerReportHandler {
     /**
      * report heartbeat to manager
      *
-     * @param heartBeatParams HeartBeatParams
+     * @param heartBeatParams
+     *          HeartBeatParams
      * @return HeartBeatResult
      */
     HeartBeatResult heartbeat(HeartBeatParams heartBeatParams);
@@ -35,7 +36,8 @@ public interface ManagerReportHandler {
     /**
      * report consume status to manager
      *
-     * @param consumeStatusParams ConsumeStatusParams
+     * @param consumeStatusParams
+     *          ConsumeStatusParams
      * @return ConsumeStatusResult
      */
     ConsumeStatusResult updateConsumeStatus(ConsumeStatusParams consumeStatusParams);

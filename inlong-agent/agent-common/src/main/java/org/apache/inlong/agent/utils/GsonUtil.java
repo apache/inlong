@@ -20,7 +20,8 @@ package org.apache.inlong.agent.utils;
 import com.google.gson.Gson;
 
 /**
- * GsonUtil : Gson instances are Thread-safe, so you can reuse them freely across multiple threads.
+ * GsonUtil : Gson instances are Thread-safe, so you can reuse them freely
+ * across multiple threads.
  */
 public class GsonUtil {
 
@@ -34,11 +35,15 @@ public class GsonUtil {
     }
 
     /**
-     * This method deserializes the specified Json into an object of the specified class.
+     * This method deserializes the specified Json into an object of the specified
+     * class.
      *
-     * @param json     json
-     * @param classOfT class of T
-     * @param <T>      T
+     * @param json
+     *          json
+     * @param classOfT
+     *          class of T
+     * @param <T>
+     *          T
      * @return T
      */
     public static <T> T fromJson(String json, Class<T> classOfT) {
@@ -46,9 +51,11 @@ public class GsonUtil {
     }
 
     /**
-     * This method serializes the specified object into its equivalent Json representation.
+     * This method serializes the specified object into its equivalent Json
+     * representation.
      *
-     * @param obj obj
+     * @param obj
+     *          obj
      * @return json content
      */
     public static String toJson(Object obj) {

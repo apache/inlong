@@ -19,6 +19,7 @@ package org.apache.inlong.tubemq.corebase.utils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +27,8 @@ import org.slf4j.LoggerFactory;
  * Node Read and Write Service status holder.
  */
 public class ServiceStatusHolder {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ServiceStatusHolder.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(ServiceStatusHolder.class);
     private static final AtomicBoolean isServiceStopped = new AtomicBoolean(false);
     private static final AtomicBoolean isReadStopped = new AtomicBoolean(false);
     private static final AtomicBoolean isWriteStopped = new AtomicBoolean(false);
@@ -36,18 +37,16 @@ public class ServiceStatusHolder {
     private static int allowedWriteIOExcptCnt = 10;
     private static long statsDurationMs = 120000;
     private static final AtomicLong curReadIOExcptCnt = new AtomicLong(0);
-    private static final AtomicLong lastReadStatsTime =
-            new AtomicLong(System.currentTimeMillis());
+    private static final AtomicLong lastReadStatsTime = new AtomicLong(System.currentTimeMillis());
     private static final AtomicBoolean isPauseRead = new AtomicBoolean(false);
 
     private static final AtomicLong curWriteIOExcptCnt = new AtomicLong(0);
-    private static final AtomicLong lastWriteStatsTime =
-            new AtomicLong(System.currentTimeMillis());
+    private static final AtomicLong lastWriteStatsTime = new AtomicLong(System.currentTimeMillis());
     private static final AtomicBoolean isPauseWrite = new AtomicBoolean(false);
 
     public static void setStatsParameters(int paraAllowedReadIOExcptCnt,
-                                          int paraAllowedWriteIOExcptCnt,
-                                          long paraStatsDurationMs) {
+            int paraAllowedWriteIOExcptCnt,
+            long paraStatsDurationMs) {
         allowedReadIOExcptCnt = paraAllowedReadIOExcptCnt;
         allowedWriteIOExcptCnt = paraAllowedWriteIOExcptCnt;
         statsDurationMs = paraStatsDurationMs;
@@ -62,8 +61,8 @@ public class ServiceStatusHolder {
             isServiceStopped.set(isStopped);
             if (isStopped) {
                 logger.warn(new StringBuilder(256)
-                    .append("[Service Status]: global-write stopped by caller ")
-                    .append(caller).toString());
+                        .append("[Service Status]: global-write stopped by caller ")
+                        .append(caller).toString());
             }
         }
     }
@@ -121,19 +120,22 @@ public class ServiceStatusHolder {
     /**
      * Set the read and write service status
      *
-     * @param isReadStop      whether stop read service
-     * @param isWriteStop     whether stop write service
-     * @param caller          the caller
+     * @param isReadStop
+     *          whether stop read service
+     * @param isWriteStop
+     *          whether stop write service
+     * @param caller
+     *          the caller
      */
     public static void setReadWriteServiceStatus(boolean isReadStop,
-                                                 boolean isWriteStop,
-                                                 String caller) {
+            boolean isWriteStop,
+            String caller) {
         if (isReadStopped.get() != isReadStop) {
             isReadStopped.set(isReadStop);
             if (isReadStop) {
                 logger.warn(new StringBuilder(256)
-                    .append("[Service Status]: global-read stopped by caller ")
-                    .append(caller).toString());
+                        .append("[Service Status]: global-read stopped by caller ")
+                        .append(caller).toString());
             } else {
                 if (isPauseRead.get()) {
                     isPauseRead.set(false);
@@ -141,16 +143,16 @@ public class ServiceStatusHolder {
                     lastReadStatsTime.set(System.currentTimeMillis());
                 }
                 logger.warn(new StringBuilder(256)
-                    .append("[Service Status]: global-read opened by caller ")
-                    .append(caller).toString());
+                        .append("[Service Status]: global-read opened by caller ")
+                        .append(caller).toString());
             }
         }
         if (isWriteStopped.get() != isWriteStop) {
             isWriteStopped.set(isWriteStop);
             if (isWriteStop) {
                 logger.warn(new StringBuilder(256)
-                    .append("[Service Status]: global-write stopped by caller ")
-                    .append(caller).toString());
+                        .append("[Service Status]: global-write stopped by caller ")
+                        .append(caller).toString());
             } else {
                 if (isPauseWrite.get()) {
                     isPauseWrite.set(false);
@@ -158,8 +160,8 @@ public class ServiceStatusHolder {
                     lastWriteStatsTime.set(System.currentTimeMillis());
                 }
                 logger.warn(new StringBuilder(256)
-                    .append("[Service Status]: global-write opened by caller ")
-                    .append(caller).toString());
+                        .append("[Service Status]: global-write opened by caller ")
+                        .append(caller).toString());
             }
         }
     }

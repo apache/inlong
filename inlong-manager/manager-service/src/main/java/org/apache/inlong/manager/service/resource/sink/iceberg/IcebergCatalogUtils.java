@@ -17,6 +17,11 @@
 
 package org.apache.inlong.manager.service.resource.sink.iceberg;
 
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergColumnInfo;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergPartition;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergTableInfo;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergType;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
@@ -29,17 +34,14 @@ import org.apache.iceberg.expressions.Expressions;
 import org.apache.iceberg.hive.HiveCatalog;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.types.Types.NestedField;
-import org.apache.inlong.manager.pojo.sink.iceberg.IcebergColumnInfo;
-import org.apache.inlong.manager.pojo.sink.iceberg.IcebergPartition;
-import org.apache.inlong.manager.pojo.sink.iceberg.IcebergTableInfo;
-import org.apache.inlong.manager.pojo.sink.iceberg.IcebergType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utils for Iceberg Catalog
@@ -119,7 +121,7 @@ public class IcebergCatalogUtils {
     private static String icebergTypeDesc(IcebergColumnInfo column) {
         switch (IcebergType.forType(column.getType())) {
             case DECIMAL:
-                //note: the space is needed or iceberg won't recognize
+                // note: the space is needed or iceberg won't recognize
                 return String.format("decimal(%d, %d)", column.getPrecision(), column.getScale());
             case FIXED:
                 return String.format("fixed(%d)", column.getLength());
@@ -173,7 +175,7 @@ public class IcebergCatalogUtils {
             }
         }
 
-        //commit schema update before partition spec update
+        // commit schema update before partition spec update
         updateSchema.commit();
 
         // update partition spec
@@ -229,9 +231,9 @@ public class IcebergCatalogUtils {
     }
 
     /**
-     * Update iceberg table column schema.
-     * It's unfortunate that the updating api is different from the creating api so the partition type switch is
-     * repeated here.
+     * Update iceberg table column schema. It's unfortunate that the updating api is
+     * different from the creating api so the partition type switch is repeated
+     * here.
      */
     private static void updateColumnSpec(IcebergColumnInfo column, UpdatePartitionSpec builder) {
         if (StringUtils.isEmpty(column.getPartitionStrategy())) {

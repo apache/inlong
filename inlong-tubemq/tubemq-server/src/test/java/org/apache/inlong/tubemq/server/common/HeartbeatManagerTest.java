@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.server.common;
 import org.apache.inlong.tubemq.server.common.heartbeat.HeartbeatManager;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutInfo;
 import org.apache.inlong.tubemq.server.common.heartbeat.TimeoutListener;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HeartbeatManagerTest {
+
     private static final Logger logger = LoggerFactory.getLogger(HeartbeatManager.class);
     private static HeartbeatManager heartbeatManager;
 
@@ -45,6 +47,7 @@ public class HeartbeatManagerTest {
     public void testBrokerTimeout() {
         heartbeatManager.regBrokerCheckBusiness(1000,
                 new TimeoutListener() {
+
                     @Override
                     public void onTimeout(final String nodeId, TimeoutInfo nodeInfo) throws Exception {
                         logger.info(new StringBuilder(512).append("[Broker Timeout] ")
@@ -60,6 +63,7 @@ public class HeartbeatManagerTest {
     public void testConsumerTimeout() {
         heartbeatManager.regConsumerCheckBusiness(1000,
                 new TimeoutListener() {
+
                     @Override
                     public void onTimeout(final String nodeId, TimeoutInfo nodeInfo) throws Exception {
                         logger.info(new StringBuilder(512).append("[Broker Timeout] ")
@@ -67,14 +71,15 @@ public class HeartbeatManagerTest {
                     }
                 });
         heartbeatManager.regConsumerNode("node1");
-        Assert.assertTrue(heartbeatManager.getConsumerRegMap().get("node1").getTimeoutTime()
-                > System.currentTimeMillis());
+        Assert.assertTrue(
+                heartbeatManager.getConsumerRegMap().get("node1").getTimeoutTime() > System.currentTimeMillis());
     }
 
     @Test
     public void testProducerTimeout() {
         heartbeatManager.regProducerCheckBusiness(1000,
                 new TimeoutListener() {
+
                     @Override
                     public void onTimeout(final String nodeId, TimeoutInfo nodeInfo) throws Exception {
                         logger.info(new StringBuilder(512).append("[Broker Timeout] ")
@@ -82,7 +87,7 @@ public class HeartbeatManagerTest {
                     }
                 });
         heartbeatManager.regProducerNode("node1");
-        Assert.assertTrue(heartbeatManager.getProducerRegMap().get("node1").getTimeoutTime()
-                > System.currentTimeMillis());
+        Assert.assertTrue(
+                heartbeatManager.getProducerRegMap().get("node1").getTimeoutTime() > System.currentTimeMillis());
     }
 }

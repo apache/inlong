@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import com.google.common.base.Preconditions;
-
-import org.apache.flume.channel.ChannelProcessor;
 import org.apache.inlong.sdk.sort.api.ReadCallback;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
@@ -27,20 +24,25 @@ import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.channel.CacheMessageRecord;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flume.channel.ChannelProcessor;
 
 import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+
 /**
  * Implementation of {@link ReadCallback}.
  *
- * The ACKer will be used to <b>ACK</b> upstream after that the downstream <b>ACKed</b> sort-standalone.
- * This process seems like <b>transaction</b> of the whole sort-standalone, and which
- * ensure <b>At Least One</b> semantics.
+ * The ACKer will be used to <b>ACK</b> upstream after that the downstream
+ * <b>ACKed</b> sort-standalone. This process seems like <b>transaction</b> of
+ * the whole sort-standalone, and which ensure <b>At Least One</b> semantics.
  */
 public class FetchCallback implements ReadCallback {
 
@@ -56,16 +58,23 @@ public class FetchCallback implements ReadCallback {
     // Context of source, used to report fetch results.
     private final SortSdkSourceContext context;
 
-    // Temporary usage for ACK. The {@link SortClient} and Callback should not circular reference each other.
+    // Temporary usage for ACK. The {@link SortClient} and Callback should not
+    // circular reference each other.
     private SortClient client;
 
     /**
      * Private constructor of {@link FetchCallback}.
-     * <p> The construction of FetchCallback should be initiated by {@link FetchCallback.Factory}.</p>
+     * <p>
+     * The construction of FetchCallback should be initiated by
+     * {@link FetchCallback.Factory}.
+     * </p>
      *
-     * @param sortTaskName SortId of fetch message.
-     * @param channelProcessor ChannelProcessor that message put in.
-     * @param context The context to report fetch results.
+     * @param sortTaskName
+     *          SortId of fetch message.
+     * @param channelProcessor
+     *          ChannelProcessor that message put in.
+     * @param context
+     *          The context to report fetch results.
      */
     private FetchCallback(
             final String sortTaskName,
@@ -79,7 +88,8 @@ public class FetchCallback implements ReadCallback {
     /**
      * Set client for ack.
      *
-     * @param client client for ack.
+     * @param client
+     *          client for ack.
      */
     public void setClient(@NotNull SortClient client) {
         this.client = client;
@@ -88,11 +98,15 @@ public class FetchCallback implements ReadCallback {
     /**
      * The callback function that SortSDK invoke when fetch messages.
      *
-     * <p> In order to ACK the fetched msg, {@link FetchCallback} has to hold the {@link SortClient} which results in
-     * <b>Cycle Reference</b>. The {@link SortClient} should deliver one object to ACK after invoke the callback method
-     * {@link ReadCallback#onFinished(MessageRecord)}. </p>
+     * <p>
+     * In order to ACK the fetched msg, {@link FetchCallback} has to hold the
+     * {@link SortClient} which results in <b>Cycle Reference</b>. The
+     * {@link SortClient} should deliver one object to ACK after invoke the callback
+     * method {@link ReadCallback#onFinished(MessageRecord)}.
+     * </p>
      *
-     * @param messageRecord message
+     * @param messageRecord
+     *          message
      */
     @Override
     public void onFinished(final MessageRecord messageRecord) {
@@ -117,7 +131,8 @@ public class FetchCallback implements ReadCallback {
     /**
      * The callback function that SortSDK invoke when fetch messages batch
      *
-     * @param messageRecordList List
+     * @param messageRecordList
+     *          List
      */
     @Override
     public void onFinishedBatch(List<MessageRecord> messageRecordList) {
@@ -131,11 +146,17 @@ public class FetchCallback implements ReadCallback {
 
         /**
          * Create one {@link FetchCallback}.
-         * <p> Validate sortId and channelProcessor before the construction of FetchCallback.</p>
+         * <p>
+         * Validate sortId and channelProcessor before the construction of
+         * FetchCallback.
+         * </p>
          *
-         * @param sortId The sortId of fetched message.
-         * @param channelProcessor The channelProcessor that put message in specific channel.
-         * @param context The context to report fetch results.
+         * @param sortId
+         *          The sortId of fetched message.
+         * @param channelProcessor
+         *          The channelProcessor that put message in specific channel.
+         * @param context
+         *          The context to report fetch results.
          * @return One FetchCallback.
          */
         public static FetchCallback create(

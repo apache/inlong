@@ -18,16 +18,19 @@
 
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgValidator;
+
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.descriptors.Descriptor;
+import org.apache.flink.table.descriptors.DescriptorTestBase;
+import org.apache.flink.table.descriptors.DescriptorValidator;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.descriptors.Descriptor;
-import org.apache.flink.table.descriptors.DescriptorTestBase;
-import org.apache.flink.table.descriptors.DescriptorValidator;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgValidator;
+
 import org.junit.Test;
 
 /**
@@ -35,40 +38,37 @@ import org.junit.Test;
  */
 public class InLongMsgCsvTest extends DescriptorTestBase {
 
-    private static final String TEST_SCHEMA =
-            "{"
-                    + "\"type\":\"row\","
-                    + "\"fieldFormats\":[{"
-                    + "\"name\":\"student_name\","
-                    + "\"format\":{\"type\":\"string\"}"
-                    + "},{"
-                    + "\"name\":\"score\","
-                    + "\"format\":{\"type\":\"int\"}"
-                    + "},{"
-                    + "\"name\":\"date\","
-                    + "\"format\":{"
-                    + "\"type\":\"date\","
-                    + "\"format\":\"yyyy-MM-dd\""
-                    + "}"
-                    + "}]"
-                    + "}";
+    private static final String TEST_SCHEMA = "{"
+            + "\"type\":\"row\","
+            + "\"fieldFormats\":[{"
+            + "\"name\":\"student_name\","
+            + "\"format\":{\"type\":\"string\"}"
+            + "},{"
+            + "\"name\":\"score\","
+            + "\"format\":{\"type\":\"int\"}"
+            + "},{"
+            + "\"name\":\"date\","
+            + "\"format\":{"
+            + "\"type\":\"date\","
+            + "\"format\":\"yyyy-MM-dd\""
+            + "}"
+            + "}]"
+            + "}";
 
-    private static final Descriptor CUSTOM_DESCRIPTOR_WITH_SCHEMA =
-            new InLongMsgCsv()
-                    .schema(TEST_SCHEMA)
-                    .timeFieldName("time")
-                    .attributesFieldName("attributes")
-                    .delimiter(';')
-                    .charset(StandardCharsets.ISO_8859_1)
-                    .escapeCharacter('\\')
-                    .quoteCharacter('\"')
-                    .nullLiteral("n/a")
-                    .retainHeadDelimiter()
-                    .ignoreErrors();
+    private static final Descriptor CUSTOM_DESCRIPTOR_WITH_SCHEMA = new InLongMsgCsv()
+            .schema(TEST_SCHEMA)
+            .timeFieldName("time")
+            .attributesFieldName("attributes")
+            .delimiter(';')
+            .charset(StandardCharsets.ISO_8859_1)
+            .escapeCharacter('\\')
+            .quoteCharacter('\"')
+            .nullLiteral("n/a")
+            .retainHeadDelimiter()
+            .ignoreErrors();
 
-    private static final Descriptor MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA =
-            new InLongMsgCsv()
-                    .deriveSchema();
+    private static final Descriptor MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA = new InLongMsgCsv()
+            .deriveSchema();
 
     @Test(expected = ValidationException.class)
     public void testInvalidIgnoreParseErrors() {
@@ -86,8 +86,7 @@ public class InLongMsgCsvTest extends DescriptorTestBase {
         addPropertyAndVerify(
                 MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA,
                 "format.schema",
-                TEST_SCHEMA
-        );
+                TEST_SCHEMA);
     }
 
     // --------------------------------------------------------------------------------------------

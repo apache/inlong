@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.pulsar.withoutadmin;
 
+import static org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions.ENABLE_KEY_HASH_RANGE_KEY;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions;
@@ -34,8 +36,6 @@ import org.apache.pulsar.client.impl.PulsarClientImpl;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.common.naming.TopicName;
 import org.apache.pulsar.shade.com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,22 +46,24 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import static org.apache.flink.streaming.connectors.pulsar.internal.PulsarOptions.ENABLE_KEY_HASH_RANGE_KEY;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9,
- * From {@link org.apache.flink.streaming.connectors.pulsar.internal.PulsarMetadataReader}
- * A Helper class that talks to Pulsar Admin API.
- * - getEarliest / Latest / Specific MessageIds
- * - guarantee message existence using subscription by setup, move and remove
+ * Copy from
+ * io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9, From
+ * {@link org.apache.flink.streaming.connectors.pulsar.internal.PulsarMetadataReader}
+ * A Helper class that talks to Pulsar Admin API. - getEarliest / Latest /
+ * Specific MessageIds - guarantee message existence using subscription by
+ * setup, move and remove
  */
 public class PulsarMetadataReader implements AutoCloseable {
+
     private static final Logger log = LoggerFactory.getLogger(PulsarMetadataReader.class);
 
-    public static final ConfigOption<String> AUTHENTICATION_TOKEN =
-            ConfigOptions.key("authentication-token")
-                    .noDefaultValue()
-                    .withDescription("Authentication token for connection.");
+    public static final ConfigOption<String> AUTHENTICATION_TOKEN = ConfigOptions.key("authentication-token")
+            .noDefaultValue()
+            .withDescription("Authentication token for connection.");
 
     private final String serverUrl;
 
@@ -92,7 +94,8 @@ public class PulsarMetadataReader implements AutoCloseable {
             Map<String, String> caseInsensitiveParams,
             int indexOfThisSubtask,
             int numParallelSubtasks,
-            boolean useExternalSubscription) throws PulsarClientException {
+            boolean useExternalSubscription)
+            throws PulsarClientException {
         this.serverUrl = serverUrl;
         this.clientConf = clientConf;
         this.subscriptionName = subscriptionName;
@@ -107,7 +110,8 @@ public class PulsarMetadataReader implements AutoCloseable {
     private PulsarClient buildPulsarClient(
             String serviceUrl,
             ClientConfigurationData clientConf,
-            String authentication) throws PulsarClientException {
+            String authentication)
+            throws PulsarClientException {
         if (StringUtils.isNullOrWhitespaceOnly(authentication)) {
             return new PulsarClientImpl(clientConf);
         } else {
@@ -139,7 +143,8 @@ public class PulsarMetadataReader implements AutoCloseable {
             String subscriptionName,
             Map<String, String> caseInsensitiveParams,
             int indexOfThisSubtask,
-            int numParallelSubtasks) throws PulsarClientException {
+            int numParallelSubtasks)
+            throws PulsarClientException {
 
         this(serverUrl,
                 clientConf,
@@ -181,18 +186,19 @@ public class PulsarMetadataReader implements AutoCloseable {
         Set<String> topics = getTopicPartitions();
         return topics.stream()
                 .filter(
-                        t ->
-                                SourceSinkUtils.belongsTo(
-                                        t, range, numParallelSubtasks, indexOfThisSubtask))
+                        t -> SourceSinkUtils.belongsTo(
+                                t, range, numParallelSubtasks, indexOfThisSubtask))
                 .map(t -> new TopicRange(t, range.getPulsarRange()))
                 .collect(Collectors.toSet());
     }
 
     /**
-     * Get topic partitions all. If the topic does not exist, it is created automatically
+     * Get topic partitions all. If the topic does not exist, it is created
+     * automatically
      *
      * @return allTopicPartitions
-     * @throws PulsarAdminException pulsarAdminException
+     * @throws PulsarAdminException
+     *           pulsarAdminException
      */
     public Set<String> getTopicPartitions() throws PulsarClientException {
         List<String> topics = getTopics();

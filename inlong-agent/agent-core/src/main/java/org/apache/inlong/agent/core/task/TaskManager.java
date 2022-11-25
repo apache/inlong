@@ -17,6 +17,8 @@
 
 package org.apache.inlong.agent.core.task;
 
+import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_COMPONENT_NAME;
+
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
@@ -27,8 +29,6 @@ import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.metric.MetricRegister;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +39,13 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_COMPONENT_NAME;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Task manager maintains lots of tasks and communicate with job level components.
- * It also provide functions to execute commands from job level like killing/submit tasks.
+ * Task manager maintains lots of tasks and communicate with job level
+ * components. It also provide functions to execute commands from job level like
+ * killing/submit tasks.
  */
 public class TaskManager extends AbstractDaemon {
 
@@ -66,7 +68,8 @@ public class TaskManager extends AbstractDaemon {
     /**
      * Init task manager.
      *
-     * @param agentManager agent manager
+     * @param agentManager
+     *          agent manager
      */
     public TaskManager(AgentManager agentManager) {
         this.agentManager = agentManager;
@@ -113,7 +116,8 @@ public class TaskManager extends AbstractDaemon {
     /**
      * submit task, wait if task queue is full.
      *
-     * @param task task
+     * @param task
+     *          task
      */
     public void submitTask(Task task) {
         TaskWrapper taskWrapper = new TaskWrapper(agentManager, task);
@@ -148,7 +152,8 @@ public class TaskManager extends AbstractDaemon {
     /**
      * retry task.
      *
-     * @param wrapper task wrapper
+     * @param wrapper
+     *          task wrapper
      */
     private boolean addRetryTask(TaskWrapper wrapper) {
         LOGGER.info("retry submit task {}", wrapper.getTask().getTaskId());
@@ -170,7 +175,8 @@ public class TaskManager extends AbstractDaemon {
     /**
      * Check whether task is finished
      *
-     * @param taskId task id
+     * @param taskId
+     *          task id
      * @return true if task is finished otherwise false
      */
     public boolean isTaskFinished(String taskId) {
@@ -184,7 +190,8 @@ public class TaskManager extends AbstractDaemon {
     /**
      * Check if task is success
      *
-     * @param taskId task id
+     * @param taskId
+     *          task id
      * @return true if task is success otherwise false
      */
     public boolean isTaskSuccess(String taskId) {
@@ -198,7 +205,8 @@ public class TaskManager extends AbstractDaemon {
     /**
      * Remove task and wait task to finish by task id
      *
-     * @param taskId task id
+     * @param taskId
+     *          task id
      */
     public void removeTask(String taskId) {
         getTaskMetrics().taskRunningCount.decrementAndGet();
@@ -211,7 +219,8 @@ public class TaskManager extends AbstractDaemon {
     /**
      * kill task
      *
-     * @param task task
+     * @param task
+     *          task
      */
     public boolean killTask(Task task) {
         // kill running tasks.

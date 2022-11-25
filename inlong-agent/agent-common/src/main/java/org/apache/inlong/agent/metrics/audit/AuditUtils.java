@@ -17,18 +17,19 @@
 
 package org.apache.inlong.agent.metrics.audit;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.audit.AuditOperator;
-import org.apache.inlong.audit.util.AuditConfig;
-
-import java.util.Collections;
-import java.util.HashSet;
-
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_ENABLE;
 import static org.apache.inlong.agent.constant.AgentConstants.AUDIT_KEY_PROXYS;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_ENABLE;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AUDIT_PROXYS;
+
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.audit.AuditOperator;
+import org.apache.inlong.audit.util.AuditConfig;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * AuditUtils

@@ -17,24 +17,28 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import com.google.common.base.Preconditions;
-import com.tencentcloudapi.cls.producer.AsyncProducerClient;
-import com.tencentcloudapi.cls.producer.common.LogItem;
-import com.tencentcloudapi.cls.producer.errors.ProducerException;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleState;
-import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
 
 import java.util.List;
+
+import org.slf4j.Logger;
+
+import com.google.common.base.Preconditions;
+import com.tencentcloudapi.cls.producer.AsyncProducerClient;
+import com.tencentcloudapi.cls.producer.common.LogItem;
+import com.tencentcloudapi.cls.producer.errors.ProducerException;
 
 /**
  * Cls channel worker.
  */
 public class ClsChannelWorker extends Thread {
+
     private static final Logger LOG = InlongLoggerFactory.getLogger(ClsChannelWorker.class);
 
     private final ClsSinkContext context;
@@ -46,9 +50,12 @@ public class ClsChannelWorker extends Thread {
     /**
      * Constructor.
      *
-     * @param sinkName Sink name.
-     * @param context Cls context.
-     * @param workerIndex Index of cls channel worker.
+     * @param sinkName
+     *          Sink name.
+     * @param context
+     *          Cls context.
+     * @param workerIndex
+     *          Index of cls channel worker.
      */
     public ClsChannelWorker(String sinkName, ClsSinkContext context, int workerIndex) {
         this.context = Preconditions.checkNotNull(context);
@@ -119,8 +126,10 @@ public class ClsChannelWorker extends Thread {
     /**
      * Send event to Cls
      *
-     * @param rowEvent Row event.
-     * @param tx Transaction
+     * @param rowEvent
+     *          Row event.
+     * @param tx
+     *          Transaction
      * @throws ProducerException
      * @throws InterruptedException
      */
@@ -151,7 +160,9 @@ public class ClsChannelWorker extends Thread {
 
     /**
      * Rollback transaction if it exists.
-     * @param tx Transaction
+     * 
+     * @param tx
+     *          Transaction
      */
     private void rollbackTransaction(Transaction tx) {
         if (tx != null) {
@@ -162,7 +173,9 @@ public class ClsChannelWorker extends Thread {
 
     /**
      * Commit transaction if it exists.
-     * @param tx Transaction
+     * 
+     * @param tx
+     *          Transaction
      */
     private void commitTransaction(Transaction tx) {
         if (tx != null) {

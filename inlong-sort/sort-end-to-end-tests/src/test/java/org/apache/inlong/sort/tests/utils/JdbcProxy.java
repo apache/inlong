@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.tests.utils;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
@@ -28,8 +30,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Proxy to communicate with database using JDBC protocol.
@@ -50,16 +50,19 @@ public class JdbcProxy {
 
     /**
      * Compare db select result and expected result in one time.
+     * 
      * @param expectedResult
      * @param table
      * @param fieldsLen
      * @throws SQLException
      * @throws ClassNotFoundException
      */
-    public void checkResult(List<String> expectedResult, String table, int fieldsLen)
+    public void checkResult(List<String> expectedResult, String table,
+            int fieldsLen)
             throws SQLException, ClassNotFoundException {
         Class.forName(driverClass);
-        try (Connection dbConn = DriverManager.getConnection(url, userName, password);
+        try (
+                Connection dbConn = DriverManager.getConnection(url, userName, password);
                 PreparedStatement statement = dbConn.prepareStatement("select * from " + table);
                 ResultSet resultSet = statement.executeQuery()) {
             List<String> results = new ArrayList<>();
@@ -83,7 +86,8 @@ public class JdbcProxy {
     }
 
     public void checkResultWithTimeout(
-            List<String> expectedResult, String table, int fieldsLen, long timeout)
+            List<String> expectedResult, String table, int fieldsLen,
+            long timeout)
             throws Exception {
         long endTimeout = System.currentTimeMillis() + timeout;
         boolean result = false;

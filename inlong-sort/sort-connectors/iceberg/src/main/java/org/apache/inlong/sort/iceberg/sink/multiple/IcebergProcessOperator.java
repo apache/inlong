@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessFunction.Context;
+
 import org.apache.flink.streaming.api.TimerService;
 import org.apache.flink.streaming.api.operators.AbstractUdfStreamOperator;
 import org.apache.flink.streaming.api.operators.BoundedOneInput;
@@ -27,11 +29,14 @@ import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 import org.apache.flink.util.OutputTag;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessFunction.Context;
 
 public class IcebergProcessOperator<IN, OUT>
-        extends AbstractUdfStreamOperator<OUT, IcebergProcessFunction<IN, OUT>>
-        implements OneInputStreamOperator<IN, OUT>, BoundedOneInput {
+        extends
+            AbstractUdfStreamOperator<OUT, IcebergProcessFunction<IN, OUT>>
+        implements
+            OneInputStreamOperator<IN, OUT>,
+            BoundedOneInput {
+
     private static final long serialVersionUID = -1837485654246776219L;
 
     private long currentWatermark = Long.MIN_VALUE;
@@ -85,6 +90,7 @@ public class IcebergProcessOperator<IN, OUT>
     }
 
     private class ContextImpl extends Context implements TimerService {
+
         private StreamRecord<IN> element;
 
         private final ProcessingTimeService processingTimeService;

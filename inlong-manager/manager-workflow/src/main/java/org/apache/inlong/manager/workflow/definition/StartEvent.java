@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.workflow.definition;
 
-import com.google.common.collect.ImmutableSet;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Start event

@@ -28,9 +28,11 @@ public interface InlongCluster {
     /**
      * List nodes by clusterName and clusterType
      *
-     * @param clusterName cluster name
-     * @param clusterType cluster type
-     *         {@link org.apache.inlong.manager.common.enums.ClusterType}
+     * @param clusterName
+     *          cluster name
+     * @param clusterType
+     *          cluster type
+     *          {@link org.apache.inlong.manager.common.enums.ClusterType}
      * @return node list
      */
     List<ClusterNodeResponse> listNodes(String clusterName, String clusterType);
@@ -38,10 +40,13 @@ public interface InlongCluster {
     /**
      * List nodes by clusterName, clusterType and tags
      *
-     * @param clusterName cluster name
-     * @param clusterType cluster type
-     *         {@link org.apache.inlong.manager.common.enums.ClusterType}
-     * @param clusterTags cluster tags
+     * @param clusterName
+     *          cluster name
+     * @param clusterType
+     *          cluster type
+     *          {@link org.apache.inlong.manager.common.enums.ClusterType}
+     * @param clusterTags
+     *          cluster tags
      * @return node list
      */
     List<ClusterNodeResponse> listNodes(String clusterName, String clusterType, List<String> clusterTags);
@@ -49,10 +54,13 @@ public interface InlongCluster {
     /**
      * List nodes by clusterName, clusterType and tag
      *
-     * @param clusterName cluster name
-     * @param clusterType cluster type
-     *         {@link org.apache.inlong.manager.common.enums.ClusterType}
-     * @param clusterTag cluster tag
+     * @param clusterName
+     *          cluster name
+     * @param clusterType
+     *          cluster type
+     *          {@link org.apache.inlong.manager.common.enums.ClusterType}
+     * @param clusterTag
+     *          cluster tag
      * @return node list
      */
     List<ClusterNodeResponse> listNodes(String clusterName, String clusterType, String clusterTag);

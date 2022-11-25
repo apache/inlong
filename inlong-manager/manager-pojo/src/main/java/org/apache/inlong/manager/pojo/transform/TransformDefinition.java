@@ -17,9 +17,11 @@
 
 package org.apache.inlong.manager.pojo.transform;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
 import org.apache.inlong.manager.common.enums.TransformType;
+
+import lombok.Data;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * A class to define operation to transform.

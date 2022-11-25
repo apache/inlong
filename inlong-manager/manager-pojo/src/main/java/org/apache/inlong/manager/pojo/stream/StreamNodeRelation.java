@@ -17,14 +17,17 @@
 
 package org.apache.inlong.manager.pojo.stream;
 
-import com.google.common.collect.Sets;
-import lombok.Data;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Set;
 
+import lombok.Data;
+
+import com.google.common.collect.Sets;
+
 /**
- * Stream node relation info, including input node name list, output node name list.
+ * Stream node relation info, including input node name list, output node name
+ * list.
  */
 @Data
 public class StreamNodeRelation {

@@ -17,6 +17,10 @@
 
 package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.server.master.web.simplemvc.conf.WebConfig;
+import org.apache.inlong.tubemq.server.master.web.simplemvc.exception.TemplateNotFoundException;
+
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,10 +28,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletResponse;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.master.web.simplemvc.conf.WebConfig;
-import org.apache.inlong.tubemq.server.master.web.simplemvc.exception.TemplateNotFoundException;
+
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -51,7 +54,8 @@ public class RequestDispatcher {
     /**
      * Construct RequestDispatcher from web config
      *
-     * @param config  the web configure object
+     * @param config
+     *          the web configure object
      */
     public RequestDispatcher(WebConfig config) {
         this.config = config;
@@ -91,13 +95,19 @@ public class RequestDispatcher {
 
     /**
      * Execute required method service
-     * @param context   the context
-     * @param target    the target information
-     * @param type      the operation type
-     * @throws Exception the exception
+     * 
+     * @param context
+     *          the context
+     * @param target
+     *          the target information
+     * @param type
+     *          the operation type
+     * @throws Exception
+     *           the exception
      */
     public void executeTarget(RequestContext context,
-                              String target, String type) throws Exception {
+            String target, String type)
+            throws Exception {
         String targetKey = getActionKey(type, target);
         if (actions.containsKey(targetKey)) {
             actions.get(targetKey).execute(context);
@@ -135,8 +145,7 @@ public class RequestDispatcher {
                         .append(type).append(" template path:").append(templatePath).toString());
             }
             if (!realTemplatePath.equals(templatePath)) {
-                String realTargetKey =
-                        realTemplatePath.substring(0, realTemplatePath.indexOf(".vm"));
+                String realTargetKey = realTemplatePath.substring(0, realTemplatePath.indexOf(".vm"));
                 if (actions.containsKey(realTargetKey)) {
                     actions.get(realTargetKey).execute(context);
                 }
@@ -148,9 +157,11 @@ public class RequestDispatcher {
     /**
      * Build action key as "type/target"
      *
-     * @param type    the type value
-     * @param target  the target value
-     * @return    the key
+     * @param type
+     *          the type value
+     * @param target
+     *          the target value
+     * @return the key
      */
     public String getActionKey(String type, String target) {
         return new StringBuilder(256).append(type)
@@ -160,9 +171,11 @@ public class RequestDispatcher {
     /**
      * Build template name as "type/target.vm"
      *
-     * @param type     the type value
-     * @param target   the target value
-     * @return         the result
+     * @param type
+     *          the type value
+     * @param target
+     *          the target value
+     * @return the result
      */
     public String getTemplateName(String type, String target) {
         return new StringBuilder(256).append(type)
@@ -171,8 +184,10 @@ public class RequestDispatcher {
 
     /**
      * Get layout information
-     * @param target  the target information
-     * @return   the layout information
+     * 
+     * @param target
+     *          the target information
+     * @return the layout information
      */
     public String getLayout(String target) {
         String layout = null;
@@ -213,20 +228,16 @@ public class RequestDispatcher {
                     resources[i] = config.getBeanFilePathList().get(i);
                 }
                 this.applicationContext = new GenericXmlApplicationContext();
-                ConfigurableListableBeanFactory beanFactory =
-                        this.applicationContext.getBeanFactory();
-                AutowiredAnnotationBeanPostProcessor autowiredProcessor =
-                        new AutowiredAnnotationBeanPostProcessor();
+                ConfigurableListableBeanFactory beanFactory = this.applicationContext.getBeanFactory();
+                AutowiredAnnotationBeanPostProcessor autowiredProcessor = new AutowiredAnnotationBeanPostProcessor();
                 autowiredProcessor.setBeanFactory(beanFactory);
                 beanFactory.addBeanPostProcessor(autowiredProcessor);
 
-                CommonAnnotationBeanPostProcessor commonProcessor =
-                        new CommonAnnotationBeanPostProcessor();
+                CommonAnnotationBeanPostProcessor commonProcessor = new CommonAnnotationBeanPostProcessor();
                 commonProcessor.setBeanFactory(beanFactory);
                 beanFactory.addBeanPostProcessor(commonProcessor);
 
-                RequiredAnnotationBeanPostProcessor requiredProcessor =
-                        new RequiredAnnotationBeanPostProcessor();
+                RequiredAnnotationBeanPostProcessor requiredProcessor = new RequiredAnnotationBeanPostProcessor();
                 requiredProcessor.setBeanFactory(beanFactory);
                 beanFactory.addBeanPostProcessor(requiredProcessor);
                 this.applicationContext.load(resources);
@@ -237,9 +248,8 @@ public class RequestDispatcher {
                         actionPath.length() + 1).replaceAll("\\.", "/");
                 Action action = null;
                 if (config.isSpringSupported()) {
-                    action =
-                            (Action) this.applicationContext.getBeanFactory().autowire(clazz,
-                                    AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, true);
+                    action = (Action) this.applicationContext.getBeanFactory().autowire(clazz,
+                            AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, true);
                 } else {
                     action = (Action) clazz.newInstance();
                 }

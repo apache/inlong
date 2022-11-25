@@ -19,14 +19,18 @@
 package org.apache.inlong.sort.configuration;
 
 /**
- * A key with FallbackKeys will fall back to the FallbackKeys if it itself is not configured.
+ * A key with FallbackKeys will fall back to the FallbackKeys if it itself is
+ * not configured.
  *
- * <p>Copied from Flink project(org.apache.flink/flink-core) with a bit of changing.</p>
+ * <p>
+ * Copied from Flink project(org.apache.flink/flink-core) with a bit of
+ * changing.
+ * </p>
  */
 public class FallbackKey {
 
     // -------------------------
-    //  Factory methods
+    // Factory methods
     // -------------------------
     static FallbackKey createFallbackKey(String key) {
         return new FallbackKey(key, false);

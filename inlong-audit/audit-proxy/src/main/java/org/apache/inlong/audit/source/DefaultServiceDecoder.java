@@ -17,12 +17,14 @@
 
 package org.apache.inlong.audit.source;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import org.apache.inlong.audit.consts.ConfigConstants;
+import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 
 public class DefaultServiceDecoder implements ServiceDecoder {
 
@@ -30,7 +32,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
 
     @Override
     public BaseCommand extractData(ByteBuf cb, Channel channel) throws Exception {
-        /*[cmd size] | [cmd]*/
+        /* [cmd size] | [cmd] */
         if (null == cb) {
             LOG.error("cb == null");
             return null;

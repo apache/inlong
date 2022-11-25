@@ -21,22 +21,25 @@ import static org.apache.inlong.tubemq.manager.service.TubeConst.BATCH_ADD_TOPIC
 import static org.apache.inlong.tubemq.manager.service.TubeConst.OP_MODIFY;
 import static org.apache.inlong.tubemq.manager.service.TubeConst.WEB_API;
 
-import com.google.common.collect.Lists;
+import org.apache.inlong.tubemq.manager.controller.node.request.AddTopicReq;
+import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList.TopicInfoList.TopicInfo;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Data;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.tubemq.manager.controller.node.request.AddTopicReq;
-import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList.TopicInfoList.TopicInfo;
+
+import com.google.common.collect.Lists;
 
 /**
  * json class for topic info list from master http service.
  */
 @Data
 public class TubeHttpTopicInfoList {
+
     private boolean result;
 
     private String errMsg;
@@ -53,6 +56,7 @@ public class TubeHttpTopicInfoList {
 
             @Data
             public static class RunInfo {
+
                 private String acceptPublish;
                 private String acceptSubscribe;
                 private String numPartitions;
@@ -113,9 +117,12 @@ public class TubeHttpTopicInfoList {
     /**
      * topic add information
      *
-     * @param brokerIds this is the broker ids
-     * @param targetTopicNames The topic name of the target
-     * @param token authorized key
+     * @param brokerIds
+     *          this is the broker ids
+     * @param targetTopicNames
+     *          The topic name of the target
+     * @param token
+     *          authorized key
      * @return topic data
      */
     public AddTopicReq getAddTopicReq(List<Integer> brokerIds, List<String> targetTopicNames, String token) {
@@ -139,7 +146,7 @@ public class TubeHttpTopicInfoList {
     }
 
     private void setAttributes(String token, AddTopicReq req, TopicInfo topicInfo, String brokerStr,
-                               String topic) {
+            String topic) {
         req.setBrokerId(brokerStr);
         req.setTopicName(topic);
         req.setMethod(BATCH_ADD_TOPIC);

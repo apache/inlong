@@ -17,17 +17,19 @@
 
 package org.apache.inlong.tubemq.client.consumer;
 
+import org.apache.inlong.tubemq.client.common.PeerInfo;
+import org.apache.inlong.tubemq.client.config.ConsumerConfig;
+import org.apache.inlong.tubemq.client.exception.TubeClientException;
+import org.apache.inlong.tubemq.client.factory.InnerSessionFactory;
+import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
+
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.inlong.tubemq.client.common.PeerInfo;
-import org.apache.inlong.tubemq.client.config.ConsumerConfig;
-import org.apache.inlong.tubemq.client.exception.TubeClientException;
-import org.apache.inlong.tubemq.client.factory.InnerSessionFactory;
-import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * An implementation of PushMessageConsumer.
  */
 public class SimplePushMessageConsumer implements PushMessageConsumer {
+
     private static final Logger logger = LoggerFactory.getLogger(SimplePushMessageConsumer.class);
     private static final int MAX_FAILURE_LOG_TIMES = 10;
     private final MessageFetchManager fetchManager;
@@ -44,11 +47,10 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
     private CountDownLatch consumeSync = new CountDownLatch(0);
 
     public SimplePushMessageConsumer(final InnerSessionFactory messageSessionFactory,
-                                     final ConsumerConfig consumerConfig) throws TubeClientException {
-        baseConsumer =
-                new BaseMessageConsumer(messageSessionFactory, consumerConfig, false);
-        this.fetchManager =
-                new MessageFetchManager(baseConsumer.consumerConfig, this);
+            final ConsumerConfig consumerConfig)
+            throws TubeClientException {
+        baseConsumer = new BaseMessageConsumer(messageSessionFactory, consumerConfig, false);
+        this.fetchManager = new MessageFetchManager(baseConsumer.consumerConfig, this);
         this.fetchManager.startFetchWorkers();
     }
 
@@ -63,8 +65,9 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
 
     @Override
     public PushMessageConsumer subscribe(String topic,
-                                         TreeSet<String> filterConds,
-                                         MessageListener messageListener) throws TubeClientException {
+            TreeSet<String> filterConds,
+            MessageListener messageListener)
+            throws TubeClientException {
         baseConsumer.subscribe(topic, filterConds, messageListener);
         return this;
     }
@@ -76,9 +79,10 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
 
     @Override
     public void completeSubscribe(final String sessionKey,
-                                  final int sourceCount,
-                                  final boolean isSelectBig,
-                                  final Map<String, Long> partOffsetMap) throws TubeClientException {
+            final int sourceCount,
+            final boolean isSelectBig,
+            final Map<String, Long> partOffsetMap)
+            throws TubeClientException {
         baseConsumer.completeSubscribe(sessionKey, sourceCount, isSelectBig, partOffsetMap);
     }
 
@@ -172,13 +176,14 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
     /**
      * Process the selected partition result.
      *
-     * @param partSelectResult partition select result
-     * @param sBuilder         a string builder
+     * @param partSelectResult
+     *          partition select result
+     * @param sBuilder
+     *          a string builder
      */
     protected void processRequest(PartitionSelectResult partSelectResult, final StringBuilder sBuilder) {
         final long startTime = System.currentTimeMillis();
-        FetchContext taskContext =
-                baseConsumer.fetchMessage(partSelectResult, sBuilder);
+        FetchContext taskContext = baseConsumer.fetchMessage(partSelectResult, sBuilder);
         if (!taskContext.isSuccess()) {
             if (logger.isDebugEnabled()) {
                 logger.debug(sBuilder.append("Fetch message error: partition:")
@@ -195,8 +200,8 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
                 isConsumed = true;
             } else {
                 try {
-                    final TopicProcessor topicProcessor =
-                            baseConsumer.consumeSubInfo.getTopicProcessor(taskContext.getPartition().getTopic());
+                    final TopicProcessor topicProcessor = baseConsumer.consumeSubInfo
+                            .getTopicProcessor(taskContext.getPartition().getTopic());
                     if ((topicProcessor == null) || (topicProcessor.getMessageListener() == null)) {
                         throw new TubeClientException(sBuilder
                                 .append("Listener is null for topic ")
@@ -204,8 +209,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
                     }
                     isConsumed = notifyListener(taskContext, topicProcessor, sBuilder);
                 } catch (Throwable e) {
-                    isConsumed =
-                            (!baseConsumer.consumerConfig.isPushListenerThrowedRollBack());
+                    isConsumed = (!baseConsumer.consumerConfig.isPushListenerThrowedRollBack());
                     logMessageProcessFailed(taskContext, e);
                 }
             }
@@ -228,12 +232,14 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
     }
 
     private boolean notifyListener(final FetchContext request,
-                                   final TopicProcessor topicProcessor,
-                                   final StringBuilder sBuilder) throws Exception {
+            final TopicProcessor topicProcessor,
+            final StringBuilder sBuilder)
+            throws Exception {
         final MessageListener listener = topicProcessor.getMessageListener();
         if (listener.getExecutor() != null) {
             try {
                 listener.getExecutor().execute(new Runnable() {
+
                     @Override
                     public void run() {
                         receiveMessages(request, topicProcessor);
@@ -255,7 +261,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
     }
 
     private void receiveMessages(final FetchContext request,
-                                 final TopicProcessor topicProcessor) {
+            final TopicProcessor topicProcessor) {
         if (request != null && request.getMessageList() != null) {
             MessageListener msgListener = topicProcessor.getMessageListener();
             try {
@@ -271,8 +277,10 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
     /**
      * A utility method that log message process failure.
      *
-     * @param request fetch task context
-     * @param e       error cause
+     * @param request
+     *          fetch task context
+     * @param e
+     *          error cause
      */
     private void logMessageProcessFailed(final FetchContext request, final Throwable e) {
         StringBuilder sBuilder = new StringBuilder(512);

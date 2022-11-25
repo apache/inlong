@@ -23,6 +23,19 @@ import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.DEFAULT_TI
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_STREAM_ID;
 import static org.junit.Assert.assertEquals;
 
+import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.sort.formats.base.TableFormatConstants;
+import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.IntFormatInfo;
+import org.apache.inlong.sort.formats.common.RowFormatInfo;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
+
+import org.apache.flink.api.common.functions.util.ListCollector;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.types.Row;
+import org.apache.flink.util.Collector;
+
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -31,17 +44,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.flink.api.common.functions.util.ListCollector;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.types.Row;
-import org.apache.flink.util.Collector;
-import org.apache.inlong.common.msg.InLongMsg;
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.IntFormatInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
+
 import org.junit.Test;
 
 /**
@@ -49,45 +52,40 @@ import org.junit.Test;
  */
 public class InLongMsgCsvFormatDeserializerTest {
 
-    private static final RowFormatInfo TEST_ROW_INFO =
-            new RowFormatInfo(
-                    new String[]{"f1", "f2", "f3", "f4", "f5", "f6"},
-                    new FormatInfo[]{
-                            IntFormatInfo.INSTANCE,
-                            IntFormatInfo.INSTANCE,
-                            IntFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE,
-                            StringFormatInfo.INSTANCE
-                    }
-            );
+    private static final RowFormatInfo TEST_ROW_INFO = new RowFormatInfo(
+            new String[]{"f1", "f2", "f3", "f4", "f5", "f6"},
+            new FormatInfo[]{
+                    IntFormatInfo.INSTANCE,
+                    IntFormatInfo.INSTANCE,
+                    IntFormatInfo.INSTANCE,
+                    StringFormatInfo.INSTANCE,
+                    StringFormatInfo.INSTANCE,
+                    StringFormatInfo.INSTANCE
+            });
 
     @Test
     public void testRowType() {
-        InLongMsgCsvFormatDeserializer deserializer =
-                new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
+        InLongMsgCsvFormatDeserializer deserializer = new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
-        TypeInformation<Row> expectedRowType =
-                Types.ROW_NAMED(
-                        new String[]{
-                                DEFAULT_TIME_FIELD_NAME,
-                                DEFAULT_ATTRIBUTES_FIELD_NAME,
-                                "f1",
-                                "f2",
-                                "f3",
-                                "f4",
-                                "f5",
-                                "f6"
-                        },
-                        Types.SQL_TIMESTAMP,
-                        Types.MAP(Types.STRING, Types.STRING),
-                        Types.INT,
-                        Types.INT,
-                        Types.INT,
-                        Types.STRING,
-                        Types.STRING,
-                        Types.STRING
-                );
+        TypeInformation<Row> expectedRowType = Types.ROW_NAMED(
+                new String[]{
+                        DEFAULT_TIME_FIELD_NAME,
+                        DEFAULT_ATTRIBUTES_FIELD_NAME,
+                        "f1",
+                        "f2",
+                        "f3",
+                        "f4",
+                        "f5",
+                        "f6"
+                },
+                Types.SQL_TIMESTAMP,
+                Types.MAP(Types.STRING, Types.STRING),
+                Types.INT,
+                Types.INT,
+                Types.INT,
+                Types.STRING,
+                Types.STRING,
+                Types.STRING);
 
         assertEquals(expectedRowType, deserializer.getProducedType());
     }
@@ -95,8 +93,7 @@ public class InLongMsgCsvFormatDeserializerTest {
     @Test
     public void testNormal() throws Exception {
 
-        final InLongMsgCsvFormatDeserializer deserializer =
-                new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
+        final InLongMsgCsvFormatDeserializer deserializer = new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
@@ -120,8 +117,7 @@ public class InLongMsgCsvFormatDeserializerTest {
                 123,
                 "field11",
                 "field12",
-                "field13"
-        );
+                "field13");
 
         Row expectedRow2 = Row.of(
                 Timestamp.valueOf("2020-03-22 00:00:00"),
@@ -131,21 +127,18 @@ public class InLongMsgCsvFormatDeserializerTest {
                 123,
                 "field21",
                 "field22",
-                "field23"
-        );
+                "field23");
 
         testRowDeserialization(
                 deserializer,
                 inLongMsg.buildArray(),
-                Arrays.asList(expectedRow1, expectedRow2)
-        );
+                Arrays.asList(expectedRow1, expectedRow2));
     }
 
     @Test
     public void testEmptyField() throws Exception {
 
-        final InLongMsgCsvFormatDeserializer deserializer =
-                new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
+        final InLongMsgCsvFormatDeserializer deserializer = new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
@@ -169,8 +162,7 @@ public class InLongMsgCsvFormatDeserializerTest {
                 123,
                 "field11",
                 "field12",
-                ""
-        );
+                "");
 
         Row expectedRow2 = Row.of(
                 Timestamp.valueOf("2020-03-22 00:00:00"),
@@ -180,21 +172,18 @@ public class InLongMsgCsvFormatDeserializerTest {
                 123,
                 "field21",
                 "",
-                "field23"
-        );
+                "field23");
 
         testRowDeserialization(
                 deserializer,
                 inLongMsg.buildArray(),
-                Arrays.asList(expectedRow1, expectedRow2)
-        );
+                Arrays.asList(expectedRow1, expectedRow2));
     }
 
     @Test
     public void testNoPredefinedFields() throws Exception {
 
-        final InLongMsgCsvFormatDeserializer deserializer =
-                new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
+        final InLongMsgCsvFormatDeserializer deserializer = new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322";
@@ -216,8 +205,7 @@ public class InLongMsgCsvFormatDeserializerTest {
                 123,
                 "field11",
                 "field12",
-                ""
-        );
+                "");
 
         Row expectedRow2 = Row.of(
                 Timestamp.valueOf("2020-03-22 00:00:00"),
@@ -227,31 +215,27 @@ public class InLongMsgCsvFormatDeserializerTest {
                 123,
                 "field21",
                 "",
-                "field23"
-        );
+                "field23");
 
         testRowDeserialization(
                 deserializer,
                 inLongMsg.buildArray(),
-                Arrays.asList(expectedRow1, expectedRow2)
-        );
+                Arrays.asList(expectedRow1, expectedRow2));
     }
 
     @Test
     public void testIgnoreAttributeErrors() throws Exception {
-        InLongMsgCsvFormatDeserializer deserializer =
-                new InLongMsgCsvFormatDeserializer(
-                        TEST_ROW_INFO,
-                        DEFAULT_TIME_FIELD_NAME,
-                        DEFAULT_ATTRIBUTES_FIELD_NAME,
-                        Charset.defaultCharset().name(),
-                        TableFormatConstants.DEFAULT_DELIMITER,
-                        null,
-                        null,
-                        null,
-                        true,
-                        true
-                );
+        InLongMsgCsvFormatDeserializer deserializer = new InLongMsgCsvFormatDeserializer(
+                TEST_ROW_INFO,
+                DEFAULT_TIME_FIELD_NAME,
+                DEFAULT_ATTRIBUTES_FIELD_NAME,
+                Charset.defaultCharset().name(),
+                TableFormatConstants.DEFAULT_DELIMITER,
+                null,
+                null,
+                null,
+                true,
+                true);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&&&&";
@@ -261,25 +245,22 @@ public class InLongMsgCsvFormatDeserializerTest {
         testRowDeserialization(
                 deserializer,
                 inLongMsg.buildArray(),
-                Collections.emptyList()
-        );
+                Collections.emptyList());
     }
 
     @Test
     public void testIgnoreBodyErrors() throws Exception {
-        final InLongMsgCsvFormatDeserializer deserializer =
-                new InLongMsgCsvFormatDeserializer(
-                        TEST_ROW_INFO,
-                        DEFAULT_TIME_FIELD_NAME,
-                        DEFAULT_ATTRIBUTES_FIELD_NAME,
-                        Charset.defaultCharset().name(),
-                        TableFormatConstants.DEFAULT_DELIMITER,
-                        null,
-                        null,
-                        null,
-                        true,
-                        true
-                );
+        final InLongMsgCsvFormatDeserializer deserializer = new InLongMsgCsvFormatDeserializer(
+                TEST_ROW_INFO,
+                DEFAULT_TIME_FIELD_NAME,
+                DEFAULT_ATTRIBUTES_FIELD_NAME,
+                Charset.defaultCharset().name(),
+                TableFormatConstants.DEFAULT_DELIMITER,
+                null,
+                null,
+                null,
+                true,
+                true);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
@@ -303,31 +284,27 @@ public class InLongMsgCsvFormatDeserializerTest {
                 123,
                 "field21",
                 "field22",
-                "field23"
-        );
+                "field23");
 
         testRowDeserialization(
                 deserializer,
                 inLongMsg.buildArray(),
-                Collections.singletonList(expectedRow2)
-        );
+                Collections.singletonList(expectedRow2));
     }
 
     @Test
     public void testDeleteHeadDelimiter() throws Exception {
-        final InLongMsgCsvFormatDeserializer deserializer =
-                new InLongMsgCsvFormatDeserializer(
-                        TEST_ROW_INFO,
-                        DEFAULT_TIME_FIELD_NAME,
-                        DEFAULT_ATTRIBUTES_FIELD_NAME,
-                        Charset.defaultCharset().name(),
-                        TableFormatConstants.DEFAULT_DELIMITER,
-                        null,
-                        null,
-                        null,
-                        true,
-                        true
-                );
+        final InLongMsgCsvFormatDeserializer deserializer = new InLongMsgCsvFormatDeserializer(
+                TEST_ROW_INFO,
+                DEFAULT_TIME_FIELD_NAME,
+                DEFAULT_ATTRIBUTES_FIELD_NAME,
+                Charset.defaultCharset().name(),
+                TableFormatConstants.DEFAULT_DELIMITER,
+                null,
+                null,
+                null,
+                true,
+                true);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322";
@@ -348,31 +325,27 @@ public class InLongMsgCsvFormatDeserializerTest {
                 3,
                 "field1",
                 "field2",
-                "field3"
-        );
+                "field3");
 
         testRowDeserialization(
                 deserializer,
                 inLongMsg.buildArray(),
-                Collections.singletonList(expectedRow)
-        );
+                Collections.singletonList(expectedRow));
     }
 
     @Test
     public void testRetainHeadDelimiter() throws Exception {
-        final InLongMsgCsvFormatDeserializer deserializer =
-                new InLongMsgCsvFormatDeserializer(
-                        TEST_ROW_INFO,
-                        DEFAULT_TIME_FIELD_NAME,
-                        DEFAULT_ATTRIBUTES_FIELD_NAME,
-                        Charset.defaultCharset().name(),
-                        TableFormatConstants.DEFAULT_DELIMITER,
-                        null,
-                        null,
-                        null,
-                        false,
-                        false
-                );
+        final InLongMsgCsvFormatDeserializer deserializer = new InLongMsgCsvFormatDeserializer(
+                TEST_ROW_INFO,
+                DEFAULT_TIME_FIELD_NAME,
+                DEFAULT_ATTRIBUTES_FIELD_NAME,
+                Charset.defaultCharset().name(),
+                TableFormatConstants.DEFAULT_DELIMITER,
+                null,
+                null,
+                null,
+                false,
+                false);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322";
@@ -393,20 +366,17 @@ public class InLongMsgCsvFormatDeserializerTest {
                 2,
                 "field1",
                 "field2",
-                "field3"
-        );
+                "field3");
 
         testRowDeserialization(
                 deserializer,
                 inLongMsg.buildArray(),
-                Collections.singletonList(expectedRow)
-        );
+                Collections.singletonList(expectedRow));
     }
 
     @Test
     public void testUnmatchedFields1() throws Exception {
-        final InLongMsgCsvFormatDeserializer deserializer =
-                new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
+        final InLongMsgCsvFormatDeserializer deserializer = new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&__addcol2__=2";
@@ -430,8 +400,7 @@ public class InLongMsgCsvFormatDeserializerTest {
                 123,
                 "field11",
                 "field12",
-                null
-        );
+                null);
 
         Row expectedRow2 = Row.of(
                 Timestamp.valueOf("2020-03-22 00:00:00"),
@@ -441,24 +410,21 @@ public class InLongMsgCsvFormatDeserializerTest {
                 123,
                 "field21",
                 "field22",
-                "field23"
-        );
+                "field23");
 
         testRowDeserialization(
                 deserializer,
                 inLongMsg.buildArray(),
-                Arrays.asList(expectedRow1, expectedRow2)
-        );
+                Arrays.asList(expectedRow1, expectedRow2));
     }
 
     @Test
     public void testUnmatchedFields2() throws Exception {
-        final InLongMsgCsvFormatDeserializer deserializer =
-                new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
+        final InLongMsgCsvFormatDeserializer deserializer = new InLongMsgCsvFormatDeserializer(TEST_ROW_INFO);
 
         InLongMsg inLongMsg = InLongMsg.newInLongMsg();
         String attrs = "m=0&" + INLONGMSG_ATTR_STREAM_ID + "=testInterfaceId&t=20200322&__addcol1__=1&"
-               + "__addcol2__=2&__addcol3__=3&__addcol4__=4&__addcol5__=5&__addcol6__=6&__addcol7__=7";
+                + "__addcol2__=2&__addcol3__=3&__addcol4__=4&__addcol5__=5&__addcol6__=6&__addcol7__=7";
         String body = "field11,field12";
         inLongMsg.addMsg(attrs, body.getBytes());
 
@@ -482,21 +448,19 @@ public class InLongMsgCsvFormatDeserializerTest {
                 3,
                 "4",
                 "5",
-                "6"
-        );
+                "6");
 
         testRowDeserialization(
                 deserializer,
                 inLongMsg.buildArray(),
-                Collections.singletonList(expectedRow)
-        );
+                Collections.singletonList(expectedRow));
     }
 
     private void testRowDeserialization(
             InLongMsgCsvFormatDeserializer deserializer,
             byte[] bytes,
-            List<Row> expectedRows
-    ) throws Exception {
+            List<Row> expectedRows)
+            throws Exception {
 
         List<Row> actualRows = new ArrayList<>();
         Collector<Row> collector = new ListCollector<>(actualRows);

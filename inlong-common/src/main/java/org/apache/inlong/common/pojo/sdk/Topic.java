@@ -17,18 +17,19 @@
 
 package org.apache.inlong.common.pojo.sdk;
 
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Map;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Topic {
+
     String topic;
     int partitionCnt;
     Map<String, String> topicProperties;

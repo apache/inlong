@@ -37,7 +37,8 @@ public class DataProxyCluster {
     /**
      * set proxyCluster
      *
-     * @param proxyCluster the proxyCluster to set
+     * @param proxyCluster
+     *          the proxyCluster to set
      */
     public void setProxyCluster(ProxyClusterObject proxyCluster) {
         this.proxyCluster = proxyCluster;
@@ -55,7 +56,8 @@ public class DataProxyCluster {
     /**
      * set cacheClusterSet
      *
-     * @param cacheClusterSet the cacheClusterSet to set
+     * @param cacheClusterSet
+     *          the cacheClusterSet to set
      */
     public void setCacheClusterSet(CacheClusterSetObject cacheClusterSet) {
         this.cacheClusterSet = cacheClusterSet;

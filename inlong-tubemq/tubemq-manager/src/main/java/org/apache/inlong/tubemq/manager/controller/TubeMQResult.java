@@ -17,18 +17,21 @@
 
 package org.apache.inlong.tubemq.manager.controller;
 
-import com.google.gson.Gson;
+import org.apache.inlong.tubemq.manager.enums.ErrorCode;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.tubemq.manager.enums.ErrorCode;
+
+import com.google.gson.Gson;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TubeMQResult {
+
     @Builder.Default
     private String errMsg = "";
     @Builder.Default

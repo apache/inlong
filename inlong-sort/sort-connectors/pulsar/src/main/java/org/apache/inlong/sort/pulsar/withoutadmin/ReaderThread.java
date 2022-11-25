@@ -33,8 +33,6 @@ import org.apache.pulsar.client.api.ReaderBuilder;
 import org.apache.pulsar.client.impl.BatchMessageIdImpl;
 import org.apache.pulsar.client.impl.MessageIdImpl;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -42,14 +40,20 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9,
- * From {@link org.apache.flink.streaming.connectors.pulsar.internal.ReaderThread}
+ * Copy from
+ * io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9, From
+ * {@link org.apache.flink.streaming.connectors.pulsar.internal.ReaderThread}
  * Actual working thread that read a specific Pulsar topic.
  *
- * @param <T> the record type that read from each Pulsar message.
+ * @param <T>
+ *          the record type that read from each Pulsar message.
  */
 public class ReaderThread<T> extends Thread {
+
     private static final Logger log = LoggerFactory.getLogger(ReaderThread.class);
     protected final PulsarFetcher<T> owner;
     protected final PulsarTopicState<T> state;
@@ -198,8 +202,10 @@ public class ReaderThread<T> extends Thread {
                 new IllegalStateException(message + PulsarOptions.INSTRUCTION_FOR_FAIL_ON_DATA_LOSS_TRUE));
     }
 
-    /** used to check whether starting position and current message we got actually are equal
-     * we neglect the potential batchIdx deliberately while seeking to MessageIdImpl for batch entry.
+    /**
+     * used to check whether starting position and current message we got actually
+     * are equal we neglect the potential batchIdx deliberately while seeking to
+     * MessageIdImpl for batch entry.
      *
      */
     public static boolean messageIdRoughEquals(MessageId l, MessageId r) {
@@ -227,6 +233,7 @@ public class ReaderThread<T> extends Thread {
     }
 
     private class PulsarCollector implements Collector<T> {
+
         private final Queue<T> records = new ArrayDeque<>();
 
         private boolean endOfStreamSignalled = false;

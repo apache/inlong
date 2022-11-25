@@ -18,6 +18,13 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import io.debezium.config.Configuration;
 import io.debezium.relational.TableId;
 import io.debezium.relational.Tables;
@@ -30,24 +37,19 @@ import io.debezium.relational.history.HistoryRecordComparator;
 import io.debezium.relational.history.TableChanges;
 import io.debezium.relational.history.TableChanges.TableChange;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 /**
- * A {@link DatabaseHistory} implementation which store the latest table schema in Flink state.
+ * A {@link DatabaseHistory} implementation which store the latest table schema
+ * in Flink state.
  *
- * <p>It stores/recovers history using data offered by {@link MySqlSplitState}.</p>
+ * <p>
+ * It stores/recovers history using data offered by {@link MySqlSplitState}.
+ * </p>
  */
 public class EmbeddedFlinkDatabaseHistory implements DatabaseHistory {
 
     public static final String DATABASE_HISTORY_INSTANCE_NAME = "database.history.instance.name";
 
-    public static final ConcurrentMap<String, Collection<TableChange>> TABLE_SCHEMAS =
-            new ConcurrentHashMap<>();
+    public static final ConcurrentMap<String, Collection<TableChange>> TABLE_SCHEMAS = new ConcurrentHashMap<>();
 
     private Map<TableId, TableChange> tableSchemas;
     private DatabaseHistoryListener listener;
@@ -92,7 +94,8 @@ public class EmbeddedFlinkDatabaseHistory implements DatabaseHistory {
 
     @Override
     public void record(
-            Map<String, ?> source, Map<String, ?> position, String databaseName, String ddl)
+            Map<String, ?> source, Map<String, ?> position, String databaseName,
+            String ddl)
             throws DatabaseHistoryException {
         throw new UnsupportedOperationException("should not call here, error");
     }
@@ -106,8 +109,7 @@ public class EmbeddedFlinkDatabaseHistory implements DatabaseHistory {
             String ddl,
             TableChanges changes)
             throws DatabaseHistoryException {
-        final HistoryRecord record =
-                new HistoryRecord(source, position, databaseName, schemaName, ddl, changes);
+        final HistoryRecord record = new HistoryRecord(source, position, databaseName, schemaName, ddl, changes);
         listener.onChangeApplied(record);
     }
 

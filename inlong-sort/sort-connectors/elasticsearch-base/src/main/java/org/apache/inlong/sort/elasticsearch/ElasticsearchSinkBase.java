@@ -17,6 +17,13 @@
 
 package org.apache.inlong.sort.elasticsearch;
 
+import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -29,9 +36,13 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.util.InstantiationUtil;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -44,39 +55,38 @@ import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.rest.RestStatus;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.apache.flink.util.Preconditions.checkArgument;
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
 /**
  * Base class for all Flink Elasticsearch Sinks.
  *
- * <p>This class implements the common behaviour across Elasticsearch versions, such as the use of
- * an internal {@link BulkProcessor} to buffer multiple {@link ActionRequest}s before sending the
- * requests to the cluster, as well as passing input records to the user provided {@link
- * ElasticsearchSinkFunction} for processing.
+ * <p>
+ * This class implements the common behaviour across Elasticsearch versions,
+ * such as the use of an internal {@link BulkProcessor} to buffer multiple
+ * {@link ActionRequest}s before sending the requests to the cluster, as well as
+ * passing input records to the user provided {@link ElasticsearchSinkFunction}
+ * for processing.
  *
- * <p>The version specific API calls for different Elasticsearch versions should be defined by a
- * concrete implementation of a {@link ElasticsearchApiCallBridge}, which is provided to the
- * constructor of this class. This call bridge is used, for example, to create a Elasticsearch
- * {@link Client}, handle failed item responses, etc.
+ * <p>
+ * The version specific API calls for different Elasticsearch versions should be
+ * defined by a concrete implementation of a {@link ElasticsearchApiCallBridge},
+ * which is provided to the constructor of this class. This call bridge is used,
+ * for example, to create a Elasticsearch {@link Client}, handle failed item
+ * responses, etc.
  *
- * @param <T> Type of the elements handled by this sink
- * @param <C> Type of the Elasticsearch client, which implements {@link AutoCloseable}
+ * @param <T>
+ *          Type of the elements handled by this sink
+ * @param <C>
+ *          Type of the Elasticsearch client, which implements
+ *          {@link AutoCloseable}
  */
 @Internal
 public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends RichSinkFunction<T>
-        implements CheckpointedFunction {
+        implements
+            CheckpointedFunction {
 
     public static final String CONFIG_KEY_BULK_FLUSH_MAX_ACTIONS = "bulk.flush.max.actions";
 
     // ------------------------------------------------------------------------
-    //  Internal bulk processor configuration
+    // Internal bulk processor configuration
     // ------------------------------------------------------------------------
     public static final String CONFIG_KEY_BULK_FLUSH_MAX_SIZE_MB = "bulk.flush.max.size.mb";
     public static final String CONFIG_KEY_BULK_FLUSH_INTERVAL_MS = "bulk.flush.interval.ms";
@@ -92,19 +102,21 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     /**
      * The config map that contains configuration for the bulk flushing behaviours.
      *
-     * <p>For {@link org.elasticsearch.client.transport.TransportClient} based implementations, this
-     * config map would also contain Elasticsearch-shipped configuration, and therefore this config
-     * map would also be forwarded when creating the Elasticsearch client.
+     * <p>
+     * For {@link org.elasticsearch.client.transport.TransportClient} based
+     * implementations, this config map would also contain Elasticsearch-shipped
+     * configuration, and therefore this config map would also be forwarded when
+     * creating the Elasticsearch client.
      */
     private final Map<String, String> userConfig;
     /**
-     * The function that is used to construct multiple {@link ActionRequest ActionRequests} from
-     * each incoming element.
+     * The function that is used to construct multiple {@link ActionRequest
+     * ActionRequests} from each incoming element.
      */
     private final ElasticsearchSinkFunction<T> elasticsearchSinkFunction;
 
     // ------------------------------------------------------------------------
-    //  User-facing API and configuration
+    // User-facing API and configuration
     // ------------------------------------------------------------------------
     /**
      * User-provided handler for failed {@link ActionRequest ActionRequests}.
@@ -115,43 +127,48 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      */
     private final ElasticsearchApiCallBridge<C> callBridge;
     /**
-     * This is set from inside the {@link BulkProcessor.Listener} if a {@link Throwable} was thrown
-     * in callbacks and the user considered it should fail the sink via the {@link
-     * ActionRequestFailureHandler#onFailure(ActionRequest, Throwable, int, RequestIndexer)} method.
+     * This is set from inside the {@link BulkProcessor.Listener} if a
+     * {@link Throwable} was thrown in callbacks and the user considered it should
+     * fail the sink via the
+     * {@link ActionRequestFailureHandler#onFailure(ActionRequest, Throwable, int, RequestIndexer)}
+     * method.
      *
-     * <p>Errors will be checked and rethrown before processing each input element, and when the
-     * sink is closed.
+     * <p>
+     * Errors will be checked and rethrown before processing each input element, and
+     * when the sink is closed.
      */
     private final AtomicReference<Throwable> failureThrowable = new AtomicReference<>();
     private final String inlongMetric;
     /**
-     * If true, the producer will wait until all outstanding action requests have been sent to
-     * Elasticsearch.
+     * If true, the producer will wait until all outstanding action requests have
+     * been sent to Elasticsearch.
      */
     private boolean flushOnCheckpoint = true;
     /**
-     * Provided to the user via the {@link ElasticsearchSinkFunction} to add {@link ActionRequest
-     * ActionRequests}.
+     * Provided to the user via the {@link ElasticsearchSinkFunction} to add
+     * {@link ActionRequest ActionRequests}.
      */
     private transient RequestIndexer requestIndexer;
 
     // ------------------------------------------------------------------------
-    //  Internals for the Flink Elasticsearch Sink
+    // Internals for the Flink Elasticsearch Sink
     // ------------------------------------------------------------------------
     /**
-     * Provided to the {@link ActionRequestFailureHandler} to allow users to re-index failed
-     * requests.
+     * Provided to the {@link ActionRequestFailureHandler} to allow users to
+     * re-index failed requests.
      */
     private transient BufferingNoOpRequestIndexer failureRequestIndexer;
     /**
-     * Number of pending action requests not yet acknowledged by Elasticsearch. This value is
-     * maintained only if {@link ElasticsearchSinkBase#flushOnCheckpoint} is {@code true}.
+     * Number of pending action requests not yet acknowledged by Elasticsearch. This
+     * value is maintained only if {@link ElasticsearchSinkBase#flushOnCheckpoint}
+     * is {@code true}.
      *
-     * <p>This is incremented whenever the user adds (or re-adds through the {@link
-     * ActionRequestFailureHandler}) requests to the {@link RequestIndexer}. It is decremented for
-     * each completed request of a bulk request, in {@link BulkProcessor.Listener#afterBulk(long,
-     * BulkRequest, BulkResponse)} and {@link BulkProcessor.Listener#afterBulk(long, BulkRequest,
-     * Throwable)}.
+     * <p>
+     * This is incremented whenever the user adds (or re-adds through the
+     * {@link ActionRequestFailureHandler}) requests to the {@link RequestIndexer}.
+     * It is decremented for each completed request of a bulk request, in
+     * {@link BulkProcessor.Listener#afterBulk(long, BulkRequest, BulkResponse)} and
+     * {@link BulkProcessor.Listener#afterBulk(long, BulkRequest, Throwable)}.
      */
     private AtomicLong numPendingRequests = new AtomicLong(0);
     /**
@@ -159,7 +176,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
      */
     private transient C client;
     /**
-     * Bulk processor to buffer and send requests to Elasticsearch, created using the client.
+     * Bulk processor to buffer and send requests to Elasticsearch, created using
+     * the client.
      */
     private transient BulkProcessor bulkProcessor;
     private SinkMetricData sinkMetricData;
@@ -174,8 +192,10 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
         this.callBridge = checkNotNull(callBridge);
         this.elasticsearchSinkFunction = checkNotNull(elasticsearchSinkFunction);
         this.failureHandler = checkNotNull(failureHandler);
-        // we eagerly check if the user-provided sink function and failure handler is serializable;
-        // otherwise, if they aren't serializable, users will merely get a non-informative error
+        // we eagerly check if the user-provided sink function and failure handler is
+        // serializable;
+        // otherwise, if they aren't serializable, users will merely get a
+        // non-informative error
         // message
         // "ElasticsearchSinkBase is not serializable"
 
@@ -189,7 +209,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
                 "The implementation of the provided ActionRequestFailureHandler is not serializable. "
                         + "The object probably contains or references non-serializable fields.");
 
-        // extract and remove bulk processor related configuration from the user-provided config,
+        // extract and remove bulk processor related configuration from the
+        // user-provided config,
         // so that the resulting user config only contains configuration related to the
         // Elasticsearch client.
 
@@ -221,8 +242,7 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
             bulkProcessorFlushIntervalMillis = null;
         }
 
-        boolean bulkProcessorFlushBackoffEnable =
-                params.getBoolean(CONFIG_KEY_BULK_FLUSH_BACKOFF_ENABLE, true);
+        boolean bulkProcessorFlushBackoffEnable = params.getBoolean(CONFIG_KEY_BULK_FLUSH_BACKOFF_ENABLE, true);
         userConfig.remove(CONFIG_KEY_BULK_FLUSH_BACKOFF_ENABLE);
 
         if (bulkProcessorFlushBackoffEnable) {
@@ -254,11 +274,13 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     }
 
     /**
-     * Disable flushing on checkpoint. When disabled, the sink will not wait for all pending action
-     * requests to be acknowledged by Elasticsearch on checkpoints.
+     * Disable flushing on checkpoint. When disabled, the sink will not wait for all
+     * pending action requests to be acknowledged by Elasticsearch on checkpoints.
      *
-     * <p>NOTE: If flushing on checkpoint is disabled, the Flink Elasticsearch Sink does NOT provide
-     * any strong guarantees for at-least-once delivery of action requests.
+     * <p>
+     * NOTE: If flushing on checkpoint is disabled, the Flink Elasticsearch Sink
+     * does NOT provide any strong guarantees for at-least-once delivery of action
+     * requests.
      */
     public void disableFlushOnCheckpoint() {
         this.flushOnCheckpoint = false;
@@ -277,9 +299,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
 
         callBridge.verifyClientConnection(client);
         bulkProcessor = buildBulkProcessor(new BulkProcessorListener(sinkMetricData));
-        requestIndexer =
-                callBridge.createBulkProcessorIndexer(
-                        bulkProcessor, flushOnCheckpoint, numPendingRequests);
+        requestIndexer = callBridge.createBulkProcessorIndexer(
+                bulkProcessor, flushOnCheckpoint, numPendingRequests);
         failureRequestIndexer = new BufferingNoOpRequestIndexer();
         elasticsearchSinkFunction.open(getRuntimeContext());
     }
@@ -333,14 +354,14 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     /**
      * Build the {@link BulkProcessor}.
      *
-     * <p>Note: this is exposed for testing purposes.
+     * <p>
+     * Note: this is exposed for testing purposes.
      */
     @VisibleForTesting
     protected BulkProcessor buildBulkProcessor(BulkProcessor.Listener listener) {
         checkNotNull(listener);
 
-        BulkProcessor.Builder bulkProcessorBuilder =
-                callBridge.createBulkProcessorBuilder(client, listener);
+        BulkProcessor.Builder bulkProcessorBuilder = callBridge.createBulkProcessorBuilder(client, listener);
 
         // This makes flush() blocking
         bulkProcessorBuilder.setConcurrentRequests(0);
@@ -367,7 +388,8 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     private void configureBulkSize(BulkProcessor.Builder bulkProcessorBuilder) {
         final ByteSizeUnit sizeUnit;
         if (bulkProcessorFlushMaxSizeMb == -1) {
-            // bulk size can be disabled with -1, however the ByteSizeValue constructor accepts -1
+            // bulk size can be disabled with -1, however the ByteSizeValue constructor
+            // accepts -1
             // only with BYTES as the size unit
             sizeUnit = ByteSizeUnit.BYTES;
         } else {
@@ -408,26 +430,29 @@ public abstract class ElasticsearchSinkBase<T, C extends AutoCloseable> extends 
     }
 
     /**
-     * Used to control whether the retry delay should increase exponentially or remain constant.
+     * Used to control whether the retry delay should increase exponentially or
+     * remain constant.
      */
     @PublicEvolving
     public enum FlushBackoffType {
-        CONSTANT,
-        EXPONENTIAL
+        CONSTANT, EXPONENTIAL
     }
 
     /**
-     * Provides a backoff policy for bulk requests. Whenever a bulk request is rejected due to
-     * resource constraints (i.e. the client's internal thread pool is full), the backoff policy
-     * decides how long the bulk processor will wait before the operation is retried internally.
+     * Provides a backoff policy for bulk requests. Whenever a bulk request is
+     * rejected due to resource constraints (i.e. the client's internal thread pool
+     * is full), the backoff policy decides how long the bulk processor will wait
+     * before the operation is retried internally.
      *
-     * <p>This is a proxy for version specific backoff policies.
+     * <p>
+     * This is a proxy for version specific backoff policies.
      */
     public static class BulkFlushBackoffPolicy implements Serializable {
 
         private static final long serialVersionUID = -6022851996101826049L;
 
-        // the default values follow the Elasticsearch default settings for BulkProcessor
+        // the default values follow the Elasticsearch default settings for
+        // BulkProcessor
         private FlushBackoffType backoffType = FlushBackoffType.EXPONENTIAL;
         private int maxRetryCount = 8;
         private long delayMillis = 50;

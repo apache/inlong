@@ -17,11 +17,16 @@
 
 package org.apache.inlong.sort.standalone.admin;
 
+import static org.apache.inlong.sort.standalone.admin.ConsumerServiceMBean.MBEAN_TYPE;
+import static org.apache.inlong.sort.standalone.admin.ConsumerServiceMBean.METHOD_RECOVERCONSUMER;
+import static org.apache.inlong.sort.standalone.admin.ConsumerServiceMBean.METHOD_STOPCONSUMER;
+
+import org.apache.inlong.sdk.commons.admin.AbstractAdminEventHandler;
+
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
-import org.apache.inlong.sdk.commons.admin.AbstractAdminEventHandler;
 
 import java.lang.management.ManagementFactory;
 import java.util.Set;
@@ -30,10 +35,6 @@ import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.servlet.http.HttpServletResponse;
-
-import static org.apache.inlong.sort.standalone.admin.ConsumerServiceMBean.MBEAN_TYPE;
-import static org.apache.inlong.sort.standalone.admin.ConsumerServiceMBean.METHOD_RECOVERCONSUMER;
-import static org.apache.inlong.sort.standalone.admin.ConsumerServiceMBean.METHOD_STOPCONSUMER;
 
 /**
  * ConsumerServiceAdminEventHandler
@@ -61,8 +62,8 @@ public class ConsumerServiceAdminEventHandler extends AbstractAdminEventHandler 
         LOG.info("start to process admin task:{}", cmd);
         String sortTaskId = event.getHeaders().get(ConsumerServiceMBean.KEY_TASKNAME);
         switch (cmd) {
-            case METHOD_STOPCONSUMER :
-            case METHOD_RECOVERCONSUMER :
+            case METHOD_STOPCONSUMER:
+            case METHOD_RECOVERCONSUMER:
                 if (sortTaskId == null) {
                     break;
                 }
@@ -72,7 +73,7 @@ public class ConsumerServiceAdminEventHandler extends AbstractAdminEventHandler 
                     this.processOne(cmd, sortTaskId, response);
                 }
                 break;
-            default :
+            default:
                 break;
         }
         LOG.info("end to process admin task:{}", cmd);

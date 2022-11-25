@@ -18,11 +18,13 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 /**
  * The type information for rows.
@@ -34,8 +36,7 @@ public class RowTypeInfo implements TypeInfo {
     private static final String FIELD_FIELD_NAMES = "fieldNames";
     private static final String FIELD_FIELD_TYPES = "fieldTypes";
 
-    public static final RowTypeInfo EMPTY =
-            new RowTypeInfo(new String[0], new TypeInfo[0]);
+    public static final RowTypeInfo EMPTY = new RowTypeInfo(new String[0], new TypeInfo[0]);
 
     @JsonProperty(FIELD_FIELD_NAMES)
     @Nonnull
@@ -48,8 +49,7 @@ public class RowTypeInfo implements TypeInfo {
     @JsonCreator
     public RowTypeInfo(
             @JsonProperty(FIELD_FIELD_NAMES) @Nonnull String[] fieldNames,
-            @JsonProperty(FIELD_FIELD_TYPES) @Nonnull TypeInfo[] fieldTypeInfos
-    ) {
+            @JsonProperty(FIELD_FIELD_TYPES) @Nonnull TypeInfo[] fieldTypeInfos) {
         checkArity(fieldNames, fieldTypeInfos);
         checkDuplicates(fieldNames);
 
@@ -59,8 +59,7 @@ public class RowTypeInfo implements TypeInfo {
 
     private static void checkArity(
             String[] fieldNames,
-            TypeInfo[] fieldTypeInfos
-    ) {
+            TypeInfo[] fieldTypeInfos) {
         if (fieldNames.length != fieldTypeInfos.length) {
             throw new IllegalArgumentException("The number of names and " + "formats is not equal.");
         }
@@ -68,10 +67,9 @@ public class RowTypeInfo implements TypeInfo {
 
     private static void checkDuplicates(String[] fieldNames) {
         long numFieldNames = fieldNames.length;
-        long numDistinctFieldNames =
-                Arrays.stream(fieldNames)
-                        .collect(Collectors.toSet())
-                        .size();
+        long numDistinctFieldNames = Arrays.stream(fieldNames)
+                .collect(Collectors.toSet())
+                .size();
 
         if (numDistinctFieldNames != numFieldNames) {
             throw new IllegalArgumentException("There exist duplicated " + "field names.");

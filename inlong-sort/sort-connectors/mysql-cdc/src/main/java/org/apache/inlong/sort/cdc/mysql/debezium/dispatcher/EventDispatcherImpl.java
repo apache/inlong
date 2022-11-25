@@ -18,6 +18,23 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.dispatcher;
 
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.BINLOG_FILENAME_OFFSET_KEY;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.BINLOG_POSITION_OFFSET_KEY;
+import static org.apache.inlong.sort.cdc.mysql.debezium.task.context.StatefulTaskContext.MySqlEventMetadataProvider.SERVER_ID_KEY;
+
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.SchemaBuilder;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.debezium.config.CommonConnectorConfig;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.document.DocumentWriter;
@@ -34,21 +51,6 @@ import io.debezium.schema.HistorizedDatabaseSchema;
 import io.debezium.schema.SchemaChangeEvent;
 import io.debezium.schema.TopicSelector;
 import io.debezium.util.SchemaNameAdjuster;
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.SchemaBuilder;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.BINLOG_FILENAME_OFFSET_KEY;
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.BINLOG_POSITION_OFFSET_KEY;
-import static org.apache.inlong.sort.cdc.mysql.debezium.task.context.StatefulTaskContext.MySqlEventMetadataProvider.SERVER_ID_KEY;
 
 /**
  * A subclass implementation of {@link EventDispatcher}.
@@ -94,35 +96,32 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
                 changeEventCreator,
                 metadataProvider,
                 schemaNameAdjuster);
-        this.historizedSchema =
-                schema instanceof HistorizedDatabaseSchema
-                        ? (HistorizedDatabaseSchema<T>) schema
-                        : null;
+        this.historizedSchema = schema instanceof HistorizedDatabaseSchema
+                ? (HistorizedDatabaseSchema<T>) schema
+                : null;
         this.filter = filter;
         this.queue = queue;
         this.connectorConfig = connectorConfig;
         this.topicSelector = topicSelector;
-        this.schemaChangeKeySchema =
-                SchemaBuilder.struct()
-                        .name(
-                                schemaNameAdjuster.adjust(
-                                        "io.debezium.connector."
-                                                + connectorConfig.getConnectorName()
-                                                + ".SchemaChangeKey"))
-                        .field(HistoryRecord.Fields.DATABASE_NAME, Schema.STRING_SCHEMA)
-                        .build();
-        this.schemaChangeValueSchema =
-                SchemaBuilder.struct()
-                        .name(
-                                schemaNameAdjuster.adjust(
-                                        "io.debezium.connector."
-                                                + connectorConfig.getConnectorName()
-                                                + ".SchemaChangeValue"))
-                        .field(
-                                HistoryRecord.Fields.SOURCE,
-                                connectorConfig.getSourceInfoStructMaker().schema())
-                        .field(HISTORY_RECORD_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
-                        .build();
+        this.schemaChangeKeySchema = SchemaBuilder.struct()
+                .name(
+                        schemaNameAdjuster.adjust(
+                                "io.debezium.connector."
+                                        + connectorConfig.getConnectorName()
+                                        + ".SchemaChangeKey"))
+                .field(HistoryRecord.Fields.DATABASE_NAME, Schema.STRING_SCHEMA)
+                .build();
+        this.schemaChangeValueSchema = SchemaBuilder.struct()
+                .name(
+                        schemaNameAdjuster.adjust(
+                                "io.debezium.connector."
+                                        + connectorConfig.getConnectorName()
+                                        + ".SchemaChangeValue"))
+                .field(
+                        HistoryRecord.Fields.SOURCE,
+                        connectorConfig.getSourceInfoStructMaker().schema())
+                .field(HISTORY_RECORD_FIELD, Schema.OPTIONAL_STRING_SCHEMA)
+                .build();
     }
 
     public ChangeEventQueue<DataChangeEvent> getQueue() {
@@ -131,7 +130,8 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
 
     @Override
     public void dispatchSchemaChangeEvent(
-            T dataCollectionId, SchemaChangeEventEmitter schemaChangeEventEmitter)
+            T dataCollectionId,
+            SchemaChangeEventEmitter schemaChangeEventEmitter)
             throws InterruptedException {
         if (dataCollectionId != null && !filter.isIncluded(dataCollectionId)) {
             if (historizedSchema == null || historizedSchema.storeOnlyMonitoredTables()) {
@@ -144,7 +144,8 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
 
     @Override
     public void dispatchSchemaChangeEvent(
-            Collection<T> dataCollectionIds, SchemaChangeEventEmitter schemaChangeEventEmitter)
+            Collection<T> dataCollectionIds,
+            SchemaChangeEventEmitter schemaChangeEventEmitter)
             throws InterruptedException {
         boolean anyNonfilteredEvent = false;
         if (dataCollectionIds == null || dataCollectionIds.isEmpty()) {
@@ -168,7 +169,8 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
     }
 
     /**
-     * A {@link SchemaChangeEventEmitter.Receiver} implementation for {@link SchemaChangeEvent}.
+     * A {@link SchemaChangeEventEmitter.Receiver} implementation for
+     * {@link SchemaChangeEvent}.
      */
     private final class SchemaChangeEventReceiver implements SchemaChangeEventEmitter.Receiver {
 
@@ -187,14 +189,13 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
             source.put(SERVER_ID_KEY, serverId);
             source.put(BINLOG_FILENAME_OFFSET_KEY, fileName);
             source.put(BINLOG_POSITION_OFFSET_KEY, pos);
-            HistoryRecord historyRecord =
-                    new HistoryRecord(
-                            source,
-                            event.getOffset(),
-                            event.getDatabase(),
-                            null,
-                            event.getDdl(),
-                            event.getTableChanges());
+            HistoryRecord historyRecord = new HistoryRecord(
+                    source,
+                    event.getOffset(),
+                    event.getDatabase(),
+                    null,
+                    event.getDdl(),
+                    event.getTableChanges());
             String historyStr = DOCUMENT_WRITER.write(historyRecord.document());
 
             Struct value = new Struct(schemaChangeValueSchema);
@@ -212,16 +213,15 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
                     final Integer partition = 0;
                     final Struct key = schemaChangeRecordKey(event);
                     final Struct value = schemaChangeRecordValue(event);
-                    final SourceRecord record =
-                            new SourceRecord(
-                                    event.getPartition(),
-                                    event.getOffset(),
-                                    topicName,
-                                    partition,
-                                    schemaChangeKeySchema,
-                                    key,
-                                    schemaChangeValueSchema,
-                                    value);
+                    final SourceRecord record = new SourceRecord(
+                            event.getPartition(),
+                            event.getOffset(),
+                            topicName,
+                            partition,
+                            schemaChangeKeySchema,
+                            key,
+                            schemaChangeValueSchema,
+                            value);
                     queue.enqueue(new DataChangeEvent(record));
                 } catch (IOException e) {
                     throw new IllegalStateException(

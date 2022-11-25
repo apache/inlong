@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 /**
  * Test for {@link TimeUnitConstantParam}

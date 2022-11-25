@@ -32,12 +32,14 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Divide partitions by client.id.
- * The default partitioning strategy: if the number of producers is bigger than 1,
- * and the number of partitions bigger than producers, the producers divide partitions equally.
+ * Divide partitions by client.id. The default partitioning strategy: if the
+ * number of producers is bigger than 1, and the number of partitions bigger
+ * than producers, the producers divide partitions equally.
  * <li>If a partition is specified in the record, use it</li>
- * <li>If no partition is specified but a key is present choose a partition based on a hash of the key</li>
- * <li>If no partition or key is present choose the sticky partition that changes when the batch is full.</li>
+ * <li>If no partition is specified but a key is present choose a partition
+ * based on a hash of the key</li>
+ * <li>If no partition or key is present choose the sticky partition that
+ * changes when the batch is full.</li>
  *
  * See KIP-480 for details about sticky partitioning.
  */
@@ -86,12 +88,18 @@ public class PartitionerSelector implements Partitioner {
     /**
      * Compute the partition for the given record.
      *
-     * @param topic      The topic name
-     * @param key        The key to partition on (or null if no key)
-     * @param keyBytes   serialized key to partition on (or null if no key)
-     * @param value      The value to partition on or null
-     * @param valueBytes serialized value to partition on or null
-     * @param cluster    The current cluster metadata
+     * @param topic
+     *          The topic name
+     * @param key
+     *          The key to partition on (or null if no key)
+     * @param keyBytes
+     *          serialized key to partition on (or null if no key)
+     * @param value
+     *          The value to partition on or null
+     * @param valueBytes
+     *          serialized value to partition on or null
+     * @param cluster
+     *          The current cluster metadata
      */
     @Override
     public int partition(String topic, Object key, byte[] keyBytes,
@@ -124,8 +132,8 @@ public class PartitionerSelector implements Partitioner {
     }
 
     /**
-     * If a batch completed for the current sticky partition, change the sticky partition. Alternately, if
-     * no sticky partition has been determined, set one.
+     * If a batch completed for the current sticky partition, change the sticky
+     * partition. Alternately, if no sticky partition has been determined, set one.
      */
     @Override
     public void onNewBatch(String topic, Cluster cluster, int prevPartition) {
@@ -219,9 +227,12 @@ public class PartitionerSelector implements Partitioner {
     /**
      * group a batch of source, and get the part of given index.
      *
-     * @param  source   source to be grouped
-     * @param  pageSize size of group
-     * @param  index    current index
+     * @param source
+     *          source to be grouped
+     * @param pageSize
+     *          size of group
+     * @param index
+     *          current index
      */
     public static <T> List<T> averageAssign(List<T> source, int pageSize, int index) {
 

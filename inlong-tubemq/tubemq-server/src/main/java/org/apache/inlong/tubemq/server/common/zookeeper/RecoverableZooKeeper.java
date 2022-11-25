@@ -17,10 +17,8 @@
 
 package org.apache.inlong.tubemq.server.common.zookeeper;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.inlong.tubemq.server.common.utils.Bytes;
+
 import org.apache.zookeeper.AsyncCallback;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -29,33 +27,42 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.ZooKeeper.States;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A zookeeper that can handle 'recoverable' errors. To handle recoverable errors, developers need
- * to realize that there are two classes of requests: idempotent and non-idempotent requests. Read
- * requests and unconditional sets and deletes are examples of idempotent requests, they can be
- * reissued with the same results. (Although, the delete may throw a NoNodeException on reissue its
- * effect on the ZooKeeper state is the same.) Non-idempotent requests need special handling,
- * application and library writers need to keep in mind that they may need to encode information in
- * the data or name of znodes to detect retries. A simple example is a create that uses a sequence
- * flag. If a process issues a create("/x-", ..., SEQUENCE) and gets a connection loss exception,
- * that process will reissue another create("/x-", ..., SEQUENCE) and get back x-111. When the
- * process does a getClientLst("/"), it sees x-1,x-30,x-109,x-110,x-111, now it could be that x-109
- * was the result of the previous create, so the process actually owns both x-109 and x-111. An easy
- * way around this is to use "x-process id-" when doing the create. If the process is using an id of
- * 352, before reissuing the create it will do a getClientLst("/") and see "x-222-1", "x-542-30",
- * "x-352-109", x-333-110". The process will know that the original create succeeded an the znode it
- * created is "x-352-109".
+ * A zookeeper that can handle 'recoverable' errors. To handle recoverable
+ * errors, developers need to realize that there are two classes of requests:
+ * idempotent and non-idempotent requests. Read requests and unconditional sets
+ * and deletes are examples of idempotent requests, they can be reissued with
+ * the same results. (Although, the delete may throw a NoNodeException on
+ * reissue its effect on the ZooKeeper state is the same.) Non-idempotent
+ * requests need special handling, application and library writers need to keep
+ * in mind that they may need to encode information in the data or name of
+ * znodes to detect retries. A simple example is a create that uses a sequence
+ * flag. If a process issues a create("/x-", ..., SEQUENCE) and gets a
+ * connection loss exception, that process will reissue another create("/x-",
+ * ..., SEQUENCE) and get back x-111. When the process does a getClientLst("/"),
+ * it sees x-1,x-30,x-109,x-110,x-111, now it could be that x-109 was the result
+ * of the previous create, so the process actually owns both x-109 and x-111. An
+ * easy way around this is to use "x-process id-" when doing the create. If the
+ * process is using an id of 352, before reissuing the create it will do a
+ * getClientLst("/") and see "x-222-1", "x-542-30", "x-352-109", x-333-110". The
+ * process will know that the original create succeeded an the znode it created
+ * is "x-352-109".
  *
  * See "http://wiki.apache.org/hadoop/ZooKeeper/ErrorHandling"
  *
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class RecoverableZooKeeper {
-    private static final Logger logger =
-            LoggerFactory.getLogger(RecoverableZooKeeper.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(RecoverableZooKeeper.class);
     private final RetryCounterFactory retryCounterFactory;
     // the actual ZooKeeper client instance
     private ZooKeeper zk;
@@ -65,7 +72,8 @@ public class RecoverableZooKeeper {
     private String quorumServers;
 
     public RecoverableZooKeeper(String quorumServers, int sessionTimeout, Watcher watcher,
-                                int maxRetries, int retryIntervalMillis) throws IOException {
+            int maxRetries, int retryIntervalMillis)
+            throws IOException {
         this.zk = new ZooKeeper(quorumServers, sessionTimeout, watcher);
         this.retryCounterFactory = new RetryCounterFactory(maxRetries, retryIntervalMillis);
         this.watcher = watcher;
@@ -74,12 +82,14 @@ public class RecoverableZooKeeper {
     }
 
     /**
-     * Filters the given node list by the given prefixes. This method is all-inclusive--if any
-     * element in the node list starts with any of the given prefixes, then it is included in the
-     * result.
+     * Filters the given node list by the given prefixes. This method is
+     * all-inclusive--if any element in the node list starts with any of the given
+     * prefixes, then it is included in the result.
      *
-     * @param nodes    the nodes to filter
-     * @param prefixes the prefixes to include in the result
+     * @param nodes
+     *          the nodes to filter
+     * @param prefixes
+     *          the prefixes to include in the result
      * @return list of every element that starts with one of the prefixes
      */
     private static synchronized List<String> filterByPrefix(List<String> nodes, String... prefixes) {
@@ -126,11 +136,10 @@ public class RecoverableZooKeeper {
     }
 
     /**
-     * delete is an idempotent operation. Retry before throwing exception. This function will not
-     * throw NoNodeException if the path does not exist.
+     * delete is an idempotent operation. Retry before throwing exception. This
+     * function will not throw NoNodeException if the path does not exist.
      */
-    public synchronized void delete(String path, int version) throws InterruptedException,
-            KeeperException {
+    public synchronized void delete(String path, int version) throws InterruptedException, KeeperException {
         RetryCounter retryCounter = retryCounterFactory.create();
         boolean isRetry = false; // False for first attempt, true for all
         // retries.
@@ -172,8 +181,7 @@ public class RecoverableZooKeeper {
      *
      * @return A Stat instance
      */
-    public synchronized Stat exists(String path, Watcher watcher) throws KeeperException,
-            InterruptedException {
+    public synchronized Stat exists(String path, Watcher watcher) throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         while (true) {
             try {
@@ -202,8 +210,7 @@ public class RecoverableZooKeeper {
      *
      * @return A Stat instance
      */
-    public synchronized Stat exists(String path, boolean watch) throws KeeperException,
-            InterruptedException {
+    public synchronized Stat exists(String path, boolean watch) throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         while (true) {
             try {
@@ -227,7 +234,8 @@ public class RecoverableZooKeeper {
         }
     }
 
-    private synchronized void retryOrThrow(RetryCounter retryCounter, KeeperException e, String opName)
+    private synchronized void retryOrThrow(RetryCounter retryCounter, KeeperException e,
+            String opName)
             throws KeeperException {
         logger.warn("Possibly transient ZooKeeper exception: ", e);
         if (!retryCounter.shouldRetry()) {
@@ -242,7 +250,8 @@ public class RecoverableZooKeeper {
      *
      * @return List of children znodes
      */
-    public synchronized List<String> getChildren(String path, Watcher watcher)
+    public synchronized List<String> getChildren(String path,
+            Watcher watcher)
             throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         while (true) {
@@ -272,8 +281,9 @@ public class RecoverableZooKeeper {
      *
      * @return List of children znodes
      */
-    public synchronized List<String> getChildren(String path, boolean watch) throws KeeperException,
-            InterruptedException {
+    public synchronized List<String> getChildren(String path,
+            boolean watch)
+            throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         while (true) {
             try {
@@ -302,7 +312,8 @@ public class RecoverableZooKeeper {
      *
      * @return Data
      */
-    public synchronized byte[] getData(String path, Watcher watcher, Stat stat)
+    public synchronized byte[] getData(String path, Watcher watcher,
+            Stat stat)
             throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         while (true) {
@@ -333,8 +344,9 @@ public class RecoverableZooKeeper {
      *
      * @return Data
      */
-    public synchronized byte[] getData(String path, boolean watch, Stat stat) throws KeeperException,
-            InterruptedException {
+    public synchronized byte[] getData(String path, boolean watch,
+            Stat stat)
+            throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         while (true) {
             try {
@@ -360,14 +372,15 @@ public class RecoverableZooKeeper {
     }
 
     /**
-     * setData is NOT an idempotent operation. Retry may cause BadVersion Exception Adding an
-     * identifier field into the data to check whether badversion is caused by the result of
-     * previous correctly setData
+     * setData is NOT an idempotent operation. Retry may cause BadVersion Exception
+     * Adding an identifier field into the data to check whether badversion is
+     * caused by the result of previous correctly setData
      *
      * @return Stat instance
      */
-    public synchronized Stat setData(String path, byte[] data, int version) throws KeeperException,
-            InterruptedException {
+    public synchronized Stat setData(String path, byte[] data,
+            int version)
+            throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         byte[] newData = data;
         while (true) {
@@ -417,14 +430,19 @@ public class RecoverableZooKeeper {
     }
 
     /**
-     * NONSEQUENTIAL create is idempotent operation. Retry before throwing exceptions. But this
-     * function will not throw the NodeExist exception back to the application. </p> <p> But
-     * SEQUENTIAL is NOT idempotent operation. It is necessary to add identifier to the path to
-     * verify, whether the previous one is successful or not. </p>
+     * NONSEQUENTIAL create is idempotent operation. Retry before throwing
+     * exceptions. But this function will not throw the NodeExist exception back to
+     * the application.
+     * </p>
+     * <p>
+     * But SEQUENTIAL is NOT idempotent operation. It is necessary to add identifier
+     * to the path to verify, whether the previous one is successful or not.
+     * </p>
      *
      * @return Path
      */
-    public synchronized String create(String path, byte[] data, List<ACL> acl, CreateMode createMode)
+    public synchronized String create(String path, byte[] data, List<ACL> acl,
+            CreateMode createMode)
             throws KeeperException, InterruptedException {
         byte[] newData = data;
         switch (createMode) {
@@ -442,7 +460,7 @@ public class RecoverableZooKeeper {
     }
 
     private synchronized String createNonSequential(String path, byte[] data, List<ACL> acl,
-                                                    CreateMode createMode)
+            CreateMode createMode)
             throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         boolean isRetry = false; // False for first attempt, true for all
@@ -492,7 +510,8 @@ public class RecoverableZooKeeper {
     }
 
     private synchronized String createSequential(String path, byte[] data, List<ACL> acl,
-                                                 CreateMode createMode) throws KeeperException, InterruptedException {
+            CreateMode createMode)
+            throws KeeperException, InterruptedException {
         RetryCounter retryCounter = retryCounterFactory.create();
         boolean first = true;
         // String newPath = path + this.identifier;
@@ -527,8 +546,7 @@ public class RecoverableZooKeeper {
         }
     }
 
-    private synchronized String findPreviousSequentialNode(String path) throws KeeperException,
-            InterruptedException {
+    private synchronized String findPreviousSequentialNode(String path) throws KeeperException, InterruptedException {
         int lastSlashIdx = path.lastIndexOf('/');
         assert (lastSlashIdx != -1);
         String parent = path.substring(0, lastSlashIdx);

@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -58,9 +60,11 @@ public class ElasticsearchApi {
     /**
      * Search
      *
-     * @param searchRequest The search request of Elasticsearch
+     * @param searchRequest
+     *          The search request of Elasticsearch
      * @return Search reponse of Elasticsearch
-     * @throws IOException The io exception may throws
+     * @throws IOException
+     *           The io exception may throws
      */
     public SearchResponse search(SearchRequest searchRequest) throws IOException {
         return search(searchRequest, RequestOptions.DEFAULT);
@@ -69,10 +73,13 @@ public class ElasticsearchApi {
     /**
      * Search
      *
-     * @param searchRequest The search request of Elasticsearch
-     * @param options The options of Elasticsearch
+     * @param searchRequest
+     *          The search request of Elasticsearch
+     * @param options
+     *          The options of Elasticsearch
      * @return Search reponse of Elasticsearch
-     * @throws IOException The io exception may throws
+     * @throws IOException
+     *           The io exception may throws
      */
     public SearchResponse search(SearchRequest searchRequest, RequestOptions options) throws IOException {
         LOG.info("get es search request of {}", searchRequest.source().toString());
@@ -82,9 +89,11 @@ public class ElasticsearchApi {
     /**
      * Check index exists
      *
-     * @param indexName The index name of Elasticsearch
+     * @param indexName
+     *          The index name of Elasticsearch
      * @return true if exists else false
-     * @throws IOException The exception may throws
+     * @throws IOException
+     *           The exception may throws
      */
     public boolean indexExists(String indexName) throws IOException {
         GetIndexRequest getIndexRequest = new GetIndexRequest();
@@ -95,8 +104,10 @@ public class ElasticsearchApi {
     /**
      * Create index
      *
-     * @param indexName The index name of Elasticsearch
-     * @throws IOException The exception may throws
+     * @param indexName
+     *          The index name of Elasticsearch
+     * @throws IOException
+     *           The exception may throws
      */
     public void createIndex(String indexName) throws IOException {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
@@ -109,9 +120,11 @@ public class ElasticsearchApi {
     /**
      * Get mapping info
      *
-     * @param fieldsInfo The fields info of Elasticsearch
+     * @param fieldsInfo
+     *          The fields info of Elasticsearch
      * @return String list of fields translation
-     * @throws IOException The exception may throws
+     * @throws IOException
+     *           The exception may throws
      */
     private List<String> getMappingInfo(List<ElasticsearchFieldInfo> fieldsInfo) {
         List<String> fieldList = new ArrayList<>();
@@ -148,12 +161,16 @@ public class ElasticsearchApi {
     /**
      * Create index and mapping
      *
-     * @param indexName Index name of creating
-     * @param fieldInfos Field infos
-     * @throws IOException The exception may throws
+     * @param indexName
+     *          Index name of creating
+     * @param fieldInfos
+     *          Field infos
+     * @throws IOException
+     *           The exception may throws
      */
     public void createIndexAndMapping(String indexName,
-            List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
+            List<ElasticsearchFieldInfo> fieldInfos)
+            throws IOException {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
         List<String> fieldList = getMappingInfo(fieldInfos);
         StringBuilder mapping = new StringBuilder().append("{\n      \"properties\" : {\n")
@@ -168,10 +185,12 @@ public class ElasticsearchApi {
     /**
      * Get fields
      *
-     * @param indexName The index name of Elasticsearch
-     * @return a {@link Map} collection that contains {@link String}
-     *     as key and {@link MappingMetaData} as value.
-     * @throws IOException The exception may throws
+     * @param indexName
+     *          The index name of Elasticsearch
+     * @return a {@link Map} collection that contains {@link String} as key and
+     *         {@link MappingMetaData} as value.
+     * @throws IOException
+     *           The exception may throws
      */
     public Map<String, MappingMetaData> getFields(String indexName) throws IOException {
         GetMappingsRequest request = new GetMappingsRequest().indices(indexName);
@@ -181,9 +200,12 @@ public class ElasticsearchApi {
     /**
      * Add fieldss
      *
-     * @param indexName The index name of Elasticsearch
-     * @param fieldInfos The fields info of Elasticsearch
-     * @throws IOException The exception may throws
+     * @param indexName
+     *          The index name of Elasticsearch
+     * @param fieldInfos
+     *          The fields info of Elasticsearch
+     * @throws IOException
+     *           The exception may throws
      */
     public void addFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
         if (CollectionUtils.isNotEmpty(fieldInfos)) {
@@ -202,15 +224,19 @@ public class ElasticsearchApi {
     /**
      * Add not exist fields
      *
-     * @param indexName The index name of elasticsearch
-     * @param fieldInfos The fields info of elasticsearch
-     * @throws IOException The exception may throws
+     * @param indexName
+     *          The index name of elasticsearch
+     * @param fieldInfos
+     *          The fields info of elasticsearch
+     * @throws IOException
+     *           The exception may throws
      */
     public void addNotExistFields(String indexName,
-            List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
+            List<ElasticsearchFieldInfo> fieldInfos)
+            throws IOException {
         List<ElasticsearchFieldInfo> notExistFieldInfos = new ArrayList<>(fieldInfos);
         Map<String, MappingMetaData> mapping = getFields(indexName);
-        Map<String, Object> filedMap = (Map<String, Object>)mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
+        Map<String, Object> filedMap = (Map<String, Object>) mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
         for (String key : filedMap.keySet()) {
             for (ElasticsearchFieldInfo field : notExistFieldInfos) {
                 if (field.getName().equals(key)) {
@@ -234,7 +260,8 @@ public class ElasticsearchApi {
     /**
      * Get Elasticsearch client
      *
-     * @param config Elasticsearch's configuration
+     * @param config
+     *          Elasticsearch's configuration
      */
     public void setEsConfig(ElasticsearchConfig config) {
         this.esConfig = config;

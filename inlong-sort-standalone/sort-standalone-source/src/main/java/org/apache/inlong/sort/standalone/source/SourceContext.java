@@ -17,17 +17,18 @@
 
 package org.apache.inlong.sort.standalone.source;
 
-import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+
+import org.apache.flume.Context;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
- * Base source context <b>WITHOUT</b> metric reporter.
- * The derived classes of SourceContext may implement {@link MetricItem} and
- * realize methods to report customized metrics.
+ * Base source context <b>WITHOUT</b> metric reporter. The derived classes of
+ * SourceContext may implement {@link MetricItem} and realize methods to report
+ * customized metrics.
  */
 public class SourceContext {
 
@@ -50,8 +51,10 @@ public class SourceContext {
     /**
      * Constructor of {@link SourceContext}.
      *
-     * @param sourceName Name of source. Usually the class name of source.
-     * @param context The configured source context.
+     * @param sourceName
+     *          Name of source. Usually the class name of source.
+     * @param context
+     *          The configured source context.
      */
     public SourceContext(
             @NotBlank(message = "sourceName should not be empty or null") final String sourceName,
@@ -64,6 +67,7 @@ public class SourceContext {
 
     /**
      * Obtain the reload interval of source.
+     * 
      * @return Reload interval of source.
      */
     public final long getReloadInterval() {
@@ -72,6 +76,7 @@ public class SourceContext {
 
     /**
      * Obtain the cluster Id of source.
+     * 
      * @return Cluster Id of source.
      */
     public final String getClusterId() {
@@ -80,6 +85,7 @@ public class SourceContext {
 
     /**
      * Obtain the name of source.
+     * 
      * @return Name of source.
      */
     public final String getSourceName() {

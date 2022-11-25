@@ -26,14 +26,15 @@ import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.pojo.node.DataNodeInfo;
 import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Default operation of data node.
@@ -61,8 +62,10 @@ public abstract class AbstractDataNodeOperator implements DataNodeOperator {
     /**
      * Set the parameters of the target entity.
      *
-     * @param request data node request
-     * @param targetEntity entity which will set the new parameters
+     * @param request
+     *          data node request
+     * @param targetEntity
+     *          entity which will set the new parameters
      */
     protected abstract void setTargetEntity(DataNodeRequest request, DataNodeEntity targetEntity);
 

@@ -17,12 +17,14 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -71,8 +73,7 @@ public class BaseEntityTest {
         String modifyUser = "modifyUser";
         Date modifyDate = new Date();
         String modifyDateStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(modifyDate);
-        BaseEntity baseEntity4 =
-                new BaseEntity(createUser, createDate, modifyUser, modifyDate);
+        BaseEntity baseEntity4 = new BaseEntity(createUser, createDate, modifyUser, modifyDate);
         Assert.assertEquals(baseEntity4.getDataVerId(), TServerConstants.DEFAULT_DATA_VERSION);
         Assert.assertNotEquals(baseEntity4.getSerialId(), TBaseConstants.META_VALUE_UNDEFINED);
         Assert.assertEquals(baseEntity4.getCreateUser(), createUser);
@@ -135,7 +136,7 @@ public class BaseEntityTest {
         Assert.assertEquals(baseEntity8.getCreateDateStr(), "");
         Assert.assertEquals(baseEntity8.getModifyDateStr(), "");
         // case 9
-        BaseEntity baseEntity9 =  baseEntity6.clone();
+        BaseEntity baseEntity9 = baseEntity6.clone();
         Assert.assertEquals(baseEntity9, baseEntity6);
         baseEntity9.updSerialId();
         baseEntity9.setDataVersionId(222223333);

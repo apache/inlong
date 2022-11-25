@@ -17,21 +17,25 @@
 
 package org.apache.inlong.tubemq.server.common.utils;
 
+import sun.misc.Unsafe;
+
 import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.Unsafe;
 
 /**
- * Utility class that handles byte arrays, conversions to/from other types, comparisons, hash code
- * generation, manufacturing keys for HashMaps or HashSets, etc.
- * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
+ * Utility class that handles byte arrays, conversions to/from other types,
+ * comparisons, hash code generation, manufacturing keys for HashMaps or
+ * HashSets, etc. Copied from <a href="http://hbase.apache.org">Apache HBase
+ * Project</a>
  */
 public class Bytes {
+
     /**
      * Size of long in bytes
      */
@@ -41,8 +45,10 @@ public class Bytes {
     /**
      * Compare two arrays content.
      *
-     * @param left  left operand
-     * @param right right operand
+     * @param left
+     *          left operand
+     * @param right
+     *          right operand
      * @return 0 if equal, < 0 if left is less than right, etc.
      */
     public static int compareTo(final byte[] left, final byte[] right) {
@@ -53,16 +59,22 @@ public class Bytes {
     /**
      * Lexicographically compare two arrays.
      *
-     * @param buffer1 left operand
-     * @param buffer2 right operand
-     * @param offset1 Where to start comparing in the left buffer
-     * @param offset2 Where to start comparing in the right buffer
-     * @param length1 How much to compare from the left buffer
-     * @param length2 How much to compare from the right buffer
+     * @param buffer1
+     *          left operand
+     * @param buffer2
+     *          right operand
+     * @param offset1
+     *          Where to start comparing in the left buffer
+     * @param offset2
+     *          Where to start comparing in the right buffer
+     * @param length1
+     *          How much to compare from the left buffer
+     * @param length2
+     *          How much to compare from the right buffer
      * @return 0 if equal, < 0 if left is less than right, etc.
      */
     public static int compareTo(byte[] buffer1, int offset1, int length1, byte[] buffer2,
-                                int offset2, int length2) {
+            int offset2, int length2) {
         return LexicographicalComparerHolder.BEST_COMPARER.compareTo(buffer1, offset1, length1,
                 buffer2, offset2, length2);
     }
@@ -94,27 +106,29 @@ public class Bytes {
     }
 
     interface Comparer<T> {
+
         int compareTo(T buffer1, int offset1, int length1, T buffer2, int offset2,
-                                      int length2);
+                int length2);
     }
 
     /**
-     * Provides a lexicographical comparer implementation; either a Java implementation or a faster
-     * implementation based on {@link Unsafe}.
+     * Provides a lexicographical comparer implementation; either a Java
+     * implementation or a faster implementation based on {@link Unsafe}.
      * <p/>
      * <p/>
-     * Uses reflection to gracefully fall back to the Java implementation if {@code Unsafe} isn't
-     * available.
+     * Uses reflection to gracefully fall back to the Java implementation if
+     * {@code Unsafe} isn't available.
      */
     static class LexicographicalComparerHolder {
+
         static final String UNSAFE_COMPARER_NAME = LexicographicalComparerHolder.class.getName()
                 + "$UnsafeComparer";
 
         static final Comparer<byte[]> BEST_COMPARER = getBestComparer();
 
         /**
-         * Returns the Unsafe-using Comparer, or falls back to the pure-Java implementation if
-         * unable to do so.
+         * Returns the Unsafe-using Comparer, or falls back to the pure-Java
+         * implementation if unable to do so.
          */
         static Comparer<byte[]> getBestComparer() {
             try {
@@ -130,11 +144,12 @@ public class Bytes {
         }
 
         enum PureJavaComparer implements Comparer<byte[]> {
+
             INSTANCE;
 
             @Override
             public int compareTo(byte[] buffer1, int offset1, int length1, byte[] buffer2, int offset2,
-                                 int length2) {
+                    int length2) {
                 // Short circuit equal case
                 if (buffer1 == buffer2 && offset1 == offset2 && length1 == length2) {
                     return 0;
@@ -154,6 +169,7 @@ public class Bytes {
         }
 
         enum UnsafeComparer implements Comparer<byte[]> {
+
             INSTANCE;
 
             private static final Unsafe theUnsafe;
@@ -162,11 +178,11 @@ public class Bytes {
              * The offset to the first element in a byte array.
              */
             private static final int BYTE_ARRAY_BASE_OFFSET;
-            private static final boolean littleEndian =
-                    ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN);
+            private static final boolean littleEndian = ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN);
 
             static {
                 theUnsafe = (Unsafe) AccessController.doPrivileged(new PrivilegedAction<Object>() {
+
                     @Override
                     public Object run() {
                         try {
@@ -201,17 +217,23 @@ public class Bytes {
             /**
              * Lexicographically compare two arrays.
              *
-             * @param buffer1 left operand
-             * @param buffer2 right operand
-             * @param offset1 Where to start comparing in the left buffer
-             * @param offset2 Where to start comparing in the right buffer
-             * @param length1 How much to compare from the left buffer
-             * @param length2 How much to compare from the right buffer
+             * @param buffer1
+             *          left operand
+             * @param buffer2
+             *          right operand
+             * @param offset1
+             *          Where to start comparing in the left buffer
+             * @param offset2
+             *          Where to start comparing in the right buffer
+             * @param length1
+             *          How much to compare from the left buffer
+             * @param length2
+             *          How much to compare from the right buffer
              * @return 0 if equal, < 0 if left is less than right, etc.
              */
             @Override
             public int compareTo(byte[] buffer1, int offset1, int length1, byte[] buffer2, int offset2,
-                                 int length2) {
+                    int length2) {
                 // Short circuit equal case
                 if (buffer1 == buffer2 && offset1 == offset2 && length1 == length2) {
                     return 0;
@@ -222,9 +244,8 @@ public class Bytes {
                 int offset2Adj = offset2 + BYTE_ARRAY_BASE_OFFSET;
 
                 /*
-                 * Compare 8 bytes at a time. Benchmarking shows comparing 8 bytes at a time is no slower
-                 * than comparing 4 bytes at a time even on 32-bit. On the other hand, it is substantially
-                 * faster on 64-bit.
+                 * Compare 8 bytes at a time. Benchmarking shows comparing 8 bytes at a time is no slower than comparing
+                 * 4 bytes at a time even on 32-bit. On the other hand, it is substantially faster on 64-bit.
                  */
                 for (int i = 0; i < minWords * SIZEOF_LONG; i += SIZEOF_LONG) {
                     long lw = theUnsafe.getLong(buffer1, offset1Adj + (long) i);

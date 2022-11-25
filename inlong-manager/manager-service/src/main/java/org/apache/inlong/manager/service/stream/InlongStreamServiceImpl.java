@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.service.stream;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -51,12 +47,9 @@ import org.apache.inlong.manager.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,6 +58,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 
 /**
  * Inlong stream service layer implementation
@@ -191,7 +194,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     /**
-     * Query and set the extended information and data source fields of the inlong stream
+     * Query and set the extended information and data source fields of the inlong
+     * stream
      */
     private List<StreamField> getStreamFields(String groupId, String streamId) {
         List<InlongStreamFieldEntity> fieldEntityList = streamFieldMapper.selectByIdentifier(groupId, streamId);
@@ -228,7 +232,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         Preconditions.checkNotNull(groupEntity, "inlong group not found by groupId=" + groupId);
 
-        // the person in charge of the inlong group has the authority of all inlong streams,
+        // the person in charge of the inlong group has the authority of all inlong
+        // streams,
         // so do not filter by in charge person
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongStreamEntity> page = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
@@ -510,7 +515,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     /**
      * Update field information
      * <p/>
-     * First physically delete the existing field information, and then add the field information of this batch
+     * First physically delete the existing field information, and then add the
+     * field information of this batch
      */
     @Transactional(rollbackFor = Throwable.class)
     void updateField(String groupId, String streamId, List<StreamField> fieldList) {
@@ -562,7 +568,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     /**
      * Check whether the inlong group status is temporary
      *
-     * @param groupId inlong group id
+     * @param groupId
+     *          inlong group id
      * @return inlong group entity
      */
     private InlongGroupEntity checkGroupStatusIsTemp(String groupId) {

@@ -17,11 +17,11 @@
 
 package org.apache.inlong.tubemq.manager.service.tube;
 
-import com.google.common.collect.Lists;
-
 import java.util.List;
 
 import lombok.Data;
+
+import com.google.common.collect.Lists;
 
 @Data
 public class TubeHttpGroupDetailInfo {
@@ -49,6 +49,7 @@ public class TubeHttpGroupDetailInfo {
 
         @Data
         public static class PartitionInfo {
+
             private String brokerAddr;
             private String topic;
             private Integer partId;

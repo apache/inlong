@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.workflow.core;
 
-import org.apache.inlong.manager.workflow.WorkflowAction;
-import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
+import org.apache.inlong.manager.workflow.WorkflowAction;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 
 import java.util.List;
 
@@ -32,16 +32,20 @@ public interface WorkflowContextBuilder {
     /**
      * Build process context information when initiating a process
      *
-     * @param name Process name
-     * @param applicant Application
-     * @param form Form
+     * @param name
+     *          Process name
+     * @param applicant
+     *          Application
+     * @param form
+     *          Form
      */
     WorkflowContext buildContextForProcess(String name, String applicant, ProcessForm form);
 
     /**
      * WorkflowProcess ID construction context information
      *
-     * @param processId WorkflowProcess ID
+     * @param processId
+     *          WorkflowProcess ID
      * @return Context
      */
     WorkflowContext buildContextForProcess(Integer processId);

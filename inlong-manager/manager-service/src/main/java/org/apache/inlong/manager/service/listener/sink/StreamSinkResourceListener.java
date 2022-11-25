@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.listener.sink;
 
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
@@ -32,15 +29,22 @@ import org.apache.inlong.manager.service.resource.sink.SinkResourceOperatorFacto
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.common.collect.Lists;
+
 /**
- * Event listener of operate sink resources for one inlong stream,
- * such as create or update Hive table, Kafka topics, ES indices, etc.
+ * Event listener of operate sink resources for one inlong stream, such as
+ * create or update Hive table, Kafka topics, ES indices, etc.
  */
 @Service
 @Slf4j

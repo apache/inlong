@@ -17,13 +17,13 @@
 
 package org.apache.inlong.agent.message;
 
-import org.apache.inlong.agent.plugin.Message;
-
-import java.util.Map;
-
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
+
+import org.apache.inlong.agent.plugin.Message;
+
+import java.util.Map;
 
 /**
  * Bus message with body, header, inlongGroupId and inlongStreamId.
@@ -53,7 +53,8 @@ public class ProxyMessage implements Message {
     /**
      * Transform Message to ProxyMessage
      *
-     * @param message Message
+     * @param message
+     *          Message
      * @return ProxyMessage
      */
     public static ProxyMessage parse(Message message) {

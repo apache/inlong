@@ -23,6 +23,7 @@ import java.util.Properties;
 
 /** Option utils for Debezium options. */
 public class DebeziumOptions {
+
     public static final String DEBEZIUM_OPTIONS_PREFIX = "debezium.";
 
     public static Properties getDebeziumProperties(Map<String, String> properties) {
@@ -34,8 +35,7 @@ public class DebeziumOptions {
                     .forEach(
                             key -> {
                                 final String value = properties.get(key);
-                                final String subKey =
-                                        key.substring((DEBEZIUM_OPTIONS_PREFIX).length());
+                                final String subKey = key.substring((DEBEZIUM_OPTIONS_PREFIX).length());
                                 debeziumProperties.put(subKey, value);
                             });
         }
@@ -43,8 +43,8 @@ public class DebeziumOptions {
     }
 
     /**
-     * Decides if the table options contains Debezium client properties that start with prefix
-     * 'debezium'.
+     * Decides if the table options contains Debezium client properties that start
+     * with prefix 'debezium'.
      */
     private static boolean hasDebeziumProperties(Map<String, String> debeziumOptions) {
         return debeziumOptions.keySet().stream()

@@ -18,6 +18,11 @@
 
 package org.apache.inlong.sort.formats.inlongmsgpb;
 
+import org.apache.inlong.sdk.commons.protocol.ProxySdk;
+import org.apache.inlong.sdk.commons.utils.GzipUtils;
+import org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbDeserializationSchema.InLongPbMsgDecompressor;
+import org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbDeserializationSchema.MetadataConverter;
+
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -35,13 +40,6 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
-import org.apache.inlong.sdk.commons.protocol.ProxySdk;
-import org.apache.inlong.sdk.commons.utils.GzipUtils;
-import org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbDeserializationSchema.MetadataConverter;
-import org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbDeserializationSchema.InLongPbMsgDecompressor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xerial.snappy.Snappy;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -53,6 +51,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xerial.snappy.Snappy;
 
 /**
  * InLongMsg pb format decoding format.
@@ -80,7 +82,7 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
             boolean ignoreTrailingUnmappable,
             String decompressType) {
         this.innerDecodingFormat = innerDecodingFormat;
-        this.innerFormatMetaPrefix =  innerFormatMetaPrefix;
+        this.innerFormatMetaPrefix = innerFormatMetaPrefix;
         this.metadataKeys = Collections.emptyList();
         this.ignoreErrors = ignoreErrors;
         this.ignoreTrailingUnmappable = ignoreTrailingUnmappable;
@@ -93,23 +95,18 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
                 .filter(metadata -> metadataKeys.contains(metadata.key))
                 .map(metadata -> metadata.converter)
                 .toArray(MetadataConverter[]::new);
-        final List<ReadableMetadata> readableMetadata =
-                metadataKeys.stream()
-                        .map(
-                                k ->
-                                        Stream.of(ReadableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .orElseThrow(IllegalStateException::new))
-                        .collect(Collectors.toList());
-        final List<DataTypes.Field> metadataFields =
-                readableMetadata.stream()
-                        .map(m -> DataTypes.FIELD(m.key, m.dataType))
-                        .collect(Collectors.toList());
-        final DataType producedDataType =
-                DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
-        final TypeInformation<RowData> producedTypeInfo =
-                context.createTypeInformation(producedDataType);
+        final List<ReadableMetadata> readableMetadata = metadataKeys.stream()
+                .map(
+                        k -> Stream.of(ReadableMetadata.values())
+                                .filter(rm -> rm.key.equals(k))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
+                .collect(Collectors.toList());
+        final List<DataTypes.Field> metadataFields = readableMetadata.stream()
+                .map(m -> DataTypes.FIELD(m.key, m.dataType))
+                .collect(Collectors.toList());
+        final DataType producedDataType = DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
+        final TypeInformation<RowData> producedTypeInfo = context.createTypeInformation(producedDataType);
         final InLongPbMsgDecompressor decompressor = getDecompressor(decompressType);
 
         DeserializationSchema<RowData> innerSchema =
@@ -144,10 +141,9 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
     @Override
     public void applyReadableMetadata(List<String> metadataKeys) {
         // separate inner format and format metadata
-        final List<String> innerFormatMetadataKeys =
-                metadataKeys.stream()
-                        .filter(k -> k.startsWith(innerFormatMetaPrefix))
-                        .collect(Collectors.toList());
+        final List<String> innerFormatMetadataKeys = metadataKeys.stream()
+                .filter(k -> k.startsWith(innerFormatMetaPrefix))
+                .collect(Collectors.toList());
         final List<String> formatMetadataKeys = new ArrayList<>(metadataKeys);
         formatMetadataKeys.removeAll(innerFormatMetadataKeys);
         this.metadataKeys = formatMetadataKeys;
@@ -155,10 +151,9 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
         // push down inner format metadata
         final Map<String, DataType> formatMetadata = innerDecodingFormat.listReadableMetadata();
         if (formatMetadata.size() > 0) {
-            final List<String> requestedFormatMetadataKeys =
-                    innerFormatMetadataKeys.stream()
-                            .map(k -> k.substring(innerFormatMetaPrefix.length()))
-                            .collect(Collectors.toList());
+            final List<String> requestedFormatMetadataKeys = innerFormatMetadataKeys.stream()
+                    .map(k -> k.substring(innerFormatMetaPrefix.length()))
+                    .collect(Collectors.toList());
             innerDecodingFormat.applyReadableMetadata(requestedFormatMetadataKeys);
         }
     }
@@ -209,10 +204,12 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
+
         CREATE_TIME(
                 "create-time",
                 DataTypes.STRING(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

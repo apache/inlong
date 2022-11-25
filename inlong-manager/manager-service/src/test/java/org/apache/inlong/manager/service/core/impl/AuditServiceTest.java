@@ -22,14 +22,15 @@ import org.apache.inlong.manager.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AuditService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Audit service test for {@link AuditService}
@@ -53,17 +54,20 @@ class AuditServiceTest extends ServiceBaseTest {
                 new AuditInfo("2022-01-01 00:01:00", 124L)));
         result.add(auditVO);
         Assertions.assertNotNull(result);
-        // close real test for testQueryFromMySQL due to date_format function not support in h2
-//        Assertions.assertNotNull(auditService.listByCondition(request));
+        // close real test for testQueryFromMySQL due to date_format function not
+        // support in h2
+        // Assertions.assertNotNull(auditService.listByCondition(request));
     }
 
     /**
-     * Temporarily close testing for testQueryFromElasticsearch due to lack of elasticsearch dev environment
-     * You can open it if exists elasticsearch dev environment
+     * Temporarily close testing for testQueryFromElasticsearch due to lack of
+     * elasticsearch dev environment You can open it if exists elasticsearch dev
+     * environment
      *
-     * @throws IOException The exception may throws
+     * @throws IOException
+     *           The exception may throws
      */
-//    @Test
+    // @Test
     public void testQueryFromElasticsearch() throws Exception {
         AuditRequest request = new AuditRequest();
         request.setAuditIds(Arrays.asList("3", "4"));

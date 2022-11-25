@@ -29,7 +29,8 @@ public interface Source {
     /**
      * Split source into a list of readers.
      *
-     * @param conf job conf
+     * @param conf
+     *          job conf
      * @return list of reader
      */
     List<Reader> split(JobProfile conf);

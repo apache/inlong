@@ -20,6 +20,21 @@ package org.apache.inlong.sort.formats.inlongmsg;
 
 import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
 
+import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.sort.formats.base.TableFormatConstants;
+import org.apache.inlong.sort.formats.base.TableFormatUtils;
+import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.RowFormatInfo;
+import org.apache.inlong.sort.formats.util.StringUtils;
+
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.typeinfo.Types;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.descriptors.DescriptorProperties;
+import org.apache.flink.table.types.DataType;
+import org.apache.flink.types.Row;
+
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,19 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.descriptors.DescriptorProperties;
-import org.apache.flink.table.types.DataType;
-import org.apache.flink.types.Row;
-import org.apache.inlong.common.msg.InLongMsg;
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
-import org.apache.inlong.sort.formats.base.TableFormatUtils;
-import org.apache.inlong.sort.formats.common.FormatInfo;
-import org.apache.inlong.sort.formats.common.RowFormatInfo;
-import org.apache.inlong.sort.formats.util.StringUtils;
 
 /**
  * A utility class for parsing InLongMsg {@link InLongMsg}.
@@ -63,34 +65,30 @@ public class InLongMsgUtils {
     public static final String DEFAULT_TIME_FIELD_NAME = "inlongmsg_time";
     public static final String DEFAULT_ATTRIBUTES_FIELD_NAME = "inlongmsg_attributes";
 
-    public static final TypeInformation<Row> MIXED_ROW_TYPE =
-            Types.ROW_NAMED(
-                    new String[]{
-                            "attributes",
-                            "data",
-                            "tid",
-                            "time",
-                            "predefinedFields",
-                            "fields",
-                            "entries"
-                    },
-                    Types.MAP(Types.STRING, Types.STRING),
-                    Types.PRIMITIVE_ARRAY(Types.BYTE),
-                    Types.STRING,
-                    Types.SQL_TIMESTAMP,
-                    Types.LIST(Types.STRING),
-                    Types.LIST(Types.STRING),
-                    Types.MAP(Types.STRING, Types.STRING)
-            );
+    public static final TypeInformation<Row> MIXED_ROW_TYPE = Types.ROW_NAMED(
+            new String[]{
+                    "attributes",
+                    "data",
+                    "tid",
+                    "time",
+                    "predefinedFields",
+                    "fields",
+                    "entries"
+            },
+            Types.MAP(Types.STRING, Types.STRING),
+            Types.PRIMITIVE_ARRAY(Types.BYTE),
+            Types.STRING,
+            Types.SQL_TIMESTAMP,
+            Types.LIST(Types.STRING),
+            Types.LIST(Types.STRING),
+            Types.MAP(Types.STRING, Types.STRING));
 
     public static RowFormatInfo getDataFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
+            DescriptorProperties descriptorProperties) {
         if (descriptorProperties.containsKey(TableFormatConstants.FORMAT_SCHEMA)) {
             return TableFormatUtils.deserializeRowFormatInfo(descriptorProperties);
         } else {
-            TableSchema tableSchema =
-                    deriveSchema(descriptorProperties.asMap());
+            TableSchema tableSchema = deriveSchema(descriptorProperties.asMap());
 
             String[] fieldNames = tableSchema.getFieldNames();
             DataType[] fieldTypes = tableSchema.getFieldDataTypes();
@@ -100,8 +98,7 @@ public class InLongMsgUtils {
 
             for (int i = 0; i < dataFieldNames.length; ++i) {
                 dataFieldNames[i] = fieldNames[i + 2];
-                dataFieldFormatInfos[i] =
-                        TableFormatUtils.deriveFormatInfo(fieldTypes[i + 2].getLogicalType());
+                dataFieldFormatInfos[i] = TableFormatUtils.deriveFormatInfo(fieldTypes[i + 2].getLogicalType());
             }
 
             return new RowFormatInfo(dataFieldNames, dataFieldFormatInfos);
@@ -150,8 +147,7 @@ public class InLongMsgUtils {
                 INLONGMSG_ATTR_ENTRY_DELIMITER,
                 INLONGMSG_ATTR_KV_DELIMITER,
                 null,
-                null
-        );
+                null);
     }
 
     public static Timestamp parseEpochTime(String value) {
@@ -162,8 +158,9 @@ public class InLongMsgUtils {
     /**
      * Parse the date from the given string.
      *
-     * @param value The date to be parsed. The format of dates may be one of
-     *         {yyyyMMdd, yyyyMMddHH, yyyyMMddHHmm}.
+     * @param value
+     *          The date to be parsed. The format of dates may be one of {yyyyMMdd,
+     *          yyyyMMddHH, yyyyMMddHHmm}.
      */
     public static Timestamp parseDateTime(String value) {
         try {
@@ -194,13 +191,10 @@ public class InLongMsgUtils {
                 continue;
             }
 
-            int index =
-                    Integer.parseInt(
-                            key.substring(
-                                    INLONGMSG_ATTR_ADD_COLUMN_PREFIX.length(),
-                                    key.indexOf('_', INLONGMSG_ATTR_ADD_COLUMN_PREFIX.length())
-                            )
-                    );
+            int index = Integer.parseInt(
+                    key.substring(
+                            INLONGMSG_ATTR_ADD_COLUMN_PREFIX.length(),
+                            key.indexOf('_', INLONGMSG_ATTR_ADD_COLUMN_PREFIX.length())));
 
             predefinedFields.put(index, head.get(key));
         }
@@ -217,8 +211,7 @@ public class InLongMsgUtils {
     public static Row buildMixedRow(
             InLongMsgHead head,
             InLongMsgBody body,
-            String tid
-    ) {
+            String tid) {
         Row row = new Row(7);
         row.setField(0, head.getAttributes());
         row.setField(1, body.getData());
@@ -264,14 +257,13 @@ public class InLongMsgUtils {
     }
 
     /**
-     * Validates that the names of the time and attributes field do no conflict
-     * with the names of data fields.
+     * Validates that the names of the time and attributes field do no conflict with
+     * the names of data fields.
      */
     public static void validateFieldNames(
             String timeFieldName,
             String attributesFieldName,
-            RowFormatInfo rowFormatInfo
-    ) {
+            RowFormatInfo rowFormatInfo) {
         if (Objects.equals(timeFieldName, attributesFieldName)) {
             throw new ValidationException("The names of the time and attributes fields are same.");
         }
@@ -284,7 +276,7 @@ public class InLongMsgUtils {
 
             if (dataFieldName.equals(attributesFieldName)) {
                 throw new ValidationException("The attributes field "
-                          + attributesFieldName + " is already defined in the schema.");
+                        + attributesFieldName + " is already defined in the schema.");
             }
         }
     }
@@ -292,16 +284,18 @@ public class InLongMsgUtils {
     /**
      * Creates the type information with given field names and data schema.
      *
-     * @param timeFieldName The name of the time field.
-     * @param attributesFieldName The name of the attributes field.
-     * @param rowFormatInfo The schema of data fields.
+     * @param timeFieldName
+     *          The name of the time field.
+     * @param attributesFieldName
+     *          The name of the attributes field.
+     * @param rowFormatInfo
+     *          The schema of data fields.
      * @return The type information
      */
     public static TypeInformation<Row> buildRowType(
             String timeFieldName,
             String attributesFieldName,
-            RowFormatInfo rowFormatInfo
-    ) {
+            RowFormatInfo rowFormatInfo) {
         String[] dataFieldNames = rowFormatInfo.getFieldNames();
         String[] fieldNames = new String[dataFieldNames.length + 2];
         fieldNames[0] = timeFieldName;
@@ -309,8 +303,7 @@ public class InLongMsgUtils {
         System.arraycopy(dataFieldNames, 0, fieldNames, 2, dataFieldNames.length);
 
         FormatInfo[] dataFieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
-        TypeInformation<?>[] fieldTypes =
-                new TypeInformation<?>[dataFieldFormatInfos.length + 2];
+        TypeInformation<?>[] fieldTypes = new TypeInformation<?>[dataFieldFormatInfos.length + 2];
         fieldTypes[0] = Types.SQL_TIMESTAMP;
         fieldTypes[1] = Types.MAP(Types.STRING, Types.STRING);
 

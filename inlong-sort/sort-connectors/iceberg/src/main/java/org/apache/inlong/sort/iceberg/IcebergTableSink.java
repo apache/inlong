@@ -19,6 +19,20 @@
 
 package org.apache.inlong.sort.iceberg;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_PK_AUTO_GENERATED;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
+import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
+import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
+
+import org.apache.inlong.sort.base.sink.MultipleSinkOption;
+import org.apache.inlong.sort.iceberg.sink.FlinkSink;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.TableSchema;
@@ -34,29 +48,18 @@ import org.apache.flink.util.Preconditions;
 import org.apache.iceberg.flink.CatalogLoader;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
-import org.apache.inlong.sort.base.sink.MultipleSinkOption;
-import org.apache.inlong.sort.iceberg.sink.FlinkSink;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_DATABASE_PATTERN;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_ENABLE;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_FORMAT;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_PK_AUTO_GENERATED;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_SCHEMA_UPDATE_POLICY;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TABLE_PATTERN;
-import static org.apache.inlong.sort.base.Constants.SINK_MULTIPLE_TYPE_MAP_COMPATIBLE_WITH_SPARK;
-import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
- * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
- * Add option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect inlong metrics and audit
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2 Add an option
+ * `sink.ignore.changelog` to support insert-only mode without primaryKey. Add
+ * option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect
+ * inlong metrics and audit
  */
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
 
@@ -127,7 +130,8 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
 
     @Override
     public void applyStaticPartition(Map<String, String> partition) {
-        // The flink's PartitionFanoutWriter will handle the static partition write policy automatically.
+        // The flink's PartitionFanoutWriter will handle the static partition write
+        // policy automatically.
     }
 
     @Override

@@ -17,22 +17,25 @@
 
 package org.apache.inlong.dataproxy.config.remote;
 
-import com.google.gson.Gson;
+import org.apache.inlong.common.enums.DataProxyErrCode;
+import org.apache.inlong.dataproxy.config.ConfigManager;
+
+import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.inlong.common.enums.DataProxyErrCode;
-import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * http
@@ -49,7 +52,8 @@ public class ConfigMessageServlet extends HttpServlet {
 
     @Override
     protected void doGet(
-            HttpServletRequest req, HttpServletResponse resp) throws IOException {
+            HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
         doPost(req, resp);
     }
 
@@ -80,7 +84,8 @@ public class ConfigMessageServlet extends HttpServlet {
     }
 
     private void responseToJson(HttpServletResponse response,
-                                ResponseResult result) throws IOException {
+            ResponseResult result)
+            throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String jsonStr = gson.toJson(result);
@@ -91,8 +96,7 @@ public class ConfigMessageServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        ResponseResult result =
-                new ResponseResult(DataProxyErrCode.UNKNOWN_ERROR.getErrCode(), "");
+        ResponseResult result = new ResponseResult(DataProxyErrCode.UNKNOWN_ERROR.getErrCode(), "");
         BufferedReader reader = null;
         try {
             reader = req.getReader();

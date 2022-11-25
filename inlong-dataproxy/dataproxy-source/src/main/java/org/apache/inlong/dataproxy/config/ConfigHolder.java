@@ -17,11 +17,10 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import com.google.common.base.Splitter;
+import static org.apache.inlong.dataproxy.config.ConfigManager.CONFIG_HOLDER_LIST;
+
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
@@ -31,7 +30,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.inlong.dataproxy.config.ConfigManager.CONFIG_HOLDER_LIST;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Splitter;
 
 public abstract class ConfigHolder {
 
@@ -58,7 +60,8 @@ public abstract class ConfigHolder {
     /**
      * add callback
      *
-     * @param callback - callback
+     * @param callback
+     *          - callback
      */
     public void addUpdateCallback(ConfigUpdateCallback callback) {
         callbackList.add(callback);

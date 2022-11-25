@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class SortFieldInfo {
+
     private String inlongGroupId;
     private String inlongStreamId;
     private String fieldName;

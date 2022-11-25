@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
@@ -39,6 +35,12 @@ import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessFor
 
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
+
 /**
  * Client for {@link WorkflowApi}.
  */
@@ -54,8 +56,10 @@ public class WorkflowClient {
     /**
      * Approval the process
      *
-     * @param taskId taskId
-     * @param groupProcessForm inlong group process form
+     * @param taskId
+     *          taskId
+     * @param groupProcessForm
+     *          inlong group process form
      * @return workflow result info
      */
     public WorkflowResult startInlongGroup(int taskId, ApplyGroupProcessForm groupProcessForm) {
@@ -84,7 +88,8 @@ public class WorkflowClient {
     /**
      * Initiation process
      *
-     * @param request workflow operation request
+     * @param request
+     *          workflow operation request
      * @return workflow result info
      */
     public WorkflowResult start(WorkflowOperationRequest request) {
@@ -99,8 +104,10 @@ public class WorkflowClient {
     /**
      * Initiation process
      *
-     * @param processId process id
-     * @param request workflow operation request
+     * @param processId
+     *          process id
+     * @param request
+     *          workflow operation request
      * @return workflow result info
      */
     public WorkflowResult cancel(Integer processId, WorkflowOperationRequest request) {
@@ -114,8 +121,10 @@ public class WorkflowClient {
     /**
      * Continue process when pending or failed
      *
-     * @param processId process id
-     * @param request workflow operation request
+     * @param processId
+     *          process id
+     * @param request
+     *          workflow operation request
      * @return workflow result info
      */
     public WorkflowResult continueProcess(Integer processId, WorkflowOperationRequest request) {
@@ -130,8 +139,10 @@ public class WorkflowClient {
     /**
      * Cancellation process application
      *
-     * @param taskId taskId
-     * @param request workflow operation request
+     * @param taskId
+     *          taskId
+     * @param request
+     *          workflow operation request
      * @return workflow result info
      */
     public WorkflowResult reject(Integer taskId, WorkflowOperationRequest request) {
@@ -145,8 +156,10 @@ public class WorkflowClient {
     /**
      * Complete task-true to automatic task
      *
-     * @param taskId taskId
-     * @param request workflow operation request
+     * @param taskId
+     *          taskId
+     * @param request
+     *          workflow operation request
      * @return workflow result info
      */
     public WorkflowResult complete(Integer taskId, WorkflowOperationRequest request) {
@@ -160,8 +173,10 @@ public class WorkflowClient {
     /**
      * Query process details according to the tracking number
      *
-     * @param processId processId
-     * @param taskId taskId
+     * @param processId
+     *          processId
+     * @param taskId
+     *          taskId
      * @return process detail response
      */
     public ProcessDetailResponse detail(Integer processId, Integer taskId) {
@@ -175,7 +190,8 @@ public class WorkflowClient {
     /**
      * Get process list
      *
-     * @param request workflow process request
+     * @param request
+     *          workflow process request
      * @return process response list
      */
     public PageResult<ProcessResponse> listProcess(ProcessRequest request) {
@@ -193,7 +209,8 @@ public class WorkflowClient {
     /**
      * Get task list
      *
-     * @param request workflow task query request
+     * @param request
+     *          workflow task query request
      * @return task response list
      */
     public PageResult<TaskResponse> listTask(TaskRequest request) {

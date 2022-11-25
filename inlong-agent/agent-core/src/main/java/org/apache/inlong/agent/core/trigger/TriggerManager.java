@@ -17,6 +17,12 @@
 
 package org.apache.inlong.agent.core.trigger;
 
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
+import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.TRIGGER_ONLY_ONE_JOB;
+
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -32,8 +38,6 @@ import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.db.TriggerProfileDb;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.utils.ThreadUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -42,11 +46,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_TRIGGER_MAX_RUNNING_NUM;
-import static org.apache.inlong.agent.constant.AgentConstants.TRIGGER_MAX_RUNNING_NUM;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.TRIGGER_ONLY_ONE_JOB;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * manager for triggers.
@@ -77,7 +78,8 @@ public class TriggerManager extends AbstractDaemon {
     /**
      * submit trigger profile.
      *
-     * @param triggerProfile trigger profile
+     * @param triggerProfile
+     *          trigger profile
      */
     public boolean addTrigger(TriggerProfile triggerProfile) {
         try {
@@ -124,8 +126,7 @@ public class TriggerManager extends AbstractDaemon {
     /**
      * Preprocessing before adding trigger, default value FULL
      *
-     * FULL: All directory by regex
-     * INCREMENT: Directory entry created
+     * FULL: All directory by regex INCREMENT: Directory entry created
      */
     public void preprocessTrigger(TriggerProfile profile) {
         String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
@@ -265,7 +266,8 @@ public class TriggerManager extends AbstractDaemon {
     /**
      * delete trigger by trigger profile.
      *
-     * @param triggerId trigger profile.
+     * @param triggerId
+     *          trigger profile.
      */
     public boolean deleteTrigger(String triggerId) {
         LOGGER.info("delete trigger {}", triggerId);

@@ -17,8 +17,10 @@
 
 package org.apache.inlong.sort.function;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
+
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
@@ -30,22 +32,24 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.CloseableIterator;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Test for {@link EncryptFunction}
- * and {@link org.apache.inlong.sort.protocol.transformation.function.EncryptFunction}
+ * Test for {@link EncryptFunction} and
+ * {@link org.apache.inlong.sort.protocol.transformation.function.EncryptFunction}
  */
 public class EncryptFunctionTest extends AbstractTestBase {
 
     /**
      * Test for Encrypt function
      *
-     * @throws Exception The exception may throw when test Encrypt function
+     * @throws Exception
+     *           The exception may throw when test Encrypt function
      */
     @Test
     public void testEncryptFunction() throws Exception {
@@ -74,15 +78,16 @@ public class EncryptFunctionTest extends AbstractTestBase {
         org.apache.inlong.sort.protocol.transformation.function.EncryptFunction encryptFunction =
                 new org.apache.inlong.sort.protocol.transformation.function.EncryptFunction(
                         new FieldInfo("f1",
-                                new StringFormatInfo()), new StringConstantParam("1"),
+                                new StringFormatInfo()),
+                        new StringConstantParam("1"),
                         new StringConstantParam("desede"));
         String sqlQuery = String.format("SELECT %s as f1 FROM temp_view", encryptFunction.format());
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
         // step 4. Get function execution result and parse it
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
+                .hasNext();) {
             String next = it.next();
             result.add(next);
         }

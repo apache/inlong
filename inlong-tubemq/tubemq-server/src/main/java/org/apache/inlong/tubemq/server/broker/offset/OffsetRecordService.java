@@ -17,7 +17,6 @@
 
 package org.apache.inlong.tubemq.server.broker.offset;
 
-import java.util.Map;
 import org.apache.inlong.tubemq.corebase.daemon.AbstractDaemonService;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
 import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
@@ -25,6 +24,9 @@ import org.apache.inlong.tubemq.server.broker.TubeBroker;
 import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
+
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +35,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class OffsetRecordService extends AbstractDaemonService {
-    private static final Logger logger =
-            LoggerFactory.getLogger(OffsetRecordService.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(OffsetRecordService.class);
     private final TubeBroker broker;
     // tube broker's store manager
     private final MessageStoreManager storeManager;
@@ -83,8 +85,7 @@ public class OffsetRecordService extends AbstractDaemonService {
             return;
         }
         // get group offset information
-        Map<String, OffsetHistoryInfo> groupOffsetMap =
-                offsetManager.getOnlineGroupOffsetInfo();
+        Map<String, OffsetHistoryInfo> groupOffsetMap = offsetManager.getOnlineGroupOffsetInfo();
         if (groupOffsetMap == null || groupOffsetMap.isEmpty()) {
             return;
         }

@@ -17,23 +17,25 @@
 
 package org.apache.inlong.tubemq.server.common.webbase;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.metric.impl.ESTHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.SimpleHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * WebCallStatsHolder, statistic for web api calls
  *
- * This method class statistic the total number of web api calls and
- * the distribution of call time consumption, as well as the total number of times and
- * extreme time consumption of each method
+ * This method class statistic the total number of web api calls and the
+ * distribution of call time consumption, as well as the total number of times
+ * and extreme time consumption of each method
  */
 public class WebCallStatsHolder {
+
     // Switchable statistic items
     private static final WebCallStatsItemSet[] switchableSets = new WebCallStatsItemSet[2];
     // Current writable index
@@ -77,7 +79,8 @@ public class WebCallStatsHolder {
     /**
      * Set manually the statistic status.
      *
-     * @param enableStats  enable or disable the statistic.
+     * @param enableStats
+     *          enable or disable the statistic.
      */
     public static synchronized void setStatsStatus(boolean enableStats) {
         WebCallStatsHolder.isManualClosed = !enableStats;
@@ -117,8 +120,7 @@ public class WebCallStatsHolder {
     private static boolean switchWritingStatsUnit() {
         long curSnapshotTime = lstSnapshotTime.get();
         // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
+        if ((System.currentTimeMillis() - curSnapshotTime) >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
             if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
                 switchableSets[getIndex(writableIndex.incrementAndGet())].resetSinceTime();
                 return true;
@@ -128,8 +130,8 @@ public class WebCallStatsHolder {
     }
 
     private static void getStatsValue(WebCallStatsItemSet statsSet,
-                                      boolean resetValue,
-                                      Map<String, Long> statsMap) {
+            boolean resetValue,
+            Map<String, Long> statsMap) {
         statsMap.put(statsSet.lstResetTime.getFullName(),
                 statsSet.lstResetTime.getSinceTime());
         statsMap.put("isClosed", (isManualClosed ? 1L : 0L));
@@ -142,8 +144,8 @@ public class WebCallStatsHolder {
     }
 
     private static void getStatsValue(WebCallStatsItemSet statsSet,
-                                      boolean resetValue,
-                                      StringBuilder strBuff) {
+            boolean resetValue,
+            StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
                 .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
                 .append("\",\"isClosed\":").append(isManualClosed).append(",");
@@ -169,7 +171,8 @@ public class WebCallStatsHolder {
     /**
      * Gets the metric block index based on the specified value.
      *
-     * @param origIndex    the specified value
+     * @param origIndex
+     *          the specified value
      * @return the metric block index
      */
     private static int getIndex(int origIndex) {
@@ -182,14 +185,12 @@ public class WebCallStatsHolder {
      * In which the object is the metric item that can be counted in stages
      */
     private static class WebCallStatsItemSet {
-        protected final SinceTime lstResetTime =
-                new SinceTime("reset_time", null);
+
+        protected final SinceTime lstResetTime = new SinceTime("reset_time", null);
         // Total call statistics
-        protected final ESTHistogram totalCallStats =
-                new ESTHistogram("web_calls", null);
+        protected final ESTHistogram totalCallStats = new ESTHistogram("web_calls", null);
         // Simple Statistics Based on Methods
-        protected final ConcurrentHashMap<String, SimpleHistogram> methodStatsMap =
-                new ConcurrentHashMap();
+        protected final ConcurrentHashMap<String, SimpleHistogram> methodStatsMap = new ConcurrentHashMap();
 
         public WebCallStatsItemSet() {
             resetSinceTime();
@@ -202,8 +203,10 @@ public class WebCallStatsHolder {
         /**
          * Gets the method statistics information
          *
-         * @param statsMap    the statistics content contain
-         * @param resetValue  whether reset value
+         * @param statsMap
+         *          the statistics content contain
+         * @param resetValue
+         *          whether reset value
          */
         public void getMethodStatsInfo(Map<String, Long> statsMap, boolean resetValue) {
             for (SimpleHistogram itemStats : methodStatsMap.values()) {
@@ -217,8 +220,10 @@ public class WebCallStatsHolder {
         /**
          * Gets the method statistics information
          *
-         * @param strBuff     the statistics content contain
-         * @param resetValue  whether reset value
+         * @param strBuff
+         *          the statistics content contain
+         * @param resetValue
+         *          whether reset value
          */
         public void getMethodStatsInfo(StringBuilder strBuff, boolean resetValue) {
             int totalCnt = 0;
@@ -239,4 +244,3 @@ public class WebCallStatsHolder {
         }
     }
 }
-

@@ -19,21 +19,24 @@ package org.apache.inlong.tubemq.corebase.utils;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Thread Utility
- * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
+ * Thread Utility Copied from <a href="http://hbase.apache.org">Apache HBase
+ * Project</a>
  */
 public class ThreadUtils {
+
     private static final Logger logger = LoggerFactory.getLogger(ThreadUtils.class);
     private static final AtomicInteger poolNumber = new AtomicInteger(1);
 
     /**
      * Utility method that sets name, daemon status and starts passed thread.
      *
-     * @param t thread to run
+     * @param t
+     *          thread to run
      * @return Returns the passed Thread <code>t</code>.
      */
     public static Thread setDaemonThreadRunning(final Thread t) {
@@ -43,8 +46,10 @@ public class ThreadUtils {
     /**
      * Utility method that sets name, daemon status and starts passed thread.
      *
-     * @param t    thread to frob
-     * @param name new name
+     * @param t
+     *          thread to frob
+     * @param name
+     *          new name
      * @return Returns the passed Thread <code>t</code>.
      */
     public static Thread setDaemonThreadRunning(final Thread t, final String name) {
@@ -54,13 +59,17 @@ public class ThreadUtils {
     /**
      * Utility method that sets name, daemon status and starts passed thread.
      *
-     * @param t       thread to frob
-     * @param name    new name
-     * @param handler A handler to set on the thread. Pass null if want to use default handler.
+     * @param t
+     *          thread to frob
+     * @param name
+     *          new name
+     * @param handler
+     *          A handler to set on the thread. Pass null if want to use default
+     *          handler.
      * @return Returns the passed Thread <code>t</code>.
      */
     public static Thread setDaemonThreadRunning(final Thread t, final String name,
-                                                final UncaughtExceptionHandler handler) {
+            final UncaughtExceptionHandler handler) {
         t.setName(name);
         if (handler != null) {
             t.setUncaughtExceptionHandler(handler);
@@ -73,7 +82,8 @@ public class ThreadUtils {
     /**
      * Shutdown passed thread using isAlive and join.
      *
-     * @param t Thread to shutdown
+     * @param t
+     *          Thread to shutdown
      */
     public static void shutdown(final Thread t) {
         shutdown(t, 0);
@@ -82,8 +92,10 @@ public class ThreadUtils {
     /**
      * Shutdown passed thread using isAlive and join.
      *
-     * @param joinwait Pass 0 if we're to wait forever.
-     * @param t        Thread to shutdown
+     * @param joinwait
+     *          Pass 0 if we're to wait forever.
+     * @param t
+     *          Thread to shutdown
      */
     public static void shutdown(final Thread t, final long joinwait) {
         if (t == null) {
@@ -101,7 +113,9 @@ public class ThreadUtils {
     /**
      * Check and wait the specified thread exit
      *
-     * @param t Waits on the passed thread to die dumping a threaddump every minute while its up.
+     * @param t
+     *          Waits on the passed thread to die dumping a threaddump every minute
+     *          while its up.
      */
     public static void threadDumpingIsAlive(final Thread t) throws InterruptedException {
         if (t == null) {
@@ -119,13 +133,14 @@ public class ThreadUtils {
     /**
      * Sleep current thread
      *
-     * @param millis How long to sleep for in milliseconds.
+     * @param millis
+     *          How long to sleep for in milliseconds.
      */
     public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
-            //e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 }

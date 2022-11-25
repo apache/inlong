@@ -19,6 +19,13 @@ package org.apache.inlong.dataproxy.metrics;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.inlong.common.metric.MetricItem;
+import org.apache.inlong.common.metric.MetricItemMBean;
+import org.apache.inlong.common.metric.MetricItemSetMBean;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricUtils;
+import org.apache.inlong.common.metric.MetricValue;
+
 import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +35,6 @@ import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.apache.inlong.common.metric.MetricItem;
-import org.apache.inlong.common.metric.MetricItemMBean;
-import org.apache.inlong.common.metric.MetricItemSetMBean;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.common.metric.MetricUtils;
-import org.apache.inlong.common.metric.MetricValue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

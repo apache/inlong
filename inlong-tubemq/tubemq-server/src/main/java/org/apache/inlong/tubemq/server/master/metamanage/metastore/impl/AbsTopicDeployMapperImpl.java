@@ -17,14 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
@@ -35,21 +27,31 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.TopicDeployMapper;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
-    protected static final Logger logger =
-            LoggerFactory.getLogger(AbsTopicDeployMapperImpl.class);
+
+    protected static final Logger logger = LoggerFactory.getLogger(AbsTopicDeployMapperImpl.class);
     // data cache
-    private final ConcurrentHashMap<String/* recordKey */, TopicDeployEntity>
-            topicDeployCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
-            brokerId2RecordCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
-            topicName2RecordCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
-            brokerId2TopicNameCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* recordKey */, TopicDeployEntity> topicDeployCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>> brokerId2RecordCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>> topicName2RecordCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>> brokerId2TopicNameCache =
+            new ConcurrentHashMap<>();
 
     public AbsTopicDeployMapperImpl() {
         // Initial instant
@@ -57,10 +59,9 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public boolean addTopicDeployConf(TopicDeployEntity entity,
-                                      StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
-        TopicDeployEntity curEntity =
-                topicDeployCache.get(entity.getRecordKey());
+        TopicDeployEntity curEntity = topicDeployCache.get(entity.getRecordKey());
         if (curEntity != null) {
             if (curEntity.isValidTopicStatus()) {
                 result.setFailResult(DataOpErrCode.DERR_EXISTED.getCode(),
@@ -98,10 +99,9 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public boolean updTopicDeployConf(TopicDeployEntity entity,
-                                      StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
-        TopicDeployEntity curEntity =
-                topicDeployCache.get(entity.getRecordKey());
+        TopicDeployEntity curEntity = topicDeployCache.get(entity.getRecordKey());
         if (curEntity == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
                     strBuff.append("Not found topic deploy configure for brokerId-topicName(")
@@ -138,8 +138,8 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public boolean updTopicDeployStatus(BaseEntity opEntity, int brokerId,
-                                        String topicName, TopicStatus topicStatus,
-                                        StringBuilder strBuff, ProcessResult result) {
+            String topicName, TopicStatus topicStatus,
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         TopicDeployEntity curEntity = getTopicConf(brokerId, topicName);
         if (curEntity == null) {
@@ -174,8 +174,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public boolean delTopicDeployConf(String recordKey, StringBuilder strBuff, ProcessResult result) {
-        TopicDeployEntity curEntity =
-                topicDeployCache.get(recordKey);
+        TopicDeployEntity curEntity = topicDeployCache.get(recordKey);
         if (curEntity == null) {
             result.setSuccResult(null);
             return result.isSuccess();
@@ -197,8 +196,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public boolean delTopicConfByBrokerId(Integer brokerId, StringBuilder strBuff, ProcessResult result) {
-        ConcurrentHashSet<String> recordKeySet =
-                brokerId2RecordCache.get(brokerId);
+        ConcurrentHashSet<String> recordKeySet = brokerId2RecordCache.get(brokerId);
         if (recordKeySet == null || recordKeySet.isEmpty()) {
             result.setSuccResult(null);
             return result.isSuccess();
@@ -230,8 +228,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public boolean hasConfiguredTopics(int brokerId) {
-        ConcurrentHashSet<String> keySet =
-                brokerId2RecordCache.get(brokerId);
+        ConcurrentHashSet<String> keySet = brokerId2RecordCache.get(brokerId);
         return (keySet != null && !keySet.isEmpty());
     }
 
@@ -258,8 +255,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public TopicDeployEntity getTopicConf(int brokerId, String topicName) {
-        String recordKey =
-                KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
+        String recordKey = KeyBuilderUtils.buildTopicConfRecKey(brokerId, topicName);
         return topicDeployCache.get(recordKey);
     }
 
@@ -270,15 +266,15 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Map<String, List<TopicDeployEntity>> getTopicConfMap(Set<String> topicNameSet,
-                                                                Set<Integer> brokerIdSet,
-                                                                TopicDeployEntity qryEntity) {
+            Set<Integer> brokerIdSet,
+            TopicDeployEntity qryEntity) {
         List<TopicDeployEntity> items;
         Map<String, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
         // get matched keys by topicNameSet and brokerIdSet
         Set<String> matchedKeySet = getMatchedRecords(topicNameSet, brokerIdSet);
         // filter record by qryEntity
         if (matchedKeySet == null) {
-            for (TopicDeployEntity entry :  topicDeployCache.values()) {
+            for (TopicDeployEntity entry : topicDeployCache.values()) {
                 if (entry == null || (qryEntity != null && !entry.isMatched(qryEntity, true))) {
                     continue;
                 }
@@ -303,7 +299,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                                       Set<Integer> brokerIdSet) {
+            Set<Integer> brokerIdSet) {
         List<TopicDeployEntity> items;
         Map<Integer, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
         if (brokerIdSet != null) {
@@ -317,7 +313,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
         if (matchedKeySet == null) {
             matchedKeySet = new HashSet<>(topicDeployCache.keySet());
         }
-        for (String recordKey: matchedKeySet) {
+        for (String recordKey : matchedKeySet) {
             TopicDeployEntity entity = topicDeployCache.get(recordKey);
             if (entity == null) {
                 continue;
@@ -331,7 +327,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Map<String, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(Set<String> topicSet,
-                                                                                   Set<Integer> brokerIdSet) {
+            Set<Integer> brokerIdSet) {
         TopicDeployEntity tmpEntity;
         List<TopicDeployEntity> itemLst;
         Map<String, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
@@ -385,8 +381,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
         ConcurrentHashSet<String> deploySet;
         Map<Integer, Set<String>> retEntityMap = new HashMap<>();
         if (brokerIdSet == null || brokerIdSet.isEmpty()) {
-            for (Map.Entry<Integer, ConcurrentHashSet<String>> entry
-                    : brokerId2TopicNameCache.entrySet()) {
+            for (Map.Entry<Integer, ConcurrentHashSet<String>> entry : brokerId2TopicNameCache.entrySet()) {
                 if (entry.getKey() == null) {
                     continue;
                 }
@@ -488,13 +483,13 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     /**
      * Add or update a record
      *
-     * @param entity  need added or updated entity
+     * @param entity
+     *          need added or updated entity
      */
     protected void putRecord2Caches(TopicDeployEntity entity) {
         topicDeployCache.put(entity.getRecordKey(), entity);
         // add topic index map
-        ConcurrentHashSet<String> keySet =
-                topicName2RecordCache.get(entity.getTopicName());
+        ConcurrentHashSet<String> keySet = topicName2RecordCache.get(entity.getTopicName());
         if (keySet == null) {
             ConcurrentHashSet<String> tmpSet = new ConcurrentHashSet<>();
             keySet = topicName2RecordCache.putIfAbsent(entity.getTopicName(), tmpSet);
@@ -528,32 +523,35 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     /**
      * Put topic deploy configure information into persistent store
      *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
-     * @param result process result with old value
+     * @param entity
+     *          need add record
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          process result with old value
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(TopicDeployEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete topic deploy configure information from persistent storage
      *
-     * @param recordKey  the record key
-     * @param strBuff    the string buffer
+     * @param recordKey
+     *          the record key
+     * @param strBuff
+     *          the string buffer
      * @return the process result
      */
     protected abstract boolean delConfigFromPersistent(String recordKey, StringBuilder strBuff);
 
     private void delRecordFromCaches(String recordKey) {
-        TopicDeployEntity curEntity =
-                topicDeployCache.remove(recordKey);
+        TopicDeployEntity curEntity = topicDeployCache.remove(recordKey);
         if (curEntity == null) {
             return;
         }
         // add topic index
-        ConcurrentHashSet<String> keySet =
-                topicName2RecordCache.get(curEntity.getTopicName());
+        ConcurrentHashSet<String> keySet = topicName2RecordCache.get(curEntity.getTopicName());
         if (keySet != null) {
             keySet.remove(recordKey);
             if (keySet.isEmpty()) {
@@ -579,7 +577,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     }
 
     private Set<String> getMatchedRecords(Set<String> topicNameSet,
-                                          Set<Integer> brokerIdSet) {
+            Set<Integer> brokerIdSet) {
         ConcurrentHashSet<String> keySet;
         Set<String> topicKeySet = null;
         Set<String> brokerKeySet = null;
@@ -631,19 +629,23 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     }
 
     /**
-     * Check whether the change of deploy values is valid
-     * Attention, the newEntity and newEntity must not equal
+     * Check whether the change of deploy values is valid Attention, the newEntity
+     * and newEntity must not equal
      *
-     * @param newEntity  the entity to be updated
-     * @param curEntity  the current entity
-     * @param strBuff    string buffer
-     * @param result     check result of parameter value
-     * @return  true for valid, false for invalid
+     * @param newEntity
+     *          the entity to be updated
+     * @param curEntity
+     *          the current entity
+     * @param strBuff
+     *          string buffer
+     * @param result
+     *          check result of parameter value
+     * @return true for valid, false for invalid
      */
     private boolean isValidValuesChange(TopicDeployEntity newEntity,
-                                        TopicDeployEntity curEntity,
-                                        StringBuilder strBuff,
-                                        ProcessResult result) {
+            TopicDeployEntity curEntity,
+            StringBuilder strBuff,
+            ProcessResult result) {
         // check if shrink data store block
         if (newEntity.getNumPartitions() != TBaseConstants.META_VALUE_UNDEFINED
                 && newEntity.getNumPartitions() < curEntity.getNumPartitions()) {
@@ -690,8 +692,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
                 strBuff.delete(0, strBuff.length());
                 return result.isSuccess();
             }
-            if (newEntity.getTopicStatus().getCode()
-                    > TopicStatus.STATUS_TOPIC_SOFT_DELETE.getCode()) {
+            if (newEntity.getTopicStatus().getCode() > TopicStatus.STATUS_TOPIC_SOFT_DELETE.getCode()) {
                 result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
                         strBuff.append("Please softly deleted the brokerId-topicName(")
                                 .append(newEntity.getRecordKey()).append(") record first!").toString());
@@ -705,7 +706,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
             if (!((curEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_DELETE
                     && newEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_REMOVE)
                     || (curEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_REMOVE
-                    && newEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_HARD_REMOVE))) {
+                            && newEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_HARD_REMOVE))) {
                 result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
                         strBuff.append("Illegal transfer status from ")
                                 .append(curEntity.getTopicStatus().getDescription())
@@ -755,18 +756,20 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     /**
      * Verify the validity of the configuration value for the system topic
      *
-     * @param deployEntity   the topic configuration that needs to be added or updated
-     * @param strBuff  the print info string buffer
-     * @param result   the process result return
+     * @param deployEntity
+     *          the topic configuration that needs to be added or updated
+     * @param strBuff
+     *          the print info string buffer
+     * @param result
+     *          the process result return
      * @return true if valid otherwise false
      */
     private boolean isValidSysTopicConf(TopicDeployEntity deployEntity,
-                                        StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         if (!TServerConstants.OFFSET_HISTORY_NAME.equals(deployEntity.getTopicName())) {
             return true;
         }
-        if (deployEntity.getNumTopicStores()
-                != TServerConstants.OFFSET_HISTORY_NUMSTORES) {
+        if (deployEntity.getNumTopicStores() != TServerConstants.OFFSET_HISTORY_NUMSTORES) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
                     strBuff.append("For system topic")
                             .append(TServerConstants.OFFSET_HISTORY_NAME)
@@ -776,8 +779,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (deployEntity.getNumPartitions()
-                != TServerConstants.OFFSET_HISTORY_NUMPARTS) {
+        if (deployEntity.getNumPartitions() != TServerConstants.OFFSET_HISTORY_NUMPARTS) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
                     strBuff.append("For system topic")
                             .append(TServerConstants.OFFSET_HISTORY_NAME)

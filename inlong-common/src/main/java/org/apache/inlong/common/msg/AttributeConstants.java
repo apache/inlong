@@ -23,15 +23,13 @@ public interface AttributeConstants {
     String KEY_VALUE_SEPARATOR = "=";
 
     /**
-     * group id
-     * unique string id for each business or product
+     * group id unique string id for each business or product
      */
     String GROUP_ID = "groupId";
 
     /**
-     * stream id
-     * unique string id for each interface of business
-     * An steam stand for a kind of data
+     * stream id unique string id for each interface of business An steam stand for
+     * a kind of data
      */
     String STREAM_ID = "streamId";
 
@@ -58,7 +56,7 @@ public interface AttributeConstants {
     /* sort type */
     String METHOD = "m";
 
-    /* global unique id for a message*/
+    /* global unique id for a message */
     String SEQUENCE_ID = "sid";
 
     String UNIQ_ID = "uniq";

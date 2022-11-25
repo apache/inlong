@@ -17,18 +17,20 @@
 
 package org.apache.inlong.manager.pojo.transform.replacer;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 /**
- * A class to define operation to replace stream fields in stream records by ReplaceRule defined.
+ * A class to define operation to replace stream fields in stream records by
+ * ReplaceRule defined.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -45,8 +47,9 @@ public class StringReplacerDefinition extends TransformDefinition {
     }
 
     /**
-     * ReplaceRule is aim to define a replace action to string fields;
-     * If field value match regex, will be replaced by targetValue in REPLACE_ALL/REPLACE_FIRST mode;
+     * ReplaceRule is aim to define a replace action to string fields; If field
+     * value match regex, will be replaced by targetValue in
+     * REPLACE_ALL/REPLACE_FIRST mode;
      */
     @Data
     @AllArgsConstructor

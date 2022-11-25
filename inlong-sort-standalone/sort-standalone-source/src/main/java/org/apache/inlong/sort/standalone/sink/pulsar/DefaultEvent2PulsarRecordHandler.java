@@ -20,12 +20,13 @@ package org.apache.inlong.sort.standalone.sink.pulsar;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.slf4j.Logger;
 
 /**
  * 
@@ -43,14 +44,13 @@ public class DefaultEvent2PulsarRecordHandler implements IEvent2PulsarRecordHand
     /**
      * parse
      * 
-     * @param  context
-     * @param  event
-     * @return             byte array
+     * @param context
+     * @param event
+     * @return byte array
      * @throws IOException
      */
     @Override
-    public byte[] parse(PulsarFederationSinkContext context, ProfileEvent event)
-            throws IOException {
+    public byte[] parse(PulsarFederationSinkContext context, ProfileEvent event) throws IOException {
         String uid = event.getUid();
         PulsarIdConfig idConfig = context.getIdConfig(uid);
         if (idConfig == null) {
@@ -62,7 +62,7 @@ public class DefaultEvent2PulsarRecordHandler implements IEvent2PulsarRecordHand
         byte separator = (byte) delimiter.charAt(0);
         outMsg.reset();
         switch (idConfig.getDataType()) {
-            case TEXT :
+            case TEXT:
                 currentDate.setTime(event.getRawLogTime());
                 String ftime = dateFormat.format(currentDate);
                 outMsg.write(ftime.getBytes());
@@ -71,11 +71,11 @@ public class DefaultEvent2PulsarRecordHandler implements IEvent2PulsarRecordHand
                 outMsg.write(extinfo.getBytes());
                 outMsg.write(separator);
                 break;
-            case PB :
-            case JCE :
-            case UNKNOWN :
+            case PB:
+            case JCE:
+            case UNKNOWN:
                 break;
-            default :
+            default:
                 break;
         }
         outMsg.write(event.getBody());
@@ -86,7 +86,7 @@ public class DefaultEvent2PulsarRecordHandler implements IEvent2PulsarRecordHand
     /**
      * getExtInfo
      * 
-     * @param  event
+     * @param event
      * @return
      */
     public String getExtInfo(ProfileEvent event) {

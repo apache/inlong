@@ -22,19 +22,10 @@ package org.apache.inlong.common.enums;
  */
 public enum TaskTypeEnum {
 
-    DATABASE_MIGRATION(0),
-    SQL(1),
-    BINLOG(2),
-    FILE(3),
-    KAFKA(4),
-    PULSAR(5),
-    POSTGRES(6),
-    ORACLE(7),
-    SQLSERVER(8),
-    MONGODB(9),
-    TUBEMQ(10),
-    REDIS(11),
-    MQTT(12),
+    DATABASE_MIGRATION(0), SQL(1), BINLOG(2), FILE(3), KAFKA(4), PULSAR(5), POSTGRES(6), ORACLE(7), SQLSERVER(8),
+    MONGODB(
+            9),
+    TUBEMQ(10), REDIS(11), MQTT(12),
 
     ;
 

@@ -20,8 +20,6 @@
 package org.apache.inlong.sort.iceberg.flink.actions;
 
 import org.apache.iceberg.actions.Action;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -33,11 +31,15 @@ import java.sql.Statement;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Do rewrite action with dlc Spark SQL.
  */
-public class SyncRewriteDataFilesAction implements
-        Action<SyncRewriteDataFilesAction, RewriteResult> {
+public class SyncRewriteDataFilesAction
+        implements
+            Action<SyncRewriteDataFilesAction, RewriteResult> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncRewriteDataFilesAction.class);
     private static final String DLC_JDBC_CLASS = "com.tencent.cloud.dlc.jdbc.DlcDriver";

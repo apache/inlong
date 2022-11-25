@@ -17,9 +17,17 @@
 
 package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.server.master.web.simplemvc.conf.ConfigFileParser;
+import org.apache.inlong.tubemq.server.master.web.simplemvc.conf.WebConfig;
+
+import org.apache.log4j.PropertyConfigurator;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -27,16 +35,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.master.web.simplemvc.conf.ConfigFileParser;
-import org.apache.inlong.tubemq.server.master.web.simplemvc.conf.WebConfig;
-import org.apache.log4j.PropertyConfigurator;
+
 import org.eclipse.jetty.server.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WebApiServlet extends HttpServlet {
+
     public static final int MAX_MULTIPART_POST_DATA_SIZE = 67108864; // 64M, could be bigger if needed
     private static final Logger logger = LoggerFactory.getLogger(WebFilter.class);
     private static final String DEFAULT_CONFIG_PATH = "/WEB-INF/simple-mvc.xml";
@@ -59,7 +64,8 @@ public class WebApiServlet extends HttpServlet {
         }
 
         String charset = (req.getCharacterEncoding() == null)
-                ? TBaseConstants.META_DEFAULT_CHARSET_NAME : req.getCharacterEncoding();
+                ? TBaseConstants.META_DEFAULT_CHARSET_NAME
+                : req.getCharacterEncoding();
         resp.setCharacterEncoding(charset);
         RequestContext context = new RequestContext(this.config, req, resp);
         if (this.config.containsType(context.requestType())) {
@@ -101,8 +107,7 @@ public class WebApiServlet extends HttpServlet {
                     }
                     this.configFilePath = filePath;
                 }
-                URL configFileURL =
-                        config.getServletContext().getResource(this.configFilePath);
+                URL configFileURL = config.getServletContext().getResource(this.configFilePath);
                 if (configFileURL == null) {
                     throw new ServletException(new StringBuilder(256)
                             .append("can not found config file:")
@@ -126,8 +131,7 @@ public class WebApiServlet extends HttpServlet {
     }
 
     private void checkConfig(WebConfig config, ServletContext servletContext) throws Exception {
-        URL resourcesURL =
-                servletContext.getResource(config.getResourcePath());
+        URL resourcesURL = servletContext.getResource(config.getResourcePath());
         if (resourcesURL == null) {
             throw new ServletException(new StringBuilder(256)
                     .append("Invalid resources path:")
@@ -143,8 +147,7 @@ public class WebApiServlet extends HttpServlet {
         config.setTemplatePath(templatesURL.getPath());
 
         if (TStringUtils.isNotEmpty(config.getVelocityConfigFilePath())) {
-            URL velocityConfigFilePath =
-                    servletContext.getResource(config.getVelocityConfigFilePath());
+            URL velocityConfigFilePath = servletContext.getResource(config.getVelocityConfigFilePath());
             if (velocityConfigFilePath != null) {
                 config.setVelocityConfigFilePath(velocityConfigFilePath.getPath());
             } else {

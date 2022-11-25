@@ -17,19 +17,23 @@
 
 package org.apache.inlong.sort;
 
-import com.google.common.base.Preconditions;
-import lombok.Getter;
+import static org.junit.Assert.assertEquals;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Getter;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import com.google.common.base.Preconditions;
 
 /**
  * Test serialize base class
  *
- * @param <T> The test object type
+ * @param <T>
+ *          The test object type
  */
 @Getter
 public abstract class SerializeBaseTest<T> {
@@ -55,7 +59,8 @@ public abstract class SerializeBaseTest<T> {
     /**
      * Test serialize
      *
-     * @throws JsonProcessingException The exception may throws when execute the method
+     * @throws JsonProcessingException
+     *           The exception may throws when execute the method
      */
     @Test
     @SuppressWarnings("unchecked")

@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.redis.table;
 
+import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
+
 import org.apache.flink.table.catalog.Column;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,8 +39,10 @@ public class SchemaValidator {
     /**
      * Register schema validator
      *
-     * @param redisCommand The redis command
-     * @param requiredLogicalTypes The requiredLogicalTypes
+     * @param redisCommand
+     *          The redis command
+     * @param requiredLogicalTypes
+     *          The requiredLogicalTypes
      * @return Schema validator
      */
     public SchemaValidator register(RedisCommand redisCommand,
@@ -51,8 +54,10 @@ public class SchemaValidator {
     /**
      * Validate the schema
      *
-     * @param redisCommand The redis command
-     * @param tableSchema The table schema
+     * @param redisCommand
+     *          The redis command
+     * @param tableSchema
+     *          The table schema
      */
     public void validate(RedisCommand redisCommand, ResolvedSchema tableSchema) {
         LogicalType[] logicalTypes = tableSchema.getColumns().stream().filter(Column::isPhysical)
@@ -62,7 +67,7 @@ public class SchemaValidator {
             Preconditions.checkState(requiredLogicalTypes[i] == logicalTypes[i].getTypeRoot(),
                     "Table schema " + Arrays.deepToString(logicalTypes) + " is invalid. Table schema "
                             + Arrays.deepToString(requiredLogicalTypes) + " is required for command " + redisCommand
-                            .name());
+                                    .name());
         }
     }
 }

@@ -20,6 +20,7 @@ package org.apache.inlong.sort.formats.common;
 
 import java.util.Arrays;
 import java.util.Collection;
+
 import org.junit.Test;
 
 /**
@@ -29,41 +30,32 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
 
     @Override
     Collection<FormatInfo> createFormatInfos() {
-        RowFormatInfo formatInfo1 =
-                new RowFormatInfo(
-                        new String[]{"f1", "f2", "f3"},
-                        new FormatInfo[]{
+        RowFormatInfo formatInfo1 = new RowFormatInfo(
+                new String[]{"f1", "f2", "f3"},
+                new FormatInfo[]{
+                        StringFormatInfo.INSTANCE,
+                        IntFormatInfo.INSTANCE,
+                        StringFormatInfo.INSTANCE
+                });
+
+        RowFormatInfo formatInfo2 = new RowFormatInfo(
+                new String[]{"f1"},
+                new FormatInfo[]{
+                        new MapFormatInfo(
                                 StringFormatInfo.INSTANCE,
-                                IntFormatInfo.INSTANCE,
-                                StringFormatInfo.INSTANCE
-                        }
-                );
+                                IntFormatInfo.INSTANCE)
+                });
 
-        RowFormatInfo formatInfo2 =
-                new RowFormatInfo(
-                        new String[]{"f1"},
-                        new FormatInfo[]{
-                                new MapFormatInfo(
-                                        StringFormatInfo.INSTANCE,
-                                        IntFormatInfo.INSTANCE
-                                )
-                        }
-                );
-
-        RowFormatInfo formatInfo3 =
-                new RowFormatInfo(
-                        new String[]{"f1", "f2"},
-                        new FormatInfo[]{
-                                new RowFormatInfo(
-                                        new String[]{"f1"},
-                                        new FormatInfo[]{IntFormatInfo.INSTANCE}
-                                ),
-                                new MapFormatInfo(
-                                        StringFormatInfo.INSTANCE,
-                                        new TimeFormatInfo("hh:mm:ss.SSS")
-                                )
-                        }
-                );
+        RowFormatInfo formatInfo3 = new RowFormatInfo(
+                new String[]{"f1", "f2"},
+                new FormatInfo[]{
+                        new RowFormatInfo(
+                                new String[]{"f1"},
+                                new FormatInfo[]{IntFormatInfo.INSTANCE}),
+                        new MapFormatInfo(
+                                StringFormatInfo.INSTANCE,
+                                new TimeFormatInfo("hh:mm:ss.SSS"))
+                });
 
         return Arrays.asList(formatInfo1, formatInfo2, formatInfo3);
     }
@@ -75,8 +67,7 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                 new FormatInfo[]{
                         StringFormatInfo.INSTANCE,
                         IntFormatInfo.INSTANCE
-                }
-        );
+                });
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -86,7 +77,6 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                 new FormatInfo[]{
                         StringFormatInfo.INSTANCE,
                         IntFormatInfo.INSTANCE
-                }
-        );
+                });
     }
 }

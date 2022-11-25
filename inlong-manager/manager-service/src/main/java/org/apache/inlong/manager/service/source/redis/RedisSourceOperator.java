@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.source.redis;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -30,10 +29,13 @@ import org.apache.inlong.manager.pojo.source.redis.RedisSourceDTO;
 import org.apache.inlong.manager.pojo.source.redis.RedisSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Redis stream source operator

@@ -17,15 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
-import org.apache.commons.codec.binary.StringUtils;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
@@ -35,6 +26,18 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.corebase.utils.Tuple4;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
+
+import org.apache.commons.codec.binary.StringUtils;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,13 +45,12 @@ import org.slf4j.LoggerFactory;
  * Broker sync data holder
  */
 public class BrokerSyncData {
-    private static final Logger logger =
-            LoggerFactory.getLogger(BrokerSyncData.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(BrokerSyncData.class);
     // current data push id
     private long dataPushId;
     // data need to sync
-    private final AtomicLong syncDownDataConfId =
-            new AtomicLong(System.currentTimeMillis());
+    private final AtomicLong syncDownDataConfId = new AtomicLong(System.currentTimeMillis());
     private int syncDownDataChkSumId;
     private ManageStatus mngStatus;
     private String syncDownBrokerConfInfo;
@@ -71,20 +73,24 @@ public class BrokerSyncData {
     /**
      * Update current sync data
      *
-     * @param isForceSync  if force sync data to broker
-     * @param dataPushId   data push id for verify
-     * @param mngStatus    new broker manage status
-     * @param brokerConfInfo  broker default configure
-     * @param topicConfInfoMap topic configure set
+     * @param isForceSync
+     *          if force sync data to broker
+     * @param dataPushId
+     *          data push id for verify
+     * @param mngStatus
+     *          new broker manage status
+     * @param brokerConfInfo
+     *          broker default configure
+     * @param topicConfInfoMap
+     *          topic configure set
      *
-     * @return whether changed, if null: input brokerConfInfo data is illegal
-     *         f0 : manage status changed
-     *         f1 : configure changed
+     * @return whether changed, if null: input brokerConfInfo data is illegal f0 :
+     *         manage status changed f1 : configure changed
      */
     public Tuple2<Boolean, Boolean> updBrokerSyncData(boolean isForceSync, long dataPushId,
-                                                      ManageStatus mngStatus,
-                                                      String brokerConfInfo,
-                                                      Map<String, String> topicConfInfoMap) {
+            ManageStatus mngStatus,
+            String brokerConfInfo,
+            Map<String, String> topicConfInfoMap) {
         isStatusChanged = false;
         isConfChanged = false;
         // check parameters
@@ -104,8 +110,7 @@ public class BrokerSyncData {
             } else {
                 this.syncDownTopicConfInfoMap = topicConfInfoMap;
             }
-            this.syncDownDataChkSumId =
-                    calculateConfigCrc32Value(syncDownBrokerConfInfo, syncDownTopicConfInfoMap);
+            this.syncDownDataChkSumId = calculateConfigCrc32Value(syncDownBrokerConfInfo, syncDownTopicConfInfoMap);
             isConfChanged = true;
         }
         if (isStatusChanged && isConfChanged) {
@@ -116,19 +121,26 @@ public class BrokerSyncData {
 
     /**
      * Book the report data by broker
-     * @param brokerInfo      broker info
-     * @param syncDataConfId   data configure id
-     * @param syncDataChkSumId data check-sum id
-     * @param isTakeData  if carry the data info
-     * @param syncBrokerConfInfo  broker default config
-     * @param syncTopicConfInfos topic config set
+     * 
+     * @param brokerInfo
+     *          broker info
+     * @param syncDataConfId
+     *          data configure id
+     * @param syncDataChkSumId
+     *          data check-sum id
+     * @param isTakeData
+     *          if carry the data info
+     * @param syncBrokerConfInfo
+     *          broker default config
+     * @param syncTopicConfInfos
+     *          topic config set
      *
      * @return whether the broker data synchronized
      */
     public boolean bookBrokerReportInfo(BrokerInfo brokerInfo,
-                                        long syncDataConfId, int syncDataChkSumId,
-                                        boolean isTakeData, String syncBrokerConfInfo,
-                                        List<String> syncTopicConfInfos) {
+            long syncDataConfId, int syncDataChkSumId,
+            boolean isTakeData, String syncBrokerConfInfo,
+            List<String> syncTopicConfInfos) {
         this.syncUpDataConfId = syncDataConfId;
         this.syncUpDataChkSumId = syncDataChkSumId;
         if (isTakeData) {
@@ -150,10 +162,9 @@ public class BrokerSyncData {
     }
 
     /**
-     *  whether the broker data is synchronized
+     * whether the broker data is synchronized
      *
-     * @return true: the configure is synchronized;
-     *         false: not synchronized
+     * @return true: the configure is synchronized; false: not synchronized
      */
     public boolean isConfSynchronized() {
         return (this.syncDownDataConfId.get() == this.syncUpDataConfId
@@ -186,9 +197,8 @@ public class BrokerSyncData {
 
     /**
      * Get the broker publish info
-     * @return need sync data
-     *         f0 : manage status
-     *         f1 : topic configure
+     * 
+     * @return need sync data f0 : manage status f1 : topic configure
      */
     public Tuple2<ManageStatus, Map<String, TopicInfo>> getBrokerPublishInfo() {
         return new Tuple2<>(mngStatus, syncUpTopicInfoMap);
@@ -204,13 +214,16 @@ public class BrokerSyncData {
 
     /**
      * Judge the sync-data is change
-     * @param brokerConfInfo  broker default config
-     * @param topicConfInfoMap topic config set
+     * 
+     * @param brokerConfInfo
+     *          broker default config
+     * @param topicConfInfoMap
+     *          topic config set
      *
      * @return whether the sync-data is change
      */
     private boolean isSyncDataChanged(String brokerConfInfo,
-                                      Map<String, String> topicConfInfoMap) {
+            Map<String, String> topicConfInfoMap) {
         return !Objects.equals(syncDownBrokerConfInfo, brokerConfInfo)
                 || !Objects.equals(syncDownTopicConfInfoMap, topicConfInfoMap);
     }
@@ -218,7 +231,8 @@ public class BrokerSyncData {
     /**
      * Format broker sync data to json string
      *
-     * @param sBuffer  string process container
+     * @param sBuffer
+     *          string process container
      * @return process result
      */
     public StringBuilder toJsonString(StringBuilder sBuffer) {
@@ -243,7 +257,8 @@ public class BrokerSyncData {
     /**
      * parse broker report configure to topicInfo
      *
-     * @param brokerInfo broker info
+     * @param brokerInfo
+     *          broker info
      */
     private Map<String, TopicInfo> parseTopicInfoConf(final BrokerInfo brokerInfo) {
         // check broker configure
@@ -251,8 +266,7 @@ public class BrokerSyncData {
             return null;
         }
         // get broker status and topic default configure
-        String[] brokerConfInfoAttrs =
-                this.syncUpBrokerConfInfo.split(TokenConstants.ATTR_SEP);
+        String[] brokerConfInfoAttrs = this.syncUpBrokerConfInfo.split(TokenConstants.ATTR_SEP);
         int numPartitions = Integer.parseInt(brokerConfInfoAttrs[0]);
         boolean cfgAcceptPublish = Boolean.parseBoolean(brokerConfInfoAttrs[1]);
         boolean cfgAcceptSubscribe = Boolean.parseBoolean(brokerConfInfoAttrs[2]);
@@ -268,8 +282,7 @@ public class BrokerSyncData {
             if (TStringUtils.isBlank(strTopicConfInfo)) {
                 continue;
             }
-            String[] topicConfAttrs =
-                    strTopicConfInfo.split(TokenConstants.ATTR_SEP);
+            String[] topicConfAttrs = strTopicConfInfo.split(TokenConstants.ATTR_SEP);
             final String tmpTopic = topicConfAttrs[0];
             int tmpPartNum = numPartitions;
             if (!TStringUtils.isBlank(topicConfAttrs[1])) {
@@ -297,17 +310,18 @@ public class BrokerSyncData {
     /**
      * Calculate the sync-data's crc32 value
      *
-     * @param brokerConfInfo  broker default config
-     * @param topicConfInfoMap topic config set
+     * @param brokerConfInfo
+     *          broker default config
+     * @param topicConfInfoMap
+     *          topic config set
      *
      * @return the crc32 value
      */
     private int calculateConfigCrc32Value(String brokerConfInfo,
-                                          Map<String, String> topicConfInfoMap) {
+            Map<String, String> topicConfInfoMap) {
         int result = -1;
         int capacity = 0;
-        List<String> topicConfInfoLst =
-                new ArrayList<>(topicConfInfoMap.values());
+        List<String> topicConfInfoLst = new ArrayList<>(topicConfInfoMap.values());
         Collections.sort(topicConfInfoLst);
         capacity += brokerConfInfo.length();
         for (String itemStr : topicConfInfoLst) {
@@ -326,7 +340,7 @@ public class BrokerSyncData {
     }
 
     private int inCalcBufferResult(int capacity, String brokerConfInfo,
-                                   List<String> topicConfInfoLst) {
+            List<String> topicConfInfoLst) {
         final ByteBuffer buffer = ByteBuffer.allocate(capacity);
         buffer.put(StringUtils.getBytesUtf8(brokerConfInfo));
         for (String itemStr : topicConfInfoLst) {

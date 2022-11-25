@@ -18,18 +18,13 @@
 package org.apache.inlong.dataproxy.source;
 
 public enum MsgType {
+
     /**
      * heartbeat
      */
-    MSG_HEARTBEAT(1),
-    MSG_COMMON_SERVICE(2),
-    MSG_ACK_SERVICE(3),
-    MSG_ORIGINAL_RETURN(4),
-    MSG_MULTI_BODY(5),
-    MSG_MULTI_BODY_ATTR(6),
-    MSG_BIN_MULTI_BODY(7),
-    MSG_BIN_HEARTBEAT(8),
-    MSG_UNKNOWN(-1);
+    MSG_HEARTBEAT(1), MSG_COMMON_SERVICE(2), MSG_ACK_SERVICE(3), MSG_ORIGINAL_RETURN(4), MSG_MULTI_BODY(
+            5),
+    MSG_MULTI_BODY_ATTR(6), MSG_BIN_MULTI_BODY(7), MSG_BIN_HEARTBEAT(8), MSG_UNKNOWN(-1);
 
     private final int value;
 

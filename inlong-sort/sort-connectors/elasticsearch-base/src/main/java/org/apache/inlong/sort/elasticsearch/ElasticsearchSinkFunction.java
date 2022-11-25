@@ -24,24 +24,28 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
-import org.elasticsearch.action.ActionRequest;
 
 import java.io.Serializable;
 
+import org.elasticsearch.action.ActionRequest;
+
 /**
- * Creates multiple {@link ActionRequest ActionRequests} from an element in a stream.
+ * Creates multiple {@link ActionRequest ActionRequests} from an element in a
+ * stream.
  *
  * This is used by sinks to prepare elements for sending them to Elasticsearch.
  *
  *
- * @param <T> The type of the element handled by this {@code ElasticsearchSinkFunction}
+ * @param <T>
+ *          The type of the element handled by this
+ *          {@code ElasticsearchSinkFunction}
  */
 @PublicEvolving
 public interface ElasticsearchSinkFunction<T> extends Serializable, Function {
 
     /**
-     * Initialization method for the function. It is called once before the actual working process
-     * methods.
+     * Initialization method for the function. It is called once before the actual
+     * working process methods.
      */
     default void open(RuntimeContext ctx) throws Exception {
     }
@@ -53,12 +57,16 @@ public interface ElasticsearchSinkFunction<T> extends Serializable, Function {
     }
 
     /**
-     * Process the incoming element to produce multiple {@link ActionRequest ActionsRequests}. The
-     * produced requests should be added to the provided {@link RequestIndexer}.
+     * Process the incoming element to produce multiple {@link ActionRequest
+     * ActionsRequests}. The produced requests should be added to the provided
+     * {@link RequestIndexer}.
      *
-     * @param element incoming element to process
-     * @param ctx runtime context containing information about the sink instance
-     * @param indexer request indexer that {@code ActionRequest} should be added to
+     * @param element
+     *          incoming element to process
+     * @param ctx
+     *          runtime context containing information about the sink instance
+     * @param indexer
+     *          request indexer that {@code ActionRequest} should be added to
      */
     void process(T element, RuntimeContext ctx, RequestIndexer indexer);
 
@@ -70,7 +78,7 @@ public interface ElasticsearchSinkFunction<T> extends Serializable, Function {
 
     }
 
-    default  void setRuntimeContext(RuntimeContext ctx) {
+    default void setRuntimeContext(RuntimeContext ctx) {
 
     }
 }

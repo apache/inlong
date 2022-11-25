@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.RedisReader;
+
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +33,8 @@ public class RedisReaderTest {
     private static Logger LOGGER = LoggerFactory.getLogger(RedisReaderTest.class);
 
     /**
-     * this test is used for testing collect data from redis in unit test
-     * just use in local test
+     * this test is used for testing collect data from redis in unit test just use
+     * in local test
      */
     @Ignore
     public void redisLoadTest() {

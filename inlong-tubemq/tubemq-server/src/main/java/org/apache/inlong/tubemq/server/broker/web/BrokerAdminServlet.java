@@ -17,17 +17,6 @@
 
 package org.apache.inlong.tubemq.server.broker.web;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.codec.binary.StringUtils;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
@@ -45,8 +34,8 @@ import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
 import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
 import org.apache.inlong.tubemq.server.broker.offset.OffsetService;
-import org.apache.inlong.tubemq.server.broker.stats.BrokerStatsType;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerStatsType;
 import org.apache.inlong.tubemq.server.broker.utils.GroupOffsetInfo;
 import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
@@ -55,8 +44,23 @@ import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
 
+import org.apache.commons.codec.binary.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.servlet.http.HttpServletRequest;
+
 /**
- * Broker's web servlet. Used for admin operation, like query consumer's status etc.
+ * Broker's web servlet. Used for admin operation, like query consumer's status
+ * etc.
  */
 public class BrokerAdminServlet extends AbstractWebHandler {
 
@@ -144,11 +148,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query all API methods supported by this version.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminQueryAllMethods(HttpServletRequest req,
-                                     StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
         int totalCnt = getSupportedMethod(sBuffer);
         sBuffer.append("],\"totalCnt\":").append(totalCnt).append("}");
@@ -157,11 +163,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query Broker's version
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminQueryBrokerVersion(HttpServletRequest req,
-                                        StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Ok\",\"data\":[")
                 .append("{\"version\":\"").append(TubeServerVersion.SERVER_VERSION)
                 .append("\"}]}");
@@ -170,11 +178,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query broker's all consumer info.
      *
-     * @param req      request
-     * @param strBuff  process result
+     * @param req
+     *          request
+     * @param strBuff
+     *          process result
      */
     public void adminQueryBrokerAllConsumerInfo(HttpServletRequest req,
-                                                StringBuilder strBuff) {
+            StringBuilder strBuff) {
         int index = 0;
         ProcessResult result = new ProcessResult();
         if (!WebParameterUtils.getStringParamValue(req,
@@ -184,14 +194,12 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
         Set<String> groupNameSet = (Set<String>) result.getRetData();
         strBuff.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        Map<String, ConsumerNodeInfo> map =
-                broker.getBrokerServiceServer().getConsumerRegisterMap();
+        Map<String, ConsumerNodeInfo> map = broker.getBrokerServiceServer().getConsumerRegisterMap();
         for (Entry<String, ConsumerNodeInfo> entry : map.entrySet()) {
             if (TStringUtils.isBlank(entry.getKey()) || entry.getValue() == null) {
                 continue;
             }
-            String[] partitionIdArr =
-                    entry.getKey().split(TokenConstants.ATTR_SEP);
+            String[] partitionIdArr = entry.getKey().split(TokenConstants.ATTR_SEP);
             String groupName = partitionIdArr[0];
             if (!groupNameSet.isEmpty() && !groupNameSet.contains(groupName)) {
                 continue;
@@ -206,8 +214,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             strBuff.append("{\"index\":").append(index).append(",\"groupName\":\"")
                     .append(groupName).append("\",\"topicName\":\"").append(topicName)
                     .append("\",\"partitionId\":").append(partitionId);
-            Long regTime =
-                    broker.getBrokerServiceServer().getConsumerRegisterTime(consumerId, entry.getKey());
+            Long regTime = broker.getBrokerServiceServer().getConsumerRegisterTime(consumerId, entry.getKey());
             if (regTime == null || regTime <= 0) {
                 strBuff.append(",\"consumerId\":\"").append(consumerId)
                         .append("\",\"isRegOk\":false")
@@ -259,11 +266,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query broker's all message store info.
      *
-     * @param req      request
-     * @param sBuilder  process result
+     * @param req
+     *          request
+     * @param sBuilder
+     *          process result
      */
     public void adminQueryBrokerAllMessageStoreInfo(HttpServletRequest req,
-                                                    StringBuilder sBuilder) {
+            StringBuilder sBuilder) {
         ProcessResult result = new ProcessResult();
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuilder, result)) {
@@ -272,8 +281,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         sBuilder.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        Map<String, ConcurrentHashMap<Integer, MessageStore>> messageTopicStores =
-                broker.getStoreManager().getMessageStores();
+        Map<String, ConcurrentHashMap<Integer, MessageStore>> messageTopicStores = broker.getStoreManager()
+                .getMessageStores();
         int index = 0;
         int recordId = 0;
         for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry : messageTopicStores.entrySet()) {
@@ -325,11 +334,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /***
      * Get memory store status info.
      *
-     * @param req      request
-     * @param sBuilder  process result
+     * @param req
+     *          request
+     * @param sBuilder
+     *          process result
      */
     public void adminGetMemStoreStatisInfo(HttpServletRequest req,
-                                           StringBuilder sBuilder) {
+            StringBuilder sBuilder) {
         sBuilder.append("{\"result\":false,\"errCode\":400,\"errMsg\":\"")
                 .append("The method is deprecated, please use admin_get_msgstore_stats\"}");
     }
@@ -337,11 +348,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /***
      * Manual set offset.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminManualSetCurrentOffSet(HttpServletRequest req,
-                                            StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.TOPICNAME, true, null, sBuffer, result)) {
@@ -408,9 +421,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             return;
         }
         OffsetService offsetService = broker.getOffsetManager();
-        long oldOffset =
-                offsetService.resetOffset(store, groupName,
-                        topicName, partitionId, manualOffset, modifyUser);
+        long oldOffset = offsetService.resetOffset(store, groupName,
+                topicName, partitionId, manualOffset, modifyUser);
         if (oldOffset < 0) {
             sBuffer.append("{\"result\":false,\"errCode\":401,\"errMsg\":\"")
                     .append("Manual update current Offset failure!")
@@ -425,11 +437,14 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query snapshot message set.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminQuerySnapshotMessageSet(HttpServletRequest req,
-                                             StringBuilder sBuffer) throws Exception {
+            StringBuilder sBuffer)
+            throws Exception {
         ProcessResult result = new ProcessResult();
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.TOPICNAME, true, null, sBuffer, result)) {
@@ -469,11 +484,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query consumer group offset.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminQueryCurrentGroupOffSet(HttpServletRequest req,
-                                             StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.TOPICNAME, true, null, sBuffer, result)) {
@@ -536,8 +553,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             long curReadDataOffset = -2;
             long curRdDltDataOffset = -2;
             long zkOffset = offsetService.getOffset(groupName, topicName, partitionId);
-            String queryKey =
-                    groupName + TokenConstants.ATTR_SEP + topicName + TokenConstants.ATTR_SEP + partitionId;
+            String queryKey = groupName + TokenConstants.ATTR_SEP + topicName + TokenConstants.ATTR_SEP + partitionId;
             ConsumerNodeInfo consumerNodeInfo = broker.getConsumerNodeInfo(queryKey);
             if (consumerNodeInfo != null) {
                 curReadDataOffset = consumerNodeInfo.getLastDataRdOffset();
@@ -558,11 +574,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query the consumed partition information of online consumer.
      *
-     * @param req      request
-     * @param strBuff  process result
+     * @param req
+     *          request
+     * @param strBuff
+     *          process result
      */
     public void adminQueryConsumerRegisterInfo(HttpServletRequest req,
-                                               StringBuilder strBuff) {
+            StringBuilder strBuff) {
         ProcessResult result = new ProcessResult();
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSGROUPNAME, false, null, strBuff, result)) {
@@ -572,8 +590,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         Set<String> groupNameSet = (Set<String>) result.getRetData();
         // get online partition-client map
         int totalCnt = 0;
-        Map<String, ConsumerNodeInfo> map =
-                broker.getBrokerServiceServer().getConsumerRegisterMap();
+        Map<String, ConsumerNodeInfo> map = broker.getBrokerServiceServer().getConsumerRegisterMap();
         strBuff.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
         for (Entry<String, ConsumerNodeInfo> entry : map.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
@@ -597,11 +614,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query topic's publish info on the Broker.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminQueryPubInfo(HttpServletRequest req,
-                                  StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         // get the topic set to be queried
         if (!WebParameterUtils.getStringParamValue(req,
@@ -612,13 +631,12 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // get target consume group name
         Set<String> topicSet = (Set<String>) result.getRetData();
         // get topic's publish info
-        Map<String, Map<Integer, TopicPubStoreInfo>> topicStorePubInfoMap =
-                broker.getStoreManager().getTopicPublishInfos(topicSet);
+        Map<String, Map<Integer, TopicPubStoreInfo>> topicStorePubInfoMap = broker.getStoreManager()
+                .getTopicPublishInfos(topicSet);
         // builder result
         int totalCnt = 0;
         sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        for (Map.Entry<String, Map<Integer, TopicPubStoreInfo>> entry
-                : topicStorePubInfoMap.entrySet()) {
+        for (Map.Entry<String, Map<Integer, TopicPubStoreInfo>> entry : topicStorePubInfoMap.entrySet()) {
             if (totalCnt++ > 0) {
                 sBuffer.append(",");
             }
@@ -641,11 +659,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query all consumer groups booked on the Broker.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminQueryBookedGroup(HttpServletRequest req,
-                                      StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         // get divide info
         ProcessResult result = new ProcessResult();
         if (!WebParameterUtils.getBooleanParamValue(req,
@@ -702,11 +722,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query consumer group offset.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminQueryGroupOffSet(HttpServletRequest req,
-                                      StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
@@ -736,14 +758,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             }
         }
         // verify the acquired Topic set and
-        //   query the corresponding offset information
-        Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> groupOffsetMaps =
-                getGroupOffsetInfo(WebFieldDef.COMPSGROUPNAME, qryGroupNameSet, topicSet);
+        // query the corresponding offset information
+        Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> groupOffsetMaps = getGroupOffsetInfo(
+                WebFieldDef.COMPSGROUPNAME, qryGroupNameSet, topicSet);
         // builder result
         int totalCnt = 0;
         sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        for (Map.Entry<String, Map<String, Map<Integer, GroupOffsetInfo>>> entry
-                : groupOffsetMaps.entrySet()) {
+        for (Map.Entry<String, Map<String, Map<Integer, GroupOffsetInfo>>> entry : groupOffsetMaps.entrySet()) {
             if (totalCnt++ > 0) {
                 sBuffer.append(",");
             }
@@ -776,11 +797,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query consumer group history offset by timestamp.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminQueryGroupHistoryOffSet(HttpServletRequest req,
-                                             StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
@@ -849,18 +872,25 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Query group's offset records stored in broker.
      *
-     * @param msgStore       history offset store
-     * @param groupName      group name
-     * @param requestOffset  request offset
-     * @param recordStamp    record timestamp
-     * @param msgCount       at most record count
-     * @param maxRetryCnt    max query turns
-     * @param strBuff        string buffer
+     * @param msgStore
+     *          history offset store
+     * @param groupName
+     *          group name
+     * @param requestOffset
+     *          request offset
+     * @param recordStamp
+     *          record timestamp
+     * @param msgCount
+     *          at most record count
+     * @param maxRetryCnt
+     *          max query turns
+     * @param strBuff
+     *          string buffer
      */
     private void queryGroupStoredOffsets(MessageStore msgStore, String groupName,
-                                         long requestOffset, long recordStamp,
-                                         int msgCount, int maxRetryCnt,
-                                         StringBuilder strBuff) {
+            long requestOffset, long recordStamp,
+            int msgCount, int maxRetryCnt,
+            StringBuilder strBuff) {
         int msgTypeCode;
         int partitionId;
         int msgAccCnt = 0;
@@ -944,11 +974,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Add or Modify consumer group offset.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminSetGroupOffSet(HttpServletRequest req,
-                                    StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         // get group list
         if (!WebParameterUtils.getStringParamValue(req,
@@ -979,15 +1011,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return;
             }
-            Map<String, Long> manOffsets =
-                    (Map<String, Long>) result.getRetData();
+            Map<String, Long> manOffsets = (Map<String, Long>) result.getRetData();
             // valid and transfer offset format
             if (!validManOffsetResetInfo(WebFieldDef.OFFSETJSON, manOffsets, result)) {
                 WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
                 return;
             }
-            resetOffsets =
-                    (List<Tuple3<String, Integer, Long>>) result.getRetData();
+            resetOffsets = (List<Tuple3<String, Integer, Long>>) result.getRetData();
         } else {
             // get the topic set to be set
             if (!WebParameterUtils.getStringParamValue(req,
@@ -1006,11 +1036,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Clone consume group offset, clone A group's offset to other group.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminCloneGroupOffSet(HttpServletRequest req,
-                                      StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         // get source consume group name
         if (!WebParameterUtils.getStringParamValue(req,
@@ -1032,8 +1064,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return;
         }
-        final Map<String, Set<Integer>> topicPartMap =
-                (Map<String, Set<Integer>>) result.getRetData();
+        final Map<String, Set<Integer>> topicPartMap = (Map<String, Set<Integer>>) result.getRetData();
         // get target consume group name
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.TGTCOMPSGROUPNAME, true, null, sBuffer, result)) {
@@ -1059,8 +1090,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             return;
         }
         // query offset from source group
-        Map<String, Map<Integer, Tuple2<Long, Long>>> srcGroupOffsets =
-                broker.getOffsetManager().queryGroupOffset(srcGroupName, topicPartMap);
+        Map<String, Map<Integer, Tuple2<Long, Long>>> srcGroupOffsets = broker.getOffsetManager()
+                .queryGroupOffset(srcGroupName, topicPartMap);
         // transfer offset format
         List<Tuple3<String, Integer, Long>> resetOffsets = buildOffsetResetInfo(srcGroupOffsets);
         broker.getOffsetManager().modifyGroupOffset(tgtGroupNameSet, resetOffsets, modifier);
@@ -1071,11 +1102,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Remove consume group offset.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminRemoveGroupOffSet(HttpServletRequest req,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         // get consume group name
         if (!WebParameterUtils.getStringParamValue(req,
@@ -1110,8 +1143,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return;
         }
-        Map<String, Map<String, Set<Integer>>> groupTopicPartMap =
-                (Map<String, Map<String, Set<Integer>>>) result.getRetData();
+        Map<String, Map<String, Set<Integer>>> groupTopicPartMap = (Map<String, Map<String, Set<Integer>>>) result
+                .getRetData();
         broker.getOffsetManager().deleteGroupOffset(
                 onlyMemory, groupTopicPartMap, modifier);
         // builder return result
@@ -1119,13 +1152,16 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     }
 
     /**
-     * Get broker's metric information, include service status statistic and web-api call
+     * Get broker's metric information, include service status statistic and web-api
+     * call
      *
-     * @param req  HttpServletRequest
-     * @param sBuffer query result
+     * @param req
+     *          HttpServletRequest
+     * @param sBuffer
+     *          query result
      */
     public void adminGetMetricsInfo(HttpServletRequest req,
-                                    StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         // check and get whether to reset the metric items
         if (!WebParameterUtils.getBooleanParamValue(req,
@@ -1156,11 +1192,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Get message store statistics.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminGetMsgStoreStatsInfo(HttpServletRequest req,
-                                          StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, sBuffer, result)) {
@@ -1178,12 +1216,11 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         int index = 0;
         int recordId = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
-        Map<String, ConcurrentHashMap<Integer, MessageStore>> messageTopicStores =
-                broker.getStoreManager().getMessageStores();
+        Map<String, ConcurrentHashMap<Integer, MessageStore>> messageTopicStores = broker.getStoreManager()
+                .getMessageStores();
         if (topicNameSet.isEmpty()) {
             // get all the msg store statistical data
-            for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry
-                    : messageTopicStores.entrySet()) {
+            for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry : messageTopicStores.entrySet()) {
                 if (entry == null) {
                     continue;
                 }
@@ -1245,11 +1282,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Enable broker's statistics functions.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminEnableMetricsStats(HttpServletRequest req,
-                                        StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
@@ -1263,11 +1302,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Disable broker's statistics functions.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminDisableMetricsStats(HttpServletRequest req,
-                                         StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.STATSTYPE, true, null, sBuffer, result)) {
@@ -1281,11 +1322,13 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Disable broker's all statistics functions.
      *
-     * @param req      request
-     * @param sBuffer  process result
+     * @param req
+     *          request
+     * @param sBuffer
+     *          process result
      */
     public void adminDisableAllStats(HttpServletRequest req,
-                                     StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         innEnableOrDisableMetricsStats(false,
                 BrokerStatsType.ALL.getName(), req, sBuffer);
     }
@@ -1293,15 +1336,19 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     /**
      * Disable or Enable broker's statistics functions
      *
-     * @param enable     whether enable or disable
-     * @param statsType  the statistics type to be operated on
-     * @param req        HttpServletRequest
-     * @param sBuffer    query result
+     * @param enable
+     *          whether enable or disable
+     * @param statsType
+     *          the statistics type to be operated on
+     * @param req
+     *          HttpServletRequest
+     * @param sBuffer
+     *          query result
      */
     private void innEnableOrDisableMetricsStats(boolean enable,
-                                                String statsType,
-                                                HttpServletRequest req,
-                                                StringBuilder sBuffer) {
+            String statsType,
+            HttpServletRequest req,
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
         // get input metric type
         BrokerStatsType inMetricType = null;
@@ -1343,11 +1390,10 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             }
             Set<String> topicNameSet = (Set<String>) result.getRetData();
             // set topic's statistic status
-            Map<String, ConcurrentHashMap<Integer, MessageStore>> msgTopicStores =
-                    broker.getStoreManager().getMessageStores();
+            Map<String, ConcurrentHashMap<Integer, MessageStore>> msgTopicStores = broker.getStoreManager()
+                    .getMessageStores();
             if (topicNameSet.isEmpty()) {
-                for (ConcurrentHashMap<Integer, MessageStore> storeMap
-                        : msgTopicStores.values()) {
+                for (ConcurrentHashMap<Integer, MessageStore> storeMap : msgTopicStores.values()) {
                     if (storeMap == null) {
                         continue;
                     }
@@ -1385,10 +1431,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         MessageStore store = null;
         List<Tuple3<String, Integer, Long>> result = new ArrayList<>();
         MessageStoreManager storeManager = broker.getStoreManager();
-        for (Map.Entry<String, Map<Integer, Tuple2<Long, Long>>> entry
-                : topicPartOffsetMap.entrySet()) {
+        for (Map.Entry<String, Map<Integer, Tuple2<Long, Long>>> entry : topicPartOffsetMap.entrySet()) {
             Map<Integer, Tuple2<Long, Long>> partOffsetMap = entry.getValue();
-            if (partOffsetMap  == null) {
+            if (partOffsetMap == null) {
                 continue;
             }
             // process offset value
@@ -1451,8 +1496,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
 
     // build reset offset info
     private boolean validManOffsetResetInfo(WebFieldDef fieldDef,
-                                            Map<String, Long> manOffsetInfoMap,
-                                            ProcessResult result) {
+            Map<String, Long> manOffsetInfoMap,
+            ProcessResult result) {
         String brokerId;
         String topicName;
         String strPartId;
@@ -1463,8 +1508,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         List<Tuple3<String, Integer, Long>> offsetVals = new ArrayList<>();
         String localBrokerId = String.valueOf(broker.getTubeConfig().getBrokerId());
         // get topic configure infos
-        Map<String, TopicMetadata> topicConfigMap =
-                broker.getMetadataManager().getTopicConfigMap();
+        Map<String, TopicMetadata> topicConfigMap = broker.getMetadataManager().getTopicConfigMap();
         for (Map.Entry<String, Long> entry : manOffsetInfoMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
@@ -1521,21 +1565,23 @@ public class BrokerAdminServlet extends AbstractWebHandler {
 
     // builder group's offset info
     private Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> getGroupOffsetInfo(
-            WebFieldDef groupFldDef, Set<String> groupSet, Set<String> topicSet) {
+            WebFieldDef groupFldDef,
+            Set<String> groupSet,
+            Set<String> topicSet) {
         ProcessResult result = new ProcessResult();
         Map<String, Map<String, Map<Integer, GroupOffsetInfo>>> groupOffsetMaps = new HashMap<>();
         for (String group : groupSet) {
             Map<String, Map<Integer, GroupOffsetInfo>> topicOffsetRet = new HashMap<>();
             // valid and get topic's partitionIds
             if (validAndGetTopicPartInfo(group, groupFldDef, topicSet, result)) {
-                Map<String, Set<Integer>> topicPartMap =
-                        (Map<String, Set<Integer>>) result.getRetData();
+                Map<String, Set<Integer>> topicPartMap = (Map<String, Set<Integer>>) result.getRetData();
                 // get topic's publish info
-                Map<String, Map<Integer, TopicPubStoreInfo>> topicStorePubInfoMap =
-                        broker.getStoreManager().getTopicPublishInfos(topicPartMap.keySet());
+                Map<String, Map<Integer, TopicPubStoreInfo>> topicStorePubInfoMap = broker.getStoreManager()
+                        .getTopicPublishInfos(topicPartMap.keySet());
                 // get group's booked offset info
                 Map<String, Map<Integer, Tuple2<Long, Long>>> groupOffsetMap =
-                        broker.getOffsetManager().queryGroupOffset(group, topicPartMap);
+                        broker.getOffsetManager().queryGroupOffset(group,
+                                topicPartMap);
                 // get offset info array
                 for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
                     String topic = entry.getKey();
@@ -1566,8 +1612,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
 
     // valid and get need removed group-topic info
     private boolean validAndGetGroupTopicInfo(Set<String> groupSet,
-                                              Set<String> topicSet,
-                                              ProcessResult result) {
+            Set<String> topicSet,
+            ProcessResult result) {
         Map<String, Map<String, Set<Integer>>> groupTopicPartMap = new HashMap<>();
         // filter group
         Set<String> targetGroupSet = new HashSet<>();
@@ -1580,8 +1626,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // valid specified topic set
         for (String group : targetGroupSet) {
             if (validAndGetTopicPartInfo(group, WebFieldDef.GROUPNAME, topicSet, result)) {
-                Map<String, Set<Integer>> topicPartMap =
-                        (Map<String, Set<Integer>>) result.getRetData();
+                Map<String, Set<Integer>> topicPartMap = (Map<String, Set<Integer>>) result.getRetData();
                 groupTopicPartMap.put(group, topicPartMap);
             }
         }
@@ -1590,11 +1635,10 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     }
 
     private boolean validAndGetTopicPartInfo(String groupName,
-                                             WebFieldDef groupFldDef,
-                                             Set<String> topicSet,
-                                             ProcessResult result) {
-        Set<String> subTopicSet =
-                broker.getOffsetManager().getGroupSubInfo(groupName);
+            WebFieldDef groupFldDef,
+            Set<String> topicSet,
+            ProcessResult result) {
+        Set<String> subTopicSet = broker.getOffsetManager().getGroupSubInfo(groupName);
         if (subTopicSet == null || subTopicSet.isEmpty()) {
             result.setFailResult(400, new StringBuilder(512)
                     .append("Parameter ").append(groupFldDef.name)
@@ -1634,8 +1678,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
     private Map<String, Set<Integer>> getTopicPartitions(Set<String> topicSet) {
         Map<String, Set<Integer>> topicPartMap = new HashMap<>();
         if (topicSet != null) {
-            Map<String, TopicMetadata> topicConfigMap =
-                    broker.getMetadataManager().getTopicConfigMap();
+            Map<String, TopicMetadata> topicConfigMap = broker.getMetadataManager().getTopicConfigMap();
             if (topicConfigMap != null) {
                 for (String topic : topicSet) {
                     TopicMetadata topicMetadata = topicConfigMap.get(topic);

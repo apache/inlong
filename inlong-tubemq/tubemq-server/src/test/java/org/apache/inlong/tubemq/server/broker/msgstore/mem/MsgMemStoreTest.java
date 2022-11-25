@@ -17,10 +17,12 @@
 
 package org.apache.inlong.tubemq.server.broker.msgstore.mem;
 
-import java.nio.ByteBuffer;
 import org.apache.inlong.tubemq.server.broker.stats.MsgStoreStatsHolder;
 import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
 import org.apache.inlong.tubemq.server.common.utils.AppendResult;
+
+import java.nio.ByteBuffer;
+
 import org.junit.Test;
 
 /**
@@ -33,8 +35,7 @@ public class MsgMemStoreTest {
 
         byte[] testData = "abcabdcdsdsdasdfasdfasdfsadfasdfasdfasdfasdfaaaaaaaaaaa".getBytes();
         // build data buffer
-        final ByteBuffer dataBuffer =
-                ByteBuffer.allocate(DataStoreUtils.STORE_DATA_HEADER_LEN + testData.length);
+        final ByteBuffer dataBuffer = ByteBuffer.allocate(DataStoreUtils.STORE_DATA_HEADER_LEN + testData.length);
         dataBuffer.putInt(DataStoreUtils.STORE_DATA_PREFX_LEN + testData.length);
         dataBuffer.putInt(DataStoreUtils.STORE_DATA_TOKER_BEGIN_VALUE);
         dataBuffer.putInt(33);
@@ -48,8 +49,7 @@ public class MsgMemStoreTest {
         dataBuffer.put(testData);
         dataBuffer.flip();
         // build index buffer
-        ByteBuffer indexBuffer =
-                ByteBuffer.allocate(DataStoreUtils.STORE_INDEX_HEAD_LEN);
+        ByteBuffer indexBuffer = ByteBuffer.allocate(DataStoreUtils.STORE_INDEX_HEAD_LEN);
         indexBuffer.putInt(0);
         indexBuffer.putLong(-1L);
         indexBuffer.putInt(3);
@@ -70,8 +70,7 @@ public class MsgMemStoreTest {
     public void getMessages() {
         byte[] testData = "abcabdcdsdsdasdfasdfasdfsadfasdfasdfasdfasdfaaaaaaaaaaa".getBytes();
         // build data buffer
-        final ByteBuffer dataBuffer =
-                ByteBuffer.allocate(DataStoreUtils.STORE_DATA_HEADER_LEN + testData.length);
+        final ByteBuffer dataBuffer = ByteBuffer.allocate(DataStoreUtils.STORE_DATA_HEADER_LEN + testData.length);
         dataBuffer.putInt(DataStoreUtils.STORE_DATA_PREFX_LEN + testData.length);
         dataBuffer.putInt(DataStoreUtils.STORE_DATA_TOKER_BEGIN_VALUE);
         dataBuffer.putInt(33);
@@ -85,8 +84,7 @@ public class MsgMemStoreTest {
         dataBuffer.put(testData);
         dataBuffer.flip();
         // build index buffer
-        ByteBuffer indexBuffer =
-                ByteBuffer.allocate(DataStoreUtils.STORE_INDEX_HEAD_LEN);
+        ByteBuffer indexBuffer = ByteBuffer.allocate(DataStoreUtils.STORE_INDEX_HEAD_LEN);
         indexBuffer.putInt(0);
         indexBuffer.putLong(-1L);
         indexBuffer.putInt(3);

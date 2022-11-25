@@ -17,20 +17,22 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.ClusterConfigMapper;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper {
-    protected static final Logger logger =
-            LoggerFactory.getLogger(AbsClusterConfigMapperImpl.class);
+
+    protected static final Logger logger = LoggerFactory.getLogger(AbsClusterConfigMapperImpl.class);
     // data cache
     private final Map<String, ClusterSettingEntity> metaDataCache = new ConcurrentHashMap<>();
 
@@ -40,7 +42,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
 
     @Override
     public boolean addUpdClusterConfig(ClusterSettingEntity entity,
-                                       StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         ClusterSettingEntity newEntity;
         // Check whether the configure record already exist
         ClusterSettingEntity curEntity = metaDataCache.get(entity.getRecordKey());
@@ -76,8 +78,7 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
 
     @Override
     public boolean delClusterConfig(StringBuilder strBuff, ProcessResult result) {
-        ClusterSettingEntity curEntity =
-                metaDataCache.get(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
+        ClusterSettingEntity curEntity = metaDataCache.get(TStoreConstants.TOKEN_DEFAULT_CLUSTER_SETTING);
         if (curEntity == null) {
             result.setSuccResult(null);
             return true;
@@ -103,7 +104,8 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
     /**
      * Add or update a record
      *
-     * @param entity  need added or updated entity
+     * @param entity
+     *          need added or updated entity
      */
     protected void putRecord2Caches(ClusterSettingEntity entity) {
         metaDataCache.put(entity.getRecordKey(), entity);
@@ -112,19 +114,24 @@ public abstract class AbsClusterConfigMapperImpl implements ClusterConfigMapper 
     /**
      * Put cluster configure information into persistent storage
      *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
-     * @param result process result with old value
+     * @param entity
+     *          need add record
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          process result with old value
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(ClusterSettingEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete cluster configure information from persistent storage
      *
-     * @param key      the record key
-     * @param strBuff  the string buffer
+     * @param key
+     *          the record key
+     * @param strBuff
+     *          the string buffer
      * @return the process result
      */
     protected abstract boolean delConfigFromPersistent(StringBuilder strBuff, String key);

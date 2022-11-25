@@ -17,12 +17,11 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.inlong.agent.plugin.filter.DateFormatRegex;
 import org.apache.inlong.agent.utils.ThreadUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +32,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * path pattern for file filter.
@@ -83,7 +85,8 @@ public class PathPattern {
      * walk all suitable files under directory.
      */
     private void walkAllSuitableFiles(File dirPath, final Collection<File> collectResult,
-            int maxNum) throws IOException {
+            int maxNum)
+            throws IOException {
         if (collectResult.size() > maxNum) {
             LOGGER.warn("max num of files is {}, please check", maxNum);
             return;
@@ -112,13 +115,14 @@ public class PathPattern {
      * walk root directory
      */
     public void walkAllSuitableFiles(final Collection<File> collectResult,
-            int maxNum) throws IOException {
+            int maxNum)
+            throws IOException {
         walkAllSuitableFiles(new File(rootDir), collectResult, maxNum);
     }
 
     /**
-     * cleanup local cache, subDirs is only used to filter duplicated directories
-     * in one term watch key check.
+     * cleanup local cache, subDirs is only used to filter duplicated directories in
+     * one term watch key check.
      */
     public void cleanup() {
         subDirs.clear();
@@ -127,7 +131,8 @@ public class PathPattern {
     /**
      * whether path is suitable
      *
-     * @param pathStr pathString
+     * @param pathStr
+     *          pathString
      * @return true if suit else false.
      */
     public boolean suitForWatch(String pathStr) {

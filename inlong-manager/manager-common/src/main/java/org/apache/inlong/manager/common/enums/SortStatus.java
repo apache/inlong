@@ -25,14 +25,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum SortStatus {
 
-    NOT_EXISTS(40, "job not exists"),
-    NEW(100, "job not started: draft, pending, etc."),
-    RUNNING(110, "job is running"),
-    PAUSED(120, "job was paused"),
-    STOPPED(130, "job stopped without error, e.g canceled"),
-    FAILED(140, "job failed with an error"),
-    FINISHED(200, "job finished successfully"),
-    OPERATING(300, "job in an intermediate status such as restarting, canceling, etc."),
+    NOT_EXISTS(40, "job not exists"), NEW(100, "job not started: draft, pending, etc."), RUNNING(110,
+            "job is running"),
+    PAUSED(120, "job was paused"), STOPPED(130, "job stopped without error, e.g canceled"), FAILED(
+            140, "job failed with an error"),
+    FINISHED(200, "job finished successfully"), OPERATING(300,
+            "job in an intermediate status such as restarting, canceling, etc."),
     UNKNOWN(400, "job status unknown"),
 
     ;

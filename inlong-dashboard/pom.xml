@@ -17,11 +17,8 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
@@ -29,6 +26,7 @@
         <version>1.5.0-SNAPSHOT</version>
     </parent>
     <artifactId>inlong-dashboard</artifactId>
+    <packaging>pom</packaging>
     <name>Apache InLong - Dashboard</name>
 
     <build>
@@ -79,6 +77,14 @@
                         <groupId>com.spotify</groupId>
                         <artifactId>dockerfile-maven-plugin</artifactId>
                         <version>${dockerfile.maven.version}</version>
+                        <configuration>
+                            <repository>${docker.organization}/dashboard</repository>
+                            <pullNewerImage>false</pullNewerImage>
+                            <tag>${project.version}</tag>
+                            <buildArgs>
+                                <DASHBOARD_FILE>build</DASHBOARD_FILE>
+                            </buildArgs>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>default</id>
@@ -98,14 +104,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <repository>${docker.organization}/dashboard</repository>
-                            <pullNewerImage>false</pullNewerImage>
-                            <tag>${project.version}</tag>
-                            <buildArgs>
-                                <DASHBOARD_FILE>build</DASHBOARD_FILE>
-                            </buildArgs>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

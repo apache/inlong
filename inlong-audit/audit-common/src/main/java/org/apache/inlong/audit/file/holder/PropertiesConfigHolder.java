@@ -17,6 +17,10 @@
 
 package org.apache.inlong.audit.file.holder;
 
+import org.apache.inlong.audit.file.ConfigHolder;
+
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,8 +33,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.commons.io.FileUtils;
-import org.apache.inlong.audit.file.ConfigHolder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +87,7 @@ public class PropertiesConfigHolder extends ConfigHolder {
 
     /**
      * load from holder
+     * 
      * @param tmpHolder
      * @return
      */

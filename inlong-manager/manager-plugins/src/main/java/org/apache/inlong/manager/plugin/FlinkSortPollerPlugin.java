@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.plugin;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.plugin.poller.SortStatusPoller;
 import org.apache.inlong.manager.workflow.plugin.sort.PollerPlugin;
 import org.apache.inlong.manager.workflow.plugin.sort.SortPoller;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Plugin of Flink Sort poller.

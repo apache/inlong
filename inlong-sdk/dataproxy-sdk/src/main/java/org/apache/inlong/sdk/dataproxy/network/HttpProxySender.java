@@ -18,6 +18,15 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
+import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
+import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.config.HostInfo;
+import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
+import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
+import org.apache.inlong.sdk.dataproxy.http.InternalHttpSender;
+import org.apache.inlong.sdk.dataproxy.utils.ConcurrentHashSet;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,14 +34,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
-import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
-import org.apache.inlong.sdk.dataproxy.SendResult;
-import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
-import org.apache.inlong.sdk.dataproxy.config.ProxyConfigManager;
-import org.apache.inlong.sdk.dataproxy.config.HostInfo;
-import org.apache.inlong.sdk.dataproxy.http.InternalHttpSender;
-import org.apache.inlong.sdk.dataproxy.utils.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * http sender
  */
 public class HttpProxySender extends Thread {
+
     private static final Logger logger = LoggerFactory.getLogger(Sender.class);
 
     private final ConcurrentHashSet<HostInfo> hostList = new ConcurrentHashSet<>();
@@ -133,14 +135,15 @@ public class HttpProxySender extends Thread {
      * @return
      */
     public SendResult sendMessage(String body, String groupId, String streamId, long dt,
-                                  long timeout, TimeUnit timeUnit) {
+            long timeout, TimeUnit timeUnit) {
         return sendMessage(Collections.singletonList(body), groupId, streamId, dt, timeout, timeUnit);
     }
 
     /**
      * send multiple messages.
      *
-     * @param bodies   list of bodies
+     * @param bodies
+     *          list of bodies
      * @param groupId
      * @param streamId
      * @param dt
@@ -149,7 +152,7 @@ public class HttpProxySender extends Thread {
      * @return
      */
     public SendResult sendMessage(List<String> bodies, String groupId, String streamId, long dt,
-                                  long timeout, TimeUnit timeUnit) {
+            long timeout, TimeUnit timeUnit) {
         if (hostList.isEmpty()) {
             logger.error("proxy list is empty, maybe client has been "
                     + "closed or groupId is not assigned with proxy list");
@@ -172,7 +175,7 @@ public class HttpProxySender extends Thread {
      * @param callback
      */
     public void asyncSendMessage(List<String> bodies, String groupId, String streamId, long dt,
-                                 long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
+            long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
         List<String> bodyList = new ArrayList<>(bodies);
         HttpMessage httpMessage = new HttpMessage(bodyList, groupId, streamId, dt,
                 timeout, timeUnit, callback);
@@ -208,7 +211,7 @@ public class HttpProxySender extends Thread {
      * @param callback
      */
     public void asyncSendMessage(String body, String groupId, String streamId, long dt,
-                                 long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
+            long timeout, TimeUnit timeUnit, SendMessageCallback callback) {
         asyncSendMessage(Collections.singletonList(body), groupId, streamId,
                 dt, timeout, timeUnit, callback);
     }

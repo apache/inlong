@@ -17,15 +17,17 @@
 
 package org.apache.inlong.manager.service.resource.sink.postgresql;
 
-import org.apache.commons.compress.utils.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLColumnInfo;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.compress.utils.Lists;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builder the SQL string for PostgreSQL
@@ -55,8 +57,10 @@ public class PostgreSQLSqlBuilder {
     /**
      * Build SQL to check whether the table exists.
      *
-     * @param schemaName PostgreSQL schema name
-     * @param tableName PostgreSQL table name
+     * @param schemaName
+     *          PostgreSQL schema name
+     * @param tableName
+     *          PostgreSQL table name
      * @return the check table SQL string
      */
     public static String getCheckTable(final String schemaName, final String tableName) {
@@ -74,8 +78,10 @@ public class PostgreSQLSqlBuilder {
     /**
      * Build SQL to check whether the column exists.
      *
-     * @param schemaName PostgreSQL table name
-     * @param columnName PostgreSQL column name
+     * @param schemaName
+     *          PostgreSQL table name
+     * @param columnName
+     *          PostgreSQL column name
      * @return the check column SQL string
      */
     public static String getCheckColumn(final String schemaName, final String tableName, final String columnName) {
@@ -109,8 +115,10 @@ public class PostgreSQLSqlBuilder {
     /**
      * Build create PostgreSQL schema SQL String
      *
-     * @param schemaName schema name
-     * @param user user name
+     * @param schemaName
+     *          schema name
+     * @param user
+     *          user name
      * @return SQL String
      */
     public static String buildCreateSchema(final String schemaName, final String user) {
@@ -126,7 +134,8 @@ public class PostgreSQLSqlBuilder {
     /**
      * Build create table SQL by PostgreSQLTableInfo.
      *
-     * @param table PostgreSQL table info {@link PostgreSQLTableInfo}
+     * @param table
+     *          PostgreSQL table info {@link PostgreSQLTableInfo}
      * @return the create table SQL String
      */
     public static List<String> buildCreateTableSql(final PostgreSQLTableInfo table) {
@@ -152,8 +161,10 @@ public class PostgreSQLSqlBuilder {
     /**
      * Build columns comment SQLs
      *
-     * @param tableName PostgreSQL table name
-     * @param columns PostgreSQL colum list {@link PostgreSQLColumnInfo}
+     * @param tableName
+     *          PostgreSQL table name
+     * @param columns
+     *          PostgreSQL colum list {@link PostgreSQLColumnInfo}
      * @return the SQL String list
      */
     private static List<String> getColumnsComment(final String schemaName, final String tableName,
@@ -180,7 +191,8 @@ public class PostgreSQLSqlBuilder {
     /**
      * Build table comment SQL
      *
-     * @param tableInfo PostgreSQL table info {@link PostgreSQLTableInfo}
+     * @param tableInfo
+     *          PostgreSQL table info {@link PostgreSQLTableInfo}
      * @return the SQL String
      */
     private static String getTableComment(final PostgreSQLTableInfo tableInfo) {
@@ -198,9 +210,12 @@ public class PostgreSQLSqlBuilder {
     /**
      * Build add columns SQL.
      *
-     * @param schemaName PostgreSQL schema name
-     * @param tableName PostgreSQL table name
-     * @param columnList PostgreSQL column list {@link List}
+     * @param schemaName
+     *          PostgreSQL schema name
+     * @param tableName
+     *          PostgreSQL table name
+     * @param columnList
+     *          PostgreSQL column list {@link List}
      * @return add column SQL string list
      */
     public static List<String> buildAddColumnsSql(final String schemaName, final String tableName,
@@ -229,7 +244,8 @@ public class PostgreSQLSqlBuilder {
     /**
      * Build create column SQL.
      *
-     * @param table PostgreSQL table info {@link PostgreSQLTableInfo}
+     * @param table
+     *          PostgreSQL table info {@link PostgreSQLTableInfo}
      * @return create column SQL string
      */
     private static String buildCreateColumnsSql(final PostgreSQLTableInfo table) {
@@ -249,7 +265,8 @@ public class PostgreSQLSqlBuilder {
     /**
      * Build column info by PostgreSQLColumnInfo list.
      *
-     * @param columns PostgreSQL column info {@link PostgreSQLColumnInfo} list
+     * @param columns
+     *          PostgreSQL column info {@link PostgreSQLColumnInfo} list
      * @return the SQL list
      */
     private static List<String> getColumnsInfo(final List<PostgreSQLColumnInfo> columns) {
@@ -270,13 +287,15 @@ public class PostgreSQLSqlBuilder {
     /**
      * Build query table's all cloumn SQL.
      *
-     * @param schemaName PostgreSQL schema name
-     * @param tableName PostgreSQL table name
+     * @param schemaName
+     *          PostgreSQL schema name
+     * @param tableName
+     *          PostgreSQL table name
      * @return desc table SQL string
      */
     public static String buildDescTableSql(final String schemaName, final String tableName) {
         StringBuilder sql = new StringBuilder().append(
-                        "SELECT A.COLUMN_NAME,A.UDT_NAME,C.DESCRIPTION FROM INFORMATION_SCHEMA.COLUMNS A")
+                "SELECT A.COLUMN_NAME,A.UDT_NAME,C.DESCRIPTION FROM INFORMATION_SCHEMA.COLUMNS A")
                 .append(" LEFT JOIN   (SELECT PC.OID AS OOID,PN.NSPNAME,PC.RELNAME")
                 .append(" FROM PG_CLASS PC LEFT OUTER JOIN PG_NAMESPACE PN ON PC.RELNAMESPACE = PN.OID ")
                 .append(" WHERE PN.NSPNAME ='")

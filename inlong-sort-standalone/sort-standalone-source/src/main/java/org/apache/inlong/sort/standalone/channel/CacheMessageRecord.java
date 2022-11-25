@@ -20,12 +20,13 @@ package org.apache.inlong.sort.standalone.channel;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.config.holder.AckPolicy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -63,6 +64,7 @@ public class CacheMessageRecord {
 
     /**
      * getToken
+     * 
      * @return
      */
     public Integer getToken() {
@@ -74,7 +76,9 @@ public class CacheMessageRecord {
 
     /**
      * ackMessage
-     * @param ackToken ackToken
+     * 
+     * @param ackToken
+     *          ackToken
      */
     public void ackMessage(int ackToken) {
         if (AckPolicy.TOKEN.equals(ackPolicy)) {
@@ -100,7 +104,9 @@ public class CacheMessageRecord {
 
     /**
      * ackMessageByToken
-     * @param ackToken ackToken
+     * 
+     * @param ackToken
+     *          ackToken
      */
     private void ackMessageByToken(int ackToken) {
         this.tokenSet.remove(ackToken);

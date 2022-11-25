@@ -18,23 +18,27 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.TubeMQConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.base.Preconditions;
 
 /**
  * TubeMQ extract node for extracting data from Tube.
@@ -70,7 +74,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
      */
     @JsonProperty("tid")
     private TreeSet<String> tid;
-    
+
     @JsonCreator
     public TubeMQExtractNode(
             @JsonProperty("id") String id,
@@ -83,8 +87,7 @@ public class TubeMQExtractNode extends ExtractNode implements Serializable {
             @Nonnull @JsonProperty("format") String format,
             @Nonnull @JsonProperty("groupId") String groupId,
             @JsonProperty("sessionKey") String sessionKey,
-            @JsonProperty("tid") TreeSet<String> tid
-    ) {
+            @JsonProperty("tid") TreeSet<String> tid) {
         super(id, name, fields, waterMarkField, properties);
         this.masterRpc = Preconditions.checkNotNull(masterRpc, "TubeMQ masterRpc is null");
         this.topic = Preconditions.checkNotNull(topic, "TubeMQ topic is null");

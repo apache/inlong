@@ -17,18 +17,22 @@
 
 package org.apache.inlong.agent.core.conf;
 
-import com.google.gson.Gson;
-import org.apache.commons.io.IOUtils;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.IOUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * Handle config http request
@@ -55,12 +59,15 @@ public class ConfigServlet extends HttpServlet {
     /**
      * write http response
      *
-     * @param response HttpServletResponse
-     * @param result ResponseResult
+     * @param response
+     *          HttpServletResponse
+     * @param result
+     *          ResponseResult
      * @throws IOException
      */
     public void responseToJson(HttpServletResponse response,
-            ResponseResult result) throws IOException {
+            ResponseResult result)
+            throws IOException {
         response.setContentType(CONTENT_TYPE);
         response.setCharacterEncoding(CHARSET_TYPE);
         String jsonStr = gson.toJson(result);
@@ -72,7 +79,8 @@ public class ConfigServlet extends HttpServlet {
     /**
      * handle path of "/config/job"
      *
-     * @param jobProfileStr job profile string
+     * @param jobProfileStr
+     *          job profile string
      */
     private void handleJob(String jobProfileStr) {
         JobProfile jobProfile = JobProfile.parseJsonStr(jobProfileStr);
@@ -91,8 +99,10 @@ public class ConfigServlet extends HttpServlet {
     /**
      * handle post requests.
      *
-     * @param req request
-     * @param resp response
+     * @param req
+     *          request
+     * @param resp
+     *          response
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {

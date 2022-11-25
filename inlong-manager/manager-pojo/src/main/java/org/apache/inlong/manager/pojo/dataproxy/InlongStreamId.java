@@ -39,7 +39,8 @@ public class InlongStreamId {
     /**
      * set inlongGroupId
      *
-     * @param inlongGroupId the inlongGroupId to set
+     * @param inlongGroupId
+     *          the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
         this.inlongGroupId = inlongGroupId;
@@ -57,7 +58,8 @@ public class InlongStreamId {
     /**
      * set inlongStreamId
      *
-     * @param inlongStreamId the inlongStreamId to set
+     * @param inlongStreamId
+     *          the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
         this.inlongStreamId = inlongStreamId;
@@ -75,7 +77,8 @@ public class InlongStreamId {
     /**
      * set topic
      *
-     * @param topic the topic to set
+     * @param topic
+     *          the topic to set
      */
     public void setTopic(String topic) {
         this.topic = topic;
@@ -93,7 +96,8 @@ public class InlongStreamId {
     /**
      * set extParams
      *
-     * @param extParams the extParams to set
+     * @param extParams
+     *          the extParams to set
      */
     public void setExtParams(String extParams) {
         this.extParams = extParams;

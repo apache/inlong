@@ -18,17 +18,6 @@
 
 package org.apache.inlong.sort.base.metric;
 
-import org.apache.flink.metrics.Counter;
-import org.apache.flink.metrics.Meter;
-import org.apache.flink.metrics.MetricGroup;
-import org.apache.flink.metrics.SimpleCounter;
-import org.apache.inlong.audit.AuditOperator;
-import org.apache.inlong.sort.base.Constants;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
@@ -37,6 +26,18 @@ import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_PER_SECOND;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_FOR_METER;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
+
+import org.apache.inlong.audit.AuditOperator;
+import org.apache.inlong.sort.base.Constants;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+
+import org.apache.flink.metrics.Counter;
+import org.apache.flink.metrics.Meter;
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.metrics.SimpleCounter;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 /**
  * A collection class for handling metrics
@@ -104,8 +105,8 @@ public class SinkMetricData implements MetricData {
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * Default counter is {@link SimpleCounter} groupId and streamId and nodeId are
+     * label value, user can use it filter metric data when use metric reporter
      * prometheus
      */
     public void registerMetricsForNumRecordsOutForMeter() {
@@ -113,17 +114,17 @@ public class SinkMetricData implements MetricData {
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * User can use custom counter that extends from {@link Counter} groupId and
+     * streamId and nodeId are label value, user can use it filter metric data when
+     * use metric reporter prometheus
      */
     public void registerMetricsForNumRecordsOutForMeter(Counter counter) {
         numRecordsOutForMeter = registerCounter(NUM_RECORDS_OUT_FOR_METER, counter);
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * Default counter is {@link SimpleCounter} groupId and streamId and nodeId are
+     * label value, user can use it filter metric data when use metric reporter
      * prometheus
      */
     public void registerMetricsForNumBytesOutForMeter() {
@@ -132,17 +133,17 @@ public class SinkMetricData implements MetricData {
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * User can use custom counter that extends from {@link Counter} groupId and
+     * streamId and nodeId are label value, user can use it filter metric data when
+     * use metric reporter prometheus
      */
     public void registerMetricsForNumBytesOutForMeter(Counter counter) {
         numBytesOutForMeter = registerCounter(NUM_BYTES_OUT_FOR_METER, counter);
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * Default counter is {@link SimpleCounter} groupId and streamId and nodeId are
+     * label value, user can use it filter metric data when use metric reporter
      * prometheus
      */
     public void registerMetricsForNumRecordsOut() {
@@ -150,17 +151,17 @@ public class SinkMetricData implements MetricData {
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * User can use custom counter that extends from {@link Counter} groupId and
+     * streamId and nodeId are label value, user can use it filter metric data when
+     * use metric reporter prometheus
      */
     public void registerMetricsForNumRecordsOut(Counter counter) {
         numRecordsOut = registerCounter(NUM_RECORDS_OUT, counter);
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * Default counter is {@link SimpleCounter} groupId and streamId and nodeId are
+     * label value, user can use it filter metric data when use metric reporter
      * prometheus
      */
     public void registerMetricsForNumBytesOut() {
@@ -169,9 +170,9 @@ public class SinkMetricData implements MetricData {
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * User can use custom counter that extends from {@link Counter} groupId and
+     * streamId and nodeId are label value, user can use it filter metric data when
+     * use metric reporter prometheus
      */
     public void registerMetricsForNumBytesOut(Counter counter) {
         numBytesOut = registerCounter(NUM_BYTES_OUT, counter);
@@ -194,8 +195,8 @@ public class SinkMetricData implements MetricData {
     }
 
     /**
-     * Default counter is {@link SimpleCounter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * Default counter is {@link SimpleCounter} groupId and streamId and nodeId are
+     * label value, user can use it filter metric data when use metric reporter
      * prometheus
      */
     public void registerMetricsForDirtyBytesOut() {
@@ -203,9 +204,9 @@ public class SinkMetricData implements MetricData {
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
-     * prometheus
+     * User can use custom counter that extends from {@link Counter} groupId and
+     * streamId and nodeId are label value, user can use it filter metric data when
+     * use metric reporter prometheus
      */
     public void registerMetricsForDirtyBytesOut(Counter counter) {
         dirtyBytesOut = registerCounter(DIRTY_BYTES_OUT, counter);

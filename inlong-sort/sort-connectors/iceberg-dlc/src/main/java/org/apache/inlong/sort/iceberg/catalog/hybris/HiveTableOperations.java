@@ -19,18 +19,8 @@
 
 package org.apache.inlong.sort.iceberg.catalog.hybris;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
+import static org.apache.iceberg.TableProperties.GC_ENABLED;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.common.StatsSetupConst;
 import org.apache.hadoop.hive.metastore.IMetaStoreClient;
@@ -72,16 +62,30 @@ import org.apache.iceberg.shaded.com.github.benmanes.caffeine.cache.Cache;
 import org.apache.iceberg.shaded.com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.iceberg.util.Tasks;
 import org.apache.thrift.TException;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.iceberg.TableProperties.GC_ENABLED;
-
 /**
- * TODO we should be able to extract some more commonalities to BaseMetastoreTableOperations to
- * avoid code duplication between this class and Metacat Tables.
+ * TODO we should be able to extract some more commonalities to
+ * BaseMetastoreTableOperations to avoid code duplication between this class and
+ * Metacat Tables.
  */
 public class HiveTableOperations extends BaseMetastoreTableOperations {
+
     private static final Logger LOG = LoggerFactory.getLogger(HiveTableOperations.class);
 
     private static final String HIVE_ACQUIRE_LOCK_TIMEOUT_MS = "iceberg.hive.lock-timeout-ms";
@@ -104,9 +108,8 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
             .build();
     private static final BiMap<String, String> ICEBERG_TO_HMS_TRANSLATION = ImmutableBiMap.of(
             // gc.enabled in Iceberg and external.table.purge in Hive
-            //      are meant to do the same things but with different names
-            GC_ENABLED, "external.table.purge"
-    );
+            // are meant to do the same things but with different names
+            GC_ENABLED, "external.table.purge");
 
     private static Cache<String, ReentrantLock> commitLockCache;
 
@@ -119,24 +122,29 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
     }
 
     /**
-     * Provides key translation where necessary between Iceberg and HMS props. This translation is needed because some
-     * properties control the same behaviour but are named differently in Iceberg and Hive. Therefore changes to these
+     * Provides key translation where necessary between Iceberg and HMS props. This
+     * translation is needed because some properties control the same behaviour but
+     * are named differently in Iceberg and Hive. Therefore changes to these
      * property pairs should be synchronized.
      *
-     * Example: Deleting data files upon DROP TABLE is enabled using gc.enabled=true in Iceberg and
-     * external.table.purge=true in Hive. Hive and Iceberg users are unaware of each other's control flags, therefore
-     * inconsistent behaviour can occur from e.g. a Hive user's point of view if external.table.purge=true is set on the
-     * HMS table but gc.enabled=false is set on the Iceberg table, resulting in no data file deletion.
+     * Example: Deleting data files upon DROP TABLE is enabled using gc.enabled=true
+     * in Iceberg and external.table.purge=true in Hive. Hive and Iceberg users are
+     * unaware of each other's control flags, therefore inconsistent behaviour can
+     * occur from e.g. a Hive user's point of view if external.table.purge=true is
+     * set on the HMS table but gc.enabled=false is set on the Iceberg table,
+     * resulting in no data file deletion.
      *
-     * @param hmsProp The HMS property that should be translated to Iceberg property
-     * @return Iceberg property equivalent to the hmsProp.
-     *         If no such translation exists, the original hmsProp is returned
+     * @param hmsProp
+     *          The HMS property that should be translated to Iceberg property
+     * @return Iceberg property equivalent to the hmsProp. If no such translation
+     *         exists, the original hmsProp is returned
      */
     public static String translateToIcebergProp(String hmsProp) {
         return ICEBERG_TO_HMS_TRANSLATION.inverse().getOrDefault(hmsProp, hmsProp);
     }
 
     private static class WaitingForLockException extends RuntimeException {
+
         WaitingForLockException(String message) {
             super(message);
         }
@@ -161,17 +169,13 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
         this.fullName = catalogName + "." + database + "." + table;
         this.database = database;
         this.tableName = table;
-        this.lockAcquireTimeout =
-                conf.getLong(HIVE_ACQUIRE_LOCK_TIMEOUT_MS, HIVE_ACQUIRE_LOCK_TIMEOUT_MS_DEFAULT);
-        this.lockCheckMinWaitTime =
-                conf.getLong(HIVE_LOCK_CHECK_MIN_WAIT_MS, HIVE_LOCK_CHECK_MIN_WAIT_MS_DEFAULT);
-        this.lockCheckMaxWaitTime =
-                conf.getLong(HIVE_LOCK_CHECK_MAX_WAIT_MS, HIVE_LOCK_CHECK_MAX_WAIT_MS_DEFAULT);
-        this.metadataRefreshMaxRetries =
-                conf.getInt(HIVE_ICEBERG_METADATA_REFRESH_MAX_RETRIES,
-                        HIVE_ICEBERG_METADATA_REFRESH_MAX_RETRIES_DEFAULT);
-        long tableLevelLockCacheEvictionTimeout =
-                conf.getLong(HIVE_TABLE_LEVEL_LOCK_EVICT_MS, HIVE_TABLE_LEVEL_LOCK_EVICT_MS_DEFAULT);
+        this.lockAcquireTimeout = conf.getLong(HIVE_ACQUIRE_LOCK_TIMEOUT_MS, HIVE_ACQUIRE_LOCK_TIMEOUT_MS_DEFAULT);
+        this.lockCheckMinWaitTime = conf.getLong(HIVE_LOCK_CHECK_MIN_WAIT_MS, HIVE_LOCK_CHECK_MIN_WAIT_MS_DEFAULT);
+        this.lockCheckMaxWaitTime = conf.getLong(HIVE_LOCK_CHECK_MAX_WAIT_MS, HIVE_LOCK_CHECK_MAX_WAIT_MS_DEFAULT);
+        this.metadataRefreshMaxRetries = conf.getInt(HIVE_ICEBERG_METADATA_REFRESH_MAX_RETRIES,
+                HIVE_ICEBERG_METADATA_REFRESH_MAX_RETRIES_DEFAULT);
+        long tableLevelLockCacheEvictionTimeout = conf.getLong(HIVE_TABLE_LEVEL_LOCK_EVICT_MS,
+                HIVE_TABLE_LEVEL_LOCK_EVICT_MS_DEFAULT);
         initTableLevelLockCache(tableLevelLockCacheEvictionTimeout);
     }
 
@@ -215,15 +219,18 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
     @Override
     protected void doCommit(TableMetadata base, TableMetadata metadata) {
         String newMetadataLocation = base == null && metadata.metadataFileLocation() != null
-                ? metadata.metadataFileLocation() : writeNewMetadata(metadata, currentVersion() + 1);
+                ? metadata.metadataFileLocation()
+                : writeNewMetadata(metadata, currentVersion() + 1);
         boolean hiveEngineEnabled = hiveEngineEnabled(metadata, conf);
         boolean keepHiveStats = conf.getBoolean(ConfigProperties.KEEP_HIVE_STATS, false);
 
         CommitStatus commitStatus = CommitStatus.FAILURE;
         boolean updateHiveTable = false;
         Optional<Long> lockId = Optional.empty();
-        // getting a process-level lock per table to avoid concurrent commit attempts to the same table from the same
-        // JVM process, which would result in unnecessary and costly HMS lock acquisition requests
+        // getting a process-level lock per table to avoid concurrent commit attempts to
+        // the same table from the same
+        // JVM process, which would result in unnecessary and costly HMS lock
+        // acquisition requests
         ReentrantLock tableLevelMutex = commitLockCache.get(fullName, t -> new ReentrantLock(true));
         tableLevelMutex.lock();
         try {
@@ -316,8 +323,7 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
         if (updateHiveTable) {
             metaClients.run(client -> {
                 EnvironmentContext envContext = new EnvironmentContext(
-                        ImmutableMap.of(StatsSetupConst.DO_NOT_UPDATE_STATS, StatsSetupConst.TRUE)
-                );
+                        ImmutableMap.of(StatsSetupConst.DO_NOT_UPDATE_STATS, StatsSetupConst.TRUE));
                 ALTER_TABLE.invoke(client, database, tableName, hmsTable, envContext);
                 return null;
             });
@@ -445,10 +451,14 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
             if (state.get().equals(LockState.WAITING)) {
                 // Retry count is the typical "upper bound of retries" for Tasks.run() function.
                 // In fact, the maximum number of
-                // attempts the Tasks.run() would try is `retries + 1`. Here, for checking locks, we use timeout as the
-                // upper bound of retries. So it is just reasonable to set a large retry count. However, if we set
-                // Integer.MAX_VALUE, the above logic of `retries + 1` would overflow into Integer.MIN_VALUE. Hence,
-                // the retry is set conservatively as `Integer.MAX_VALUE - 100` so it doesn't hit any boundary issues.
+                // attempts the Tasks.run() would try is `retries + 1`. Here, for checking
+                // locks, we use timeout as the
+                // upper bound of retries. So it is just reasonable to set a large retry count.
+                // However, if we set
+                // Integer.MAX_VALUE, the above logic of `retries + 1` would overflow into
+                // Integer.MIN_VALUE. Hence,
+                // the retry is set conservatively as `Integer.MAX_VALUE - 100` so it doesn't
+                // hit any boundary issues.
                 Tasks.foreach(lockId)
                         .retry(Integer.MAX_VALUE - 100)
                         .exponentialBackoff(
@@ -535,18 +545,22 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
     }
 
     /**
-     * Returns if the hive engine related values should be enabled on the table, or not.
+     * Returns if the hive engine related values should be enabled on the table, or
+     * not.
      * <p>
      * The decision is made like this:
      * <ol>
      * <li>Table property value {@link TableProperties#ENGINE_HIVE_ENABLED}
-     * <li>If the table property is not set then check the hive-site.xml property value
-     * {@link ConfigProperties#ENGINE_HIVE_ENABLED}
+     * <li>If the table property is not set then check the hive-site.xml property
+     * value {@link ConfigProperties#ENGINE_HIVE_ENABLED}
      * <li>If none of the above is enabled then use the default value
      * {@link TableProperties#ENGINE_HIVE_ENABLED_DEFAULT}
      * </ol>
-     * @param metadata Table metadata to use
-     * @param conf The hive configuration to use
+     * 
+     * @param metadata
+     *          Table metadata to use
+     * @param conf
+     *          The hive configuration to use
      * @return if the hive engine related values should be enabled or not
      */
     private static boolean hiveEngineEnabled(TableMetadata metadata, Configuration conf) {

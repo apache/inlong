@@ -18,8 +18,8 @@
 package org.apache.inlong.agent.plugin;
 
 /**
- * Reader reads data and provides condition whether the reading action is finished. It's called at
- * Task level.
+ * Reader reads data and provides condition whether the reading action is
+ * finished. It's called at Task level.
  */
 public interface Reader extends Stage {
 
@@ -46,8 +46,8 @@ public interface Reader extends Stage {
     void setReadTimeout(long mill);
 
     /**
-     * set wait milliseconds when tailing a file
-     * to solve while loop cause too much cpu usage
+     * set wait milliseconds when tailing a file to solve while loop cause too much
+     * cpu usage
      */
     void setWaitMillisecond(long millis);
 

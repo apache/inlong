@@ -17,9 +17,10 @@
 
 package org.apache.inlong.sdk.sort.api;
 
+import org.apache.inlong.sdk.sort.entity.InLongTopic;
+
 import java.util.Collection;
 import java.util.Set;
-import org.apache.inlong.sdk.sort.entity.InLongTopic;
 
 @Deprecated
 public abstract class InlongTopicManager implements Cleanable {

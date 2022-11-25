@@ -17,14 +17,9 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import com.google.common.base.Preconditions;
-import com.google.gson.Gson;
-import io.debezium.connector.oracle.OracleConnector;
-import io.debezium.engine.ChangeEvent;
-import io.debezium.engine.DebeziumEngine;
-import io.debezium.relational.history.FileDatabaseHistory;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
@@ -39,9 +34,10 @@ import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.GsonUtil;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -52,8 +48,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
+
+import io.debezium.connector.oracle.OracleConnector;
+import io.debezium.engine.ChangeEvent;
+import io.debezium.engine.DebeziumEngine;
+import io.debezium.relational.history.FileDatabaseHistory;
 
 /**
  * Read data from Oracle database by Debezium
@@ -101,8 +105,7 @@ public class OracleReader extends AbstractReader {
     private ExecutorService executor;
 
     /**
-     * pair.left : table name
-     * pair.right : actual data
+     * pair.left : table name pair.right : actual data
      */
     private LinkedBlockingQueue<Pair<String, String>> oracleMessageQueue;
     private JobProfile jobProfile;
@@ -219,7 +222,7 @@ public class OracleReader extends AbstractReader {
         Properties props = getEngineProps();
 
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
-                        io.debezium.engine.format.Json.class)
+                io.debezium.engine.format.Json.class)
                 .using(props)
                 .notifying((records, committer) -> {
                     try {

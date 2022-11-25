@@ -18,6 +18,21 @@
 
 package org.apache.inlong.sort.pulsar.withoutadmin;
 
+import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITS_FAILED_METRICS_COUNTER;
+import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITS_SUCCEEDED_METRICS_COUNTER;
+import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.PULSAR_SOURCE_METRICS_GROUP;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.pulsar.table.DynamicPulsarDeserializationSchema;
+
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -58,19 +73,11 @@ import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 import org.apache.flink.streaming.util.serialization.PulsarDeserializationSchema;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.SerializedValue;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.pulsar.table.DynamicPulsarDeserializationSchema;
 import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.conf.ClientConfigurationData;
 import org.apache.pulsar.shade.com.google.common.collect.Maps;
 import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,29 +94,32 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITS_FAILED_METRICS_COUNTER;
-import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.COMMITS_SUCCEEDED_METRICS_COUNTER;
-import static org.apache.flink.streaming.connectors.pulsar.internal.metrics.PulsarSourceMetrics.PULSAR_SOURCE_METRICS_GROUP;
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Copy from io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9,
- * From {@link org.apache.flink.streaming.connectors.pulsar.FlinkPulsarSource}
- * Pulsar data source.
+ * Copy from
+ * io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9, From
+ * {@link org.apache.flink.streaming.connectors.pulsar.FlinkPulsarSource} Pulsar
+ * data source.
  *
- * @param <T> The type of records produced by this data source.
+ * @param <T>
+ *          The type of records produced by this data source.
  */
 public class FlinkPulsarSource<T>
-        extends RichParallelSourceFunction<T>
-        implements ResultTypeQueryable<T>,
-        CheckpointListener,
-        CheckpointedFunction {
+        extends
+            RichParallelSourceFunction<T>
+        implements
+            ResultTypeQueryable<T>,
+            CheckpointListener,
+            CheckpointedFunction {
+
     private static final Logger log = LoggerFactory.getLogger(FlinkPulsarSource.class);
 
-    /** The maximum number of pending non-committed checkpoints to track, to avoid memory leaks. */
+    /**
+     * The maximum number of pending non-committed checkpoints to track, to avoid
+     * memory leaks.
+     */
     public static final int MAX_NUM_PENDING_CHECKPOINTS = 100;
 
     /** Boolean configuration key to disable metrics tracking. **/
@@ -121,7 +131,7 @@ public class FlinkPulsarSource<T>
     private static final String OFFSETS_STATE_NAME_V3 = "topic-offset-states";
 
     // ------------------------------------------------------------------------
-    //  configuration state, set on the client relevant for all subtasks
+    // configuration state, set on the client relevant for all subtasks
     // ------------------------------------------------------------------------
 
     protected String serverUrl;
@@ -137,9 +147,9 @@ public class FlinkPulsarSource<T>
     private Map<TopicRange, MessageId> ownedTopicStarts;
 
     /**
-     * Optional watermark strategy that will be run per pulsar partition, to exploit per-partition
-     * timestamp characteristics. The watermark strategy is kept in serialized form, to deserialize
-     * it into multiple copies.
+     * Optional watermark strategy that will be run per pulsar partition, to exploit
+     * per-partition timestamp characteristics. The watermark strategy is kept in
+     * serialized form, to deserialize it into multiple copies.
      */
     private SerializedValue<WatermarkStrategy<T>> watermarkStrategy;
 
@@ -154,15 +164,18 @@ public class FlinkPulsarSource<T>
     private StartupMode startupMode = StartupMode.LATEST;
 
     /**
-     * The subscription name to be used; only relevant when startup mode is {@link StartupMode#EXTERNAL_SUBSCRIPTION}
-     * If the subscription exists for a partition, we would start reading this partition from the subscription cursor.
-     * At the same time, checkpoint for the job would made progress on the subscription.
+     * The subscription name to be used; only relevant when startup mode is
+     * {@link StartupMode#EXTERNAL_SUBSCRIPTION} If the subscription exists for a
+     * partition, we would start reading this partition from the subscription
+     * cursor. At the same time, checkpoint for the job would made progress on the
+     * subscription.
      */
     private String externalSubscriptionName;
 
     /**
-     * The subscription position to use when subscription does not exist (default is {@link MessageId#latest});
-     * Only relevant when startup mode is {@link StartupMode#EXTERNAL_SUBSCRIPTION}.
+     * The subscription position to use when subscription does not exist (default is
+     * {@link MessageId#latest}); Only relevant when startup mode is
+     * {@link StartupMode#EXTERNAL_SUBSCRIPTION}.
      */
     private MessageId subscriptionPosition = MessageId.latest;
 
@@ -175,7 +188,7 @@ public class FlinkPulsarSource<T>
     protected final UUID uuid = UUID.randomUUID();
 
     // ------------------------------------------------------------------------
-    //  runtime state (used individually by each parallel subtask)
+    // runtime state (used individually by each parallel subtask)
     // ------------------------------------------------------------------------
 
     /** Data for pending but uncommitted offsets. */
@@ -190,10 +203,13 @@ public class FlinkPulsarSource<T>
     /**
      * The offsets to restore to, if the consumer restores state from a checkpoint.
      *
-     * <p>This map will be populated by the {@link #initializeState(FunctionInitializationContext)} method.
+     * <p>
+     * This map will be populated by the
+     * {@link #initializeState(FunctionInitializationContext)} method.
      *
-     * <p>Using a sorted map as the ordering is important when using restored state
-     * to seed the partition discoverer.
+     * <p>
+     * Using a sorted map as the ordering is important when using restored state to
+     * seed the partition discoverer.
      */
     private transient volatile TreeMap<TopicRange, MessageId> restoredState;
     private transient volatile Set<TopicRange> excludeStartMessageIds;
@@ -214,9 +230,9 @@ public class FlinkPulsarSource<T>
     private volatile boolean running = true;
 
     /**
-     * Flag indicating whether or not metrics should be exposed.
-     * If {@code true}, offset metrics (e.g. current offset, committed offset) and
-     * other metrics will be registered.
+     * Flag indicating whether or not metrics should be exposed. If {@code true},
+     * offset metrics (e.g. current offset, committed offset) and other metrics will
+     * be registered.
      */
     private final boolean useMetrics;
 
@@ -229,7 +245,6 @@ public class FlinkPulsarSource<T>
     private transient int taskIndex;
 
     private transient int numParallelTasks;
-
 
     private MetricState metricState;
 
@@ -259,18 +274,12 @@ public class FlinkPulsarSource<T>
         this.clientConfigurationData = checkNotNull(clientConf);
         this.deserializer = deserializer;
         this.properties = properties;
-        this.caseInsensitiveParams =
-                SourceSinkUtils.validateStreamSourceOptions(Maps.fromProperties(properties));
-        this.readerConf =
-                SourceSinkUtils.getReaderParams(Maps.fromProperties(properties));
-        this.discoveryIntervalMillis =
-                SourceSinkUtils.getPartitionDiscoveryIntervalInMillis(caseInsensitiveParams);
-        this.pollTimeoutMs =
-                SourceSinkUtils.getPollTimeoutMs(caseInsensitiveParams);
-        this.commitMaxRetries =
-                SourceSinkUtils.getCommitMaxRetries(caseInsensitiveParams);
-        this.useMetrics =
-                SourceSinkUtils.getUseMetrics(caseInsensitiveParams);
+        this.caseInsensitiveParams = SourceSinkUtils.validateStreamSourceOptions(Maps.fromProperties(properties));
+        this.readerConf = SourceSinkUtils.getReaderParams(Maps.fromProperties(properties));
+        this.discoveryIntervalMillis = SourceSinkUtils.getPartitionDiscoveryIntervalInMillis(caseInsensitiveParams);
+        this.pollTimeoutMs = SourceSinkUtils.getPollTimeoutMs(caseInsensitiveParams);
+        this.commitMaxRetries = SourceSinkUtils.getCommitMaxRetries(caseInsensitiveParams);
+        this.useMetrics = SourceSinkUtils.getUseMetrics(caseInsensitiveParams);
 
         CachedPulsarClient.setCacheSize(SourceSinkUtils.getClientCacheSize(caseInsensitiveParams));
 
@@ -281,29 +290,34 @@ public class FlinkPulsarSource<T>
     }
 
     // ------------------------------------------------------------------------
-    //  Configuration
+    // Configuration
     // ------------------------------------------------------------------------
 
     /**
-     * Specifies an {@link AssignerWithPunctuatedWatermarks} to emit watermarks
-     * in a punctuated manner. The watermark extractor will run per Pulsar partition,
-     * watermarks will be merged across partitions in the same way as in the Flink runtime,
-     * when streams are merged.
+     * Specifies an {@link AssignerWithPunctuatedWatermarks} to emit watermarks in a
+     * punctuated manner. The watermark extractor will run per Pulsar partition,
+     * watermarks will be merged across partitions in the same way as in the Flink
+     * runtime, when streams are merged.
      *
-     * <p>When a subtask of a FlinkPulsarSource source reads multiple Pulsar partitions,
-     * the streams from the partitions are unioned in a "first come first serve" fashion.
-     * Per-partition characteristics are usually lost that way.
-     * For example, if the timestamps are strictly ascending per Pulsar partition,
-     * they will not be strictly ascending in the resulting Flink DataStream, if the
-     * parallel source subtask reads more that one partition.
+     * <p>
+     * When a subtask of a FlinkPulsarSource source reads multiple Pulsar
+     * partitions, the streams from the partitions are unioned in a "first come
+     * first serve" fashion. Per-partition characteristics are usually lost that
+     * way. For example, if the timestamps are strictly ascending per Pulsar
+     * partition, they will not be strictly ascending in the resulting Flink
+     * DataStream, if the parallel source subtask reads more that one partition.
      *
-     * <p>Running timestamp extractors / watermark generators directly inside the Pulsar source,
-     * per Pulsar partition, allows users to let them exploit the per-partition characteristics.
+     * <p>
+     * Running timestamp extractors / watermark generators directly inside the
+     * Pulsar source, per Pulsar partition, allows users to let them exploit the
+     * per-partition characteristics.
      *
-     * <p>Note: One can use either an {@link AssignerWithPunctuatedWatermarks} or an
+     * <p>
+     * Note: One can use either an {@link AssignerWithPunctuatedWatermarks} or an
      * {@link AssignerWithPeriodicWatermarks}, not both at the same time.
      *
-     * @param assigner The timestamp assigner / watermark generator to use.
+     * @param assigner
+     *          The timestamp assigner / watermark generator to use.
      * @return The reader object, to allow function chaining.
      */
     @Deprecated
@@ -325,25 +339,30 @@ public class FlinkPulsarSource<T>
     }
 
     /**
-     * Specifies an {@link AssignerWithPunctuatedWatermarks} to emit watermarks
-     * in a punctuated manner. The watermark extractor will run per Pulsar partition,
-     * watermarks will be merged across partitions in the same way as in the Flink runtime,
-     * when streams are merged.
+     * Specifies an {@link AssignerWithPunctuatedWatermarks} to emit watermarks in a
+     * punctuated manner. The watermark extractor will run per Pulsar partition,
+     * watermarks will be merged across partitions in the same way as in the Flink
+     * runtime, when streams are merged.
      *
-     * <p>When a subtask of a FlinkTDMQSource source reads multiple Pulsar partitions,
-     * the streams from the partitions are unioned in a "first come first serve" fashion.
-     * Per-partition characteristics are usually lost that way.
-     * For example, if the timestamps are strictly ascending per Pulsar partition,
-     * they will not be strictly ascending in the resulting Flink DataStream,
-     * if the parallel source subtask reads more that one partition.
+     * <p>
+     * When a subtask of a FlinkTDMQSource source reads multiple Pulsar partitions,
+     * the streams from the partitions are unioned in a "first come first serve"
+     * fashion. Per-partition characteristics are usually lost that way. For
+     * example, if the timestamps are strictly ascending per Pulsar partition, they
+     * will not be strictly ascending in the resulting Flink DataStream, if the
+     * parallel source subtask reads more that one partition.
      *
-     * <p>Running timestamp extractors / watermark generators directly inside the Pulsar source,
-     * per Pulsar partition, allows users to let them exploit the per-partition characteristics.
+     * <p>
+     * Running timestamp extractors / watermark generators directly inside the
+     * Pulsar source, per Pulsar partition, allows users to let them exploit the
+     * per-partition characteristics.
      *
-     * <p>Note: One can use either an {@link AssignerWithPunctuatedWatermarks} or an
+     * <p>
+     * Note: One can use either an {@link AssignerWithPunctuatedWatermarks} or an
      * {@link AssignerWithPeriodicWatermarks}, not both at the same time.
      *
-     * @param assigner The timestamp assigner / watermark generator to use.
+     * @param assigner
+     *          The timestamp assigner / watermark generator to use.
      * @return The reader object, to allow function chaining.
      */
     @Deprecated
@@ -365,20 +384,25 @@ public class FlinkPulsarSource<T>
     }
 
     /**
-     * Sets the given {@link WatermarkStrategy} on this consumer. These will be used to assign
-     * timestamps to records and generates watermarks to signal event time progress.
+     * Sets the given {@link WatermarkStrategy} on this consumer. These will be used
+     * to assign timestamps to records and generates watermarks to signal event time
+     * progress.
      *
-     * <p>Running timestamp extractors / watermark generators directly inside the Pulsar source
-     * (which you can do by using this method), per Pulsar partition, allows users to let them
-     * exploit the per-partition characteristics.
+     * <p>
+     * Running timestamp extractors / watermark generators directly inside the
+     * Pulsar source (which you can do by using this method), per Pulsar partition,
+     * allows users to let them exploit the per-partition characteristics.
      *
-     * <p>When a subtask of a FlinkTDMQSource reads multiple pulsar partitions,
-     * the streams from the partitions are unioned in a "first come first serve" fashion.
-     * Per-partition characteristics are usually lost that way. For example, if the timestamps are
-     * strictly ascending per Pulsar partition, they will not be strictly ascending in the resulting
-     * Flink DataStream, if the parallel source subtask reads more than one partition.
+     * <p>
+     * When a subtask of a FlinkTDMQSource reads multiple pulsar partitions, the
+     * streams from the partitions are unioned in a "first come first serve"
+     * fashion. Per-partition characteristics are usually lost that way. For
+     * example, if the timestamps are strictly ascending per Pulsar partition, they
+     * will not be strictly ascending in the resulting Flink DataStream, if the
+     * parallel source subtask reads more than one partition.
      *
-     * <p>Common watermark generation patterns can be found as static methods in the
+     * <p>
+     * Common watermark generation patterns can be found as static methods in the
      * {@link WatermarkStrategy} class.
      *
      * @return The consumer object, to allow function chaining.
@@ -414,7 +438,7 @@ public class FlinkPulsarSource<T>
     }
 
     public FlinkPulsarSource<T> setStartFromSubscription(String externalSubscriptionName,
-                                                         MessageId subscriptionPosition) {
+            MessageId subscriptionPosition) {
         this.startupMode = StartupMode.EXTERNAL_SUBSCRIPTION;
         this.externalSubscriptionName = checkNotNull(externalSubscriptionName);
         this.subscriptionPosition = checkNotNull(subscriptionPosition);
@@ -422,19 +446,19 @@ public class FlinkPulsarSource<T>
     }
 
     // ------------------------------------------------------------------------
-    //  Work methods
+    // Work methods
     // ------------------------------------------------------------------------
 
     @Override
     public void open(Configuration parameters) throws Exception {
 
         MetricOption metricOption = MetricOption.builder()
-            .withInlongLabels(inlongMetric)
-            .withInlongAudit(inlongAudit)
-            .withRegisterMetric(RegisteredMetric.ALL)
-            .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_IN) : 0L)
-            .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_IN) : 0L)
-            .build();
+                .withInlongLabels(inlongMetric)
+                .withInlongAudit(inlongAudit)
+                .withRegisterMetric(RegisteredMetric.ALL)
+                .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_IN) : 0L)
+                .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_IN) : 0L)
+                .build();
 
         if (metricOption != null) {
             sourceMetricData = new SourceMetricData(metricOption, getRuntimeContext().getMetricGroup());
@@ -443,15 +467,13 @@ public class FlinkPulsarSource<T>
         if (this.deserializer != null) {
 
             DynamicPulsarDeserializationSchema dynamicKafkaDeserializationSchema =
-                (DynamicPulsarDeserializationSchema) deserializer;
+                    (DynamicPulsarDeserializationSchema) deserializer;
             dynamicKafkaDeserializationSchema.setMetricData(sourceMetricData);
 
             this.deserializer.open(
                     RuntimeContextInitializationContextAdapters.deserializationAdapter(
                             getRuntimeContext(),
-                            metricGroup -> metricGroup.addGroup("user")
-                    )
-            );
+                            metricGroup -> metricGroup.addGroup("user")));
 
         }
 
@@ -476,33 +498,29 @@ public class FlinkPulsarSource<T>
             SerializableRange subTaskRange = metadataReader.getRange();
             restoredState.entrySet().stream()
                     .filter(
-                            e ->
-                                    SourceSinkUtils.belongsTo(
-                                            e.getKey().getTopic(),
-                                            subTaskRange,
-                                            numParallelTasks,
-                                            taskIndex))
+                            e -> SourceSinkUtils.belongsTo(
+                                    e.getKey().getTopic(),
+                                    subTaskRange,
+                                    numParallelTasks,
+                                    taskIndex))
                     .forEach(
                             e -> {
-                                TopicRange tr =
-                                        new TopicRange(
-                                                e.getKey().getTopic(),
-                                                subTaskRange.getPulsarRange());
+                                TopicRange tr = new TopicRange(
+                                        e.getKey().getTopic(),
+                                        subTaskRange.getPulsarRange());
                                 ownedTopicStarts.put(tr, e.getValue());
                                 excludeStartMessageIds.add(e.getKey());
                             });
 
-            Set<TopicRange> goneTopics =
-                    Sets.difference(restoredState.keySet(), allTopics).stream()
-                            .filter(
-                                    k ->
-                                            SourceSinkUtils.belongsTo(
-                                                    k.getTopic(),
-                                                    subTaskRange,
-                                                    numParallelTasks,
-                                                    taskIndex))
-                            .map(k -> new TopicRange(k.getTopic(), subTaskRange.getPulsarRange()))
-                            .collect(Collectors.toSet());
+            Set<TopicRange> goneTopics = Sets.difference(restoredState.keySet(), allTopics).stream()
+                    .filter(
+                            k -> SourceSinkUtils.belongsTo(
+                                    k.getTopic(),
+                                    subTaskRange,
+                                    numParallelTasks,
+                                    taskIndex))
+                    .map(k -> new TopicRange(k.getTopic(), subTaskRange.getPulsarRange()))
+                    .collect(Collectors.toSet());
 
             for (TopicRange goneTopic : goneTopics) {
                 log.warn(goneTopic + " is removed from subscription since "
@@ -551,10 +569,8 @@ public class FlinkPulsarSource<T>
             throw new Exception("The partitions were not set for the source");
         }
 
-        this.successfulCommits =
-                this.getRuntimeContext().getMetricGroup().counter(COMMITS_SUCCEEDED_METRICS_COUNTER);
-        this.failedCommits =
-                this.getRuntimeContext().getMetricGroup().counter(COMMITS_FAILED_METRICS_COUNTER);
+        this.successfulCommits = this.getRuntimeContext().getMetricGroup().counter(COMMITS_SUCCEEDED_METRICS_COUNTER);
+        this.failedCommits = this.getRuntimeContext().getMetricGroup().counter(COMMITS_FAILED_METRICS_COUNTER);
 
         if (ownedTopicStarts.isEmpty()) {
             ctx.markAsTemporarilyIdle();
@@ -565,10 +581,10 @@ public class FlinkPulsarSource<T>
                 StringUtils.join(ownedTopicStarts.entrySet()));
 
         // from this point forward:
-        //   - 'snapshotState' will draw offsets from the fetcher,
-        //     instead of being built from `subscribedPartitionsToStartOffsets`
-        //   - 'notifyCheckpointComplete' will start to do work (i.e. commit offsets to
-        //     Pulsar through the fetcher, if configured to do so)
+        // - 'snapshotState' will draw offsets from the fetcher,
+        // instead of being built from `subscribedPartitionsToStartOffsets`
+        // - 'notifyCheckpointComplete' will start to do work (i.e. commit offsets to
+        // Pulsar through the fetcher, if configured to do so)
 
         StreamingRuntimeContext streamingRuntime = (StreamingRuntimeContext) getRuntimeContext();
 
@@ -603,9 +619,11 @@ public class FlinkPulsarSource<T>
             ClassLoader userCodeClassLoader,
             StreamingRuntimeContext streamingRuntime,
             boolean useMetrics,
-            Set<TopicRange> excludeStartMessageIds) throws Exception {
+            Set<TopicRange> excludeStartMessageIds)
+            throws Exception {
 
-        //readerConf.putIfAbsent(PulsarOptions.SUBSCRIPTION_ROLE_OPTION_KEY, getSubscriptionName());
+        // readerConf.putIfAbsent(PulsarOptions.SUBSCRIPTION_ROLE_OPTION_KEY,
+        // getSubscriptionName());
 
         return new PulsarFetcher<>(
                 sourceContext,
@@ -623,8 +641,7 @@ public class FlinkPulsarSource<T>
                 deserializer,
                 metadataReader,
                 streamingRuntime.getMetricGroup().addGroup(PULSAR_SOURCE_METRICS_GROUP),
-                useMetrics
-        );
+                useMetrics);
     }
 
     public void joinDiscoveryLoopThread() throws InterruptedException {
@@ -725,7 +742,7 @@ public class FlinkPulsarSource<T>
     }
 
     // ------------------------------------------------------------------------
-    //  ResultTypeQueryable methods
+    // ResultTypeQueryable methods
     // ------------------------------------------------------------------------
 
     @Override
@@ -734,7 +751,7 @@ public class FlinkPulsarSource<T>
     }
 
     // ------------------------------------------------------------------------
-    //  Checkpoint and restore
+    // Checkpoint and restore
     // ------------------------------------------------------------------------
 
     @Override
@@ -744,15 +761,13 @@ public class FlinkPulsarSource<T>
         unionOffsetStates = stateStore.getUnionListState(
                 new ListStateDescriptor<>(
                         OFFSETS_STATE_NAME_V3,
-                        createStateSerializer()
-                ));
+                        createStateSerializer()));
 
         if (this.inlongMetric != null) {
-            this.metricStateListState =
-                stateStore.getUnionListState(
+            this.metricStateListState = stateStore.getUnionListState(
                     new ListStateDescriptor<>(
-                        INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
+                            })));
         }
 
         if (context.isRestored()) {
@@ -760,17 +775,16 @@ public class FlinkPulsarSource<T>
             Iterator<Tuple2<TopicSubscription, MessageId>> iterator = unionOffsetStates.get().iterator();
 
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
-                getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
+                    getRuntimeContext().getIndexOfThisSubtask(), getRuntimeContext().getNumberOfParallelSubtasks());
 
             if (!iterator.hasNext()) {
                 iterator = tryMigrateState(stateStore);
             }
             while (iterator.hasNext()) {
                 final Tuple2<TopicSubscription, MessageId> tuple2 = iterator.next();
-                final SerializableRange range =
-                        tuple2.f0.getRange() != null ? tuple2.f0.getRange() : SerializableRange.ofFullRange();
-                final TopicRange topicRange =
-                        new TopicRange(tuple2.f0.getTopic(), range.getPulsarRange());
+                final SerializableRange range = tuple2.f0.getRange() != null ? tuple2.f0.getRange()
+                        : SerializableRange.ofFullRange();
+                final TopicRange topicRange = new TopicRange(tuple2.f0.getTopic(), range.getPulsarRange());
                 restoredState.put(topicRange, tuple2.f1);
                 String subscriptionName = tuple2.f0.getSubscriptionName();
                 if (!stateSubEqualexternalSub && StringUtils.equals(subscriptionName, externalSubscriptionName)) {
@@ -788,13 +802,13 @@ public class FlinkPulsarSource<T>
 
     @VisibleForTesting
     static TupleSerializer<Tuple2<TopicSubscription, MessageId>> createStateSerializer() {
-        // explicit serializer will keep the compatibility with GenericTypeInformation and allow to
+        // explicit serializer will keep the compatibility with GenericTypeInformation
+        // and allow to
         // disableGenericTypes for users
-        TypeSerializer<?>[] fieldSerializers =
-                new TypeSerializer<?>[]{
-                        TopicSubscriptionSerializer.INSTANCE,
-                        MessageIdSerializer.INSTANCE
-                };
+        TypeSerializer<?>[] fieldSerializers = new TypeSerializer<?>[]{
+                TopicSubscriptionSerializer.INSTANCE,
+                MessageIdSerializer.INSTANCE
+        };
         @SuppressWarnings("unchecked")
         Class<Tuple2<TopicSubscription, MessageId>> tupleClass =
                 (Class<Tuple2<TopicSubscription, MessageId>>) (Class<?>) Tuple2.class;
@@ -804,29 +818,29 @@ public class FlinkPulsarSource<T>
     /**
      * Try to restore the old save point.
      *
-     * @param stateStore state store
+     * @param stateStore
+     *          state store
      * @return state data
-     * @throws Exception Type incompatibility, serialization failure
+     * @throws Exception
+     *           Type incompatibility, serialization failure
      */
     private Iterator<Tuple2<TopicSubscription, MessageId>> tryMigrateState(OperatorStateStore stateStore)
             throws Exception {
         log.info("restore old state version {}", oldStateVersion);
-        PulsarSourceStateSerializer stateSerializer =
-                new PulsarSourceStateSerializer(getRuntimeContext().getExecutionConfig());
+        PulsarSourceStateSerializer stateSerializer = new PulsarSourceStateSerializer(
+                getRuntimeContext().getExecutionConfig());
         // Since stateStore.getUnionListState gets the data of a state point,
         // it can only be registered once and will fail to register again,
         // so it only allows the user to set a version number.
         ListState<?> rawStates = stateStore.getUnionListState(new ListStateDescriptor<>(
                 OFFSETS_STATE_NAME,
-                stateSerializer.getSerializer(oldStateVersion)
-        ));
+                stateSerializer.getSerializer(oldStateVersion)));
 
-        ListState<String> oldUnionSubscriptionNameStates =
-                stateStore.getUnionListState(
-                        new ListStateDescriptor<>(
-                                OFFSETS_STATE_NAME + "_subName",
-                                TypeInformation.of(new TypeHint<String>() {
-                                })));
+        ListState<String> oldUnionSubscriptionNameStates = stateStore.getUnionListState(
+                new ListStateDescriptor<>(
+                        OFFSETS_STATE_NAME + "_subName",
+                        TypeInformation.of(new TypeHint<String>() {
+                        })));
         final Iterator<String> subNameIterator = oldUnionSubscriptionNameStates.get().iterator();
 
         Iterator<?> tuple2s = rawStates.get().iterator();
@@ -862,7 +876,7 @@ public class FlinkPulsarSource<T>
 
             if (sourceMetricData != null && metricStateListState != null) {
                 MetricStateUtils.snapshotMetricStateForSourceMetricData(metricStateListState, sourceMetricData,
-                    getRuntimeContext().getIndexOfThisSubtask());
+                        getRuntimeContext().getIndexOfThisSubtask());
             }
 
             unionOffsetStates.clear();

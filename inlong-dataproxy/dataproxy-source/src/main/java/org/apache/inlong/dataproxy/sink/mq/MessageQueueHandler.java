@@ -26,6 +26,7 @@ public interface MessageQueueHandler {
 
     /**
      * init
+     * 
      * @param config
      * @param sinkContext
      */
@@ -43,6 +44,7 @@ public interface MessageQueueHandler {
 
     /**
      * send
+     * 
      * @param event
      * @return
      */

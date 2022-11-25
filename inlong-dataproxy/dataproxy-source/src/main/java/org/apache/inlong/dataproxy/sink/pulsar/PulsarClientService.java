@@ -17,18 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar;
 
-import com.google.common.base.Preconditions;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Event;
-import org.apache.flume.FlumeException;
 import org.apache.inlong.common.enums.DataProxyErrCode;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.dataproxy.config.ConfigManager;
@@ -37,6 +25,10 @@ import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.EventStat;
 import org.apache.inlong.dataproxy.sink.PulsarSink;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Event;
+import org.apache.flume.FlumeException;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.CompressionType;
@@ -45,8 +37,20 @@ import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.PulsarClientException.NotFoundException;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 public class PulsarClientService {
 
@@ -138,16 +142,13 @@ public class PulsarClientService {
      * send message
      */
     public boolean sendMessage(int poolIndex, String topic,
-                               EventStat es, PulsarSink pulsarSink) {
+            EventStat es, PulsarSink pulsarSink) {
         boolean result;
         TopicProducerInfo producerInfo = null;
         Event event = es.getEvent();
-        final String pkgVersion =
-                event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER);
-        final String inlongGroupId =
-                event.getHeaders().get(AttributeConstants.GROUP_ID);
-        final String inlongStreamId =
-                event.getHeaders().get(AttributeConstants.STREAM_ID);
+        final String pkgVersion = event.getHeaders().get(ConfigConstants.MSG_ENCODE_VER);
+        final String inlongGroupId = event.getHeaders().get(AttributeConstants.GROUP_ID);
+        final String inlongStreamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
         String errMsg = "";
         try {
             producerInfo = getProducerInfo(poolIndex, topic, inlongGroupId, inlongStreamId);
@@ -155,15 +156,13 @@ public class PulsarClientService {
             errMsg = "Get producer failed for topic=" + topic + ", reason is " + e.getMessage();
         }
         /*
-         * If the producer is a null value,\ it means that the topic is not yet
-         * ready, and it needs to be played back into the file channel
+         * If the producer is a null value,\ it means that the topic is not yet ready, and it needs to be played back
+         * into the file channel
          */
         if (producerInfo == null) {
             /*
-             * Data within 30s is placed in the exception channel to
-             * prevent frequent checks
-             * After 30s, reopen the topic check, if it is still a null value,
-             *  put it back into the illegal map
+             * Data within 30s is placed in the exception channel to prevent frequent checks After 30s, reopen the topic
+             * check, if it is still a null value, put it back into the illegal map
              */
             pulsarSink.handleRequestProcError(topic, es,
                     false, DataProxyErrCode.NO_AVAILABLE_PRODUCER, errMsg);
@@ -178,14 +177,12 @@ public class PulsarClientService {
             return false;
         }
         // build and send message
-        Map<String, String> proMap =
-                MessageUtils.getXfsAttrs(event.getHeaders(), pkgVersion);
+        Map<String, String> proMap = MessageUtils.getXfsAttrs(event.getHeaders(), pkgVersion);
         long startTime = System.currentTimeMillis();
         pulsarSink.getCurrentInFlightCount().incrementAndGet();
         if (es.isOrderMessage()) {
             try {
-                String partitionKey =
-                        event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
+                String partitionKey = event.getHeaders().get(AttributeConstants.MESSAGE_PARTITION_KEY);
                 MessageId msgId = producer.newMessage()
                         .properties(proMap)
                         .key(partitionKey)
@@ -226,10 +223,11 @@ public class PulsarClientService {
     }
 
     /**
-     * If this function is called successively without calling {@see #destroyConnection()}, only the
-     * first call has any effect.
+     * If this function is called successively without calling
+     * {@see #destroyConnection()}, only the first call has any effect.
      *
-     * @throws FlumeException if an RPC client connection could not be opened
+     * @throws FlumeException
+     *           if an RPC client connection could not be opened
      */
     private void createConnection(CreatePulsarClientCallBack callBack) throws FlumeException {
         if (!pulsarClients.isEmpty()) {
@@ -369,12 +367,17 @@ public class PulsarClientService {
     }
 
     /**
-     * close pulsarClients(the related url is removed); start pulsarClients for new url, and create producers for them
+     * close pulsarClients(the related url is removed); start pulsarClients for new
+     * url, and create producers for them
      *
-     * @param callBack callback
-     * @param needToClose url-token map
-     * @param needToStart url-token map
-     * @param topicSet for new pulsarClient, create these topics' producers
+     * @param callBack
+     *          callback
+     * @param needToClose
+     *          url-token map
+     * @param needToStart
+     *          url-token map
+     * @param topicSet
+     *          for new pulsarClient, create these topics' producers
      */
     public void updatePulsarClients(CreatePulsarClientCallBack callBack, Map<String, String> needToClose,
             Map<String, String> needToStart, Set<String> topicSet) {
@@ -402,7 +405,7 @@ public class PulsarClientService {
                 pulsarClients.put(url, client);
                 callBack.handleCreateClientSuccess(url);
 
-                //create related topicProducers
+                // create related topicProducers
                 for (String topic : topicSet) {
                     TopicProducerInfo info = new TopicProducerInfo(client, sinkThreadPoolSize,
                             topic);
@@ -435,7 +438,8 @@ public class PulsarClientService {
     /**
      * get inlong stream id from event
      *
-     * @param event event
+     * @param event
+     *          event
      * @return inlong stream id
      */
     private String getInlongStreamId(Event event) {
@@ -451,7 +455,8 @@ public class PulsarClientService {
     /**
      * get inlong group id from event
      *
-     * @param event event
+     * @param event
+     *          event
      * @return inlong group id
      */
     private String getInlongGroupId(Event event) {

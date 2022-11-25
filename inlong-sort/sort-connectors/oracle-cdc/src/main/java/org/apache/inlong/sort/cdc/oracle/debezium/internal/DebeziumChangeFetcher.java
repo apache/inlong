@@ -18,36 +18,42 @@
 
 package org.apache.inlong.sort.cdc.oracle.debezium.internal;
 
+import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.oracle.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.oracle.debezium.utils.RecordUtils;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.util.Collector;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
+
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.debezium.connector.SnapshotRecord;
 import io.debezium.data.Envelope;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.relational.history.TableChanges.TableChange;
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.oracle.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.oracle.debezium.utils.RecordUtils;
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * A Handler that convert change messages from {@link DebeziumEngine} to data in Flink. Considering
- * Debezium in different mode has different strategies to hold the lock, e.g. snapshot, the handler
- * also needs different strategy. In snapshot phase, the handler needs to hold the lock until the
- * snapshot finishes. But in non-snapshot phase, the handler only needs to hold the lock when
- * emitting the records.
+ * A Handler that convert change messages from {@link DebeziumEngine} to data in
+ * Flink. Considering Debezium in different mode has different strategies to
+ * hold the lock, e.g. snapshot, the handler also needs different strategy. In
+ * snapshot phase, the handler needs to hold the lock until the snapshot
+ * finishes. But in non-snapshot phase, the handler only needs to hold the lock
+ * when emitting the records.
  *
- * @param <T> The type of elements produced by the handler.
+ * @param <T>
+ *          The type of elements produced by the handler.
  */
 @Internal
 public class DebeziumChangeFetcher<T> {
@@ -57,8 +63,8 @@ public class DebeziumChangeFetcher<T> {
     private final SourceFunction.SourceContext<T> sourceContext;
 
     /**
-     * The lock that guarantees that record emission and state updates are atomic, from the view of
-     * taking a checkpoint.
+     * The lock that guarantees that record emission and state updates are atomic,
+     * from the view of taking a checkpoint.
      */
     private final Object checkpointLock;
 
@@ -86,7 +92,8 @@ public class DebeziumChangeFetcher<T> {
     // ---------------------------------------------------------------------------------------
 
     /**
-     * Timestamp of change event. If the event is a snapshot event, the timestamp is 0L.
+     * Timestamp of change event. If the event is a snapshot event, the timestamp is
+     * 0L.
      */
     private volatile long messageTimestamp = 0L;
 
@@ -96,14 +103,14 @@ public class DebeziumChangeFetcher<T> {
     private volatile long processTime = 0L;
 
     /**
-     * currentFetchEventTimeLag = FetchTime - messageTimestamp, where the FetchTime is the time the
-     * record fetched into the source operator.
+     * currentFetchEventTimeLag = FetchTime - messageTimestamp, where the FetchTime
+     * is the time the record fetched into the source operator.
      */
     private volatile long fetchDelay = 0L;
 
     /**
-     * emitDelay = EmitTime - messageTimestamp, where the EmitTime is the time the record leaves the
-     * source operator.
+     * emitDelay = EmitTime - messageTimestamp, where the EmitTime is the time the
+     * record leaves the source operator.
      */
     private volatile long emitDelay = 0L;
 
@@ -129,7 +136,9 @@ public class DebeziumChangeFetcher<T> {
     /**
      * Take a snapshot of the Debezium handler state.
      *
-     * <p>Important: This method must be called under the checkpoint lock.</p>
+     * <p>
+     * Important: This method must be called under the checkpoint lock.
+     * </p>
      */
     public byte[] snapshotCurrentState() throws Exception {
         // this method assumes that the checkpoint lock is held
@@ -142,8 +151,8 @@ public class DebeziumChangeFetcher<T> {
     }
 
     /**
-     * Process change messages from the {@link Handover} and collect the processed messages by
-     * {@link Collector}.
+     * Process change messages from the {@link Handover} and collect the processed
+     * messages by {@link Collector}.
      */
     public void runFetchLoop() throws Exception {
         try {
@@ -185,18 +194,23 @@ public class DebeziumChangeFetcher<T> {
     /**
      * The metric indicates delay from data generation to entry into the system.
      *
-     * <p>Note: the metric is available during the binlog phase. Use 0 to indicate the metric is
-     * unavailable.</p>
+     * <p>
+     * Note: the metric is available during the binlog phase. Use 0 to indicate the
+     * metric is unavailable.
+     * </p>
      */
     public long getFetchDelay() {
         return fetchDelay;
     }
 
     /**
-     * The metric indicates delay from data generation to leaving the source operator.
+     * The metric indicates delay from data generation to leaving the source
+     * operator.
      *
-     * <p>Note: the metric is available during the binlog phase. Use 0 to indicate the metric is
-     * unavailable.</p>
+     * <p>
+     * Note: the metric is available during the binlog phase. Use 0 to indicate the
+     * metric is unavailable.
+     * </p>
      */
     public long getEmitDelay() {
         return emitDelay;
@@ -210,8 +224,7 @@ public class DebeziumChangeFetcher<T> {
     // Helper
     // ---------------------------------------------------------------------------------------
 
-    private void handleBatch(List<ChangeEvent<SourceRecord, SourceRecord>> changeEvents)
-            throws Exception {
+    private void handleBatch(List<ChangeEvent<SourceRecord, SourceRecord>> changeEvents) throws Exception {
         if (CollectionUtils.isEmpty(changeEvents)) {
             return;
         }
@@ -253,15 +266,16 @@ public class DebeziumChangeFetcher<T> {
     }
 
     private void emitRecordsUnderCheckpointLock(
-            Queue<T> records, Map<String, ?> sourcePartition, Map<String, ?> sourceOffset) {
+            Queue<T> records, Map<String, ?> sourcePartition,
+            Map<String, ?> sourceOffset) {
         // Emit the records. Use the checkpoint lock to guarantee
         // atomicity of record emission and offset state update.
-        // The synchronized checkpointLock is reentrant. It's safe to sync again in snapshot mode.
+        // The synchronized checkpointLock is reentrant. It's safe to sync again in
+        // snapshot mode.
         synchronized (checkpointLock) {
             T record;
             while ((record = records.poll()) != null) {
-                emitDelay =
-                        isInDbSnapshotPhase ? 0L : System.currentTimeMillis() - messageTimestamp;
+                emitDelay = isInDbSnapshotPhase ? 0L : System.currentTimeMillis() - messageTimestamp;
                 sourceContext.collect(record);
             }
             // update offset to state

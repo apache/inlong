@@ -18,8 +18,10 @@
 package org.apache.inlong.tubemq.server.broker.web;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
 import org.apache.inlong.tubemq.server.Server;
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
+
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
@@ -42,8 +44,7 @@ public class WebServer implements Server {
     @Override
     public void start() throws Exception {
         srv = new org.eclipse.jetty.server.Server(this.port);
-        ServletContextHandler servletContext =
-                new ServletContextHandler(srv, "/", ServletContextHandler.SESSIONS);
+        ServletContextHandler servletContext = new ServletContextHandler(srv, "/", ServletContextHandler.SESSIONS);
 
         servletContext.addServlet(new ServletHolder(new BrokerAdminServlet(broker)), "/*");
         srv.start();

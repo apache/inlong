@@ -67,7 +67,7 @@ public class RedisConstant {
      */
     public static final String ADDITIONAL_KEY = "additional.key";
     /**
-     * Password  for connect to redis
+     * Password for connect to redis
      */
     public static final String PASSWORD = "password";
     /**

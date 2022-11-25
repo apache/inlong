@@ -18,18 +18,18 @@
 
 package org.apache.inlong.sort.cdc.postgres;
 
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.Validator;
-import io.debezium.connector.postgresql.PostgresConnector;
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
 import java.time.Duration;
 import java.util.Properties;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
+import com.ververica.cdc.debezium.Validator;
+import io.debezium.connector.postgresql.PostgresConnector;
 
 /**
- * A builder to build a SourceFunction which can read snapshot and continue to consume binlog for
- * PostgreSQL.
+ * A builder to build a SourceFunction which can read snapshot and continue to
+ * consume binlog for PostgreSQL.
  */
 public class PostgreSQLSource {
 
@@ -57,8 +57,8 @@ public class PostgreSQLSource {
         private String inlongAudit;
 
         /**
-         * The name of the Postgres logical decoding plug-in installed on the server. Supported
-         * values are decoderbufs, wal2json, wal2json_rds, wal2json_streaming,
+         * The name of the Postgres logical decoding plug-in installed on the server.
+         * Supported values are decoderbufs, wal2json, wal2json_rds, wal2json_streaming,
          * wal2json_rds_streaming and pgoutput.
          */
         public Builder<T> decodingPluginName(String name) {
@@ -84,9 +84,9 @@ public class PostgreSQLSource {
         }
 
         /**
-         * An optional list of regular expressions that match schema names to be monitored; any
-         * schema name not included in the whitelist will be excluded from monitoring. By default
-         * all non-system schemas will be monitored.
+         * An optional list of regular expressions that match schema names to be
+         * monitored; any schema name not included in the whitelist will be excluded
+         * from monitoring. By default all non-system schemas will be monitored.
          */
         public Builder<T> schemaList(String... schemaList) {
             this.schemaList = schemaList;
@@ -94,10 +94,11 @@ public class PostgreSQLSource {
         }
 
         /**
-         * An optional list of regular expressions that match fully-qualified table identifiers for
-         * tables to be monitored; any table not included in the whitelist will be excluded from
-         * monitoring. Each identifier is of the form schemaName.tableName. By default the connector
-         * will monitor every non-system table in each monitored schema.
+         * An optional list of regular expressions that match fully-qualified table
+         * identifiers for tables to be monitored; any table not included in the
+         * whitelist will be excluded from monitoring. Each identifier is of the form
+         * schemaName.tableName. By default the connector will monitor every non-system
+         * table in each monitored schema.
          */
         public Builder<T> tableList(String... tableList) {
             this.tableList = tableList;
@@ -105,7 +106,8 @@ public class PostgreSQLSource {
         }
 
         /**
-         * Name of the PostgreSQL database to use when connecting to the PostgreSQL database server.
+         * Name of the PostgreSQL database to use when connecting to the PostgreSQL
+         * database server.
          */
         public Builder<T> username(String username) {
             this.username = username;
@@ -119,14 +121,17 @@ public class PostgreSQLSource {
         }
 
         /**
-         * The name of the PostgreSQL logical decoding slot that was created for streaming changes
-         * from a particular plug-in for a particular database/schema. The server uses this slot to
-         * stream events to the connector that you are configuring. Default is "flink".
+         * The name of the PostgreSQL logical decoding slot that was created for
+         * streaming changes from a particular plug-in for a particular database/schema.
+         * The server uses this slot to stream events to the connector that you are
+         * configuring. Default is "flink".
          *
-         * <p>Slot names must conform to <a
-         * href="https://www.postgresql.org/docs/current/static/warm-standby.html#STREAMING-REPLICATION-SLOTS-MANIPULATION">PostgreSQL
-         * replication slot naming rules</a>, which state: "Each replication slot has a name, which
-         * can contain lower-case letters, numbers, and the underscore character."
+         * <p>
+         * Slot names must conform to <a href=
+         * "https://www.postgresql.org/docs/current/static/warm-standby.html#STREAMING-REPLICATION-SLOTS-MANIPULATION">PostgreSQL
+         * replication slot naming rules</a>, which state: "Each replication slot has a
+         * name, which can contain lower-case letters, numbers, and the underscore
+         * character."
          */
         public Builder<T> slotName(String slotName) {
             this.slotName = slotName;
@@ -140,8 +145,8 @@ public class PostgreSQLSource {
         }
 
         /**
-         * The deserializer used to convert from consumed {@link
-         * org.apache.kafka.connect.source.SourceRecord}.
+         * The deserializer used to convert from consumed
+         * {@link org.apache.kafka.connect.source.SourceRecord}.
          */
         public Builder<T> deserializer(DebeziumDeserializationSchema<T> deserializer) {
             this.deserializer = deserializer;
@@ -163,10 +168,14 @@ public class PostgreSQLSource {
             props.setProperty("connector.class", PostgresConnector.class.getCanonicalName());
             props.setProperty("plugin.name", pluginName);
             // hard code server name, because we don't need to distinguish it, docs:
-            // Logical name that identifies and provides a namespace for the particular PostgreSQL
-            // database server/cluster being monitored. The logical name should be unique across
-            // all other connectors, since it is used as a prefix for all Kafka topic names coming
-            // from this connector. Only alphanumeric characters and underscores should be used.
+            // Logical name that identifies and provides a namespace for the particular
+            // PostgreSQL
+            // database server/cluster being monitored. The logical name should be unique
+            // across
+            // all other connectors, since it is used as a prefix for all Kafka topic names
+            // coming
+            // from this connector. Only alphanumeric characters and underscores should be
+            // used.
             props.setProperty("database.server.name", "postgres_cdc_source");
             props.setProperty("database.hostname", checkNotNull(hostname));
             props.setProperty("database.dbname", checkNotNull(database));
@@ -174,7 +183,8 @@ public class PostgreSQLSource {
             props.setProperty("database.password", checkNotNull(password));
             props.setProperty("database.port", String.valueOf(port));
             props.setProperty("slot.name", slotName);
-            // we have to enable heartbeat for PG to make sure DebeziumChangeConsumer#handleBatch
+            // we have to enable heartbeat for PG to make sure
+            // DebeziumChangeConsumer#handleBatch
             // is invoked after job restart
             props.setProperty("heartbeat.interval.ms", String.valueOf(DEFAULT_HEARTBEAT_MS));
 

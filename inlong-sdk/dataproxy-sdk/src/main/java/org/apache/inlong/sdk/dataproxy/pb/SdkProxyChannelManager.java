@@ -17,6 +17,17 @@
 
 package org.apache.inlong.sdk.dataproxy.pb;
 
+import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
+import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
+import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.pb.context.SdkProfile;
+import org.apache.inlong.sdk.dataproxy.pb.context.SdkSinkContext;
+import org.apache.inlong.sdk.dataproxy.pb.dispatch.DispatchProfile;
+import org.apache.inlong.sdk.dataproxy.pb.network.IpPort;
+import org.apache.inlong.sdk.dataproxy.pb.network.TcpChannelGroup;
+
+import org.apache.commons.lang3.RandomUtils;
+
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
@@ -30,15 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang3.RandomUtils;
-import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
-import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResultCode;
-import org.apache.inlong.sdk.dataproxy.SendResult;
-import org.apache.inlong.sdk.dataproxy.pb.context.SdkProfile;
-import org.apache.inlong.sdk.dataproxy.pb.context.SdkSinkContext;
-import org.apache.inlong.sdk.dataproxy.pb.dispatch.DispatchProfile;
-import org.apache.inlong.sdk.dataproxy.pb.network.IpPort;
-import org.apache.inlong.sdk.dataproxy.pb.network.TcpChannelGroup;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -241,7 +243,7 @@ public class SdkProxyChannelManager {
     /**
      * parseInetSocketAddress
      * 
-     * @param  channel
+     * @param channel
      * @return
      */
     public static InetSocketAddress parseInetSocketAddress(Channel channel) {
@@ -370,7 +372,7 @@ public class SdkProxyChannelManager {
     /**
      * offerDispatchQueue
      * 
-     * @param  profile
+     * @param profile
      * @return
      */
     public boolean offerDispatchQueue(DispatchProfile profile) {
@@ -384,7 +386,7 @@ public class SdkProxyChannelManager {
     /**
      * takeDispatchQueue
      * 
-     * @return                      DispatchProfile
+     * @return DispatchProfile
      * @throws InterruptedException
      */
     public DispatchProfile takeDispatchQueue() throws InterruptedException {

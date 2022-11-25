@@ -42,7 +42,8 @@ public class CacheClusterSetObject {
     /**
      * set setName
      *
-     * @param setName the setName to set
+     * @param setName
+     *          the setName to set
      */
     public void setSetName(String setName) {
         this.setName = setName;
@@ -60,7 +61,8 @@ public class CacheClusterSetObject {
     /**
      * set type
      *
-     * @param type the type to set
+     * @param type
+     *          the type to set
      */
     public void setType(String type) {
         this.type = type;
@@ -78,7 +80,8 @@ public class CacheClusterSetObject {
     /**
      * set cacheClusters
      *
-     * @param cacheClusters the cacheClusters to set
+     * @param cacheClusters
+     *          the cacheClusters to set
      */
     public void setCacheClusters(List<CacheClusterObject> cacheClusters) {
         this.cacheClusters = cacheClusters;
@@ -96,7 +99,8 @@ public class CacheClusterSetObject {
     /**
      * set topics
      *
-     * @param topics the topics to set
+     * @param topics
+     *          the topics to set
      */
     public void setTopics(List<CacheTopicObject> topics) {
         this.topics = topics;

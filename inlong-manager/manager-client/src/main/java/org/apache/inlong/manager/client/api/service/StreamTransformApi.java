@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.service;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -43,6 +44,7 @@ public interface StreamTransformApi {
 
     @DELETE("transform/delete")
     Call<Response<Boolean>> deleteTransform(@Query("inlongGroupId") String groupId,
-            @Query("inlongStreamId") String streamId, @Query("transformName") String transformName);
+            @Query("inlongStreamId") String streamId,
+            @Query("transformName") String transformName);
 
 }

@@ -17,10 +17,12 @@
 
 package org.apache.inlong.sort.protocol;
 
-import lombok.Getter;
+import org.apache.inlong.common.enums.MetaField;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.inlong.common.enums.MetaField;
+
+import lombok.Getter;
 
 /**
  * Meta field info.

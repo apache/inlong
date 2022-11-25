@@ -18,23 +18,9 @@
 
 package org.apache.inlong.sort.cdc.mysql.source;
 
-import io.debezium.jdbc.JdbcConnection;
-import io.debezium.relational.TableId;
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.connector.source.Boundedness;
-import org.apache.flink.api.connector.source.Source;
-import org.apache.flink.api.connector.source.SourceReader;
-import org.apache.flink.api.connector.source.SourceReaderContext;
-import org.apache.flink.api.connector.source.SplitEnumerator;
-import org.apache.flink.api.connector.source.SplitEnumeratorContext;
-import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
-import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
-import org.apache.flink.core.io.SimpleVersionedSerializer;
-import org.apache.flink.metrics.MetricGroup;
-import org.apache.flink.util.FlinkRuntimeException;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.discoverCapturedTables;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
+
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
@@ -58,18 +44,35 @@ import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSplitReader;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitSerializer;
 import org.apache.inlong.sort.cdc.mysql.table.StartupMode;
+
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.connector.source.Boundedness;
+import org.apache.flink.api.connector.source.Source;
+import org.apache.flink.api.connector.source.SourceReader;
+import org.apache.flink.api.connector.source.SourceReaderContext;
+import org.apache.flink.api.connector.source.SplitEnumerator;
+import org.apache.flink.api.connector.source.SplitEnumeratorContext;
+import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
+import org.apache.flink.core.io.SimpleVersionedSerializer;
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.kafka.connect.source.SourceRecord;
 
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.discoverCapturedTables;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
+import io.debezium.jdbc.JdbcConnection;
+import io.debezium.relational.TableId;
 
 /**
- * The MySQL CDC Source based on FLIP-27 and Watermark Signal Algorithm which supports parallel
- * reading snapshot of table and then continue to capture data change from binlog.
+ * The MySQL CDC Source based on FLIP-27 and Watermark Signal Algorithm which
+ * supports parallel reading snapshot of table and then continue to capture data
+ * change from binlog.
  *
  * <pre>
  *     1. The source supports parallel capturing table change.
@@ -77,7 +80,8 @@ import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcCo
  *     3. The source doesn't need apply any lock of MySQL.
  * </pre>
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * MySqlSource
  *     .<String>builder()
  *     .hostname("localhost")
@@ -89,15 +93,21 @@ import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcCo
  *     .serverId(5400)
  *     .deserializer(new JsonDebeziumDeserializationSchema())
  *     .build();
- * }</pre>
+ * }
+ * </pre>
  *
- * <p>See {@link MySqlSourceBuilder} for more details.</p>
+ * <p>
+ * See {@link MySqlSourceBuilder} for more details.
+ * </p>
  *
- * @param <T> the output type of the source.
+ * @param <T>
+ *          the output type of the source.
  */
 @Internal
 public class MySqlSource<T>
-        implements Source<T, MySqlSplit, PendingSplitsState>, ResultTypeQueryable<T> {
+        implements
+            Source<T, MySqlSplit, PendingSplitsState>,
+            ResultTypeQueryable<T> {
 
     private static final long serialVersionUID = 1L;
 
@@ -131,33 +141,27 @@ public class MySqlSource<T>
     }
 
     @Override
-    public SourceReader<T, MySqlSplit> createReader(SourceReaderContext readerContext)
-            throws Exception {
+    public SourceReader<T, MySqlSplit> createReader(SourceReaderContext readerContext) throws Exception {
         final Method metricGroupMethod = readerContext.getClass().getMethod("metricGroup");
         metricGroupMethod.setAccessible(true);
         final MetricGroup metricGroup = (MetricGroup) metricGroupMethod.invoke(readerContext);
-        final MySqlSourceReaderMetrics sourceReaderMetrics =
-                new MySqlSourceReaderMetrics(metricGroup);
+        final MySqlSourceReaderMetrics sourceReaderMetrics = new MySqlSourceReaderMetrics(metricGroup);
         // create source config for the given subtask (e.g. unique server id)
-        MySqlSourceConfig sourceConfig =
-                configFactory.createConfig(readerContext.getIndexOfSubtask());
+        MySqlSourceConfig sourceConfig = configFactory.createConfig(readerContext.getIndexOfSubtask());
         MetricOption metricOption = MetricOption.builder()
                 .withInlongLabels(sourceConfig.getInlongMetric())
                 .withInlongAudit(sourceConfig.getInlongAudit())
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         sourceReaderMetrics.registerMetrics(metricOption);
-        MySqlSourceReaderContext mySqlSourceReaderContext =
-                new MySqlSourceReaderContext(readerContext);
+        MySqlSourceReaderContext mySqlSourceReaderContext = new MySqlSourceReaderContext(readerContext);
 
         FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecord>> elementsQueue =
                 new FutureCompletingBlockingQueue<>();
-        Supplier<MySqlSplitReader> splitReaderSupplier =
-                () ->
-                        new MySqlSplitReader(
-                                sourceConfig,
-                                readerContext.getIndexOfSubtask(),
-                                mySqlSourceReaderContext);
+        Supplier<MySqlSplitReader> splitReaderSupplier = () -> new MySqlSplitReader(
+                sourceConfig,
+                readerContext.getIndexOfSubtask(),
+                mySqlSourceReaderContext);
         return new MySqlSourceReader<>(
                 elementsQueue,
                 splitReaderSupplier,
@@ -183,12 +187,11 @@ public class MySqlSource<T>
             try (JdbcConnection jdbc = openJdbcConnection(sourceConfig)) {
                 final List<TableId> remainingTables = discoverCapturedTables(jdbc, sourceConfig);
                 boolean isTableIdCaseSensitive = DebeziumUtils.isTableIdCaseSensitive(jdbc);
-                splitAssigner =
-                        new MySqlHybridSplitAssigner(
-                                sourceConfig,
-                                enumContext.currentParallelism(),
-                                remainingTables,
-                                isTableIdCaseSensitive);
+                splitAssigner = new MySqlHybridSplitAssigner(
+                        sourceConfig,
+                        enumContext.currentParallelism(),
+                        remainingTables,
+                        isTableIdCaseSensitive);
             } catch (Exception e) {
                 throw new FlinkRuntimeException(
                         "Failed to discover captured tables for enumerator", e);
@@ -202,20 +205,19 @@ public class MySqlSource<T>
 
     @Override
     public SplitEnumerator<MySqlSplit, PendingSplitsState> restoreEnumerator(
-            SplitEnumeratorContext<MySqlSplit> enumContext, PendingSplitsState checkpoint) {
+            SplitEnumeratorContext<MySqlSplit> enumContext,
+            PendingSplitsState checkpoint) {
         MySqlSourceConfig sourceConfig = configFactory.createConfig(0);
 
         final MySqlSplitAssigner splitAssigner;
         if (checkpoint instanceof HybridPendingSplitsState) {
-            splitAssigner =
-                    new MySqlHybridSplitAssigner(
-                            sourceConfig,
-                            enumContext.currentParallelism(),
-                            (HybridPendingSplitsState) checkpoint);
+            splitAssigner = new MySqlHybridSplitAssigner(
+                    sourceConfig,
+                    enumContext.currentParallelism(),
+                    (HybridPendingSplitsState) checkpoint);
         } else if (checkpoint instanceof BinlogPendingSplitsState) {
-            splitAssigner =
-                    new MySqlBinlogSplitAssigner(
-                            sourceConfig, (BinlogPendingSplitsState) checkpoint);
+            splitAssigner = new MySqlBinlogSplitAssigner(
+                    sourceConfig, (BinlogPendingSplitsState) checkpoint);
         } else {
             throw new UnsupportedOperationException(
                     "Unsupported restored PendingSplitsState: " + checkpoint);

@@ -18,17 +18,20 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import io.netty.channel.ChannelFuture;
+import org.apache.inlong.sdk.dataproxy.SendResult;
+import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.inlong.sdk.dataproxy.SendResult;
-import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.netty.channel.ChannelFuture;
+
 public class SyncMessageCallable implements Callable<SendResult> {
+
     private static final Logger logger = LoggerFactory
             .getLogger(SyncMessageCallable.class);
 
@@ -41,7 +44,7 @@ public class SyncMessageCallable implements Callable<SendResult> {
     private SendResult message;
 
     public SyncMessageCallable(NettyClient client, EncodeObject encodeObject,
-                               long timeout, TimeUnit timeUnit) {
+            long timeout, TimeUnit timeUnit) {
         this.client = client;
         this.encodeObject = encodeObject;
         this.timeout = timeout;

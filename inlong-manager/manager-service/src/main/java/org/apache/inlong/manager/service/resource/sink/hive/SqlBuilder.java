@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.service.resource.sink.hive;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.hive.HiveColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builder for SQL string
@@ -106,7 +108,8 @@ public class SqlBuilder {
     /**
      * Get columns and table comment string for create table SQL.
      *
-     * For example: col_name data_type [COMMENT col_comment], col_name data_type [COMMENT col_comment]....
+     * For example: col_name data_type [COMMENT col_comment], col_name data_type
+     * [COMMENT col_comment]....
      */
     private static String getColumnsAndComments(List<HiveColumnInfo> columns, String tableComment) {
         List<String> columnList = new ArrayList<>();

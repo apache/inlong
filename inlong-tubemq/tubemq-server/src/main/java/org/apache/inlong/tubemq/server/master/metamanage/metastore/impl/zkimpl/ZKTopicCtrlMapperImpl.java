@@ -17,10 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.zkimpl;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.List;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
@@ -31,15 +27,23 @@ import org.apache.inlong.tubemq.server.common.zookeeper.ZooKeeperWatcher;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsTopicCtrlMapperImpl;
+
 import org.apache.zookeeper.KeeperException;
 
+import java.lang.reflect.Type;
+import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 public class ZKTopicCtrlMapperImpl extends AbsTopicCtrlMapperImpl {
+
     private final ZooKeeperWatcher zkWatcher;
     private final String topicCtrlRootDir;
 
     public ZKTopicCtrlMapperImpl(String metaNodePrefix,
-                                 ZooKeeperWatcher zkWatcher,
-                                 StringBuilder strBuff) {
+            ZooKeeperWatcher zkWatcher,
+            StringBuilder strBuff) {
         super();
         this.zkWatcher = zkWatcher;
         this.topicCtrlRootDir = strBuff.append(metaNodePrefix)
@@ -66,7 +70,8 @@ public class ZKTopicCtrlMapperImpl extends AbsTopicCtrlMapperImpl {
         }
         String recordStr;
         Gson gson = new Gson();
-        Type type = new TypeToken<TopicCtrlEntity>() {}.getType();
+        Type type = new TypeToken<TopicCtrlEntity>() {
+        }.getType();
         // clear cache data
         for (String itemKey : childNodes) {
             if (TStringUtils.isEmpty(itemKey)) {
@@ -93,7 +98,7 @@ public class ZKTopicCtrlMapperImpl extends AbsTopicCtrlMapperImpl {
     }
 
     protected boolean putConfig2Persistent(TopicCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         String entityStr = entity.toString();
         String confNode = strBuff.append(topicCtrlRootDir)
                 .append(TokenConstants.SLASH).append(entity.getTopicName()).toString();

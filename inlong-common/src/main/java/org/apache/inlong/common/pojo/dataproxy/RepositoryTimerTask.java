@@ -17,10 +17,10 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
+import java.util.TimerTask;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.TimerTask;
 
 /**
  * RepositoryTimerTask

@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sdk.sort.metrics;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
+import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
 
 import java.lang.management.ManagementFactory;
 import java.util.Map;
@@ -28,8 +28,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
-import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SortSdkPrometheusMetricListener {
 

@@ -17,15 +17,17 @@
 
 package org.apache.inlong.tubemq.corerpc.client;
 
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.tubemq.corebase.cluster.NodeAddrInfo;
 import org.apache.inlong.tubemq.corerpc.RequestWrapper;
 import org.apache.inlong.tubemq.corerpc.ResponseWrapper;
 
+import java.util.concurrent.TimeUnit;
+
 public interface Client {
 
     ResponseWrapper call(RequestWrapper request, Callback callback,
-                         long timeout, TimeUnit timeUnit) throws Exception;
+            long timeout, TimeUnit timeUnit)
+            throws Exception;
 
     NodeAddrInfo getServerAddressInfo();
 

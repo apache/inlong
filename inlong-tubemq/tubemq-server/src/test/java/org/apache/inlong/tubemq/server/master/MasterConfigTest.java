@@ -17,16 +17,20 @@
 
 package org.apache.inlong.tubemq.server.master;
 
-import com.sleepycat.je.Durability;
+import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
+import org.apache.inlong.tubemq.server.common.fileconfig.ZKMetaConfig;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
-import org.apache.inlong.tubemq.server.common.fileconfig.ZKMetaConfig;
+
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.sleepycat.je.Durability;
+
 public class MasterConfigTest {
+
     @Test
     public void loadFileSectAttributes() {
 

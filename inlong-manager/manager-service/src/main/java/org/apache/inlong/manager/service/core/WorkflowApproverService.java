@@ -32,15 +32,18 @@ public interface WorkflowApproverService {
     /**
      * Save workflow approver
      *
-     * @param request approver request
-     * @param operator operator name
+     * @param request
+     *          approver request
+     * @param operator
+     *          operator name
      */
     Integer save(ApproverRequest request, String operator);
 
     /**
      * Get workflow approver by ID
      *
-     * @param id approver id
+     * @param id
+     *          approver id
      * @return approver info
      */
     ApproverResponse get(Integer id);
@@ -48,8 +51,10 @@ public interface WorkflowApproverService {
     /**
      * Get process approver by the process name and task name.
      *
-     * @param processName workflow process name
-     * @param taskName workflow task name
+     * @param processName
+     *          workflow process name
+     * @param taskName
+     *          workflow task name
      * @return approver list
      */
     List<String> getApprovers(String processName, String taskName);
@@ -57,7 +62,8 @@ public interface WorkflowApproverService {
     /**
      * List the workflow approvers according to the query request
      *
-     * @param request page query request
+     * @param request
+     *          page query request
      * @return approver list
      */
     PageResult<ApproverResponse> listByCondition(ApproverPageRequest request);
@@ -65,16 +71,20 @@ public interface WorkflowApproverService {
     /**
      * Update workflow approve.
      *
-     * @param request approver request
-     * @param operator operator name
+     * @param request
+     *          approver request
+     * @param operator
+     *          operator name
      */
     Integer update(ApproverRequest request, String operator);
 
     /**
      * Delete workflow approver by ID
      *
-     * @param id approver id
-     * @param operator operator name
+     * @param id
+     *          approver id
+     * @param operator
+     *          operator name
      */
     void delete(Integer id, String operator);
 

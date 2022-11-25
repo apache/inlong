@@ -18,15 +18,15 @@
 
 package org.apache.inlong.sort.formats.inlongmsgpb;
 
-import com.google.common.base.Objects;
+import org.apache.inlong.common.msg.InLongMsg;
+import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
+import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.common.msg.InLongMsg;
-import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
-import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -34,20 +34,29 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Objects;
+
 /**
- * InLongMsg pb format deserialization schema.
- * Used to deserialize {@link MessageObj} msg.
+ * InLongMsg pb format deserialization schema. Used to deserialize
+ * {@link MessageObj} msg.
  */
 public class InLongMsgPbDeserializationSchema implements DeserializationSchema<RowData> {
 
-    /** Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner packaged
-     *  data buffer message */
+    /**
+     * Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner
+     * packaged data buffer message
+     */
     private final DeserializationSchema<RowData> deserializationSchema;
 
-    /** {@link MetadataConverter} of how to produce metadata from {@link InLongMsg}. */
+    /**
+     * {@link MetadataConverter} of how to produce metadata from {@link InLongMsg}.
+     */
     private final MetadataConverter[] metadataConverters;
 
-    /** {@link TypeInformation} of the produced {@link RowData} (physical + meta data). */
+    /**
+     * {@link TypeInformation} of the produced {@link RowData} (physical + meta
+     * data).
+     */
     private final TypeInformation<RowData> producedTypeInfo;
 
     /** status of error */
@@ -120,10 +129,12 @@ public class InLongMsgPbDeserializationSchema implements DeserializationSchema<R
     }
 
     interface MetadataConverter extends Serializable {
+
         Object read(MessageObj body);
     }
 
     interface InLongPbMsgDecompressor extends Serializable {
+
         byte[] decompress(byte[] message) throws IOException;
     }
 
@@ -135,8 +146,7 @@ public class InLongMsgPbDeserializationSchema implements DeserializationSchema<R
         }
         final int physicalArity = physicalRow.getArity();
         final int metadataArity = metadataConverters.length;
-        final GenericRowData producedRow =
-                new GenericRowData(physicalRow.getRowKind(), physicalArity + metadataArity);
+        final GenericRowData producedRow = new GenericRowData(physicalRow.getRowKind(), physicalArity + metadataArity);
         for (int physicalPos = 0; physicalPos < physicalArity; physicalPos++) {
             producedRow.setField(physicalPos, physicalRow.getField(physicalPos));
         }

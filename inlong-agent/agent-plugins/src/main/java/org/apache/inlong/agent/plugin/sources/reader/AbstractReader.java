@@ -17,22 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.metrics.AgentMetricItem;
-import org.apache.inlong.agent.metrics.AgentMetricItemSet;
-import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.pojo.DebeziumOffset;
-import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
@@ -40,6 +24,23 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STRE
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
+
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.metrics.AgentMetricItem;
+import org.apache.inlong.agent.metrics.AgentMetricItemSet;
+import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.pojo.DebeziumOffset;
+import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
+import org.apache.inlong.common.metric.MetricRegister;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract reader, init reader and reader metrics
@@ -49,7 +50,7 @@ public abstract class AbstractReader implements Reader {
     protected static final AtomicLong METRIC_INDEX = new AtomicLong(0);
     protected String inlongGroupId;
     protected String inlongStreamId;
-    //metric
+    // metric
     protected AgentMetricItemSet metricItemSet;
     protected AgentMetricItem readerMetric;
     protected String metricName;
@@ -80,9 +81,12 @@ public abstract class AbstractReader implements Reader {
     /**
      * specific offsets
      *
-     * @param server specific server
-     * @param file specific offset file
-     * @param pos specific offset pos
+     * @param server
+     *          specific server
+     * @param file
+     *          specific offset file
+     * @param pos
+     *          specific offset pos
      * @return
      */
     public String serializeOffset(final String server, final String file,

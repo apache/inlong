@@ -18,14 +18,15 @@
 
 package org.apache.inlong.sort.formats.base;
 
-import java.util.Map;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.table.factories.TableFormatFactory;
 import org.apache.flink.types.Row;
 
+import java.util.Map;
+
 /**
- * Factory for creating configured instances of {@link SerializationSchema}
- * for projected rows.
+ * Factory for creating configured instances of {@link SerializationSchema} for
+ * projected rows.
  */
 public interface ProjectedSerializationSchemaFactory extends TableFormatFactory<Row> {
 
@@ -33,13 +34,14 @@ public interface ProjectedSerializationSchemaFactory extends TableFormatFactory<
      * Creates and configures a {@link SerializationSchema} using the given
      * properties.
      *
-     * @param properties The properties describing the format.
-     * @param fields The fields of the rows deserialized by the schema.
-     * @return The configured deserialization schema used to deserialize the
-     *         given fields of rows.
+     * @param properties
+     *          The properties describing the format.
+     * @param fields
+     *          The fields of the rows deserialized by the schema.
+     * @return The configured deserialization schema used to deserialize the given
+     *         fields of rows.
      */
     SerializationSchema<Row> createProjectedSerializationSchema(
             Map<String, String> properties,
-            int[] fields
-    );
+            int[] fields);
 }

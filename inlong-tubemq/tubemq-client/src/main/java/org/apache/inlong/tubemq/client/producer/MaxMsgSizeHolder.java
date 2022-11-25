@@ -17,23 +17,22 @@
 
 package org.apache.inlong.tubemq.client.producer;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
- * The class caches the max msg size settings
- *  returned from the server.
+ * The class caches the max msg size settings returned from the server.
  */
 public class MaxMsgSizeHolder {
-    private final AtomicLong configId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private final AtomicInteger defMaxMsgSize =
-            new AtomicInteger(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE);
+
+    private final AtomicLong configId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicInteger defMaxMsgSize = new AtomicInteger(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE);
     private Map<String, Integer> topicMaxSizeInBMap = new ConcurrentHashMap<>();
 
     public MaxMsgSizeHolder() {

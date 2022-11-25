@@ -17,24 +17,27 @@
 
 package org.apache.inlong.sort.standalone.sink.kafka;
 
-import com.google.common.base.Preconditions;
-
-import org.apache.flume.Channel;
-import org.apache.flume.Event;
-import org.apache.flume.Transaction;
-import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.flume.Channel;
+import org.apache.flume.Event;
+import org.apache.flume.Transaction;
+import org.apache.flume.lifecycle.LifecycleState;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+
+import com.google.common.base.Preconditions;
+
 /** Worker of */
 public class KafkaFederationWorker extends Thread {
+
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaFederationWorker.class);
 
     private final String workerName;
@@ -47,17 +50,19 @@ public class KafkaFederationWorker extends Thread {
     /**
      * Constructor of KafkaFederationWorker
      *
-     * @param sinkName Name of sink.
-     * @param workerIndex Index of this worker thread.
-     * @param context Context of kafka sink.
+     * @param sinkName
+     *          Name of sink.
+     * @param workerIndex
+     *          Index of this worker thread.
+     * @param context
+     *          Context of kafka sink.
      */
     public KafkaFederationWorker(
             String sinkName, int workerIndex, KafkaFederationSinkContext context) {
         super();
         this.workerName = sinkName + "-" + workerIndex;
         this.context = Preconditions.checkNotNull(context);
-        this.producerFederation =
-                new KafkaProducerFederation(String.valueOf(workerIndex), this.context);
+        this.producerFederation = new KafkaProducerFederation(String.valueOf(workerIndex), this.context);
         this.status = LifecycleState.IDLE;
         this.dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.context.getClusterId());
         this.dimensions.put(SortMetricItem.KEY_TASK_NAME, this.context.getTaskName());
@@ -116,8 +121,7 @@ public class KafkaFederationWorker extends Thread {
                     tx.close();
                 }
                 // metric
-                SortMetricItem metricItem =
-                        this.context.getMetricItemSet().findMetricItem(dimensions);
+                SortMetricItem metricItem = this.context.getMetricItemSet().findMetricItem(dimensions);
                 metricItem.sendFailCount.incrementAndGet();
                 sleepOneInterval();
             }

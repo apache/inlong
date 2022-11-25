@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.pojo.workflow;
 
+import java.util.List;
+
+import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
-import java.util.List;
 
 /**
  * Process detail response

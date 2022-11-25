@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.standalone.metrics;
 
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,10 +31,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Context;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
 /**
@@ -81,8 +83,8 @@ public class MetricObserver {
     /**
      * parseDomain
      * 
-     * @param  domain
-     * @param  context
+     * @param domain
+     * @param context
      * @return
      */
     private static List<MetricListener> parseDomain(String domain, Context domainContext) {

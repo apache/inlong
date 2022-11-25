@@ -17,16 +17,17 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
+import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+
+import org.apache.flume.Context;
+import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.flume.Context;
-import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
-import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
 
 /**
  * 

@@ -44,7 +44,8 @@ public class HeartbeatClient {
     /**
      * Get component heartbeat
      *
-     * @param request query request of heartbeat
+     * @param request
+     *          query request of heartbeat
      * @return component heartbeat
      */
     public ComponentHeartbeatResponse getComponentHeartbeat(HeartbeatQueryRequest request) {
@@ -61,7 +62,8 @@ public class HeartbeatClient {
     /**
      * Get inlong group heartbeat
      *
-     * @param request query request of heartbeat
+     * @param request
+     *          query request of heartbeat
      * @return group heartbeat
      */
     public GroupHeartbeatResponse getGroupHeartbeat(HeartbeatQueryRequest request) {
@@ -79,7 +81,8 @@ public class HeartbeatClient {
     /**
      * Get inlong stream heartbeat
      *
-     * @param request query request of heartbeat
+     * @param request
+     *          query request of heartbeat
      * @return stream heartbeat
      */
     public StreamHeartbeatResponse getStreamHeartbeat(HeartbeatQueryRequest request) {
@@ -98,7 +101,8 @@ public class HeartbeatClient {
     /**
      * List component heartbeat by page
      *
-     * @param request paging query request
+     * @param request
+     *          paging query request
      * @return list of component heartbeat
      */
     public PageResult<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request) {
@@ -114,7 +118,8 @@ public class HeartbeatClient {
     /**
      * List group heartbeat by page
      *
-     * @param request paging query request
+     * @param request
+     *          paging query request
      * @return list of group heartbeat
      */
     public PageResult<GroupHeartbeatResponse> listGroupHeartbeat(HeartbeatPageRequest request) {
@@ -130,7 +135,8 @@ public class HeartbeatClient {
     /**
      * List stream heartbeat by page
      *
-     * @param request paging query request
+     * @param request
+     *          paging query request
      * @return list of stream heartbeat
      */
     public PageResult<StreamHeartbeatResponse> listStreamHeartbeat(HeartbeatPageRequest request) {

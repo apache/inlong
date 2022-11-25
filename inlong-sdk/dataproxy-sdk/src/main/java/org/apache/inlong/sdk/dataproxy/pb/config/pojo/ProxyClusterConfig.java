@@ -17,12 +17,12 @@
 
 package org.apache.inlong.sdk.dataproxy.pb.config.pojo;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.codec.digest.DigestUtils;
 
 import com.alibaba.fastjson.JSON;
 
@@ -50,7 +50,8 @@ public class ProxyClusterConfig {
     /**
      * set clusterId
      * 
-     * @param clusterId the clusterId to set
+     * @param clusterId
+     *          the clusterId to set
      */
     public void setClusterId(String clusterId) {
         this.clusterId = clusterId;
@@ -68,7 +69,8 @@ public class ProxyClusterConfig {
     /**
      * set regionId
      * 
-     * @param regionId the regionId to set
+     * @param regionId
+     *          the regionId to set
      */
     public void setRegionId(String regionId) {
         this.regionId = regionId;
@@ -86,7 +88,8 @@ public class ProxyClusterConfig {
     /**
      * set inlongStreamList
      * 
-     * @param inlongStreamList the inlongStreamList to set
+     * @param inlongStreamList
+     *          the inlongStreamList to set
      */
     public void setInlongStreamList(List<InlongStreamConfig> inlongStreamList) {
         this.inlongStreamList = inlongStreamList;
@@ -104,7 +107,8 @@ public class ProxyClusterConfig {
     /**
      * set nodeList
      * 
-     * @param nodeList the nodeList to set
+     * @param nodeList
+     *          the nodeList to set
      */
     public void setNodeList(List<ProxyNodeInfo> nodeList) {
         this.nodeList = nodeList;
@@ -122,7 +126,8 @@ public class ProxyClusterConfig {
     /**
      * set proxyParams
      * 
-     * @param proxyParams the proxyParams to set
+     * @param proxyParams
+     *          the proxyParams to set
      */
     public void setProxyParams(Map<String, String> proxyParams) {
         this.proxyParams = proxyParams;
@@ -157,7 +162,7 @@ public class ProxyClusterConfig {
     /**
      * generateMd5
      * 
-     * @param  config
+     * @param config
      * @return
      */
     public static String generateMd5(ProxyClusterConfig config) {
@@ -167,7 +172,7 @@ public class ProxyClusterConfig {
     /**
      * generateMd5
      * 
-     * @param  configList
+     * @param configList
      * @return
      */
     public static String generateMd5(List<ProxyClusterConfig> configList) {

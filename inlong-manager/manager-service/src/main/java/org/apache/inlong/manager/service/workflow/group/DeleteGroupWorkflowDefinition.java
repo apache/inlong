@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.workflow.group;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
@@ -30,6 +29,9 @@ import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -93,7 +95,8 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
         deleteSortTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(deleteSortTask);
 
-        // No need to delete the sink because we should not affect the existing data in the sink
+        // No need to delete the sink because we should not affect the existing data in
+        // the sink
 
         // End node
         EndEvent endEvent = new EndEvent();

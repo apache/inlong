@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
+import org.apache.inlong.common.util.MaskDataUtils;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.util.Date;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.common.util.MaskDataUtils;
+
+import lombok.Data;
 
 /**
  * Stream source entity, including source type, source name, etc.

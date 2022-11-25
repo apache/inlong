@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.plugin;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigInteger;
@@ -25,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import com.google.common.collect.Lists;
 
 /**
  * Class for deal with jar hell.
@@ -135,7 +136,8 @@ public class JarHell {
         private int comparePrePart(String prePart, String otherPrePart) {
             if (prePart.matches("\\d+")) {
                 return otherPrePart.matches("\\d+")
-                        ? (new BigInteger(prePart)).compareTo(new BigInteger(otherPrePart)) : -1;
+                        ? (new BigInteger(prePart)).compareTo(new BigInteger(otherPrePart))
+                        : -1;
             } else {
                 return otherPrePart.matches("\\d+") ? 1 : prePart.compareTo(otherPrePart);
             }

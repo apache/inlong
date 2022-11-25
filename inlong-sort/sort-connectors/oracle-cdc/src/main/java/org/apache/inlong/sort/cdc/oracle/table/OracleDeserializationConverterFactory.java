@@ -17,19 +17,25 @@
 
 package org.apache.inlong.sort.cdc.oracle.table;
 
-import io.debezium.data.SpecialValueDecimal;
-import io.debezium.data.VariableScaleDecimal;
-import io.debezium.relational.history.TableChanges.TableChange;
-import java.math.BigDecimal;
-import java.time.ZoneId;
-import java.util.Optional;
-import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.inlong.sort.cdc.oracle.debezium.table.DeserializationRuntimeConverter;
 import org.apache.inlong.sort.cdc.oracle.debezium.table.DeserializationRuntimeConverterFactory;
+
+import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 
-/** Used to create {@link DeserializationRuntimeConverterFactory} specified to Oracle. */
+import java.math.BigDecimal;
+import java.time.ZoneId;
+import java.util.Optional;
+
+import io.debezium.data.SpecialValueDecimal;
+import io.debezium.data.VariableScaleDecimal;
+import io.debezium.relational.history.TableChanges.TableChange;
+
+/**
+ * Used to create {@link DeserializationRuntimeConverterFactory} specified to
+ * Oracle.
+ */
 public class OracleDeserializationConverterFactory {
 
     public static DeserializationRuntimeConverterFactory instance() {
@@ -39,7 +45,8 @@ public class OracleDeserializationConverterFactory {
 
             @Override
             public Optional<DeserializationRuntimeConverter> createUserDefinedConverter(
-                    LogicalType logicalType, ZoneId serverTimeZone) {
+                    LogicalType logicalType,
+                    ZoneId serverTimeZone) {
                 return wrapNumericConverter(createNumericConverter(logicalType));
             }
         };
@@ -72,28 +79,26 @@ public class OracleDeserializationConverterFactory {
     private static Optional<DeserializationRuntimeConverter> wrapNumericConverter(
             Optional<DeserializationRuntimeConverter> converterOptional) {
         return converterOptional.map(
-                converter ->
-                        new DeserializationRuntimeConverter() {
-                            private static final long serialVersionUID = 1L;
+                converter -> new DeserializationRuntimeConverter() {
 
-                            @Override
-                            public Object convert(Object dbzObj, Schema schema) throws Exception {
-                                if (VariableScaleDecimal.LOGICAL_NAME.equals(schema.name())) {
-                                    SpecialValueDecimal decimal =
-                                            VariableScaleDecimal.toLogical((Struct) dbzObj);
-                                    return converter.convert(
-                                            decimal.getDecimalValue().orElse(BigDecimal.ZERO),
-                                            schema);
-                                }
-                                return converter.convert(dbzObj, schema);
-                            }
+                    private static final long serialVersionUID = 1L;
 
-                            @Override
-                            public Object convert(Object dbzObj, Schema schema, TableChange tableSchema)
-                                    throws Exception {
-                                return convert(dbzObj, schema);
-                            }
-                        });
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema) throws Exception {
+                        if (VariableScaleDecimal.LOGICAL_NAME.equals(schema.name())) {
+                            SpecialValueDecimal decimal = VariableScaleDecimal.toLogical((Struct) dbzObj);
+                            return converter.convert(
+                                    decimal.getDecimalValue().orElse(BigDecimal.ZERO),
+                                    schema);
+                        }
+                        return converter.convert(dbzObj, schema);
+                    }
+
+                    @Override
+                    public Object convert(Object dbzObj, Schema schema, TableChange tableSchema) throws Exception {
+                        return convert(dbzObj, schema);
+                    }
+                });
     }
 
     private static Optional<DeserializationRuntimeConverter> createBooleanConverter() {

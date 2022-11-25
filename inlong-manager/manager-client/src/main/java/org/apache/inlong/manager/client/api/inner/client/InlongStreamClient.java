@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongStreamApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
@@ -27,6 +26,8 @@ import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
@@ -53,7 +54,8 @@ public class InlongStreamClient {
     /**
      * Query whether the inlong stream ID exists
      *
-     * @param streamInfo inlong stream info
+     * @param streamInfo
+     *          inlong stream info
      * @return true: exists, false: does not exist
      */
     public Boolean isStreamExists(InlongStreamInfo streamInfo) {
@@ -70,7 +72,8 @@ public class InlongStreamClient {
     /**
      * InlongStream info that needs to be modified
      *
-     * @param streamInfo inlong stream info that needs to be modified
+     * @param streamInfo
+     *          inlong stream info that needs to be modified
      * @return whether succeed
      */
     public Pair<Boolean, String> updateStreamInfo(InlongStreamInfo streamInfo) {
@@ -102,7 +105,8 @@ public class InlongStreamClient {
     /**
      * Get inlong stream by the given inlong group id and stream id.
      *
-     * @param streamInfo the given inlong stream info
+     * @param streamInfo
+     *          the given inlong stream info
      * @return inlong stream info if exists, null will be returned if not exits
      */
     public InlongStreamInfo getStreamIfExists(InlongStreamInfo streamInfo) {
@@ -115,7 +119,8 @@ public class InlongStreamClient {
     /**
      * Paging query inlong stream brief info list
      *
-     * @param request query request
+     * @param request
+     *          query request
      * @return inlong stream brief list
      */
     public PageResult<InlongStreamBriefInfo> listByCondition(InlongStreamPageRequest request) {
@@ -141,8 +146,10 @@ public class InlongStreamClient {
     /**
      * Create stream in synchronous/asynchronous way.
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
+     * @param groupId
+     *          inlong group id
+     * @param streamId
+     *          inlong stream id
      * @return whether succeed
      */
     public boolean startProcess(String groupId, String streamId) {
@@ -156,8 +163,10 @@ public class InlongStreamClient {
     /**
      * Suspend stream in synchronous/asynchronous way.
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
+     * @param groupId
+     *          inlong group id
+     * @param streamId
+     *          inlong stream id
      * @return whether succeed
      */
     public boolean suspendProcess(String groupId, String streamId) {
@@ -171,8 +180,10 @@ public class InlongStreamClient {
     /**
      * Restart stream in synchronous/asynchronous way.
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
+     * @param groupId
+     *          inlong group id
+     * @param streamId
+     *          inlong stream id
      * @return whether succeed
      */
     public boolean restartProcess(String groupId, String streamId) {
@@ -186,8 +197,10 @@ public class InlongStreamClient {
     /**
      * Delete stream in synchronous/asynchronous way.
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
+     * @param groupId
+     *          inlong group id
+     * @param streamId
+     *          inlong stream id
      * @return whether succeed
      */
     public boolean deleteProcess(String groupId, String streamId) {
@@ -201,8 +214,10 @@ public class InlongStreamClient {
     /**
      * Delete the specified inlong stream
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
+     * @param groupId
+     *          inlong group id
+     * @param streamId
+     *          inlong stream id
      * @return whether succeed
      */
     public boolean delete(String groupId, String streamId) {

@@ -18,6 +18,25 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FORMAT;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.PROPS_BOOTSTRAP_SERVERS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SINK_BUFFER_FLUSH_INTERVAL;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SINK_BUFFER_FLUSH_MAX_ROWS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.TOPIC;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.VALUE_FIELDS_INCLUDE;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.VALUE_FORMAT;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.autoCompleteSchemaRegistrySubject;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createKeyFormatProjection;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createValueFormatProjection;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.getKafkaProperties;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
+
+import org.apache.inlong.sort.kafka.KafkaDynamicSink;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -46,7 +65,6 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.kafka.KafkaDynamicSink;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -55,43 +73,30 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FORMAT;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.PROPS_BOOTSTRAP_SERVERS;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SINK_BUFFER_FLUSH_INTERVAL;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SINK_BUFFER_FLUSH_MAX_ROWS;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.TOPIC;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.VALUE_FIELDS_INCLUDE;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.VALUE_FORMAT;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.autoCompleteSchemaRegistrySubject;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createKeyFormatProjection;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createValueFormatProjection;
-import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.getKafkaProperties;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
  * Copy from org.apache.flink:flink-connector-kafka_2.11:1.13.5
  *
- * Upsert-Kafka factory.
- * Add an option `inlong.metric` to support metrics.
+ * Upsert-Kafka factory. Add an option `inlong.metric` to support metrics.
  */
 public class UpsertKafkaDynamicTableFactory
-        implements DynamicTableSourceFactory, DynamicTableSinkFactory {
+        implements
+            DynamicTableSourceFactory,
+            DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "upsert-kafka-inlong";
 
     private static void validateSource(
-            ReadableConfig tableOptions, Format keyFormat, Format valueFormat, TableSchema schema) {
+            ReadableConfig tableOptions, Format keyFormat, Format valueFormat,
+            TableSchema schema) {
         validateTopic(tableOptions);
         validateFormat(keyFormat, valueFormat, tableOptions);
         validatePKConstraints(schema);
     }
 
     private static void validateSink(
-            ReadableConfig tableOptions, Format keyFormat, Format valueFormat, TableSchema schema) {
+            ReadableConfig tableOptions, Format keyFormat, Format valueFormat,
+            TableSchema schema) {
         validateTopic(tableOptions);
         validateFormat(keyFormat, valueFormat, tableOptions);
         validatePKConstraints(schema);
@@ -193,18 +198,17 @@ public class UpsertKafkaDynamicTableFactory
         FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
 
         ReadableConfig tableOptions = helper.getOptions();
-        DecodingFormat<DeserializationSchema<RowData>> keyDecodingFormat =
-                helper.discoverDecodingFormat(DeserializationFormatFactory.class, KEY_FORMAT);
-        DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat =
-                helper.discoverDecodingFormat(DeserializationFormatFactory.class, VALUE_FORMAT);
+        DecodingFormat<DeserializationSchema<RowData>> keyDecodingFormat = helper
+                .discoverDecodingFormat(DeserializationFormatFactory.class, KEY_FORMAT);
+        DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat = helper
+                .discoverDecodingFormat(DeserializationFormatFactory.class, VALUE_FORMAT);
 
         // Validate the option data type.
         helper.validateExcept(KafkaOptions.PROPERTIES_PREFIX);
         TableSchema schema = context.getCatalogTable().getSchema();
         validateSource(tableOptions, keyDecodingFormat, valueDecodingFormat, schema);
 
-        Tuple2<int[], int[]> keyValueProjections =
-                createKeyValueProjections(context.getCatalogTable());
+        Tuple2<int[], int[]> keyValueProjections = createKeyValueProjections(context.getCatalogTable());
         String keyPrefix = tableOptions.getOptional(KEY_FIELDS_PREFIX).orElse(null);
         Properties properties = getKafkaProperties(context.getCatalogTable().getOptions());
         // always use earliest to keep data integrity
@@ -228,24 +232,22 @@ public class UpsertKafkaDynamicTableFactory
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
-        FactoryUtil.TableFactoryHelper helper =
-                FactoryUtil.createTableFactoryHelper(
-                        this, autoCompleteSchemaRegistrySubject(context));
+        FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(
+                this, autoCompleteSchemaRegistrySubject(context));
 
         final ReadableConfig tableOptions = helper.getOptions();
 
-        EncodingFormat<SerializationSchema<RowData>> keyEncodingFormat =
-                helper.discoverEncodingFormat(SerializationFormatFactory.class, KEY_FORMAT);
-        EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat =
-                helper.discoverEncodingFormat(SerializationFormatFactory.class, VALUE_FORMAT);
+        EncodingFormat<SerializationSchema<RowData>> keyEncodingFormat = helper
+                .discoverEncodingFormat(SerializationFormatFactory.class, KEY_FORMAT);
+        EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat = helper
+                .discoverEncodingFormat(SerializationFormatFactory.class, VALUE_FORMAT);
 
         // Validate the option data type.
         helper.validateExcept(KafkaOptions.PROPERTIES_PREFIX);
         TableSchema schema = context.getCatalogTable().getSchema();
         validateSink(tableOptions, keyEncodingFormat, valueEncodingFormat, schema);
 
-        Tuple2<int[], int[]> keyValueProjections =
-                createKeyValueProjections(context.getCatalogTable());
+        Tuple2<int[], int[]> keyValueProjections = createKeyValueProjections(context.getCatalogTable());
         final String keyPrefix = tableOptions.getOptional(KEY_FIELDS_PREFIX).orElse(null);
         final Properties properties = getKafkaProperties(context.getCatalogTable().getOptions());
 
@@ -253,8 +255,7 @@ public class UpsertKafkaDynamicTableFactory
 
         int batchSize = tableOptions.get(SINK_BUFFER_FLUSH_MAX_ROWS);
         Duration batchInterval = tableOptions.get(SINK_BUFFER_FLUSH_INTERVAL);
-        SinkBufferFlushMode flushMode =
-                new SinkBufferFlushMode(batchSize, batchInterval.toMillis());
+        SinkBufferFlushMode flushMode = new SinkBufferFlushMode(batchSize, batchInterval.toMillis());
         String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
         final String auditHostAndPorts = tableOptions.getOptional(INLONG_AUDIT).orElse(null);
 
@@ -303,17 +304,17 @@ public class UpsertKafkaDynamicTableFactory
     // --------------------------------------------------------------------------------------------
 
     /**
-     * It is used to wrap the decoding format and expose the desired changelog mode. It's only works
-     * for insert-only format.
+     * It is used to wrap the decoding format and expose the desired changelog mode.
+     * It's only works for insert-only format.
      */
     protected static class DecodingFormatWrapper
-            implements DecodingFormat<DeserializationSchema<RowData>> {
+            implements
+                DecodingFormat<DeserializationSchema<RowData>> {
 
-        private static final ChangelogMode SOURCE_CHANGELOG_MODE =
-                ChangelogMode.newBuilder()
-                        .addContainedKind(RowKind.UPDATE_AFTER)
-                        .addContainedKind(RowKind.DELETE)
-                        .build();
+        private static final ChangelogMode SOURCE_CHANGELOG_MODE = ChangelogMode.newBuilder()
+                .addContainedKind(RowKind.UPDATE_AFTER)
+                .addContainedKind(RowKind.DELETE)
+                .build();
         private final DecodingFormat<DeserializationSchema<RowData>> innerDecodingFormat;
 
         public DecodingFormatWrapper(
@@ -323,7 +324,8 @@ public class UpsertKafkaDynamicTableFactory
 
         @Override
         public DeserializationSchema<RowData> createRuntimeDecoder(
-                DynamicTableSource.Context context, DataType producedDataType) {
+                DynamicTableSource.Context context,
+                DataType producedDataType) {
             return innerDecodingFormat.createRuntimeDecoder(context, producedDataType);
         }
 
@@ -353,18 +355,18 @@ public class UpsertKafkaDynamicTableFactory
     }
 
     /**
-     * It is used to wrap the encoding format and expose the desired changelog mode. It's only works
-     * for insert-only format.
+     * It is used to wrap the encoding format and expose the desired changelog mode.
+     * It's only works for insert-only format.
      */
     protected static class EncodingFormatWrapper
-            implements EncodingFormat<SerializationSchema<RowData>> {
+            implements
+                EncodingFormat<SerializationSchema<RowData>> {
 
-        public static final ChangelogMode SINK_CHANGELOG_MODE =
-                ChangelogMode.newBuilder()
-                        .addContainedKind(RowKind.INSERT)
-                        .addContainedKind(RowKind.UPDATE_AFTER)
-                        .addContainedKind(RowKind.DELETE)
-                        .build();
+        public static final ChangelogMode SINK_CHANGELOG_MODE = ChangelogMode.newBuilder()
+                .addContainedKind(RowKind.INSERT)
+                .addContainedKind(RowKind.UPDATE_AFTER)
+                .addContainedKind(RowKind.DELETE)
+                .build();
         private final EncodingFormat<SerializationSchema<RowData>> innerEncodingFormat;
 
         public EncodingFormatWrapper(
@@ -374,7 +376,8 @@ public class UpsertKafkaDynamicTableFactory
 
         @Override
         public SerializationSchema<RowData> createRuntimeEncoder(
-                DynamicTableSink.Context context, DataType consumedDataType) {
+                DynamicTableSink.Context context,
+                DataType consumedDataType) {
             return innerEncodingFormat.createRuntimeEncoder(context, consumedDataType);
         }
 

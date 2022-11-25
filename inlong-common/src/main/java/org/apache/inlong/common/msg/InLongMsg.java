@@ -17,9 +17,6 @@
 
 package org.apache.inlong.common.msg;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -30,7 +27,11 @@ import java.util.Set;
 
 import org.xerial.snappy.Snappy;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+
 public class InLongMsg {
+
     private static final int DEFAULT_CAPACITY = 4096;
     private final int capacity;
 
@@ -48,8 +49,7 @@ public class InLongMsg {
     private static final int BIN_MSG_SET_SNAPPY = (1 << 5);
     private static final int BIN_MSG_BODYLEN_SIZE = 4;
     private static final int BIN_MSG_BODYLEN_OFFSET = 21;
-    private static final int BIN_MSG_BODY_OFFSET =
-            BIN_MSG_BODYLEN_SIZE + BIN_MSG_BODYLEN_OFFSET;
+    private static final int BIN_MSG_BODY_OFFSET = BIN_MSG_BODYLEN_SIZE + BIN_MSG_BODYLEN_OFFSET;
     private static final int BIN_MSG_ATTRLEN_SIZE = 2;
     private static final int BIN_MSG_FORMAT_SIZE = 29;
     private static final int BIN_MSG_MAGIC_SIZE = 2;
@@ -67,12 +67,10 @@ public class InLongMsg {
 
     private final boolean addmode;
 
-    private static final Joiner.MapJoiner MAP_JOINER =
-            Joiner.on(AttributeConstants.SEPARATOR)
-                    .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
-    private static final Splitter.MapSplitter MAP_SPLITTER =
-            Splitter.on(AttributeConstants.SEPARATOR)
-                    .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
+    private static final Joiner.MapJoiner MAP_JOINER = Joiner.on(AttributeConstants.SEPARATOR)
+            .withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
+    private static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(AttributeConstants.SEPARATOR)
+            .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
     static class DataBuffer {
 
@@ -83,8 +81,7 @@ public class InLongMsg {
             out = new DataOutputBuffer();
         }
 
-        public void write(byte[] array, int position, int len)
-                throws IOException {
+        public void write(byte[] array, int position, int len) throws IOException {
             cnt++;
             out.writeInt(len);
             out.write(array, position, len);
@@ -107,11 +104,10 @@ public class InLongMsg {
     }
 
     private enum Version {
-        vn(-1), v0(0), v1(1),
-        v2(2), v3(3), v4(4);
 
-        private static final Map<Integer, Version> INT_TO_TYPE_MAP =
-                new HashMap<Integer, Version>();
+        vn(-1), v0(0), v1(1), v2(2), v3(3), v4(4);
+
+        private static final Map<Integer, Version> INT_TO_TYPE_MAP = new HashMap<Integer, Version>();
 
         static {
             for (Version type : Version.values()) {
@@ -150,7 +146,8 @@ public class InLongMsg {
     /**
      * capacity: 4096, version: 1
      *
-     * @param compress if copress
+     * @param compress
+     *          if copress
      * @return InLongMsg
      */
     public static InLongMsg newInLongMsg(boolean compress) {
@@ -160,7 +157,8 @@ public class InLongMsg {
     /**
      * capacity: 4096, compress: true
      *
-     * @param v version info
+     * @param v
+     *          version info
      * @return InLongMsg
      */
     public static InLongMsg newInLongMsg(int v) {
@@ -170,8 +168,10 @@ public class InLongMsg {
     /**
      * capacity: 4096
      *
-     * @param compress if compress
-     * @param v        version
+     * @param compress
+     *          if compress
+     * @param v
+     *          version
      * @return InLongMsg
      */
     public static InLongMsg newInLongMsg(boolean compress, int v) {
@@ -181,8 +181,10 @@ public class InLongMsg {
     /**
      * version: 1
      *
-     * @param capacity data capacity
-     * @param compress if compress
+     * @param capacity
+     *          data capacity
+     * @param compress
+     *          if compress
      * @return InLongMsg
      */
     public static InLongMsg newInLongMsg(int capacity, boolean compress) {
@@ -191,9 +193,13 @@ public class InLongMsg {
 
     /**
      * netInLongMsg
-     * @param capacity data capacity
-     * @param compress compress
-     * @param v        version
+     * 
+     * @param capacity
+     *          data capacity
+     * @param compress
+     *          compress
+     * @param v
+     *          version
      * @return InLongMsg
      */
     public static InLongMsg newInLongMsg(int capacity, boolean compress, int v) {
@@ -212,15 +218,18 @@ public class InLongMsg {
     }
 
     /**
-     * return false means current msg is big enough, no other data should be
-     * added again, but attention: the input data has already been added, and if
-     * you add another data after return false it can also be added
-     * successfully.
+     * return false means current msg is big enough, no other data should be added
+     * again, but attention: the input data has already been added, and if you add
+     * another data after return false it can also be added successfully.
      *
-     * @param attr   attribute info
-     * @param data   binary data
-     * @param offset data start offset
-     * @param len    data length
+     * @param attr
+     *          attribute info
+     * @param data
+     *          binary data
+     * @param offset
+     *          data start offset
+     * @param len
+     *          data length
      * @return boolean
      */
     public boolean addMsg(String attr, byte[] data, int offset, int len) {
@@ -229,6 +238,7 @@ public class InLongMsg {
 
     /**
      * add msg
+     * 
      * @param attr
      * @param data
      * @return
@@ -391,8 +401,7 @@ public class InLongMsg {
                     if (version.intValue() == Version.v2.intValue()) {
                         out.writeInt(data.cnt);
                     }
-                    int guessLen =
-                            Snappy.maxCompressedLength(data.out.getLength());
+                    int guessLen = Snappy.maxCompressedLength(data.out.getLength());
                     byte[] tmpData = new byte[guessLen];
                     int len = Snappy.compress(data.out.getData(), 0,
                             data.out.getLength(), tmpData, 0);
@@ -439,10 +448,8 @@ public class InLongMsg {
                 binMsgBuffer.get(body, 0, bodyLen);
 
                 // copy attributes
-                int attrLen =
-                        binMsgBuffer.getShort(BIN_MSG_BODY_OFFSET + bodyLen);
-                byte[] attr =
-                        new byte[BIN_MSG_ATTRLEN_SIZE + attrLen + BIN_MSG_MAGIC_SIZE];
+                int attrLen = binMsgBuffer.getShort(BIN_MSG_BODY_OFFSET + bodyLen);
+                byte[] attr = new byte[BIN_MSG_ATTRLEN_SIZE + attrLen + BIN_MSG_MAGIC_SIZE];
                 binMsgBuffer.get(attr, 0, attr.length);
 
                 int guessLen = Snappy.maxCompressedLength(bodyLen);
@@ -587,6 +594,7 @@ public class InLongMsg {
 
     // private LinkedHashMap<String, ByteBuffer> attr2Rawdata = null;
     static class DataByteBuffer {
+
         final int cnt;
         ByteBuffer buffer;
         DataOutputBuffer inoutBuffer;
@@ -753,7 +761,7 @@ public class InLongMsg {
                 + bodyLen + BIN_MSG_ATTRLEN_SIZE + attrLen) & 0xFFFF);
         dataTime = dataTime * 1000;
 
-        //read common attributes
+        // read common attributes
         if (attrLen != 0) {
             byte[] attr = new byte[attrLen];
             parsedBinInput.position(BIN_MSG_BODY_OFFSET + bodyLen + BIN_MSG_ATTRLEN_SIZE);
@@ -765,7 +773,7 @@ public class InLongMsg {
 
         commonAttrMap.put(AttributeConstants.DATA_TIME, String.valueOf(dataTime));
 
-        //unzip data
+        // unzip data
         ByteBuffer bodyBuffer;
         byte[] body = new byte[bodyLen + 1];
         parsedBinInput.position(BIN_MSG_BODY_OFFSET);
@@ -773,8 +781,7 @@ public class InLongMsg {
         int zipType = (msgtype & 0xE0) >> 5;
         switch (zipType) {
             case (BIN_MSG_SNAPPY_TYPE):
-                byte[] uncompressdata =
-                        new byte[Snappy.uncompressedLength(body, 1, body.length - 1) + 1];
+                byte[] uncompressdata = new byte[Snappy.uncompressedLength(body, 1, body.length - 1) + 1];
                 // uncompress flag
                 uncompressdata[0] = 0;
                 int msgLen = Snappy.uncompress(body, 1, body.length - 1,
@@ -784,13 +791,13 @@ public class InLongMsg {
 
             case (BIN_MSG_NO_ZIP):
             default:
-                //set uncompress flag
+                // set uncompress flag
                 body[0] = 0;
                 bodyBuffer = ByteBuffer.wrap(body, 0, body.length);
                 break;
         }
 
-        //number groupId/streamId
+        // number groupId/streamId
         boolean isUseNumGroupId = ((extField & 0x4) == 0x0);
         if (isUseNumGroupId) {
             commonAttrMap.put(AttributeConstants.GROUP_ID, String.valueOf(groupIdNum));
@@ -811,7 +818,7 @@ public class InLongMsg {
                     this.msgcnt * 10 / 7);
             Map<String, String> finalAttrMap = commonAttrMap;
 
-            //skip compress flag
+            // skip compress flag
             bodyBuffer.get();
             int bodyBufLen = bodyBuffer.capacity() - 1;
             while (bodyBufLen > 0) {
@@ -975,6 +982,7 @@ public class InLongMsg {
 
     /**
      * getIterator
+     * 
      * @param rawdata
      * @return
      */

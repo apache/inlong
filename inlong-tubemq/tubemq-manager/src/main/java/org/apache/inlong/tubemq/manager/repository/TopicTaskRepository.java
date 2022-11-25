@@ -17,9 +17,10 @@
 
 package org.apache.inlong.tubemq.manager.repository;
 
+import org.apache.inlong.tubemq.manager.entry.TopicTaskEntry;
+
 import java.util.List;
 
-import org.apache.inlong.tubemq.manager.entry.TopicTaskEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

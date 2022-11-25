@@ -21,11 +21,10 @@ package org.apache.inlong.tubemq.server.common.statusdef;
  * The topic state life cycle
  */
 public enum TopicStatus {
-    STATUS_TOPIC_UNDEFINED(-2, "Undefined"),
-    STATUS_TOPIC_OK(0, "Normal"),
-    STATUS_TOPIC_SOFT_DELETE(1, "Soft deleted"),
-    STATUS_TOPIC_SOFT_REMOVE(2, "Soft removed"),
-    STATUS_TOPIC_HARD_REMOVE(3, "Hard removed");
+
+    STATUS_TOPIC_UNDEFINED(-2, "Undefined"), STATUS_TOPIC_OK(0, "Normal"), STATUS_TOPIC_SOFT_DELETE(1,
+            "Soft deleted"),
+    STATUS_TOPIC_SOFT_REMOVE(2, "Soft removed"), STATUS_TOPIC_HARD_REMOVE(3, "Hard removed");
 
     private int code;
     private String description;

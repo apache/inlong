@@ -37,7 +37,8 @@ public class CacheTopicObject {
     /**
      * set topic
      *
-     * @param topic the topic to set
+     * @param topic
+     *          the topic to set
      */
     public void setTopic(String topic) {
         this.topic = topic;
@@ -55,7 +56,8 @@ public class CacheTopicObject {
     /**
      * set partitionNum
      *
-     * @param partitionNum the partitionNum to set
+     * @param partitionNum
+     *          the partitionNum to set
      */
     public void setPartitionNum(Integer partitionNum) {
         this.partitionNum = partitionNum;

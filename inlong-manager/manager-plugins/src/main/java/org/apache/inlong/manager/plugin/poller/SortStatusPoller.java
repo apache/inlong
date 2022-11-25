@@ -17,11 +17,6 @@
 
 package org.apache.inlong.manager.plugin.poller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.api.common.JobStatus;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SortStatus;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -31,11 +26,19 @@ import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
 import org.apache.inlong.manager.workflow.plugin.sort.SortPoller;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.JobStatus;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * Flink sort task status poller for inlong groups
@@ -100,8 +103,7 @@ public class SortStatusPoller implements SortPoller {
                 String sortUrl = kvConf.get(InlongConstants.SORT_URL);
                 FlinkService flinkService = new FlinkService(sortUrl);
                 statusInfo.setSortStatus(
-                        JOB_SORT_STATUS_MAP.getOrDefault(flinkService.getJobStatus(jobId), SortStatus.UNKNOWN)
-                );
+                        JOB_SORT_STATUS_MAP.getOrDefault(flinkService.getJobStatus(jobId), SortStatus.UNKNOWN));
                 statusInfos.add(statusInfo);
             } catch (Exception e) {
                 log.error("polling sort status failed for groupId=" + groupId, e);

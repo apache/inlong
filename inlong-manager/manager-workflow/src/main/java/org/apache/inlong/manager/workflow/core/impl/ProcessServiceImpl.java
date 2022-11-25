@@ -17,25 +17,28 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
-import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessService;
 import org.apache.inlong.manager.workflow.core.ProcessorExecutor;
 import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
+
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * WorkflowProcess service
@@ -83,8 +86,7 @@ public class ProcessServiceImpl implements ProcessService {
                     .setTaskEntity(taskEntity)
                     .setOperator(operator)
                     .setRemark(remark)
-                    .setTask(task)
-            );
+                    .setTask(task));
             this.processorExecutor.executeStart(task, context);
         }
         return context;
@@ -104,8 +106,7 @@ public class ProcessServiceImpl implements ProcessService {
                     .setTaskEntity(taskEntity)
                     .setOperator(operator)
                     .setRemark(remark)
-                    .setTask(task)
-            );
+                    .setTask(task));
             this.processorExecutor.executeComplete(task, context);
         }
 

@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -33,12 +32,15 @@ import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.workflow.plugin.sort.PollerPlugin;
 import org.apache.inlong.manager.workflow.plugin.sort.SortPoller;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
 
 /**
  * Sort service implementation.

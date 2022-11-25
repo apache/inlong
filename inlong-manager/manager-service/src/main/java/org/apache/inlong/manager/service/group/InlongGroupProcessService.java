@@ -17,7 +17,11 @@
 
 package org.apache.inlong.manager.service.group;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -38,10 +42,6 @@ import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcess
 import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
@@ -51,10 +51,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
-import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
-import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
-import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * Operation to the inlong group process
@@ -85,8 +87,10 @@ public class InlongGroupProcessService {
     /**
      * Start a New InlongGroup for the specified inlong group id.
      *
-     * @param groupId inlong group id
-     * @param operator name of operator
+     * @param groupId
+     *          inlong group id
+     * @param operator
+     *          name of operator
      * @return workflow result
      */
     public WorkflowResult startProcess(String groupId, String operator) {
@@ -103,11 +107,13 @@ public class InlongGroupProcessService {
     /**
      * Suspend InlongGroup in an asynchronous way.
      *
-     * @param groupId inlong group id
-     * @param operator name of operator
+     * @param groupId
+     *          inlong group id
+     * @param operator
+     *          name of operator
      * @return inlong group id
-     * @apiNote Stop source and sort task related to the inlong group asynchronously, persist the status if
-     *         necessary.
+     * @apiNote Stop source and sort task related to the inlong group
+     *          asynchronously, persist the status if necessary.
      */
     public String suspendProcessAsync(String groupId, String operator) {
         LOGGER.info("begin to suspend process asynchronously for groupId={} by operator={}", groupId, operator);
@@ -124,11 +130,13 @@ public class InlongGroupProcessService {
     /**
      * Suspend InlongGroup which is started up successfully.
      *
-     * @param groupId inlong group id
-     * @param operator name of operator
+     * @param groupId
+     *          inlong group id
+     * @param operator
+     *          name of operator
      * @return workflow result
-     * @apiNote Stop source and sort task related to the inlong group asynchronously, persist the status if
-     *         necessary.
+     * @apiNote Stop source and sort task related to the inlong group
+     *          asynchronously, persist the status if necessary.
      */
     public WorkflowResult suspendProcess(String groupId, String operator) {
         LOGGER.info("begin to suspend process for groupId={} by operator={}", groupId, operator);
@@ -143,10 +151,13 @@ public class InlongGroupProcessService {
     }
 
     /**
-     * Restart InlongGroup in an asynchronous way, starting from the last persist snapshot.
+     * Restart InlongGroup in an asynchronous way, starting from the last persist
+     * snapshot.
      *
-     * @param groupId inlong group id
-     * @param operator name of operator
+     * @param groupId
+     *          inlong group id
+     * @param operator
+     *          name of operator
      * @return workflow result
      */
     public String restartProcessAsync(String groupId, String operator) {
@@ -162,10 +173,13 @@ public class InlongGroupProcessService {
     }
 
     /**
-     * Restart InlongGroup which is started up successfully, starting from the last persist snapshot.
+     * Restart InlongGroup which is started up successfully, starting from the last
+     * persist snapshot.
      *
-     * @param groupId inlong group id
-     * @param operator name of operator
+     * @param groupId
+     *          inlong group id
+     * @param operator
+     *          name of operator
      * @return workflow result
      */
     public WorkflowResult restartProcess(String groupId, String operator) {
@@ -181,10 +195,13 @@ public class InlongGroupProcessService {
     }
 
     /**
-     * Delete InlongGroup logically and delete related resource in an asynchronous way.
+     * Delete InlongGroup logically and delete related resource in an asynchronous
+     * way.
      *
-     * @param groupId inlong group id
-     * @param operator name of operator
+     * @param groupId
+     *          inlong group id
+     * @param operator
+     *          name of operator
      * @return inlong group id
      */
     public String deleteProcessAsync(String groupId, String operator) {
@@ -203,7 +220,8 @@ public class InlongGroupProcessService {
     }
 
     /**
-     * Delete InlongGroup logically and delete related resource in a synchronous way.
+     * Delete InlongGroup logically and delete related resource in a synchronous
+     * way.
      */
     public Boolean deleteProcess(String groupId, String operator) {
         LOGGER.info("begin to delete group for groupId={} by user={}", groupId, operator);
@@ -219,11 +237,14 @@ public class InlongGroupProcessService {
     }
 
     /**
-     * Reset InlongGroup status when group is staying CONFIG_ING|SUSPENDING|RESTARTING|DELETING for a long time.
-     * This api is side effect, must be used carefully.
+     * Reset InlongGroup status when group is staying
+     * CONFIG_ING|SUSPENDING|RESTARTING|DELETING for a long time. This api is side
+     * effect, must be used carefully.
      *
-     * @param request reset inlong group request
-     * @param operator name of operator
+     * @param request
+     *          reset inlong group request
+     * @param operator
+     *          name of operator
      * @return success or false
      */
     public boolean resetGroupStatus(InlongGroupResetRequest request, String operator) {

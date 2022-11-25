@@ -17,7 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.mq.tube;
 
-import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
@@ -34,12 +33,15 @@ import org.apache.inlong.tubemq.client.producer.MessageProducer;
 import org.apache.inlong.tubemq.client.producer.MessageSentCallback;
 import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flume.Context;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TubeHandler
@@ -66,6 +68,7 @@ public class TubeHandler implements MessageQueueHandler {
 
     /**
      * init
+     * 
      * @param config
      * @param sinkContext
      */
@@ -96,6 +99,7 @@ public class TubeHandler implements MessageQueueHandler {
 
     /**
      * initTubeConfig
+     * 
      * @return
      *
      * @throws Exception
@@ -199,7 +203,8 @@ public class TubeHandler implements MessageQueueHandler {
      * sendProfileV1
      */
     private void sendProfileV1(BatchPackProfile event, IdTopicConfig idConfig,
-            String topic) throws Exception {
+            String topic)
+            throws Exception {
         // headers
         Map<String, String> headers = this.handler.parseHeader(idConfig, event, sinkContext.getNodeId(),
                 sinkContext.getCompressType());
@@ -236,7 +241,8 @@ public class TubeHandler implements MessageQueueHandler {
      * sendSimpleProfileV0
      */
     private void sendSimpleProfileV0(SimpleBatchPackProfileV0 event, IdTopicConfig idConfig,
-            String topic) throws Exception {
+            String topic)
+            throws Exception {
         // headers
         Map<String, String> headers = event.getSimpleProfile().getHeaders();
         // compress
@@ -271,7 +277,8 @@ public class TubeHandler implements MessageQueueHandler {
     /**
      * sendOrderProfileV0
      */
-    private void sendOrderProfileV0(OrderBatchPackProfileV0 event, IdTopicConfig idConfig, String topic)
+    private void sendOrderProfileV0(OrderBatchPackProfileV0 event, IdTopicConfig idConfig,
+            String topic)
             throws Exception {
         // headers
         Map<String, String> headers = event.getOrderProfile().getHeaders();

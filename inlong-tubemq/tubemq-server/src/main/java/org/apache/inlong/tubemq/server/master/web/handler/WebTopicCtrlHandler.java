@@ -17,12 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
@@ -34,12 +28,21 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Ba
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 public class WebTopicCtrlHandler extends AbstractWebHandler {
 
     /**
      * Constructor
      *
-     * @param master tube master
+     * @param master
+     *          tube master
      */
     public WebTopicCtrlHandler(TMaster master) {
         super(master);
@@ -67,14 +70,17 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     /**
      * Query topic control info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminQueryTopicCtrlInfo(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         TopicCtrlEntity qryEntity = new TopicCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -89,8 +95,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // query matched records
-        Map<String, TopicCtrlEntity> topicCtrlMap =
-                defMetaDataService.getTopicCtrlConf(topicNameSet, qryEntity);
+        Map<String, TopicCtrlEntity> topicCtrlMap = defMetaDataService.getTopicCtrlConf(topicNameSet, qryEntity);
         // build query result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -110,14 +115,17 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     /**
      * Add new topic control record
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminAddTopicCtrlInfo(HttpServletRequest req,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdTopicCtrlInfo(req, sBuffer, result, true);
 
     }
@@ -125,56 +133,68 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     /**
      * Add new topic control record in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchAddTopicCtrlInfo(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdTopicCtrlInfo(req, sBuffer, result, true);
     }
 
     /**
      * Modify topic control info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminModTopicCtrlInfo(HttpServletRequest req,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdTopicCtrlInfo(req, sBuffer, result, false);
     }
 
     /**
      * Modify new topic control record in batch
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminBatchModTopicCtrlInfo(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdTopicCtrlInfo(req, sBuffer, result, false);
     }
 
     /**
      * Delete topic control info
      *
-     * @param req       Http Servlet Request
-     * @param sBuffer   string buffer
-     * @param result    process result
-     * @return    process result
+     * @param req
+     *          Http Servlet Request
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
+     * @return process result
      */
     public StringBuilder adminDeleteTopicCtrlInfo(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -199,9 +219,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdTopicCtrlInfo(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result,
-                                                   boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -235,8 +255,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         }
         EnableStatus enableTopicAuth = (EnableStatus) result.getRetData();
         // check and get max message size
-        ClusterSettingEntity defClusterSetting =
-                defMetaDataService.getClusterDefSetting(false);
+        ClusterSettingEntity defClusterSetting = defMetaDataService.getClusterDefSetting(false);
         int maxMsgSizeMB = defClusterSetting.getMaxMsgSizeInMB();
         // check max message size
         if (!WebParameterUtils.getIntParamValue(req,
@@ -249,16 +268,15 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
         }
         maxMsgSizeMB = (int) result.getRetData();
         // add or update records
-        List<TopicProcessResult> retInfo =
-                defMetaDataService.addOrUpdTopicCtrlConf(isAddOp, opEntity,
-                        topicNameSet, topicNameId, enableTopicAuth, maxMsgSizeMB, sBuffer, result);
+        List<TopicProcessResult> retInfo = defMetaDataService.addOrUpdTopicCtrlConf(isAddOp, opEntity,
+                topicNameSet, topicNameId, enableTopicAuth, maxMsgSizeMB, sBuffer, result);
         return buildRetInfo(retInfo, sBuffer);
     }
 
     private StringBuilder innBatchAddOrUpdTopicCtrlInfo(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result,
-                                                        boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -270,25 +288,22 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Map<String, TopicCtrlEntity> addRecordMap =
-                (Map<String, TopicCtrlEntity>) result.getRetData();
+        Map<String, TopicCtrlEntity> addRecordMap = (Map<String, TopicCtrlEntity>) result.getRetData();
         List<TopicProcessResult> retInfo =
                 defMetaDataService.addOrUpdTopicCtrlConf(isAddOp, addRecordMap, sBuffer, result);
         return buildRetInfo(retInfo, sBuffer);
     }
 
     private boolean getTopicCtrlJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                            BaseEntity defOpEntity, StringBuilder sBuffer,
-                                            ProcessResult result) {
+            BaseEntity defOpEntity, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.TOPICCTRLSET, true, null, result)) {
             return result.isSuccess();
         }
-        List<Map<String, String>> ctrlJsonArray =
-                (List<Map<String, String>>) result.getRetData();
+        List<Map<String, String>> ctrlJsonArray = (List<Map<String, String>>) result.getRetData();
         // get default max message size
-        ClusterSettingEntity defClusterSetting =
-                defMetaDataService.getClusterDefSetting(false);
+        ClusterSettingEntity defClusterSetting = defMetaDataService.getClusterDefSetting(false);
         int defMaxMsgSizeMB = defClusterSetting.getMaxMsgSizeInMB();
         // check and get topic control configure
         TopicCtrlEntity itemConf;
@@ -348,7 +363,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (TopicProcessResult entry : retInfo) {

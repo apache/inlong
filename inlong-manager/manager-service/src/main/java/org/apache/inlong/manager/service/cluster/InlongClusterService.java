@@ -41,8 +41,10 @@ public interface InlongClusterService {
     /**
      * Save cluster tag.
      *
-     * @param request cluster tag
-     * @param operator name of operator
+     * @param request
+     *          cluster tag
+     * @param operator
+     *          name of operator
      * @return cluster tag id after saving
      */
     Integer saveTag(ClusterTagRequest request, String operator);
@@ -50,8 +52,10 @@ public interface InlongClusterService {
     /**
      * Get cluster tag by id.
      *
-     * @param id cluster tag id
-     * @param currentUser current operator
+     * @param id
+     *          cluster tag id
+     * @param currentUser
+     *          current operator
      * @return cluster tag info
      */
     ClusterTagResponse getTag(Integer id, String currentUser);
@@ -59,7 +63,8 @@ public interface InlongClusterService {
     /**
      * Paging query cluster tags according to conditions.
      *
-     * @param request page request conditions
+     * @param request
+     *          page request conditions
      * @return cluster tag list
      */
     PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request);
@@ -67,8 +72,10 @@ public interface InlongClusterService {
     /**
      * Update cluster tag.
      *
-     * @param request cluster tag to be modified
-     * @param operator current operator
+     * @param request
+     *          cluster tag to be modified
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean updateTag(ClusterTagRequest request, String operator);
@@ -76,8 +83,10 @@ public interface InlongClusterService {
     /**
      * Delete cluster tag.
      *
-     * @param id cluster tag id to be deleted
-     * @param operator current operator
+     * @param id
+     *          cluster tag id to be deleted
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean deleteTag(Integer id, String operator);
@@ -85,8 +94,10 @@ public interface InlongClusterService {
     /**
      * Save cluster info.
      *
-     * @param request inlong cluster info
-     * @param operator name of operator
+     * @param request
+     *          inlong cluster info
+     * @param operator
+     *          name of operator
      * @return cluster id after saving
      */
     Integer save(ClusterRequest request, String operator);
@@ -94,8 +105,10 @@ public interface InlongClusterService {
     /**
      * Get cluster info by id.
      *
-     * @param id cluster id
-     * @param currentUser current operator
+     * @param id
+     *          cluster id
+     * @param currentUser
+     *          current operator
      * @return cluster info
      */
     ClusterInfo get(Integer id, String currentUser);
@@ -103,9 +116,12 @@ public interface InlongClusterService {
     /**
      * Get one cluster by the cluster tag, cluster name and cluster type.
      *
-     * @param clusterTag cluster tag
-     * @param clusterName cluster name
-     * @param clusterType cluster type
+     * @param clusterTag
+     *          cluster tag
+     * @param clusterName
+     *          cluster name
+     * @param clusterType
+     *          cluster type
      * @return cluster info
      * @apiNote No matter how many clusters there are, only one cluster is returned.
      */
@@ -114,7 +130,8 @@ public interface InlongClusterService {
     /**
      * Paging query clusters according to conditions.
      *
-     * @param request page request conditions
+     * @param request
+     *          page request conditions
      * @return cluster list
      */
     PageResult<ClusterInfo> list(ClusterPageRequest request);
@@ -122,8 +139,10 @@ public interface InlongClusterService {
     /**
      * List clusters by tag and type
      *
-     * @param clusterTag cluster tag
-     * @param clusterType cluster type
+     * @param clusterTag
+     *          cluster tag
+     * @param clusterType
+     *          cluster type
      * @return cluster info list
      */
     List<ClusterInfo> listByTagAndType(String clusterTag, String clusterType);
@@ -131,8 +150,10 @@ public interface InlongClusterService {
     /**
      * Update cluster information
      *
-     * @param request cluster info to be modified
-     * @param operator current operator
+     * @param request
+     *          cluster info to be modified
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean update(ClusterRequest request, String operator);
@@ -140,8 +161,10 @@ public interface InlongClusterService {
     /**
      * Update cluster information by unique key
      *
-     * @param request cluster info to be modified
-     * @param operator current operator
+     * @param request
+     *          cluster info to be modified
+     * @param operator
+     *          current operator
      * @return update result
      */
     UpdateResult updateByKey(ClusterRequest request, String operator);
@@ -149,8 +172,10 @@ public interface InlongClusterService {
     /**
      * Bind or unbind cluster tag for clusters.
      *
-     * @param request cluster info to be modified
-     * @param operator current operator
+     * @param request
+     *          cluster info to be modified
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean bindTag(BindTagRequest request, String operator);
@@ -158,8 +183,10 @@ public interface InlongClusterService {
     /**
      * Delete cluster information.
      *
-     * @param id cluster id to be deleted
-     * @param operator current operator
+     * @param id
+     *          cluster id to be deleted
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean delete(Integer id, String operator);
@@ -167,9 +194,12 @@ public interface InlongClusterService {
     /**
      * Delete cluster by cluster name and type
      *
-     * @param name cluster name
-     * @param type cluster type
-     * @param operator current operator
+     * @param name
+     *          cluster name
+     * @param type
+     *          cluster type
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean deleteByKey(String name, String type, String operator);
@@ -177,8 +207,10 @@ public interface InlongClusterService {
     /**
      * Save cluster node info.
      *
-     * @param request inlong cluster info
-     * @param operator name of operator
+     * @param request
+     *          inlong cluster info
+     * @param operator
+     *          name of operator
      * @return cluster id after saving
      */
     Integer saveNode(ClusterNodeRequest request, String operator);
@@ -186,8 +218,10 @@ public interface InlongClusterService {
     /**
      * Get cluster node info by id.
      *
-     * @param id cluster id
-     * @param currentUser current operator
+     * @param id
+     *          cluster id
+     * @param currentUser
+     *          current operator
      * @return cluster info
      */
     ClusterNodeResponse getNode(Integer id, String currentUser);
@@ -195,8 +229,10 @@ public interface InlongClusterService {
     /**
      * Paging query cluster nodes according to conditions.
      *
-     * @param request page request conditions
-     * @param currentUser current operator
+     * @param request
+     *          page request conditions
+     * @param currentUser
+     *          current operator
      * @return cluster node list
      */
     PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser);
@@ -204,9 +240,12 @@ public interface InlongClusterService {
     /**
      * List cluster nodes
      *
-     * @param inlongGroupId inlong group id
-     * @param clusterType cluster type
-     * @param protocolType protocol type, such as: TCP, HTTP
+     * @param inlongGroupId
+     *          inlong group id
+     * @param clusterType
+     *          cluster type
+     * @param protocolType
+     *          protocol type, such as: TCP, HTTP
      * @return cluster node list
      */
     List<ClusterNodeResponse> listNodeByGroupId(String inlongGroupId, String clusterType, String protocolType);
@@ -214,7 +253,8 @@ public interface InlongClusterService {
     /**
      * Query node IP list by cluster type
      *
-     * @param type cluster type
+     * @param type
+     *          cluster type
      * @return cluster node ip list
      */
     List<String> listNodeIpByType(String type);
@@ -222,8 +262,10 @@ public interface InlongClusterService {
     /**
      * Update cluster node.
      *
-     * @param request cluster node to be modified
-     * @param operator current operator
+     * @param request
+     *          cluster node to be modified
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean updateNode(ClusterNodeRequest request, String operator);
@@ -231,8 +273,10 @@ public interface InlongClusterService {
     /**
      * Delete cluster node.
      *
-     * @param id cluster node id to be deleted
-     * @param operator current operator
+     * @param id
+     *          cluster node id to be deleted
+     * @param operator
+     *          current operator
      * @return whether succeed
      */
     Boolean deleteNode(Integer id, String operator);
@@ -240,17 +284,22 @@ public interface InlongClusterService {
     /**
      * Query data proxy nodes by the given inlong group id and protocol type
      *
-     * @param inlongGroupId inlong group id
-     * @param protocolType protocol type
+     * @param inlongGroupId
+     *          inlong group id
+     * @param protocolType
+     *          protocol type
      * @return data proxy node response
      */
     DataProxyNodeResponse getDataProxyNodes(String inlongGroupId, String protocolType);
 
     /**
-     * Get the configuration of DataProxy through the cluster name to which DataProxy belongs.
+     * Get the configuration of DataProxy through the cluster name to which
+     * DataProxy belongs.
      *
-     * @param clusterTag cluster tag
-     * @param clusterName cluster name
+     * @param clusterTag
+     *          cluster tag
+     * @param clusterName
+     *          cluster name
      * @return data proxy config, includes mq clusters and topics
      */
     DataProxyConfig getDataProxyConfig(String clusterTag, String clusterName);

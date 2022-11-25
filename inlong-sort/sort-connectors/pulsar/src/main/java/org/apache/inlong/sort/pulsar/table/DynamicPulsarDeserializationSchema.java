@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.pulsar.withoutadmin.CallbackCollector;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.pulsar.table.PulsarDynamicTableSource;
@@ -30,25 +33,26 @@ import org.apache.flink.types.DeserializationException;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.metric.SourceMetricData;
-import org.apache.inlong.sort.pulsar.withoutadmin.CallbackCollector;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.Schema;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 /**
- * A specific {@link PulsarDeserializationSchema} for {@link PulsarDynamicTableSource}.
+ * A specific {@link PulsarDeserializationSchema} for
+ * {@link PulsarDynamicTableSource}.
  */
 public class DynamicPulsarDeserializationSchema implements PulsarDeserializationSchema<RowData> {
 
     private static final long serialVersionUID = 1L;
     private static final ThreadLocal<SimpleCollector<RowData>> tlsCollector =
             new ThreadLocal<SimpleCollector<RowData>>() {
+
                 @Override
                 public SimpleCollector initialValue() {
                     return new SimpleCollector();
@@ -225,13 +229,14 @@ public class DynamicPulsarDeserializationSchema implements PulsarDeserialization
     /**
      * Emits a row with key, value, and metadata fields.
      *
-     * <p>The collector is able to handle the following kinds of keys:
+     * <p>
+     * The collector is able to handle the following kinds of keys:
      * <ul>
-     *     <li>No key is used.
-     *     <li>A key is used.
-     *     <li>The deserialization schema emits multiple keys.
-     *     <li>Keys and values have overlapping fields.
-     *     <li>Keys are used and value is null.
+     * <li>No key is used.
+     * <li>A key is used.
+     * <li>The deserialization schema emits multiple keys.
+     * <li>Keys and values have overlapping fields.
+     * <li>Keys are used and value is null.
      * </ul>
      */
     private static final class OutputProjectionCollector implements Collector<RowData>, Serializable {

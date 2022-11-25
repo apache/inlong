@@ -18,10 +18,13 @@
 
 package org.apache.inlong.sort.base.metric;
 
+import static org.apache.inlong.sort.base.Constants.DELIMITER;
+import static org.apache.inlong.sort.base.Constants.GROUP_ID;
+import static org.apache.inlong.sort.base.Constants.STREAM_ID;
+
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.util.StringUtils;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -30,11 +33,10 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static org.apache.inlong.sort.base.Constants.DELIMITER;
-import static org.apache.inlong.sort.base.Constants.GROUP_ID;
-import static org.apache.inlong.sort.base.Constants.STREAM_ID;
+import javax.annotation.Nullable;
 
 public class MetricOption implements Serializable {
+
     private static final long serialVersionUID = 1L;
     private static final String IP_OR_HOST_PORT = "^(.*):([0-9]|[1-9]\\d|[1-9]\\d{"
             + "2}|[1-9]\\d{"
@@ -148,12 +150,11 @@ public class MetricOption implements Serializable {
     }
 
     public enum RegisteredMetric {
-        ALL,
-        NORMAL,
-        DIRTY
+        ALL, NORMAL, DIRTY
     }
 
     public static class Builder {
+
         private String inlongLabels;
         private String inlongAudit;
         private RegisteredMetric registeredMetric = RegisteredMetric.ALL;

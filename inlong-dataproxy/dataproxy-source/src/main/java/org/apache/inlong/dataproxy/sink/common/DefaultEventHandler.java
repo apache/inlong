@@ -17,7 +17,8 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
-import com.google.protobuf.ByteString;
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
 
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
 import org.apache.inlong.dataproxy.sink.mq.BatchPackProfile;
@@ -28,15 +29,15 @@ import org.apache.inlong.sdk.commons.protocol.ProxySdk.MapFieldEntry;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObjs;
 import org.apache.inlong.sdk.commons.utils.GzipUtils;
-import org.xerial.snappy.Snappy;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
+import org.xerial.snappy.Snappy;
+
+import com.google.protobuf.ByteString;
 
 /**
  * DefaultEventHandler
@@ -80,7 +81,8 @@ public class DefaultEventHandler implements EventHandler {
      * parseBody
      */
     @Override
-    public byte[] parseBody(IdTopicConfig idConfig, BatchPackProfile profile, INLONG_COMPRESSED_TYPE compressType)
+    public byte[] parseBody(IdTopicConfig idConfig, BatchPackProfile profile,
+            INLONG_COMPRESSED_TYPE compressType)
             throws IOException {
         List<ProxyEvent> events = profile.getEvents();
         // encode
@@ -99,14 +101,14 @@ public class DefaultEventHandler implements EventHandler {
         // compress
         byte[] compressBytes = null;
         switch (compressType) {
-            case INLONG_SNAPPY :
+            case INLONG_SNAPPY:
                 compressBytes = Snappy.compress(srcBytes);
                 break;
-            case INLONG_GZ :
+            case INLONG_GZ:
                 compressBytes = GzipUtils.compress(srcBytes);
                 break;
-            case INLONG_NO_COMPRESS :
-            default :
+            case INLONG_NO_COMPRESS:
+            default:
                 compressBytes = srcBytes;
                 break;
         }

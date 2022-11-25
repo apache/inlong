@@ -17,6 +17,19 @@
 
 package org.apache.inlong.tubemq.server.master.balance;
 
+import org.apache.inlong.tubemq.corebase.cluster.Partition;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeGroupInfo;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInfo;
+import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.RebProcessInfo;
+import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
+
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,22 +42,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.tubemq.corebase.cluster.Partition;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeGroupInfo;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.NodeRebInfo;
-import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.RebProcessInfo;
-import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /* Load balance class for server side load balance, (partition size) mod (consumer size) */
 public class DefaultLoadBalancer implements LoadBalancer {
+
     private static final Logger logger = LoggerFactory.getLogger(LoadBalancer.class);
     private static final Random RANDOM = new Random(System.currentTimeMillis());
 
@@ -73,9 +77,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             StringBuilder strBuffer) {
         // #lizard forgives
         // load balance according to group
-        Map<String/* consumer */,
-                Map<String/* topic */, List<Partition>>> finalSubInfoMap =
-                new HashMap<>();
+        Map<String/* consumer */, Map<String/* topic */, List<Partition>>> finalSubInfoMap = new HashMap<>();
         Map<String, RebProcessInfo> rejGroupClientInfoMap = new HashMap<>();
         Set<String> onlineOfflineGroupSet = new HashSet<>();
         Set<String> boundGroupSet = new HashSet<>();
@@ -87,8 +89,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
             if (consumeGroupInfo == null || consumeGroupInfo.isClientBalance()) {
                 continue;
             }
-            List<ConsumerInfo> consumerList =
-                    consumeGroupInfo.getConsumerInfoList();
+            List<ConsumerInfo> consumerList = consumeGroupInfo.getConsumerInfoList();
             if (CollectionUtils.isEmpty(consumerList)) {
                 continue;
             }
@@ -109,15 +110,15 @@ public class DefaultLoadBalancer implements LoadBalancer {
             Set<String> topicSet = consumeGroupInfo.getTopicSet();
             if (consumeGroupInfo.needResourceCheck()) {
                 // check if current client meet minimal requirements
-                GroupResCtrlEntity offsetResetGroupEntity =
-                        defMetaDataService.getGroupCtrlConf(group);
+                GroupResCtrlEntity offsetResetGroupEntity = defMetaDataService.getGroupCtrlConf(group);
                 int confAllowBClientRate = (offsetResetGroupEntity != null
                         && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
-                        ? offsetResetGroupEntity.getAllowedBrokerClientRate() : -2;
+                                ? offsetResetGroupEntity.getAllowedBrokerClientRate()
+                                : -2;
                 int allowRate = confAllowBClientRate > 0
-                        ? confAllowBClientRate : consumerHolder.getDefResourceRate();
-                int maxBrokerCount =
-                        brokerRunManager.getSubTopicMaxBrokerCount(topicSet);
+                        ? confAllowBClientRate
+                        : consumerHolder.getDefResourceRate();
+                int maxBrokerCount = brokerRunManager.getSubTopicMaxBrokerCount(topicSet);
                 int curBClientRate = (int) Math.floor(maxBrokerCount / newConsumerList.size());
                 if (curBClientRate > allowRate) {
                     int minClientCnt = maxBrokerCount / allowRate;
@@ -148,8 +149,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                 }
             }
             List<ConsumerInfo> newConsumerList2 = new ArrayList<>();
-            Map<String, Partition> partMap =
-                    brokerRunManager.getSubBrokerAcceptSubParts(topicSet);
+            Map<String, Partition> partMap = brokerRunManager.getSubBrokerAcceptSubParts(topicSet);
             Map<String, NodeRebInfo> rebProcessInfoMap = consumeGroupInfo.getBalanceMap();
             for (ConsumerInfo consumer : newConsumerList) {
                 Map<String, List<Partition>> partitions = new HashMap<>();
@@ -159,8 +159,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     // filter client which can not meet requirements
                     if (rebProcessInfo.needProcessList.contains(consumer.getConsumerId())
                             || rebProcessInfo.needEscapeList.contains(consumer.getConsumerId())) {
-                        NodeRebInfo tmpNodeRegInfo =
-                                rebProcessInfoMap.get(consumer.getConsumerId());
+                        NodeRebInfo tmpNodeRegInfo = rebProcessInfoMap.get(consumer.getConsumerId());
                         if (tmpNodeRegInfo != null
                                 && tmpNodeRegInfo.getReqType() == 0) {
                             newConsumerList2.add(consumer);
@@ -223,8 +222,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     groupsNeedToBalance, clusterState, rejGroupClientInfoMap);
         }
         if (!rejGroupClientInfoMap.isEmpty()) {
-            for (Entry<String, RebProcessInfo> entry :
-                    rejGroupClientInfoMap.entrySet()) {
+            for (Entry<String, RebProcessInfo> entry : rejGroupClientInfoMap.entrySet()) {
                 consumerHolder.setRebNodeProcessed(entry.getKey(),
                         entry.getValue().needProcessList);
             }
@@ -257,9 +255,8 @@ public class DefaultLoadBalancer implements LoadBalancer {
                     }
                     if (rebProcessInfo.needProcessList.contains(consumerInfo.getConsumerId())
                             || rebProcessInfo.needEscapeList.contains(consumerInfo.getConsumerId())) {
-                        Map<String, List<Partition>> partitions2 =
-                                clusterState.computeIfAbsent(
-                                        consumerInfo.getConsumerId(), k -> new HashMap<>());
+                        Map<String, List<Partition>> partitions2 = clusterState.computeIfAbsent(
+                                consumerInfo.getConsumerId(), k -> new HashMap<>());
                         Map<String, Map<String, Partition>> relation =
                                 oldClusterState.get(consumerInfo.getConsumerId());
                         if (relation != null) {
@@ -279,16 +276,14 @@ public class DefaultLoadBalancer implements LoadBalancer {
             }
             // sort consumer and partitions, then mod
             Set<String> topics = consumeGroupInfo.getTopicSet();
-            Map<String, Partition> psPartMap =
-                    brokerRunManager.getSubBrokerAcceptSubParts(topics);
+            Map<String, Partition> psPartMap = brokerRunManager.getSubBrokerAcceptSubParts(topics);
             int min = psPartMap.size() / consumerList.size();
             int max = psPartMap.size() % consumerList.size() == 0 ? min : min + 1;
             int serverNumToLoadMax = psPartMap.size() % consumerList.size();
             Queue<Partition> partitionToMove = new LinkedBlockingQueue<>();
             Map<String, Integer> serverToTake = new HashMap<>();
             for (ConsumerInfo consumer : consumerList) {
-                Map<String, List<Partition>> partitions =
-                        clusterState.get(consumer.getConsumerId());
+                Map<String, List<Partition>> partitions = clusterState.get(consumer.getConsumerId());
                 if (partitions == null) {
                     partitions = new HashMap<>();
                 }
@@ -352,10 +347,9 @@ public class DefaultLoadBalancer implements LoadBalancer {
     }
 
     private void assign(Partition partition,
-                        Map<String, Map<String, List<Partition>>> clusterState,
-                        String consumerId) {
-        Map<String, List<Partition>> partitions =
-                clusterState.computeIfAbsent(consumerId, k -> new HashMap<>());
+            Map<String, Map<String, List<Partition>>> clusterState,
+            String consumerId) {
+        Map<String, List<Partition>> partitions = clusterState.computeIfAbsent(consumerId, k -> new HashMap<>());
         List<Partition> ps = partitions.computeIfAbsent(
                 partition.getTopic(), k -> new ArrayList<>());
         ps.add(partition);
@@ -371,10 +365,10 @@ public class DefaultLoadBalancer implements LoadBalancer {
      * @param filterList
      */
     private void randomAssign(Map<String, Partition> partitionToAssignMap,
-                              List<ConsumerInfo> consumerList,
-                              Map<String, Map<String, List<Partition>>> clusterState,
-                              Map<String, Map<String, Map<String, Partition>>> oldClusterState,
-                              List<String> filterList) {
+            List<ConsumerInfo> consumerList,
+            Map<String, Map<String, List<Partition>>> clusterState,
+            Map<String, Map<String, Map<String, Partition>>> oldClusterState,
+            List<String> filterList) {
         int searched = 1;
         int consumerSize = consumerList.size();
         for (Partition partition : partitionToAssignMap.values()) {
@@ -388,11 +382,9 @@ public class DefaultLoadBalancer implements LoadBalancer {
                         searched = 0;
                         break;
                     }
-                    Map<String, Map<String, Partition>> oldPartitionMap =
-                            oldClusterState.get(consumer.getConsumerId());
+                    Map<String, Map<String, Partition>> oldPartitionMap = oldClusterState.get(consumer.getConsumerId());
                     if (oldPartitionMap != null) {
-                        Map<String, Partition> oldPartitions =
-                                oldPartitionMap.get(partition.getTopic());
+                        Map<String, Partition> oldPartitions = oldPartitionMap.get(partition.getTopic());
                         if (oldPartitions != null) {
                             if (oldPartitions.get(partition.getPartitionKey()) != null) {
                                 searched = 2;
@@ -405,8 +397,8 @@ public class DefaultLoadBalancer implements LoadBalancer {
             if (searched == 0) {
                 return;
             }
-            Map<String, List<Partition>> partitions =
-                    clusterState.computeIfAbsent(consumer.getConsumerId(), k -> new HashMap<>());
+            Map<String, List<Partition>> partitions = clusterState.computeIfAbsent(consumer.getConsumerId(),
+                    k -> new HashMap<>());
             List<Partition> ps = partitions.computeIfAbsent(
                     partition.getTopic(), k -> new ArrayList<>());
             ps.add(partition);
@@ -422,7 +414,7 @@ public class DefaultLoadBalancer implements LoadBalancer {
      */
     @Override
     public Map<String, List<Partition>> roundRobinAssignment(List<Partition> partitions,
-                                                             List<String> consumers) {
+            List<String> consumers) {
         if (partitions.isEmpty() || consumers.isEmpty()) {
             return null;
         }
@@ -476,11 +468,9 @@ public class DefaultLoadBalancer implements LoadBalancer {
             StringBuilder strBuffer) {
         // #lizard forgives
         // regular consumer allocate operation
-        Map<String, Map<String, List<Partition>>> finalSubInfoMap =
-                new HashMap<>();
+        Map<String, Map<String, List<Partition>>> finalSubInfoMap = new HashMap<>();
         for (String group : groupSet) {
-            ConsumeGroupInfo consumeGroupInfo =
-                    consumerHolder.getConsumeGroupInfo(group);
+            ConsumeGroupInfo consumeGroupInfo = consumerHolder.getConsumeGroupInfo(group);
             if (consumeGroupInfo == null
                     || consumeGroupInfo.isClientBalance()
                     || consumeGroupInfo.isUnReadyServerBalance()) {
@@ -492,15 +482,15 @@ public class DefaultLoadBalancer implements LoadBalancer {
             }
             // check if current client meet minimal requirements
             Set<String> topicSet = consumeGroupInfo.getTopicSet();
-            GroupResCtrlEntity offsetResetGroupEntity =
-                    defMetaDataService.getGroupCtrlConf(group);
+            GroupResCtrlEntity offsetResetGroupEntity = defMetaDataService.getGroupCtrlConf(group);
             int confAllowBClientRate = (offsetResetGroupEntity != null
                     && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
-                    ? offsetResetGroupEntity.getAllowedBrokerClientRate() : -2;
+                            ? offsetResetGroupEntity.getAllowedBrokerClientRate()
+                            : -2;
             int allowRate = confAllowBClientRate > 0
-                    ? confAllowBClientRate : consumerHolder.getDefResourceRate();
-            int maxBrokerCount =
-                    brokerRunManager.getSubTopicMaxBrokerCount(topicSet);
+                    ? confAllowBClientRate
+                    : consumerHolder.getDefResourceRate();
+            int maxBrokerCount = brokerRunManager.getSubTopicMaxBrokerCount(topicSet);
             int curBClientRate = (int) Math.floor(maxBrokerCount / consumerList.size());
             if (curBClientRate > allowRate) {
                 int minClientCnt = maxBrokerCount / allowRate;
@@ -525,17 +515,15 @@ public class DefaultLoadBalancer implements LoadBalancer {
             // sort and mod
             Collections.sort(consumerList);
             for (String topic : topicSet) {
-                List<Partition> partPubList =
-                        brokerRunManager.getSubBrokerAcceptSubParts(topic);
+                List<Partition> partPubList = brokerRunManager.getSubBrokerAcceptSubParts(topic);
                 Collections.sort(partPubList);
                 int partsPerConsumer = partPubList.size() / consumerList.size();
                 int consumersWithExtraPart = partPubList.size() % consumerList.size();
                 for (int i = 0; i < consumerList.size(); i++) {
                     String consumerId = consumerList.get(i).getConsumerId();
-                    Map<String, List<Partition>> topicSubPartMap =
-                            finalSubInfoMap.computeIfAbsent(consumerId, k -> new HashMap<>());
-                    List<Partition> partList =
-                            topicSubPartMap.computeIfAbsent(topic, k -> new ArrayList<>());
+                    Map<String, List<Partition>> topicSubPartMap = finalSubInfoMap.computeIfAbsent(consumerId,
+                            k -> new HashMap<>());
+                    List<Partition> partList = topicSubPartMap.computeIfAbsent(topic, k -> new ArrayList<>());
                     int startIndex = partsPerConsumer * i + Math.min(i, consumersWithExtraPart);
                     int parts = partsPerConsumer + ((i + 1) > consumersWithExtraPart ? 0 : 1);
                     for (int j = startIndex; j < startIndex + parts; j++) {
@@ -560,8 +548,10 @@ public class DefaultLoadBalancer implements LoadBalancer {
      */
     @Override
     public Map<String, Map<String, Map<String, Partition>>> resetBukAssign(
-            ConsumerInfoHolder consumerHolder, BrokerRunManager brokerRunManager,
-            List<String> groupSet, MetaDataService defMetaDataService,
+            ConsumerInfoHolder consumerHolder,
+            BrokerRunManager brokerRunManager,
+            List<String> groupSet,
+            MetaDataService defMetaDataService,
             final StringBuilder strBuffer) {
         return inReBalanceCluster(false, consumerHolder,
                 brokerRunManager, groupSet, defMetaDataService, strBuffer);
@@ -581,8 +571,11 @@ public class DefaultLoadBalancer implements LoadBalancer {
     @Override
     public Map<String, Map<String, Map<String, Partition>>> resetBalanceCluster(
             Map<String, Map<String, Map<String, Partition>>> clusterState,
-            ConsumerInfoHolder consumerHolder, BrokerRunManager brokerRunManager,
-            List<String> groupSet, MetaDataService defMetaDataService, StringBuilder strBuffer) {
+            ConsumerInfoHolder consumerHolder,
+            BrokerRunManager brokerRunManager,
+            List<String> groupSet,
+            MetaDataService defMetaDataService,
+            StringBuilder strBuffer) {
         return inReBalanceCluster(true, consumerHolder,
                 brokerRunManager, groupSet, defMetaDataService, strBuffer);
     }
@@ -596,16 +589,14 @@ public class DefaultLoadBalancer implements LoadBalancer {
             MetaDataService defMetaDataService,
             StringBuilder strBuffer) {
         // band consume reset offset
-        Map<String, Map<String, Map<String, Partition>>> finalSubInfoMap =
-                new HashMap<>();
+        Map<String, Map<String, Map<String, Partition>>> finalSubInfoMap = new HashMap<>();
         // according group
         for (String group : groupSet) {
             if (group == null) {
                 continue;
             }
             // filter band consumer
-            ConsumeGroupInfo consumeGroupInfo =
-                    consumerHolder.getConsumeGroupInfo(group);
+            ConsumeGroupInfo consumeGroupInfo = consumerHolder.getConsumeGroupInfo(group);
             if (consumeGroupInfo == null
                     || consumeGroupInfo.isGroupEmpty()
                     || consumeGroupInfo.isNotNeedBoundBalance()) {
@@ -641,17 +632,15 @@ public class DefaultLoadBalancer implements LoadBalancer {
             for (Partition partition : partPubMap.values()) {
                 partitionMap.put(partition.getPartitionKey(), partition);
             }
-            Map<String, String> partsConsumerMap =
-                    consumeGroupInfo.getPartitionInfoMap();
+            Map<String, String> partsConsumerMap = consumeGroupInfo.getPartitionInfoMap();
             for (Entry<String, String> entry : partsConsumerMap.entrySet()) {
                 Partition foundPart = partitionMap.get(entry.getKey());
                 if (foundPart != null) {
                     String consumerId = entry.getValue();
-                    Map<String, Map<String, Partition>> topicSubPartMap =
-                            finalSubInfoMap.computeIfAbsent(consumerId, k -> new HashMap<>());
-                    Map<String, Partition> partMap =
-                            topicSubPartMap.computeIfAbsent(
-                                    foundPart.getTopic(), k -> new HashMap<>());
+                    Map<String, Map<String, Partition>> topicSubPartMap = finalSubInfoMap.computeIfAbsent(consumerId,
+                            k -> new HashMap<>());
+                    Map<String, Partition> partMap = topicSubPartMap.computeIfAbsent(
+                            foundPart.getTopic(), k -> new HashMap<>());
                     partMap.put(foundPart.getPartitionKey(), foundPart);
                     partitionMap.remove(entry.getKey());
                 }

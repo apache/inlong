@@ -17,13 +17,6 @@
 
 package org.apache.inlong.manager.pojo.stream;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.source.StreamSource;
@@ -31,6 +24,16 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Inlong stream info
@@ -57,8 +60,7 @@ public class InlongStreamInfo extends BaseInlongStream {
     @ApiModelProperty(value = "Inlong stream description")
     private String description;
 
-    @ApiModelProperty(value = "MQ resource for inlong stream. Default: ${inlongStreamId}",
-            notes = "in inlong stream, TubeMQ corresponds to filter consumption ID, Pulsar corresponds to Topic")
+    @ApiModelProperty(value = "MQ resource for inlong stream. Default: ${inlongStreamId}", notes = "in inlong stream, TubeMQ corresponds to filter consumption ID, Pulsar corresponds to Topic")
     private String mqResource;
 
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
@@ -73,9 +75,8 @@ public class InlongStreamInfo extends BaseInlongStream {
     @ApiModelProperty(value = "Data field escape symbol")
     private String dataEscapeChar;
 
-    @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes",
-            notes = "Each task under this stream sends data synchronously, "
-                    + "which will affect the throughput of data collection, please choose carefully")
+    @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes", notes = "Each task under this stream sends data synchronously, "
+            + "which will affect the throughput of data collection, please choose carefully")
     private Integer syncSend;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")

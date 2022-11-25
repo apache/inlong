@@ -19,11 +19,7 @@
 package org.apache.flink.connectors.tubemq;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeSet;
-import javax.annotation.Nullable;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.configuration.Configuration;
@@ -40,14 +36,22 @@ import org.apache.flink.table.sources.RowtimeAttributeDescriptor;
 import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.types.Row;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeSet;
+
+import javax.annotation.Nullable;
+
 /**
  * TubeMQ {@link StreamTableSource}.
  */
-public class TubemqTableSource implements
-    StreamTableSource<Row>,
-    DefinedProctimeAttribute,
-    DefinedRowtimeAttributes,
-    DefinedFieldMapping {
+public class TubemqTableSource
+        implements
+            StreamTableSource<Row>,
+            DefinedProctimeAttribute,
+            DefinedRowtimeAttributes,
+            DefinedFieldMapping {
 
     /**
      * Deserialization schema for records from TubeMQ.
@@ -60,8 +64,8 @@ public class TubemqTableSource implements
     private final TableSchema schema;
 
     /**
-     * Field name of the processing time attribute, null if no processing time
-     * field is defined.
+     * Field name of the processing time attribute, null if no processing time field
+     * is defined.
      */
     private final Optional<String> proctimeAttribute;
 
@@ -71,8 +75,8 @@ public class TubemqTableSource implements
     private final List<RowtimeAttributeDescriptor> rowtimeAttributeDescriptors;
 
     /**
-     * Mapping for the fields of the table schema to fields of the physical
-     * returned type.
+     * Mapping for the fields of the table schema to fields of the physical returned
+     * type.
      */
     private final Map<String, String> fieldMapping;
 
@@ -104,45 +108,54 @@ public class TubemqTableSource implements
     /**
      * Build TubeMQ table source
      *
-     * @param deserializationSchema   the deserialize schema
-     * @param schema             the data schema
-     * @param proctimeAttribute              the proc time
-     * @param rowtimeAttributeDescriptors    the row time attribute descriptor
-     * @param fieldMapping        the field map information
-     * @param masterAddress       the master address
-     * @param topic               the topic name
-     * @param tidSet              the topic's filter condition items
-     * @param consumerGroup       the consumer group
-     * @param configuration       the configure
+     * @param deserializationSchema
+     *          the deserialize schema
+     * @param schema
+     *          the data schema
+     * @param proctimeAttribute
+     *          the proc time
+     * @param rowtimeAttributeDescriptors
+     *          the row time attribute descriptor
+     * @param fieldMapping
+     *          the field map information
+     * @param masterAddress
+     *          the master address
+     * @param topic
+     *          the topic name
+     * @param tidSet
+     *          the topic's filter condition items
+     * @param consumerGroup
+     *          the consumer group
+     * @param configuration
+     *          the configure
      */
     public TubemqTableSource(
-        DeserializationSchema<Row> deserializationSchema,
-        TableSchema schema,
-        Optional<String> proctimeAttribute,
-        List<RowtimeAttributeDescriptor> rowtimeAttributeDescriptors,
-        Map<String, String> fieldMapping,
-        String masterAddress,
-        String topic,
-        TreeSet<String> tidSet,
-        String consumerGroup,
-        Configuration configuration
-    ) {
+            DeserializationSchema<Row> deserializationSchema,
+            TableSchema schema,
+            Optional<String> proctimeAttribute,
+            List<RowtimeAttributeDescriptor> rowtimeAttributeDescriptors,
+            Map<String, String> fieldMapping,
+            String masterAddress,
+            String topic,
+            TreeSet<String> tidSet,
+            String consumerGroup,
+            Configuration configuration) {
         checkNotNull(deserializationSchema,
-            "The deserialization schema must not be null.");
+                "The deserialization schema must not be null.");
         checkNotNull(schema,
-            "The schema must not be null.");
+                "The schema must not be null.");
         checkNotNull(fieldMapping,
-            "The field mapping must not be null.");
+                "The field mapping must not be null.");
         checkNotNull(masterAddress,
-            "The master address must not be null.");
+                "The master address must not be null.");
         checkNotNull(topic,
-            "The topic must not be null.");
+                "The topic must not be null.");
         checkNotNull(tidSet,
-            "The tid set must not be null.");
+                "The tid set must not be null.");
         checkNotNull(consumerGroup,
-            "The consumer group must not be null.");
+                "The consumer group must not be null.");
         checkNotNull(configuration,
-            "The configuration must not be null.");
+                "The configuration must not be null.");
 
         this.deserializationSchema = deserializationSchema;
         this.schema = schema;
@@ -153,10 +166,8 @@ public class TubemqTableSource implements
         this.consumerGroup = consumerGroup;
         this.configuration = configuration;
 
-        this.proctimeAttribute =
-            validateProcTimeAttribute(proctimeAttribute);
-        this.rowtimeAttributeDescriptors =
-            validateRowTimeAttributeDescriptors(rowtimeAttributeDescriptors);
+        this.proctimeAttribute = validateProcTimeAttribute(proctimeAttribute);
+        this.rowtimeAttributeDescriptors = validateRowTimeAttributeDescriptors(rowtimeAttributeDescriptors);
     }
 
     @Override
@@ -182,26 +193,22 @@ public class TubemqTableSource implements
 
     @Override
     public DataStream<Row> getDataStream(
-        StreamExecutionEnvironment streamExecutionEnvironment
-    ) {
-        SourceFunction<Row> sourceFunction =
-            new TubemqSourceFunction<>(
+            StreamExecutionEnvironment streamExecutionEnvironment) {
+        SourceFunction<Row> sourceFunction = new TubemqSourceFunction<>(
                 masterAddress,
                 topic,
                 tidSet,
                 consumerGroup,
                 deserializationSchema,
-                configuration
-            );
+                configuration);
 
         return streamExecutionEnvironment
-            .addSource(sourceFunction)
-            .name(explainSource());
+                .addSource(sourceFunction)
+                .name(explainSource());
     }
 
     private Optional<String> validateProcTimeAttribute(
-        Optional<String> proctimeAttribute
-    ) {
+            Optional<String> proctimeAttribute) {
         return proctimeAttribute.map((attribute) -> {
             Optional<TypeInformation<?>> tpe = schema.getFieldType(attribute);
             if (!tpe.isPresent()) {
@@ -216,8 +223,7 @@ public class TubemqTableSource implements
     }
 
     private List<RowtimeAttributeDescriptor> validateRowTimeAttributeDescriptors(
-        List<RowtimeAttributeDescriptor> attributeDescriptors
-    ) {
+            List<RowtimeAttributeDescriptor> attributeDescriptors) {
         checkNotNull(attributeDescriptors);
 
         for (RowtimeAttributeDescriptor desc : attributeDescriptors) {

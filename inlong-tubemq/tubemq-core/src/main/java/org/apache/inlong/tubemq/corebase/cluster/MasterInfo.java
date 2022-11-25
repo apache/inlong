@@ -17,18 +17,18 @@
 
 package org.apache.inlong.tubemq.corebase.cluster;
 
+import org.apache.inlong.tubemq.corebase.TokenConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.inlong.tubemq.corebase.TokenConstants;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 public class MasterInfo {
 
-    private final Map<String/* ip:port */, NodeAddrInfo> addrMap4Failover =
-            new HashMap<>();
+    private final Map<String/* ip:port */, NodeAddrInfo> addrMap4Failover = new HashMap<>();
     private final List<String> nodeHostPortList;
     private NodeAddrInfo firstNodeAddr = null;
     private final String masterClusterStr;
@@ -44,8 +44,7 @@ public class MasterInfo {
             throw new IllegalArgumentException(
                     "Illegal parameter: masterAddrInfo's value must like \"ip1:port,ip2:port\"!");
         }
-        String[] hostAndPortArray =
-                masterAddrInfo.split(TokenConstants.ARRAY_SEP);
+        String[] hostAndPortArray = masterAddrInfo.split(TokenConstants.ARRAY_SEP);
         for (String addr : hostAndPortArray) {
             if (TStringUtils.isBlank(addr)) {
                 throw new IllegalArgumentException(
@@ -90,7 +89,7 @@ public class MasterInfo {
     }
 
     private MasterInfo(Map<String, NodeAddrInfo> addressMap4Failover,
-                       NodeAddrInfo firstNodeAddr, String masterClusterStr) {
+            NodeAddrInfo firstNodeAddr, String masterClusterStr) {
         for (Map.Entry<String, NodeAddrInfo> entry : addressMap4Failover.entrySet()) {
             if (TStringUtils.isBlank(entry.getKey()) || entry.getValue() == null) {
                 continue;

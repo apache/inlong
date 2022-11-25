@@ -107,7 +107,8 @@ public class ProxyEvent extends SdkEvent {
     /**
      * set topic
      * 
-     * @param topic the topic to set
+     * @param topic
+     *          the topic to set
      */
     public void setTopic(String topic) {
         this.topic = topic;
@@ -117,7 +118,8 @@ public class ProxyEvent extends SdkEvent {
     /**
      * set sourceTime
      * 
-     * @param sourceTime the sourceTime to set
+     * @param sourceTime
+     *          the sourceTime to set
      */
     public void setSourceTime(long sourceTime) {
         this.sourceTime = sourceTime;

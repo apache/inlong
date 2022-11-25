@@ -17,14 +17,15 @@
 
 package org.apache.inlong.manager.pojo.sink.ck;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.consts.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * ClickHouse sink request.
@@ -66,8 +67,7 @@ public class ClickHouseSinkRequest extends SinkRequest {
     @ApiModelProperty("Partition strategy, support: BALANCE, RANDOM, HASH")
     private String partitionStrategy;
 
-    @ApiModelProperty(value = "Partition files, separate with commas",
-            notes = "Necessary when partitionStrategy is HASH, must be one of the field list")
+    @ApiModelProperty(value = "Partition files, separate with commas", notes = "Necessary when partitionStrategy is HASH, must be one of the field list")
     private String partitionFields;
 
     @ApiModelProperty("Key field names, separate with commas")

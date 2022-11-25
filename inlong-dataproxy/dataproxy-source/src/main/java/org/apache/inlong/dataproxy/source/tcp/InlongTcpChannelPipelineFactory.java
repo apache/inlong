@@ -17,29 +17,33 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.timeout.ReadTimeoutHandler;
-import java.lang.reflect.Constructor;
-import java.util.concurrent.TimeUnit;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.source.SourceContext;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.apache.inlong.dataproxy.source.SourceContext;
+
+import java.lang.reflect.Constructor;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+
 /**
  * InlongTcpChannelPipelineFactory
  */
 public class InlongTcpChannelPipelineFactory extends ChannelInitializer<SocketChannel>
-        implements Configurable {
+        implements
+            Configurable {
 
     public static final Logger LOG = LoggerFactory.getLogger(InlongTcpChannelPipelineFactory.class);
     public static final int DEFAULT_LENGTH_FIELD_OFFSET = 0;
@@ -79,7 +83,7 @@ public class InlongTcpChannelPipelineFactory extends ChannelInitializer<SocketCh
             try {
                 Class<? extends ChannelInboundHandlerAdapter> clazz =
                         (Class<? extends ChannelInboundHandlerAdapter>) Class
-                        .forName(messageHandlerName);
+                                .forName(messageHandlerName);
 
                 Constructor<?> ctor = clazz.getConstructor(SourceContext.class);
 

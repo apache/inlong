@@ -17,8 +17,9 @@
 
 package org.apache.inlong.tubemq.manager.controller.topic.request;
 
-import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+
+import lombok.Data;
 
 @Data
 public class AddTopicTask {

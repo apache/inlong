@@ -17,15 +17,16 @@
 
 package org.apache.inlong.manager.pojo.sink.ck;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * ClickHouse table info.
  */
 @Data
 public class ClickHouseTableInfo {
+
     // Basic attributes
     private String dbName;
     private String tableName;

@@ -18,15 +18,17 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TcpClientExample {
 
@@ -48,13 +50,10 @@ public class TcpClientExample {
          * 1. if isLocalVisit is true, will get dataproxy server info from local file in
          * ${configBasePath}/${dataProxyGroup}.local file
          *
-         * for example:
-         *  /data/inlong/config/test_test.local
-         * and file context like this:
-         * {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0.1",
-         * "port":"46802"},{"host":"127.0.0.1","port":"46802"}]}
-         * 2. if isLocalVisit is false, will get dataproxy server info from manager
-         * so we must ensure that the manager server url is configured correctly!
+         * for example: /data/inlong/config/test_test.local and file context like this:
+         * {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host": "127.0.0.1",
+         * "port":"46802"},{"host":"127.0.0.1","port":"46802"}]} 2. if isLocalVisit is false, will get dataproxy server
+         * info from manager so we must ensure that the manager server url is configured correctly!
          */
         String configBasePath = "/data/inlong/config";
 
@@ -76,7 +75,8 @@ public class TcpClientExample {
     }
 
     public DefaultMessageSender getMessageSender(String localIP, String inLongManagerAddr, String inLongManagerPort,
-            String netTag, String dataProxyGroup, boolean isLocalVisit, boolean isReadProxyIPFromLocal,
+            String netTag, String dataProxyGroup, boolean isLocalVisit,
+            boolean isReadProxyIPFromLocal,
             String configBasePath, int msgType) {
         ProxyClientConfig dataProxyConfig = null;
         DefaultMessageSender messageSender = null;

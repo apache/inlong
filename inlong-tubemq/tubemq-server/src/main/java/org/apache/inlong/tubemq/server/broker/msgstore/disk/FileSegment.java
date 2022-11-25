@@ -17,6 +17,12 @@
 
 package org.apache.inlong.tubemq.server.broker.msgstore.disk;
 
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.CheckSum;
+import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
+import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -24,21 +30,18 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.utils.CheckSum;
-import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
-import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
-import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Segment file. Topic contains multi FileSegments. Each FileSegment contains data file and index file.
- * It is mini particle of topic expire policy. It will be marked deleted when expired.
+ * Segment file. Topic contains multi FileSegments. Each FileSegment contains
+ * data file and index file. It is mini particle of topic expire policy. It will
+ * be marked deleted when expired.
  */
 public class FileSegment implements Segment {
-    private static final Logger logger =
-            LoggerFactory.getLogger(FileSegment.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(FileSegment.class);
     private final long start;
     private final File file;
     private final RandomAccessFile randFile;
@@ -51,28 +54,29 @@ public class FileSegment implements Segment {
     private final AtomicBoolean expired = new AtomicBoolean(false);
     private final AtomicBoolean closed = new AtomicBoolean(false);
     // the first record append time
-    private final AtomicLong leftAppendTime =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong leftAppendTime = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     // the latest record append time
-    private final AtomicLong rightAppendTime =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong rightAppendTime = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
     public FileSegment(long start, File file, SegmentType type) throws IOException {
         this(start, file, true, type, Long.MAX_VALUE);
     }
 
     public FileSegment(long start, File file,
-                       boolean mutable, SegmentType type) throws IOException {
+            boolean mutable, SegmentType type)
+            throws IOException {
         this(start, file, mutable, type, Long.MAX_VALUE);
     }
 
     public FileSegment(long start, File file,
-                       SegmentType type, long checkOffset) throws IOException {
+            SegmentType type, long checkOffset)
+            throws IOException {
         this(start, file, true, type, checkOffset);
     }
 
     private FileSegment(long start, File file, boolean mutable,
-                        SegmentType type, long checkOffset) throws IOException {
+            SegmentType type, long checkOffset)
+            throws IOException {
         super();
         this.segmentType = type;
         this.start = start;
@@ -200,14 +204,18 @@ public class FileSegment implements Segment {
     }
 
     /**
-     * Messages can only be appended to the last FileSegment.
-     * The last FileSegment is writable, the others are mutable.
+     * Messages can only be appended to the last FileSegment. The last FileSegment
+     * is writable, the others are mutable.
      *
-     * @param buf            data buffer
-     * @param leftTime       the first record timestamp
-     * @param rightTime      the latest record timestamp
-     * @return               latest writable position
-     * @throws IOException   exception while force data to disk
+     * @param buf
+     *          data buffer
+     * @param leftTime
+     *          the first record timestamp
+     * @param rightTime
+     *          the latest record timestamp
+     * @return latest writable position
+     * @throws IOException
+     *           exception while force data to disk
      */
     @Override
     public long append(ByteBuffer buf, long leftTime, long rightTime) throws IOException {
@@ -240,10 +248,12 @@ public class FileSegment implements Segment {
     /**
      * Flush file cache to disk.
      *
-     * @param force whether to brush
+     * @param force
+     *          whether to brush
      * @return the latest writable position
      *
-     * @throws IOException exception while force data to disk
+     * @throws IOException
+     *           exception while force data to disk
      */
     @Override
     public long flush(boolean force) throws IOException {
@@ -272,13 +282,13 @@ public class FileSegment implements Segment {
         return (this.getCachedSize() == 0
                 && offset == this.start
                 || this.getCachedSize() > 0
-                && offset >= this.start
-                && offset <= this.start + this.getCachedSize() - 1);
+                        && offset >= this.start
+                        && offset <= this.start + this.getCachedSize() - 1);
     }
 
     /**
-     * Release reference to this FileSegment.
-     * File's channel will be closed when the reference decreased to 0.
+     * Release reference to this FileSegment. File's channel will be closed when the
+     * reference decreased to 0.
      */
     @Override
     public void relViewRef() {
@@ -313,7 +323,8 @@ public class FileSegment implements Segment {
     /**
      * Set FileSegment to readonly.
      *
-     * @param mutable mutable or immutable
+     * @param mutable
+     *          mutable or immutable
      */
     @Override
     public void setMutable(boolean mutable) {
@@ -362,10 +373,10 @@ public class FileSegment implements Segment {
     @Override
     public void read(ByteBuffer bf, long absOffset) throws IOException {
         if (this.isExpired()) {
-            //Todo: conduct file closed and expired cases.
+            // Todo: conduct file closed and expired cases.
         }
         int size = 0;
-        long startPos  = absOffset - start;
+        long startPos = absOffset - start;
         while (bf.hasRemaining()) {
             final int l = this.channel.read(bf, startPos + size);
             if (l < 0) {
@@ -378,7 +389,7 @@ public class FileSegment implements Segment {
     @Override
     public void relRead(final ByteBuffer bf, long relOffset) throws IOException {
         if (this.isExpired()) {
-            //Todo: conduct file closed and expired cases.
+            // Todo: conduct file closed and expired cases.
         }
         int size = 0;
         while (bf.hasRemaining()) {
@@ -392,7 +403,9 @@ public class FileSegment implements Segment {
 
     /**
      * read index record's append time.
-     * @param reqOffset request offset.
+     * 
+     * @param reqOffset
+     *          request offset.
      * @return message append time.
      */
     @Override
@@ -411,12 +424,15 @@ public class FileSegment implements Segment {
     }
 
     /**
-     * Check whether this FileSegment is expired, and set expire status.
-     * The last FileSegment cannot be marked expired.
+     * Check whether this FileSegment is expired, and set expire status. The last
+     * FileSegment cannot be marked expired.
      *
-     * @param checkTimestamp check timestamp.
-     * @param maxValidTimeMs the max expire interval in milliseconds.
-     * @return -1 means already expired, 0 means the last FileSegment, 1 means expired.
+     * @param checkTimestamp
+     *          check timestamp.
+     * @param maxValidTimeMs
+     *          the max expire interval in milliseconds.
+     * @return -1 means already expired, 0 means the last FileSegment, 1 means
+     *         expired.
      */
     @Override
     public int checkAndSetExpired(long checkTimestamp, long maxValidTimeMs) {
@@ -565,6 +581,7 @@ public class FileSegment implements Segment {
     }
 
     private static class RecoverResult {
+
         private final long truncated;
         private final boolean isEqual;
 

@@ -18,11 +18,12 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.metrics;
 
-import org.apache.flink.metrics.Gauge;
-import org.apache.flink.metrics.MetricGroup;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
+
+import org.apache.flink.metrics.Gauge;
+import org.apache.flink.metrics.MetricGroup;
 
 /**
  * A collection class for handling metrics in {@link MySqlSourceReader}.
@@ -32,21 +33,22 @@ public class MySqlSourceReaderMetrics {
     private final MetricGroup metricGroup;
 
     /**
-     * The last record processing time, which is updated after {@link MySqlSourceReader} fetches a
-     * batch of data. It's mainly used to report metrics sourceIdleTime for sourceIdleTime =
-     * System.currentTimeMillis() - processTime.
+     * The last record processing time, which is updated after
+     * {@link MySqlSourceReader} fetches a batch of data. It's mainly used to report
+     * metrics sourceIdleTime for sourceIdleTime = System.currentTimeMillis() -
+     * processTime.
      */
     private volatile long processTime = 0L;
 
     /**
-     * currentFetchEventTimeLag = FetchTime - messageTimestamp, where the FetchTime is the time the
-     * record fetched into the source operator.
+     * currentFetchEventTimeLag = FetchTime - messageTimestamp, where the FetchTime
+     * is the time the record fetched into the source operator.
      */
     private volatile long fetchDelay = 0L;
 
     /**
-     * emitDelay = EmitTime - messageTimestamp, where the EmitTime is the time the record leaves the
-     * source operator.
+     * emitDelay = EmitTime - messageTimestamp, where the EmitTime is the time the
+     * record leaves the source operator.
      */
     private volatile long emitDelay = 0L;
 

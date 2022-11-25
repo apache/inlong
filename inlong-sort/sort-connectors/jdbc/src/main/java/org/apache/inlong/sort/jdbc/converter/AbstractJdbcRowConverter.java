@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.jdbc.converter;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatement;
 import org.apache.flink.connector.jdbc.utils.JdbcTypeUtil;
@@ -46,13 +48,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
 /**
- * Base class for all converters that convert between JDBC object and Flink internal object.
- * Copy of ${@link org.apache.flink.connector.jdbc.internal.converter.AbstractJdbcRowConverter}
- * to override the method createInternalConverter and createExternalConverter in subclasses
- * by make JdbcDeserializationConverter,JdbcSerializationConverter public.
+ * Base class for all converters that convert between JDBC object and Flink
+ * internal object. Copy of
+ * ${@link org.apache.flink.connector.jdbc.internal.converter.AbstractJdbcRowConverter}
+ * to override the method createInternalConverter and createExternalConverter in
+ * subclasses by make JdbcDeserializationConverter,JdbcSerializationConverter
+ * public.
  */
 public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
 
@@ -63,10 +65,9 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
 
     public AbstractJdbcRowConverter(RowType rowType) {
         this.rowType = checkNotNull(rowType);
-        this.fieldTypes =
-                rowType.getFields().stream()
-                        .map(RowType.RowField::getType)
-                        .toArray(LogicalType[]::new);
+        this.fieldTypes = rowType.getFields().stream()
+                .map(RowType.RowField::getType)
+                .toArray(LogicalType[]::new);
         this.toInternalConverters = new JdbcDeserializationConverter[rowType.getFieldCount()];
         this.toExternalConverters = new JdbcSerializationConverter[rowType.getFieldCount()];
         for (int i = 0; i < rowType.getFieldCount(); i++) {
@@ -89,7 +90,9 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
 
     @Override
     public FieldNamedPreparedStatement toExternal(
-            RowData rowData, FieldNamedPreparedStatement statement) throws SQLException {
+            RowData rowData,
+            FieldNamedPreparedStatement statement)
+            throws SQLException {
         for (int index = 0; index < rowData.getArity(); index++) {
             toExternalConverters[index].serialize(rowData, index, statement);
         }
@@ -97,8 +100,8 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
     }
 
     /**
-     * Create a nullable runtime {@link JdbcDeserializationConverter} from given {@link
-     * LogicalType}.
+     * Create a nullable runtime {@link JdbcDeserializationConverter} from given
+     * {@link LogicalType}.
      */
     protected JdbcDeserializationConverter createNullableInternalConverter(LogicalType type) {
         return wrapIntoNullableInternalConverter(createInternalConverter(type));
@@ -141,22 +144,21 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
                 final int scale = ((DecimalType) type).getScale();
                 // using decimal(20, 0) to support db type bigint unsigned, user should define
                 // decimal(20, 0) in SQL,
-                // but other precision like decimal(30, 0) can work too from lenient consideration.
-                return val ->
-                        val instanceof BigInteger
-                                ? DecimalData.fromBigDecimal(
+                // but other precision like decimal(30, 0) can work too from lenient
+                // consideration.
+                return val -> val instanceof BigInteger
+                        ? DecimalData.fromBigDecimal(
                                 new BigDecimal((BigInteger) val, 0), precision, scale)
-                                : DecimalData.fromBigDecimal((BigDecimal) val, precision, scale);
+                        : DecimalData.fromBigDecimal((BigDecimal) val, precision, scale);
             case DATE:
                 return val -> (int) (((Date) val).toLocalDate().toEpochDay());
             case TIME_WITHOUT_TIME_ZONE:
                 return val -> (int) (((Time) val).toLocalTime().toNanoOfDay() / 1_000_000L);
             case TIMESTAMP_WITH_TIME_ZONE:
             case TIMESTAMP_WITHOUT_TIME_ZONE:
-                return val ->
-                        val instanceof LocalDateTime
-                                ? TimestampData.fromLocalDateTime((LocalDateTime) val)
-                                : TimestampData.fromTimestamp((Timestamp) val);
+                return val -> val instanceof LocalDateTime
+                        ? TimestampData.fromLocalDateTime((LocalDateTime) val)
+                        : TimestampData.fromTimestamp((Timestamp) val);
             case CHAR:
             case VARCHAR:
                 return val -> StringData.fromString((String) val);
@@ -174,18 +176,19 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
     }
 
     /**
-     * Create a nullable JDBC f{@link JdbcSerializationConverter} from given sql type.
+     * Create a nullable JDBC f{@link JdbcSerializationConverter} from given sql
+     * type.
      */
     protected JdbcSerializationConverter createNullableExternalConverter(LogicalType type) {
         return wrapIntoNullableExternalConverter(createExternalConverter(type), type);
     }
 
     protected JdbcSerializationConverter wrapIntoNullableExternalConverter(
-            JdbcSerializationConverter jdbcSerializationConverter, LogicalType type) {
-        final int sqlType =
-                JdbcTypeUtil.typeInformationToSqlType(
-                        TypeConversions.fromDataTypeToLegacyInfo(
-                                TypeConversions.fromLogicalToDataType(type)));
+            JdbcSerializationConverter jdbcSerializationConverter,
+            LogicalType type) {
+        final int sqlType = JdbcTypeUtil.typeInformationToSqlType(
+                TypeConversions.fromDataTypeToLegacyInfo(
+                        TypeConversions.fromLogicalToDataType(type)));
         return (val, index, statement) -> {
             if (val == null
                     || val.isNullAt(index)
@@ -200,8 +203,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
     protected JdbcSerializationConverter createExternalConverter(LogicalType type) {
         switch (type.getTypeRoot()) {
             case BOOLEAN:
-                return (val, index, statement) ->
-                        statement.setBoolean(index, val.getBoolean(index));
+                return (val, index, statement) -> statement.setBoolean(index, val.getBoolean(index));
             case TINYINT:
                 return (val, index, statement) -> statement.setByte(index, val.getByte(index));
             case SMALLINT:
@@ -219,35 +221,30 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
             case CHAR:
             case VARCHAR:
                 // value is BinaryString
-                return (val, index, statement) ->
-                        statement.setString(index, val.getString(index).toString());
+                return (val, index, statement) -> statement.setString(index, val.getString(index).toString());
             case BINARY:
             case VARBINARY:
                 return (val, index, statement) -> statement.setBytes(index, val.getBinary(index));
             case DATE:
-                return (val, index, statement) ->
-                        statement.setDate(
-                                index, Date.valueOf(LocalDate.ofEpochDay(val.getInt(index))));
+                return (val, index, statement) -> statement.setDate(
+                        index, Date.valueOf(LocalDate.ofEpochDay(val.getInt(index))));
             case TIME_WITHOUT_TIME_ZONE:
-                return (val, index, statement) ->
-                        statement.setTime(
-                                index,
-                                Time.valueOf(
-                                        LocalTime.ofNanoOfDay(val.getInt(index) * 1_000_000L)));
+                return (val, index, statement) -> statement.setTime(
+                        index,
+                        Time.valueOf(
+                                LocalTime.ofNanoOfDay(val.getInt(index) * 1_000_000L)));
             case TIMESTAMP_WITH_TIME_ZONE:
             case TIMESTAMP_WITHOUT_TIME_ZONE:
                 final int timestampPrecision = ((TimestampType) type).getPrecision();
-                return (val, index, statement) ->
-                        statement.setTimestamp(
-                                index, val.getTimestamp(index, timestampPrecision).toTimestamp());
+                return (val, index, statement) -> statement.setTimestamp(
+                        index, val.getTimestamp(index, timestampPrecision).toTimestamp());
             case DECIMAL:
                 final int decimalPrecision = ((DecimalType) type).getPrecision();
                 final int decimalScale = ((DecimalType) type).getScale();
-                return (val, index, statement) ->
-                        statement.setBigDecimal(
-                                index,
-                                val.getDecimal(index, decimalPrecision, decimalScale)
-                                        .toBigDecimal());
+                return (val, index, statement) -> statement.setBigDecimal(
+                        index,
+                        val.getDecimal(index, decimalPrecision, decimalScale)
+                                .toBigDecimal());
             case ARRAY:
             case MAP:
             case MULTISET:
@@ -263,8 +260,10 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
      */
     @FunctionalInterface
     public interface JdbcDeserializationConverter extends Serializable {
+
         /**
-         * Convert a jdbc field object of {@link ResultSet} to the internal data structure object.
+         * Convert a jdbc field object of {@link ResultSet} to the internal data
+         * structure object.
          *
          * @param jdbcField
          */
@@ -272,12 +271,12 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
     }
 
     /**
-     * Runtime converter to convert {@link RowData} field to java object and fill into the {@link
-     * PreparedStatement}.
+     * Runtime converter to convert {@link RowData} field to java object and fill
+     * into the {@link PreparedStatement}.
      */
     @FunctionalInterface
     public interface JdbcSerializationConverter extends Serializable {
-        void serialize(RowData rowData, int index, FieldNamedPreparedStatement statement)
-                throws SQLException;
+
+        void serialize(RowData rowData, int index, FieldNamedPreparedStatement statement) throws SQLException;
     }
 }

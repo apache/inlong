@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.pojo.cluster;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+
+import lombok.Data;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Inlong cluster bind or unbind tag request

@@ -23,8 +23,8 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * The description of the command type.
- * Copy from {@link org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommandDescription}
+ * The description of the command type. Copy from
+ * {@link org.apache.flink.streaming.connectors.redis.common.mapper.RedisCommandDescription}
  */
 public class RedisCommandDescription implements Serializable {
 
@@ -33,36 +33,48 @@ public class RedisCommandDescription implements Serializable {
     private RedisCommand redisCommand;
 
     /**
-     * This additional key is needed for the group {@link RedisDataType#HASH} and {@link RedisDataType#SORTED_SET}.
-     * Other {@link RedisDataType} works only with two variable i.e. name of the list and value to be added.
-     * But for {@link RedisDataType#HASH} and {@link RedisDataType#SORTED_SET} we need three variables.
-     * <p>For {@link RedisDataType#HASH} we need hash name, hash key and element. Its possible to use TTL.
-     * {@link #getAdditionalKey()} used as hash name for {@link RedisDataType#HASH}
-     * <p>For {@link RedisDataType#SORTED_SET} we need set name, the element and it's score.
-     * {@link #getAdditionalKey()} used as set name for {@link RedisDataType#SORTED_SET}
+     * This additional key is needed for the group {@link RedisDataType#HASH} and
+     * {@link RedisDataType#SORTED_SET}. Other {@link RedisDataType} works only with
+     * two variable i.e. name of the list and value to be added. But for
+     * {@link RedisDataType#HASH} and {@link RedisDataType#SORTED_SET} we need three
+     * variables.
+     * <p>
+     * For {@link RedisDataType#HASH} we need hash name, hash key and element. Its
+     * possible to use TTL. {@link #getAdditionalKey()} used as hash name for
+     * {@link RedisDataType#HASH}
+     * <p>
+     * For {@link RedisDataType#SORTED_SET} we need set name, the element and it's
+     * score. {@link #getAdditionalKey()} used as set name for
+     * {@link RedisDataType#SORTED_SET}
      */
     private String additionalKey;
 
     /**
-     * This additional key is optional for the group {@link RedisDataType#HASH}, required for {@link
-     * RedisCommand#SETEX}.
-     * For the other types and commands, its not used.
-     * <p>For {@link RedisDataType#HASH} we need hash name, hash key and element. Its possible to use TTL.
-     * {@link #getAdditionalTTL()} used as time to live (TTL) for {@link RedisDataType#HASH}
-     * <p>For {@link RedisCommand#SETEX}, we need key, value and time to live (TTL).
+     * This additional key is optional for the group {@link RedisDataType#HASH},
+     * required for {@link RedisCommand#SETEX}. For the other types and commands,
+     * its not used.
+     * <p>
+     * For {@link RedisDataType#HASH} we need hash name, hash key and element. Its
+     * possible to use TTL. {@link #getAdditionalTTL()} used as time to live (TTL)
+     * for {@link RedisDataType#HASH}
+     * <p>
+     * For {@link RedisCommand#SETEX}, we need key, value and time to live (TTL).
      */
     private Integer additionalTTL;
 
     /**
-     * Default constructor for {@link RedisCommandDescription}.
-     * For {@link RedisDataType#HASH} and {@link RedisDataType#SORTED_SET} data types, {@code additionalKey} is
-     * required.
-     * For {@link RedisCommand#SETEX} command, {@code additionalTTL} is required.
-     * In both cases, if the respective variables are not provided, it throws an {@link IllegalArgumentException}
+     * Default constructor for {@link RedisCommandDescription}. For
+     * {@link RedisDataType#HASH} and {@link RedisDataType#SORTED_SET} data types,
+     * {@code additionalKey} is required. For {@link RedisCommand#SETEX} command,
+     * {@code additionalTTL} is required. In both cases, if the respective variables
+     * are not provided, it throws an {@link IllegalArgumentException}
      *
-     * @param redisCommand the redis command type {@link RedisCommand}
-     * @param additionalKey additional key for Hash data type
-     * @param additionalTTL additional TTL optional for Hash data type
+     * @param redisCommand
+     *          the redis command type {@link RedisCommand}
+     * @param additionalKey
+     *          additional key for Hash data type
+     * @param additionalTTL
+     *          additional TTL optional for Hash data type
      */
     public RedisCommandDescription(RedisCommand redisCommand, String additionalKey, Integer additionalTTL) {
         Objects.requireNonNull(redisCommand, "Redis command type can not be null");
@@ -97,12 +109,14 @@ public class RedisCommandDescription implements Serializable {
     }
 
     /**
-     * Use this constructor when data type is {@link RedisDataType#HASH} (without TTL) or {@link
-     * RedisDataType#SORTED_SET}.
-     * If different data type is specified, {@code additionalKey} is ignored.
+     * Use this constructor when data type is {@link RedisDataType#HASH} (without
+     * TTL) or {@link RedisDataType#SORTED_SET}. If different data type is
+     * specified, {@code additionalKey} is ignored.
      *
-     * @param redisCommand the redis command type {@link RedisCommand}
-     * @param additionalKey additional key for Hash and Sorted set data type
+     * @param redisCommand
+     *          the redis command type {@link RedisCommand}
+     * @param additionalKey
+     *          additional key for Hash and Sorted set data type
      */
     public RedisCommandDescription(RedisCommand redisCommand, String additionalKey) {
         this(redisCommand, additionalKey, null);
@@ -110,20 +124,24 @@ public class RedisCommandDescription implements Serializable {
 
     /**
      * Use this constructor when using SETEX command {@link RedisDataType#STRING}.
-     * This command requires a TTL. Throws {@link IllegalArgumentException} if it is null.
+     * This command requires a TTL. Throws {@link IllegalArgumentException} if it is
+     * null.
      *
-     * @param redisCommand the redis command type {@link RedisCommand}
-     * @param additionalTTL additional TTL required for SETEX command
+     * @param redisCommand
+     *          the redis command type {@link RedisCommand}
+     * @param additionalTTL
+     *          additional TTL required for SETEX command
      */
     public RedisCommandDescription(RedisCommand redisCommand, Integer additionalTTL) {
         this(redisCommand, null, additionalTTL);
     }
 
     /**
-     * Use this constructor when command type is not in group {@link RedisDataType#HASH} or {@link
-     * RedisDataType#SORTED_SET}.
+     * Use this constructor when command type is not in group
+     * {@link RedisDataType#HASH} or {@link RedisDataType#SORTED_SET}.
      *
-     * @param redisCommand the redis data type {@link RedisCommand}
+     * @param redisCommand
+     *          the redis data type {@link RedisCommand}
      */
     public RedisCommandDescription(RedisCommand redisCommand) {
         this(redisCommand, null, null);
@@ -139,7 +157,8 @@ public class RedisCommandDescription implements Serializable {
     }
 
     /**
-     * Returns the additional key if data type is {@link RedisDataType#HASH} and {@link RedisDataType#SORTED_SET}.
+     * Returns the additional key if data type is {@link RedisDataType#HASH} and
+     * {@link RedisDataType#SORTED_SET}.
      *
      * @return the additional key
      */
@@ -148,7 +167,8 @@ public class RedisCommandDescription implements Serializable {
     }
 
     /**
-     * Returns the additional time to live (TTL) if data type is {@link RedisDataType#HASH}.
+     * Returns the additional time to live (TTL) if data type is
+     * {@link RedisDataType#HASH}.
      *
      * @return the additional TTL
      */

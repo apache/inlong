@@ -50,7 +50,8 @@ public class InlongClusterClient {
     /**
      * Save cluster tag.
      *
-     * @param request cluster tag
+     * @param request
+     *          cluster tag
      * @return saved cluster tag id
      */
     public Integer saveTag(ClusterTagRequest request) {
@@ -62,7 +63,8 @@ public class InlongClusterClient {
     /**
      * Get cluster tag by id.
      *
-     * @param id cluster tag id
+     * @param id
+     *          cluster tag id
      * @return cluster tag info
      */
     public ClusterTagResponse getTag(Integer id) {
@@ -75,7 +77,8 @@ public class InlongClusterClient {
     /**
      * Paging query cluster tags according to conditions.
      *
-     * @param request page request conditions
+     * @param request
+     *          page request conditions
      * @return cluster tag list
      */
     public PageResult<ClusterTagResponse> listTag(ClusterTagPageRequest request) {
@@ -88,7 +91,8 @@ public class InlongClusterClient {
     /**
      * Update cluster tag.
      *
-     * @param request cluster tag to be modified
+     * @param request
+     *          cluster tag to be modified
      * @return whether succeed
      */
     public Boolean updateTag(ClusterTagRequest request) {
@@ -100,7 +104,8 @@ public class InlongClusterClient {
     /**
      * Delete cluster tag.
      *
-     * @param id cluster tag id to be deleted
+     * @param id
+     *          cluster tag id to be deleted
      * @return whether succeed
      */
     public Boolean deleteTag(Integer id) {
@@ -113,7 +118,8 @@ public class InlongClusterClient {
     /**
      * Save component cluster for Inlong.
      *
-     * @param request cluster create request
+     * @param request
+     *          cluster create request
      * @return clusterIndex
      */
     public Integer saveCluster(ClusterRequest request) {
@@ -128,7 +134,8 @@ public class InlongClusterClient {
     /**
      * Get cluster info by id.
      *
-     * @param id cluster id
+     * @param id
+     *          cluster id
      * @return cluster info
      */
     public ClusterInfo get(Integer id) {
@@ -141,7 +148,8 @@ public class InlongClusterClient {
     /**
      * Paging query clusters according to conditions.
      *
-     * @param request query conditions
+     * @param request
+     *          query conditions
      * @return cluster list
      */
     public PageResult<ClusterInfo> list(ClusterPageRequest request) {
@@ -153,7 +161,8 @@ public class InlongClusterClient {
     /**
      * Update cluster information.
      *
-     * @param request cluster to be modified
+     * @param request
+     *          cluster to be modified
      * @return whether succeed
      */
     public Boolean update(ClusterRequest request) {
@@ -165,10 +174,11 @@ public class InlongClusterClient {
     }
 
     /**
-     * Update cluster information by unique key.
-     * Cluster name and type should not be null.
+     * Update cluster information by unique key. Cluster name and type should not be
+     * null.
      *
-     * @param request cluster to be modified
+     * @param request
+     *          cluster to be modified
      * @return update result
      */
     public UpdateResult updateByKey(ClusterRequest request) {
@@ -182,7 +192,8 @@ public class InlongClusterClient {
     /**
      * Bind or unbind cluster tag for clusters.
      *
-     * @param request cluster to be modified
+     * @param request
+     *          cluster to be modified
      * @return whether succeed
      */
     public Boolean bindTag(BindTagRequest request) {
@@ -194,7 +205,8 @@ public class InlongClusterClient {
     /**
      * Delete cluster information.
      *
-     * @param id cluster id to be deleted
+     * @param id
+     *          cluster id to be deleted
      * @return whether succeed
      */
     public Boolean delete(Integer id) {
@@ -207,8 +219,10 @@ public class InlongClusterClient {
     /**
      * Delete cluster by name and type
      *
-     * @param name cluster name
-     * @param type cluster type
+     * @param name
+     *          cluster name
+     * @param type
+     *          cluster type
      * @return wheter succeed
      */
     public Boolean deleteByKey(String name, String type) {
@@ -222,7 +236,8 @@ public class InlongClusterClient {
     /**
      * Save cluster node info.
      *
-     * @param request cluster info
+     * @param request
+     *          cluster info
      * @return id after saving
      */
     public Integer saveNode(ClusterNodeRequest request) {
@@ -234,7 +249,8 @@ public class InlongClusterClient {
     /**
      * Get cluster node info by id.
      *
-     * @param id cluster id
+     * @param id
+     *          cluster id
      * @return cluster info
      */
     public ClusterNodeResponse getNode(Integer id) {
@@ -247,7 +263,8 @@ public class InlongClusterClient {
     /**
      * Paging query cluster nodes according to conditions.
      *
-     * @param request page request conditions
+     * @param request
+     *          page request conditions
      * @return cluster node list
      */
     public PageResult<ClusterNodeResponse> listNode(ClusterPageRequest request) {
@@ -260,9 +277,12 @@ public class InlongClusterClient {
     /**
      * List cluster nodes
      *
-     * @param inlongGroupId inlong group id
-     * @param clusterType cluster type
-     * @param protocolType protocol type, such as: TCP, HTTP
+     * @param inlongGroupId
+     *          inlong group id
+     * @param clusterType
+     *          cluster type
+     * @param protocolType
+     *          protocol type, such as: TCP, HTTP
      * @return cluster node list
      */
     public List<ClusterNodeResponse> listNode(String inlongGroupId, String clusterType, String protocolType) {
@@ -275,7 +295,8 @@ public class InlongClusterClient {
     /**
      * Update cluster node.
      *
-     * @param request cluster node to be modified
+     * @param request
+     *          cluster node to be modified
      * @return whether succeed
      */
     public Boolean updateNode(ClusterNodeRequest request) {
@@ -287,7 +308,8 @@ public class InlongClusterClient {
     /**
      * Delete cluster node.
      *
-     * @param id cluster node id to be deleted
+     * @param id
+     *          cluster node id to be deleted
      * @return whether succeed
      */
     public Boolean deleteNode(Integer id) {

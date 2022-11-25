@@ -21,6 +21,7 @@ package org.apache.inlong.sdk.dataproxy.example;
 import java.util.ArrayList;
 
 public class Event {
+
     private byte[] body;
     private String groupId;
     private String streamId;

@@ -17,10 +17,6 @@
 
 package org.apache.inlong.audit.service.consume;
 
-import com.google.common.base.Preconditions;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.service.InsertData;
@@ -31,11 +27,17 @@ import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
 import org.apache.inlong.tubemq.client.factory.TubeMultiSessionFactory;
 import org.apache.inlong.tubemq.corebase.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 public class TubeConsume extends BaseConsume {
 
@@ -48,6 +50,7 @@ public class TubeConsume extends BaseConsume {
 
     /**
      * Constructor
+     * 
      * @param insertServiceList
      * @param storeConfig
      * @param mqConfig

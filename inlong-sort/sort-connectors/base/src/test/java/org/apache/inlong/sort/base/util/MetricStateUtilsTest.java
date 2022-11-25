@@ -18,17 +18,18 @@
 
 package org.apache.inlong.sort.base.util;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class MetricStateUtilsTest {
 
     /**
-     * test assignment previous subtask index to current subtask when reduce parallelism
+     * test assignment previous subtask index to current subtask when reduce
+     * parallelism
      */
     @Test
     public void testComputeIndexList() {

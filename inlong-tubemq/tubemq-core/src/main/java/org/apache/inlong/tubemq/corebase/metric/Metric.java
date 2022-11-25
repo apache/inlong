@@ -25,14 +25,14 @@ public interface Metric {
     /**
      * Get the metric short name
      *
-     * @return  the metric short name
+     * @return the metric short name
      */
     String getShortName();
 
     /**
      * Get the metric full name
      *
-     * @return  the full metric name
+     * @return the full metric name
      */
     String getFullName();
 

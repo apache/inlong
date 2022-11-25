@@ -84,4 +84,3 @@ public class CounterGroup {
         this.counters = counters;
     }
 }
-

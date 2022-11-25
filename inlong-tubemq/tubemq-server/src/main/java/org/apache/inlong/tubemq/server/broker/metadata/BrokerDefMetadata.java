@@ -21,19 +21,23 @@ import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
 /**
- * Default metadata for broker, it mainly contains topic default config(partitions count, delete policy...).
- * These metadata will be overwrite if explicitly be set.
+ * Default metadata for broker, it mainly contains topic default
+ * config(partitions count, delete policy...). These metadata will be overwrite
+ * if explicitly be set.
  */
 public class BrokerDefMetadata {
+
     // topic's store file count.
     private int numTopicStores = 1;
     // topic's partition count.
     private int numPartitions = 1;
     // data will be flushed to disk when unflushed message count exceed this.
     private int unflushThreshold = 1000;
-    // data will be flushed to disk when unflushed data size reaches the threshold, 0=disabled.
+    // data will be flushed to disk when unflushed data size reaches the threshold,
+    // 0=disabled.
     private int unflushDataHold = 0;
-    // data will be flushed to disk when elapse unflushInterval milliseconds since last flush operation.
+    // data will be flushed to disk when elapse unflushInterval milliseconds since
+    // last flush operation.
     private int unflushInterval = 10000;
     // enable produce data to topic.
     private boolean acceptPublish = true;
@@ -59,14 +63,14 @@ public class BrokerDefMetadata {
     /**
      * Initial broker meta-data object by configure info
      *
-     * @param brokerDefMetaConfInfo      the broker configure information.
-    */
+     * @param brokerDefMetaConfInfo
+     *          the broker configure information.
+     */
     public BrokerDefMetadata(String brokerDefMetaConfInfo) {
         if (TStringUtils.isBlank(brokerDefMetaConfInfo)) {
             return;
         }
-        String[] brokerDefaultConfInfoArr =
-                brokerDefMetaConfInfo.split(TokenConstants.ATTR_SEP, -1);
+        String[] brokerDefaultConfInfoArr = brokerDefMetaConfInfo.split(TokenConstants.ATTR_SEP, -1);
         this.numPartitions = Integer.parseInt(brokerDefaultConfInfoArr[0]);
         this.acceptPublish = Boolean.parseBoolean(brokerDefaultConfInfoArr[1]);
         this.acceptSubscribe = Boolean.parseBoolean(brokerDefaultConfInfoArr[2]);

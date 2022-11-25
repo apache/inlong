@@ -18,19 +18,6 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
-import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
-import org.apache.flink.streaming.connectors.elasticsearch.util.IgnoringFailureHandler;
-import org.apache.flink.streaming.connectors.elasticsearch.util.NoOpFailureHandler;
-import org.apache.flink.streaming.connectors.elasticsearch.util.RetryRejectedExecutionFailureHandler;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.util.InstantiationUtil;
-import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
-
-import java.time.Duration;
-import java.util.Objects;
-import java.util.Optional;
-
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_DELAY_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLUSH_BACKOFF_TYPE_OPTION;
@@ -38,6 +25,20 @@ import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BU
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FAILURE_HANDLER_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.PASSWORD_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.USERNAME_OPTION;
+
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkBase;
+
+import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.streaming.connectors.elasticsearch.ActionRequestFailureHandler;
+import org.apache.flink.streaming.connectors.elasticsearch.util.IgnoringFailureHandler;
+import org.apache.flink.streaming.connectors.elasticsearch.util.NoOpFailureHandler;
+import org.apache.flink.streaming.connectors.elasticsearch.util.RetryRejectedExecutionFailureHandler;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.util.InstantiationUtil;
+
+import java.time.Duration;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Accessor methods to elasticsearch options.
@@ -68,9 +69,7 @@ public class ElasticsearchConfiguration {
             default:
                 try {
                     Class<?> failureHandlerClass = Class.forName(value, false, classLoader);
-                    failureHandler =
-                            (ActionRequestFailureHandler)
-                                    InstantiationUtil.instantiate(failureHandlerClass);
+                    failureHandler = (ActionRequestFailureHandler) InstantiationUtil.instantiate(failureHandlerClass);
                 } catch (ClassNotFoundException e) {
                     throw new ValidationException(
                             "Could not instantiate the failure handler class: " + value, e);
@@ -86,19 +85,22 @@ public class ElasticsearchConfiguration {
 
     public int getBulkFlushMaxActions() {
         int maxActions = config.get(ElasticsearchOptions.BULK_FLUSH_MAX_ACTIONS_OPTION);
-        // convert 0 to -1, because Elasticsearch client use -1 to disable this configuration.
+        // convert 0 to -1, because Elasticsearch client use -1 to disable this
+        // configuration.
         return maxActions == 0 ? -1 : maxActions;
     }
 
     public long getBulkFlushMaxByteSize() {
         long maxSize = config.get(ElasticsearchOptions.BULK_FLASH_MAX_SIZE_OPTION).getBytes();
-        // convert 0 to -1, because Elasticsearch client use -1 to disable this configuration.
+        // convert 0 to -1, because Elasticsearch client use -1 to disable this
+        // configuration.
         return maxSize == 0 ? -1 : maxSize;
     }
 
     public long getBulkFlushInterval() {
         long interval = config.get(BULK_FLUSH_INTERVAL_OPTION).toMillis();
-        // convert 0 to -1, because Elasticsearch client use -1 to disable this configuration.
+        // convert 0 to -1, because Elasticsearch client use -1 to disable this
+        // configuration.
         return interval == 0 ? -1 : interval;
     }
 
@@ -111,8 +113,7 @@ public class ElasticsearchConfiguration {
     }
 
     public boolean isBulkFlushBackoffEnabled() {
-        return config.get(BULK_FLUSH_BACKOFF_TYPE_OPTION)
-                != ElasticsearchOptions.BackOffType.DISABLED;
+        return config.get(BULK_FLUSH_BACKOFF_TYPE_OPTION) != ElasticsearchOptions.BackOffType.DISABLED;
     }
 
     public Optional<ElasticsearchSinkBase.FlushBackoffType> getBulkFlushBackoffType() {

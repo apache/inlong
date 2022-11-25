@@ -17,7 +17,9 @@
 
 package org.apache.inlong.audit.file;
 
-import com.google.common.base.Splitter;
+import org.apache.inlong.audit.consts.AttributeConstants;
+import org.apache.inlong.audit.file.holder.ConfigUpdateCallback;
+
 import java.io.File;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -26,16 +28,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.inlong.audit.file.holder.ConfigUpdateCallback;
-import org.apache.inlong.audit.consts.AttributeConstants;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Splitter;
+
 public abstract class ConfigHolder {
 
-    public static final Splitter.MapSplitter MAP_SPLITTER =
-            Splitter.on(AttributeConstants.SEPARATOR)
-                    .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
+    public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(AttributeConstants.SEPARATOR)
+            .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
     private static final Logger LOG = LoggerFactory.getLogger(ConfigHolder.class);
     private final String fileName;
     private final AtomicBoolean fileChanged = new AtomicBoolean(false);
@@ -58,7 +60,8 @@ public abstract class ConfigHolder {
     /**
      * add callback
      *
-     * @param callback - callback
+     * @param callback
+     *          - callback
      */
     public void addUpdateCallback(ConfigUpdateCallback callback) {
         callbackList.add(callback);

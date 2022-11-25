@@ -42,9 +42,7 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
 
     public StreamingFileWriter(
             long bucketCheckInterval,
-            StreamingFileSink.BucketsBuilder<
-                    IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
-                    bucketsBuilder,
+            StreamingFileSink.BucketsBuilder<IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>> bucketsBuilder,
             String inlongMetric,
             String auditHostAndPorts) {
         super(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
@@ -84,8 +82,7 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
     protected void commitUpToCheckpoint(long checkpointId) throws Exception {
         super.commitUpToCheckpoint(checkpointId);
 
-        NavigableMap<Long, Set<String>> headPartitions =
-                this.newPartitions.headMap(checkpointId, true);
+        NavigableMap<Long, Set<String>> headPartitions = this.newPartitions.headMap(checkpointId, true);
         Set<String> partitions = new HashSet<>(committablePartitions);
         committablePartitions.clear();
         headPartitions.values().forEach(partitions::addAll);
@@ -100,4 +97,3 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
                                 new ArrayList<>(partitions))));
     }
 }
-

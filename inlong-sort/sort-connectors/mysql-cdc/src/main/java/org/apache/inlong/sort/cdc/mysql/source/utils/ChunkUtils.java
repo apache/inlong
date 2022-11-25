@@ -18,17 +18,19 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
-import io.debezium.relational.Column;
-import io.debezium.relational.Table;
+import static org.apache.flink.table.api.DataTypes.FIELD;
+import static org.apache.flink.table.api.DataTypes.ROW;
+
+import org.apache.inlong.sort.cdc.mysql.schema.MySqlTypeUtils;
+
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.cdc.mysql.schema.MySqlTypeUtils;
 
 import java.util.List;
 
-import static org.apache.flink.table.api.DataTypes.FIELD;
-import static org.apache.flink.table.api.DataTypes.ROW;
+import io.debezium.relational.Column;
+import io.debezium.relational.Table;
 
 /**
  * Utilities to split chunks of table.
@@ -53,9 +55,8 @@ public class ChunkUtils {
     }
 
     public static RowType getSplitType(Column splitColumn) {
-        return (RowType)
-                ROW(FIELD(splitColumn.name(), MySqlTypeUtils.fromDbzColumn(splitColumn)))
-                        .getLogicalType();
+        return (RowType) ROW(FIELD(splitColumn.name(), MySqlTypeUtils.fromDbzColumn(splitColumn)))
+                .getLogicalType();
     }
 
     public static Column getSplitColumn(Table table) {
@@ -73,7 +74,8 @@ public class ChunkUtils {
     }
 
     /**
-     * Returns next meta group id according to received meta number and meta group size.
+     * Returns next meta group id according to received meta number and meta group
+     * size.
      */
     public static int getNextMetaGroupId(int receivedMetaNum, int metaGroupSize) {
         Preconditions.checkState(metaGroupSize > 0);

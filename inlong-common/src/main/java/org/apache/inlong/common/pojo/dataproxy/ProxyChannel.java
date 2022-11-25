@@ -41,7 +41,8 @@ public class ProxyChannel {
     /**
      * set name
      *
-     * @param name the name to set
+     * @param name
+     *          the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -59,7 +60,8 @@ public class ProxyChannel {
     /**
      * set type
      *
-     * @param type the type to set
+     * @param type
+     *          the type to set
      */
     public void setType(String type) {
         this.type = type;
@@ -77,7 +79,8 @@ public class ProxyChannel {
     /**
      * set params
      *
-     * @param params the params to set
+     * @param params
+     *          the params to set
      */
     public void setParams(Map<String, String> params) {
         this.params = params;

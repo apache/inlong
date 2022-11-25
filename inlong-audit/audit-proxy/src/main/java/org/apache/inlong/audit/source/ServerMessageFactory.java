@@ -17,18 +17,21 @@
 
 package org.apache.inlong.audit.source;
 
+import org.apache.flume.channel.ChannelProcessor;
+import org.apache.flume.source.AbstractSource;
+
+import java.lang.reflect.Constructor;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import java.lang.reflect.Constructor;
-import java.util.concurrent.TimeUnit;
-import org.apache.flume.channel.ChannelProcessor;
-import org.apache.flume.source.AbstractSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
 
@@ -78,11 +81,11 @@ public class ServerMessageFactory extends ChannelInitializer<SocketChannel> {
         if (processor != null) {
             try {
                 Class<? extends ChannelInboundHandlerAdapter> clazz =
-                        (Class<? extends ChannelInboundHandlerAdapter>) Class.forName(messageHandlerName);
+                        (Class<? extends ChannelInboundHandlerAdapter>) Class
+                                .forName(messageHandlerName);
 
-                Constructor<?> ctor =
-                        clazz.getConstructor(AbstractSource.class, ServiceDecoder.class,
-                                ChannelGroup.class, Integer.class);
+                Constructor<?> ctor = clazz.getConstructor(AbstractSource.class, ServiceDecoder.class,
+                        ChannelGroup.class, Integer.class);
 
                 ChannelInboundHandlerAdapter messageHandler = (ChannelInboundHandlerAdapter) ctor
                         .newInstance(source, serviceDecoder, allChannels, maxConnections);

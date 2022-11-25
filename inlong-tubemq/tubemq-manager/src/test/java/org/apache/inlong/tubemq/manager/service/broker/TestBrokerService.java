@@ -20,13 +20,15 @@ package org.apache.inlong.tubemq.manager.service.broker;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 
+import org.apache.inlong.tubemq.manager.entry.BrokerEntry;
+import org.apache.inlong.tubemq.manager.repository.BrokerRepository;
+import org.apache.inlong.tubemq.manager.service.BrokerServiceImpl;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.tubemq.manager.entry.BrokerEntry;
-import org.apache.inlong.tubemq.manager.repository.BrokerRepository;
-import org.apache.inlong.tubemq.manager.service.BrokerServiceImpl;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

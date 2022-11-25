@@ -17,17 +17,6 @@
 
 package org.apache.inlong.sdk.dataproxy.pb.context;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 import org.apache.inlong.sdk.dataproxy.pb.config.ProxyClusterConfigHolder;
 import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyClusterConfig;
@@ -37,6 +26,19 @@ import org.apache.inlong.sdk.dataproxy.pb.dispatch.DispatchManager;
 import org.apache.inlong.sdk.dataproxy.pb.dispatch.DispatchProfile;
 import org.apache.inlong.sdk.dataproxy.pb.metrics.SdkMetricItem;
 import org.apache.inlong.sdk.dataproxy.pb.network.IpPort;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -159,13 +161,15 @@ public class SdkSinkContext extends SinkContext {
                 metricItem.nodeDuration.addAndGet(nodeDuration * count);
                 metricItem.wholeDuration.addAndGet(wholeDuration * count);
             }
-//            LOG.info("addSendTrueMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
-//                    bid, result, sendTime, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+            // LOG.info("addSendTrueMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
+            // bid, result, sendTime, currentRecord.getCount(),
+            // JSON.toJSONString(metricItemSet.getItemMap()));
         } else {
             metricItem.sendFailCount.addAndGet(count);
             metricItem.sendFailSize.addAndGet(size);
-//            LOG.info("addSendFalseMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
-//                    bid, result, sendTime, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+            // LOG.info("addSendFalseMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
+            // bid, result, sendTime, currentRecord.getCount(),
+            // JSON.toJSONString(metricItemSet.getItemMap()));
         }
     }
 
@@ -190,8 +194,9 @@ public class SdkSinkContext extends SinkContext {
         long size = currentRecord.getSize();
         metricItem.sendCount.addAndGet(count);
         metricItem.sendSize.addAndGet(size);
-//        LOG.info("addSendMetric,bid:{},count:{},metric:{}",
-//                bid, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+        // LOG.info("addSendMetric,bid:{},count:{},metric:{}",
+        // bid, currentRecord.getCount(),
+        // JSON.toJSONString(metricItemSet.getItemMap()));
     }
 
     /**
@@ -247,7 +252,7 @@ public class SdkSinkContext extends SinkContext {
     /**
      * getProxyClusterId
      * 
-     * @param  uid
+     * @param uid
      * @return
      */
     public String getProxyClusterId(String uid) {

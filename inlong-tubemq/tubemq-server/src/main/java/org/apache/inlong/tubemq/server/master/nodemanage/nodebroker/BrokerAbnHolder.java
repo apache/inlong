@@ -17,14 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
@@ -33,6 +25,17 @@ import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,19 +43,17 @@ import org.slf4j.LoggerFactory;
  * The broker node abnormal status reporting management class
  */
 public class BrokerAbnHolder {
-    private static final Logger logger =
-            LoggerFactory.getLogger(BrokerAbnHolder.class);
-    private final ConcurrentHashMap<Integer/* brokerId */, BrokerAbnInfo> brokerAbnormalMap =
-            new ConcurrentHashMap<>();
+
+    private static final Logger logger = LoggerFactory.getLogger(BrokerAbnHolder.class);
+    private final ConcurrentHashMap<Integer/* brokerId */, BrokerAbnInfo> brokerAbnormalMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer/* brokerId */, BrokerFbdInfo> brokerForbiddenMap =
             new ConcurrentHashMap<>();
     private final int maxAutoForbiddenCnt;
     private final MetaDataService metaDataService;
-    private final AtomicInteger brokerForbiddenCount =
-            new AtomicInteger(0);
+    private final AtomicInteger brokerForbiddenCount = new AtomicInteger(0);
 
     public BrokerAbnHolder(final int maxAutoForbiddenCnt,
-                           final MetaDataService metaDataService) {
+            final MetaDataService metaDataService) {
         this.maxAutoForbiddenCnt = maxAutoForbiddenCnt;
         this.metaDataService = metaDataService;
     }
@@ -60,13 +61,16 @@ public class BrokerAbnHolder {
     /**
      * Update stored broker report status
      *
-     * @param brokerId           reported broker id
-     * @param reportReadStatus   reported broker read status
-     * @param reportWriteStatus  reported broker write status
+     * @param brokerId
+     *          reported broker id
+     * @param reportReadStatus
+     *          reported broker read status
+     * @param reportWriteStatus
+     *          reported broker write status
      */
     public void updateBrokerReportStatus(int brokerId,
-                                         int reportReadStatus,
-                                         int reportWriteStatus) {
+            int reportReadStatus,
+            int reportWriteStatus) {
         StringBuilder sBuffer = new StringBuilder(512);
         if (reportReadStatus == 0 && reportWriteStatus == 0) {
             BrokerAbnInfo brokerAbnInfo = brokerAbnormalMap.get(brokerId);
@@ -83,22 +87,20 @@ public class BrokerAbnHolder {
             }
             return;
         }
-        BrokerConfEntity curEntry =
-                metaDataService.getBrokerConfByBrokerId(brokerId);
+        BrokerConfEntity curEntry = metaDataService.getBrokerConfByBrokerId(brokerId);
         if (curEntry == null) {
             return;
         }
-        ManageStatus reqMngStatus =
-                getManageStatus(reportWriteStatus, reportReadStatus);
+        ManageStatus reqMngStatus = getManageStatus(reportWriteStatus, reportReadStatus);
         if ((curEntry.getManageStatus() == reqMngStatus)
-            || ((reqMngStatus == ManageStatus.STATUS_MANAGE_OFFLINE)
-            && (curEntry.getManageStatus().getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode()))) {
+                || ((reqMngStatus == ManageStatus.STATUS_MANAGE_OFFLINE)
+                        && (curEntry.getManageStatus().getCode() < ManageStatus.STATUS_MANAGE_ONLINE.getCode()))) {
             return;
         }
         BrokerAbnInfo brokerAbnInfo = brokerAbnormalMap.get(brokerId);
         if (brokerAbnInfo == null) {
             if (brokerAbnormalMap.putIfAbsent(brokerId,
-                new BrokerAbnInfo(brokerId, reportReadStatus, reportWriteStatus)) == null) {
+                    new BrokerAbnInfo(brokerId, reportReadStatus, reportWriteStatus)) == null) {
                 MasterSrvStatsHolder.incBrokerAbnormalCnt();
                 logger.warn(sBuffer.append("[Broker AutoForbidden] broker report abnormal, ")
                         .append(brokerId).append("'s reportReadStatus=")
@@ -111,9 +113,8 @@ public class BrokerAbnHolder {
         }
         BrokerFbdInfo brokerFbdInfo = brokerForbiddenMap.get(brokerId);
         if (brokerFbdInfo == null) {
-            BrokerFbdInfo tmpBrokerFbdInfo =
-                new BrokerFbdInfo(brokerId, curEntry.getManageStatus(),
-                        reqMngStatus, System.currentTimeMillis());
+            BrokerFbdInfo tmpBrokerFbdInfo = new BrokerFbdInfo(brokerId, curEntry.getManageStatus(),
+                    reqMngStatus, System.currentTimeMillis());
             if (reportReadStatus > 0 || reportWriteStatus > 0) {
                 if (updateCurManageStatus(brokerId, reqMngStatus, sBuffer)) {
                     if (brokerForbiddenMap.putIfAbsent(brokerId, tmpBrokerFbdInfo) == null) {
@@ -156,7 +157,8 @@ public class BrokerAbnHolder {
     /**
      * get broker current report status
      *
-     * @param brokerId the query broker id
+     * @param brokerId
+     *          the query broker id
      * @return the broker's current RW status
      */
     public Tuple2<Boolean, Boolean> getBrokerAutoFbdStatus(int brokerId) {
@@ -173,7 +175,8 @@ public class BrokerAbnHolder {
     /**
      * Remove broker info and decrease total broker count and forbidden broker count
      *
-     * @param brokerId the deleted broker id
+     * @param brokerId
+     *          the deleted broker id
      */
     public void removeBroker(Integer brokerId) {
         BrokerAbnInfo abnInfo = brokerAbnormalMap.remove(brokerId);
@@ -200,8 +203,10 @@ public class BrokerAbnHolder {
     /**
      * Deduce status according to publish status and subscribe status
      *
-     * @param repWriteStatus  broker's write status
-     * @param repReadStatus   broker's read status
+     * @param repWriteStatus
+     *          broker's write status
+     * @param repReadStatus
+     *          broker's read status
      * @return the broker's manage status
      */
     private ManageStatus getManageStatus(int repWriteStatus, int repReadStatus) {
@@ -219,18 +224,20 @@ public class BrokerAbnHolder {
     /**
      * Update broker status, if broker is not online, this operator will fail
      *
-     * @param brokerId      reported broker id
-     * @param newMngStatus  new manage status
-     * @param sBuffer       string process buffer
+     * @param brokerId
+     *          reported broker id
+     * @param newMngStatus
+     *          new manage status
+     * @param sBuffer
+     *          string process buffer
      * @return true if success otherwise false
      */
     private boolean updateCurManageStatus(int brokerId,
-                                          ManageStatus newMngStatus,
-                                          StringBuilder sBuffer) {
+            ManageStatus newMngStatus,
+            StringBuilder sBuffer) {
         ProcessResult result = new ProcessResult();
-        BaseEntity opEntity =
-                new BaseEntity(TBaseConstants.META_VALUE_UNDEFINED,
-                        "Broker AutoReport", new Date());
+        BaseEntity opEntity = new BaseEntity(TBaseConstants.META_VALUE_UNDEFINED,
+                "Broker AutoReport", new Date());
         metaDataService.changeBrokerConfStatus(opEntity,
                 brokerId, newMngStatus, sBuffer, result);
         return result.isSuccess();
@@ -251,8 +258,10 @@ public class BrokerAbnHolder {
     /**
      * Release forbidden broker info
      *
-     * @param brokerIdSet   need released broker set
-     * @param reason        release reason
+     * @param brokerIdSet
+     *          need released broker set
+     * @param reason
+     *          release reason
      */
     public void relAutoForbiddenBrokerInfo(Set<Integer> brokerIdSet, String reason) {
         if (brokerIdSet == null || brokerIdSet.isEmpty()) {
@@ -280,8 +289,9 @@ public class BrokerAbnHolder {
 
     // broker abnormal information structure
     public static class BrokerAbnInfo {
+
         private int brokerId;
-        private int abnStatus;  // 0 normal , -100 read abnormal, -1 write abnormal, -101 r & w abnormal
+        private int abnStatus; // 0 normal , -100 read abnormal, -1 write abnormal, -101 r & w abnormal
         private long firstRepTime;
         private long lastRepTime;
 
@@ -322,6 +332,7 @@ public class BrokerAbnHolder {
 
     // broker forbidden information structure
     public static class BrokerFbdInfo {
+
         private int brokerId;
         private ManageStatus befStatus;
         private ManageStatus newStatus;
@@ -329,7 +340,7 @@ public class BrokerAbnHolder {
         private long lastUpdateTime;
 
         public BrokerFbdInfo(int brokerId, ManageStatus befStatus,
-                             ManageStatus newStatus, long forbiddenTime) {
+                ManageStatus newStatus, long forbiddenTime) {
             this.brokerId = brokerId;
             this.befStatus = befStatus;
             this.newStatus = newStatus;
@@ -346,12 +357,12 @@ public class BrokerAbnHolder {
         @Override
         public String toString() {
             return new ToStringBuilder(this)
-                .append("brokerId", brokerId)
-                .append("befStatus", befStatus)
-                .append("newStatus", newStatus)
-                .append("forbiddenTime", forbiddenTime)
-                .append("lastUpdateTime", lastUpdateTime)
-                .toString();
+                    .append("brokerId", brokerId)
+                    .append("befStatus", befStatus)
+                    .append("newStatus", newStatus)
+                    .append("forbiddenTime", forbiddenTime)
+                    .append("lastUpdateTime", lastUpdateTime)
+                    .toString();
         }
     }
 }

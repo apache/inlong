@@ -22,6 +22,7 @@ import static org.apache.inlong.sort.base.Constants.AUTO_DESERIALIZE_FALSE;
 import static org.apache.inlong.sort.base.Constants.AUTO_DESERIALIZE_TRUE;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,15 +35,16 @@ public class JdbcUrlUtils {
 
     /**
      * see https://su18.org/post/jdbc-connection-url-attack/
+     * 
      * @param url
      * @return url after filtering out the invalid property
      */
     public static String replaceInvalidUrlProperty(String url) {
         if (StringUtils.containsIgnoreCase(url, AUTO_DESERIALIZE_TRUE)) {
             LOG.warn("url {} contains invalid property {}, replace it to {}", url,
-                AUTO_DESERIALIZE_TRUE, AUTO_DESERIALIZE_FALSE);
+                    AUTO_DESERIALIZE_TRUE, AUTO_DESERIALIZE_FALSE);
             return StringUtils.replaceIgnoreCase(url, AUTO_DESERIALIZE_TRUE,
-                AUTO_DESERIALIZE_FALSE);
+                    AUTO_DESERIALIZE_FALSE);
         }
         return url;
     }

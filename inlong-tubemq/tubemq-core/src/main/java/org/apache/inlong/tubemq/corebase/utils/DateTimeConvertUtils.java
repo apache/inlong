@@ -26,7 +26,8 @@ import java.util.Date;
 /**
  * Datetime, string and timestamp conversion tools
  *
- * This class includes the date and time-related methods, for unified use and management.
+ * This class includes the date and time-related methods, for unified use and
+ * management.
  *
  */
 public class DateTimeConvertUtils {
@@ -34,18 +35,17 @@ public class DateTimeConvertUtils {
     private static final ZoneId defZoneId = ZoneId.systemDefault();
     public static final String PAT_YYYYMMDDHHMM = "yyyyMMddHHmm";
     public static final int LENGTH_YYYYMMDDHHMM = PAT_YYYYMMDDHHMM.length();
-    private static final DateTimeFormatter sdf4yyyyMMddHHmm
-            = DateTimeFormatter.ofPattern(PAT_YYYYMMDDHHMM);
+    private static final DateTimeFormatter sdf4yyyyMMddHHmm = DateTimeFormatter.ofPattern(PAT_YYYYMMDDHHMM);
     public static final String PAT_YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
     public static final int LENGTH_YYYYMMDDHHMMSS = PAT_YYYYMMDDHHMMSS.length();
-    private static final DateTimeFormatter sdf4yyyyMMddHHmmss
-            = DateTimeFormatter.ofPattern(PAT_YYYYMMDDHHMMSS);
+    private static final DateTimeFormatter sdf4yyyyMMddHHmmss = DateTimeFormatter.ofPattern(PAT_YYYYMMDDHHMMSS);
 
     /**
-     * Converts the specified timestamp value to a string
-     * in the format yyyyMMddHHmm under the current system default time zone
+     * Converts the specified timestamp value to a string in the format yyyyMMddHHmm
+     * under the current system default time zone
      *
-     * @param timestamp The millisecond value of the specified time
+     * @param timestamp
+     *          The millisecond value of the specified time
      * @return the time string in yyyyMMddHHmm format
      */
     public static String ms2yyyyMMddHHmm(long timestamp) {
@@ -53,24 +53,26 @@ public class DateTimeConvertUtils {
     }
 
     /**
-     * Converts the specified timestamp value to a string
-     * in the format yyyyMMddHHmm under the specified time zone
+     * Converts the specified timestamp value to a string in the format yyyyMMddHHmm
+     * under the specified time zone
      *
-     * @param timestamp The millisecond value of the specified time
-     * @param zoneId the specified time zone
+     * @param timestamp
+     *          The millisecond value of the specified time
+     * @param zoneId
+     *          the specified time zone
      * @return the time string in yyyyMMddHHmm format
      */
     public static String ms2yyyyMMddHHmm(long timestamp, ZoneId zoneId) {
-        LocalDateTime  localDateTime =
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
         return sdf4yyyyMMddHHmm.format(localDateTime);
     }
 
     /**
-     * Converts the time string in yyyyMMddHHmm format to timestamp value
-     * under the current system default time zone
+     * Converts the time string in yyyyMMddHHmm format to timestamp value under the
+     * current system default time zone
      *
-     * @param yyyyMMddHHmm the time string in yyyyMMddHHmm format
+     * @param yyyyMMddHHmm
+     *          the time string in yyyyMMddHHmm format
      * @return the timestamp value
      */
     public static long yyyyMMddHHmm2ms(String yyyyMMddHHmm) {
@@ -78,24 +80,26 @@ public class DateTimeConvertUtils {
     }
 
     /**
-     * Converts the time string in yyyyMMddHHmm format to timestamp value
-     * under the specified time zone
+     * Converts the time string in yyyyMMddHHmm format to timestamp value under the
+     * specified time zone
      *
-     * @param yyyyMMddHHmm the time string in yyyyMMddHHmm format
-     * @param zoneId the specified time zone
+     * @param yyyyMMddHHmm
+     *          the time string in yyyyMMddHHmm format
+     * @param zoneId
+     *          the specified time zone
      * @return the timestamp value
      */
     public static long yyyyMMddHHmm2ms(String yyyyMMddHHmm, ZoneId zoneId) {
-        LocalDateTime localDateTime =
-                LocalDateTime.parse(yyyyMMddHHmm, sdf4yyyyMMddHHmm);
+        LocalDateTime localDateTime = LocalDateTime.parse(yyyyMMddHHmm, sdf4yyyyMMddHHmm);
         return LocalDateTime.from(localDateTime).atZone(zoneId).toInstant().toEpochMilli();
     }
 
     /**
-     * Converts the specified timestamp value to a string
-     * in the format yyyyMMddHHmmss under the current system default time zone
+     * Converts the specified timestamp value to a string in the format
+     * yyyyMMddHHmmss under the current system default time zone
      *
-     * @param timestamp The millisecond value of the specified time
+     * @param timestamp
+     *          The millisecond value of the specified time
      * @return the time string in yyyyMMddHHmmss format
      */
     public static String ms2yyyyMMddHHmmss(long timestamp) {
@@ -103,24 +107,26 @@ public class DateTimeConvertUtils {
     }
 
     /**
-     * Converts the specified timestamp value to a string
-     * in the format yyyyMMddHHmmss under the specified time zone
+     * Converts the specified timestamp value to a string in the format
+     * yyyyMMddHHmmss under the specified time zone
      *
-     * @param timestamp The millisecond value of the specified time
-     * @param zoneId the specified time zone
+     * @param timestamp
+     *          The millisecond value of the specified time
+     * @param zoneId
+     *          the specified time zone
      * @return the time string in yyyyMMddHHmmss format
      */
     public static String ms2yyyyMMddHHmmss(long timestamp, ZoneId zoneId) {
-        LocalDateTime  localDateTime =
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
+        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId);
         return sdf4yyyyMMddHHmmss.format(localDateTime);
     }
 
     /**
-     * Converts the specified timestamp value to a string
-     * in the format yyyyMMddHHmmss under the current system default time zone
+     * Converts the specified timestamp value to a string in the format
+     * yyyyMMddHHmmss under the current system default time zone
      *
-     * @param date the date time
+     * @param date
+     *          the date time
      * @return the string in yyyyMMddHHmmss format
      */
     public static String date2yyyyMMddHHmmss(Date date) {
@@ -128,11 +134,13 @@ public class DateTimeConvertUtils {
     }
 
     /**
-     * Converts the specified timestamp value to a string
-     * in the format yyyyMMddHHmmss under the specified time zone
+     * Converts the specified timestamp value to a string in the format
+     * yyyyMMddHHmmss under the specified time zone
      *
-     * @param date the date time
-     * @param zoneId the specified time zone
+     * @param date
+     *          the date time
+     * @param zoneId
+     *          the specified time zone
      * @return the string in yyyyMMddHHmmss format
      */
     public static String date2yyyyMMddHHmmss(Date date, ZoneId zoneId) {
@@ -140,8 +148,7 @@ public class DateTimeConvertUtils {
             return TStringUtils.EMPTY;
         }
         try {
-            LocalDateTime  localDateTime =
-                    LocalDateTime.ofInstant(date.toInstant(), zoneId);
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), zoneId);
             return sdf4yyyyMMddHHmmss.format(localDateTime);
         } catch (Throwable ex) {
             return TStringUtils.EMPTY;
@@ -149,10 +156,11 @@ public class DateTimeConvertUtils {
     }
 
     /**
-     * Converts the time string in yyyyMMddHHmmss format to timestamp value
-     * under the current system default time zone
+     * Converts the time string in yyyyMMddHHmmss format to timestamp value under
+     * the current system default time zone
      *
-     * @param yyyyMMddHHmmss the time string in yyyyMMddHHmmss format
+     * @param yyyyMMddHHmmss
+     *          the time string in yyyyMMddHHmmss format
      * @return the timestamp value
      */
     public static long yyyyMMddHHmmss2ms(String yyyyMMddHHmmss) {
@@ -160,24 +168,26 @@ public class DateTimeConvertUtils {
     }
 
     /**
-     * Converts the time string in yyyyMMddHHmmss format to timestamp value
-     * under the specified time zone
+     * Converts the time string in yyyyMMddHHmmss format to timestamp value under
+     * the specified time zone
      *
-     * @param yyyyMMddHHmmss the time string in yyyyMMddHHmmss format
-     * @param zoneId the specified time zone
+     * @param yyyyMMddHHmmss
+     *          the time string in yyyyMMddHHmmss format
+     * @param zoneId
+     *          the specified time zone
      * @return the timestamp value
      */
     public static long yyyyMMddHHmmss2ms(String yyyyMMddHHmmss, ZoneId zoneId) {
-        LocalDateTime localDateTime =
-                LocalDateTime.parse(yyyyMMddHHmmss, sdf4yyyyMMddHHmmss);
+        LocalDateTime localDateTime = LocalDateTime.parse(yyyyMMddHHmmss, sdf4yyyyMMddHHmmss);
         return LocalDateTime.from(localDateTime).atZone(zoneId).toInstant().toEpochMilli();
     }
 
     /**
-     * Converts the time string in yyyyMMddHHmmss format to date value
-     * under the specified time zone
+     * Converts the time string in yyyyMMddHHmmss format to date value under the
+     * specified time zone
      *
-     * @param yyyyMMddHHmmss the time string in yyyyMMddHHmmss format
+     * @param yyyyMMddHHmmss
+     *          the time string in yyyyMMddHHmmss format
      * @return the Date value
      */
     public static Date yyyyMMddHHmmss2date(String yyyyMMddHHmmss) {
@@ -185,11 +195,13 @@ public class DateTimeConvertUtils {
     }
 
     /**
-     * Converts the time string in yyyyMMddHHmmss format to date value
-     * under the specified time zone
+     * Converts the time string in yyyyMMddHHmmss format to date value under the
+     * specified time zone
      *
-     * @param yyyyMMddHHmmss the time string in yyyyMMddHHmmss format
-     * @param zoneId the specified time zone
+     * @param yyyyMMddHHmmss
+     *          the time string in yyyyMMddHHmmss format
+     * @param zoneId
+     *          the specified time zone
      * @return the Date value
      */
     public static Date yyyyMMddHHmmss2date(String yyyyMMddHHmmss, ZoneId zoneId) {
@@ -197,8 +209,7 @@ public class DateTimeConvertUtils {
             return null;
         }
         try {
-            LocalDateTime localDateTime =
-                    LocalDateTime.parse(yyyyMMddHHmmss, sdf4yyyyMMddHHmmss);
+            LocalDateTime localDateTime = LocalDateTime.parse(yyyyMMddHHmmss, sdf4yyyyMMddHHmmss);
             return Date.from(localDateTime.atZone(zoneId).toInstant());
         } catch (Throwable ex) {
             return null;

@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.google.common.collect.Lists;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
@@ -33,9 +33,11 @@ import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition.FilterSt
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition.JoinMode;
 import org.apache.inlong.manager.pojo.transform.splitter.SplitterDefinition;
-import org.apache.inlong.manager.common.util.JsonUtils;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.Lists;
 
 /**
  * Unit test for {@link InlongStreamImpl}
@@ -76,12 +78,10 @@ public class InlongStreamImplTest {
                         JoinMode.INNER_JOIN),
                 "A", "B");
         StreamTransform singleDependencyTransform1 = new SingleDependencyTransform(
-                "D", new FilterDefinition(FilterStrategy.REMOVE, Lists.newArrayList()), "C", "E", "F"
-        );
+                "D", new FilterDefinition(FilterStrategy.REMOVE, Lists.newArrayList()), "C", "E", "F");
 
         StreamTransform singleDependencyTransform2 = new SingleDependencyTransform(
-                "G", new SplitterDefinition(Lists.newArrayList()), "C", "I"
-        );
+                "G", new SplitterDefinition(Lists.newArrayList()), "C", "I");
         inlongStream.addTransform(multiDependencyTransform);
         inlongStream.addTransform(singleDependencyTransform1);
         inlongStream.addTransform(singleDependencyTransform2);

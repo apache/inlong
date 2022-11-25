@@ -93,7 +93,8 @@ public class HdfsIdConfig {
     /**
      * set inlongGroupId
      * 
-     * @param inlongGroupId the inlongGroupId to set
+     * @param inlongGroupId
+     *          the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
         this.inlongGroupId = inlongGroupId;
@@ -111,7 +112,8 @@ public class HdfsIdConfig {
     /**
      * set inlongStreamId
      * 
-     * @param inlongStreamId the inlongStreamId to set
+     * @param inlongStreamId
+     *          the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
         this.inlongStreamId = inlongStreamId;
@@ -129,7 +131,8 @@ public class HdfsIdConfig {
     /**
      * set separator
      * 
-     * @param separator the separator to set
+     * @param separator
+     *          the separator to set
      */
     public void setSeparator(String separator) {
         this.separator = separator;
@@ -147,7 +150,8 @@ public class HdfsIdConfig {
     /**
      * set partitionIntervalMs
      * 
-     * @param partitionIntervalMs the partitionIntervalMs to set
+     * @param partitionIntervalMs
+     *          the partitionIntervalMs to set
      */
     public void setPartitionIntervalMs(long partitionIntervalMs) {
         this.partitionIntervalMs = partitionIntervalMs;
@@ -165,7 +169,8 @@ public class HdfsIdConfig {
     /**
      * set idRootPath
      * 
-     * @param idRootPath the idRootPath to set
+     * @param idRootPath
+     *          the idRootPath to set
      */
     public void setIdRootPath(String idRootPath) {
         this.idRootPath = idRootPath;
@@ -183,7 +188,8 @@ public class HdfsIdConfig {
     /**
      * set partitionSubPath
      * 
-     * @param partitionSubPath the partitionSubPath to set
+     * @param partitionSubPath
+     *          the partitionSubPath to set
      */
     public void setPartitionSubPath(String partitionSubPath) {
         this.partitionSubPath = partitionSubPath;
@@ -201,7 +207,8 @@ public class HdfsIdConfig {
     /**
      * set partitionFieldName
      * 
-     * @param partitionFieldName the partitionFieldName to set
+     * @param partitionFieldName
+     *          the partitionFieldName to set
      */
     public void setPartitionFieldName(String partitionFieldName) {
         this.partitionFieldName = partitionFieldName;
@@ -220,7 +227,8 @@ public class HdfsIdConfig {
     /**
      * set partitionFieldPattern
      * 
-     * @param partitionFieldPattern the partitionFieldPattern to set
+     * @param partitionFieldPattern
+     *          the partitionFieldPattern to set
      */
     public void setPartitionFieldPattern(String partitionFieldPattern) {
         this.partitionFieldPattern = partitionFieldPattern;
@@ -239,7 +247,8 @@ public class HdfsIdConfig {
     /**
      * set msgTimeFieldPattern
      * 
-     * @param msgTimeFieldPattern the msgTimeFieldPattern to set
+     * @param msgTimeFieldPattern
+     *          the msgTimeFieldPattern to set
      */
     public void setMsgTimeFieldPattern(String msgTimeFieldPattern) {
         this.msgTimeFieldPattern = msgTimeFieldPattern;
@@ -257,7 +266,8 @@ public class HdfsIdConfig {
     /**
      * set maxPartitionOpenDelayHour
      * 
-     * @param maxPartitionOpenDelayHour the maxPartitionOpenDelayHour to set
+     * @param maxPartitionOpenDelayHour
+     *          the maxPartitionOpenDelayHour to set
      */
     public void setMaxPartitionOpenDelayHour(long maxPartitionOpenDelayHour) {
         this.maxPartitionOpenDelayHour = maxPartitionOpenDelayHour;
@@ -275,7 +285,8 @@ public class HdfsIdConfig {
     /**
      * set hiveTableName
      * 
-     * @param hiveTableName the hiveTableName to set
+     * @param hiveTableName
+     *          the hiveTableName to set
      */
     public void setHiveTableName(String hiveTableName) {
         this.hiveTableName = hiveTableName;
@@ -284,7 +295,7 @@ public class HdfsIdConfig {
     /**
      * parsePartitionPath
      * 
-     * @param  msgTime
+     * @param msgTime
      * @return
      */
     public String parsePartitionPath(long msgTime) {
@@ -308,7 +319,7 @@ public class HdfsIdConfig {
     /**
      * parsePartitionField
      * 
-     * @param  msgTime
+     * @param msgTime
      * @return
      */
     public String parsePartitionField(long msgTime) {
@@ -324,7 +335,7 @@ public class HdfsIdConfig {
     /**
      * parseMsgTimeField
      * 
-     * @param  msgTime
+     * @param msgTime
      * @return
      */
     public String parseMsgTimeField(long msgTime) {

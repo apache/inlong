@@ -17,14 +17,15 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.server.common.utils.ClientSyncInfo;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.utils.Tuple2;
-import org.apache.inlong.tubemq.server.common.utils.ClientSyncInfo;
 
 public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
 
@@ -43,7 +44,7 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
     private int nodeId = TBaseConstants.META_VALUE_UNDEFINED;
     // for band consume type node
     private String sessionKey = "";
-    //select the bigger offset when offset conflict
+    // select the bigger offset when offset conflict
     private boolean selectedBig = true;
     private Map<String, Long> requiredPartition;
     // for client balance node
@@ -54,24 +55,36 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
     /**
      * Initial Consumer node information
      *
-     * @param consumerId          the consumer id
-     * @param overTLS             whether to communicate via TLS
-     * @param group               the group name of the consumer
-     * @param topicSet            the topic set subscribed
-     * @param topicConditions     the topic filter condition set
-     * @param consumeType         the consume type
-     * @param sessionKey          the session key
-     * @param startTime           the start time
-     * @param sourceCount         the minimum consumer count of consume group
-     * @param selectedBig         whether to choose a larger value if there is a conflict
-     * @param requiredPartition   the required partitions
-     * @param msgRcvFrom          the address received message
+     * @param consumerId
+     *          the consumer id
+     * @param overTLS
+     *          whether to communicate via TLS
+     * @param group
+     *          the group name of the consumer
+     * @param topicSet
+     *          the topic set subscribed
+     * @param topicConditions
+     *          the topic filter condition set
+     * @param consumeType
+     *          the consume type
+     * @param sessionKey
+     *          the session key
+     * @param startTime
+     *          the start time
+     * @param sourceCount
+     *          the minimum consumer count of consume group
+     * @param selectedBig
+     *          whether to choose a larger value if there is a conflict
+     * @param requiredPartition
+     *          the required partitions
+     * @param msgRcvFrom
+     *          the address received message
      */
     public ConsumerInfo(String consumerId, boolean overTLS, String group,
-                        Set<String> topicSet, Map<String, TreeSet<String>> topicConditions,
-                        ConsumeType consumeType, String sessionKey, long startTime,
-                        int sourceCount, boolean selectedBig,
-                        Map<String, Long> requiredPartition, String msgRcvFrom) {
+            Set<String> topicSet, Map<String, TreeSet<String>> topicConditions,
+            ConsumeType consumeType, String sessionKey, long startTime,
+            int sourceCount, boolean selectedBig,
+            Map<String, Long> requiredPartition, String msgRcvFrom) {
         this.group = group;
         this.consumeType = consumeType;
         this.consumerId = consumerId;
@@ -94,22 +107,33 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
     /**
      * Initial Consumer node information
      *
-     * @param consumerId          the consumer id
-     * @param overTLS             whether to communicate via TLS
-     * @param group               the group name of the consumer
-     * @param consumeType         the consume type
-     * @param sourceCount         the minimum consumer count of consume group
-     * @param nodeId              the node id
-     * @param topicSet            the topic set subscribed
-     * @param topicConditions     the topic filter condition set
-     * @param curCsmCtrlId        the node's consume control id
-     * @param syncInfo            the consumer report information
-     * @param msgRcvFrom          the address received message
+     * @param consumerId
+     *          the consumer id
+     * @param overTLS
+     *          whether to communicate via TLS
+     * @param group
+     *          the group name of the consumer
+     * @param consumeType
+     *          the consume type
+     * @param sourceCount
+     *          the minimum consumer count of consume group
+     * @param nodeId
+     *          the node id
+     * @param topicSet
+     *          the topic set subscribed
+     * @param topicConditions
+     *          the topic filter condition set
+     * @param curCsmCtrlId
+     *          the node's consume control id
+     * @param syncInfo
+     *          the consumer report information
+     * @param msgRcvFrom
+     *          the address received message
      */
     public ConsumerInfo(String consumerId, boolean overTLS, String group,
-                        ConsumeType consumeType, int sourceCount, int nodeId,
-                        Set<String> topicSet, Map<String, TreeSet<String>> topicConditions,
-                        long curCsmCtrlId, ClientSyncInfo syncInfo, String msgRcvFrom) {
+            ConsumeType consumeType, int sourceCount, int nodeId,
+            Set<String> topicSet, Map<String, TreeSet<String>> topicConditions,
+            long curCsmCtrlId, ClientSyncInfo syncInfo, String msgRcvFrom) {
         this.group = group;
         this.consumeType = consumeType;
         this.consumerId = consumerId;
@@ -144,8 +168,8 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
     }
 
     public void updClientReportInfo(long lstCsmCtrlId,
-                                    long lastAssignedTime,
-                                    long usedTopicMetaInfoId) {
+            long lastAssignedTime,
+            long usedTopicMetaInfoId) {
         if (lstCsmCtrlId >= 0 && lstCsmCtrlId != this.csmFromMaxOffsetCtrlId) {
             this.csmFromMaxOffsetCtrlId = lstCsmCtrlId;
         }
@@ -161,9 +185,8 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
 
     @Override
     public String toString() {
-        StringBuilder sBuilder =
-                new StringBuilder(512).append(consumerId)
-                        .append("@").append(group).append(":");
+        StringBuilder sBuilder = new StringBuilder(512).append(consumerId)
+                .append("@").append(group).append(":");
         int count = 0;
         for (String topicItem : topicSet) {
             if (count++ > 0) {

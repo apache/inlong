@@ -18,13 +18,6 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.constant.PostgresConstant;
@@ -33,17 +26,28 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
 
 /**
  * TDSQLPostgres load node can load data into TDSQL Postgres
  *
  * @see <a href="https://cloud.tencent.com/product/tbase">TDSQL Postgres</a>
- *         TDSQL Postgres is an enterprise-level distributed HTAP database. Through a single database cluster
- *         to provide users with highly consistent distributed database services and high-performance
- *         data warehouse services, a set of integrated enterprise-level solutions is formed.
+ *      TDSQL Postgres is an enterprise-level distributed HTAP database. Through
+ *      a single database cluster to provide users with highly consistent
+ *      distributed database services and high-performance data warehouse
+ *      services, a set of integrated enterprise-level solutions is formed.
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("tdsqlPostgresLoad")
@@ -68,7 +72,8 @@ public class TDSQLPostgresLoadNode extends LoadNode implements InlongMetric, Ser
     @JsonProperty("tableName")
     private String tableName;
     /**
-     * Please declare primary key for sink table when query contains update/delete record.
+     * Please declare primary key for sink table when query contains update/delete
+     * record.
      */
     @JsonProperty("primaryKey")
     private String primaryKey;

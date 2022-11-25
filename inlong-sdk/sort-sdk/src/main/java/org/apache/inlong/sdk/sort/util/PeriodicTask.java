@@ -17,8 +17,10 @@
 
 package org.apache.inlong.sdk.sort.util;
 
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
+
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

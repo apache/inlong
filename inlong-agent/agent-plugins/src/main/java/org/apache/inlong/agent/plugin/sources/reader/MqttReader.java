@@ -17,10 +17,17 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -30,11 +37,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class MqttReader extends AbstractReader {
 
@@ -113,6 +115,7 @@ public class MqttReader extends AbstractReader {
             synchronized (MqttReader.class) {
                 client = new MqttClient(serverURI, clientId, new MemoryPersistence());
                 client.setCallback(new MqttCallback() {
+
                     @Override
                     public void connectionLost(Throwable cause) {
                         LOGGER.info("the mqtt connection is lost, try to reconnect. jobId:{},serverURI:{},clientId:{}",

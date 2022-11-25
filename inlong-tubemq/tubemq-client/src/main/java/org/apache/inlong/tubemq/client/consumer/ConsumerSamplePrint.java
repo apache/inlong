@@ -18,19 +18,20 @@
 package org.apache.inlong.tubemq.client.consumer;
 
 import org.apache.inlong.tubemq.corebase.utils.AbstractSamplePrint;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsumerSamplePrint extends AbstractSamplePrint {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ConsumerSamplePrint.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(ConsumerSamplePrint.class);
 
     public ConsumerSamplePrint() {
         super();
     }
 
     public ConsumerSamplePrint(long sampleDetailDur, long sampleResetDur,
-                               long maxDetailCount, long maxTotalCount) {
+            long maxDetailCount, long maxTotalCount) {
         super(sampleDetailDur, sampleResetDur, maxDetailCount, maxTotalCount);
     }
 

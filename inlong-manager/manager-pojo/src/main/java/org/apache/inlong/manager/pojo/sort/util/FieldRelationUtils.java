@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -52,6 +49,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Util for creat field relation.
@@ -153,7 +154,8 @@ public class FieldRelationUtils {
      */
     private static List<FieldRelation> createSplitterFieldRelations(
             List<StreamField> fieldList, String transformName,
-            SplitterDefinition splitterDefinition, String preNodes,
+            SplitterDefinition splitterDefinition,
+            String preNodes,
             Map<String, StreamField> constantFieldMap) {
         Preconditions.checkNotEmpty(preNodes, "PreNodes of splitter should not be null");
         String preNode = preNodes.split(",")[0];
@@ -176,7 +178,9 @@ public class FieldRelationUtils {
      * Create relation of fields in replace function.
      */
     private static List<FieldRelation> createReplacerFieldRelations(List<StreamField> fieldList, String transformName,
-            StringReplacerDefinition replacerDefinition, String preNodes, Map<String, StreamField> constantFieldMap) {
+            StringReplacerDefinition replacerDefinition,
+            String preNodes,
+            Map<String, StreamField> constantFieldMap) {
         Preconditions.checkNotEmpty(preNodes, "PreNodes of splitter should not be null");
         String preNode = preNodes.split(",")[0];
         List<ReplaceRule> replaceRules = replacerDefinition.getReplaceRules();
@@ -196,7 +200,8 @@ public class FieldRelationUtils {
      * Create relation of fields in encrypt function.
      */
     private static List<FieldRelation> createEncryptFieldRelations(List<StreamField> fieldList, String transformName,
-            EncryptDefinition encryptDefinition, String preNodes, Map<String, StreamField> constantFieldMap) {
+            EncryptDefinition encryptDefinition, String preNodes,
+            Map<String, StreamField> constantFieldMap) {
         Preconditions.checkNotEmpty(preNodes, "PreNodes of encrypt should not be null");
         String preNode = preNodes.split(",")[0];
         List<EncryptRule> encryptRules = encryptDefinition.getEncryptRules();
@@ -293,8 +298,8 @@ public class FieldRelationUtils {
             SplitIndexFunction splitIndexFunction = new SplitIndexFunction(
                     fieldInfo, new StringConstantParam(separator), new ConstantParam(index));
             FieldInfo targetFieldInfo = new FieldInfo(
-                    targetSources.get(index), transformName, FieldInfoUtils.convertFieldFormat(FieldType.STRING.name())
-            );
+                    targetSources.get(index), transformName,
+                    FieldInfoUtils.convertFieldFormat(FieldType.STRING.name()));
             splitFields.add(targetSources.get(index));
             splitRelations.add(new FieldRelation(splitIndexFunction, targetFieldInfo));
         }

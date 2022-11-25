@@ -110,6 +110,7 @@ public class SortClientConfig implements Serializable {
 
     /**
      * get the type of topic manager
+     * 
      * @return
      */
     public TopicType getTopicType() {
@@ -118,6 +119,7 @@ public class SortClientConfig implements Serializable {
 
     /**
      * Set type of topic manager
+     * 
      * @param topicType
      */
     public void setTopicManagerType(TopicType topicType) {
@@ -136,7 +138,8 @@ public class SortClientConfig implements Serializable {
     /**
      * set fetchCallback
      *
-     * @param callback the callback to set
+     * @param callback
+     *          the callback to set
      */
     public void setCallback(ReadCallback callback) {
         this.callback = callback;
@@ -226,7 +229,8 @@ public class SortClientConfig implements Serializable {
     /**
      * set localIp
      *
-     * @param localIp the localIp to set
+     * @param localIp
+     *          the localIp to set
      */
     public void setLocalIp(String localIp) {
         this.localIp = localIp;
@@ -359,6 +363,7 @@ public class SortClientConfig implements Serializable {
 
     /**
      * setParameters
+     * 
      * @param sortSdkParams
      */
     public void setParameters(Map<String, String> sortSdkParams) {

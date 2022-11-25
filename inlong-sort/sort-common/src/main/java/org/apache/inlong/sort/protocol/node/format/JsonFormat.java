@@ -17,8 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-import lombok.Data;
-import lombok.ToString;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,11 +25,15 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Data;
+import lombok.ToString;
+
 /**
  * The Json format
  *
- * @see <a herf="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/json/">
- *         Json Format</a>
+ * @see <a herf=
+ *      "https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/formats/json/">
+ *      Json Format</a>
  */
 
 @JsonTypeName("jsonFormat")
@@ -62,8 +64,7 @@ public class JsonFormat implements Format {
             @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL") String timestampFormatStandard,
             @JsonProperty(value = "mapNullKeyMode", defaultValue = "DROP") String mapNullKeyMode,
             @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null") String mapNullKeyLiteral,
-            @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true")
-                    Boolean encodeDecimalAsPlainNumber) {
+            @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true") Boolean encodeDecimalAsPlainNumber) {
         this.failOnMissingField = failOnMissingField;
         this.ignoreParseErrors = ignoreParseErrors;
         this.timestampFormatStandard = timestampFormatStandard;

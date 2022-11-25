@@ -17,13 +17,15 @@
 
 package org.apache.inlong.tubemq.corebase.metric.impl;
 
-import java.util.Map;
 import org.apache.inlong.tubemq.corebase.metric.Histogram;
+
+import java.util.Map;
 
 /**
  * Simple Histogram Statistics, only include count, min, max value information.
  */
 public class SimpleHistogram extends BaseMetric implements Histogram {
+
     private final LongStatsCounter count;
     private final LongMinGauge min;
     private final LongMaxGauge max;

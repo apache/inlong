@@ -22,7 +22,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * metric state for supporting {@link org.apache.flink.metrics.Counter} metric snapshot and restore
+ * metric state for supporting {@link org.apache.flink.metrics.Counter} metric
+ * snapshot and restore
  */
 public class MetricState implements Serializable {
 

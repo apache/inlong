@@ -17,24 +17,27 @@
 
 package org.apache.inlong.sort.protocol.transformation.function;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.transformation.CascadeFunction;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.Function;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.base.Preconditions;
+
 /**
- * CascadeFunctionWrapper class is a wrapper of {@link CascadeFunction}
- * It contains a list of {@link CascadeFunction} that really will be executed
+ * CascadeFunctionWrapper class is a wrapper of {@link CascadeFunction} It
+ * contains a list of {@link CascadeFunction} that really will be executed
  */
 @JsonTypeName("cascadeFunctionWrapper")
 @EqualsAndHashCode(callSuper = false)
@@ -49,7 +52,8 @@ public class CascadeFunctionWrapper implements Function, Serializable {
     /**
      * CascadeFunction constructor
      *
-     * @param functions List of functions that cascade functions really need to execute
+     * @param functions
+     *          List of functions that cascade functions really need to execute
      */
     @JsonCreator
     public CascadeFunctionWrapper(@JsonProperty("functions") List<CascadeFunction> functions) {

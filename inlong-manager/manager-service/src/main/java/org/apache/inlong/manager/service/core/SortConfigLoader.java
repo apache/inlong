@@ -68,7 +68,8 @@ public interface SortConfigLoader {
     /**
      * Load backup stream info by cursor
      *
-     * @param keyName key name
+     * @param keyName
+     *          key name
      * @return list of backup stream info
      */
     List<InlongStreamExtEntity> loadStreamBackupInfo(String keyName);

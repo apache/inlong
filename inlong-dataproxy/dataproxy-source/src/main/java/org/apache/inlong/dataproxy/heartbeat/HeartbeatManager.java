@@ -17,18 +17,8 @@
 
 package org.apache.inlong.dataproxy.heartbeat;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.NodeSrvStatus;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
@@ -40,13 +30,26 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.SourceReportInfo;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import lombok.extern.slf4j.Slf4j;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * Heartbeat management logic.
@@ -88,8 +91,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         }
         ConfigManager configManager = ConfigManager.getInstance();
         final String managerHost = configManager.getCommonProperties().get(ConfigConstants.MANAGER_HOST);
-        final String url =
-                "http://" + managerHost + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_HEARTBEAT_REPORT;
+        final String url = "http://" + managerHost + ConfigConstants.MANAGER_PATH
+                + ConfigConstants.MANAGER_HEARTBEAT_REPORT;
         try {
             HttpPost post = new HttpPost(url);
             post.addHeader(HttpHeaders.CONNECTION, "close");
@@ -129,7 +132,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             return null;
         }
         heartbeatMsg.setNodeSrvStatus(ConfigManager.getInstance().isMqClusterReady()
-                ? NodeSrvStatus.OK : NodeSrvStatus.SERVICE_UNREADY);
+                ? NodeSrvStatus.OK
+                : NodeSrvStatus.SERVICE_UNREADY);
         heartbeatMsg.setIp(reportInfo.getIp());
         heartbeatMsg.setPort(reportInfo.getPort());
         heartbeatMsg.setProtocolType(reportInfo.getProtocolType());

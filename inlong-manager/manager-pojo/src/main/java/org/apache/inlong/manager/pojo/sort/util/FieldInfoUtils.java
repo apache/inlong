@@ -17,9 +17,8 @@
 
 package org.apache.inlong.manager.pojo.sort.util;
 
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
+
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.pojo.fieldformat.ArrayFormat;
@@ -53,9 +52,13 @@ import org.apache.inlong.sort.formats.common.VarBinaryFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 
-import static org.apache.inlong.manager.common.consts.InlongConstants.LEFT_BRACKET;
+import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Lists;
 
 /**
  * Util for sort field info.
@@ -89,46 +92,39 @@ public class FieldInfoUtils {
     }
 
     /*
-     * Get field info list.
-     * TODO 1. Support partition field(not need to add index at 0), 2. Add is_metadata field in StreamSinkFieldEntity
+     * Get field info list. TODO 1. Support partition field(not need to add index at 0), 2. Add is_metadata field in
+     * StreamSinkFieldEntity
      */
-    /*public static List<FieldMappingUnit> createFieldInfo(
-            List<StreamField> streamFieldList, List<SinkField> fieldList,
-            List<FieldInfo> sourceFields, List<FieldInfo> sinkFields) {
-
-        // Set source field info list.
-        for (StreamField field : streamFieldList) {
-            FieldInfo sourceField = getFieldInfo(field.getFieldName(), field.getFieldType(),
-                    field.getIsMetaField() == 1, field.getMetaFieldName(), field.getFieldFormat());
-            sourceFields.add(sourceField);
-        }
-
-        List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
-        // Get sink field info list, if the field name equals to build-in field, new a build-in field info
-        for (SinkField field : fieldList) {
-            FieldInfo sinkField = getFieldInfo(field.getFieldName(), field.getFieldType(),
-                    field.getIsMetaField() == 1, field.getMetaFieldName(), field.getFieldFormat());
-            sinkFields.add(sinkField);
-            if (StringUtils.isNotBlank(field.getSourceFieldName())) {
-                FieldInfo sourceField = getFieldInfo(field.getSourceFieldName(),
-                        field.getSourceFieldType(), field.getIsMetaField() == 1,
-                        field.getMetaFieldName(), field.getFieldFormat());
-                mappingUnitList.add(new FieldMappingUnit(sourceField, sinkField));
-            }
-        }
-
-        return mappingUnitList;
-    }*/
+    /*
+     * public static List<FieldMappingUnit> createFieldInfo( List<StreamField> streamFieldList, List<SinkField>
+     * fieldList, List<FieldInfo> sourceFields, List<FieldInfo> sinkFields) {
+     * 
+     * // Set source field info list. for (StreamField field : streamFieldList) { FieldInfo sourceField =
+     * getFieldInfo(field.getFieldName(), field.getFieldType(), field.getIsMetaField() == 1, field.getMetaFieldName(),
+     * field.getFieldFormat()); sourceFields.add(sourceField); }
+     * 
+     * List<FieldMappingUnit> mappingUnitList = new ArrayList<>(); // Get sink field info list, if the field name equals
+     * to build-in field, new a build-in field info for (SinkField field : fieldList) { FieldInfo sinkField =
+     * getFieldInfo(field.getFieldName(), field.getFieldType(), field.getIsMetaField() == 1, field.getMetaFieldName(),
+     * field.getFieldFormat()); sinkFields.add(sinkField); if (StringUtils.isNotBlank(field.getSourceFieldName())) {
+     * FieldInfo sourceField = getFieldInfo(field.getSourceFieldName(), field.getSourceFieldType(),
+     * field.getIsMetaField() == 1, field.getMetaFieldName(), field.getFieldFormat()); mappingUnitList.add(new
+     * FieldMappingUnit(sourceField, sinkField)); } }
+     * 
+     * return mappingUnitList; }
+     */
 
     /**
      * Get field info by the given field name ant type.
      *
-     * @apiNote If the field name equals to build-in field, new a build-in field info
+     * @apiNote If the field name equals to build-in field, new a build-in field
+     *          info
      */
     private static FieldInfo getFieldInfo(String fieldName, String fieldType,
             boolean isMetaField, String metaFieldName, String format) {
         if (isMetaField) {
-            // TODO The meta field needs to be selectable and cannot be filled in by the user
+            // TODO The meta field needs to be selectable and cannot be filled in by the
+            // user
             return new MetaFieldInfo(fieldName, MetaField.forName(metaFieldName));
         } else {
             return new FieldInfo(fieldName, convertFieldFormat(fieldType, format));
@@ -138,28 +134,23 @@ public class FieldInfoUtils {
     /*
      * Get all migration field mapping unit list for binlog source.
      */
-    /*public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
-            List<FieldInfo> sinkFields) {
-        List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
-        MetaFieldInfo dataField = new MetaFieldInfo("data", MetaField.DATA);
-        sourceFields.add(dataField);
-        sinkFields.add(dataField);
-        mappingUnitList.add(new FieldMappingUnit(dataField, dataField));
-        // TODO discarded later
-        for (MetaField metaField : MetaField.values()) {
-            MetaFieldInfo fieldInfo = new MetaFieldInfo(metaField.name(), metaField);
-            sourceFields.add(fieldInfo);
-            sinkFields.add(fieldInfo);
-            mappingUnitList.add(new FieldMappingUnit(fieldInfo, fieldInfo));
-        }
-
-        return mappingUnitList;
-    }*/
+    /*
+     * public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields, List<FieldInfo>
+     * sinkFields) { List<FieldMappingUnit> mappingUnitList = new ArrayList<>(); MetaFieldInfo dataField = new
+     * MetaFieldInfo("data", MetaField.DATA); sourceFields.add(dataField); sinkFields.add(dataField);
+     * mappingUnitList.add(new FieldMappingUnit(dataField, dataField)); // TODO discarded later for (MetaField metaField
+     * : MetaField.values()) { MetaFieldInfo fieldInfo = new MetaFieldInfo(metaField.name(), metaField);
+     * sourceFields.add(fieldInfo); sinkFields.add(fieldInfo); mappingUnitList.add(new FieldMappingUnit(fieldInfo,
+     * fieldInfo)); }
+     * 
+     * return mappingUnitList; }
+     */
 
     /**
      * Get the FieldFormat of Sort according to type string and format of field
      *
-     * @param type type string
+     * @param type
+     *          type string
      * @return Sort field format instance
      */
     public static FormatInfo convertFieldFormat(String type) {
@@ -169,7 +160,8 @@ public class FieldInfoUtils {
     /**
      * Get the FieldFormat of Sort according to type string
      *
-     * @param type type string
+     * @param type
+     *          type string
      * @return Sort field format instance
      */
     public static FormatInfo convertFieldFormat(String type, String format) {
@@ -313,7 +305,8 @@ public class FieldInfoUtils {
     /**
      * Convert to sort field format
      *
-     * @param format The format
+     * @param format
+     *          The format
      * @return The sort format
      */
     private static String convertTimestampOrDataFormat(String format) {

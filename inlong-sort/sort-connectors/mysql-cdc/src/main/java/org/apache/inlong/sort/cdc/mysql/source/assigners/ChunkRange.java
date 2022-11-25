@@ -18,22 +18,25 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
-import javax.annotation.Nullable;
-import java.util.Objects;
-
 import static org.apache.flink.util.Preconditions.checkArgument;
 
+import java.util.Objects;
+
+import javax.annotation.Nullable;
+
 /**
- * An internal structure describes a chunk range with a chunk start (inclusive) and chunk end
- * (exclusive). Note that {@code null} represents unbounded chunk start/end.
+ * An internal structure describes a chunk range with a chunk start (inclusive)
+ * and chunk end (exclusive). Note that {@code null} represents unbounded chunk
+ * start/end.
  */
 class ChunkRange {
+
     private final @Nullable Object chunkStart;
     private final @Nullable Object chunkEnd;
 
     /**
-     * Returns a {@link ChunkRange} which represents a full table scan with unbounded chunk start
-     * and chunk end.
+     * Returns a {@link ChunkRange} which represents a full table scan with
+     * unbounded chunk start and chunk end.
      */
     public static ChunkRange all() {
         return new ChunkRange(null, null);

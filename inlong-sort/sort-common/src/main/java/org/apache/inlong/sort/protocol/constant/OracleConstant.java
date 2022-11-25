@@ -30,7 +30,8 @@ public class OracleConstant {
      */
     public static final String CONNECTOR = "connector";
     /**
-     * Specify what flink connector to use for extract data from Oracle database, here should be 'oracle-cdc'
+     * Specify what flink connector to use for extract data from Oracle database,
+     * here should be 'oracle-cdc'
      */
     public static final String ORACLE_CDC = "oracle-cdc-inlong";
     /**
@@ -46,7 +47,8 @@ public class OracleConstant {
      */
     public static final String PORT = "port";
     /**
-     * Name of the Oracle database to use when connecting to the Oracle database server
+     * Name of the Oracle database to use when connecting to the Oracle database
+     * server
      */
     public static final String USERNAME = "username";
     /**
@@ -62,25 +64,33 @@ public class OracleConstant {
      */
     public static final String SCHEMA_NAME = "schema-name";
     /**
-     * <p>The mining strategy controls how Oracle LogMiner builds
-     * and uses a given data dictionary for resolving table and column ids to names.</p>
-     * <p>redo_log_catalog - Writes the data dictionary to the online redo logs
-     * causing more archive logs to be generated over time.
-     * This also enables tracking DDL changes against captured tables,
-     * so if the schema changes frequently this is the ideal choice.</p>
-     * <p>online_catalog - Uses the database’s current data dictionary to resolve object ids
-     * and does not write any extra information to the online redo logs.
-     * This allows LogMiner to mine substantially faster but at the expense that DDL changes cannot be tracked.
-     * If the captured table(s) schema changes infrequently or never, this is the ideal choice.</p>
+     * <p>
+     * The mining strategy controls how Oracle LogMiner builds and uses a given data
+     * dictionary for resolving table and column ids to names.
+     * </p>
+     * <p>
+     * redo_log_catalog - Writes the data dictionary to the online redo logs causing
+     * more archive logs to be generated over time. This also enables tracking DDL
+     * changes against captured tables, so if the schema changes frequently this is
+     * the ideal choice.
+     * </p>
+     * <p>
+     * online_catalog - Uses the database’s current data dictionary to resolve
+     * object ids and does not write any extra information to the online redo logs.
+     * This allows LogMiner to mine substantially faster but at the expense that DDL
+     * changes cannot be tracked. If the captured table(s) schema changes
+     * infrequently or never, this is the ideal choice.
+     * </p>
      */
     public static final String LOG_MINING_STRATEGY = "debezium.log.mining.strategy";
     /**
-     * If true,CONTINUOUS_MINE option will be added to the log mining session.
-     * This will manage log files switches seamlessly.
+     * If true,CONTINUOUS_MINE option will be added to the log mining session. This
+     * will manage log files switches seamlessly.
      */
     public static final String LOG_MINING_CONTINUOUS_MINE = "debezium.log.mining.continuous.mine";
     /**
-     * Deprecated: Case insensitive table names;set to 'true' for Oracle 11g,'false'(default) otherwise.
+     * Deprecated: Case insensitive table names;set to 'true' for Oracle
+     * 11g,'false'(default) otherwise.
      */
     public static final String TABLENAME_CASE_INSENSITIVE = "debezium.database.tablename.case.insensitive";
     /**
@@ -89,20 +99,21 @@ public class OracleConstant {
     public static final String SCAN_STARTUP_MODE = "scan.startup.mode";
 
     /**
-     * Optional startup mode for Oracle CDC consumer,
-     * valid enumerations are "initial" and "latest-offset".
-     * Please see Startup Reading Positionsection for more detailed information.
+     * Optional startup mode for Oracle CDC consumer, valid enumerations are
+     * "initial" and "latest-offset". Please see Startup Reading Positionsection for
+     * more detailed information.
      */
     @Getter
     public enum ScanStartUpMode {
+
         /**
-         * Performs an initial snapshot on the monitored database tables upon first startup,
-         * and continue to read the latest binlog.
+         * Performs an initial snapshot on the monitored database tables upon first
+         * startup, and continue to read the latest binlog.
          */
         INITIAL("initial"),
         /**
-         * Never to perform a snapshot on the monitored database tables upon first startup,
-         * just read from the change since the connector was started.
+         * Never to perform a snapshot on the monitored database tables upon first
+         * startup, just read from the change since the connector was started.
          */
         LATEST_OFFSET("latest-offset");
 

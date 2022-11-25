@@ -43,10 +43,11 @@ import org.apache.iceberg.util.ArrayUtil;
 import java.util.List;
 
 /**
- * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
- * Add an option `sink.ignore.changelog` to support insert-only mode without equalityFieldIds.
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2 Add an option
+ * `sink.ignore.changelog` to support insert-only mode without equalityFieldIds.
  */
 public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
+
     private final Table table;
     private final Schema schema;
     private final RowType flinkSchema;
@@ -83,9 +84,12 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
         if (equalityFieldIds == null || equalityFieldIds.isEmpty() || appendMode) {
             this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec);
         } else if (upsert) {
-            // In upsert mode, only the new row is emitted using INSERT row kind. Therefore, any column of the inserted
-            // row may differ from the deleted row other than the primary key fields, and the delete file must contain
-            // values that are correct for the deleted row. Therefore, only write the equality delete fields.
+            // In upsert mode, only the new row is emitted using INSERT row kind. Therefore,
+            // any column of the inserted
+            // row may differ from the deleted row other than the primary key fields, and
+            // the delete file must contain
+            // values that are correct for the deleted row. Therefore, only write the
+            // equality delete fields.
             this.appenderFactory = new FlinkAppenderFactory(schema, flinkSchema, table.properties(), spec,
                     ArrayUtil.toIntArray(equalityFieldIds),
                     TypeUtil.select(schema, Sets.newHashSet(equalityFieldIds)), null);
@@ -132,7 +136,8 @@ public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
         private final RowDataWrapper rowDataWrapper;
 
         RowDataPartitionedFanoutWriter(
-                PartitionSpec spec, FileFormat format, FileAppenderFactory<RowData> appenderFactory,
+                PartitionSpec spec, FileFormat format,
+                FileAppenderFactory<RowData> appenderFactory,
                 OutputFileFactory fileFactory, FileIO io, long targetFileSize, Schema schema,
                 RowType flinkSchema) {
             super(spec, format, appenderFactory, fileFactory, io, targetFileSize);

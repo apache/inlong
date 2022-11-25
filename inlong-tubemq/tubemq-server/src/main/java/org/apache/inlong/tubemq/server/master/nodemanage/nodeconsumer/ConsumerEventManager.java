@@ -17,6 +17,11 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 
+import org.apache.inlong.tubemq.corebase.balance.ConsumerEvent;
+import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
+
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,9 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.tubemq.corebase.balance.ConsumerEvent;
-import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +51,11 @@ public class ConsumerEventManager {
     }
 
     public boolean addDisconnectEvent(String consumerId,
-                                      ConsumerEvent event) {
-        LinkedList<ConsumerEvent> eventList =
-                disconnectEventMap.get(consumerId);
+            ConsumerEvent event) {
+        LinkedList<ConsumerEvent> eventList = disconnectEventMap.get(consumerId);
         if (eventList == null) {
             eventList = new LinkedList<>();
-            LinkedList<ConsumerEvent> tmptList =
-                    disconnectEventMap.putIfAbsent(consumerId, eventList);
+            LinkedList<ConsumerEvent> tmptList = disconnectEventMap.putIfAbsent(consumerId, eventList);
             if (tmptList == null) {
                 MasterSrvStatsHolder.incSvrBalDisConConsumerCnt();
             } else {
@@ -67,13 +68,11 @@ public class ConsumerEventManager {
     }
 
     public boolean addConnectEvent(String consumerId,
-                                   ConsumerEvent event) {
-        LinkedList<ConsumerEvent> eventList =
-                connectEventMap.get(consumerId);
+            ConsumerEvent event) {
+        LinkedList<ConsumerEvent> eventList = connectEventMap.get(consumerId);
         if (eventList == null) {
             eventList = new LinkedList<>();
-            LinkedList<ConsumerEvent> tmptList =
-                    connectEventMap.putIfAbsent(consumerId, eventList);
+            LinkedList<ConsumerEvent> tmptList = connectEventMap.putIfAbsent(consumerId, eventList);
             if (tmptList == null) {
                 MasterSrvStatsHolder.incSvrBalConEventConsumerCnt();
             } else {
@@ -86,21 +85,20 @@ public class ConsumerEventManager {
     }
 
     /**
-     * Peek a consumer event from event map,
-     * disconnect event have priority over connect event
+     * Peek a consumer event from event map, disconnect event have priority over
+     * connect event
      *
-     * @param consumerId the consumer id
+     * @param consumerId
+     *          the consumer id
      * @return the head of event list, or null if event list is empty
      */
     public ConsumerEvent peek(String consumerId) {
-        String group =
-                consumerHolder.getGroupName(consumerId);
+        String group = consumerHolder.getGroupName(consumerId);
         if (group != null) {
-            ConcurrentHashMap<String, LinkedList<ConsumerEvent>> currentEventMap =
-                    hasDisconnectEvent(group)
-                            ? disconnectEventMap : connectEventMap;
-            LinkedList<ConsumerEvent> eventList =
-                    currentEventMap.get(consumerId);
+            ConcurrentHashMap<String, LinkedList<ConsumerEvent>> currentEventMap = hasDisconnectEvent(group)
+                    ? disconnectEventMap
+                    : connectEventMap;
+            LinkedList<ConsumerEvent> eventList = currentEventMap.get(consumerId);
             if (eventList != null) {
                 synchronized (eventList) {
                     return eventList.peek();
@@ -115,17 +113,18 @@ public class ConsumerEventManager {
     }
 
     /**
-     * Removes and returns the first consumer event from event map
-     * disconnect event have priority over connect event
+     * Removes and returns the first consumer event from event map disconnect event
+     * have priority over connect event
      *
-     * @param consumerId    the consumer id that need removed
+     * @param consumerId
+     *          the consumer id that need removed
      */
     public void removeFirst(String consumerId, StringBuilder strBuffer) {
         ConsumerEvent event = null;
         String group = consumerHolder.getGroupName(consumerId);
         boolean selDisConnMap = hasDisconnectEvent(group);
-        ConcurrentHashMap<String, LinkedList<ConsumerEvent>> currentEventMap =
-                selDisConnMap ? disconnectEventMap : connectEventMap;
+        ConcurrentHashMap<String, LinkedList<ConsumerEvent>> currentEventMap = selDisConnMap ? disconnectEventMap
+                : connectEventMap;
         LinkedList<ConsumerEvent> eventList = currentEventMap.get(consumerId);
         if (eventList != null) {
             synchronized (eventList) {
@@ -154,8 +153,7 @@ public class ConsumerEventManager {
         if (groupName == null) {
             return 0;
         }
-        AtomicInteger unfinishedCount =
-                groupUnfinishedCountMap.get(groupName);
+        AtomicInteger unfinishedCount = groupUnfinishedCountMap.get(groupName);
         if (unfinishedCount == null) {
             return 0;
         }
@@ -165,7 +163,8 @@ public class ConsumerEventManager {
     /**
      * Update the rounds of consumer groups dealing with balancing tasks
      *
-     * @param groupHasUnfinishedEvent   the consumer groups dealing with balancing tasks
+     * @param groupHasUnfinishedEvent
+     *          the consumer groups dealing with balancing tasks
      */
     public void updateUnfinishedCountMap(Set<String> groupHasUnfinishedEvent) {
         if (groupHasUnfinishedEvent.isEmpty()) {
@@ -180,12 +179,10 @@ public class ConsumerEventManager {
             }
             for (String newGroup : groupHasUnfinishedEvent) {
                 if (newGroup != null) {
-                    AtomicInteger unfinishedCount =
-                            groupUnfinishedCountMap.get(newGroup);
+                    AtomicInteger unfinishedCount = groupUnfinishedCountMap.get(newGroup);
                     if (unfinishedCount == null) {
                         AtomicInteger newCount = new AtomicInteger(0);
-                        unfinishedCount =
-                                groupUnfinishedCountMap.putIfAbsent(newGroup, newCount);
+                        unfinishedCount = groupUnfinishedCountMap.putIfAbsent(newGroup, newCount);
                         if (unfinishedCount == null) {
                             unfinishedCount = newCount;
                         }
@@ -197,8 +194,7 @@ public class ConsumerEventManager {
     }
 
     public void removeAll(String consumerId) {
-        LinkedList<ConsumerEvent> eventInfos =
-                disconnectEventMap.remove(consumerId);
+        LinkedList<ConsumerEvent> eventInfos = disconnectEventMap.remove(consumerId);
         if (eventInfos != null) {
             MasterSrvStatsHolder.decSvrBalDisConConsumerCnt();
         }
@@ -214,14 +210,12 @@ public class ConsumerEventManager {
      * @return true if event map is not empty, otherwise false
      */
     public boolean hasEvent() {
-        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry
-                : disconnectEventMap.entrySet()) {
+        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry : disconnectEventMap.entrySet()) {
             if (!entry.getValue().isEmpty()) {
                 return true;
             }
         }
-        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry
-                : connectEventMap.entrySet()) {
+        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry : connectEventMap.entrySet()) {
             if (!entry.getValue().isEmpty()) {
                 return true;
             }
@@ -232,19 +226,18 @@ public class ConsumerEventManager {
     /**
      * Check if disconnect event map have event
      *
-     * @param group    the group name needs a query
+     * @param group
+     *          the group name needs a query
      * @return true if disconnect event map not empty otherwise false
      */
     public boolean hasDisconnectEvent(String group) {
-        List<String> consumerIdList =
-                consumerHolder.getConsumerIdList(group);
+        List<String> consumerIdList = consumerHolder.getConsumerIdList(group);
         if (CollectionUtils.isNotEmpty(consumerIdList)) {
             for (String consumerId : consumerIdList) {
                 if (consumerId == null) {
                     continue;
                 }
-                List<ConsumerEvent> eventList =
-                        disconnectEventMap.get(consumerId);
+                List<ConsumerEvent> eventList = disconnectEventMap.get(consumerId);
                 if (eventList != null) {
                     synchronized (eventList) {
                         if (CollectionUtils.isNotEmpty(eventList)) {
@@ -264,14 +257,12 @@ public class ConsumerEventManager {
      */
     public Set<String> getUnProcessedIdSet() {
         Set<String> consumerIdSet = new HashSet<>();
-        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry
-                : disconnectEventMap.entrySet()) {
+        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry : disconnectEventMap.entrySet()) {
             if (!entry.getValue().isEmpty()) {
                 consumerIdSet.add(entry.getKey());
             }
         }
-        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry
-                : connectEventMap.entrySet()) {
+        for (Map.Entry<String, LinkedList<ConsumerEvent>> entry : connectEventMap.entrySet()) {
             if (!entry.getValue().isEmpty()) {
                 consumerIdSet.add(entry.getKey());
             }

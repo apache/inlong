@@ -18,21 +18,23 @@
 
 package org.apache.inlong.sort.cdc.mysql.source;
 
-import org.apache.flink.annotation.PublicEvolving;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfigFactory;
 import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
 
+import org.apache.flink.annotation.PublicEvolving;
+
 import java.time.Duration;
 import java.util.Properties;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
 /**
- * The builder class for {@link MySqlSource} to make it easier for the users to construct a {@link
- * MySqlSource}.
+ * The builder class for {@link MySqlSource} to make it easier for the users to
+ * construct a {@link MySqlSource}.
  *
- * <pre>{@code
+ * <pre>
+ * {@code
  * MySqlSource
  *     .<String>builder()
  *     .hostname("localhost")
@@ -44,13 +46,17 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  *     .serverId(5400)
  *     .deserializer(new JsonDebeziumDeserializationSchema())
  *     .build();
- * }</pre>
+ * }
+ * </pre>
  *
- * <p>Check the Java docs of each individual method to learn more about the settings to build a
- * {@link MySqlSource}.</p>
+ * <p>
+ * Check the Java docs of each individual method to learn more about the
+ * settings to build a {@link MySqlSource}.
+ * </p>
  */
 @PublicEvolving
 public class MySqlSourceBuilder<T> {
+
     private final MySqlSourceConfigFactory configFactory = new MySqlSourceConfigFactory();
     private DebeziumDeserializationSchema<T> deserializer;
 
@@ -68,8 +74,9 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * An required list of regular expressions that match database names to be monitored; any
-     * database name not included in the whitelist will be excluded from monitoring.
+     * An required list of regular expressions that match database names to be
+     * monitored; any database name not included in the whitelist will be excluded
+     * from monitoring.
      */
     public MySqlSourceBuilder<T> databaseList(String... databaseList) {
         this.configFactory.databaseList(databaseList);
@@ -77,9 +84,10 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * An required list of regular expressions that match fully-qualified table identifiers for
-     * tables to be monitored; any table not included in the list will be excluded from monitoring.
-     * Each identifier is of the form {@code <databaseName>.<tableName>}.
+     * An required list of regular expressions that match fully-qualified table
+     * identifiers for tables to be monitored; any table not included in the list
+     * will be excluded from monitoring. Each identifier is of the form
+     * {@code <databaseName>.<tableName>}.
      */
     public MySqlSourceBuilder<T> tableList(String... tableList) {
         this.configFactory.tableList(tableList);
@@ -87,7 +95,8 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * Name of the MySQL database to use when connecting to the MySQL database server.
+     * Name of the MySQL database to use when connecting to the MySQL database
+     * server.
      */
     public MySqlSourceBuilder<T> username(String username) {
         this.configFactory.username(username);
@@ -103,13 +112,14 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * A numeric ID or a numeric ID range of this database client, The numeric ID syntax is like
-     * '5400', the numeric ID range syntax is like '5400-5408', The numeric ID range syntax is
-     * required when 'scan.incremental.snapshot.enabled' enabled. Every ID must be unique across all
-     * currently-running database processes in the MySQL cluster. This connector joins the MySQL
-     * cluster as another server (with this unique ID) so it can read the binlog. By default, a
-     * random number is generated between 5400 and 6400, though we recommend setting an explicit
-     * value."
+     * A numeric ID or a numeric ID range of this database client, The numeric ID
+     * syntax is like '5400', the numeric ID range syntax is like '5400-5408', The
+     * numeric ID range syntax is required when 'scan.incremental.snapshot.enabled'
+     * enabled. Every ID must be unique across all currently-running database
+     * processes in the MySQL cluster. This connector joins the MySQL cluster as
+     * another server (with this unique ID) so it can read the binlog. By default, a
+     * random number is generated between 5400 and 6400, though we recommend setting
+     * an explicit value."
      */
     public MySqlSourceBuilder<T> serverId(String serverId) {
         this.configFactory.serverId(serverId);
@@ -117,8 +127,8 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * The session time zone in database server, e.g. "America/Los_Angeles". It controls how the
-     * TIMESTAMP type in MYSQL converted to STRING. See more
+     * The session time zone in database server, e.g. "America/Los_Angeles". It
+     * controls how the TIMESTAMP type in MYSQL converted to STRING. See more
      * https://debezium.io/documentation/reference/1.5/connectors/mysql.html#mysql-temporal-types
      */
     public MySqlSourceBuilder<T> serverTimeZone(String timeZone) {
@@ -127,8 +137,8 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * The split size (number of rows) of table snapshot, captured tables are split into multiple
-     * splits when read the snapshot of table.
+     * The split size (number of rows) of table snapshot, captured tables are split
+     * into multiple splits when read the snapshot of table.
      */
     public MySqlSourceBuilder<T> splitSize(int splitSize) {
         this.configFactory.splitSize(splitSize);
@@ -136,8 +146,8 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * The group size of split meta, if the meta size exceeds the group size, the meta will be will
-     * be divided into multiple groups.
+     * The group size of split meta, if the meta size exceeds the group size, the
+     * meta will be will be divided into multiple groups.
      */
     public MySqlSourceBuilder<T> splitMetaGroupSize(int splitMetaGroupSize) {
         this.configFactory.splitMetaGroupSize(splitMetaGroupSize);
@@ -145,8 +155,8 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * The upper bound of split key evenly distribution factor, the factor is used to determine
-     * whether the table is evenly distribution or not.
+     * The upper bound of split key evenly distribution factor, the factor is used
+     * to determine whether the table is evenly distribution or not.
      */
     public MySqlSourceBuilder<T> distributionFactorUpper(double distributionFactorUpper) {
         this.configFactory.distributionFactorUpper(distributionFactorUpper);
@@ -154,8 +164,8 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * The lower bound of split key evenly distribution factor, the factor is used to determine
-     * whether the table is evenly distribution or not.
+     * The lower bound of split key evenly distribution factor, the factor is used
+     * to determine whether the table is evenly distribution or not.
      */
     public MySqlSourceBuilder<T> distributionFactorLower(double distributionFactorLower) {
         this.configFactory.distributionFactorLower(distributionFactorLower);
@@ -171,8 +181,8 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * The maximum time that the connector should wait after trying to connect to the MySQL database
-     * server before timing out.
+     * The maximum time that the connector should wait after trying to connect to
+     * the MySQL database server before timing out.
      */
     public MySqlSourceBuilder<T> connectTimeout(Duration connectTimeout) {
         this.configFactory.connectTimeout(connectTimeout);
@@ -236,8 +246,8 @@ public class MySqlSourceBuilder<T> {
     }
 
     /**
-     * The deserializer used to convert from consumed {@link
-     * org.apache.kafka.connect.source.SourceRecord}.
+     * The deserializer used to convert from consumed
+     * {@link org.apache.kafka.connect.source.SourceRecord}.
      */
     public MySqlSourceBuilder<T> deserializer(DebeziumDeserializationSchema<T> deserializer) {
         this.deserializer = deserializer;

@@ -17,16 +17,6 @@
 
 package org.apache.inlong.sdk.sort.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
@@ -36,14 +26,26 @@ import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class QueryConsumeConfigImpl implements QueryConsumeConfig {
 
@@ -129,33 +131,36 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     /**
      * handle request response
      *
-     * UPDATE_VALUE = 0; conf update NOUPDATE_VALUE = 1; conf no update, md5 is same REQ_PARAMS_ERROR = -101; request
-     * params error FAIL = -1; common error
+     * UPDATE_VALUE = 0; conf update NOUPDATE_VALUE = 1; conf no update, md5 is same
+     * REQ_PARAMS_ERROR = -101; request params error FAIL = -1; common error
      *
-     * @param  getUrl
-     * @param  response      ManagerResponse
-     * @param  respCodeValue int
-     * @return               true/false
+     * @param getUrl
+     * @param response
+     *          ManagerResponse
+     * @param respCodeValue
+     *          int
+     * @return true/false
      */
-    private boolean handleSortTaskConfResult(String getUrl, SortSourceConfigResponse response, int respCodeValue)
+    private boolean handleSortTaskConfResult(String getUrl, SortSourceConfigResponse response,
+            int respCodeValue)
             throws Exception {
         switch (respCodeValue) {
-            case NOUPDATE_VALUE :
+            case NOUPDATE_VALUE:
                 logger.debug("manager conf noupdate");
                 return true;
-            case UPDATE_VALUE :
+            case UPDATE_VALUE:
                 logger.info("manager conf update");
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addManagerConfChangedTimes(1);
                 this.md5 = response.getMd5();
                 updateSortTaskConf(response);
                 break;
-            case REQ_PARAMS_ERROR :
+            case REQ_PARAMS_ERROR:
                 logger.error("return code error:{}", respCodeValue);
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addRequestManagerParamErrorTimes(1);
                 break;
-            default :
+            default:
                 logger.error("return code error:{},request:{},response:{}",
                         respCodeValue, getUrl, new ObjectMapper().writeValueAsString(response));
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
@@ -191,8 +196,9 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     /**
      * query ConsumeConfig
      *
-     * @param  sortTaskId String
-     * @return            ConsumeConfig
+     * @param sortTaskId
+     *          String
+     * @return ConsumeConfig
      */
     @Override
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {

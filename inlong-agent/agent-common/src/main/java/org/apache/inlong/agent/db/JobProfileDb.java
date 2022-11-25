@@ -18,10 +18,10 @@
 
 package org.apache.inlong.agent.db;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.JobConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wrapper for job conf persistence.
@@ -57,8 +58,10 @@ public class JobProfileDb {
     /**
      * update job state and search it by key name
      *
-     * @param jobInstanceId job key name
-     * @param stateSearchKey job state
+     * @param jobInstanceId
+     *          job key name
+     * @param stateSearchKey
+     *          job state
      */
     public void updateJobState(String jobInstanceId, StateSearchKey stateSearchKey) {
         KeyValueEntity entity = db.get(jobInstanceId);
@@ -71,7 +74,8 @@ public class JobProfileDb {
     /**
      * store job profile
      *
-     * @param jobProfile job profile
+     * @param jobProfile
+     *          job profile
      */
     public void storeJobFirstTime(JobProfile jobProfile) {
         if (jobProfile.allRequiredKeyExist()) {
@@ -102,7 +106,8 @@ public class JobProfileDb {
     }
 
     /**
-     * check whether job is finished, note that non-exist job is regarded as finished.
+     * check whether job is finished, note that non-exist job is regarded as
+     * finished.
      */
     public boolean checkJobfinished(JobProfile jobProfile) {
         KeyValueEntity entity = db.get(jobProfile.getInstanceId());
@@ -123,7 +128,8 @@ public class JobProfileDb {
     /**
      * get job profile by jobId
      *
-     * @param jobId jobId
+     * @param jobId
+     *          jobId
      * @return JobProfile
      */
     public JobProfile getJobById(String jobId) {
@@ -137,7 +143,8 @@ public class JobProfileDb {
     /**
      * remove all expired jobs from db, including success and failed
      *
-     * @param expireTime expireTime
+     * @param expireTime
+     *          expireTime
      */
     public void removeExpireJobs(long expireTime) {
         // remove finished tasks
@@ -162,7 +169,8 @@ public class JobProfileDb {
     /**
      * get job conf by state
      *
-     * @param stateSearchKey state index for searching.
+     * @param stateSearchKey
+     *          state index for searching.
      * @return JobProfile
      */
     public JobProfile getJob(StateSearchKey stateSearchKey) {
@@ -187,7 +195,8 @@ public class JobProfileDb {
     /**
      * get list of job profiles.
      *
-     * @param stateSearchKey state search key.
+     * @param stateSearchKey
+     *          state search key.
      * @return list of job profile.
      */
     public List<JobProfile> getJobsByState(StateSearchKey stateSearchKey) {

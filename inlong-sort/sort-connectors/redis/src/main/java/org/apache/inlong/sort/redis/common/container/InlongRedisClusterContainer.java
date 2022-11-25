@@ -17,10 +17,12 @@
 
 package org.apache.inlong.sort.redis.common.container;
 
+import redis.clients.jedis.JedisCluster;
+
 import org.apache.flink.streaming.connectors.redis.common.container.RedisClusterContainer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.JedisCluster;
 
 /**
  * The redis cluster contain expand from {@link RedisClusterContainer}

@@ -18,6 +18,13 @@
 
 package org.apache.inlong.sort.base.format;
 
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
+import static org.apache.flink.formats.common.TimeFormats.ISO8601_TIMESTAMP_FORMAT;
+import static org.apache.flink.formats.common.TimeFormats.ISO8601_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT;
+import static org.apache.flink.formats.common.TimeFormats.SQL_TIMESTAMP_FORMAT;
+import static org.apache.flink.formats.common.TimeFormats.SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT;
+import static org.apache.flink.formats.common.TimeFormats.SQL_TIME_FORMAT;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
@@ -59,13 +66,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
-import static org.apache.flink.formats.common.TimeFormats.ISO8601_TIMESTAMP_FORMAT;
-import static org.apache.flink.formats.common.TimeFormats.ISO8601_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT;
-import static org.apache.flink.formats.common.TimeFormats.SQL_TIMESTAMP_FORMAT;
-import static org.apache.flink.formats.common.TimeFormats.SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT;
-import static org.apache.flink.formats.common.TimeFormats.SQL_TIME_FORMAT;
-
 /** Tool class used to convert from {@link JsonNode} to {@link RowData}. * */
 @Internal
 public class JsonToRowDataConverters implements Serializable {
@@ -75,7 +75,10 @@ public class JsonToRowDataConverters implements Serializable {
     /** Flag indicating whether to fail if a field is missing. */
     private final boolean failOnMissingField;
 
-    /** Flag indicating whether to ignore invalid fields/rows (default: throw an exception). */
+    /**
+     * Flag indicating whether to ignore invalid fields/rows (default: throw an
+     * exception).
+     */
     private final boolean ignoreParseErrors;
 
     /** Timestamp format specification which is used to parse timestamp. */
@@ -96,11 +99,12 @@ public class JsonToRowDataConverters implements Serializable {
     }
 
     /**
-     * Runtime converter that converts {@link JsonNode}s into objects of Flink Table & SQL internal
-     * data structures.
+     * Runtime converter that converts {@link JsonNode}s into objects of Flink Table
+     * & SQL internal data structures.
      */
     @FunctionalInterface
     public interface JsonToRowDataConverter extends Serializable {
+
         Object convert(JsonNode jsonNode);
     }
 
@@ -134,13 +138,13 @@ public class JsonToRowDataConverters implements Serializable {
                 return this::convertToTimestamp;
             case TIMESTAMP_WITH_LOCAL_TIME_ZONE:
                 if (adaptSpark) {
-                  return  jsonNode -> {
-                      try {
-                          return convertToTimestampWithLocalZone(jsonNode);
-                      } catch (DateTimeParseException e) {
-                          return convertToTimestamp(jsonNode);
-                      }
-                  };
+                    return jsonNode -> {
+                        try {
+                            return convertToTimestampWithLocalZone(jsonNode);
+                        } catch (DateTimeParseException e) {
+                            return convertToTimestamp(jsonNode);
+                        }
+                    };
                 }
                 return this::convertToTimestampWithLocalZone;
             case FLOAT:
@@ -260,12 +264,10 @@ public class JsonToRowDataConverters implements Serializable {
         TemporalAccessor parsedTimestampWithLocalZone;
         switch (timestampFormat) {
             case SQL:
-                parsedTimestampWithLocalZone =
-                        SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT.parse(jsonNode.asText());
+                parsedTimestampWithLocalZone = SQL_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT.parse(jsonNode.asText());
                 break;
             case ISO_8601:
-                parsedTimestampWithLocalZone =
-                        ISO8601_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT.parse(jsonNode.asText());
+                parsedTimestampWithLocalZone = ISO8601_TIMESTAMP_WITH_LOCAL_TIMEZONE_FORMAT.parse(jsonNode.asText());
                 break;
             default:
                 throw new TableException(
@@ -312,8 +314,7 @@ public class JsonToRowDataConverters implements Serializable {
 
     private JsonToRowDataConverter createArrayConverter(ArrayType arrayType) {
         JsonToRowDataConverter elementConverter = createConverter(arrayType.getElementType());
-        final Class<?> elementClass =
-                LogicalTypeUtils.toInternalConversionClass(arrayType.getElementType());
+        final Class<?> elementClass = LogicalTypeUtils.toInternalConversionClass(arrayType.getElementType());
         return jsonNode -> {
             final ArrayNode node = (ArrayNode) jsonNode;
             final Object[] array = (Object[]) Array.newInstance(elementClass, node.size());
@@ -350,11 +351,10 @@ public class JsonToRowDataConverters implements Serializable {
     }
 
     public JsonToRowDataConverter createRowConverter(RowType rowType) {
-        final JsonToRowDataConverter[] fieldConverters =
-                rowType.getFields().stream()
-                        .map(RowType.RowField::getType)
-                        .map(this::createConverter)
-                        .toArray(JsonToRowDataConverter[]::new);
+        final JsonToRowDataConverter[] fieldConverters = rowType.getFields().stream()
+                .map(RowType.RowField::getType)
+                .map(this::createConverter)
+                .toArray(JsonToRowDataConverter[]::new);
         final String[] fieldNames = rowType.getFieldNames().toArray(new String[0]);
 
         return jsonNode -> {
@@ -403,6 +403,7 @@ public class JsonToRowDataConverters implements Serializable {
 
     /** Exception which refers to parse errors in converters. */
     private static final class JsonParseException extends RuntimeException {
+
         private static final long serialVersionUID = 1L;
 
         public JsonParseException(String message) {

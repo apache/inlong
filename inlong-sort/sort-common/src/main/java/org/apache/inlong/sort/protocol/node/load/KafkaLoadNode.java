@@ -17,16 +17,19 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.CONNECTOR;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.KAFKA;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.RAW_HASH;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_IGNORE_CHANGELOG;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_MULTIPLE_FORMAT;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_MULTIPLE_PARTITION_PATTERN;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_PARALLELISM;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_PARTITIONER;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.TOPIC;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.TOPIC_PATTERN;
+import static org.apache.inlong.sort.protocol.constant.KafkaConstant.UPSERT_KAFKA;
+
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
@@ -43,25 +46,27 @@ import org.apache.inlong.sort.protocol.node.format.RawFormat;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.CONNECTOR;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.KAFKA;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.PROPERTIES_BOOTSTRAP_SERVERS;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.RAW_HASH;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_IGNORE_CHANGELOG;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_MULTIPLE_FORMAT;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_MULTIPLE_PARTITION_PATTERN;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_PARALLELISM;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.SINK_PARTITIONER;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.TOPIC;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.TOPIC_PATTERN;
-import static org.apache.inlong.sort.protocol.constant.KafkaConstant.UPSERT_KAFKA;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Kafka load node using kafka connectors provided by flink
@@ -72,7 +77,6 @@ import static org.apache.inlong.sort.protocol.constant.KafkaConstant.UPSERT_KAFK
 @Data
 @NoArgsConstructor
 public class KafkaLoadNode extends LoadNode implements InlongMetric, Metadata, Serializable {
-
 
     private static final long serialVersionUID = -558158965060708408L;
 

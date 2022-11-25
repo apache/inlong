@@ -18,9 +18,10 @@
 
 package org.apache.inlong.sort.formats.base;
 
-import java.util.Map;
 import org.apache.flink.table.factories.TableFormatFactory;
 import org.apache.flink.types.Row;
+
+import java.util.Map;
 
 /**
  * Factory for creating configured instances of {@link TableFormatSerializer}.
@@ -31,11 +32,11 @@ public interface TableFormatSerializerFactory extends TableFormatFactory<Row> {
      * Creates and configures a {@link TableFormatSerializer} using the given
      * properties.
      *
-     * @param properties The normalized properties describing the format.
+     * @param properties
+     *          The normalized properties describing the format.
      * @return The configured serialization schema or null if the factory cannot
      *         provide an instance of the class.
      */
     TableFormatSerializer createFormatSerializer(
-            final Map<String, String> properties
-    );
+            final Map<String, String> properties);
 }

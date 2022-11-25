@@ -18,13 +18,13 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import org.apache.inlong.common.msg.InLongMsg;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import org.apache.inlong.common.msg.InLongMsg;
 
 /**
  * The head deserialized from {@link InLongMsg}.
@@ -57,8 +57,7 @@ public class InLongMsgHead implements Serializable {
             Map<String, String> attributes,
             String tid,
             Timestamp time,
-            List<String> predefinedFields
-    ) {
+            List<String> predefinedFields) {
         this.attributes = attributes;
         this.tid = tid;
         this.time = time;
@@ -93,9 +92,9 @@ public class InLongMsgHead implements Serializable {
 
         InLongMsgHead that = (InLongMsgHead) o;
         return Objects.equals(attributes, that.attributes)
-                       && Objects.equals(tid, that.tid)
-                       && Objects.equals(time, that.time)
-                       && Objects.equals(predefinedFields, that.predefinedFields);
+                && Objects.equals(tid, that.tid)
+                && Objects.equals(time, that.time)
+                && Objects.equals(predefinedFields, that.predefinedFields);
     }
 
     @Override
@@ -106,10 +105,10 @@ public class InLongMsgHead implements Serializable {
     @Override
     public String toString() {
         return "InLongMsgHead{"
-                       + "attributes=" + attributes
-                       + ", tid='" + tid + '\''
-                       + ", time=" + time
-                       + ", predefinedFields=" + predefinedFields
-                       + '}';
+                + "attributes=" + attributes
+                + ", tid='" + tid + '\''
+                + ", time=" + time
+                + ", predefinedFields=" + predefinedFields
+                + '}';
     }
 }

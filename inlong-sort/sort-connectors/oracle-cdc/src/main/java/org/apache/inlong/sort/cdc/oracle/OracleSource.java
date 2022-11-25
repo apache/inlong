@@ -18,19 +18,21 @@
 
 package org.apache.inlong.sort.cdc.oracle;
 
-import com.ververica.cdc.connectors.oracle.OracleValidator;
-import com.ververica.cdc.connectors.oracle.table.StartupOptions;
-import io.debezium.connector.oracle.OracleConnector;
+import static org.apache.flink.util.Preconditions.checkNotNull;
 
-import java.util.Properties;
 import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumSourceFunction;
 import org.apache.inlong.sort.cdc.oracle.debezium.internal.DebeziumOffset;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import java.util.Properties;
+
+import com.ververica.cdc.connectors.oracle.OracleValidator;
+import com.ververica.cdc.connectors.oracle.table.StartupOptions;
+import io.debezium.connector.oracle.OracleConnector;
 
 /**
- * A builder to build a SourceFunction which can read snapshot and continue to consume log miner.
+ * A builder to build a SourceFunction which can read snapshot and continue to
+ * consume log miner.
  */
 public class OracleSource {
 
@@ -68,9 +70,9 @@ public class OracleSource {
         }
 
         /**
-         * An optional list of regular expressions that match database names to be monitored; any
-         * database name not included in the whitelist will be excluded from monitoring. By default
-         * all databases will be monitored.
+         * An optional list of regular expressions that match database names to be
+         * monitored; any database name not included in the whitelist will be excluded
+         * from monitoring. By default all databases will be monitored.
          */
         public Builder<T> database(String database) {
             this.database = database;
@@ -78,10 +80,11 @@ public class OracleSource {
         }
 
         /**
-         * An optional list of regular expressions that match fully-qualified table identifiers for
-         * tables to be monitored; any table not included in the list will be excluded from
-         * monitoring. Each identifier is of the form schemaName.tableName. By default the connector
-         * will monitor every non-system table in each monitored database.
+         * An optional list of regular expressions that match fully-qualified table
+         * identifiers for tables to be monitored; any table not included in the list
+         * will be excluded from monitoring. Each identifier is of the form
+         * schemaName.tableName. By default the connector will monitor every non-system
+         * table in each monitored database.
          */
         public Builder<T> tableList(String... tableList) {
             this.tableList = tableList;
@@ -89,16 +92,19 @@ public class OracleSource {
         }
 
         /**
-         * An optional list of regular expressions that match schema names to be monitored; any
-         * schema name not included in the whitelist will be excluded from monitoring. By default
-         * all non-system schemas will be monitored.
+         * An optional list of regular expressions that match schema names to be
+         * monitored; any schema name not included in the whitelist will be excluded
+         * from monitoring. By default all non-system schemas will be monitored.
          */
         public Builder<T> schemaList(String... schemaList) {
             this.schemaList = schemaList;
             return this;
         }
 
-        /** Name of the Oracle database to use when connecting to the Oracle database server. */
+        /**
+         * Name of the Oracle database to use when connecting to the Oracle database
+         * server.
+         */
         public Builder<T> username(String username) {
             this.username = username;
             return this;
@@ -117,8 +123,8 @@ public class OracleSource {
         }
 
         /**
-         * The deserializer used to convert from consumed {@link
-         * org.apache.kafka.connect.source.SourceRecord}.
+         * The deserializer used to convert from consumed
+         * {@link org.apache.kafka.connect.source.SourceRecord}.
          */
         public Builder<T> deserializer(DebeziumDeserializationSchema<T> deserializer) {
             this.deserializer = deserializer;
@@ -144,11 +150,14 @@ public class OracleSource {
         public DebeziumSourceFunction<T> build() {
             Properties props = new Properties();
             props.setProperty("connector.class", OracleConnector.class.getCanonicalName());
-            // Logical name that identifies and provides a namespace for the particular Oracle
+            // Logical name that identifies and provides a namespace for the particular
+            // Oracle
             // database server being
-            // monitored. The logical name should be unique across all other connectors, since it is
+            // monitored. The logical name should be unique across all other connectors,
+            // since it is
             // used as a prefix
-            // for all Kafka topic names emanating from this connector. Only alphanumeric characters
+            // for all Kafka topic names emanating from this connector. Only alphanumeric
+            // characters
             // and
             // underscores should be used.
             props.setProperty("database.server.name", DATABASE_SERVER_NAME);

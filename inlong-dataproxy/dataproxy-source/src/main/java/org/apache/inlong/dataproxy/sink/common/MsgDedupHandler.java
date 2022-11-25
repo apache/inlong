@@ -17,20 +17,21 @@
 
 package org.apache.inlong.dataproxy.sink.common;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheStats;
 import com.google.common.cache.LoadingCache;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // message deduplication handler
 public class MsgDedupHandler {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(MsgDedupHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(MsgDedupHandler.class);
     private static final int DEF_MAX_SURVIVE_CNT_SIZE = 5000000;
     private static final int DEF_MAX_SURVIVE_TIME_MS = 30000;
     private final AtomicBoolean started = new AtomicBoolean(false);
@@ -58,6 +59,7 @@ public class MsgDedupHandler {
                         .expireAfterAccess(maxSurviveTime, TimeUnit.MILLISECONDS)
                         .maximumSize(maxSurviveSize)
                         .build(new CacheLoader<String, Long>() {
+
                             @Override
                             public Long load(String key) {
                                 return System.currentTimeMillis();

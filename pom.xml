@@ -17,11 +17,9 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
@@ -31,61 +29,13 @@
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong</artifactId>
     <version>1.5.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>Apache InLong</name>
 
     <description>InLong is a one-stop integration framework for massive data donated by Tencent to
         the Apache community.
         It provides automatic, safe, reliable, and high-performance data transmission capabilities
-        to facilitate the construction of streaming-based data analysis, modeling, and applications.
-    </description>
-    <url>https://github.com/apache/inlong</url>
-
-    <organization>
-        <name>Apache Software Foundation</name>
-        <url>https://www.apache.org/</url>
-    </organization>
-    <inceptionYear>2013</inceptionYear>
-
-    <developers>
-        <developer>
-            <organization>Apache InLong developers</organization>
-            <organizationUrl>https://inlong.apache.org/</organizationUrl>
-        </developer>
-    </developers>
-
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <url>https://github.com/apache/inlong</url>
-        <connection>scm:git:https://github.com/apache/inlong.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:apache/inlong.git
-        </developerConnection>
-    </scm>
-
-    <ciManagement>
-        <system>GitHub Actions</system>
-        <url>https://github.com/apache/inlong/actions</url>
-    </ciManagement>
-
-    <issueManagement>
-        <system>Github</system>
-        <url>https://github.com/apache/inlong/issues</url>
-    </issueManagement>
-
-    <mailingLists>
-        <mailingList>
-            <name>InLong Developer List</name>
-            <post>dev@inlong.apache.org</post>
-            <subscribe>dev-subscribe@inlong.apache.org</subscribe>
-            <unsubscribe>dev-unsubscribe@inlong.apache.org</unsubscribe>
-        </mailingList>
-    </mailingLists>
+        to facilitate the construction of streaming-based data analysis, modeling, and applications.</description>
 
     <modules>
         <module>inlong-common</module>
@@ -115,7 +65,7 @@
         <exec.maven.version>1.6.0</exec.maven.version>
         <build.helper.maven.version>3.0.0</build.helper.maven.version>
 
-        <checkstyle.version>6.19</checkstyle.version>
+        <spotless.version>2.27.2</spotless.version>
         <dockerfile.maven.version>1.4.13</dockerfile.maven.version>
         <testcontainers.version>1.17.2</testcontainers.version>
         <docker.organization>inlong</docker.organization>
@@ -431,16 +381,16 @@
                 <version>${hadoop.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>jersey-json</artifactId>
                         <groupId>com.sun.jersey</groupId>
+                        <artifactId>jersey-json</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>snappy-java</artifactId>
                         <groupId>org.xerial.snappy</groupId>
+                        <artifactId>snappy-java</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>commons-logging</artifactId>
                         <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>commons-io</groupId>
@@ -498,8 +448,8 @@
                         <artifactId>log4j-slf4j-impl</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>protobuf-java</artifactId>
                         <groupId>com.google.protobuf</groupId>
+                        <artifactId>protobuf-java</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1252,8 +1202,8 @@
                 <version>${protobuf.version}</version>
             </dependency>
             <dependency>
-                <artifactId>byte-buddy</artifactId>
                 <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
                 <version>${bytebuddy.version}</version>
             </dependency>
 
@@ -1332,18 +1282,18 @@
                 <version>${commons.lang3.version}</version>
             </dependency>
             <dependency>
-                <artifactId>commons-dbutils</artifactId>
                 <groupId>commons-dbutils</groupId>
+                <artifactId>commons-dbutils</artifactId>
                 <version>${commons.dbutils.version}</version>
             </dependency>
             <dependency>
-                <artifactId>commons-cli</artifactId>
                 <groupId>commons-cli</groupId>
+                <artifactId>commons-cli</artifactId>
                 <version>${commons.cli.version}</version>
             </dependency>
             <dependency>
-                <artifactId>commons-io</artifactId>
                 <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
                 <version>${commons.io.version}</version>
             </dependency>
             <dependency>
@@ -1428,17 +1378,6 @@
                 <version>${log4j2.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-1.2-api</artifactId>
                 <version>${log4j2.version}</version>
@@ -1449,7 +1388,17 @@
                 <artifactId>log4j-jcl</artifactId>
                 <version>${log4j2.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>provided</scope>
+            </dependency>
             <!-- logback -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -1517,10 +1466,10 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <artifactId>awaitility</artifactId>
                 <groupId>org.awaitility</groupId>
-                <scope>test</scope>
+                <artifactId>awaitility</artifactId>
                 <version>${awaitility.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
@@ -1583,8 +1532,8 @@
                 <version>${tencentcloud.cls.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>protobuf-java</artifactId>
                         <groupId>com.google.protobuf</groupId>
+                        <artifactId>protobuf-java</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1657,33 +1606,60 @@
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.1</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>8.29</version>
-                    </dependency>
-                </dependencies>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
                 <configuration>
-                    <configLocation>codestyle/checkstyle.xml</configLocation>
-                    <suppressionsLocation>codestyle/suppressions.xml</suppressionsLocation>
-                    <encoding>UTF-8</encoding>
-                    <consoleOutput>true</consoleOutput>
-                    <failOnViolation>true</failOnViolation>
-                    <includeResources>false</includeResources>
-                    <includeTestResources>false</includeTestResources>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                    <java>
+                        <eclipse>
+                            <file>codestyle/spotless_inlong_formatter.xml</file>
+                        </eclipse>
+                        <removeUnusedImports />
+                        <importOrder>
+                            <file>codestyle/spotless_inlong_importorder</file>
+                        </importOrder>
+                        <replaceRegex>
+                            <name>Remove wildcard imports</name>
+                            <searchRegex>import\s+[^\*\s]+\*;(\r\n|\r|\n)</searchRegex>
+                            <replacement>$1</replacement>
+                        </replaceRegex>
+                    </java>
+                    <pom>
+                        <sortPom>
+                            <encoding>UTF-8</encoding>
+                            <nrOfIndentSpace>4</nrOfIndentSpace>
+                            <keepBlankLines>true</keepBlankLines>
+                            <indentBlankLines>false</indentBlankLines>
+                            <indentSchemaLocation>true</indentSchemaLocation>
+                            <spaceBeforeCloseEmptyElement>true</spaceBeforeCloseEmptyElement>
+                            <sortModules>false</sortModules>
+                            <sortExecutions>false</sortExecutions>
+                            <predefinedSortOrder>custom_1</predefinedSortOrder>
+                            <expandEmptyElements>false</expandEmptyElements>
+                            <sortProperties>false</sortProperties>
+                        </sortPom>
+                        <replace>
+                            <name>Leading blank line</name>
+                            <search>project</search>
+                            <replacement>project</replacement>
+                        </replace>
+                    </pom>
+                    <markdown>
+                        <includes>
+                            <include>docs/**/*.md</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/.github/**/*.md</exclude>
+                        </excludes>
+                        <flexmark />
+                    </markdown>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>checkstyle</id>
-                        <phase>validate</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
+                        <phase>compile</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -1699,28 +1675,18 @@
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
                 <version>0.14</version>
-                <executions>
-                    <execution>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <consoleOutput>true</consoleOutput>
                     <excludeSubProjects>false</excludeSubProjects>
                     <numUnapprovedLicenses>0</numUnapprovedLicenses>
                     <licenses>
-                        <license
-                                implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+                        <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
                             <licenseFamilyCategory>AL2</licenseFamilyCategory>
                             <licenseFamilyName>Apache License 2.0</licenseFamilyName>
-                            <notes/>
+                            <notes />
                             <patterns>
                                 <pattern>Licensed to the Apache Software Foundation (ASF) under
-                                    one
-                                </pattern>
+                                    one</pattern>
                             </patterns>
                         </license>
                     </licenses>
@@ -1736,7 +1702,6 @@
                         <!-- Generated content -->
                         <exclude>LICENSE</exclude>
                         <exclude>NOTICE</exclude>
-                        <exclude>codestyle/checkstyle.xml</exclude>
 
                         <!-- Documents -->
                         <exclude>**/*.md</exclude>
@@ -1781,9 +1746,7 @@
                         <!-- Test case : temporary data for test cases -->
                         <exclude>**/AgentBaseTestsHelper/**</exclude>
                         <!-- Test case : example jar for test cases -->
-                        <exclude>
-                            **/manager-service/src/test/resources/plugins/manager-plugin-examples.jar
-                        </exclude>
+                        <exclude>**/manager-service/src/test/resources/plugins/manager-plugin-examples.jar</exclude>
                         <!-- Test case: flink sql comments statement support limit for end2end test cases -->
                         <exclude>**/resources/flinkSql/**</exclude>
 
@@ -1803,8 +1766,63 @@
 
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
+    <url>https://github.com/apache/inlong</url>
+    <inceptionYear>2013</inceptionYear>
+
+    <organization>
+        <name>Apache Software Foundation</name>
+        <url>https://www.apache.org/</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <organization>Apache InLong developers</organization>
+            <organizationUrl>https://inlong.apache.org/</organizationUrl>
+        </developer>
+    </developers>
+
+    <mailingLists>
+        <mailingList>
+            <name>InLong Developer List</name>
+            <subscribe>dev-subscribe@inlong.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@inlong.apache.org</unsubscribe>
+            <post>dev@inlong.apache.org</post>
+        </mailingList>
+    </mailingLists>
+
+    <scm>
+        <connection>scm:git:https://github.com/apache/inlong.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:apache/inlong.git</developerConnection>
+        <url>https://github.com/apache/inlong</url>
+    </scm>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/apache/inlong/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>GitHub Actions</system>
+        <url>https://github.com/apache/inlong/actions</url>
+    </ciManagement>
 
 </project>

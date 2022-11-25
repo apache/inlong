@@ -19,6 +19,25 @@
 
 package org.apache.inlong.sort.iceberg.sink;
 
+import static org.apache.iceberg.TableProperties.DEFAULT_FILE_FORMAT;
+import static org.apache.iceberg.TableProperties.DEFAULT_FILE_FORMAT_DEFAULT;
+import static org.apache.iceberg.TableProperties.UPSERT_ENABLED;
+import static org.apache.iceberg.TableProperties.UPSERT_ENABLED_DEFAULT;
+import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE;
+import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE_NONE;
+import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES;
+import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES_DEFAULT;
+
+import org.apache.inlong.sort.base.sink.MultipleSinkOption;
+import org.apache.inlong.sort.iceberg.sink.multiple.DynamicSchemaHandleOperator;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleFilesCommiter;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleStreamWriter;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessOperator;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleFileCommiter;
+import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleStreamWriter;
+import org.apache.inlong.sort.iceberg.sink.multiple.MultipleWriteResult;
+import org.apache.inlong.sort.iceberg.sink.multiple.RecordWithSchema;
+
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
@@ -51,17 +70,6 @@ import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.types.TypeUtil;
 import org.apache.iceberg.util.PropertyUtil;
-import org.apache.inlong.sort.base.sink.MultipleSinkOption;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleFilesCommiter;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergMultipleStreamWriter;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergProcessOperator;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleFileCommiter;
-import org.apache.inlong.sort.iceberg.sink.multiple.IcebergSingleStreamWriter;
-import org.apache.inlong.sort.iceberg.sink.multiple.MultipleWriteResult;
-import org.apache.inlong.sort.iceberg.sink.multiple.RecordWithSchema;
-import org.apache.inlong.sort.iceberg.sink.multiple.DynamicSchemaHandleOperator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -70,29 +78,24 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 
-import static org.apache.iceberg.TableProperties.DEFAULT_FILE_FORMAT;
-import static org.apache.iceberg.TableProperties.DEFAULT_FILE_FORMAT_DEFAULT;
-import static org.apache.iceberg.TableProperties.UPSERT_ENABLED;
-import static org.apache.iceberg.TableProperties.UPSERT_ENABLED_DEFAULT;
-import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE;
-import static org.apache.iceberg.TableProperties.WRITE_DISTRIBUTION_MODE_NONE;
-import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES;
-import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES_DEFAULT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
- * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
- * Add option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect inlong metrics and audit.
+ * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2 Add an option
+ * `sink.ignore.changelog` to support insert-only mode without primaryKey. Add
+ * option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect
+ * inlong metrics and audit.
  */
 public class FlinkSink {
+
     private static final Logger LOG = LoggerFactory.getLogger(FlinkSink.class);
 
     private static final String ICEBERG_STREAM_WRITER_NAME = IcebergSingleStreamWriter.class.getSimpleName();
     private static final String ICEBERG_FILES_COMMITTER_NAME = IcebergSingleFileCommiter.class.getSimpleName();
-    private static final String ICEBERG_MULTIPLE_STREAM_WRITER_NAME =
-            IcebergMultipleStreamWriter.class.getSimpleName();
-    private static final String ICEBERG_MULTIPLE_FILES_COMMITTER_NAME =
-            IcebergMultipleFilesCommiter.class.getSimpleName();
+    private static final String ICEBERG_MULTIPLE_STREAM_WRITER_NAME = IcebergMultipleStreamWriter.class.getSimpleName();
+    private static final String ICEBERG_MULTIPLE_FILES_COMMITTER_NAME = IcebergMultipleFilesCommiter.class
+            .getSimpleName();
     private static final String ICEBERG_WHOLE_DATABASE_MIGRATION_NAME =
             DynamicSchemaHandleOperator.class.getSimpleName();
 
@@ -100,14 +103,19 @@ public class FlinkSink {
     }
 
     /**
-     * Initialize a {@link Builder} to export the data from generic input data stream into iceberg table. We use
-     * {@link RowData} inside the sink connector, so users need to provide a mapper function and a
-     * {@link TypeInformation} to convert those generic records to a RowData DataStream.
+     * Initialize a {@link Builder} to export the data from generic input data
+     * stream into iceberg table. We use {@link RowData} inside the sink connector,
+     * so users need to provide a mapper function and a {@link TypeInformation} to
+     * convert those generic records to a RowData DataStream.
      *
-     * @param input      the generic source input data stream.
-     * @param mapper     function to convert the generic data to {@link RowData}
-     * @param outputType to define the {@link TypeInformation} for the input data.
-     * @param <T>        the data type of records.
+     * @param input
+     *          the generic source input data stream.
+     * @param mapper
+     *          function to convert the generic data to {@link RowData}
+     * @param outputType
+     *          to define the {@link TypeInformation} for the input data.
+     * @param <T>
+     *          the data type of records.
      * @return {@link Builder} to connect the iceberg table.
      */
     public static <T> Builder builderFor(DataStream<T> input,
@@ -117,12 +125,15 @@ public class FlinkSink {
     }
 
     /**
-     * Initialize a {@link Builder} to export the data from input data stream with {@link Row}s into iceberg table.
-     * We use {@link RowData} inside the sink connector, so users need to provide a {@link TableSchema} for builder to
+     * Initialize a {@link Builder} to export the data from input data stream with
+     * {@link Row}s into iceberg table. We use {@link RowData} inside the sink
+     * connector, so users need to provide a {@link TableSchema} for builder to
      * convert those {@link Row}s to a {@link RowData} DataStream.
      *
-     * @param input       the source input data stream with {@link Row}s.
-     * @param tableSchema defines the {@link TypeInformation} for input data.
+     * @param input
+     *          the source input data stream with {@link Row}s.
+     * @param tableSchema
+     *          defines the {@link TypeInformation} for input data.
      * @return {@link Builder} to connect the iceberg table.
      */
     public static Builder forRow(DataStream<Row> input, TableSchema tableSchema) {
@@ -135,9 +146,11 @@ public class FlinkSink {
     }
 
     /**
-     * Initialize a {@link Builder} to export the data from input data stream with {@link RowData}s into iceberg table.
+     * Initialize a {@link Builder} to export the data from input data stream with
+     * {@link RowData}s into iceberg table.
      *
-     * @param input the source input data stream with {@link RowData}s.
+     * @param input
+     *          the source input data stream with {@link RowData}s.
      * @return {@link Builder} to connect the iceberg table.
      */
     public static Builder forRowData(DataStream<RowData> input) {
@@ -145,6 +158,7 @@ public class FlinkSink {
     }
 
     public static class Builder {
+
         private Function<String, DataStream<RowData>> inputCreator = null;
         private TableLoader tableLoader;
         private Table table;
@@ -186,11 +200,13 @@ public class FlinkSink {
         }
 
         /**
-         * This iceberg {@link Table} instance is used for initializing {@link IcebergSingleStreamWriter} which will
-         * write all the records into {@link DataFile}s and emit them to downstream operator. Providing a table would \
-         * avoid so many table loading from each separate task.
+         * This iceberg {@link Table} instance is used for initializing
+         * {@link IcebergSingleStreamWriter} which will write all the records into
+         * {@link DataFile}s and emit them to downstream operator. Providing a table
+         * would \ avoid so many table loading from each separate task.
          *
-         * @param newTable the loaded iceberg table instance.
+         * @param newTable
+         *          the loaded iceberg table instance.
          * @return {@link Builder} to connect the iceberg table.
          */
         public Builder table(Table newTable) {
@@ -199,11 +215,13 @@ public class FlinkSink {
         }
 
         /**
-         * The table loader is used for loading tables in {@link IcebergSingleFileCommiter} lazily, we need this loader
-         * because {@link Table} is not serializable and could not just use the loaded table from Builder#table in the
-         * remote task manager.
+         * The table loader is used for loading tables in
+         * {@link IcebergSingleFileCommiter} lazily, we need this loader because
+         * {@link Table} is not serializable and could not just use the loaded table
+         * from Builder#table in the remote task manager.
          *
-         * @param newTableLoader to load iceberg table inside tasks.
+         * @param newTableLoader
+         *          to load iceberg table inside tasks.
          * @return {@link Builder} to connect the iceberg table.
          */
         public Builder tableLoader(TableLoader newTableLoader) {
@@ -217,11 +235,14 @@ public class FlinkSink {
         }
 
         /**
-         * The catalog loader is used for loading tables in {@link IcebergMultipleStreamWriter} and
-         * {@link DynamicSchemaHandleOperator} lazily, we need this loader because in multiple sink scene which table
-         * to load is determined in runtime, so we should hold a {@link org.apache.iceberg.catalog.Catalog} at runtime.
+         * The catalog loader is used for loading tables in
+         * {@link IcebergMultipleStreamWriter} and {@link DynamicSchemaHandleOperator}
+         * lazily, we need this loader because in multiple sink scene which table to
+         * load is determined in runtime, so we should hold a
+         * {@link org.apache.iceberg.catalog.Catalog} at runtime.
          *
-         * @param catalogLoader to load iceberg catalog inside tasks.
+         * @param catalogLoader
+         *          to load iceberg catalog inside tasks.
          * @return {@link Builder} to connect the iceberg table.
          */
         public Builder catalogLoader(CatalogLoader catalogLoader) {
@@ -245,9 +266,11 @@ public class FlinkSink {
         }
 
         /**
-         * The appendMode properties is used to insert data without equality field columns.
+         * The appendMode properties is used to insert data without equality field
+         * columns.
          *
-         * @param appendMode append mode properties.
+         * @param appendMode
+         *          append mode properties.
          * @return {@link FlinkSink.Builder} to connect the iceberg table.
          */
         public FlinkSink.Builder appendMode(boolean appendMode) {
@@ -257,6 +280,7 @@ public class FlinkSink {
 
         /**
          * Add metric output for iceberg writer
+         * 
          * @param inlongMetric
          * @param auditHostAndPorts
          * @return
@@ -268,10 +292,12 @@ public class FlinkSink {
         }
 
         /**
-         * Configure the write {@link DistributionMode} that the flink sink will use. Currently, flink support
-         * {@link DistributionMode#NONE} and {@link DistributionMode#HASH}.
+         * Configure the write {@link DistributionMode} that the flink sink will use.
+         * Currently, flink support {@link DistributionMode#NONE} and
+         * {@link DistributionMode#HASH}.
          *
-         * @param mode to specify the write distribution mode.
+         * @param mode
+         *          to specify the write distribution mode.
          * @return {@link Builder} to connect the iceberg table.
          */
         public Builder distributionMode(DistributionMode mode) {
@@ -284,7 +310,8 @@ public class FlinkSink {
         /**
          * Configuring the write parallel number for iceberg stream writer.
          *
-         * @param newWriteParallelism the number of parallel iceberg stream writer.
+         * @param newWriteParallelism
+         *          the number of parallel iceberg stream writer.
          * @return {@link Builder} to connect the iceberg table.
          */
         public Builder writeParallelism(int newWriteParallelism) {
@@ -293,12 +320,15 @@ public class FlinkSink {
         }
 
         /**
-         * All INSERT/UPDATE_AFTER events from input stream will be transformed to UPSERT events, which means it will
-         * DELETE the old records and then INSERT the new records. In partitioned table, the partition fields should be
-         * a subset of equality fields, otherwise the old row that located in partition-A could not be deleted by the
-         * new row that located in partition-B.
+         * All INSERT/UPDATE_AFTER events from input stream will be transformed to
+         * UPSERT events, which means it will DELETE the old records and then INSERT the
+         * new records. In partitioned table, the partition fields should be a subset of
+         * equality fields, otherwise the old row that located in partition-A could not
+         * be deleted by the new row that located in partition-B.
          *
-         * @param enabled indicate whether it should transform all INSERT/UPDATE_AFTER events to UPSERT.
+         * @param enabled
+         *          indicate whether it should transform all INSERT/UPDATE_AFTER events
+         *          to UPSERT.
          * @return {@link Builder} to connect the iceberg table.
          */
         public Builder upsert(boolean enabled) {
@@ -307,9 +337,11 @@ public class FlinkSink {
         }
 
         /**
-         * Configuring the equality field columns for iceberg table that accept CDC or UPSERT events.
+         * Configuring the equality field columns for iceberg table that accept CDC or
+         * UPSERT events.
          *
-         * @param columns defines the iceberg table's key.
+         * @param columns
+         *          defines the iceberg table's key.
          * @return {@link Builder} to connect the iceberg table.
          */
         public Builder equalityFieldColumns(List<String> columns) {
@@ -318,25 +350,32 @@ public class FlinkSink {
         }
 
         /**
-         * Set the uid prefix for FlinkSink operators. Note that FlinkSink internally consists of multiple operators
-         * (like writer, committer, dummy sink etc.) Actually operator uid will be appended with a suffix like
-         * "uidPrefix-writer".
-         * <br><br>
-         * If provided, this prefix is also applied to operator names.
-         * <br><br>
+         * Set the uid prefix for FlinkSink operators. Note that FlinkSink internally
+         * consists of multiple operators (like writer, committer, dummy sink etc.)
+         * Actually operator uid will be appended with a suffix like "uidPrefix-writer".
+         * <br>
+         * <br>
+         * If provided, this prefix is also applied to operator names. <br>
+         * <br>
          * Flink auto generates operator uid if not set explicitly. It is a recommended
-         * <a href="https://ci.apache.org/projects/flink/flink-docs-master/docs/ops/production_ready/">
-         * best-practice to set uid for all operators</a> before deploying to production. Flink has an option to {@code
-         * pipeline.auto-generate-uid=false} to disable auto-generation and force explicit setting of all operator uid.
-         * <br><br>
-         * Be careful with setting this for an existing job, because now we are changing the operator uid from an
-         * auto-generated one to this new value. When deploying the change with a checkpoint, Flink won't be able to
-         * restore the previous Flink sink operator state (more specifically the committer operator state). You need to
-         * use {@code --allowNonRestoredState} to ignore the previous sink state. During restore Flink sink state is
-         * used to check if last commit was actually successful or not. {@code --allowNonRestoredState} can lead to data
+         * <a href=
+         * "https://ci.apache.org/projects/flink/flink-docs-master/docs/ops/production_ready/">
+         * best-practice to set uid for all operators</a> before deploying to
+         * production. Flink has an option to {@code
+         * pipeline.auto-generate-uid=false} to disable auto-generation and force
+         * explicit setting of all operator uid. <br>
+         * <br>
+         * Be careful with setting this for an existing job, because now we are changing
+         * the operator uid from an auto-generated one to this new value. When deploying
+         * the change with a checkpoint, Flink won't be able to restore the previous
+         * Flink sink operator state (more specifically the committer operator state).
+         * You need to use {@code --allowNonRestoredState} to ignore the previous sink
+         * state. During restore Flink sink state is used to check if last commit was
+         * actually successful or not. {@code --allowNonRestoredState} can lead to data
          * loss if the Iceberg commit failed in the last completed checkpoint.
          *
-         * @param newPrefix prefix for Flink sink operator uid and name
+         * @param newPrefix
+         *          prefix for Flink sink operator uid and name
          * @return {@link Builder} to connect the iceberg table.
          */
         public Builder uidPrefix(String newPrefix) {
@@ -368,7 +407,8 @@ public class FlinkSink {
             // Convert the requested flink table schema to flink row type.
             RowType flinkRowType = toFlinkRowType(table.schema(), tableSchema);
 
-            // Distribute the records from input data stream based on the write.distribution-mode.
+            // Distribute the records from input data stream based on the
+            // write.distribution-mode.
             DataStream<RowData> distributeStream = distributeDataStream(
                     rowDataInput, table.properties(), table.spec(), table.schema(), flinkRowType);
 
@@ -399,13 +439,12 @@ public class FlinkSink {
             return appendDummySink(committerStream);
         }
 
-
         /**
          * Append the iceberg sink operators to write records to iceberg table.
          *
          * @return {@link DataStreamSink} for sink.
-         * @deprecated this will be removed in 0.14.0; use {@link #append()} because its returned {@link DataStreamSink}
-         *             has a more correct data type.
+         * @deprecated this will be removed in 0.14.0; use {@link #append()} because its
+         *             returned {@link DataStreamSink} has a more correct data type.
          */
         @Deprecated
         public DataStreamSink<RowData> build() {
@@ -453,8 +492,8 @@ public class FlinkSink {
 
         private SingleOutputStreamOperator<Void> appendMultipleCommitter(
                 SingleOutputStreamOperator<MultipleWriteResult> writerStream) {
-            IcebergProcessOperator<MultipleWriteResult, Void> multipleFilesCommiter =
-                    new IcebergProcessOperator<>(new IcebergMultipleFilesCommiter(catalogLoader, overwrite));
+            IcebergProcessOperator<MultipleWriteResult, Void> multipleFilesCommiter = new IcebergProcessOperator<>(
+                    new IcebergMultipleFilesCommiter(catalogLoader, overwrite));
             SingleOutputStreamOperator<Void> committerStream = writerStream
                     .transform(operatorName(ICEBERG_MULTIPLE_FILES_COMMITTER_NAME), Types.VOID, multipleFilesCommiter)
                     .setParallelism(1)
@@ -466,7 +505,8 @@ public class FlinkSink {
         }
 
         private SingleOutputStreamOperator<WriteResult> appendWriter(DataStream<RowData> input, RowType flinkRowType) {
-            // Find out the equality field id list based on the user-provided equality field column names.
+            // Find out the equality field id list based on the user-provided equality field
+            // column names.
             List<Integer> equalityFieldIds = Lists.newArrayList();
             if (equalityFieldColumns != null && equalityFieldColumns.size() > 0) {
                 for (String column : equalityFieldColumns) {
@@ -477,12 +517,14 @@ public class FlinkSink {
                 }
             }
 
-            // Fallback to use upsert mode parsed from table properties if don't specify in job level.
+            // Fallback to use upsert mode parsed from table properties if don't specify in
+            // job level.
             // Only if not appendMode, upsert can be valid.
             boolean upsertMode = (upsert || PropertyUtil.propertyAsBoolean(table.properties(),
                     UPSERT_ENABLED, UPSERT_ENABLED_DEFAULT)) && !appendMode;
 
-            // Validate the equality fields and partition fields if we enable the upsert mode.
+            // Validate the equality fields and partition fields if we enable the upsert
+            // mode.
             if (upsertMode) {
                 Preconditions.checkState(!overwrite,
                         "OVERWRITE mode shouldn't be enable when configuring to use UPSERT data stream.");
@@ -526,9 +568,8 @@ public class FlinkSink {
                             routeOperator)
                     .setParallelism(parallelism);
 
-            IcebergProcessOperator streamWriter =
-                    new IcebergProcessOperator(new IcebergMultipleStreamWriter(
-                            appendMode, catalogLoader, inlongMetric, auditHostAndPorts, multipleSinkOption));
+            IcebergProcessOperator streamWriter = new IcebergProcessOperator(new IcebergMultipleStreamWriter(
+                    appendMode, catalogLoader, inlongMetric, auditHostAndPorts, multipleSinkOption));
             SingleOutputStreamOperator<MultipleWriteResult> writerStream = routeStream
                     .transform(operatorName(ICEBERG_MULTIPLE_STREAM_WRITER_NAME),
                             TypeInformation.of(IcebergProcessOperator.class),
@@ -547,7 +588,8 @@ public class FlinkSink {
                 RowType flinkRowType) {
             DistributionMode writeMode;
             if (distributionMode == null) {
-                // Fallback to use distribution mode parsed from table properties if don't specify in job level.
+                // Fallback to use distribution mode parsed from table properties if don't
+                // specify in job level.
                 String modeName = PropertyUtil.propertyAsString(properties,
                         WRITE_DISTRIBUTION_MODE,
                         WRITE_DISTRIBUTION_MODE_NONE);
@@ -581,14 +623,18 @@ public class FlinkSink {
 
     static RowType toFlinkRowType(Schema schema, TableSchema requestedSchema) {
         if (requestedSchema != null) {
-            // Convert the flink schema to iceberg schema firstly, then reassign ids to match the existing iceberg
+            // Convert the flink schema to iceberg schema firstly, then reassign ids to
+            // match the existing iceberg
             // schema.
             Schema writeSchema = TypeUtil.reassignIds(FlinkSchemaUtil.convert(requestedSchema), schema);
             TypeUtil.validateWriteSchema(schema, writeSchema, true, true);
 
-            // We use this flink schema to read values from RowData. The flink's TINYINT and SMALLINT will be promoted
-            // to iceberg INTEGER, that means if we use iceberg's table schema to read TINYINT (backend by 1 'byte'),
-            // we will read 4 bytes rather than 1 byte, it will mess up the byte array in BinaryRowData. So here we must
+            // We use this flink schema to read values from RowData. The flink's TINYINT and
+            // SMALLINT will be promoted
+            // to iceberg INTEGER, that means if we use iceberg's table schema to read
+            // TINYINT (backend by 1 'byte'),
+            // we will read 4 bytes rather than 1 byte, it will mess up the byte array in
+            // BinaryRowData. So here we must
             // use flink schema.
             return (RowType) requestedSchema.toRowDataType().getLogicalType();
         } else {

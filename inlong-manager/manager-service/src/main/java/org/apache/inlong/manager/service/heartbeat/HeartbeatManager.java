@@ -17,15 +17,6 @@
 
 package org.apache.inlong.manager.service.heartbeat;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.github.benmanes.caffeine.cache.RemovalCause;
-import com.github.benmanes.caffeine.cache.Scheduler;
-import lombok.Getter;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
 import org.apache.inlong.common.heartbeat.ComponentHeartbeat;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
@@ -42,12 +33,26 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
 import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+
+import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.Scheduler;
 
 @Slf4j
 @Component
@@ -97,10 +102,12 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             return;
         }
 
-        // if the heartbeat was not in the cache, insert or update the node by the heartbeat info
+        // if the heartbeat was not in the cache, insert or update the node by the
+        // heartbeat info
         HeartbeatMsg lastHeartbeat = heartbeatCache.getIfPresent(componentHeartbeat);
 
-        // protocolType may be null, and the protocolTypes' length may be less than ports' length
+        // protocolType may be null, and the protocolTypes' length may be less than
+        // ports' length
         String[] ports = heartbeat.getPort().split(InlongConstants.COMMA);
         String[] ips = heartbeat.getIp().split(InlongConstants.COMMA);
         String protocolType = heartbeat.getProtocolType();
@@ -134,7 +141,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             }
         }
 
-        // if the heartbeat already exists, or does not exist but insert/update success, then put it into the cache
+        // if the heartbeat already exists, or does not exist but insert/update success,
+        // then put it into the cache
         if (lastHeartbeat == null && handlerNum == ports.length) {
             heartbeatCache.put(componentHeartbeat, heartbeat);
         }
@@ -151,7 +159,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
             return;
         }
 
-        // protocolType may be null, and the protocolTypes' length may be less than ports' length
+        // protocolType may be null, and the protocolTypes' length may be less than
+        // ports' length
         String[] ports = heartbeat.getPort().split(InlongConstants.COMMA);
         String[] ips = heartbeat.getIp().split(InlongConstants.COMMA);
         String protocolType = heartbeat.getProtocolType();

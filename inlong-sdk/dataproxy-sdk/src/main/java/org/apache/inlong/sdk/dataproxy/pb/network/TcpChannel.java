@@ -71,7 +71,8 @@ public class TcpChannel {
     /**
      * set ipPort
      * 
-     * @param ipPort the ipPort to set
+     * @param ipPort
+     *          the ipPort to set
      */
     public void setIpPort(IpPort ipPort) {
         this.ipPort = ipPort;
@@ -89,7 +90,8 @@ public class TcpChannel {
     /**
      * set channel
      * 
-     * @param channel the channel to set
+     * @param channel
+     *          the channel to set
      */
     public void setChannel(Channel channel) {
         this.channel = channel;
@@ -107,7 +109,8 @@ public class TcpChannel {
     /**
      * set hasException
      * 
-     * @param hasException the hasException to set
+     * @param hasException
+     *          the hasException to set
      */
     public void setHasException(boolean hasException) {
         this.hasException = hasException;
@@ -125,7 +128,8 @@ public class TcpChannel {
     /**
      * set reconnectFail
      * 
-     * @param reconnectFail the reconnectFail to set
+     * @param reconnectFail
+     *          the reconnectFail to set
      */
     public void setReconnectFail(boolean reconnectFail) {
         this.reconnectFail = reconnectFail;

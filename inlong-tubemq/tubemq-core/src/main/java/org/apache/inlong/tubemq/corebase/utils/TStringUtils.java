@@ -17,14 +17,16 @@
 
 package org.apache.inlong.tubemq.corebase.utils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.TokenConstants;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.TokenConstants;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Utility to String operations.
@@ -69,6 +71,7 @@ public class TStringUtils {
 
     /**
      * <p/>
+     * 
      * <pre>
      * TStringUtils.toCamelCase(null)  = null
      * TStringUtils.toCamelCase("")    = ""
@@ -78,11 +81,15 @@ public class TStringUtils {
      * TStringUtils.toCamelCase("aBc def_ghi 123") = "aBcDefGhi123"
      * </pre>
      * <p/>
-     * </p> <p> This method preserves all separators except underscores and whitespace. </p>
+     * </p>
+     * <p>
+     * This method preserves all separators except underscores and whitespace.
+     * </p>
      *
-     * @param origStr The string to be converted
-     * @return Convert the string to Camel Case
-     *     if it is <code>null</code>, return<code>null</code>
+     * @param origStr
+     *          The string to be converted
+     * @return Convert the string to Camel Case if it is <code>null</code>,
+     *         return<code>null</code>
      */
     public static String toCamelCase(String origStr) {
         if (isEmpty(origStr)) {
@@ -96,7 +103,7 @@ public class TStringUtils {
         int curWritePos = 0;
         boolean upperCaseNext = false;
         char[] tgtStr = new char[length];
-        for (int index = 0; index < length; ) {
+        for (int index = 0; index < length;) {
             curChar = origStr.charAt(index);
             index += Character.charCount(curChar);
             // ignore white space chars
@@ -139,27 +146,30 @@ public class TStringUtils {
      * Get the authorization signature based on the provided values
      * base64.encode(hmacSha1(password, username, timestamp, random number))
      *
-     * @param usrName       the user name
-     * @param usrPassWord   the password of username
-     * @param timestamp     the time stamp
-     * @param randomValue   the random value
+     * @param usrName
+     *          the user name
+     * @param usrPassWord
+     *          the password of username
+     * @param timestamp
+     *          the time stamp
+     * @param randomValue
+     *          the random value
      */
     public static String getAuthSignature(final String usrName,
-                                          final String usrPassWord,
-                                          long timestamp, int randomValue) {
+            final String usrPassWord,
+            long timestamp, int randomValue) {
         Base64 base64 = new Base64();
         StringBuilder sbuf = new StringBuilder(512);
-        byte[] baseStr =
-                base64.encode(new HmacUtils(HmacAlgorithms.HMAC_SHA_1, usrPassWord)
-                        .hmac(sbuf.append(usrName)
-                                .append(timestamp)
-                                .append(randomValue)
-                                .toString()));
+        byte[] baseStr = base64.encode(new HmacUtils(HmacAlgorithms.HMAC_SHA_1, usrPassWord)
+                .hmac(sbuf.append(usrName)
+                        .append(timestamp)
+                        .append(randomValue)
+                        .toString()));
         sbuf.delete(0, sbuf.length());
         String signature = "";
         try {
             signature = URLEncoder.encode(new String(baseStr,
-                            TBaseConstants.META_DEFAULT_CHARSET_NAME),
+                    TBaseConstants.META_DEFAULT_CHARSET_NAME),
                     TBaseConstants.META_DEFAULT_CHARSET_NAME);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -170,13 +180,16 @@ public class TStringUtils {
     /**
      * Build attribute information
      *
-     * @param srcAttrs   the current attribute
-     * @param attrKey    the attribute key
-     * @param attrVal    the attribute value
-     * @return           the new attribute information
+     * @param srcAttrs
+     *          the current attribute
+     * @param attrKey
+     *          the attribute key
+     * @param attrVal
+     *          the attribute value
+     * @return the new attribute information
      */
     public static String setAttrValToAttributes(String srcAttrs,
-                                                String attrKey, String attrVal) {
+            String attrKey, String attrVal) {
         StringBuilder sbuf = new StringBuilder(512);
         if (isBlank(srcAttrs)) {
             return sbuf.append(attrKey).append(TokenConstants.EQ).append(attrVal).toString();
@@ -207,9 +220,11 @@ public class TStringUtils {
     /**
      * Get attribute value by key from attribute information
      *
-     * @param srcAttrs   the current attribute
-     * @param attrKey    the attribute key
-     * @return           the attribute value
+     * @param srcAttrs
+     *          the current attribute
+     * @param attrKey
+     *          the attribute key
+     * @return the attribute value
      */
     public static String getAttrValFrmAttributes(String srcAttrs, String attrKey) {
         if (!isBlank(srcAttrs)) {

@@ -18,26 +18,33 @@
 
 package org.apache.inlong.sort.cdc.oracle.debezium.internal;
 
+import java.io.IOException;
+
+import javax.annotation.Nullable;
+
 import io.debezium.document.Document;
 import io.debezium.document.DocumentWriter;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.TableChanges.TableChange;
-import java.io.IOException;
-import javax.annotation.Nullable;
 
 /**
- * The Record represents a schema change event, it contains either one {@link HistoryRecord} or
- * {@link TableChange}.
+ * The Record represents a schema change event, it contains either one
+ * {@link HistoryRecord} or {@link TableChange}.
  *
- * <p>The {@link HistoryRecord} will be used by {@link FlinkDatabaseHistory} which keeps full
- * history of table change events for all tables, the {@link TableChange} will be used by {@link
- * FlinkDatabaseSchemaHistory} which keeps the latest table change for each table.</p>
+ * <p>
+ * The {@link HistoryRecord} will be used by {@link FlinkDatabaseHistory} which
+ * keeps full history of table change events for all tables, the
+ * {@link TableChange} will be used by {@link FlinkDatabaseSchemaHistory} which
+ * keeps the latest table change for each table.
+ * </p>
  */
 public class SchemaRecord {
 
-    @Nullable private final HistoryRecord historyRecord;
+    @Nullable
+    private final HistoryRecord historyRecord;
 
-    @Nullable private final Document tableChangeDoc;
+    @Nullable
+    private final Document tableChangeDoc;
 
     public SchemaRecord(HistoryRecord historyRecord) {
         this.historyRecord = historyRecord;

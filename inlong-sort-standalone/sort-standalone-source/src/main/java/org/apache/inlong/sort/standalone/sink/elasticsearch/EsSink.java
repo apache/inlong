@@ -17,17 +17,19 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
+import org.apache.inlong.sort.standalone.sink.SinkContext;
+import org.apache.inlong.sort.standalone.utils.BufferQueue;
+
 import org.apache.flume.Context;
 import org.apache.flume.EventDeliveryException;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
-import org.apache.inlong.sort.standalone.sink.SinkContext;
-import org.apache.inlong.sort.standalone.utils.BufferQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * EsSink
@@ -99,7 +101,7 @@ public class EsSink extends AbstractSink implements Configurable {
     /**
      * process
      * 
-     * @return                        Status
+     * @return Status
      * @throws EventDeliveryException
      */
     @Override

@@ -17,21 +17,20 @@
 
 package org.apache.inlong.tubemq.server.broker.metadata;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 public class ClusterConfigHolder {
-    private static AtomicLong configId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private static AtomicInteger maxMsgSize =
-            new AtomicInteger(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE
-                    + TBaseConstants.META_MAX_MESSAGE_HEADER_SIZE);
-    private static AtomicInteger minMemCacheSize =
-            new AtomicInteger(TBaseConstants.META_MIN_MEM_BUFFER_SIZE);
+
+    private static AtomicLong configId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private static AtomicInteger maxMsgSize = new AtomicInteger(TBaseConstants.META_MAX_MESSAGE_DATA_SIZE
+            + TBaseConstants.META_MAX_MESSAGE_HEADER_SIZE);
+    private static AtomicInteger minMemCacheSize = new AtomicInteger(TBaseConstants.META_MIN_MEM_BUFFER_SIZE);
 
     public ClusterConfigHolder() {
 
@@ -45,8 +44,7 @@ public class ClusterConfigHolder {
         if (configId.get() != clusterConfig.getConfigId()) {
             configId.set(clusterConfig.getConfigId());
             if (clusterConfig.hasMaxMsgSize()) {
-                Tuple2<Integer, Integer> calcResult =
-                        calcMaxMsgSize(clusterConfig.getMaxMsgSize());
+                Tuple2<Integer, Integer> calcResult = calcMaxMsgSize(clusterConfig.getMaxMsgSize());
                 if (calcResult.getF0() != maxMsgSize.get()) {
                     maxMsgSize.set(calcResult.getF0());
                     minMemCacheSize.set(calcResult.getF1());
@@ -72,8 +70,7 @@ public class ClusterConfigHolder {
                 TBaseConstants.META_MAX_MESSAGE_DATA_SIZE,
                 TBaseConstants.META_MAX_MESSAGE_DATA_SIZE_UPPER_LIMIT)
                 + TBaseConstants.META_MAX_MESSAGE_HEADER_SIZE;
-        int tmpMinMemCacheSize =
-                tmpMaxSize + (tmpMaxSize % 4 + 1) * TBaseConstants.META_MESSAGE_SIZE_ADJUST;
+        int tmpMinMemCacheSize = tmpMaxSize + (tmpMaxSize % 4 + 1) * TBaseConstants.META_MESSAGE_SIZE_ADJUST;
         return new Tuple2<>(tmpMaxSize, tmpMinMemCacheSize);
     }
 

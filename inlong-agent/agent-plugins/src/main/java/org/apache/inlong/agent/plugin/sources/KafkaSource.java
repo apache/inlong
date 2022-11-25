@@ -17,25 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import com.google.gson.Gson;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.plugin.Reader;
-import org.apache.inlong.agent.plugin.sources.reader.KafkaReader;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
-import org.apache.kafka.common.TopicPartition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
-
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
@@ -46,6 +27,28 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
+
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.sources.reader.KafkaReader;
+
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * kafka source, split kafka source job into multi readers
@@ -112,7 +115,7 @@ public class KafkaSource extends AbstractSource {
                     for (String partitionOffset : partitionOffsets) {
                         if (partitionOffset.contains(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)
                                 && partitionOffset.split(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)[0]
-                                .equals(String.valueOf(partitionInfo.partition()))) {
+                                        .equals(String.valueOf(partitionInfo.partition()))) {
                             offset = Long.valueOf(partitionOffset.split(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)[1]);
                         }
                     }

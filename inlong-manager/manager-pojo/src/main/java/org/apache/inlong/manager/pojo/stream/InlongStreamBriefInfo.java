@@ -17,14 +17,17 @@
 
 package org.apache.inlong.manager.pojo.stream;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
 
 import java.util.Date;
 import java.util.List;
+
+import lombok.Data;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Inlong stream brief info

@@ -18,10 +18,12 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import java.util.Objects;
-import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
 
 /**
  * The format information for maps.
@@ -50,8 +52,7 @@ public class MapFormatInfo implements FormatInfo {
     @JsonCreator
     public MapFormatInfo(
             @JsonProperty(FIELD_KEY_FORMAT) @Nonnull FormatInfo keyFormatInfo,
-            @JsonProperty(FIELD_VALUE_FORMAT) @Nonnull FormatInfo valueFormatInfo
-    ) {
+            @JsonProperty(FIELD_VALUE_FORMAT) @Nonnull FormatInfo valueFormatInfo) {
         this.keyFormatInfo = keyFormatInfo;
         this.valueFormatInfo = valueFormatInfo;
     }
@@ -86,7 +87,7 @@ public class MapFormatInfo implements FormatInfo {
 
         MapFormatInfo that = (MapFormatInfo) o;
         return keyFormatInfo.equals(that.keyFormatInfo)
-                       && valueFormatInfo.equals(that.valueFormatInfo);
+                && valueFormatInfo.equals(that.valueFormatInfo);
     }
 
     @Override

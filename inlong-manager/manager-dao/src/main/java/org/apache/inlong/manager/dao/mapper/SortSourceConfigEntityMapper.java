@@ -17,11 +17,13 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.SortSourceConfigEntity;
-import org.springframework.stereotype.Repository;
+
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SortSourceConfigEntityMapper {

@@ -17,10 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
-import java.util.Map;
-
-import org.apache.flume.Context;
-import org.apache.flume.Event;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
@@ -28,6 +24,11 @@ import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.utils.BufferQueue;
+
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+
+import java.util.Map;
 
 /**
  * 

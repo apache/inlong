@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink.greenplum;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -32,12 +29,18 @@ import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSinkDTO;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumTableInfo;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.sql.Connection;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 public class GreenplumResourceOperator implements SinkResourceOperator {
 
@@ -72,7 +75,8 @@ public class GreenplumResourceOperator implements SinkResourceOperator {
     /**
      * Create Greenplum table by SinkInfo.
      *
-     * @param sinkInfo {@link SinkInfo}
+     * @param sinkInfo
+     *          {@link SinkInfo}
      */
     private void createTable(SinkInfo sinkInfo) {
         LOG.info("begin to create Greenplum table for sinkId={}", sinkInfo.getId());
@@ -84,8 +88,7 @@ public class GreenplumResourceOperator implements SinkResourceOperator {
         final List<GreenplumColumnInfo> columnList = Lists.newArrayList();
         fieldList.forEach(field -> {
             columnList.add(
-                    new GreenplumColumnInfo(field.getFieldName(), field.getFieldType(), field.getFieldComment())
-            );
+                    new GreenplumColumnInfo(field.getFieldName(), field.getFieldType(), field.getFieldComment()));
         });
 
         GreenplumSinkDTO greenplumSink = GreenplumSinkDTO.getFromJson(sinkInfo.getExtParams());
@@ -93,8 +96,10 @@ public class GreenplumResourceOperator implements SinkResourceOperator {
         if (StringUtils.isEmpty(tableInfo.getSchemaName())) {
             tableInfo.setSchemaName(GREENPLUM_DEFAULT_SCHEMA);
         }
-        try (Connection conn = GreenplumJdbcUtils.getConnection(greenplumSink.getJdbcUrl(), greenplumSink.getUsername(),
-                greenplumSink.getPassword())) {
+        try (
+                Connection conn =
+                        GreenplumJdbcUtils.getConnection(greenplumSink.getJdbcUrl(), greenplumSink.getUsername(),
+                                greenplumSink.getPassword())) {
             // 1.If schema not exists,create it
             GreenplumJdbcUtils.createSchema(conn, tableInfo.getTableName(), tableInfo.getUserName());
             // 2.If table not exists, create it

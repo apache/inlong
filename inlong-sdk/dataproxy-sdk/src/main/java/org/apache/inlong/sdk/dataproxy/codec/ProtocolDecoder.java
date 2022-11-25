@@ -18,14 +18,15 @@
 
 package org.apache.inlong.sdk.dataproxy.codec;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToMessageDecoder;
 
 public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
 
@@ -33,7 +34,8 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx,
-            ByteBuf buffer, List<Object> out) throws Exception {
+            ByteBuf buffer, List<Object> out)
+            throws Exception {
         buffer.markReaderIndex();
         // totallen
         int totalLen = buffer.readInt();
@@ -93,7 +95,8 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
             out.add(object);
 
         } else if (msgType == 8) {
-            // dataTime(4) + body_ver(1) + body_len(4) + body + attr_len(2) + attr + magic(2)
+            // dataTime(4) + body_ver(1) + body_len(4) + body + attr_len(2) + attr +
+            // magic(2)
             buffer.skipBytes(4 + 1 + 4); // skip datatime, body_ver and body_len
             final short load = buffer.readShort(); // read from body
             int attrLen = buffer.readShort();

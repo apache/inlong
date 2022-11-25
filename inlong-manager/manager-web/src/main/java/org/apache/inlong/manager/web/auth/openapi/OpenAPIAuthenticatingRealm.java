@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.web.auth.openapi;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.user.UserService;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -29,6 +29,8 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.realm.AuthenticatingRealm;
 
 import java.util.Date;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Open api client authorization.

@@ -17,15 +17,17 @@
 
 package org.apache.inlong.agent.plugin;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * common environment setting up for test cases.

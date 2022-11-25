@@ -57,6 +57,7 @@ public class ClickHouseIdConfig {
 
     /**
      * get inlongGroupId
+     * 
      * @return the inlongGroupId
      */
     public String getInlongGroupId() {
@@ -65,7 +66,9 @@ public class ClickHouseIdConfig {
 
     /**
      * set inlongGroupId
-     * @param inlongGroupId the inlongGroupId to set
+     * 
+     * @param inlongGroupId
+     *          the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
         this.inlongGroupId = inlongGroupId;
@@ -73,6 +76,7 @@ public class ClickHouseIdConfig {
 
     /**
      * get inlongStreamId
+     * 
      * @return the inlongStreamId
      */
     public String getInlongStreamId() {
@@ -81,7 +85,9 @@ public class ClickHouseIdConfig {
 
     /**
      * set inlongStreamId
-     * @param inlongStreamId the inlongStreamId to set
+     * 
+     * @param inlongStreamId
+     *          the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
         this.inlongStreamId = inlongStreamId;
@@ -89,6 +95,7 @@ public class ClickHouseIdConfig {
 
     /**
      * get separator
+     * 
      * @return the separator
      */
     public String getSeparator() {
@@ -97,7 +104,9 @@ public class ClickHouseIdConfig {
 
     /**
      * set separator
-     * @param separator the separator to set
+     * 
+     * @param separator
+     *          the separator to set
      */
     public void setSeparator(String separator) {
         this.separator = separator;
@@ -105,6 +114,7 @@ public class ClickHouseIdConfig {
 
     /**
      * get contentFieldNames
+     * 
      * @return the contentFieldNames
      */
     public String getContentFieldNames() {
@@ -113,7 +123,9 @@ public class ClickHouseIdConfig {
 
     /**
      * set contentFieldNames
-     * @param contentFieldNames the contentFieldNames to set
+     * 
+     * @param contentFieldNames
+     *          the contentFieldNames to set
      */
     public void setContentFieldNames(String contentFieldNames) {
         this.contentFieldNames = contentFieldNames;
@@ -121,6 +133,7 @@ public class ClickHouseIdConfig {
 
     /**
      * get contentOffset
+     * 
      * @return the contentOffset
      */
     public int getContentOffset() {
@@ -129,7 +142,9 @@ public class ClickHouseIdConfig {
 
     /**
      * set contentOffset
-     * @param contentOffset the contentOffset to set
+     * 
+     * @param contentOffset
+     *          the contentOffset to set
      */
     public void setContentOffset(int contentOffset) {
         this.contentOffset = contentOffset;
@@ -137,6 +152,7 @@ public class ClickHouseIdConfig {
 
     /**
      * get tableName
+     * 
      * @return the tableName
      */
     public String getTableName() {
@@ -145,7 +161,9 @@ public class ClickHouseIdConfig {
 
     /**
      * set tableName
-     * @param tableName the tableName to set
+     * 
+     * @param tableName
+     *          the tableName to set
      */
     public void setTableName(String tableName) {
         this.tableName = tableName;
@@ -153,6 +171,7 @@ public class ClickHouseIdConfig {
 
     /**
      * get dbFieldNames
+     * 
      * @return the dbFieldNames
      */
     public String getDbFieldNames() {
@@ -161,7 +180,9 @@ public class ClickHouseIdConfig {
 
     /**
      * set dbFieldNames
-     * @param dbFieldNames the dbFieldNames to set
+     * 
+     * @param dbFieldNames
+     *          the dbFieldNames to set
      */
     public void setDbFieldNames(String dbFieldNames) {
         this.dbFieldNames = dbFieldNames;
@@ -169,6 +190,7 @@ public class ClickHouseIdConfig {
 
     /**
      * get contentFieldList
+     * 
      * @return the contentFieldList
      */
     public List<String> getContentFieldList() {
@@ -177,7 +199,9 @@ public class ClickHouseIdConfig {
 
     /**
      * set contentFieldList
-     * @param contentFieldList the contentFieldList to set
+     * 
+     * @param contentFieldList
+     *          the contentFieldList to set
      */
     public void setContentFieldList(List<String> contentFieldList) {
         this.contentFieldList = contentFieldList;
@@ -185,6 +209,7 @@ public class ClickHouseIdConfig {
 
     /**
      * get dbFieldList
+     * 
      * @return the dbFieldList
      */
     public List<Pair<String, Integer>> getDbFieldList() {
@@ -193,7 +218,9 @@ public class ClickHouseIdConfig {
 
     /**
      * set dbFieldList
-     * @param dbFieldList the dbFieldList to set
+     * 
+     * @param dbFieldList
+     *          the dbFieldList to set
      */
     public void setDbFieldList(List<Pair<String, Integer>> dbFieldList) {
         this.dbFieldList = dbFieldList;
@@ -201,6 +228,7 @@ public class ClickHouseIdConfig {
 
     /**
      * get insertSql
+     * 
      * @return the insertSql
      */
     public String getInsertSql() {
@@ -209,7 +237,9 @@ public class ClickHouseIdConfig {
 
     /**
      * set insertSql
-     * @param insertSql the insertSql to set
+     * 
+     * @param insertSql
+     *          the insertSql to set
      */
     public void setInsertSql(String insertSql) {
         this.insertSql = insertSql;

@@ -23,8 +23,9 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * Function that creates the description how the input data should be mapped to redis type.
- * Copy from {@link org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper}
+ * Function that creates the description how the input data should be mapped to
+ * redis type. Copy from
+ * {@link org.apache.flink.streaming.connectors.redis.common.mapper.RedisMapper}
  */
 public interface RedisMapper<T> extends Function, Serializable {
 
@@ -38,7 +39,8 @@ public interface RedisMapper<T> extends Function, Serializable {
     /**
      * Extracts key from data.
      *
-     * @param data source data
+     * @param data
+     *          source data
      * @return key
      */
     default String getKeyFromData(T data) {
@@ -48,7 +50,8 @@ public interface RedisMapper<T> extends Function, Serializable {
     /**
      * Extracts value from data.
      *
-     * @param data source data
+     * @param data
+     *          source data
      * @return value
      */
     default String getValueFromData(T data) {
@@ -56,8 +59,8 @@ public interface RedisMapper<T> extends Function, Serializable {
     }
 
     /**
-     * Extracts the additional key from data as an {@link Optional <String/>}.
-     * The default implementation returns an empty Optional.
+     * Extracts the additional key from data as an {@link Optional <String/>}. The
+     * default implementation returns an empty Optional.
      *
      * @param data
      * @return Optional
@@ -67,8 +70,8 @@ public interface RedisMapper<T> extends Function, Serializable {
     }
 
     /**
-     * Extracts the additional time to live (TTL) for data.
-     * The default implementation returns an empty Optional.
+     * Extracts the additional time to live (TTL) for data. The default
+     * implementation returns an empty Optional.
      *
      * @param data
      * @return Optional

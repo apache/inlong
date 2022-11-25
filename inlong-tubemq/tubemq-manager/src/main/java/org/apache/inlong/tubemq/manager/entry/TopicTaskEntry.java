@@ -17,7 +17,11 @@
 
 package org.apache.inlong.tubemq.manager.entry;
 
+import org.apache.inlong.tubemq.manager.enums.TaskStatusEnum;
+import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
+
 import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
@@ -27,17 +31,15 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import lombok.Data;
-import org.apache.inlong.tubemq.manager.enums.TaskStatusEnum;
-import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "createTopicTask", uniqueConstraints =
-        {
-                @UniqueConstraint(columnNames = {"id"})
-        })
+@Table(name = "createTopicTask", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"id"})
+})
 @Data
 @EntityListeners(AuditingEntityListener.class)
 public class TopicTaskEntry {

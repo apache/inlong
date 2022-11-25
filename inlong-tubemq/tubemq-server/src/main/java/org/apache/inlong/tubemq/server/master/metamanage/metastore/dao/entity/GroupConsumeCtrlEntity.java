@@ -17,18 +17,20 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Objects;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.KeyBuilderUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 
+import java.util.Objects;
+
 /*
  * store the group consume control setting
  *
  */
 public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
+
     private String recordKey = "";
     private String topicName = "";
     private String groupName = "";
@@ -44,7 +46,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     public GroupConsumeCtrlEntity(BaseEntity opInfoEntity,
-                                  String groupName, String topicName) {
+            String groupName, String topicName) {
         super(opInfoEntity);
         setGroupAndTopic(groupName, topicName);
     }
@@ -52,7 +54,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * Constructor by GroupConsumeCtrlEntity
      *
-     * @param bdbEntity  the GroupConsumeCtrlEntity initial object
+     * @param bdbEntity
+     *          the GroupConsumeCtrlEntity initial object
      */
     public GroupConsumeCtrlEntity(BdbGroupFilterCondEntity bdbEntity) {
         super(bdbEntity.getDataVerId(),
@@ -78,10 +81,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      * @return the BdbGroupFilterCondEntity object
      */
     public BdbGroupFilterCondEntity buildBdbGroupFilterCondEntity() {
-        BdbGroupFilterCondEntity bdbEntity =
-                new BdbGroupFilterCondEntity(topicName, groupName,
-                        filterEnable.getCode(), filterCondStr,
-                        getAttributes(), getModifyUser(), getModifyDate());
+        BdbGroupFilterCondEntity bdbEntity = new BdbGroupFilterCondEntity(topicName, groupName,
+                filterEnable.getCode(), filterCondStr,
+                getAttributes(), getModifyUser(), getModifyDate());
         bdbEntity.setCreateInfo(getCreateUser(), getCreateDate());
         bdbEntity.setDataVerId(getDataVerId());
         bdbEntity.setConsumeEnable(consumeEnable);
@@ -162,17 +164,22 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * update subclass field values
      *
-     * @param dataVerId         new data version id
-     * @param consumeEnable     new consume enable status
-     * @param disableRsn        new disable reason
-     * @param filterEnable      new filter enable status
-     * @param filterCondStr     new filter condition configure
+     * @param dataVerId
+     *          new data version id
+     * @param consumeEnable
+     *          new consume enable status
+     * @param disableRsn
+     *          new disable reason
+     * @param filterEnable
+     *          new filter enable status
+     * @param filterCondStr
+     *          new filter condition configure
      *
-     * @return    whether data is changed
+     * @return whether data is changed
      */
     public boolean updModifyInfo(long dataVerId, EnableStatus consumeEnable,
-                                 String disableRsn, EnableStatus filterEnable,
-                                 String filterCondStr) {
+            String disableRsn, EnableStatus filterEnable,
+            String filterCondStr) {
         boolean changed = false;
         // check and set brokerPort info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -215,7 +222,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * fill empty fields with default value
      *
-     * @return  object
+     * @return object
      */
     public GroupConsumeCtrlEntity fillEmptyValues() {
         if (this.filterEnable == EnableStatus.STATUS_UNDEFINE) {
@@ -228,9 +235,9 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     /**
-     * Check whether the specified query item value matches
-     * Allowed query items:
-     *   topicName, groupName, filterConsumeStatus
+     * Check whether the specified query item value matches Allowed query items:
+     * topicName, groupName, filterConsumeStatus
+     * 
      * @return true: matched, false: not match
      */
     public boolean isMatched(GroupConsumeCtrlEntity target) {
@@ -243,24 +250,27 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return (TStringUtils.isBlank(target.getTopicName())
                 || target.getTopicName().equals(this.topicName))
                 && (TStringUtils.isBlank(target.getGroupName())
-                || target.getGroupName().equals(this.groupName))
+                        || target.getGroupName().equals(this.groupName))
                 && (target.getConsumeEnable() == EnableStatus.STATUS_UNDEFINE
-                || target.getConsumeEnable() == this.consumeEnable)
+                        || target.getConsumeEnable() == this.consumeEnable)
                 && (target.getFilterEnable() == EnableStatus.STATUS_UNDEFINE
-                || target.getFilterEnable() == this.filterEnable);
+                        || target.getFilterEnable() == this.filterEnable);
     }
 
     /**
      * Serialize field to json format
      *
-     * @param sBuilder   build container
-     * @param isLongName if return field key is long name
-     * @param fullFormat if return full format json
-     * @return   process result
+     * @param sBuilder
+     *          build container
+     * @param isLongName
+     *          if return field key is long name
+     * @param fullFormat
+     *          if return full format json
+     * @return process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         String tmpFilterConds = filterCondStr;
         if (tmpFilterConds.length() <= 2) {
             tmpFilterConds = "";
@@ -290,7 +300,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * check if subclass fields is equals
      *
-     * @param other  check object
+     * @param other
+     *          check object
      * @return if equals
      */
     public boolean isDataEquals(GroupConsumeCtrlEntity other) {

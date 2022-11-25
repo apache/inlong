@@ -18,10 +18,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.DecimalFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -54,8 +50,11 @@ import org.apache.inlong.sort.protocol.transformation.operator.AndOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 import org.apache.inlong.sort.protocol.transformation.relation.IntervalJoinRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,8 +62,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
- * Test for Interval join for {@link IntervalJoinRelation} {@link FlinkSqlParser} with {@link KafkaExtractNode}
+ * Test for Interval join for {@link IntervalJoinRelation}
+ * {@link FlinkSqlParser} with {@link KafkaExtractNode}
  */
 public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
 
@@ -73,8 +76,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("price", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
                 new FieldInfo("order_time", new TimestampFormatInfo(3)),
-                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME)
-        );
+                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME));
         return new KafkaExtractNode("1", "kafka_input_1", fields,
                 new WatermarkField(new FieldInfo("order_time", new TimestampFormatInfo(3))),
                 null, "orders", "localhost:9092",
@@ -87,8 +89,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
                 new FieldInfo("update_time", new TimestampFormatInfo(3)),
-                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME)
-        );
+                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME));
         return new KafkaExtractNode("2", "kafka_input_2", fields,
                 new WatermarkField(new FieldInfo("update_time", new TimestampFormatInfo(3))),
                 null, "currency_rates", "localhost:9092",
@@ -101,8 +102,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("price", new DecimalFormatInfo(32, 2)),
                 new FieldInfo("currency", new StringFormatInfo()),
                 new FieldInfo("order_time", new TimestampFormatInfo(3)),
-                new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2))
-        );
+                new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
                         new FieldInfo("id", new LongFormatInfo())),
@@ -113,8 +113,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldRelation(new FieldInfo("order_time", "1", new TimestampFormatInfo(3)),
                         new FieldInfo("order_time", new TimestampFormatInfo(3))),
                 new FieldRelation(new FieldInfo("conversion_rate", "2", new DecimalFormatInfo(32, 2)),
-                        new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2)))
-        );
+                        new FieldInfo("conversion_rate", new DecimalFormatInfo(32, 2))));
         return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
                 null, "orders_output", "localhost:9092", new CanalJsonFormat(),
                 null, null, null);
@@ -123,8 +122,10 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
     /**
      * build node relation
      *
-     * @param inputs extract node
-     * @param outputs load node
+     * @param inputs
+     *          extract node
+     * @param outputs
+     *          load node
      * @return node relation
      */
     private IntervalJoinRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -136,8 +137,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                         EmptyOperator.getInstance(),
                         new FieldInfo("currency", "1", new StringFormatInfo()),
                         EqualOperator.getInstance(),
-                        new FieldInfo("currency", "2", new StringFormatInfo())
-                ),
+                        new FieldInfo("currency", "2", new StringFormatInfo())),
                 new BetweenFunction(
                         AndOperator.getInstance(),
                         new FieldInfo("order_time", "1", new TimestampFormatInfo()),
@@ -146,17 +146,16 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                                         TimeUnit.SECOND))),
                         new AddFunction(new FieldInfo("update_time", "2", new TimestampFormatInfo()),
                                 new IntervalFunction(new StringConstantParam("5"), new TimeUnitConstantParam(
-                                        TimeUnit.SECOND)))
-                )
-        ));
+                                        TimeUnit.SECOND))))));
         return new IntervalJoinRelation(inputIds, outputIds, conditionMap);
     }
 
     /**
-     * Test inner temporal join with event time for extract is mysql {@link KafkaExtractNode}
-     * and load is mysql {@link KafkaLoadNode}
+     * Test inner temporal join with event time for extract is mysql
+     * {@link KafkaExtractNode} and load is mysql {@link KafkaLoadNode}
      *
-     * @throws Exception The exception may be thrown when executing
+     * @throws Exception
+     *           The exception may be thrown when executing
      */
     @Test
     public void testIntervalJoinParse() throws Exception {
@@ -177,8 +176,7 @@ public class IntervalJoinRelationSqlParseTest extends AbstractTestBase {
                 Arrays.asList(leftStream, rightStream, kafkaLoadNode),
                 Collections.singletonList(
                         buildNodeRelation(Arrays.asList(leftStream, rightStream),
-                                Collections.singletonList(kafkaLoadNode)))
-        );
+                                Collections.singletonList(kafkaLoadNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.github.pagehelper.Page;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -36,9 +33,9 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +43,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.github.pagehelper.Page;
 
 /**
  * Default operation of stream sink.
@@ -65,8 +68,10 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     /**
      * Setting the parameters of the latest entity.
      *
-     * @param request sink request
-     * @param targetEntity entity object which will set the new parameters.
+     * @param request
+     *          sink request
+     * @param targetEntity
+     *          entity object which will set the new parameters.
      */
     protected abstract void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity);
 
@@ -226,9 +231,9 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
             return param;
         } catch (Exception e) {
             LOGGER.error(String.format(
-                            "cannot parse properties for groupId=%s, streamId=%s, sinkName=%s, the row properties: %s",
-                            streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
-                            streamSink.getSinkName(), streamSink.getExtParams()),
+                    "cannot parse properties for groupId=%s, streamId=%s, sinkName=%s, the row properties: %s",
+                    streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
+                    streamSink.getSinkName(), streamSink.getExtParams()),
                     e);
 
             return null;

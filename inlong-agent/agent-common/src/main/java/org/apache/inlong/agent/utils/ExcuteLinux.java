@@ -28,7 +28,8 @@ public class ExcuteLinux {
     /**
      * execute linux cmd
      *
-     * @param commandStr cmd
+     * @param commandStr
+     *          cmd
      * @return result of execution
      */
     public static String exeCmd(String commandStr) {

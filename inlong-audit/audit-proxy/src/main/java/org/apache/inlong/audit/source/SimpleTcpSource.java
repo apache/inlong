@@ -17,7 +17,27 @@
 
 package org.apache.inlong.audit.source;
 
+import org.apache.inlong.audit.channel.FailoverChannelProcessor;
+import org.apache.inlong.audit.consts.ConfigConstants;
+import org.apache.inlong.audit.utils.EventLoopUtil;
+import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.ChannelSelector;
+import org.apache.flume.Context;
+import org.apache.flume.EventDrivenSource;
+import org.apache.flume.FlumeException;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.source.AbstractSource;
+
+import java.lang.reflect.Constructor;
+import java.net.InetSocketAddress;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.Channel;
@@ -29,21 +49,6 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import java.lang.reflect.Constructor;
-import java.net.InetSocketAddress;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.ChannelSelector;
-import org.apache.flume.Context;
-import org.apache.flume.EventDrivenSource;
-import org.apache.flume.FlumeException;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.source.AbstractSource;
-import org.apache.inlong.audit.channel.FailoverChannelProcessor;
-import org.apache.inlong.audit.consts.ConfigConstants;
-import org.apache.inlong.audit.utils.EventLoopUtil;
-import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Simple tcp source
@@ -151,14 +156,12 @@ public class SimpleTcpSource extends AbstractSource implements Configurable, Eve
         ChannelInitializer fac = null;
 
         try {
-            ServiceDecoder serviceDecoder =
-                    (ServiceDecoder) Class.forName(serviceDecoderName).newInstance();
+            ServiceDecoder serviceDecoder = (ServiceDecoder) Class.forName(serviceDecoderName).newInstance();
             Class<? extends ChannelInitializer> clazz =
                     (Class<? extends ChannelInitializer>) Class.forName(msgFactoryName);
-            Constructor ctor =
-                    clazz.getConstructor(AbstractSource.class, ChannelGroup.class,
-                            ServiceDecoder.class, String.class,
-                            Integer.class, Integer.class, String.class);
+            Constructor ctor = clazz.getConstructor(AbstractSource.class, ChannelGroup.class,
+                    ServiceDecoder.class, String.class,
+                    Integer.class, Integer.class, String.class);
             logger.info("Using channel processor:{}", this.getClass().getName());
             fac = (ChannelInitializer) ctor
                     .newInstance(this, allChannels, serviceDecoder,

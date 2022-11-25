@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.standalone.metrics;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.metric.MetricItemMBean;
 import org.apache.inlong.common.metric.MetricItemSetMBean;
@@ -27,7 +24,8 @@ import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.metric.MetricUtils;
 import org.apache.inlong.common.metric.MetricValue;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.commons.lang3.ClassUtils;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -43,6 +41,10 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+
+import org.slf4j.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
@@ -88,7 +90,7 @@ public class MetricListenerRunnable implements Runnable {
     /**
      * getItemValues
      * 
-     * @return                              MetricItemValue List
+     * @return MetricItemValue List
      * @throws InstanceNotFoundException
      * @throws AttributeNotFoundException
      * @throws ReflectionException

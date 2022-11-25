@@ -30,7 +30,8 @@ public interface InlongConsume {
     /**
      * Save inlong consume info.
      *
-     * @param request consume request need to save
+     * @param request
+     *          consume request need to save
      * @return inlong consume id after saving
      */
     Integer save(InlongConsumeRequest request);
@@ -38,7 +39,8 @@ public interface InlongConsume {
     /**
      * Get inlong consume info based on ID
      *
-     * @param id inlong consume id
+     * @param id
+     *          inlong consume id
      * @return detail of inlong group
      */
     InlongConsumeInfo get(Integer id);
@@ -53,7 +55,8 @@ public interface InlongConsume {
     /**
      * Paging query inlong consume info list
      *
-     * @param request pagination query request
+     * @param request
+     *          pagination query request
      * @return inlong consume list
      */
     PageResult<InlongConsumeBriefInfo> list(InlongConsumePageRequest request);
@@ -61,7 +64,8 @@ public interface InlongConsume {
     /**
      * Update the inlong consume
      *
-     * @param request inlong consume request that needs to be updated
+     * @param request
+     *          inlong consume request that needs to be updated
      * @return inlong consume id after saving
      */
     Integer update(InlongConsumeRequest request);
@@ -69,7 +73,8 @@ public interface InlongConsume {
     /**
      * Delete the inlong consume by the id
      *
-     * @param id inlong consume id that needs to be deleted
+     * @param id
+     *          inlong consume id that needs to be deleted
      * @return whether succeed
      */
     Boolean delete(Integer id);
@@ -77,7 +82,8 @@ public interface InlongConsume {
     /**
      * Start the process for the specified ID.
      *
-     * @param id inlong consume id
+     * @param id
+     *          inlong consume id
      * @return workflow result
      */
     WorkflowResult startProcess(Integer id);

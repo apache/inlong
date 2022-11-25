@@ -17,20 +17,24 @@
 
 package org.apache.inlong.sort.protocol.node.format;
 
-import lombok.Data;
+import org.apache.inlong.common.msg.InLongMsg;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.common.msg.InLongMsg;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Data;
+
 /**
  * The {@link InLongMsg} format.
  *
- * @see <a href="https://inlong.apache.org/docs/development/inlong_msg">InLongMsg Format</a>
+ * @see <a href=
+ *      "https://inlong.apache.org/docs/development/inlong_msg">InLongMsg
+ *      Format</a>
  */
 @JsonTypeName("inLongMsgFormat")
 @Data

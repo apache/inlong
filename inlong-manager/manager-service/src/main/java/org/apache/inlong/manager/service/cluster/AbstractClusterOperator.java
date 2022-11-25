@@ -20,10 +20,11 @@ package org.apache.inlong.manager.service.cluster;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +58,10 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
     /**
      * Set the parameters of the target entity.
      *
-     * @param request inlong cluster request
-     * @param targetEntity entity which will set the new parameters
+     * @param request
+     *          inlong cluster request
+     * @param targetEntity
+     *          entity which will set the new parameters
      */
     protected abstract void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity);
 

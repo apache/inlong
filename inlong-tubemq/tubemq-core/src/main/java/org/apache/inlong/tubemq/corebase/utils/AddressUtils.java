@@ -17,7 +17,8 @@
 
 package org.apache.inlong.tubemq.corebase.utils;
 
-import io.netty.channel.Channel;
+import org.apache.inlong.tubemq.corebase.exception.AddressException;
+
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -25,7 +26,8 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
-import org.apache.inlong.tubemq.corebase.exception.AddressException;
+
+import io.netty.channel.Channel;
 
 public class AddressUtils {
 
@@ -51,12 +53,11 @@ public class AddressUtils {
     }
 
     private static boolean checkValidIp(Enumeration<NetworkInterface> allInterface,
-                                        String currLocalHost) {
+            String currLocalHost) {
         String fstV4IP = null;
         while (allInterface.hasMoreElements()) {
             try {
-                Tuple2<Boolean, String> result =
-                        getValidIPV4Address(allInterface.nextElement(), currLocalHost);
+                Tuple2<Boolean, String> result = getValidIPV4Address(allInterface.nextElement(), currLocalHost);
                 if (result.getF0()) {
                     localIPAddress = currLocalHost;
                     return true;
@@ -141,7 +142,7 @@ public class AddressUtils {
     /**
      * Get local IP V4 address
      *
-     * @return  the local IP V4 address
+     * @return the local IP V4 address
      */
     public static String getIPV4LocalAddress() {
         if (localIPAddress != null) {
@@ -155,8 +156,7 @@ public class AddressUtils {
             }
             while (enumeration.hasMoreElements()) {
                 try {
-                    Tuple2<Boolean, String> result =
-                            getValidIPV4Address(enumeration.nextElement(), null);
+                    Tuple2<Boolean, String> result = getValidIPV4Address(enumeration.nextElement(), null);
                     if (result.getF0()) {
                         tmpAdress = result.getF1();
                         break;
@@ -176,35 +176,33 @@ public class AddressUtils {
             throw new AddressException("Call getIPV4LocalAddress throw exception", e);
         }
         throw new AddressException(new StringBuilder(256)
-            .append("Illegal parameter: not found the default ip")
-            .append(" in local networkInterfaces!").toString());
+                .append("Illegal parameter: not found the default ip")
+                .append(" in local networkInterfaces!").toString());
     }
 
     /**
      * Get the local IP V4 address from the designated NetworkInterface
      *
-     * @return  the local IP V4 address
+     * @return the local IP V4 address
      */
     public static String getIPV4LocalAddress(String defEthName) {
         boolean foundNetInter = false;
         try {
-            Enumeration<NetworkInterface> enumeration =
-                    NetworkInterface.getNetworkInterfaces();
+            Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
             if (enumeration == null) {
                 throw new AddressException("Get NetworkInterfaces is null");
             }
             while (enumeration.hasMoreElements()) {
                 NetworkInterface oneInterface = enumeration.nextElement();
                 if (oneInterface == null
-                    || oneInterface.isLoopback()
-                    || !oneInterface.isUp()
-                    || !defEthName.equalsIgnoreCase(oneInterface.getName())) {
+                        || oneInterface.isLoopback()
+                        || !oneInterface.isUp()
+                        || !defEthName.equalsIgnoreCase(oneInterface.getName())) {
                     continue;
                 }
                 foundNetInter = true;
                 try {
-                    Tuple2<Boolean, String> result =
-                            getValidIPV4Address(oneInterface, null);
+                    Tuple2<Boolean, String> result = getValidIPV4Address(oneInterface, null);
                     if (result.getF0()) {
                         localIPAddress = result.getF1();
                         return localIPAddress;
@@ -218,26 +216,27 @@ public class AddressUtils {
         }
         if (foundNetInter) {
             throw new AddressException(new StringBuilder(256)
-                .append("Illegal parameter: not found valid ip")
-                .append(" in networkInterfaces ").append(defEthName).toString());
+                    .append("Illegal parameter: not found valid ip")
+                    .append(" in networkInterfaces ").append(defEthName).toString());
         } else {
             throw new AddressException(new StringBuilder(256)
-                .append("Illegal parameter: ").append(defEthName)
-                .append(" does not exist or is not in a valid state!").toString());
+                    .append("Illegal parameter: ").append(defEthName)
+                    .append(" does not exist or is not in a valid state!").toString());
         }
     }
 
     /**
      * get valid IPV4 address from networkInterface.
      *
-     * @param networkInterface need check networkInterface
-     * @param checkIp The IP address to be searched,
-     *                if not specified, set to null
-     * @return Search result, field 0 indicates whether it is successful,
-     *                        field 1 carries the matched IP value;
-     *                        if the checkIp is specified but not found the IP,
-     *                        field 1 will return the first IPV4 address
-     * @throws AddressException throw exception if found no ipv4 address
+     * @param networkInterface
+     *          need check networkInterface
+     * @param checkIp
+     *          The IP address to be searched, if not specified, set to null
+     * @return Search result, field 0 indicates whether it is successful, field 1
+     *         carries the matched IP value; if the checkIp is specified but not
+     *         found the IP, field 1 will return the first IPV4 address
+     * @throws AddressException
+     *           throw exception if found no ipv4 address
      */
     public static Tuple2<Boolean, String> getValidIPV4Address(
             NetworkInterface networkInterface, String checkIp) {

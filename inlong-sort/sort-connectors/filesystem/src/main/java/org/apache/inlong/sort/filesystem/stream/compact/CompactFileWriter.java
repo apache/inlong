@@ -18,27 +18,29 @@
 
 package org.apache.inlong.sort.filesystem.stream.compact;
 
+import org.apache.inlong.sort.filesystem.stream.AbstractStreamingWriter;
+
 import org.apache.flink.core.fs.Path;
 import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
 import org.apache.flink.table.filesystem.stream.compact.CompactMessages.CoordinatorInput;
 import org.apache.flink.table.filesystem.stream.compact.CompactMessages.EndCheckpoint;
 import org.apache.flink.table.filesystem.stream.compact.CompactMessages.InputFile;
-import org.apache.inlong.sort.filesystem.stream.AbstractStreamingWriter;
 
 /**
- * Writer for emitting {@link InputFile} and {@link EndCheckpoint} to downstream.
+ * Writer for emitting {@link InputFile} and {@link EndCheckpoint} to
+ * downstream.
  */
 public class CompactFileWriter<T>
-        extends AbstractStreamingWriter<T, CoordinatorInput> {
+        extends
+            AbstractStreamingWriter<T, CoordinatorInput> {
 
     private static final long serialVersionUID = 1L;
 
     public CompactFileWriter(
             long bucketCheckInterval,
-            StreamingFileSink.BucketsBuilder<
-                    T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
-                    bucketsBuilder, String inlongMetric, String inlongAudit) {
+            StreamingFileSink.BucketsBuilder<T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>> bucketsBuilder,
+            String inlongMetric, String inlongAudit) {
         super(bucketCheckInterval, bucketsBuilder, inlongMetric, inlongAudit);
     }
 

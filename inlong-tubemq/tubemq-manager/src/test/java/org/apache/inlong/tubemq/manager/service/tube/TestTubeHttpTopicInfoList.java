@@ -17,9 +17,10 @@
 
 package org.apache.inlong.tubemq.manager.service.tube;
 
-import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.gson.Gson;
 
 public class TestTubeHttpTopicInfoList {
 

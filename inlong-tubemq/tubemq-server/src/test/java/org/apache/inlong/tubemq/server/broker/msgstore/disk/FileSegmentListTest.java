@@ -17,10 +17,12 @@
 
 package org.apache.inlong.tubemq.server.broker.msgstore.disk;
 
+import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +38,7 @@ public class FileSegmentListTest {
         File file = null;
         try {
             file = File.createTempFile("data",
-                DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
+                    DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
             // create FileSegmentList.
             fileSegmentList = new FileSegmentList();
             fileSegmentList.append(new FileSegment(0, file, SegmentType.DATA));
@@ -64,7 +66,7 @@ public class FileSegmentListTest {
         File file = null;
         try {
             file = File.createTempFile("data",
-                DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
+                    DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
             file.createNewFile();
             // create FileSegmentList.
             fileSegmentList = new FileSegmentList();

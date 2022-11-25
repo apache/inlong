@@ -17,8 +17,6 @@
 
 package org.apache.inlong.tubemq.server.common.utils;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
@@ -28,7 +26,11 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class ClientSyncInfo {
+
     private boolean updated = false;
     private long brokerConfigId = TBaseConstants.META_VALUE_UNDEFINED;
     private long topicMetaInfoId = TBaseConstants.META_VALUE_UNDEFINED;
@@ -43,11 +45,13 @@ public class ClientSyncInfo {
     /**
      * Update the client reported subscription information
      *
-     * @param brokerRunManager   the broker run-manager
-     * @param clientSubRepInfo   the client reported subscription information
+     * @param brokerRunManager
+     *          the broker run-manager
+     * @param clientSubRepInfo
+     *          the client reported subscription information
      */
     public void updSubRepInfo(BrokerRunManager brokerRunManager,
-                              ClientMaster.ClientSubRepInfo clientSubRepInfo) {
+            ClientMaster.ClientSubRepInfo clientSubRepInfo) {
         if (clientSubRepInfo == null) {
             return;
         }
@@ -74,8 +78,7 @@ public class ClientSyncInfo {
                     String[] strPartInfoSet = strInfo[1].split(TokenConstants.ARRAY_SEP);
                     for (String partStr : strPartInfoSet) {
                         String[] strPartInfo = partStr.split(TokenConstants.ATTR_SEP);
-                        BrokerInfo brokerInfo =
-                                brokerRunManager.getBrokerInfo(Integer.parseInt(strPartInfo[0]));
+                        BrokerInfo brokerInfo = brokerRunManager.getBrokerInfo(Integer.parseInt(strPartInfo[0]));
                         if (brokerInfo == null) {
                             continue;
                         }

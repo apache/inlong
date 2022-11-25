@@ -17,16 +17,18 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import org.apache.inlong.sort.protocol.transformation.FilterFunction;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * Left outer join relation class which defines the left outer join relation
@@ -42,11 +44,14 @@ public class LeftOuterJoinNodeRelation extends JoinRelation {
     /**
      * LeftOuterJoinNodeRelation Constructor
      *
-     * @param inputs The inputs is a list of input node id
-     * @param outputs The outputs is a list of output node id
-     * @param joinConditionMap The joinConditionMap is a map of join conditions
-     *         the key of joinConditionMap is the node id of join node
-     *         the value of joinConditionMap is a list of join contidition
+     * @param inputs
+     *          The inputs is a list of input node id
+     * @param outputs
+     *          The outputs is a list of output node id
+     * @param joinConditionMap
+     *          The joinConditionMap is a map of join conditions the key of
+     *          joinConditionMap is the node id of join node the value of
+     *          joinConditionMap is a list of join contidition
      */
     @JsonCreator
     public LeftOuterJoinNodeRelation(

@@ -17,16 +17,6 @@
 
 package org.apache.inlong.tubemq.server.tools.cli;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicLong;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 import org.apache.inlong.tubemq.client.common.PeerInfo;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.consumer.ConsumePosition;
@@ -46,20 +36,32 @@ import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
 import org.apache.inlong.tubemq.server.common.fielddef.CliArgDef;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is use to process CLI Consumer process for script #{bin/tubemq-consumer-test.sh}.
+ * This class is use to process CLI Consumer process for script
+ * #{bin/tubemq-consumer-test.sh}.
  */
 public class CliConsumer extends CliAbstractBase {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(CliConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(CliConsumer.class);
     // statistic data index
     private static final AtomicLong TOTAL_COUNTER = new AtomicLong(0);
-    private static final ConcurrentHashMap<String, AtomicLong> TOPIC_COUNT_MAP =
-            new ConcurrentHashMap();
+    private static final ConcurrentHashMap<String, AtomicLong> TOPIC_COUNT_MAP = new ConcurrentHashMap();
     private long startTime = System.currentTimeMillis();
     // sent data content
     private final Map<String, TreeSet<String>> topicAndFiltersMap = new HashMap<>();
@@ -68,14 +70,12 @@ public class CliConsumer extends CliAbstractBase {
     // cli parameters
     private String masterServers;
     private String groupName = "test_consume";
-    private ConsumePosition consumePos =
-            ConsumePosition.CONSUMER_FROM_LATEST_OFFSET;
+    private ConsumePosition consumePos = ConsumePosition.CONSUMER_FROM_LATEST_OFFSET;
     private long msgCount = TBaseConstants.META_VALUE_UNDEFINED;
     private long rpcTimeoutMs = TBaseConstants.META_VALUE_UNDEFINED;
     private boolean reuseConn = false;
     private int clientCount = 1;
-    private int fetchThreadCnt =
-            Runtime.getRuntime().availableProcessors();
+    private int fetchThreadCnt = Runtime.getRuntime().availableProcessors();
     private long printIntervalMs = 5000;
     private boolean isPushConsume = false;
 
@@ -187,26 +187,21 @@ public class CliConsumer extends CliAbstractBase {
      */
     public void initTask() throws Exception {
         // initial consumer configure
-        ConsumerConfig consumerConfig =
-                new ConsumerConfig(masterServers, groupName);
+        ConsumerConfig consumerConfig = new ConsumerConfig(masterServers, groupName);
         consumerConfig.setRpcTimeoutMs(rpcTimeoutMs);
         consumerConfig.setPushFetchThreadCnt(fetchThreadCnt);
         consumerConfig.setConsumePosition(consumePos);
         startTime = System.currentTimeMillis();
         // initial consumer object
         if (isPushConsume) {
-            DefaultMessageListener msgListener =
-                    new DefaultMessageListener();
+            DefaultMessageListener msgListener = new DefaultMessageListener();
             if (reuseConn) {
                 // if reuse connection, need use TubeSingleSessionFactory class
-                MessageSessionFactory msgSessionFactory =
-                        new TubeSingleSessionFactory(consumerConfig);
+                MessageSessionFactory msgSessionFactory = new TubeSingleSessionFactory(consumerConfig);
                 this.sessionFactoryList.add(msgSessionFactory);
                 for (int i = 0; i < clientCount; i++) {
-                    PushMessageConsumer consumer1 =
-                            msgSessionFactory.createPushConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    PushMessageConsumer consumer1 = msgSessionFactory.createPushConsumer(consumerConfig);
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer1.subscribe(entry.getKey(), entry.getValue(), msgListener);
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
@@ -215,13 +210,10 @@ public class CliConsumer extends CliAbstractBase {
                 }
             } else {
                 for (int i = 0; i < clientCount; i++) {
-                    MessageSessionFactory msgSessionFactory =
-                            new TubeMultiSessionFactory(consumerConfig);
+                    MessageSessionFactory msgSessionFactory = new TubeMultiSessionFactory(consumerConfig);
                     this.sessionFactoryList.add(msgSessionFactory);
-                    PushMessageConsumer consumer1 =
-                            msgSessionFactory.createPushConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    PushMessageConsumer consumer1 = msgSessionFactory.createPushConsumer(consumerConfig);
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer1.subscribe(entry.getKey(), entry.getValue(), msgListener);
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
@@ -231,14 +223,11 @@ public class CliConsumer extends CliAbstractBase {
             }
         } else {
             if (reuseConn) {
-                MessageSessionFactory msgSessionFactory =
-                        new TubeSingleSessionFactory(consumerConfig);
+                MessageSessionFactory msgSessionFactory = new TubeSingleSessionFactory(consumerConfig);
                 this.sessionFactoryList.add(msgSessionFactory);
                 for (int i = 0; i < clientCount; i++) {
-                    PullMessageConsumer consumer2 =
-                            msgSessionFactory.createPullConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    PullMessageConsumer consumer2 = msgSessionFactory.createPullConsumer(consumerConfig);
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer2.subscribe(entry.getKey(), entry.getValue());
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
@@ -248,13 +237,10 @@ public class CliConsumer extends CliAbstractBase {
                 }
             } else {
                 for (int i = 0; i < clientCount; i++) {
-                    MessageSessionFactory msgSessionFactory =
-                            new TubeMultiSessionFactory(consumerConfig);
+                    MessageSessionFactory msgSessionFactory = new TubeMultiSessionFactory(consumerConfig);
                     this.sessionFactoryList.add(msgSessionFactory);
-                    PullMessageConsumer consumer2 =
-                            msgSessionFactory.createPullConsumer(consumerConfig);
-                    for (Map.Entry<String, TreeSet<String>> entry
-                            : topicAndFiltersMap.entrySet()) {
+                    PullMessageConsumer consumer2 = msgSessionFactory.createPullConsumer(consumerConfig);
+                    for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
                         consumer2.subscribe(entry.getKey(), entry.getValue());
                         TOPIC_COUNT_MAP.put(entry.getKey(), new AtomicLong(0));
                     }
@@ -279,6 +265,7 @@ public class CliConsumer extends CliAbstractBase {
     }
 
     private static class TupleValue {
+
         public Thread[] fetchRunners = null;
 
         public TupleValue(PullMessageConsumer consumer, long msgCount, int fetchThreadCnt) {
@@ -341,8 +328,7 @@ public class CliConsumer extends CliAbstractBase {
                         if (messageList != null && !messageList.isEmpty()) {
                             int msgCnt = messageList.size();
                             TOTAL_COUNTER.addAndGet(msgCnt);
-                            AtomicLong accCount =
-                                    TOPIC_COUNT_MAP.get(result.getTopicName());
+                            AtomicLong accCount = TOPIC_COUNT_MAP.get(result.getTopicName());
                             accCount.addAndGet(msgCnt);
                         }
                         messageConsumer.confirmConsume(result.getConfirmContext(), true);
@@ -371,8 +357,10 @@ public class CliConsumer extends CliAbstractBase {
 
     /**
      * Consume messages called by the tubemq-consumer-test.sh script.
-     * @param args     Call parameter array,
-     *                 the relevant parameters are dynamic mode, which is parsed by CommandLine.
+     * 
+     * @param args
+     *          Call parameter array, the relevant parameters are dynamic mode,
+     *          which is parsed by CommandLine.
      */
     public static void main(String[] args) {
         CliConsumer cliConsumer = new CliConsumer();

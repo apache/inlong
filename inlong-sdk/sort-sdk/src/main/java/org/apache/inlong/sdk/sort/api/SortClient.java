@@ -21,8 +21,7 @@ public abstract class SortClient {
 
     public abstract boolean init() throws Throwable;
 
-    public abstract void ack(String msgKey, String msgOffset)
-            throws Exception;
+    public abstract void ack(String msgKey, String msgOffset) throws Exception;
 
     public abstract boolean close();
 

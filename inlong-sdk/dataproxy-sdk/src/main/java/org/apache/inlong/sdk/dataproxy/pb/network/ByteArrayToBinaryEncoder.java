@@ -31,9 +31,9 @@ public class ByteArrayToBinaryEncoder extends OneToOneEncoder {
     /**
      * encode
      * 
-     * @param  ctx
-     * @param  channel
-     * @param  msg
+     * @param ctx
+     * @param channel
+     * @param msg
      * @return
      */
     @Override

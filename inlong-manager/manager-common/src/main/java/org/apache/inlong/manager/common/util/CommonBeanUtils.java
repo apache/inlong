@@ -17,15 +17,15 @@
 
 package org.apache.inlong.manager.common.util;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 
 /**
  * Copy the tool class of the Bean property in the List
@@ -35,10 +35,14 @@ public class CommonBeanUtils extends BeanUtils {
     /**
      * Usage scenario: Loop replication for each Java entity in the List
      *
-     * @param sources Source entity list
-     * @param target target entity list
-     * @param <S> The type of the source entity list
-     * @param <T> The type of the target entity list
+     * @param sources
+     *          Source entity list
+     * @param target
+     *          target entity list
+     * @param <S>
+     *          The type of the source entity list
+     * @param <T>
+     *          The type of the target entity list
      * @return target entity list
      */
     public static <S, T> List<T> copyListProperties(List<S> sources, Supplier<T> target) {
@@ -55,12 +59,17 @@ public class CommonBeanUtils extends BeanUtils {
     }
 
     /**
-     * Copy the content of the source data to the object of the target type, and return the result
+     * Copy the content of the source data to the object of the target type, and
+     * return the result
      *
-     * @param source source data content
-     * @param target target type
-     * @param <S> source type
-     * @param <T> target type
+     * @param source
+     *          source data content
+     * @param target
+     *          target type
+     * @param <S>
+     *          source type
+     * @param <T>
+     *          target type
      * @return the target type object after copying
      */
     public static <S, T> T copyProperties(S source, Supplier<T> target) {
@@ -75,12 +84,18 @@ public class CommonBeanUtils extends BeanUtils {
     /**
      * Copy the content of the source instance to the target instance
      *
-     * @param source source data content
-     * @param target target data
-     * @param ignoreNull Whether to ignore null values
-     * @param <S> source type
-     * @param <T> target type
-     * @apiNote If ignoreNull = false, non-null attributes in the target instance may be overwritten
+     * @param source
+     *          source data content
+     * @param target
+     *          target data
+     * @param ignoreNull
+     *          Whether to ignore null values
+     * @param <S>
+     *          source type
+     * @param <T>
+     *          target type
+     * @apiNote If ignoreNull = false, non-null attributes in the target instance
+     *          may be overwritten
      */
     public static <S, T> T copyProperties(S source, T target, boolean ignoreNull) {
         if (source == null) {
@@ -96,14 +111,21 @@ public class CommonBeanUtils extends BeanUtils {
     }
 
     /**
-     * Copy the content of the source instance to the target instance, and return the result
+     * Copy the content of the source instance to the target instance, and return
+     * the result
      *
-     * @param source source data content
-     * @param target target data
-     * @param ignoreNull Whether to ignore null values
-     * @param <S> source type
-     * @param <T> target type
-     * @apiNote If ignoreNull = false, non-null attributes in the target instance may be overwritten
+     * @param source
+     *          source data content
+     * @param target
+     *          target data
+     * @param ignoreNull
+     *          Whether to ignore null values
+     * @param <S>
+     *          source type
+     * @param <T>
+     *          target type
+     * @apiNote If ignoreNull = false, non-null attributes in the target instance
+     *          may be overwritten
      */
     public static <S, T> T copyProperties(S source, Supplier<T> target, boolean ignoreNull) {
         T result = target.get();
@@ -121,7 +143,8 @@ public class CommonBeanUtils extends BeanUtils {
     /**
      * Get an array of null field names for a given object
      *
-     * @param source target object
+     * @param source
+     *          target object
      * @return an array of field names whose value is null
      */
     public static String[] getNullPropertyNames(Object source) {

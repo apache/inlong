@@ -17,15 +17,18 @@
 
 package org.apache.inlong.manager.service.resource.sink.oracle;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleColumnInfo;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 public class OracleSqlBuilder {
 
@@ -34,8 +37,10 @@ public class OracleSqlBuilder {
     /**
      * Build SQL to check whether the table exists.
      *
-     * @param userName Oracle database name
-     * @param tableName Oracle table name
+     * @param userName
+     *          Oracle database name
+     * @param tableName
+     *          Oracle table name
      * @return the check table SQL string
      */
     public static String getCheckTable(final String userName, final String tableName) {
@@ -53,8 +58,10 @@ public class OracleSqlBuilder {
     /**
      * Build SQL to check whether the column exists.
      *
-     * @param tableName Oracle table name
-     * @param columnName Oracle column name
+     * @param tableName
+     *          Oracle table name
+     * @param columnName
+     *          Oracle column name
      * @return the check column SQL string
      */
     public static String getCheckColumn(final String tableName, final String columnName) {
@@ -71,7 +78,8 @@ public class OracleSqlBuilder {
     /**
      * Build create table SQL by OracleTableInfo.
      *
-     * @param table Oracle table info {@link OracleTableInfo}
+     * @param table
+     *          Oracle table info {@link OracleTableInfo}
      * @return the create table SQL String
      */
     public static List<String> buildCreateTableSql(final OracleTableInfo table) {
@@ -91,8 +99,10 @@ public class OracleSqlBuilder {
     /**
      * Build add columns SQL.
      *
-     * @param tableName Oracle table name
-     * @param columnList Oracle column list {@link List}
+     * @param tableName
+     *          Oracle table name
+     * @param columnList
+     *          Oracle column list {@link List}
      * @return add column SQL string list
      */
     public static List<String> buildAddColumnsSql(final String tableName, final List<OracleColumnInfo> columnList) {
@@ -118,7 +128,8 @@ public class OracleSqlBuilder {
     /**
      * Build create column SQL.
      *
-     * @param table Oracle table info {@link OracleColumnInfo}
+     * @param table
+     *          Oracle table info {@link OracleColumnInfo}
      * @return create column SQL string
      */
     private static String buildCreateColumnsSql(final OracleTableInfo table) {
@@ -134,7 +145,8 @@ public class OracleSqlBuilder {
     /**
      * Build column info by OracleColumnInfo list.
      *
-     * @param columns Oracle column info {@link OracleColumnInfo} list
+     * @param columns
+     *          Oracle column info {@link OracleColumnInfo} list
      * @return the SQL list
      */
     private static List<String> getColumnsInfo(final List<OracleColumnInfo> columns) {
@@ -152,10 +164,12 @@ public class OracleSqlBuilder {
     }
 
     /**
-     * Build column comment by  tableName and OracleColumnInfo list.
+     * Build column comment by tableName and OracleColumnInfo list.
      *
-     * @param tableName Oracle table name
-     * @param columns Oracle column info {@link OracleColumnInfo} list
+     * @param tableName
+     *          Oracle table name
+     * @param columns
+     *          Oracle column info {@link OracleColumnInfo} list
      * @return the comment SQL list
      */
     private static List<String> getColumnsComment(final String tableName, final List<OracleColumnInfo> columns) {
@@ -180,7 +194,8 @@ public class OracleSqlBuilder {
     /**
      * Build query table SQL.
      *
-     * @param tableName Oracle table name
+     * @param tableName
+     *          Oracle table name
      * @return desc table SQL string
      */
     public static String buildDescTableSql(final String tableName) {

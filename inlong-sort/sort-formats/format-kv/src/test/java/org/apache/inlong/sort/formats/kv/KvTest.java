@@ -18,15 +18,17 @@
 
 package org.apache.inlong.sort.formats.kv;
 
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.descriptors.Descriptor;
+import org.apache.flink.table.descriptors.DescriptorTestBase;
+import org.apache.flink.table.descriptors.DescriptorValidator;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.descriptors.Descriptor;
-import org.apache.flink.table.descriptors.DescriptorTestBase;
-import org.apache.flink.table.descriptors.DescriptorValidator;
+
 import org.junit.Test;
 
 /**
@@ -34,36 +36,33 @@ import org.junit.Test;
  */
 public class KvTest extends DescriptorTestBase {
 
-    private static final String TEST_SCHEMA =
-            "{" + "\"type\":\"row\","
-                    + "\"fieldFormats\":[{"
-                    + "\"name\":\"student_name\","
-                    + "\"format\":{\"type\":\"string\"}"
-                    + "},{"
-                    + "\"name\":\"score\","
-                    + "\"format\":{\"type\":\"int\"}"
-                    + "},{"
-                    + "\"name\":\"date\","
-                    + "\"format\":{"
-                    + "\"type\":\"date\","
-                    + "\"format\":\"yyyy-MM-dd\""
-                    + "}"
-                    + "}]"
-                    + "}";
+    private static final String TEST_SCHEMA = "{" + "\"type\":\"row\","
+            + "\"fieldFormats\":[{"
+            + "\"name\":\"student_name\","
+            + "\"format\":{\"type\":\"string\"}"
+            + "},{"
+            + "\"name\":\"score\","
+            + "\"format\":{\"type\":\"int\"}"
+            + "},{"
+            + "\"name\":\"date\","
+            + "\"format\":{"
+            + "\"type\":\"date\","
+            + "\"format\":\"yyyy-MM-dd\""
+            + "}"
+            + "}]"
+            + "}";
 
-    private static final Descriptor CUSTOM_DESCRIPTOR_WITH_SCHEMA =
-            new Kv()
-                    .schema(TEST_SCHEMA)
-                    .entryDelimiter('&')
-                    .kvDelimiter('=')
-                    .charset(StandardCharsets.ISO_8859_1)
-                    .ignoreErrors()
-                    .escapeCharacter('\\')
-                    .quoteCharacter('\"')
-                    .nullLiteral("n/a");
+    private static final Descriptor CUSTOM_DESCRIPTOR_WITH_SCHEMA = new Kv()
+            .schema(TEST_SCHEMA)
+            .entryDelimiter('&')
+            .kvDelimiter('=')
+            .charset(StandardCharsets.ISO_8859_1)
+            .ignoreErrors()
+            .escapeCharacter('\\')
+            .quoteCharacter('\"')
+            .nullLiteral("n/a");
 
-    private static final Descriptor MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA =
-            new Kv().deriveSchema();
+    private static final Descriptor MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA = new Kv().deriveSchema();
 
     @Test(expected = ValidationException.class)
     public void testInvalidIgnoreParseErrors() {
@@ -81,8 +80,7 @@ public class KvTest extends DescriptorTestBase {
         addPropertyAndVerify(
                 MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA,
                 "format.schema",
-                TEST_SCHEMA
-        );
+                TEST_SCHEMA);
     }
 
     // --------------------------------------------------------------------------------------------

@@ -19,9 +19,11 @@ package org.apache.inlong.tubemq.client.factory;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -33,6 +35,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AddressUtils.class)
 public class TubeSingleSessionFactoryTest {
+
     @Test
     public void testTubeSingleSessionFactory() throws Exception {
         TubeClientConfig config = mock(TubeClientConfig.class);

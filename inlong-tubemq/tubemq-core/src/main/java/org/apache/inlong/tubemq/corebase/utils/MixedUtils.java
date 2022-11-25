@@ -17,17 +17,20 @@
 
 package org.apache.inlong.tubemq.corebase.utils;
 
+import org.apache.inlong.tubemq.corebase.Message;
+import org.apache.inlong.tubemq.corebase.TokenConstants;
+
+import org.apache.commons.codec.binary.StringUtils;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
-import org.apache.commons.codec.binary.StringUtils;
-import org.apache.inlong.tubemq.corebase.Message;
-import org.apache.inlong.tubemq.corebase.TokenConstants;
 
 public class MixedUtils {
+
     // java version cache
     private static String javaVersion = "";
 
@@ -45,9 +48,12 @@ public class MixedUtils {
     }
 
     /**
-     * parse topic Parameter with format topic_1[,topic_2[:filterCond_2.1[;filterCond_2.2]]]
-     *  topicParam->set(filterCond) map
-     * @param topicParam - composite string
+     * parse topic Parameter with format
+     * topic_1[,topic_2[:filterCond_2.1[;filterCond_2.2]]]
+     * topicParam->set(filterCond) map
+     * 
+     * @param topicParam
+     *          - composite string
      * @return - map of topic->set(filterCond)
      */
     public static Map<String, TreeSet<String>> parseTopicParam(String topicParam) {
@@ -86,7 +92,7 @@ public class MixedUtils {
         // initial send target
         List<Tuple2<String, String>> topicFilterTuples = new ArrayList<>();
         // initial topic send round
-        for (Map.Entry<String, TreeSet<String>> entry: topicAndFiltersMap.entrySet()) {
+        for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
             if (entry.getValue().isEmpty()) {
                 topicFilterTuples.add(new Tuple2<>(entry.getKey()));
             } else {
@@ -100,8 +106,7 @@ public class MixedUtils {
 
     // only for demo
     public static byte[] buildTestData(int bodySize) {
-        final byte[] transmitData =
-                StringUtils.getBytesUtf8("This is a test data!");
+        final byte[] transmitData = StringUtils.getBytesUtf8("This is a test data!");
         final ByteBuffer dataBuffer = ByteBuffer.allocate(bodySize);
         while (dataBuffer.hasRemaining()) {
             int offset = dataBuffer.arrayOffset();
@@ -115,7 +120,7 @@ public class MixedUtils {
     // build message to be sent
     // only for demo
     public static Message buildMessage(String topicName, String filterItem,
-                                       byte[] bodyData, long serialId) {
+            byte[] bodyData, long serialId) {
         // build message to be sent
         Message message = new Message(topicName, bodyData);
         long currTimeMillis = System.currentTimeMillis();

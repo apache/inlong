@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.base.format;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.flink.util.Preconditions;
 
 import java.util.HashMap;
@@ -25,21 +24,24 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * Dynamic schema format factory
  */
 public class DynamicSchemaFormatFactory {
 
-    public static Map<String, Function<Map<String, String>, AbstractDynamicSchemaFormat>> SUPPORT_FORMATS =
-            ImmutableMap.of(
+    public static Map<String, Function<Map<String, String>, AbstractDynamicSchemaFormat>> SUPPORT_FORMATS = ImmutableMap
+            .of(
                     "canal-json", props -> new CanalJsonDynamicSchemaFormat(props),
-                    "debezium-json", props -> new DebeziumJsonDynamicSchemaFormat(props)
-            );
+                    "debezium-json", props -> new DebeziumJsonDynamicSchemaFormat(props));
 
     /**
-     * Get format from the format name, it only supports [canal-json|debezium-json] for now
+     * Get format from the format name, it only supports [canal-json|debezium-json]
+     * for now
      *
-     * @param identifier The identifier of this format
+     * @param identifier
+     *          The identifier of this format
      * @return The dynamic format
      */
     @SuppressWarnings("rawtypes")
@@ -47,19 +49,20 @@ public class DynamicSchemaFormatFactory {
         return getFormat(identifier, new HashMap<>());
     }
 
-
     /**
-     * Get format from the format name, it only supports [canal-json|debezium-json] for now
+     * Get format from the format name, it only supports [canal-json|debezium-json]
+     * for now
      *
-     * @param identifier The identifier of this format
+     * @param identifier
+     *          The identifier of this format
      * @return The dynamic format
      */
     @SuppressWarnings("rawtypes")
     public static AbstractDynamicSchemaFormat getFormat(String identifier, Map<String, String> properties) {
         Preconditions.checkNotNull(identifier, "The identifier is null");
         return Optional.ofNullable(SUPPORT_FORMATS.get(identifier))
-                .orElseThrow(() ->
-                        new UnsupportedOperationException("Unsupport dynamic schema format for:" + identifier))
+                .orElseThrow(
+                        () -> new UnsupportedOperationException("Unsupport dynamic schema format for:" + identifier))
                 .apply(properties);
     }
 }

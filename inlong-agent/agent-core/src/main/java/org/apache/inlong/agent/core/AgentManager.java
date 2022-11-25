@@ -17,6 +17,10 @@
 
 package org.apache.inlong.agent.core;
 
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CONF_PARENT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_CONF_PARENT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
+
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -33,19 +37,16 @@ import org.apache.inlong.agent.db.Db;
 import org.apache.inlong.agent.db.JobProfileDb;
 import org.apache.inlong.agent.db.LocalProfile;
 import org.apache.inlong.agent.db.TriggerProfileDb;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
 
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CONF_PARENT;
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_CONF_PARENT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Agent Manager, the bridge for job manager, task manager, db e.t.c it manages agent level operations and communicates
- * with outside system.
+ * Agent Manager, the bridge for job manager, task manager, db e.t.c it manages
+ * agent level operations and communicates with outside system.
  */
 public class AgentManager extends AbstractDaemon {
 
@@ -89,12 +90,10 @@ public class AgentManager extends AbstractDaemon {
      */
     private ProfileFetcher initFetcher(AgentManager agentManager) {
         try {
-            Constructor<?> constructor =
-                    Class.forName(conf.get(AgentConstants.AGENT_FETCHER_CLASSNAME))
-                            .getDeclaredConstructor(AgentManager.class);
+            Constructor<?> constructor = Class.forName(conf.get(AgentConstants.AGENT_FETCHER_CLASSNAME))
+                    .getDeclaredConstructor(AgentManager.class);
             constructor.setAccessible(true);
-            return
-                    (ProfileFetcher) constructor.newInstance(agentManager);
+            return (ProfileFetcher) constructor.newInstance(agentManager);
         } catch (Exception ex) {
             LOGGER.warn("cannot find fetcher: ", ex);
         }
@@ -191,7 +190,8 @@ public class AgentManager extends AbstractDaemon {
     /**
      * It should guarantee thread-safe, and can be invoked many times.
      *
-     * @throws Exception exceptions
+     * @throws Exception
+     *           exceptions
      */
     @Override
     public void stop() throws Exception {

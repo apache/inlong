@@ -17,15 +17,17 @@
 
 package org.apache.inlong.tubemq.manager.controller.cluster.vo;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 
 import java.util.List;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
 @NoArgsConstructor
 public class ClusterVo {
+
     private Long clusterId;
     private String clusterName;
     private List<MasterEntry> masterEntries;

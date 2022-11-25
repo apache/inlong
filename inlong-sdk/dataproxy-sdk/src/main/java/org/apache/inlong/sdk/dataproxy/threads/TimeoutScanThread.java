@@ -18,24 +18,27 @@
 
 package org.apache.inlong.sdk.dataproxy.threads;
 
-import io.netty.channel.Channel;
 import org.apache.inlong.sdk.dataproxy.FileCallback;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
 import org.apache.inlong.sdk.dataproxy.network.QueueObject;
 import org.apache.inlong.sdk.dataproxy.network.TimeScanObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.netty.channel.Channel;
+
 /**
  * Daemon threads to check timeout for asynchronous callback.
  */
 public class TimeoutScanThread extends Thread {
+
     private static final int MAX_CHANNEL_TIMEOUT = 5 * 60 * 1000;
     private final Logger logger = LoggerFactory.getLogger(TimeoutScanThread.class);
     private final ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks;
@@ -100,7 +103,7 @@ public class TimeoutScanThread extends Thread {
      * check timeout
      */
     private void checkTimeoutChannel() {
-        //if timeout >3,set channel busy
+        // if timeout >3,set channel busy
         for (Channel tmpChannel : timeoutChannelStat.keySet()) {
             TimeScanObject timeScanObject = tmpChannel != null ? timeoutChannelStat.get(tmpChannel) : null;
             if (timeScanObject == null) {

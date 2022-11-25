@@ -24,6 +24,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 public class Application {
+
     public static void main(String[] args) {
         new SpringApplicationBuilder().sources(Application.class)
                 .web(WebApplicationType.NONE).run(args);

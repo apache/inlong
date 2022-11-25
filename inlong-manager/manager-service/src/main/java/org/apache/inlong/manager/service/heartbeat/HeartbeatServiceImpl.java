@@ -17,12 +17,6 @@
 
 package org.apache.inlong.manager.service.heartbeat;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.google.gson.Gson;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.common.heartbeat.StreamHeartbeat;
@@ -44,10 +38,20 @@ import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
 import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
 import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 import org.apache.inlong.manager.service.core.HeartbeatService;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.google.gson.Gson;
 
 /**
  * Heartbeat service layer implementation
@@ -252,8 +256,8 @@ public class HeartbeatServiceImpl implements HeartbeatService {
 
     private PageResult<ComponentHeartbeatResponse> listComponentHeartbeatOpt(HeartbeatPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<ComponentHeartbeatEntity> entityPage = (Page<ComponentHeartbeatEntity>)
-                componentHeartbeatMapper.selectByCondition(request);
+        Page<ComponentHeartbeatEntity> entityPage = (Page<ComponentHeartbeatEntity>) componentHeartbeatMapper
+                .selectByCondition(request);
         List<ComponentHeartbeatResponse> responseList = CommonBeanUtils.copyListProperties(entityPage,
                 ComponentHeartbeatResponse::new);
 
@@ -273,8 +277,8 @@ public class HeartbeatServiceImpl implements HeartbeatService {
 
     private PageResult<StreamHeartbeatResponse> listStreamHeartbeatOpt(HeartbeatPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<StreamHeartbeatEntity> entityPage = (Page<StreamHeartbeatEntity>)
-                streamHeartbeatMapper.selectByCondition(request);
+        Page<StreamHeartbeatEntity> entityPage = (Page<StreamHeartbeatEntity>) streamHeartbeatMapper
+                .selectByCondition(request);
         List<StreamHeartbeatResponse> responseList = CommonBeanUtils.copyListProperties(entityPage,
                 StreamHeartbeatResponse::new);
 

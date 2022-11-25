@@ -17,17 +17,19 @@
 
 package org.apache.inlong.tubemq.manager.controller.topic.request;
 
+import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
+
 import java.util.List;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class BatchAddGroupAuthReq extends BaseReq {
+
     private String confModAuthToken;
     private List<GroupAuthItem> groupNameJsonSet;
     private String createUser;

@@ -17,11 +17,12 @@
 
 package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.server.master.web.simplemvc.conf.WebConfig;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.master.web.simplemvc.conf.WebConfig;
 
 public class RequestContext extends MappedContext {
 
@@ -40,9 +41,8 @@ public class RequestContext extends MappedContext {
         this.config = config;
         this.req = req;
         this.resp = resp;
-        this.requestPath =
-                new StringBuilder(512).append(req.getServletPath())
-                        .append(req.getPathInfo() != null ? req.getPathInfo() : "").toString();
+        this.requestPath = new StringBuilder(512).append(req.getServletPath())
+                .append(req.getPathInfo() != null ? req.getPathInfo() : "").toString();
         if ("/".equals(this.requestPath)) {
             this.requestPath = config.getDefaultPage();
         }

@@ -19,6 +19,7 @@ package org.apache.inlong.sort.formats.json.canal;
 
 import java.util.List;
 import java.util.Map;
+
 import lombok.Builder;
 
 @Builder
@@ -144,4 +145,3 @@ public class CanalJson {
     }
 
 }
-

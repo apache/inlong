@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.client.cli.pojo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
 import org.apache.inlong.manager.client.cli.util.ParseStatus;
 import org.apache.inlong.manager.common.enums.SimpleGroupStatus;
 
 import java.util.Date;
+
+import lombok.Data;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * Sink info, including sink type, sink name, etc.

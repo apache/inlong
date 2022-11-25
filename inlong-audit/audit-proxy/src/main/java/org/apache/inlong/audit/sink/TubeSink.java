@@ -17,18 +17,6 @@
 
 package org.apache.inlong.audit.sink;
 
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.RateLimiter;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.FlumeException;
-import org.apache.flume.Transaction;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.instrumentation.SinkCounter;
-import org.apache.flume.sink.AbstractSink;
 import org.apache.inlong.audit.base.HighPriorityThreadFactory;
 import org.apache.inlong.audit.consts.ConfigConstants;
 import org.apache.inlong.audit.utils.FailoverChannelProcessorHolder;
@@ -42,8 +30,17 @@ import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.flume.EventDeliveryException;
+import org.apache.flume.FlumeException;
+import org.apache.flume.Transaction;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.instrumentation.SinkCounter;
+import org.apache.flume.sink.AbstractSink;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +50,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.RateLimiter;
 
 public class TubeSink extends AbstractSink implements Configurable {
 
@@ -90,8 +93,7 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     private static AtomicLong totalTubeSuccSendSize = new AtomicLong(0);
 
-    private static ConcurrentHashMap<String, Long> illegalTopicMap =
-            new ConcurrentHashMap<String, Long>();
+    private static ConcurrentHashMap<String, Long> illegalTopicMap = new ConcurrentHashMap<String, Long>();
 
     private static ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1,
             new HighPriorityThreadFactory("tubePerformance-Printer-thread"));
@@ -309,7 +311,7 @@ public class TubeSink extends AbstractSink implements Configurable {
      * Send message of success.
      */
     public void handleMessageSendSuccess(EventStat es) {
-        //Statistics tube performance
+        // Statistics tube performance
         totalTubeSuccSendCnt.incrementAndGet();
         totalTubeSuccSendSize.addAndGet(es.getEvent().getBody().length);
 
@@ -322,9 +324,10 @@ public class TubeSink extends AbstractSink implements Configurable {
             lastSuccessSendCnt.set(nowCnt);
             t2 = System.currentTimeMillis();
             logger.info("tubesink {}, succ put {} events to tube,"
-                    + " in the past {} millsec", new Object[]{
-                    getName(), (nowCnt - oldCnt), (t2 - t1)
-            });
+                    + " in the past {} millsec",
+                    new Object[]{
+                            getName(), (nowCnt - oldCnt), (t2 - t1)
+                    });
             t1 = t2;
         }
 
@@ -350,10 +353,11 @@ public class TubeSink extends AbstractSink implements Configurable {
     }
 
     /**
-     * If this function is called successively without calling {@see #destroyConnection()}, only the
-     * first call has any effect.
+     * If this function is called successively without calling
+     * {@see #destroyConnection()}, only the first call has any effect.
      *
-     * @throws FlumeException if an RPC client connection could not be opened
+     * @throws FlumeException
+     *           if an RPC client connection could not be opened
      */
     private void createConnection() throws FlumeException {
         // if already connected, just skip
@@ -419,7 +423,8 @@ public class TubeSink extends AbstractSink implements Configurable {
     }
 
     /**
-     * Currently, all topics are published by the same producer. If needed, extend it to multi producers.
+     * Currently, all topics are published by the same producer. If needed, extend
+     * it to multi producers.
      *
      * @param topic
      * @throws TubeClientException
@@ -561,7 +566,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                             try {
                                 Thread.sleep(100);
                             } catch (InterruptedException e) {
-                                //ignore..
+                                // ignore..
                             }
                         }
                     }
@@ -570,7 +575,8 @@ public class TubeSink extends AbstractSink implements Configurable {
             }
         }
 
-        private boolean sendMessage(Event event, String topic, EventStat es)
+        private boolean sendMessage(Event event, String topic,
+                EventStat es)
                 throws TubeClientException, InterruptedException {
             MessageProducer producer = getProducer(topic);
             if (producer == null) {

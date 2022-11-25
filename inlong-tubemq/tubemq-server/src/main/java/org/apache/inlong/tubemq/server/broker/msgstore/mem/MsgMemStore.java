@@ -17,6 +17,17 @@
 
 package org.apache.inlong.tubemq.server.broker.msgstore.mem;
 
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+import org.apache.inlong.tubemq.server.broker.metadata.ClusterConfigHolder;
+import org.apache.inlong.tubemq.server.broker.msgstore.disk.MsgFileStore;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
+import org.apache.inlong.tubemq.server.broker.stats.MsgStoreStatsHolder;
+import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
+import org.apache.inlong.tubemq.server.common.utils.AppendResult;
+
+import sun.nio.ch.DirectBuffer;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -28,22 +39,16 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
-import org.apache.inlong.tubemq.server.broker.metadata.ClusterConfigHolder;
-import org.apache.inlong.tubemq.server.broker.msgstore.disk.MsgFileStore;
-import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
-import org.apache.inlong.tubemq.server.broker.stats.MsgStoreStatsHolder;
-import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
-import org.apache.inlong.tubemq.server.common.utils.AppendResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.nio.ch.DirectBuffer;
 
 /**
- * Message's memory storage. It use direct memory store messages that received but not have been flushed to disk.
+ * Message's memory storage. It use direct memory store messages that received
+ * but not have been flushed to disk.
  */
 public class MsgMemStore implements Closeable {
+
     private static final Logger logger = LoggerFactory.getLogger(MsgMemStore.class);
     // statistics of memory store
     private final AtomicInteger cacheDataOffset = new AtomicInteger(0);
@@ -51,11 +56,9 @@ public class MsgMemStore implements Closeable {
     private final AtomicInteger curMessageCount = new AtomicInteger(0);
     private final ReentrantLock writeLock = new ReentrantLock();
     // partitionId to index position, accelerate query
-    private final Map<Integer, Integer> queuesMap =
-            new HashMap<>(20);
+    private final Map<Integer, Integer> queuesMap = new HashMap<>(20);
     // key to index position, used for filter consume
-    private final Map<Integer, Integer> keysMap =
-            new HashMap<>(100);
+    private final Map<Integer, Integer> keysMap = new HashMap<>(100);
     // where messages in memory will sink to disk
     private final int maxDataCacheSize;
     private long writeDataStartPos = -1;
@@ -64,21 +67,23 @@ public class MsgMemStore implements Closeable {
     private long writeIndexStartPos = -1;
     private final ByteBuffer cachedIndexSegment;
     private final int maxAllowedMsgCount;
-    private final AtomicLong leftAppendTime =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private final AtomicLong rightAppendTime =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong leftAppendTime = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong rightAppendTime = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
     /**
      * MsgMemStore, initial message memory cache store block
      *
-     * @param maxCacheSize     the allowed max cache data size
-     * @param maxMsgCount      the allowed max cache data size
-     * @param writeDataStartPos     the data start position
-     * @param writeIndexStartPos    the data start position
+     * @param maxCacheSize
+     *          the allowed max cache data size
+     * @param maxMsgCount
+     *          the allowed max cache data size
+     * @param writeDataStartPos
+     *          the data start position
+     * @param writeIndexStartPos
+     *          the data start position
      */
     public MsgMemStore(int maxCacheSize, int maxMsgCount,
-                       long writeDataStartPos, long writeIndexStartPos) {
+            long writeDataStartPos, long writeIndexStartPos) {
         this.maxDataCacheSize = maxCacheSize;
         this.maxAllowedMsgCount = maxMsgCount;
         this.maxIndexCacheSize = this.maxAllowedMsgCount * DataStoreUtils.STORE_INDEX_HEAD_LEN;
@@ -93,8 +98,10 @@ public class MsgMemStore implements Closeable {
     /**
      * Reset the memory store status values.
      *
-     * @param writeDataStartPos     the data start position
-     * @param writeIndexStartPos    the data start position
+     * @param writeDataStartPos
+     *          the data start position
+     * @param writeIndexStartPos
+     *          the data start position
      */
     public void resetMemStoreStatus(long writeDataStartPos, long writeIndexStartPos) {
         this.keysMap.clear();
@@ -113,21 +120,29 @@ public class MsgMemStore implements Closeable {
     /**
      * Append message to memory cache
      *
-     * @param memStatsHolder    statistical information object
-     * @param partitionId       the partitionId for append messages
-     * @param keyCode           the filter item hash code
-     * @param timeRecv          the received timestamp
-     * @param indexEntry        the stored index entry
-     * @param dataEntryLength   the stored data entry length
-     * @param dataEntry         the stored data entry
-     * @param appendResult      the append result
+     * @param memStatsHolder
+     *          statistical information object
+     * @param partitionId
+     *          the partitionId for append messages
+     * @param keyCode
+     *          the filter item hash code
+     * @param timeRecv
+     *          the received timestamp
+     * @param indexEntry
+     *          the stored index entry
+     * @param dataEntryLength
+     *          the stored data entry length
+     * @param dataEntry
+     *          the stored data entry
+     * @param appendResult
+     *          the append result
      *
-     * @return    the process result
+     * @return the process result
      */
     public boolean appendMsg(MsgStoreStatsHolder memStatsHolder,
-                             int partitionId, int keyCode, long timeRecv,
-                             ByteBuffer indexEntry, int dataEntryLength,
-                             ByteBuffer dataEntry, AppendResult appendResult) {
+            int partitionId, int keyCode, long timeRecv,
+            ByteBuffer indexEntry, int dataEntryLength,
+            ByteBuffer dataEntry, AppendResult appendResult) {
         long dataOffset;
         long indexOffset;
         int indexSizePos;
@@ -138,10 +153,8 @@ public class MsgMemStore implements Closeable {
         this.writeLock.lock();
         try {
             // judge whether can write to memory or not.
-            fullDataSize =
-                    (this.cacheDataOffset.get() + dataEntryLength > this.maxDataCacheSize);
-            fullCount =
-                    (this.curMessageCount.get() + 1 > maxAllowedMsgCount);
+            fullDataSize = (this.cacheDataOffset.get() + dataEntryLength > this.maxDataCacheSize);
+            fullCount = (this.curMessageCount.get() + 1 > maxAllowedMsgCount);
             fullIndexSize =
                     (this.cacheIndexOffset.get() + DataStoreUtils.STORE_INDEX_HEAD_LEN > this.maxIndexCacheSize);
             if (fullDataSize || fullCount || fullIndexSize) {
@@ -177,23 +190,32 @@ public class MsgMemStore implements Closeable {
     /**
      * Read from memory, read index, then data.
      *
-     * @param lstRdDataOffset       the recent data offset read before
-     * @param lstRdIndexOffset      the recent index offset read before
-     * @param maxReadSize           the max read size
-     * @param maxReadCount          the max read count
-     * @param partitionId           the partitionId for reading messages
-     * @param isSecond              whether read from secondary cache
-     * @param isFilterConsume       whether to filter consumption
-     * @param filterKeySet          filter item set
-     * @param reqRcvTime            the timestamp of the record to be checked
+     * @param lstRdDataOffset
+     *          the recent data offset read before
+     * @param lstRdIndexOffset
+     *          the recent index offset read before
+     * @param maxReadSize
+     *          the max read size
+     * @param maxReadCount
+     *          the max read count
+     * @param partitionId
+     *          the partitionId for reading messages
+     * @param isSecond
+     *          whether read from secondary cache
+     * @param isFilterConsume
+     *          whether to filter consumption
+     * @param filterKeySet
+     *          filter item set
+     * @param reqRcvTime
+     *          the timestamp of the record to be checked
      *
-     * @return                      read result
+     * @return read result
      */
     public GetCacheMsgResult getMessages(long lstRdDataOffset, long lstRdIndexOffset,
-                                         int maxReadSize, int maxReadCount,
-                                         int partitionId, boolean isSecond,
-                                         boolean isFilterConsume, Set<Integer> filterKeySet,
-                                         long reqRcvTime) {
+            int maxReadSize, int maxReadCount,
+            int partitionId, boolean isSecond,
+            boolean isFilterConsume, Set<Integer> filterKeySet,
+            long reqRcvTime) {
         // #lizard forgives
         Integer lastWritePos = 0;
         boolean hasMsg = false;
@@ -261,11 +283,10 @@ public class MsgMemStore implements Closeable {
         ByteBuffer tmpIndexRdBuf = this.cachedIndexSegment.asReadOnlyBuffer();
         ByteBuffer tmpDataRdBuf = this.cacheDataSegment.asReadOnlyBuffer();
         // loop read by index
-        for (int count = 0; count < maxReadCount;
-             count++, startReadOff += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
+        for (int count = 0; count < maxReadCount; count++, startReadOff += DataStoreUtils.STORE_INDEX_HEAD_LEN) {
             // cannot find matched message, return
             if ((startReadOff >= currIndexOffset)
-                || (startReadOff + DataStoreUtils.STORE_INDEX_HEAD_LEN > currIndexOffset)) {
+                    || (startReadOff + DataStoreUtils.STORE_INDEX_HEAD_LEN > currIndexOffset)) {
                 break;
             }
             // read index content.
@@ -316,12 +337,16 @@ public class MsgMemStore implements Closeable {
     /**
      * Batch flush memory data to disk.
      *
-     * @param msgFileStore    the file storage
-     * @param strBuffer       the message buffer
-     * @throws IOException    the exception during processing
+     * @param msgFileStore
+     *          the file storage
+     * @param strBuffer
+     *          the message buffer
+     * @throws IOException
+     *           the exception during processing
      */
     public void batchFlush(MsgFileStore msgFileStore,
-                           StringBuilder strBuffer) throws Throwable {
+            StringBuilder strBuffer)
+            throws Throwable {
         if (this.curMessageCount.get() == 0) {
             return;
         }
@@ -331,7 +356,7 @@ public class MsgMemStore implements Closeable {
         tmpDataReadBuf.flip();
         long startTime = System.currentTimeMillis();
         msgFileStore.appendMsg(true, startTime, strBuffer, curMessageCount.get(),
-            cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(),
+                cacheIndexOffset.get(), tmpIndexBuffer, cacheDataOffset.get(),
                 tmpDataReadBuf, leftAppendTime.get(), rightAppendTime.get());
         BrokerSrvStatsHolder.updDiskSyncDataDlt(System.currentTimeMillis() - startTime);
     }

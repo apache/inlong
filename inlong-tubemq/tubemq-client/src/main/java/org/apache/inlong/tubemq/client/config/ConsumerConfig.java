@@ -30,36 +30,25 @@ public class ConsumerConfig extends TubeClientConfig {
 
     private final String consumerGroup;
 
-    /* consumeModel
-     *    Set the start position of the consumer group. The value can be [-1, 0, 1]. Default value is 0.
-     * -1: Start from 0 for the first time. Otherwise start from last consume position.
-     *  0: Start from the latest position for the first time. Otherwise start from last consume position.
-     *  1: Start from the latest consume position.
-    */
+    /*
+     * consumeModel Set the start position of the consumer group. The value can be [-1, 0, 1]. Default value is 0. -1:
+     * Start from 0 for the first time. Otherwise start from last consume position. 0: Start from the latest position
+     * for the first time. Otherwise start from last consume position. 1: Start from the latest consume position.
+     */
     private ConsumePosition consumePosition = ConsumePosition.CONSUMER_FROM_LATEST_OFFSET;
-    private int maxSubInfoReportIntvlTimes =
-            TClientConstants.MAX_SUBSCRIBE_REPORT_INTERVAL_TIMES;
-    private long msgNotFoundWaitPeriodMs =
-            TClientConstants.CFG_DEFAULT_MSG_NOTFOUND_WAIT_PERIOD_MS;
-    private long pullConsumeReadyWaitPeriodMs =
-            TClientConstants.CFG_DEFAULT_CONSUME_READ_WAIT_PERIOD_MS;
-    private long pullConsumeReadyChkSliceMs =
-            TClientConstants.CFG_DEFAULT_CONSUME_READ_CHECK_SLICE_MS;
-    private long shutDownRebalanceWaitPeriodMs =
-            TClientConstants.CFG_DEFAULT_SHUTDOWN_REBALANCE_WAIT_PERIOD_MS;
-    private long partMetaInfoCheckPeriodMs =
-            TClientConstants.CFG_DEFAULT_META_QUERY_WAIT_PERIOD_MS;
-    private int pushFetchThreadCnt =
-            TClientConstants.CFG_DEFAULT_CLIENT_PUSH_FETCH_THREAD_CNT;
+    private int maxSubInfoReportIntvlTimes = TClientConstants.MAX_SUBSCRIBE_REPORT_INTERVAL_TIMES;
+    private long msgNotFoundWaitPeriodMs = TClientConstants.CFG_DEFAULT_MSG_NOTFOUND_WAIT_PERIOD_MS;
+    private long pullConsumeReadyWaitPeriodMs = TClientConstants.CFG_DEFAULT_CONSUME_READ_WAIT_PERIOD_MS;
+    private long pullConsumeReadyChkSliceMs = TClientConstants.CFG_DEFAULT_CONSUME_READ_CHECK_SLICE_MS;
+    private long shutDownRebalanceWaitPeriodMs = TClientConstants.CFG_DEFAULT_SHUTDOWN_REBALANCE_WAIT_PERIOD_MS;
+    private long partMetaInfoCheckPeriodMs = TClientConstants.CFG_DEFAULT_META_QUERY_WAIT_PERIOD_MS;
+    private int pushFetchThreadCnt = TClientConstants.CFG_DEFAULT_CLIENT_PUSH_FETCH_THREAD_CNT;
     private boolean pushListenerWaitTimeoutRollBack = true;
     private boolean pushListenerThrowedRollBack = false;
-    private long pushListenerWaitPeriodMs =
-            TClientConstants.CFG_DEFAULT_PUSH_LISTENER_WAIT_PERIOD_MS;
+    private long pushListenerWaitPeriodMs = TClientConstants.CFG_DEFAULT_PUSH_LISTENER_WAIT_PERIOD_MS;
     private boolean pullRebConfirmTimeoutRollBack = true;
-    private long pullRebConfirmWaitPeriodMs =
-            TClientConstants.CFG_DEFAULT_PULL_REB_CONFIRM_WAIT_PERIOD_MS;
-    private long pullProtectConfirmTimeoutMs =
-            TClientConstants.CFG_DEFAULT_PULL_PROTECT_CONFIRM_WAIT_PERIOD_MS;
+    private long pullRebConfirmWaitPeriodMs = TClientConstants.CFG_DEFAULT_PULL_REB_CONFIRM_WAIT_PERIOD_MS;
+    private long pullProtectConfirmTimeoutMs = TClientConstants.CFG_DEFAULT_PULL_PROTECT_CONFIRM_WAIT_PERIOD_MS;
     private boolean pullConfirmInLocal = false;
 
     public ConsumerConfig(String masterAddrInfo, String consumerGroup) {
@@ -74,13 +63,15 @@ public class ConsumerConfig extends TubeClientConfig {
 
     @Deprecated
     public ConsumerConfig(String localHostIP, String masterAddrInfo,
-                          String consumerGroup) throws Exception {
+            String consumerGroup)
+            throws Exception {
         this(localHostIP, new MasterInfo(masterAddrInfo), consumerGroup);
     }
 
     @Deprecated
     public ConsumerConfig(String localHostIP, MasterInfo masterInfo,
-                          String consumerGroup) throws Exception {
+            String consumerGroup)
+            throws Exception {
         super(localHostIP, masterInfo);
         validConsumerGroupParameter(consumerGroup);
         this.consumerGroup = consumerGroup.trim();
@@ -127,17 +118,25 @@ public class ConsumerConfig extends TubeClientConfig {
     }
 
     // setPullConsumeReadyWaitPeriodMs() use note:
-    // The value range is [negative value, 0, positive value] and the value directly determines
+    // The value range is [negative value, 0, positive value] and the value directly
+    // determines
     // the behavior of the PullMessageConsumer.GetMessage() function:
-    // 1. if it is set to a negative value, it means that the GetMessage() calling thread will
-    //    be blocked forever and will not return until the consumption conditions are met;
-    // 2. if If it is set to 0, it means that the GetMessage() calling thread will only block
-    //    the ConsumerConfig.getPullConsumeReadyChkSliceMs() interval when the consumption
-    //    conditions are not met and then return;
-    // 3. if it is set to a positive number, it will not meet the current user usage (including
-    //    unused partitions or allocated partitions, but these partitions do not meet the usage
-    //    conditions), the GetMessage() calling thread will be blocked until the total time of
-    //    ConsumerConfig.getPullConsumeReadyWaitPeriodMs expires
+    // 1. if it is set to a negative value, it means that the GetMessage() calling
+    // thread will
+    // be blocked forever and will not return until the consumption conditions are
+    // met;
+    // 2. if If it is set to 0, it means that the GetMessage() calling thread will
+    // only block
+    // the ConsumerConfig.getPullConsumeReadyChkSliceMs() interval when the
+    // consumption
+    // conditions are not met and then return;
+    // 3. if it is set to a positive number, it will not meet the current user usage
+    // (including
+    // unused partitions or allocated partitions, but these partitions do not meet
+    // the usage
+    // conditions), the GetMessage() calling thread will be blocked until the total
+    // time of
+    // ConsumerConfig.getPullConsumeReadyWaitPeriodMs expires
     public void setPullConsumeReadyWaitPeriodMs(long pullConsumeReadyWaitPeriodMs) {
         this.pullConsumeReadyWaitPeriodMs = pullConsumeReadyWaitPeriodMs;
     }

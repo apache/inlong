@@ -18,6 +18,18 @@
 
 package org.apache.inlong.sort.jdbc.internal;
 
+import static org.apache.flink.connector.jdbc.utils.JdbcUtils.setRecordToStatement;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
@@ -38,15 +50,7 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Preconditions;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -58,19 +62,18 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import static org.apache.flink.connector.jdbc.utils.JdbcUtils.setRecordToStatement;
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import javax.annotation.Nonnull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * A JDBC outputFormat that supports batching records before writing records to database.
- * Add an option `inlong.metric` to support metrics.
+ * A JDBC outputFormat that supports batching records before writing records to
+ * database. Add an option `inlong.metric` to support metrics.
  */
-public class JdbcBatchingOutputFormat<
-        In, JdbcIn, JdbcExec extends JdbcBatchStatementExecutor<JdbcIn>>
-        extends AbstractJdbcOutputFormat<In> {
+public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStatementExecutor<JdbcIn>>
+        extends
+            AbstractJdbcOutputFormat<In> {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(JdbcBatchingOutputFormat.class);
@@ -121,8 +124,8 @@ public class JdbcBatchingOutputFormat<
     }
 
     /**
-     * Creates a {@link JdbcStatementBuilder} for {@link Row} using the provided SQL types array.
-     * Uses {@link JdbcUtils#setRecordToStatement}
+     * Creates a {@link JdbcStatementBuilder} for {@link Row} using the provided SQL
+     * types array. Uses {@link JdbcUtils#setRecordToStatement}
      */
     static JdbcStatementBuilder<Row> createRowJdbcStatementBuilder(int[] types) {
         return (st, record) -> setRecordToStatement(st, types, record);
@@ -131,7 +134,8 @@ public class JdbcBatchingOutputFormat<
     /**
      * Connects to the target database and initializes the prepared statement.
      *
-     * @param taskNumber The number of the parallel instance.
+     * @param taskNumber
+     *          The number of the parallel instance.
      */
     @Override
     public void open(int taskNumber, int numTasks) throws IOException {
@@ -149,38 +153,37 @@ public class JdbcBatchingOutputFormat<
         }
         jdbcStatementExecutor = createAndOpenStatementExecutor(statementExecutorFactory);
         if (executionOptions.getBatchIntervalMs() != 0 && executionOptions.getBatchSize() != 1) {
-            this.scheduler =
-                    Executors.newScheduledThreadPool(
-                            1, new ExecutorThreadFactory("jdbc-upsert-output-format"));
-            this.scheduledFuture =
-                    this.scheduler.scheduleWithFixedDelay(
-                            () -> {
-                                synchronized (JdbcBatchingOutputFormat.this) {
-                                    if (!closed) {
-                                        try {
-                                            flush();
-                                            if (sinkMetricData != null) {
-                                                sinkMetricData.invoke(rowSize, dataSize);
-                                            }
-                                            resetStateAfterFlush();
-                                        } catch (Exception e) {
-                                            if (sinkMetricData != null) {
-                                                sinkMetricData.invokeDirty(rowSize, dataSize);
-                                            }
-                                            resetStateAfterFlush();
-                                            flushException = e;
-                                        }
+            this.scheduler = Executors.newScheduledThreadPool(
+                    1, new ExecutorThreadFactory("jdbc-upsert-output-format"));
+            this.scheduledFuture = this.scheduler.scheduleWithFixedDelay(
+                    () -> {
+                        synchronized (JdbcBatchingOutputFormat.this) {
+                            if (!closed) {
+                                try {
+                                    flush();
+                                    if (sinkMetricData != null) {
+                                        sinkMetricData.invoke(rowSize, dataSize);
                                     }
+                                    resetStateAfterFlush();
+                                } catch (Exception e) {
+                                    if (sinkMetricData != null) {
+                                        sinkMetricData.invokeDirty(rowSize, dataSize);
+                                    }
+                                    resetStateAfterFlush();
+                                    flushException = e;
                                 }
-                            },
-                            executionOptions.getBatchIntervalMs(),
-                            executionOptions.getBatchIntervalMs(),
-                            TimeUnit.MILLISECONDS);
+                            }
+                        }
+                    },
+                    executionOptions.getBatchIntervalMs(),
+                    executionOptions.getBatchIntervalMs(),
+                    TimeUnit.MILLISECONDS);
         }
     }
 
     private JdbcExec createAndOpenStatementExecutor(
-            StatementExecutorFactory<JdbcExec> statementExecutorFactory) throws IOException {
+            StatementExecutorFactory<JdbcExec> statementExecutorFactory)
+            throws IOException {
         JdbcExec exec = statementExecutorFactory.apply(getRuntimeContext());
         try {
             exec.prepareStatements(connectionProvider.getConnection());
@@ -245,7 +248,7 @@ public class JdbcBatchingOutputFormat<
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
 
         }
         if (context.isRestored()) {
@@ -338,8 +341,10 @@ public class JdbcBatchingOutputFormat<
     /**
      * An interface to extract a value from given argument.
      *
-     * @param <F> The type of given argument
-     * @param <T> The type of the return value
+     * @param <F>
+     *          The type of given argument
+     * @param <T>
+     *          The type of the return value
      */
     public interface RecordExtractor<F, T> extends Function<F, T>, Serializable {
 
@@ -351,10 +356,13 @@ public class JdbcBatchingOutputFormat<
     /**
      * A factory for creating {@link JdbcBatchStatementExecutor} instance.
      *
-     * @param <T> The type of instance.
+     * @param <T>
+     *          The type of instance.
      */
     public interface StatementExecutorFactory<T extends JdbcBatchStatementExecutor<?>>
-            extends Function<RuntimeContext, T>, Serializable {
+            extends
+                Function<RuntimeContext, T>,
+                Serializable {
 
     }
 
@@ -369,8 +377,7 @@ public class JdbcBatchingOutputFormat<
         private int[] fieldTypes;
         private String inlongMetric;
         private String auditHostAndPorts;
-        private JdbcExecutionOptions.Builder executionOptionsBuilder =
-                JdbcExecutionOptions.builder();
+        private JdbcExecutionOptions.Builder executionOptionsBuilder = JdbcExecutionOptions.builder();
 
         /**
          * required, jdbc options.
@@ -421,8 +428,8 @@ public class JdbcBatchingOutputFormat<
         }
 
         /**
-         * optional, flush max size (includes all append, upsert and delete records), over this
-         * number of records, will flush data.
+         * optional, flush max size (includes all append, upsert and delete records),
+         * over this number of records, will flush data.
          */
         public Builder setFlushMaxSize(int flushMaxSize) {
             executionOptionsBuilder.withBatchSize(flushMaxSize);
@@ -430,7 +437,8 @@ public class JdbcBatchingOutputFormat<
         }
 
         /**
-         * optional, flush interval mills, over this time, asynchronous threads will flush data.
+         * optional, flush interval mills, over this time, asynchronous threads will
+         * flush data.
          */
         public Builder setFlushIntervalMills(long flushIntervalMills) {
             executionOptionsBuilder.withBatchIntervalMs(flushIntervalMills);
@@ -450,18 +458,16 @@ public class JdbcBatchingOutputFormat<
          *
          * @return Configured JdbcUpsertOutputFormat
          */
-        public JdbcBatchingOutputFormat<Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>>
-        build() {
+        public JdbcBatchingOutputFormat<Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>> build() {
             checkNotNull(options, "No options supplied.");
             checkNotNull(fieldNames, "No fieldNames supplied.");
-            JdbcDmlOptions dml =
-                    JdbcDmlOptions.builder()
-                            .withTableName(options.getTableName())
-                            .withDialect(options.getDialect())
-                            .withFieldNames(fieldNames)
-                            .withKeyFields(keyFields)
-                            .withFieldTypes(fieldTypes)
-                            .build();
+            JdbcDmlOptions dml = JdbcDmlOptions.builder()
+                    .withTableName(options.getTableName())
+                    .withDialect(options.getDialect())
+                    .withFieldNames(fieldNames)
+                    .withKeyFields(keyFields)
+                    .withFieldTypes(fieldTypes)
+                    .build();
             if (dml.getKeyFields().isPresent() && dml.getKeyFields().get().length > 0) {
                 return new TableJdbcUpsertOutputFormat(
                         new SimpleJdbcConnectionProvider(options),
@@ -471,20 +477,18 @@ public class JdbcBatchingOutputFormat<
                         auditHostAndPorts);
             } else {
                 // warn: don't close over builder fields
-                String sql =
-                        FieldNamedPreparedStatementImpl.parseNamedStatement(
-                                options.getDialect()
-                                        .getInsertIntoStatement(
-                                                dml.getTableName(), dml.getFieldNames()),
-                                new HashMap<>());
+                String sql = FieldNamedPreparedStatementImpl.parseNamedStatement(
+                        options.getDialect()
+                                .getInsertIntoStatement(
+                                        dml.getTableName(), dml.getFieldNames()),
+                        new HashMap<>());
                 return new JdbcBatchingOutputFormat<>(
                         new SimpleJdbcConnectionProvider(options),
                         executionOptionsBuilder.build(),
-                        ctx ->
-                                createSimpleRowExecutor(
-                                        sql,
-                                        dml.getFieldTypes(),
-                                        ctx.getExecutionConfig().isObjectReuseEnabled()),
+                        ctx -> createSimpleRowExecutor(
+                                sql,
+                                dml.getFieldTypes(),
+                                ctx.getExecutionConfig().isObjectReuseEnabled()),
                         tuple2 -> {
                             Preconditions.checkArgument(tuple2.f0);
                             return tuple2.f1;

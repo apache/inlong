@@ -17,18 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
@@ -61,12 +49,26 @@ import org.apache.inlong.tubemq.server.master.web.handler.BrokerProcessResult;
 import org.apache.inlong.tubemq.server.master.web.handler.GroupProcessResult;
 import org.apache.inlong.tubemq.server.master.web.handler.TopicProcessResult;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DefaultMetaDataService implements MetaDataService {
-    private static final Logger logger =
-            LoggerFactory.getLogger(DefaultMetaDataService.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultMetaDataService.class);
     private final TMaster tMaster;
     private final MetaConfigMapper metaConfigMapper;
     private final ScheduledExecutorService scheduledExecutorService;
@@ -81,13 +83,13 @@ public class DefaultMetaDataService implements MetaDataService {
         MasterConfig masterConfig = tMaster.getMasterConfig();
         if (masterConfig.isUseBdbStoreMetaData()) {
             this.metaConfigMapper = new BdbMetaConfigMapperImpl(masterConfig);
-            this.scheduledExecutorService =
-                    Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                        @Override
-                        public Thread newThread(Runnable r) {
-                            return new Thread(r, "Master Status Check");
-                        }
-                    });
+            this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "Master Status Check");
+                }
+            });
         } else {
             this.metaConfigMapper = new ZKMetaConfigMapperImpl(masterConfig);
             this.scheduledExecutorService = null;
@@ -104,11 +106,11 @@ public class DefaultMetaDataService implements MetaDataService {
         if (this.tMaster.getMasterConfig().isUseBdbStoreMetaData()) {
             final BdbMetaConfig bdbMetaConfig = this.tMaster.getMasterConfig().getBdbMetaConfig();
             this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+
                 @Override
                 public void run() {
                     try {
-                        MasterGroupStatus tmpGroupStatus =
-                                metaConfigMapper.getMasterGroupStatus(true);
+                        MasterGroupStatus tmpGroupStatus = metaConfigMapper.getMasterGroupStatus(true);
                         if (tmpGroupStatus == null) {
                             masterGroupStatus.setMasterGroupStatus(false, false, false);
                         } else {
@@ -181,9 +183,9 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public boolean isConsumeTargetAuthorized(String consumerId, String groupName,
-                                             Set<String> reqTopicSet,
-                                             Map<String, TreeSet<String>> reqTopicCondMap,
-                                             StringBuilder strBuff, ProcessResult result) {
+            Set<String> reqTopicSet,
+            Map<String, TreeSet<String>> reqTopicCondMap,
+            StringBuilder strBuff, ProcessResult result) {
         // check topic set
         if ((reqTopicSet == null) || (reqTopicSet.isEmpty())) {
             result.setFailResult(TErrCodeConstants.BAD_REQUEST,
@@ -247,26 +249,31 @@ public class DefaultMetaDataService implements MetaDataService {
     /**
      * Check if consume target is authorization or not
      *
-     * @param groupName    checked group name
-     * @param consumerId   checked consume id
-     * @param enableFltCsmTopicSet    target consume topic set
-     * @param reqTopicCondMap   consumer request filter items
-     * @param strBuff        the print information string buffer
-     * @param result         the process result return
+     * @param groupName
+     *          checked group name
+     * @param consumerId
+     *          checked consume id
+     * @param enableFltCsmTopicSet
+     *          target consume topic set
+     * @param reqTopicCondMap
+     *          consumer request filter items
+     * @param strBuff
+     *          the print information string buffer
+     * @param result
+     *          the process result return
      * @return true is authorized, false not
      */
     private boolean checkFilterRstrTopics(String groupName, String consumerId,
-                                          Set<String> enableFltCsmTopicSet,
-                                          Map<String, TreeSet<String>> reqTopicCondMap,
-                                          StringBuilder strBuff, ProcessResult result) {
+            Set<String> enableFltCsmTopicSet,
+            Map<String, TreeSet<String>> reqTopicCondMap,
+            StringBuilder strBuff, ProcessResult result) {
         if (enableFltCsmTopicSet == null || enableFltCsmTopicSet.isEmpty()) {
             result.setSuccResult("Ok!");
             return result.isSuccess();
         }
         GroupConsumeCtrlEntity ctrlEntity;
         for (String topicName : enableFltCsmTopicSet) {
-            ctrlEntity =
-                    metaConfigMapper.getConsumeCtrlByGroupAndTopic(groupName, topicName);
+            ctrlEntity = metaConfigMapper.getConsumeCtrlByGroupAndTopic(groupName, topicName);
             if (ctrlEntity == null || !ctrlEntity.isEnableFilterConsume()) {
                 continue;
             }
@@ -294,9 +301,8 @@ public class DefaultMetaDataService implements MetaDataService {
             for (String item : condItemSet) {
                 if (!allowedCondStr.contains(strBuff.append(TokenConstants.ARRAY_SEP)
                         .append(item).append(TokenConstants.ARRAY_SEP).toString())) {
-                    List<String> unAuthConds =
-                            unAuthorizedCondMap.computeIfAbsent(
-                                    topicName, k -> new ArrayList<>());
+                    List<String> unAuthConds = unAuthorizedCondMap.computeIfAbsent(
+                            topicName, k -> new ArrayList<>());
                     unAuthConds.add(item);
                 }
                 strBuff.delete(0, strBuff.length());
@@ -318,11 +324,11 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public boolean addOrUpdClusterDefSetting(BaseEntity opEntity, int brokerPort,
-                                             int brokerTlsPort, int brokerWebPort,
-                                             int maxMsgSizeMB, int qryPriorityId,
-                                             EnableStatus flowCtrlEnable, int flowRuleCnt,
-                                             String flowCtrlInfo, TopicPropGroup topicProps,
-                                             StringBuilder strBuff, ProcessResult result) {
+            int brokerTlsPort, int brokerWebPort,
+            int maxMsgSizeMB, int qryPriorityId,
+            EnableStatus flowCtrlEnable, int flowRuleCnt,
+            String flowCtrlInfo, TopicPropGroup topicProps,
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return result.isSuccess();
@@ -341,13 +347,12 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public BrokerProcessResult addOrUpdBrokerConfig(boolean isAddOp, BaseEntity opEntity,
-                                                    int brokerId, String brokerIp, int brokerPort,
-                                                    int brokerTlsPort, int brokerWebPort,
-                                                    int regionId, int groupId, ManageStatus mngStatus,
-                                                    TopicPropGroup topicProps, StringBuilder strBuff,
-                                                    ProcessResult result) {
-        BrokerConfEntity entity =
-                new BrokerConfEntity(opEntity, brokerId, brokerIp);
+            int brokerId, String brokerIp, int brokerPort,
+            int brokerTlsPort, int brokerWebPort,
+            int regionId, int groupId, ManageStatus mngStatus,
+            TopicPropGroup topicProps, StringBuilder strBuff,
+            ProcessResult result) {
+        BrokerConfEntity entity = new BrokerConfEntity(opEntity, brokerId, brokerIp);
         entity.updModifyInfo(opEntity.getDataVerId(), brokerPort,
                 brokerTlsPort, brokerWebPort, regionId, groupId, mngStatus, topicProps);
         return addOrUpdBrokerConfig(isAddOp, entity, strBuff, result);
@@ -355,7 +360,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public BrokerProcessResult addOrUpdBrokerConfig(boolean isAddOp, BrokerConfEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new BrokerProcessResult(entity.getBrokerId(), entity.getBrokerIp(), result);
@@ -364,8 +369,7 @@ public class DefaultMetaDataService implements MetaDataService {
         if (!metaConfigMapper.addOrUpdBrokerConfig(isAddOp, entity, strBuff, result)) {
             return new BrokerProcessResult(entity.getBrokerId(), entity.getBrokerIp(), result);
         }
-        BrokerConfEntity curEntity =
-                metaConfigMapper.getBrokerConfByBrokerId(entity.getBrokerId());
+        BrokerConfEntity curEntity = metaConfigMapper.getBrokerConfByBrokerId(entity.getBrokerId());
         // update broker static information
         this.tMaster.getBrokerRunManager().updBrokerStaticInfo(curEntity);
         if (isAddOp) {
@@ -381,8 +385,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public BrokerProcessResult changeBrokerConfStatus(BaseEntity opEntity,
-                                                      int brokerId, ManageStatus newMngStatus,
-                                                      StringBuilder strBuff, ProcessResult result) {
+            int brokerId, ManageStatus newMngStatus,
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new BrokerProcessResult(brokerId, "", result);
@@ -398,7 +402,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public BrokerProcessResult reloadBrokerConfInfo(BaseEntity opEntity, int brokerId,
-                                                    StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new BrokerProcessResult(brokerId, "", result);
@@ -426,8 +430,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public BrokerProcessResult delBrokerConfInfo(String operator, boolean rsvData,
-                                                 int brokerId, StringBuilder strBuff,
-                                                 ProcessResult result) {
+            int brokerId, StringBuilder strBuff,
+            ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new BrokerProcessResult(brokerId, "", result);
@@ -448,8 +452,7 @@ public class DefaultMetaDataService implements MetaDataService {
         }
         // check broker node running status
         BrokerRunManager brokerRunManager = tMaster.getBrokerRunManager();
-        BrokerRunStatusInfo runStatusInfo =
-                brokerRunManager.getBrokerRunStatusInfo(brokerId);
+        BrokerRunStatusInfo runStatusInfo = brokerRunManager.getBrokerRunStatusInfo(brokerId);
         if (runStatusInfo != null
                 && curEntry.getManageStatus() == ManageStatus.STATUS_MANAGE_OFFLINE
                 && runStatusInfo.inProcessingStatus()) {
@@ -478,28 +481,30 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
-                                                            Set<String> brokerIpSet,
-                                                            BrokerConfEntity qryEntity) {
+            Set<String> brokerIpSet,
+            BrokerConfEntity qryEntity) {
         return metaConfigMapper.getBrokerConfInfo(brokerIdSet, brokerIpSet, qryEntity);
     }
 
     /**
      * Reload broker config info
      *
-     * @param brokerId   the broker id
-     * @param strBuff    the string buffer
-     * @param result     the process return result
+     * @param brokerId
+     *          the broker id
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          the process return result
      * @return true if success otherwise false
      */
     private boolean triggerBrokerConfDataSync(int brokerId,
-                                              StringBuilder strBuff,
-                                              ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
         BrokerRunManager brokerRunManager = this.tMaster.getBrokerRunManager();
-        BrokerRunStatusInfo runStatusInfo =
-                brokerRunManager.getBrokerRunStatusInfo(brokerId);
+        BrokerRunStatusInfo runStatusInfo = brokerRunManager.getBrokerRunStatusInfo(brokerId);
         if (runStatusInfo == null) {
             result.setSuccResult(null);
             return result.isSuccess();
@@ -515,19 +520,21 @@ public class DefaultMetaDataService implements MetaDataService {
     /**
      * Reload topic's deploy config info
      *
-     * @param topicNameSet  the topic name set
-     * @param strBuff       the string buffer
-     * @param result        the process return result
+     * @param topicNameSet
+     *          the topic name set
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          the process return result
      * @return true if success otherwise false
      */
     private boolean triggerBrokerConfDataSync(Set<String> topicNameSet,
-                                              StringBuilder strBuff,
-                                              ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        Set<Integer> brokerIdSet =
-                metaConfigMapper.getDeployedBrokerIdByTopic(topicNameSet);
+        Set<Integer> brokerIdSet = metaConfigMapper.getDeployedBrokerIdByTopic(topicNameSet);
         if (brokerIdSet.isEmpty()) {
             result.setSuccResult();
             return result.isSuccess();
@@ -556,7 +563,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public boolean delCleanedTopicDeployInfo(int brokerId, List<String> removedTopics,
-                                             StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         result.setSuccResult(null);
         if (removedTopics == null || removedTopics.isEmpty()) {
             return result.isSuccess();
@@ -623,12 +630,11 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public TopicProcessResult addOrUpdTopicDeployInfo(boolean isAddOp, BaseEntity opEntity,
-                                                      int brokerId, String topicName,
-                                                      TopicStatus deployStatus,
-                                                      TopicPropGroup topicPropInfo,
-                                                      StringBuilder strBuff, ProcessResult result) {
-        TopicDeployEntity entity =
-                new TopicDeployEntity(opEntity, brokerId, topicName);
+            int brokerId, String topicName,
+            TopicStatus deployStatus,
+            TopicPropGroup topicPropInfo,
+            StringBuilder strBuff, ProcessResult result) {
+        TopicDeployEntity entity = new TopicDeployEntity(opEntity, brokerId, topicName);
         entity.updModifyInfo(opEntity.getDataVerId(),
                 TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
                 null, deployStatus, topicPropInfo);
@@ -637,14 +643,13 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public TopicProcessResult addOrUpdTopicDeployInfo(boolean isAddOp, TopicDeployEntity entity,
-                                                      StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new TopicProcessResult(entity.getBrokerId(), entity.getTopicName(), result);
         }
         // check broker configure exist
-        BrokerConfEntity brokerConf =
-                getBrokerConfByBrokerId(entity.getBrokerId());
+        BrokerConfEntity brokerConf = getBrokerConfByBrokerId(entity.getBrokerId());
         if (brokerConf == null) {
             result.setFailResult(DataOpErrCode.DERR_NOT_EXIST.getCode(),
                     strBuff.append("Not found broker configure record by brokerId=")
@@ -664,8 +669,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public TopicProcessResult updTopicDeployStatusInfo(BaseEntity opEntity, int brokerId,
-                                                       String topicName, TopicStsChgType chgType,
-                                                       StringBuilder strBuff, ProcessResult result) {
+            String topicName, TopicStsChgType chgType,
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new TopicProcessResult(brokerId, topicName, result);
@@ -710,16 +715,15 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public Map<String, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                                      Set<Integer> brokerIdSet,
-                                                                      TopicDeployEntity qryEntity) {
+            Set<Integer> brokerIdSet,
+            TopicDeployEntity qryEntity) {
         return metaConfigMapper.getTopicDeployInfoMap(topicNameSet, brokerIdSet, qryEntity);
     }
 
     @Override
     public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                                       Set<Integer> brokerIdSet) {
-        Map<Integer, BrokerConfEntity> qryBrokerInfoMap =
-                metaConfigMapper.getBrokerConfInfo(brokerIdSet, null, null);
+            Set<Integer> brokerIdSet) {
+        Map<Integer, BrokerConfEntity> qryBrokerInfoMap = metaConfigMapper.getBrokerConfInfo(brokerIdSet, null, null);
         if (qryBrokerInfoMap.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -728,7 +732,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public Map<String, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(
-            Set<String> topicNameSet, Set<Integer> brokerIdSet) {
+            Set<String> topicNameSet,
+            Set<Integer> brokerIdSet) {
         return metaConfigMapper.getTopicConfInfoByTopicAndBrokerIds(topicNameSet, brokerIdSet);
     }
 
@@ -740,12 +745,13 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public Map<String, String> getBrokerRemovedTopicStrConfigInfo(
-            BrokerConfEntity brokerConfEntity, StringBuilder strBuff) {
+            BrokerConfEntity brokerConfEntity,
+            StringBuilder strBuff) {
         return inGetTopicConfStrInfo(brokerConfEntity, true, strBuff);
     }
 
     private Map<String, String> inGetTopicConfStrInfo(BrokerConfEntity brokerEntity,
-                                                      boolean isRemoved, StringBuilder strBuff) {
+            boolean isRemoved, StringBuilder strBuff) {
         Map<String, String> topicConfStrMap = new HashMap<>();
         Map<String, TopicDeployEntity> topicEntityMap =
                 metaConfigMapper.getConfiguredTopicInfo(brokerEntity.getBrokerId());
@@ -757,7 +763,7 @@ public class DefaultMetaDataService implements MetaDataService {
         int defMsgSizeInB = clusterDefConf.getMaxMsgSizeInB();
         for (TopicDeployEntity topicEntity : topicEntityMap.values()) {
             /*
-             * topic:partNum:acceptPublish:acceptSubscribe:unflushThreshold:unflushInterval:deleteWhen:
+             * topic:partNum:acceptPublish:acceptSubscribe:unflushThreshold:unflushInterval: deleteWhen:
              * deletePolicy:filterStatusId:statusId
              */
             if ((isRemoved && !topicEntity.isInRemoving())
@@ -835,8 +841,7 @@ public class DefaultMetaDataService implements MetaDataService {
                 strBuff.append(TokenConstants.ATTR_SEP).append(topicProps.getMemCacheFlushIntvl());
             }
             int maxMsgSize = defMsgSizeInB;
-            TopicCtrlEntity topicCtrlEntity =
-                    metaConfigMapper.getTopicCtrlByTopicName(topicEntity.getTopicName());
+            TopicCtrlEntity topicCtrlEntity = metaConfigMapper.getTopicCtrlByTopicName(topicEntity.getTopicName());
             if (topicCtrlEntity != null
                     && topicCtrlEntity.getMaxMsgSizeInB() != TBaseConstants.META_VALUE_UNDEFINED) {
                 maxMsgSize = topicCtrlEntity.getMaxMsgSizeInB();
@@ -854,9 +859,9 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public List<TopicProcessResult> addOrUpdTopicCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                                          Set<String> topicNameSet, int topicNameId,
-                                                          EnableStatus enableTopicAuth, int maxMsgSizeInMB,
-                                                          StringBuilder strBuff, ProcessResult result) {
+            Set<String> topicNameSet, int topicNameId,
+            EnableStatus enableTopicAuth, int maxMsgSizeInMB,
+            StringBuilder strBuff, ProcessResult result) {
         TopicCtrlEntity entity;
         Map<String, TopicCtrlEntity> topicCtrlEntityMap = new HashMap<>();
         for (String topicName : topicNameSet) {
@@ -870,8 +875,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public List<TopicProcessResult> addOrUpdTopicCtrlConf(boolean isAddOp,
-                                                          Map<String, TopicCtrlEntity> entityMap,
-                                                          StringBuilder strBuff, ProcessResult result) {
+            Map<String, TopicCtrlEntity> entityMap,
+            StringBuilder strBuff, ProcessResult result) {
         List<TopicProcessResult> retInfo = new ArrayList<>();
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
@@ -907,8 +912,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public TopicProcessResult insertTopicCtrlConf(BaseEntity opEntity, String topicName,
-                                                  EnableStatus enableTopicAuth, StringBuilder strBuff,
-                                                  ProcessResult result) {
+            EnableStatus enableTopicAuth, StringBuilder strBuff,
+            ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new TopicProcessResult(0, topicName, result);
@@ -919,8 +924,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public TopicProcessResult insertTopicCtrlConf(TopicCtrlEntity entity,
-                                                  StringBuilder strBuff,
-                                                  ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new TopicProcessResult(0, entity.getTopicName(), result);
@@ -931,7 +936,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public boolean delTopicCtrlConf(String operator, String topicName,
-                                    StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return result.isSuccess();
@@ -959,26 +964,25 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
-                                                         TopicCtrlEntity qryEntity) {
+            TopicCtrlEntity qryEntity) {
         return metaConfigMapper.getTopicCtrlConf(topicNameSet, qryEntity);
     }
 
     @Override
     public Map<String, Integer> getMaxMsgSizeInBByTopics(int defMaxMsgSizeInB,
-                                                         Set<String> topicNameSet) {
+            Set<String> topicNameSet) {
         return metaConfigMapper.getMaxMsgSizeInBByTopics(defMaxMsgSizeInB, topicNameSet);
     }
     // //////////////////////////////////////////////////////////////////////////////
 
     @Override
     public GroupProcessResult addOrUpdGroupCtrlConf(boolean isAddOp, BaseEntity opEntity,
-                                                    String groupName, EnableStatus resCheckEnable,
-                                                    int allowedBClientRate, int qryPriorityId,
-                                                    EnableStatus flowCtrlEnable, int flowRuleCnt,
-                                                    String flowCtrlInfo, StringBuilder strBuff,
-                                                    ProcessResult result) {
-        GroupResCtrlEntity entity =
-                new GroupResCtrlEntity(opEntity, groupName);
+            String groupName, EnableStatus resCheckEnable,
+            int allowedBClientRate, int qryPriorityId,
+            EnableStatus flowCtrlEnable, int flowRuleCnt,
+            String flowCtrlInfo, StringBuilder strBuff,
+            ProcessResult result) {
+        GroupResCtrlEntity entity = new GroupResCtrlEntity(opEntity, groupName);
         entity.updModifyInfo(opEntity.getDataVerId(), resCheckEnable, allowedBClientRate,
                 qryPriorityId, flowCtrlEnable, flowRuleCnt, flowCtrlInfo);
         return addOrUpdGroupCtrlConf(isAddOp, entity, strBuff, result);
@@ -986,9 +990,9 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult addOrUpdGroupCtrlConf(boolean isAddOp,
-                                                    GroupResCtrlEntity entity,
-                                                    StringBuilder strBuff,
-                                                    ProcessResult result) {
+            GroupResCtrlEntity entity,
+            StringBuilder strBuff,
+            ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new GroupProcessResult(entity.getGroupName(), null, result);
@@ -999,9 +1003,9 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                                  int qryPriorityId, EnableStatus flowCtrlEnable,
-                                                  int flowRuleCnt, String flowCtrlRuleInfo,
-                                                  StringBuilder strBuff, ProcessResult result) {
+            int qryPriorityId, EnableStatus flowCtrlEnable,
+            int flowRuleCnt, String flowCtrlRuleInfo,
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new GroupProcessResult(groupName, null, result);
@@ -1013,8 +1017,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult insertGroupCtrlConf(BaseEntity opEntity, String groupName,
-                                                  EnableStatus resChkEnable, int allowedB2CRate,
-                                                  StringBuilder strBuff, ProcessResult result) {
+            EnableStatus resChkEnable, int allowedB2CRate,
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new GroupProcessResult(groupName, null, result);
@@ -1026,8 +1030,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult insertGroupCtrlConf(GroupResCtrlEntity entity,
-                                                  StringBuilder strBuff,
-                                                  ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new GroupProcessResult(entity.getGroupName(), null, result);
@@ -1038,7 +1042,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult delGroupResCtrlConf(String operator, String groupName,
-                                                  StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new GroupProcessResult(groupName, null, result);
@@ -1066,7 +1070,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public Map<String, GroupResCtrlEntity> getGroupCtrlConf(Set<String> groupSet,
-                                                            GroupResCtrlEntity qryEntity) {
+            GroupResCtrlEntity qryEntity) {
         return metaConfigMapper.getGroupCtrlConf(groupSet, qryEntity);
     }
 
@@ -1077,12 +1081,11 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult addOrUpdConsumeCtrlInfo(boolean isAddOp, BaseEntity opEntity,
-                                                      String groupName, String topicName,
-                                                      EnableStatus enableCsm, String disableRsn,
-                                                      EnableStatus enableFlt, String fltCondStr,
-                                                      StringBuilder strBuff, ProcessResult result) {
-        GroupConsumeCtrlEntity entity =
-                new GroupConsumeCtrlEntity(opEntity, groupName, topicName);
+            String groupName, String topicName,
+            EnableStatus enableCsm, String disableRsn,
+            EnableStatus enableFlt, String fltCondStr,
+            StringBuilder strBuff, ProcessResult result) {
+        GroupConsumeCtrlEntity entity = new GroupConsumeCtrlEntity(opEntity, groupName, topicName);
         entity.updModifyInfo(opEntity.getDataVerId(),
                 enableCsm, disableRsn, enableFlt, fltCondStr);
         return addOrUpdConsumeCtrlInfo(isAddOp, entity, strBuff, result);
@@ -1090,7 +1093,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult addOrUpdConsumeCtrlInfo(boolean isAddOp, GroupConsumeCtrlEntity entity,
-                                                      StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
@@ -1101,10 +1104,10 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult insertConsumeCtrlInfo(BaseEntity opEntity, String groupName,
-                                                    String topicName, EnableStatus enableCsm,
-                                                    String disReason, EnableStatus enableFlt,
-                                                    String fltCondStr, StringBuilder strBuff,
-                                                    ProcessResult result) {
+            String topicName, EnableStatus enableCsm,
+            String disReason, EnableStatus enableFlt,
+            String fltCondStr, StringBuilder strBuff,
+            ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new GroupProcessResult(groupName, topicName, result);
@@ -1116,7 +1119,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupProcessResult insertConsumeCtrlInfo(GroupConsumeCtrlEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return new GroupProcessResult(entity.getGroupName(), entity.getTopicName(), result);
@@ -1127,14 +1130,13 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public boolean delConsumeCtrlConf(String operator,
-                                      String groupName, String topicName,
-                                      StringBuilder strBuff, ProcessResult result) {
+            String groupName, String topicName,
+            StringBuilder strBuff, ProcessResult result) {
         // check current status
         if (!metaConfigMapper.checkStoreStatus(true, result)) {
             return result.isSuccess();
         }
-        GroupConsumeCtrlEntity curEntity =
-                metaConfigMapper.getConsumeCtrlByGroupAndTopic(groupName, topicName);
+        GroupConsumeCtrlEntity curEntity = metaConfigMapper.getConsumeCtrlByGroupAndTopic(groupName, topicName);
         if (curEntity == null) {
             result.setSuccResult(null);
             return result.isSuccess();
@@ -1145,7 +1147,7 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(String groupName,
-                                                                String topicName) {
+            String topicName) {
         return metaConfigMapper.getConsumeCtrlByGroupAndTopic(groupName, topicName);
     }
 
@@ -1177,7 +1179,8 @@ public class DefaultMetaDataService implements MetaDataService {
 
     @Override
     public Map<String, List<GroupConsumeCtrlEntity>> getGroupConsumeCtrlConf(
-            Set<String> groupSet, Set<String> topicSet, GroupConsumeCtrlEntity qryEntry) {
+            Set<String> groupSet, Set<String> topicSet,
+            GroupConsumeCtrlEntity qryEntry) {
         return metaConfigMapper.getGroupConsumeCtrlConf(groupSet, topicSet, qryEntry);
     }
 }

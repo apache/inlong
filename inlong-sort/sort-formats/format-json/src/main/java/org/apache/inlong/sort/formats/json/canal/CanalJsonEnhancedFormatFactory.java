@@ -18,6 +18,16 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
+import static org.apache.flink.formats.json.JsonOptions.ENCODE_DECIMAL_AS_PLAIN_NUMBER;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.DATABASE_INCLUDE;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.IGNORE_PARSE_ERRORS;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.JSON_MAP_NULL_KEY_LITERAL;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.JSON_MAP_NULL_KEY_MODE;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.TABLE_INCLUDE;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.TIMESTAMP_FORMAT;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.validateDecodingFormatOptions;
+import static org.apache.flink.formats.json.canal.CanalJsonOptions.validateEncodingFormatOptions;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
@@ -36,29 +46,22 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.apache.flink.formats.json.JsonOptions.ENCODE_DECIMAL_AS_PLAIN_NUMBER;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.DATABASE_INCLUDE;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.IGNORE_PARSE_ERRORS;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.JSON_MAP_NULL_KEY_LITERAL;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.JSON_MAP_NULL_KEY_MODE;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.TABLE_INCLUDE;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.TIMESTAMP_FORMAT;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.validateDecodingFormatOptions;
-import static org.apache.flink.formats.json.canal.CanalJsonOptions.validateEncodingFormatOptions;
-
 /**
- * Format factory for providing configured instances of Canal JSON to RowData {@link
- * DeserializationSchema}.
- * Different from flink:1.13.5.This can sink metadata.
+ * Format factory for providing configured instances of Canal JSON to RowData
+ * {@link DeserializationSchema}. Different from flink:1.13.5.This can sink
+ * metadata.
  */
 public class CanalJsonEnhancedFormatFactory
-        implements DeserializationFormatFactory, SerializationFormatFactory {
+        implements
+            DeserializationFormatFactory,
+            SerializationFormatFactory {
 
     public static final String IDENTIFIER = "canal-json-inlong";
 
     @Override
     public DecodingFormat<DeserializationSchema<RowData>> createDecodingFormat(
-            DynamicTableFactory.Context context, ReadableConfig formatOptions) {
+            DynamicTableFactory.Context context,
+            ReadableConfig formatOptions) {
         FactoryUtil.validateFactoryOptions(this, formatOptions);
         validateDecodingFormatOptions(formatOptions);
 
@@ -72,7 +75,8 @@ public class CanalJsonEnhancedFormatFactory
 
     @Override
     public EncodingFormat<SerializationSchema<RowData>> createEncodingFormat(
-            DynamicTableFactory.Context context, ReadableConfig formatOptions) {
+            DynamicTableFactory.Context context,
+            ReadableConfig formatOptions) {
 
         FactoryUtil.validateFactoryOptions(this, formatOptions);
         validateEncodingFormatOptions(formatOptions);
@@ -81,8 +85,7 @@ public class CanalJsonEnhancedFormatFactory
         JsonOptions.MapNullKeyMode mapNullKeyMode = JsonOptions.getMapNullKeyMode(formatOptions);
         String mapNullKeyLiteral = formatOptions.get(JSON_MAP_NULL_KEY_LITERAL);
 
-        final boolean encodeDecimalAsPlainNumber =
-                formatOptions.get(ENCODE_DECIMAL_AS_PLAIN_NUMBER);
+        final boolean encodeDecimalAsPlainNumber = formatOptions.get(ENCODE_DECIMAL_AS_PLAIN_NUMBER);
 
         return new CanalJsonEnhancedEncodingFormat(timestampFormat, mapNullKeyMode,
                 mapNullKeyLiteral, encodeDecimalAsPlainNumber);

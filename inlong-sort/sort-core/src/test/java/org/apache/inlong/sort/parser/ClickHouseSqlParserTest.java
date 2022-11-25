@@ -18,9 +18,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.jdbc.dialect.ClickHouseDialect;
@@ -34,8 +31,10 @@ import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,10 +43,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
- * Test for  {@link ClickHouseLoadNode} and {@link ClickHouseDialect}
+ * Test for {@link ClickHouseLoadNode} and {@link ClickHouseDialect}
  */
 public class ClickHouseSqlParserTest {
+
     public MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()));
@@ -65,7 +68,7 @@ public class ClickHouseSqlParserTest {
                 new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())));
 
@@ -87,8 +90,10 @@ public class ClickHouseSqlParserTest {
     /**
      * build node relation
      *
-     * @param inputs  extract node
-     * @param outputs load node
+     * @param inputs
+     *          extract node
+     * @param outputs
+     *          load node
      * @return node relation
      */
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
@@ -100,7 +105,8 @@ public class ClickHouseSqlParserTest {
     /**
      * Test extract data from mysql and load data to clickhouse.
      *
-     * @throws Exception The exception may throws when executing
+     * @throws Exception
+     *           The exception may throws when executing
      */
     @Test
     public void testClickHouse() throws Exception {

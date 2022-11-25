@@ -17,9 +17,9 @@
 
 package org.apache.inlong.common.config;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 

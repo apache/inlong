@@ -17,16 +17,17 @@
 
 package org.apache.inlong.tubemq.corebase.cluster;
 
-import java.io.Serializable;
-import java.net.URI;
-import java.net.URISyntaxException;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
- * The BrokerInfo hold basic info of an tube broker the brokerId, the broker host
- * and the port and so on.
+ * The BrokerInfo hold basic info of an tube broker the brokerId, the broker
+ * host and the port and so on.
  */
 
 public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
@@ -36,17 +37,15 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
     private String host;
     private int port;
     private boolean enableTLS = false;
-    private int tlsPort =
-            TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
+    private int tlsPort = TBaseConstants.META_DEFAULT_BROKER_TLS_PORT;
     private String addr;
     private String simpleInfo;
     private String fullInfo;
     private String fullTLSInfo;
 
-    //create with strBrokerInfo (brokerId:host:port)
+    // create with strBrokerInfo (brokerId:host:port)
     public BrokerInfo(String strBrokerInfo) {
-        String[] strBrokers =
-                strBrokerInfo.split(TokenConstants.ATTR_SEP);
+        String[] strBrokers = strBrokerInfo.split(TokenConstants.ATTR_SEP);
         this.brokerId = Integer.parseInt(strBrokers[0]);
         this.host = strBrokers[1];
         this.port = Integer.parseInt(strBrokers[2]);
@@ -54,10 +53,9 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with strBrokerInfo (brokerId:host)  brokerPort
+    // create with strBrokerInfo (brokerId:host) brokerPort
     public BrokerInfo(String strBrokerInfo, int brokerPort) {
-        String[] strBrokers =
-                strBrokerInfo.split(TokenConstants.ATTR_SEP);
+        String[] strBrokers = strBrokerInfo.split(TokenConstants.ATTR_SEP);
         this.brokerId = Integer.parseInt(strBrokers[0]);
         this.host = strBrokers[1];
         this.port = brokerPort;
@@ -67,7 +65,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with brokerId host port
+    // create with brokerId host port
     public BrokerInfo(final int brokerId, final String host, final int port) {
         this.brokerId = brokerId;
         this.host = host;
@@ -75,7 +73,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with brokerId uri data
+    // create with brokerId uri data
     public BrokerInfo(final int brokerId, final String data) {
         this.brokerId = brokerId;
         try {
@@ -88,7 +86,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         }
     }
 
-    //create with strBrokerInfo (brokerId:host:port) and enableTls tlsPort
+    // create with strBrokerInfo (brokerId:host:port) and enableTls tlsPort
     public BrokerInfo(String strBrokerInfo, boolean enableTls, int tlsPort) {
         String[] strBrokers = strBrokerInfo.split(TokenConstants.ATTR_SEP);
         this.brokerId = Integer.parseInt(strBrokers[0]);
@@ -99,7 +97,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with brokerId host enableTls  tlsPort (port = tlsPort)
+    // create with brokerId host enableTls tlsPort (port = tlsPort)
     public BrokerInfo(int brokerId, String host, boolean enableTls, int tlsPort) {
         this.brokerId = brokerId;
         this.host = host;

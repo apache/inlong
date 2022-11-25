@@ -27,9 +27,11 @@ import java.util.Set;
 public interface Metadata {
 
     /**
-     * Get the metadata key of MetaField that supported by Extract Nodes or Load Nodes
+     * Get the metadata key of MetaField that supported by Extract Nodes or Load
+     * Nodes
      *
-     * @param metaField The meta field
+     * @param metaField
+     *          The meta field
      * @return The key of metadata
      */
     default String getMetadataKey(MetaField metaField) {
@@ -65,7 +67,8 @@ public interface Metadata {
     /**
      * Get metadata type MetaField that supported by Extract Nodes or Load Nodes
      *
-     * @param metaField The meta field
+     * @param metaField
+     *          The meta field
      * @return The type of metadata that based on Flink SQL types
      */
     default String getMetadataType(MetaField metaField) {
@@ -123,12 +126,14 @@ public interface Metadata {
     }
 
     /**
-     * Is virtual.
-     * By default, the planner assumes that a metadata column can be used for both reading and writing.
-     * However, in many cases an external system provides more read-only metadata fields than writable fields.
-     * Therefore, it is possible to exclude metadata columns from persisting using the VIRTUAL keyword.
+     * Is virtual. By default, the planner assumes that a metadata column can be
+     * used for both reading and writing. However, in many cases an external system
+     * provides more read-only metadata fields than writable fields. Therefore, it
+     * is possible to exclude metadata columns from persisting using the VIRTUAL
+     * keyword.
      *
-     * @param metaField The meta field
+     * @param metaField
+     *          The meta field
      * @return true if it is virtual else false
      */
     boolean isVirtual(MetaField metaField);
@@ -143,7 +148,8 @@ public interface Metadata {
     /**
      * Format string by Flink SQL
      *
-     * @param metaField The meta field
+     * @param metaField
+     *          The meta field
      * @return The string that format by Flink SQL
      */
     default String format(MetaField metaField) {

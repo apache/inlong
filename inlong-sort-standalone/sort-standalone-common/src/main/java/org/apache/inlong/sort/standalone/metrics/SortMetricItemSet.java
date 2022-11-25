@@ -17,13 +17,14 @@
 
 package org.apache.inlong.sort.standalone.metrics;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.inlong.common.metric.MetricDomain;
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.metric.MetricItemSet;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 
 /**

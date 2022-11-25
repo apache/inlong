@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.pojo.sink.mysql;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * MySQL table info.

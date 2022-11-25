@@ -24,21 +24,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * A reusable {@link java.io.DataOutput} implementation that writes to an in-memory buffer.
+ * A reusable {@link java.io.DataOutput} implementation that writes to an
+ * in-memory buffer.
  *
  * This saves memory over creating a new DataOutputStream and
  * ByteArrayOutputStream each time data is written.
  *
  * Typical usage is something like the following:
  *
- * DataOutputBuffer buffer = new DataOutputBuffer();
- * while (... loop condition ...) {
- *   buffer.reset();
- *   ... write buffer using DataOutput methods ...
- *   byte[] data = buffer.getData();
- *   int dataLength = buffer.getLength();
- *   ... write data to its ultimate destination ...
- * }
+ * DataOutputBuffer buffer = new DataOutputBuffer(); while (... loop condition
+ * ...) { buffer.reset(); ... write buffer using DataOutput methods ... byte[]
+ * data = buffer.getData(); int dataLength = buffer.getLength(); ... write data
+ * to its ultimate destination ... }
  */
 public class DataOutputBuffer extends DataOutputStream {
 
@@ -91,8 +88,8 @@ public class DataOutputBuffer extends DataOutputStream {
     }
 
     /**
-     * Returns the current contents of the buffer.
-     * Data is only valid to {@link #getLength()}.
+     * Returns the current contents of the buffer. Data is only valid to
+     * {@link #getLength()}.
      */
     public byte[] getData() {
         return buffer.getData();

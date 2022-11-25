@@ -17,6 +17,10 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
+import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+
+import org.apache.flume.Event;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -26,8 +30,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.flume.Event;
-import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -17,13 +17,15 @@
 
 package org.apache.inlong.audit.sink;
 
+import org.apache.flume.Event;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.flume.Event;
 
 @Getter
 @Setter
 public class EventStat {
+
     private Event event;
     private int myRetryCnt;
 

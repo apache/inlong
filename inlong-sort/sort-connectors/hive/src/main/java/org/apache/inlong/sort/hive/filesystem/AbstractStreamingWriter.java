@@ -18,6 +18,16 @@
 
 package org.apache.inlong.sort.hive.filesystem;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -36,24 +46,18 @@ import org.apache.flink.streaming.api.operators.ChainingStrategy;
 import org.apache.flink.streaming.api.operators.OneInputStreamOperator;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.runtime.streamrecord.StreamRecord;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
 
 import javax.annotation.Nullable;
 
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
-
 /**
- * Operator for file system sink. It is a operator version of {@link StreamingFileSink}. It can send
- * file and bucket information to downstream.
+ * Operator for file system sink. It is a operator version of
+ * {@link StreamingFileSink}. It can send file and bucket information to
+ * downstream.
  */
 public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOperator<OUT>
-        implements OneInputStreamOperator<IN, OUT>, BoundedOneInput {
+        implements
+            OneInputStreamOperator<IN, OUT>,
+            BoundedOneInput {
 
     private static final long serialVersionUID = 1L;
 
@@ -61,9 +65,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
 
     private final long bucketCheckInterval;
 
-    private final StreamingFileSink.BucketsBuilder<
-            IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
-            bucketsBuilder;
+    private final StreamingFileSink.BucketsBuilder<IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>> bucketsBuilder;
 
     @Nullable
     private String inlongMetric;
@@ -86,9 +88,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
 
     public AbstractStreamingWriter(
             long bucketCheckInterval,
-            StreamingFileSink.BucketsBuilder<
-                    IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
-                    bucketsBuilder,
+            StreamingFileSink.BucketsBuilder<IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>> bucketsBuilder,
             String inlongMetric,
             String auditHostAndPorts) {
         this.bucketCheckInterval = bucketCheckInterval;
@@ -102,16 +102,18 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     protected abstract void partitionCreated(String partition);
 
     /**
-     * Notifies a partition become inactive. A partition becomes inactive after all the records
-     * received so far have been committed.
+     * Notifies a partition become inactive. A partition becomes inactive after all
+     * the records received so far have been committed.
      */
     protected abstract void partitionInactive(String partition);
 
     /**
      * Notifies a new file has been opened.
      *
-     * <p>Note that this does not mean that the file has been created in the file system. It is only
-     * created logically and the actual file will be generated after it is committed.
+     * <p>
+     * Note that this does not mean that the file has been created in the file
+     * system. It is only created logically and the actual file will be generated
+     * after it is committed.
      */
     protected abstract void onPartFileOpened(String partition, Path newPath);
 
@@ -157,13 +159,12 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
 
         buckets.setFileLifeCycleListener(this::onPartFileOpened);
 
-        helper =
-                new StreamingFileSinkHelper<>(
-                        buckets,
-                        context.isRestored(),
-                        context.getOperatorStateStore(),
-                        getRuntimeContext().getProcessingTimeService(),
-                        bucketCheckInterval);
+        helper = new StreamingFileSinkHelper<>(
+                buckets,
+                context.isRestored(),
+                context.getOperatorStateStore(),
+                getRuntimeContext().getProcessingTimeService(),
+                bucketCheckInterval);
 
         currentWatermark = Long.MIN_VALUE;
 
@@ -172,7 +173,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
@@ -230,4 +231,3 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
         }
     }
 }
-

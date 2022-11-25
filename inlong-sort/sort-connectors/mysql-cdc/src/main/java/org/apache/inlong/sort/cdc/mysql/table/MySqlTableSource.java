@@ -18,6 +18,15 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
+import org.apache.inlong.sort.base.filter.RowKindValidator;
+import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
+import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
+import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
+
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.ChangelogMode;
@@ -30,14 +39,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.debezium.table.RowDataDebeziumDeserializeSchema;
-import org.apache.inlong.sort.base.filter.RowKindValidator;
-import org.apache.inlong.sort.cdc.mysql.source.MySqlSource;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Collections;
@@ -49,11 +51,11 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import javax.annotation.Nullable;
 
 /**
- * A {@link DynamicTableSource} that describes how to create a MySQL binlog source from a logical
- * description.
+ * A {@link DynamicTableSource} that describes how to create a MySQL binlog
+ * source from a logical description.
  */
 public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadata {
 
@@ -191,8 +193,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
             boolean migrateAll,
             String inlongMetric,
             String inlongAudit,
-            String rowKindsFiltered
-            ) {
+            String rowKindsFiltered) {
         this.physicalSchema = physicalSchema;
         this.port = port;
         this.hostname = checkNotNull(hostname);
@@ -228,8 +229,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
 
     @Override
     public ChangelogMode getChangelogMode() {
-        final ChangelogMode.Builder builder =
-                ChangelogMode.newBuilder().addContainedKind(RowKind.INSERT);
+        final ChangelogMode.Builder builder = ChangelogMode.newBuilder().addContainedKind(RowKind.INSERT);
         if (!appendSource) {
             builder.addContainedKind(RowKind.UPDATE_BEFORE)
                     .addContainedKind(RowKind.UPDATE_AFTER)
@@ -240,56 +240,53 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
 
     @Override
     public ScanRuntimeProvider getScanRuntimeProvider(ScanContext scanContext) {
-        RowType physicalDataType =
-                (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
+        RowType physicalDataType = (RowType) physicalSchema.toPhysicalRowDataType().getLogicalType();
         MetadataConverter[] metadataConverters = getMetadataConverters(physicalDataType);
-        final TypeInformation<RowData> typeInfo =
-                scanContext.createTypeInformation(producedDataType);
+        final TypeInformation<RowData> typeInfo = scanContext.createTypeInformation(producedDataType);
 
-        DebeziumDeserializationSchema<RowData> deserializer =
-                RowDataDebeziumDeserializeSchema.newBuilder()
-                        .setPhysicalRowType(physicalDataType)
-                        .setMetadataConverters(metadataConverters)
-                        .setResultTypeInfo(typeInfo)
-                        .setServerTimeZone(serverTimeZone)
-                        .setAppendSource(appendSource)
-                        .setValidator(new RowKindValidator(rowKindsFiltered))
-                        .setUserDefinedConverterFactory(
-                            MySqlDeserializationConverterFactory.instance())
-                        .setMigrateAll(migrateAll)
-                        .build();
+        DebeziumDeserializationSchema<RowData> deserializer = RowDataDebeziumDeserializeSchema.newBuilder()
+                .setPhysicalRowType(physicalDataType)
+                .setMetadataConverters(metadataConverters)
+                .setResultTypeInfo(typeInfo)
+                .setServerTimeZone(serverTimeZone)
+                .setAppendSource(appendSource)
+                .setValidator(new RowKindValidator(rowKindsFiltered))
+                .setUserDefinedConverterFactory(
+                        MySqlDeserializationConverterFactory.instance())
+                .setMigrateAll(migrateAll)
+                .build();
         if (enableParallelRead) {
-            MySqlSource<RowData> parallelSource =
-                    MySqlSource.<RowData>builder()
-                            .hostname(hostname)
-                            .port(port)
-                            .databaseList(database)
-                            .tableList(tableName)
-                            .username(username)
-                            .password(password)
-                            .serverTimeZone(serverTimeZone.toString())
-                            .serverId(serverId)
-                            .splitSize(splitSize)
-                            .splitMetaGroupSize(splitMetaGroupSize)
-                            .distributionFactorUpper(distributionFactorUpper)
-                            .distributionFactorLower(distributionFactorLower)
-                            .fetchSize(fetchSize)
-                            .connectTimeout(connectTimeout)
-                            .connectMaxRetries(connectMaxRetries)
-                            .connectionPoolSize(connectionPoolSize)
-                            .debeziumProperties(dbzProperties)
-                            .startupOptions(startupOptions)
-                            .deserializer(deserializer)
-                            .scanNewlyAddedTableEnabled(scanNewlyAddedTableEnabled)
-                            .jdbcProperties(jdbcProperties)
-                            .heartbeatInterval(heartbeatInterval)
-                            .inlongMetric(inlongMetric)
-                            .inlongAudit(inlongAudit)
-                            .build();
+            MySqlSource<RowData> parallelSource = MySqlSource.<RowData>builder()
+                    .hostname(hostname)
+                    .port(port)
+                    .databaseList(database)
+                    .tableList(tableName)
+                    .username(username)
+                    .password(password)
+                    .serverTimeZone(serverTimeZone.toString())
+                    .serverId(serverId)
+                    .splitSize(splitSize)
+                    .splitMetaGroupSize(splitMetaGroupSize)
+                    .distributionFactorUpper(distributionFactorUpper)
+                    .distributionFactorLower(distributionFactorLower)
+                    .fetchSize(fetchSize)
+                    .connectTimeout(connectTimeout)
+                    .connectMaxRetries(connectMaxRetries)
+                    .connectionPoolSize(connectionPoolSize)
+                    .debeziumProperties(dbzProperties)
+                    .startupOptions(startupOptions)
+                    .deserializer(deserializer)
+                    .scanNewlyAddedTableEnabled(scanNewlyAddedTableEnabled)
+                    .jdbcProperties(jdbcProperties)
+                    .heartbeatInterval(heartbeatInterval)
+                    .inlongMetric(inlongMetric)
+                    .inlongAudit(inlongAudit)
+                    .build();
             return SourceProvider.of(parallelSource);
         } else {
             org.apache.inlong.sort.cdc.mysql.MySqlSource.Builder<RowData> builder =
-                    org.apache.inlong.sort.cdc.mysql.MySqlSource.<RowData>builder()
+                    org.apache.inlong.sort.cdc.mysql.MySqlSource
+                            .<RowData>builder()
                             .hostname(hostname)
                             .port(port)
                             .databaseList(database)
@@ -316,17 +313,15 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(MySqlReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(MySqlReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(
-                        m ->
-                                m == MySqlReadableMetadata.OLD
-                                        ? new OldFieldMetadataConverter(
+                        m -> m == MySqlReadableMetadata.OLD
+                                ? new OldFieldMetadataConverter(
                                         physicalDataType, serverTimeZone)
-                                        : m.getConverter())
+                                : m.getConverter())
                 .toArray(MetadataConverter[]::new);
     }
 
@@ -346,35 +341,34 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
 
     @Override
     public DynamicTableSource copy() {
-        MySqlTableSource source =
-                new MySqlTableSource(
-                        physicalSchema,
-                        port,
-                        hostname,
-                        database,
-                        tableName,
-                        username,
-                        password,
-                        serverTimeZone,
-                        dbzProperties,
-                        serverId,
-                        enableParallelRead,
-                        splitSize,
-                        splitMetaGroupSize,
-                        fetchSize,
-                        connectTimeout,
-                        connectMaxRetries,
-                        connectionPoolSize,
-                        distributionFactorUpper,
-                        distributionFactorLower,
-                        appendSource,
-                        startupOptions,
-                        scanNewlyAddedTableEnabled,
-                        jdbcProperties,
-                        heartbeatInterval,
-                        migrateAll,
-                        inlongMetric,
-                        inlongAudit, rowKindsFiltered);
+        MySqlTableSource source = new MySqlTableSource(
+                physicalSchema,
+                port,
+                hostname,
+                database,
+                tableName,
+                username,
+                password,
+                serverTimeZone,
+                dbzProperties,
+                serverId,
+                enableParallelRead,
+                splitSize,
+                splitMetaGroupSize,
+                fetchSize,
+                connectTimeout,
+                connectMaxRetries,
+                connectionPoolSize,
+                distributionFactorUpper,
+                distributionFactorLower,
+                appendSource,
+                startupOptions,
+                scanNewlyAddedTableEnabled,
+                jdbcProperties,
+                heartbeatInterval,
+                migrateAll,
+                inlongMetric,
+                inlongAudit, rowKindsFiltered);
         source.metadataKeys = metadataKeys;
         source.producedDataType = producedDataType;
         return source;

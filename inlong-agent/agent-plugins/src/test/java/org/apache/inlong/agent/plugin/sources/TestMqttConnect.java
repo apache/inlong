@@ -17,13 +17,12 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.MqttReader;
-import org.junit.Ignore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,7 +30,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertNotNull;
+import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestMqttConnect {
 
@@ -56,6 +57,7 @@ public class TestMqttConnect {
         ExecutorService threadPool = Executors.newFixedThreadPool(5);
         for (Reader reader : readers) {
             threadPool.submit(new Runnable() {
+
                 @Override
                 public void run() {
                     reader.init(jobProfile);

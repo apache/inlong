@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.pojo.transform;
 
+import javax.validation.constraints.NotBlank;
+
+import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
 
 /**
  * Delete request of transform
@@ -43,4 +43,3 @@ public class DeleteTransformRequest {
     private String transformName;
 
 }
-

@@ -17,11 +17,12 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
+import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
+
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
-import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilterCondEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,9 +38,8 @@ public class GroupConsumeCtrlEntityTest {
         String attributes = "key=val&ke2=val3";
         String createUser = "creater";
         Date createDate = new Date();
-        BdbGroupFilterCondEntity bdbEntity1 =
-                new BdbGroupFilterCondEntity(topicName, groupName, controlStatus,
-                        filterCondStr, attributes, createUser, createDate);
+        BdbGroupFilterCondEntity bdbEntity1 = new BdbGroupFilterCondEntity(topicName, groupName, controlStatus,
+                filterCondStr, attributes, createUser, createDate);
 
         GroupConsumeCtrlEntity ctrlEntry1 = new GroupConsumeCtrlEntity(bdbEntity1);
         Assert.assertEquals(ctrlEntry1.getGroupName(), bdbEntity1.getConsumerGroupName());
@@ -64,8 +64,7 @@ public class GroupConsumeCtrlEntityTest {
         c.setTime(newDate);
         c.add(Calendar.DAY_OF_MONTH, 1);
         newDate = c.getTime();
-        BaseEntity opInfoEntity =
-                new BaseEntity(newDataVerId, "modify", newDate);
+        BaseEntity opInfoEntity = new BaseEntity(newDataVerId, "modify", newDate);
         GroupConsumeCtrlEntity ctrlEntry2 = ctrlEntry1.clone();
         Assert.assertTrue(ctrlEntry2.isMatched(ctrlEntry1));
         ctrlEntry2.updBaseModifyInfo(opInfoEntity);

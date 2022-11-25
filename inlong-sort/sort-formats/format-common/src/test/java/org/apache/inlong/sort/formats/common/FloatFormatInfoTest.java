@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
 import java.util.Collections;
+
 import org.junit.Test;
 
 /**
@@ -38,15 +39,13 @@ public class FloatFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() {
         assertEquals(
                 "123.123",
-                FloatFormatInfo.INSTANCE.serialize(123.123f)
-        );
+                FloatFormatInfo.INSTANCE.serialize(123.123f));
     }
 
     @Test
     public void testDeserialize() {
         assertEquals(
                 Float.valueOf(123.123f),
-                FloatFormatInfo.INSTANCE.deserialize("123.123")
-        );
+                FloatFormatInfo.INSTANCE.deserialize("123.123"));
     }
 }

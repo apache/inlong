@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import org.apache.inlong.manager.client.api.NoAuth;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.inner.client.NoAuthClient;
+import org.apache.inlong.manager.client.api.NoAuth;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
+import org.apache.inlong.manager.client.api.inner.client.NoAuthClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.user.UserRequest;

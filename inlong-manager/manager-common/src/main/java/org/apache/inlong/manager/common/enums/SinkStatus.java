@@ -23,10 +23,8 @@ package org.apache.inlong.manager.common.enums;
 public enum SinkStatus {
 
     // Stream sink related status
-    NEW(100, "new"),
-    CONFIG_ING(110, "in configure"),
-    CONFIG_FAILED(120, "configuration failed"),
-    CONFIG_SUCCESSFUL(130, "configuration successful"),
+    NEW(100, "new"), CONFIG_ING(110, "in configure"), CONFIG_FAILED(120, "configuration failed"), CONFIG_SUCCESSFUL(130,
+            "configuration successful"),
 
     ;
 

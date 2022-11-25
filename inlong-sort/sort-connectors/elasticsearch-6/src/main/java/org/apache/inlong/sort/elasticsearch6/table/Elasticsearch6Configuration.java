@@ -18,21 +18,22 @@
 
 package org.apache.inlong.sort.elasticsearch6.table;
 
+import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
+
+import org.apache.inlong.sort.elasticsearch.table.ElasticsearchConfiguration;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
-import org.apache.inlong.sort.elasticsearch.table.ElasticsearchConfiguration;
-
 import org.apache.http.HttpHost;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
-
 /** Elasticsearch 6 specific configuration. */
 @Internal
 final class Elasticsearch6Configuration extends ElasticsearchConfiguration {
+
     Elasticsearch6Configuration(ReadableConfig config, ClassLoader classLoader) {
         super(config, classLoader);
     }
@@ -46,7 +47,8 @@ final class Elasticsearch6Configuration extends ElasticsearchConfiguration {
     /**
      * Parse Hosts String to list.
      *
-     * <p>Hosts String format was given as following:
+     * <p>
+     * Hosts String format was given as following:
      *
      * <pre>
      *     connector.hosts = http://host_name:9092;http://host_name:9093

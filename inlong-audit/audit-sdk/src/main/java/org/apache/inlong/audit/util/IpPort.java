@@ -17,12 +17,14 @@
 
 package org.apache.inlong.audit.util;
 
-import io.netty.channel.Channel;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.net.InetSocketAddress;
 
+import io.netty.channel.Channel;
+
 public class IpPort {
+
     public static final String SEPARATOR = ":";
     public final String ip;
     public final int port;
@@ -145,4 +147,3 @@ public class IpPort {
         return key;
     }
 }
-

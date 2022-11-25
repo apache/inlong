@@ -20,13 +20,13 @@ package org.apache.inlong.tubemq.server.tools;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MasterStartup {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(MasterStartup.class);
+    private static final Logger logger = LoggerFactory.getLogger(MasterStartup.class);
 
     public static void main(final String[] args) throws Exception {
         // get configure file path

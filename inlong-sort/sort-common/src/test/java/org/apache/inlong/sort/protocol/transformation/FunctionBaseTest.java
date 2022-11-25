@@ -17,11 +17,13 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import com.google.common.base.Preconditions;
 import org.apache.inlong.sort.SerializeBaseTest;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Function test base class

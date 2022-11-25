@@ -33,6 +33,13 @@ import static org.apache.inlong.dataproxy.metrics.DataProxyMetricItem.M_SEND_SUC
 import static org.apache.inlong.dataproxy.metrics.DataProxyMetricItem.M_SINK_DURATION;
 import static org.apache.inlong.dataproxy.metrics.DataProxyMetricItem.M_WHOLE_DURATION;
 
+import org.apache.inlong.common.metric.MetricItemValue;
+import org.apache.inlong.common.metric.MetricListener;
+import org.apache.inlong.common.metric.MetricValue;
+import org.apache.inlong.dataproxy.config.RemoteConfigManager;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
+
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
@@ -46,12 +53,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.inlong.common.metric.MetricValue;
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
-import org.apache.inlong.common.metric.MetricItemValue;
-import org.apache.inlong.common.metric.MetricListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -17,10 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.zkimpl;
 
-import java.lang.reflect.Type;
-import java.util.List;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
@@ -31,15 +27,23 @@ import org.apache.inlong.tubemq.server.common.zookeeper.ZooKeeperWatcher;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsBrokerConfigMapperImpl;
+
 import org.apache.zookeeper.KeeperException;
 
+import java.lang.reflect.Type;
+import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 public class ZKBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
+
     private final ZooKeeperWatcher zkWatcher;
     private final String brokerCfgRootDir;
 
     public ZKBrokerConfigMapperImpl(String metaNodePrefix,
-                                    ZooKeeperWatcher zkWatcher,
-                                    StringBuilder strBuff) {
+            ZooKeeperWatcher zkWatcher,
+            StringBuilder strBuff) {
         super();
         this.zkWatcher = zkWatcher;
         this.brokerCfgRootDir = strBuff.append(metaNodePrefix)
@@ -67,7 +71,8 @@ public class ZKBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
         }
         String confStr;
         Gson gson = new Gson();
-        Type type = new TypeToken<BrokerConfEntity>() {}.getType();
+        Type type = new TypeToken<BrokerConfEntity>() {
+        }.getType();
         // read data item, parse and store data to cache
         for (String itemKey : childNodes) {
             if (TStringUtils.isEmpty(itemKey)) {
@@ -94,7 +99,7 @@ public class ZKBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
     }
 
     protected boolean putConfig2Persistent(BrokerConfEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         String entityStr = entity.toString();
         String confNode = strBuff.append(brokerCfgRootDir)
                 .append(TokenConstants.SLASH).append(entity.getBrokerId()).toString();

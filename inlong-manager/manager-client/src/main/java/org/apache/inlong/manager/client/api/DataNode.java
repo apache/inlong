@@ -26,7 +26,8 @@ public interface DataNode {
     /**
      * Save data node.
      *
-     * @param request data node info
+     * @param request
+     *          data node info
      * @return cluster id after saving
      */
     Integer save(DataNodeRequest request);
@@ -34,7 +35,8 @@ public interface DataNode {
     /**
      * Get data node by id.
      *
-     * @param id node id
+     * @param id
+     *          node id
      * @return node info
      */
     DataNodeInfo get(Integer id);
@@ -42,7 +44,8 @@ public interface DataNode {
     /**
      * Paging query nodes according to conditions.
      *
-     * @param request page request conditions
+     * @param request
+     *          page request conditions
      * @return node list
      */
     PageResult<DataNodeInfo> list(DataNodeRequest request);
@@ -50,7 +53,8 @@ public interface DataNode {
     /**
      * Update data node.
      *
-     * @param request node info to be modified
+     * @param request
+     *          node info to be modified
      * @return whether succeed
      */
     public Boolean update(DataNodeRequest request);
@@ -58,7 +62,8 @@ public interface DataNode {
     /**
      * Delete data node.
      *
-     * @param id node id to be deleted
+     * @param id
+     *          node id to be deleted
      * @return whether succeed
      */
     Boolean delete(Integer id);

@@ -21,9 +21,8 @@ package org.apache.inlong.tubemq.server.common.statusdef;
  * The enable status enumeration class
  */
 public enum EnableStatus {
-    STATUS_UNDEFINE(-2, "Undefined."),
-    STATUS_DISABLE(0, "Disable."),
-    STATUS_ENABLE(2, "Enable.");
+
+    STATUS_UNDEFINE(-2, "Undefined."), STATUS_DISABLE(0, "Disable."), STATUS_ENABLE(2, "Enable.");
 
     private int code;
     private String description;

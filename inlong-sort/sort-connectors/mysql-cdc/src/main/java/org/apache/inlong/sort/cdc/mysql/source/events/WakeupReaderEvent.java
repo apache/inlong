@@ -18,15 +18,17 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.events;
 
-import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.inlong.sort.cdc.mysql.source.enumerator.MySqlSourceEnumerator;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
 
+import org.apache.flink.api.connector.source.SourceEvent;
+
 /**
- * The {@link SourceEvent} that {@link MySqlSourceEnumerator} sends to {@link MySqlSourceReader} to
- * wake up source reader to consume split again.
+ * The {@link SourceEvent} that {@link MySqlSourceEnumerator} sends to
+ * {@link MySqlSourceReader} to wake up source reader to consume split again.
  */
 public class WakeupReaderEvent implements SourceEvent {
+
     private static final long serialVersionUID = 1L;
     private WakeUpTarget target;
 
@@ -42,7 +44,6 @@ public class WakeupReaderEvent implements SourceEvent {
      * Wake up target.
      */
     public enum WakeUpTarget {
-        SNAPSHOT_READER,
-        BINLOG_READER
+        SNAPSHOT_READER, BINLOG_READER
     }
 }

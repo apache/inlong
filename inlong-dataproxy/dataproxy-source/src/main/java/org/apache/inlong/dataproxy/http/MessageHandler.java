@@ -17,8 +17,9 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
+
+import org.apache.flume.conf.Configurable;
 
 public interface MessageHandler extends Configurable {
 

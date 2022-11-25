@@ -17,6 +17,22 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
+import org.apache.inlong.agent.plugin.Message;
+
+import org.apache.commons.lang.StringUtils;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
@@ -37,19 +53,6 @@ import com.moilioncircle.redis.replicator.rdb.datatype.KeyStringValueString;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyStringValueZSet;
 import com.moilioncircle.redis.replicator.rdb.datatype.KeyValuePair;
 import com.moilioncircle.redis.replicator.rdb.datatype.ZSetEntry;
-import org.apache.commons.lang.StringUtils;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.message.DefaultMessage;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.agent.plugin.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Redis data reader
@@ -104,6 +107,7 @@ public class RedisReader extends AbstractReader {
             redisReplicator = new RedisReplicator(uri);
             initReplicator();
             redisReplicator.addEventListener(new EventListener() {
+
                 @Override
                 public void onEvent(Replicator replicator, Event event) {
                     try {
@@ -232,46 +236,47 @@ public class RedisReader extends AbstractReader {
     private void initGson() {
         gson = new GsonBuilder().registerTypeAdapter(KeyStringValueHash.class, new TypeAdapter<KeyStringValueHash>() {
 
-                    @Override
-                    public void write(JsonWriter out, KeyStringValueHash kv) throws IOException {
-                        out.beginObject();
-                        out.name("DB").beginObject();
-                        out.name("dbNumber").value(kv.getDb().getDbNumber());
-                        out.name("dbSize").value(kv.getDb().getDbsize());
-                        out.name("expires").value(kv.getDb().getExpires());
-                        out.endObject();
-                        out.name("valueRdbType").value(kv.getValueRdbType());
-                        out.name("key").value(new String(kv.getKey()));
-                        out.name("value").beginObject();
-                        for (byte[] b : kv.getValue().keySet()) {
-                            out.name(new String(b)).value(new String(kv.getValue().get(b)));
-                        }
-                        out.endObject();
-                        out.endObject();
-                    }
+            @Override
+            public void write(JsonWriter out, KeyStringValueHash kv) throws IOException {
+                out.beginObject();
+                out.name("DB").beginObject();
+                out.name("dbNumber").value(kv.getDb().getDbNumber());
+                out.name("dbSize").value(kv.getDb().getDbsize());
+                out.name("expires").value(kv.getDb().getExpires());
+                out.endObject();
+                out.name("valueRdbType").value(kv.getValueRdbType());
+                out.name("key").value(new String(kv.getKey()));
+                out.name("value").beginObject();
+                for (byte[] b : kv.getValue().keySet()) {
+                    out.name(new String(b)).value(new String(kv.getValue().get(b)));
+                }
+                out.endObject();
+                out.endObject();
+            }
 
-                    @Override
-                    public KeyStringValueHash read(JsonReader in) throws IOException {
-                        return null;
-                    }
-                }).registerTypeAdapter(DefaultCommand.class, new TypeAdapter<DefaultCommand>() {
-                    @Override
-                    public void write(JsonWriter out, DefaultCommand dc) throws IOException {
-                        out.beginObject();
-                        out.name("key").value(new String(dc.getCommand()));
-                        out.name("value").beginArray();
-                        for (byte[] bytes : dc.getArgs()) {
-                            out.value(new String(bytes));
-                        }
-                        out.endArray();
-                        out.endObject();
-                    }
+            @Override
+            public KeyStringValueHash read(JsonReader in) throws IOException {
+                return null;
+            }
+        }).registerTypeAdapter(DefaultCommand.class, new TypeAdapter<DefaultCommand>() {
 
-                    @Override
-                    public DefaultCommand read(JsonReader in) throws IOException {
-                        return null;
-                    }
-                })
+            @Override
+            public void write(JsonWriter out, DefaultCommand dc) throws IOException {
+                out.beginObject();
+                out.name("key").value(new String(dc.getCommand()));
+                out.name("value").beginArray();
+                for (byte[] bytes : dc.getArgs()) {
+                    out.value(new String(bytes));
+                }
+                out.endArray();
+                out.endObject();
+            }
+
+            @Override
+            public DefaultCommand read(JsonReader in) throws IOException {
+                return null;
+            }
+        })
                 .registerTypeAdapter(KeyStringValueList.class, new TypeAdapter<KeyStringValueList>() {
 
                     @Override
@@ -292,6 +297,7 @@ public class RedisReader extends AbstractReader {
                     }
                 })
                 .registerTypeAdapter(KeyStringValueSet.class, new TypeAdapter<KeyStringValueSet>() {
+
                     @Override
                     public void write(JsonWriter out, KeyStringValueSet kv) throws IOException {
                         out.beginObject();
@@ -310,6 +316,7 @@ public class RedisReader extends AbstractReader {
                     }
                 })
                 .registerTypeAdapter(KeyStringValueString.class, new TypeAdapter<KeyStringValueString>() {
+
                     @Override
                     public void write(JsonWriter out, KeyStringValueString kv) throws IOException {
                         out.beginObject();
@@ -324,6 +331,7 @@ public class RedisReader extends AbstractReader {
                     }
                 })
                 .registerTypeAdapter(KeyStringValueZSet.class, new TypeAdapter<KeyStringValueZSet>() {
+
                     @Override
                     public void write(JsonWriter out, KeyStringValueZSet kv) throws IOException {
                         out.beginObject();

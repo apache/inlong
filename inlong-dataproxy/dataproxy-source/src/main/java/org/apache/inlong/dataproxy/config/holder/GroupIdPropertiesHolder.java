@@ -17,10 +17,11 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +33,9 @@ public class GroupIdPropertiesHolder extends PropertiesConfigHolder {
     private static final Logger LOG = LoggerFactory.getLogger(GroupIdPropertiesHolder.class);
     private static final String GROUPID_VALUE_SPLITTER = "#";
 
-    private Map<String, String> groupIdMappingProperties =
-            new HashMap<String, String>();
-    private Map<String, Map<String, String>> streamIdMappingProperties =
-            new HashMap<String, Map<String, String>>();
-    private Map<String, String> groupIdEnableMappingProperties =
-            new HashMap<String, String>();
+    private Map<String, String> groupIdMappingProperties = new HashMap<String, String>();
+    private Map<String, Map<String, String>> streamIdMappingProperties = new HashMap<String, Map<String, String>>();
+    private Map<String, String> groupIdEnableMappingProperties = new HashMap<String, String>();
 
     public GroupIdPropertiesHolder(String fileName) {
         super(fileName);
@@ -47,10 +45,8 @@ public class GroupIdPropertiesHolder extends PropertiesConfigHolder {
     public void loadFromFileToHolder() {
         super.loadFromFileToHolder();
         try {
-            Map<String, String> tmpGroupIdMappingProperties =
-                    new HashMap<>();
-            Map<String, Map<String, String>> tmpStreamIdMappingProperties =
-                    new HashMap<>();
+            Map<String, String> tmpGroupIdMappingProperties = new HashMap<>();
+            Map<String, Map<String, String>> tmpStreamIdMappingProperties = new HashMap<>();
             Map<String, String> tmpGroupIdEnableMappingProperties = new HashMap<>();
             for (Map.Entry<String, String> entry : super.getHolder().entrySet()) {
                 String[] sArray = StringUtils.split(entry.getKey(), GROUPID_VALUE_SPLITTER);

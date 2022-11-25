@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.kafka;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.flink.util.PropertiesUtil.getBoolean;
+import static org.apache.flink.util.PropertiesUtil.getLong;
+
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -48,28 +52,29 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.flink.util.PropertiesUtil.getBoolean;
-import static org.apache.flink.util.PropertiesUtil.getLong;
-
 /**
  * Copy from org.apache.flink:flink-connector-kafka_2.11:1.13.5
  *
- * The Flink Kafka Consumer is a streaming data source that pulls a parallel data stream from Apache
- * Kafka. The consumer can run in multiple parallel instances, each of which will pull data from one
- * or more Kafka partitions.
+ * The Flink Kafka Consumer is a streaming data source that pulls a parallel
+ * data stream from Apache Kafka. The consumer can run in multiple parallel
+ * instances, each of which will pull data from one or more Kafka partitions.
  *
- * <p>The Flink Kafka Consumer participates in checkpointing and guarantees that no data is lost
- * during a failure, and that the computation processes elements "exactly once". (Note: These
- * guarantees naturally assume that Kafka itself does not loose any data.)
+ * <p>
+ * The Flink Kafka Consumer participates in checkpointing and guarantees that no
+ * data is lost during a failure, and that the computation processes elements
+ * "exactly once". (Note: These guarantees naturally assume that Kafka itself
+ * does not loose any data.)
  *
- * <p>Please note that Flink snapshots the offsets internally as part of its distributed
- * checkpoints. The offsets committed to Kafka are only to bring the outside view of progress in
- * sync with Flink's view of the progress. That way, monitoring and other jobs can get a view of how
- * far the Flink Kafka consumer has consumed a topic.
+ * <p>
+ * Please note that Flink snapshots the offsets internally as part of its
+ * distributed checkpoints. The offsets committed to Kafka are only to bring the
+ * outside view of progress in sync with Flink's view of the progress. That way,
+ * monitoring and other jobs can get a view of how far the Flink Kafka consumer
+ * has consumed a topic.
  *
- * <p>Please refer to Kafka's documentation for the available configuration properties:
- * http://kafka.apache.org/documentation.html#newconsumerconfigs
+ * <p>
+ * Please refer to Kafka's documentation for the available configuration
+ * properties: http://kafka.apache.org/documentation.html#newconsumerconfigs
  */
 @PublicEvolving
 public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
@@ -82,8 +87,9 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
     public static final String KEY_POLL_TIMEOUT = "flink.poll-timeout";
 
     /**
-     * From Kafka's Javadoc: The time, in milliseconds, spent waiting in poll if data is not
-     * available. If 0, returns immediately with any records that are available now.
+     * From Kafka's Javadoc: The time, in milliseconds, spent waiting in poll if
+     * data is not available. If 0, returns immediately with any records that are
+     * available now.
      */
     public static final long DEFAULT_POLL_TIMEOUT = 100L;
 
@@ -95,8 +101,9 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
     protected final Properties properties;
 
     /**
-     * From Kafka's Javadoc: The time, in milliseconds, spent waiting in poll if data is not
-     * available. If 0, returns immediately with any records that are available now
+     * From Kafka's Javadoc: The time, in milliseconds, spent waiting in poll if
+     * data is not available. If 0, returns immediately with any records that are
+     * available now
      */
     protected final long pollTimeout;
 
@@ -105,13 +112,16 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
     /**
      * Creates a new Kafka streaming source consumer.
      *
-     * @param topic The name of the topic that should be consumed.
-     * @param valueDeserializer The de-/serializer used to convert between Kafka's byte messages and
-     *         Flink's objects.
+     * @param topic
+     *          The name of the topic that should be consumed.
+     * @param valueDeserializer
+     *          The de-/serializer used to convert between Kafka's byte messages and
+     *          Flink's objects.
      * @param props
      */
     public FlinkKafkaConsumer(
-            String topic, DeserializationSchema<T> valueDeserializer, Properties props, String inlongMetric,
+            String topic, DeserializationSchema<T> valueDeserializer, Properties props,
+            String inlongMetric,
             String auditHostAndPorts) {
         this(Collections.singletonList(topic), valueDeserializer, props, inlongMetric, auditHostAndPorts);
     }
@@ -119,16 +129,20 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
     /**
      * Creates a new Kafka streaming source consumer.
      *
-     * <p>This constructor allows passing a {@see KafkaDeserializationSchema} for reading key/value
-     * pairs, offsets, and topic names from Kafka.
+     * <p>
+     * This constructor allows passing a {@see KafkaDeserializationSchema} for
+     * reading key/value pairs, offsets, and topic names from Kafka.
      *
-     * @param topic The name of the topic that should be consumed.
-     * @param deserializer The keyed de-/serializer used to convert between Kafka's byte messages
-     *         and Flink's objects.
+     * @param topic
+     *          The name of the topic that should be consumed.
+     * @param deserializer
+     *          The keyed de-/serializer used to convert between Kafka's byte
+     *          messages and Flink's objects.
      * @param props
      */
     public FlinkKafkaConsumer(
-            String topic, KafkaDeserializationSchema<T> deserializer, Properties props, String inlongMetric,
+            String topic, KafkaDeserializationSchema<T> deserializer, Properties props,
+            String inlongMetric,
             String auditHostAndPorts) {
         this(Collections.singletonList(topic), deserializer, props, inlongMetric, auditHostAndPorts);
     }
@@ -136,15 +150,19 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
     /**
      * Creates a new Kafka streaming source consumer.
      *
-     * <p>This constructor allows passing multiple topics to the consumer.
+     * <p>
+     * This constructor allows passing multiple topics to the consumer.
      *
-     * @param topics The Kafka topics to read from.
-     * @param deserializer The de-/serializer used to convert between Kafka's byte messages and
-     *         Flink's objects.
+     * @param topics
+     *          The Kafka topics to read from.
+     * @param deserializer
+     *          The de-/serializer used to convert between Kafka's byte messages and
+     *          Flink's objects.
      * @param props
      */
     public FlinkKafkaConsumer(
-            List<String> topics, DeserializationSchema<T> deserializer, Properties props, String inlongMetric,
+            List<String> topics, DeserializationSchema<T> deserializer, Properties props,
+            String inlongMetric,
             String auditHostAndPorts) {
         this(topics, new KafkaDeserializationSchemaWrapper<>(deserializer), props, inlongMetric, auditHostAndPorts);
     }
@@ -152,31 +170,39 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
     /**
      * Creates a new Kafka streaming source consumer.
      *
-     * <p>This constructor allows passing multiple topics and a key/value deserialization schema.
+     * <p>
+     * This constructor allows passing multiple topics and a key/value
+     * deserialization schema.
      *
-     * @param topics The Kafka topics to read from.
-     * @param deserializer The keyed de-/serializer used to convert between Kafka's byte messages
-     *         and Flink's objects.
+     * @param topics
+     *          The Kafka topics to read from.
+     * @param deserializer
+     *          The keyed de-/serializer used to convert between Kafka's byte
+     *          messages and Flink's objects.
      * @param props
      */
     public FlinkKafkaConsumer(
-            List<String> topics, KafkaDeserializationSchema<T> deserializer, Properties props, String inlongMetric,
+            List<String> topics, KafkaDeserializationSchema<T> deserializer, Properties props,
+            String inlongMetric,
             String auditHostAndPorts) {
         this(topics, null, deserializer, props, inlongMetric, auditHostAndPorts);
     }
 
     /**
-     * Creates a new Kafka streaming source consumer. Use this constructor to subscribe to multiple
-     * topics based on a regular expression pattern.
+     * Creates a new Kafka streaming source consumer. Use this constructor to
+     * subscribe to multiple topics based on a regular expression pattern.
      *
-     * <p>If partition discovery is enabled (by setting a non-negative value for {@link
-     * FlinkKafkaConsumer#KEY_PARTITION_DISCOVERY_INTERVAL_MILLIS} in the properties), topics with
-     * names matching the pattern will also be subscribed to as they are created on the fly.
+     * <p>
+     * If partition discovery is enabled (by setting a non-negative value for
+     * {@link FlinkKafkaConsumer#KEY_PARTITION_DISCOVERY_INTERVAL_MILLIS} in the
+     * properties), topics with names matching the pattern will also be subscribed
+     * to as they are created on the fly.
      *
-     * @param subscriptionPattern The regular expression for a pattern of topic names to subscribe
-     *         to.
-     * @param valueDeserializer The de-/serializer used to convert between Kafka's byte messages and
-     *         Flink's objects.
+     * @param subscriptionPattern
+     *          The regular expression for a pattern of topic names to subscribe to.
+     * @param valueDeserializer
+     *          The de-/serializer used to convert between Kafka's byte messages and
+     *          Flink's objects.
      * @param props
      */
     public FlinkKafkaConsumer(
@@ -190,20 +216,24 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
     }
 
     /**
-     * Creates a new Kafka streaming source consumer. Use this constructor to subscribe to multiple
-     * topics based on a regular expression pattern.
+     * Creates a new Kafka streaming source consumer. Use this constructor to
+     * subscribe to multiple topics based on a regular expression pattern.
      *
-     * <p>If partition discovery is enabled (by setting a non-negative value for {@link
-     * FlinkKafkaConsumer#KEY_PARTITION_DISCOVERY_INTERVAL_MILLIS} in the properties), topics with
-     * names matching the pattern will also be subscribed to as they are created on the fly.
+     * <p>
+     * If partition discovery is enabled (by setting a non-negative value for
+     * {@link FlinkKafkaConsumer#KEY_PARTITION_DISCOVERY_INTERVAL_MILLIS} in the
+     * properties), topics with names matching the pattern will also be subscribed
+     * to as they are created on the fly.
      *
-     * <p>This constructor allows passing a {@see KafkaDeserializationSchema} for reading key/value
-     * pairs, offsets, and topic names from Kafka.
+     * <p>
+     * This constructor allows passing a {@see KafkaDeserializationSchema} for
+     * reading key/value pairs, offsets, and topic names from Kafka.
      *
-     * @param subscriptionPattern The regular expression for a pattern of topic names to subscribe
-     *         to.
-     * @param deserializer The keyed de-/serializer used to convert between Kafka's byte messages
-     *         and Flink's objects.
+     * @param subscriptionPattern
+     *          The regular expression for a pattern of topic names to subscribe to.
+     * @param deserializer
+     *          The keyed de-/serializer used to convert between Kafka's byte
+     *          messages and Flink's objects.
      * @param props
      */
     public FlinkKafkaConsumer(
@@ -257,7 +287,8 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
             boolean useMetrics)
             throws Exception {
 
-        // make sure that auto commit is disabled when our offset commit mode is ON_CHECKPOINTS;
+        // make sure that auto commit is disabled when our offset commit mode is
+        // ON_CHECKPOINTS;
         // this overwrites whatever setting the user configured in the properties
         adjustAutoCommitConfig(properties, offsetCommitMode);
 
@@ -289,7 +320,8 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
 
     @Override
     protected Map<KafkaTopicPartition, Long> fetchOffsetsWithTimestamp(
-            Collection<KafkaTopicPartition> partitions, long timestamp) {
+            Collection<KafkaTopicPartition> partitions,
+            long timestamp) {
 
         Map<TopicPartition, Long> partitionOffsetsRequest = new HashMap<>(partitions.size());
         for (KafkaTopicPartition partition : partitions) {
@@ -301,8 +333,8 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
         // use a short-lived consumer to fetch the offsets;
         // this is ok because this is a one-time operation that happens only on startup
         try (KafkaConsumer<?, ?> consumer = new KafkaConsumer(properties)) {
-            for (Map.Entry<TopicPartition, OffsetAndTimestamp> partitionToOffset :
-                    consumer.offsetsForTimes(partitionOffsetsRequest).entrySet()) {
+            for (Map.Entry<TopicPartition, OffsetAndTimestamp> partitionToOffset : consumer
+                    .offsetsForTimes(partitionOffsetsRequest).entrySet()) {
 
                 result.put(
                         new KafkaTopicPartition(
@@ -320,14 +352,15 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
     protected boolean getIsAutoCommitEnabled() {
         return getBoolean(properties, ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true)
                 && PropertiesUtil.getLong(
-                properties, ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 5000)
-                > 0;
+                        properties, ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 5000) > 0;
     }
 
     /**
-     * Makes sure that the ByteArrayDeserializer is registered in the Kafka properties.
+     * Makes sure that the ByteArrayDeserializer is registered in the Kafka
+     * properties.
      *
-     * @param props The Kafka properties to register the serializer in.
+     * @param props
+     *          The Kafka properties to register the serializer in.
      */
     private static void setDeserializer(Properties props) {
         final String deSerName = ByteArrayDeserializer.class.getName();

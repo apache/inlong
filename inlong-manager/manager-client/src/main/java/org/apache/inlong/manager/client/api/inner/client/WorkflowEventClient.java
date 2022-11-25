@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowEventApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
@@ -34,8 +32,13 @@ import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
 /**
- * Client for {@link org.apache.inlong.manager.client.api.service.WorkflowEventApi}.
+ * Client for
+ * {@link org.apache.inlong.manager.client.api.service.WorkflowEventApi}.
  */
 @Slf4j
 public class WorkflowEventClient {

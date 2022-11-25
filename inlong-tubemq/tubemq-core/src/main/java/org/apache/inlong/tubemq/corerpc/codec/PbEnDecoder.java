@@ -17,26 +17,29 @@
 
 package org.apache.inlong.tubemq.corerpc.codec;
 
-import com.google.protobuf.AbstractMessageLite;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.protobuf.AbstractMessageLite;
 
 /**
  * PB corresponding method, service type codec util tools
  */
 public class PbEnDecoder {
+
     // The set of methods supported by RPC, only the methods in the map are accepted
-    private static final Map<String, Integer> rpcMethodMap =
-            new HashMap<>();
-    // The set of services supported by RPC, only the services in the map are processed.
-    private static final Map<String, Integer> rpcServiceMap =
-            new HashMap<>();
+    private static final Map<String, Integer> rpcMethodMap = new HashMap<>();
+    // The set of services supported by RPC, only the services in the map are
+    // processed.
+    private static final Map<String, Integer> rpcServiceMap = new HashMap<>();
 
     static {
-        // The MAP corresponding to the writing of these strings and constants when the system starts up
+        // The MAP corresponding to the writing of these strings and constants when the
+        // system starts up
         rpcMethodMap.put("producerRegisterP2M", RpcConstants.RPC_MSG_MASTER_PRODUCER_REGISTER);
         rpcMethodMap.put("producerHeartbeatP2M", RpcConstants.RPC_MSG_MASTER_PRODUCER_HEARTBEAT);
         rpcMethodMap.put("producerCloseClientP2M", RpcConstants.RPC_MSG_MASTER_PRODUCER_CLOSECLIENT);
@@ -77,15 +80,20 @@ public class PbEnDecoder {
     /**
      * Decode pb content
      *
-     * @param isRequest     whether a request message
-     * @param methodId      the method id
-     * @param bytes         the message content
-     * @return              the message's object
-     * @throws Exception    the exception while decoding messsage
+     * @param isRequest
+     *          whether a request message
+     * @param methodId
+     *          the method id
+     * @param bytes
+     *          the message content
+     * @return the message's object
+     * @throws Exception
+     *           the exception while decoding messsage
      */
     public static Object pbDecode(boolean isRequest, int methodId, byte[] bytes) throws Exception {
         // #lizard forgives
-        // According to the method ID carried in the pb message, the corresponding class is directly used for mapping.
+        // According to the method ID carried in the pb message, the corresponding class
+        // is directly used for mapping.
         if (isRequest) {
             switch (methodId) {
                 case RpcConstants.RPC_MSG_MASTER_PRODUCER_REGISTER: {
@@ -238,17 +246,23 @@ public class PbEnDecoder {
     /**
      * Valid service type and method parameters
      *
-     * @param serviceId     the service id
-     * @param methodId      the method id
-     * @param sBuilder      the string buffer
-     * @return              whether is valid content.
-     * @throws Exception    the exception while processing.
+     * @param serviceId
+     *          the service id
+     * @param methodId
+     *          the method id
+     * @param sBuilder
+     *          the string buffer
+     * @return whether is valid content.
+     * @throws Exception
+     *           the exception while processing.
      */
     public static boolean isValidServiceTypeAndMethod(int serviceId,
-                                                      int methodId,
-                                                      final StringBuilder sBuilder) throws Exception {
+            int methodId,
+            final StringBuilder sBuilder)
+            throws Exception {
         // #lizard forgives
-        //First confirm the valid data according to the service ID according to the service ID.
+        // First confirm the valid data according to the service ID according to the
+        // service ID.
         switch (serviceId) {
             case RpcConstants.RPC_SERVICE_TYPE_MASTER_SERVICE: {
                 switch (methodId) {

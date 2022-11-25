@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -41,16 +42,23 @@ public class StringUtils {
     /**
      * Splits the kv text.
      *
-     * <p>Both escaping and quoting is supported. When the escape character is
-     * not '\0', then the next character to the escape character will be
-     * escaped. When the quote character is not '\0', then all characters
-     * between consecutive quote characters will be escaped.</p>
+     * <p>
+     * Both escaping and quoting is supported. When the escape character is not
+     * '\0', then the next character to the escape character will be escaped. When
+     * the quote character is not '\0', then all characters between consecutive
+     * quote characters will be escaped.
+     * </p>
      *
-     * @param text The text to be split.
-     * @param entryDelimiter The delimiter of entries.
-     * @param kvDelimiter The delimiter between key and value.
-     * @param escapeChar The escaping character. Only valid if not '\0'.
-     * @param quoteChar The quoting character.
+     * @param text
+     *          The text to be split.
+     * @param entryDelimiter
+     *          The delimiter of entries.
+     * @param kvDelimiter
+     *          The delimiter between key and value.
+     * @param escapeChar
+     *          The escaping character. Only valid if not '\0'.
+     * @param quoteChar
+     *          The quoting character.
      * @return The fields split from the text.
      */
     @SuppressWarnings("checkstyle:MissingSwitchDefault")
@@ -59,8 +67,7 @@ public class StringUtils {
             @Nonnull Character entryDelimiter,
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar
-    ) {
+            @Nullable Character quoteChar) {
         Map<String, String> fields = new HashMap<>();
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -71,8 +78,7 @@ public class StringUtils {
         int state = STATE_KEY;
 
         /*
-         * The state when entering escaping and quoting. When we exit escaping
-         * or quoting, we should restore this state.
+         * The state when entering escaping and quoting. When we exit escaping or quoting, we should restore this state.
          */
         int kvState = STATE_KEY;
 
@@ -169,16 +175,23 @@ public class StringUtils {
     /**
      * Concat the given fields' keys and values.
      *
-     * <p>Special characters in the text will be escaped or quoted if
-     * corresponding character is given. Otherwise, an exception will be
-     * thrown.</p>
+     * <p>
+     * Special characters in the text will be escaped or quoted if corresponding
+     * character is given. Otherwise, an exception will be thrown.
+     * </p>
      *
-     * @param fieldKeys The keys to be concat.
-     * @param fieldValues The values to be concat.
-     * @param entryDelimiter The delimiter of entries.
-     * @param kvDelimiter The delimiter between key and value.
-     * @param escapeChar The escape character.
-     * @param quoteChar The quote character.
+     * @param fieldKeys
+     *          The keys to be concat.
+     * @param fieldValues
+     *          The values to be concat.
+     * @param entryDelimiter
+     *          The delimiter of entries.
+     * @param kvDelimiter
+     *          The delimiter between key and value.
+     * @param escapeChar
+     *          The escape character.
+     * @param quoteChar
+     *          The quote character.
      * @return The concated text of given fields.
      */
     public static String concatKv(
@@ -187,15 +200,13 @@ public class StringUtils {
             @Nonnull Character entryDelimiter,
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar
-    ) {
+            @Nullable Character quoteChar) {
         if (fieldKeys.length != fieldValues.length) {
             throw new IllegalArgumentException("The keys' number " + fieldKeys.length
-                   + " doesn't match values' number " + fieldValues.length);
+                    + " doesn't match values' number " + fieldValues.length);
         }
 
-        Collection<Character> delimiters =
-                Arrays.asList(entryDelimiter, kvDelimiter);
+        Collection<Character> delimiters = Arrays.asList(entryDelimiter, kvDelimiter);
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -206,8 +217,7 @@ public class StringUtils {
                     fieldKeys[index],
                     delimiters,
                     escapeChar,
-                    quoteChar
-            );
+                    quoteChar);
 
             stringBuilder.append(kvDelimiter);
 
@@ -216,8 +226,7 @@ public class StringUtils {
                     fieldValues[index],
                     delimiters,
                     escapeChar,
-                    quoteChar
-            );
+                    quoteChar);
 
             if (index < fieldKeys.length - 1) {
                 stringBuilder.append(entryDelimiter);
@@ -232,8 +241,7 @@ public class StringUtils {
             String text,
             Collection<Character> delimiters,
             Character escapeChar,
-            Character quoteChar
-    ) {
+            Character quoteChar) {
         for (int i = 0; i < text.length(); ++i) {
             char ch = text.charAt(i);
 
@@ -247,7 +255,7 @@ public class StringUtils {
                     stringBuilder.append(quoteChar);
                 } else {
                     throw new IllegalArgumentException("There is a delimiter in the text, "
-                           + "but neither escape nor quote character is specified.");
+                            + "but neither escape nor quote character is specified.");
                 }
             } else if (escapeChar != null && ch == escapeChar) {
                 stringBuilder.append(escapeChar);
@@ -258,7 +266,7 @@ public class StringUtils {
                     stringBuilder.append(ch);
                 } else {
                     throw new IllegalArgumentException("There is a quote character in the text, "
-                           + "but escape character is not specified.");
+                            + "but escape character is not specified.");
                 }
             } else {
                 stringBuilder.append(ch);
@@ -269,15 +277,21 @@ public class StringUtils {
     /**
      * Splits the csv text.
      *
-     * <p>Both escaping and quoting is supported. When the escape character is
-     * not '\0', then the next character to the escape character will be
-     * escaped. When the quote character is not '\0', then all characters
-     * between consecutive quote characters will be escaped.</p>
+     * <p>
+     * Both escaping and quoting is supported. When the escape character is not
+     * '\0', then the next character to the escape character will be escaped. When
+     * the quote character is not '\0', then all characters between consecutive
+     * quote characters will be escaped.
+     * </p>
      *
-     * @param text The text to be split.
-     * @param delimiter The delimiter of fields.
-     * @param escapeChar The escaping character. Only valid if not '\0'.
-     * @param quoteChar The quoting character.
+     * @param text
+     *          The text to be split.
+     * @param delimiter
+     *          The delimiter of fields.
+     * @param escapeChar
+     *          The escaping character. Only valid if not '\0'.
+     * @param quoteChar
+     *          The quoting character.
      * @return The fields split from the text.
      */
     @SuppressWarnings("checkstyle:MissingSwitchDefault")
@@ -285,8 +299,7 @@ public class StringUtils {
             @Nonnull String text,
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar
-    ) {
+            @Nullable Character quoteChar) {
         List<String> fields = new ArrayList<>();
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -358,22 +371,26 @@ public class StringUtils {
     /**
      * Concat the given fields.
      *
-     * <p>Special characters in the text will be escaped or quoted if
-     * corresponding character is given. Otherwise, an exception will be
-     * thrown.</p>
+     * <p>
+     * Special characters in the text will be escaped or quoted if corresponding
+     * character is given. Otherwise, an exception will be thrown.
+     * </p>
      *
-     * @param fields The fields to be concat.
-     * @param delimiter The delimiter of fields.
-     * @param escapeChar The escape character.
-     * @param quoteChar The quote character.
+     * @param fields
+     *          The fields to be concat.
+     * @param delimiter
+     *          The delimiter of fields.
+     * @param escapeChar
+     *          The escape character.
+     * @param quoteChar
+     *          The quote character.
      * @return The concated text of given fields.
      */
     public static String concatCsv(
             @Nonnull String[] fields,
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar
-    ) {
+            @Nullable Character quoteChar) {
         StringBuilder stringBuilder = new StringBuilder();
 
         for (int index = 0; index < fields.length; ++index) {
@@ -384,8 +401,8 @@ public class StringUtils {
                 char ch = field.charAt(i);
 
                 if (ch == delimiter
-                            || (escapeChar != null && ch == escapeChar)
-                            || (quoteChar != null && ch == quoteChar)) {
+                        || (escapeChar != null && ch == escapeChar)
+                        || (quoteChar != null && ch == quoteChar)) {
 
                     if (escapeChar != null) {
                         stringBuilder.append(escapeChar);
@@ -396,7 +413,7 @@ public class StringUtils {
                         stringBuilder.append(quoteChar);
                     } else {
                         throw new IllegalArgumentException("There exist special characters in the text, "
-                               + "but neither escape character nor quote character is configured.");
+                                + "but neither escape character nor quote character is configured.");
                     }
                 } else {
                     stringBuilder.append(ch);

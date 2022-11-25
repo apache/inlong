@@ -17,15 +17,18 @@
 
 package org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import java.io.Serializable;
-import java.util.Date;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
 
 @Entity
 public class BdbConsumeGroupSettingEntity implements Serializable {
@@ -33,7 +36,7 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
     private static final long serialVersionUID = 6801442997689232316L;
     @PrimaryKey
     private String consumeGroupName;
-    private int enableBind = -2;   // -2: undefine; 0: not started, 1: started
+    private int enableBind = -2; // -2: undefine; 0: not started, 1: started
     private Date lastBindUsedDate;
     private int allowedBrokerClientRate = -2;
     private String attributes;
@@ -45,8 +48,8 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
     } // Needed for deserialization.
 
     public BdbConsumeGroupSettingEntity(String consumeGroupName, int enableBind,
-                                        int allowedBrokerClientRate, String attributes,
-                                        String createUser, Date createDate) {
+            int allowedBrokerClientRate, String attributes,
+            String createUser, Date createDate) {
         this.consumeGroupName = consumeGroupName;
         this.enableBind = enableBind;
         this.allowedBrokerClientRate = allowedBrokerClientRate;
@@ -126,9 +129,8 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
     }
 
     public long getDataVerId() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_VERSION_ID);
         if (atrVal != null) {
             return Long.parseLong(atrVal);
         }
@@ -136,10 +138,9 @@ public class BdbConsumeGroupSettingEntity implements Serializable {
     }
 
     public void setDataVerId(long dataVerId) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID,
-                        String.valueOf(dataVerId));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_VERSION_ID,
+                String.valueOf(dataVerId));
     }
 
     @Override

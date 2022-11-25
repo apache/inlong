@@ -18,17 +18,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.config;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.inlong.sort.cdc.mysql.debezium.EmbeddedFlinkDatabaseHistory;
-import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
-
-import java.io.Serializable;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
-
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.CHUNK_META_GROUP_SIZE;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.CONNECTION_POOL_SIZE;
@@ -40,6 +29,18 @@ import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.SERVER_TIME_ZONE;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND;
+
+import org.apache.inlong.sort.cdc.mysql.debezium.EmbeddedFlinkDatabaseHistory;
+import org.apache.inlong.sort.cdc.mysql.table.StartupOptions;
+
+import org.apache.flink.annotation.Internal;
+
+import java.io.Serializable;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
 
 /**
  * A factory to construct {@link MySqlSourceConfig}.
@@ -64,10 +65,8 @@ public class MySqlSourceConfigFactory implements Serializable {
     private Duration connectTimeout = CONNECT_TIMEOUT.defaultValue();
     private int connectMaxRetries = CONNECT_MAX_RETRIES.defaultValue();
     private int connectionPoolSize = CONNECTION_POOL_SIZE.defaultValue();
-    private double distributionFactorUpper =
-            SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND.defaultValue();
-    private double distributionFactorLower =
-            SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND.defaultValue();
+    private double distributionFactorUpper = SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_UPPER_BOUND.defaultValue();
+    private double distributionFactorLower = SPLIT_KEY_EVEN_DISTRIBUTION_FACTOR_LOWER_BOUND.defaultValue();
     private boolean includeSchemaChanges = false;
     private boolean scanNewlyAddedTableEnabled = false;
     private Properties jdbcProperties;
@@ -101,9 +100,9 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * An optional list of regular expressions that match database names to be monitored; any
-     * database name not included in the whitelist will be excluded from monitoring. By default all
-     * databases will be monitored.
+     * An optional list of regular expressions that match database names to be
+     * monitored; any database name not included in the whitelist will be excluded
+     * from monitoring. By default all databases will be monitored.
      */
     public MySqlSourceConfigFactory databaseList(String... databaseList) {
         this.databaseList = Arrays.asList(databaseList);
@@ -111,10 +110,11 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * An optional list of regular expressions that match fully-qualified table identifiers for
-     * tables to be monitored; any table not included in the list will be excluded from monitoring.
-     * Each identifier is of the form databaseName.tableName. By default the connector will monitor
-     * every non-system table in each monitored database.
+     * An optional list of regular expressions that match fully-qualified table
+     * identifiers for tables to be monitored; any table not included in the list
+     * will be excluded from monitoring. Each identifier is of the form
+     * databaseName.tableName. By default the connector will monitor every
+     * non-system table in each monitored database.
      */
     public MySqlSourceConfigFactory tableList(String... tableList) {
         this.tableList = Arrays.asList(tableList);
@@ -122,7 +122,8 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * Name of the MySQL database to use when connecting to the MySQL database server.
+     * Name of the MySQL database to use when connecting to the MySQL database
+     * server.
      */
     public MySqlSourceConfigFactory username(String username) {
         this.username = username;
@@ -138,13 +139,14 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * A numeric ID or a numeric ID range of this database client, The numeric ID syntax is like
-     * '5400', the numeric ID range syntax is like '5400-5408', The numeric ID range syntax is
-     * required when 'scan.incremental.snapshot.enabled' enabled. Every ID must be unique across all
-     * currently-running database processes in the MySQL cluster. This connector joins the MySQL
-     * cluster as another server (with this unique ID) so it can read the binlog. By default, a
-     * random number is generated between 5400 and 6400, though we recommend setting an explicit
-     * value."
+     * A numeric ID or a numeric ID range of this database client, The numeric ID
+     * syntax is like '5400', the numeric ID range syntax is like '5400-5408', The
+     * numeric ID range syntax is required when 'scan.incremental.snapshot.enabled'
+     * enabled. Every ID must be unique across all currently-running database
+     * processes in the MySQL cluster. This connector joins the MySQL cluster as
+     * another server (with this unique ID) so it can read the binlog. By default, a
+     * random number is generated between 5400 and 6400, though we recommend setting
+     * an explicit value."
      */
     public MySqlSourceConfigFactory serverId(String serverId) {
         this.serverIdRange = ServerIdRange.from(serverId);
@@ -152,8 +154,8 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * The session time zone in database server, e.g. "America/Los_Angeles". It controls how the
-     * TIMESTAMP type in MYSQL converted to STRING. See more
+     * The session time zone in database server, e.g. "America/Los_Angeles". It
+     * controls how the TIMESTAMP type in MYSQL converted to STRING. See more
      * https://debezium.io/documentation/reference/1.5/connectors/mysql.html#mysql-temporal-types
      */
     public MySqlSourceConfigFactory serverTimeZone(String timeZone) {
@@ -162,8 +164,8 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * The split size (number of rows) of table snapshot, captured tables are split into multiple
-     * splits when read the snapshot of table.
+     * The split size (number of rows) of table snapshot, captured tables are split
+     * into multiple splits when read the snapshot of table.
      */
     public MySqlSourceConfigFactory splitSize(int splitSize) {
         this.splitSize = splitSize;
@@ -171,8 +173,8 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * The group size of split meta, if the meta size exceeds the group size, the meta will be will
-     * be divided into multiple groups.
+     * The group size of split meta, if the meta size exceeds the group size, the
+     * meta will be will be divided into multiple groups.
      */
     public MySqlSourceConfigFactory splitMetaGroupSize(int splitMetaGroupSize) {
         this.splitMetaGroupSize = splitMetaGroupSize;
@@ -180,8 +182,8 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * The upper bound of split key evenly distribution factor, the factor is used to determine
-     * whether the table is evenly distribution or not.
+     * The upper bound of split key evenly distribution factor, the factor is used
+     * to determine whether the table is evenly distribution or not.
      */
     public MySqlSourceConfigFactory distributionFactorUpper(double distributionFactorUpper) {
         this.distributionFactorUpper = distributionFactorUpper;
@@ -189,8 +191,8 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * The lower bound of split key evenly distribution factor, the factor is used to determine
-     * whether the table is evenly distribution or not.
+     * The lower bound of split key evenly distribution factor, the factor is used
+     * to determine whether the table is evenly distribution or not.
      */
     public MySqlSourceConfigFactory distributionFactorLower(double distributionFactorLower) {
         this.distributionFactorLower = distributionFactorLower;
@@ -206,8 +208,8 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * The maximum time that the connector should wait after trying to connect to the MySQL database
-     * server before timing out.
+     * The maximum time that the connector should wait after trying to connect to
+     * the MySQL database server before timing out.
      */
     public MySqlSourceConfigFactory connectTimeout(Duration connectTimeout) {
         this.connectTimeout = connectTimeout;
@@ -284,7 +286,8 @@ public class MySqlSourceConfigFactory implements Serializable {
     }
 
     /**
-     * Creates a new {@link MySqlSourceConfig} for the given subtask {@code subtaskId}.
+     * Creates a new {@link MySqlSourceConfig} for the given subtask
+     * {@code subtaskId}.
      */
     public MySqlSourceConfig createConfig(int subtaskId) {
         Properties props = new Properties();
@@ -310,9 +313,12 @@ public class MySqlSourceConfigFactory implements Serializable {
         props.setProperty("database.history.skip.unparseable.ddl", String.valueOf(true));
         props.setProperty("database.history.refer.ddl", String.valueOf(true));
         props.setProperty("connect.timeout.ms", String.valueOf(connectTimeout.toMillis()));
-        // the underlying debezium reader should always capture the schema changes and forward them.
-        // Note: the includeSchemaChanges parameter is used to control emitting the schema record,
-        // only DataStream API program need to emit the schema record, the Table API need not
+        // the underlying debezium reader should always capture the schema changes and
+        // forward them.
+        // Note: the includeSchemaChanges parameter is used to control emitting the
+        // schema record,
+        // only DataStream API program need to emit the schema record, the Table API
+        // need not
         props.setProperty("include.schema.changes", String.valueOf(true));
         // disable the offset flush totally
         props.setProperty("offset.flush.interval.ms", String.valueOf(Long.MAX_VALUE));

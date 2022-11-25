@@ -20,17 +20,19 @@ package org.apache.inlong.manager.service.resource.queue.kafka;
 import org.apache.inlong.manager.pojo.cluster.kafka.KafkaClusterInfo;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
+
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.DeleteTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * kafka operator, supports creating topics and creating subscription.
@@ -43,14 +45,16 @@ public class KafkaOperator {
     /**
      * Create Kafka topic inlongKafkaInfo
      */
-    public void createTopic(InlongKafkaInfo inlongKafkaInfo, KafkaClusterInfo kafkaClusterInfo, String topicName)
+    public void createTopic(InlongKafkaInfo inlongKafkaInfo, KafkaClusterInfo kafkaClusterInfo,
+            String topicName)
             throws InterruptedException, ExecutionException {
         AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
         NewTopic topic = new NewTopic(topicName,
                 inlongKafkaInfo.getNumPartitions(),
                 inlongKafkaInfo.getReplicationFactor());
         CreateTopicsResult result = adminClient.createTopics(Collections.singletonList(topic));
-        // To prevent the client from disconnecting too quickly and causing the Topic to not be created successfully
+        // To prevent the client from disconnecting too quickly and causing the Topic to
+        // not be created successfully
         Thread.sleep(500);
         LOGGER.info("success to create kafka topic={}, with={} numPartitions",
                 topicName,
@@ -66,7 +70,8 @@ public class KafkaOperator {
         LOGGER.info("success to delete topic={}", topicName);
     }
 
-    public boolean topicIsExists(KafkaClusterInfo kafkaClusterInfo, String topic)
+    public boolean topicIsExists(KafkaClusterInfo kafkaClusterInfo,
+            String topic)
             throws ExecutionException, InterruptedException {
         AdminClient adminClient = KafkaUtils.getAdminClient(kafkaClusterInfo);
         Set<String> topicList = adminClient.listTopics().names().get();

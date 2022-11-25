@@ -17,19 +17,21 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.cursor.Cursor;
-import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
-import org.springframework.stereotype.Repository;
+
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.mapping.ResultSetType;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InlongGroupEntityMapper {
@@ -59,13 +61,16 @@ public interface InlongGroupEntityMapper {
     Cursor<SortSourceGroupInfo> selectAllGroups();
 
     /**
-     * Select all groups which are logical deleted before the specified last modify time
+     * Select all groups which are logical deleted before the specified last modify
+     * time
      * <p/>
-     * Note, ensure that all the group ids found have been deleted,
-     * and the group ids not deleted (is_deleted=0) should not be returned.
+     * Note, ensure that all the group ids found have been deleted, and the group
+     * ids not deleted (is_deleted=0) should not be returned.
      *
-     * @param timeBefore the latest modify time before which to select
-     * @param limit max item count
+     * @param timeBefore
+     *          the latest modify time before which to select
+     * @param limit
+     *          max item count
      * @return all matched group ids
      */
     List<String> selectDeletedGroupIds(@Param("timeBefore") Date timeBefore, @Param("limit") Integer limit);

@@ -21,13 +21,9 @@ package org.apache.inlong.sort.formats.json.debezium;
 import static java.lang.String.format;
 import static org.apache.inlong.sort.formats.json.debezium.DebeziumUtils.getMysqlMetadataKey;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import org.apache.inlong.sort.formats.json.MysqlBinLogData;
+import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDecodingFormat.ReadableMetadata;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -43,24 +39,37 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.formats.json.MysqlBinLogData;
-import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDecodingFormat.ReadableMetadata;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Copied from apache flink project with a litter change.
  *
- * Deserialization schema from Debezium JSON to Flink Table/SQL internal data structure {@link
- * RowData}. The deserialization schema knows Debezium's schema definition and can extract the
- * database data and convert into {@link RowData} with {@link RowKind}.
+ * Deserialization schema from Debezium JSON to Flink Table/SQL internal data
+ * structure {@link RowData}. The deserialization schema knows Debezium's schema
+ * definition and can extract the database data and convert into {@link RowData}
+ * with {@link RowKind}.
  *
- * <p>Deserializes a <code>byte[]</code> message as a JSON object and reads the specified fields.</p>
+ * <p>
+ * Deserializes a <code>byte[]</code> message as a JSON object and reads the
+ * specified fields.
+ * </p>
  *
- * <p>Failures during deserialization are forwarded as wrapped IOExceptions.</p>
+ * <p>
+ * Failures during deserialization are forwarded as wrapped IOExceptions.
+ * </p>
  *
  * @see <a href="https://debezium.io/">Debezium</a>
  */
 @Internal
 public final class DebeziumJsonDeserializationSchema implements DeserializationSchema<RowData> {
+
     private static final long serialVersionUID = 1L;
 
     private static final String OP_READ = "r"; // snapshot read
@@ -72,15 +81,16 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     private static final int AFTER_POS = 1;
     private static final int OP_POS = 2;
 
-    private static final String REPLICA_IDENTITY_EXCEPTION =
-            "The \"before\" field of %s message is null, "
-                    + "if you are using Debezium Postgres Connector, "
-                    + "please check the Postgres table has been set REPLICA IDENTITY to FULL level.";
+    private static final String REPLICA_IDENTITY_EXCEPTION = "The \"before\" field of %s message is null, "
+            + "if you are using Debezium Postgres Connector, "
+            + "please check the Postgres table has been set REPLICA IDENTITY to FULL level.";
 
     /** The deserializer to deserialize Debezium JSON data. */
     private final JsonRowDataDeserializationSchema jsonDeserializer;
 
-    /** Flag that indicates that an additional projection is required for metadata. */
+    /**
+     * Flag that indicates that an additional projection is required for metadata.
+     */
     private final boolean hasMetadata;
 
     /** Metadata to be extracted for every record. */
@@ -88,13 +98,17 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
 
     private final List<ReadableMetadata> requestedMetadata;
 
-    /** {@link TypeInformation} of the produced {@link RowData} (physical + meta data). */
+    /**
+     * {@link TypeInformation} of the produced {@link RowData} (physical + meta
+     * data).
+     */
     private final TypeInformation<RowData> producedTypeInfo;
 
     /**
-     * Flag indicating whether the Debezium JSON data contains schema part or not. When Debezium
-     * Kafka Connect enables "value.converter.schemas.enable", the JSON will contain "schema"
-     * information, but we just ignore "schema" and extract data from "payload".
+     * Flag indicating whether the Debezium JSON data contains schema part or not.
+     * When Debezium Kafka Connect enables "value.converter.schemas.enable", the
+     * JSON will contain "schema" information, but we just ignore "schema" and
+     * extract data from "payload".
      */
     private final boolean schemaInclude;
 
@@ -103,7 +117,10 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
      */
     private final boolean updateBeforeInclude;
 
-    /** Flag indicating whether to ignore invalid fields/rows (default: throw an exception). */
+    /**
+     * Flag indicating whether to ignore invalid fields/rows (default: throw an
+     * exception).
+     */
     private final boolean ignoreParseErrors;
 
     private final boolean isMigrateAll;
@@ -121,21 +138,18 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
             TimestampFormat timestampFormat,
             boolean isMigrateAll) {
         this.isMigrateAll = isMigrateAll;
-        final RowType jsonRowType =
-                createJsonRowType(physicalDataType, requestedMetadata, schemaInclude, isMigrateAll);
-        this.jsonDeserializer =
-                new JsonRowDataDeserializationSchema(
-                        jsonRowType,
-                        // the result type is never used, so it's fine to pass in the produced type
-                        // info
-                        producedTypeInfo,
-                        false, // ignoreParseErrors already contains the functionality of
-                        // failOnMissingField
-                        ignoreParseErrors,
-                        timestampFormat);
+        final RowType jsonRowType = createJsonRowType(physicalDataType, requestedMetadata, schemaInclude, isMigrateAll);
+        this.jsonDeserializer = new JsonRowDataDeserializationSchema(
+                jsonRowType,
+                // the result type is never used, so it's fine to pass in the produced type
+                // info
+                producedTypeInfo,
+                false, // ignoreParseErrors already contains the functionality of
+                // failOnMissingField
+                ignoreParseErrors,
+                timestampFormat);
         this.hasMetadata = requestedMetadata.size() > 0;
-        this.metadataConverters =
-                createMetadataConverters(jsonRowType, requestedMetadata, schemaInclude);
+        this.metadataConverters = createMetadataConverters(jsonRowType, requestedMetadata, schemaInclude);
         this.requestedMetadata = requestedMetadata;
         this.producedTypeInfo = producedTypeInfo;
         this.schemaInclude = schemaInclude;
@@ -235,15 +249,13 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
             metadataMap.put(
                     StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),
-                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString())
-            );
+                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString()));
         }
 
         if (isMigrateAll) {
             metadataMap.put(
                     StringData.fromString(MysqlBinLogData.MYSQL_METADATA_DATA),
-                    (StringData) physicalRow.getField(0)
-            );
+                    (StringData) physicalRow.getField(0));
         }
 
         producedRow.setField(0, new GenericMapData(metadataMap));
@@ -302,12 +314,11 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
                 DataTypes.FIELD("op", DataTypes.STRING()));
 
         // append fields that are required for reading metadata in the payload
-        final List<DataTypes.Field> payloadMetadataFields =
-                readableMetadata.stream()
-                        .filter(m -> m.isJsonPayload)
-                        .map(m -> m.requiredJsonField)
-                        .distinct()
-                        .collect(Collectors.toList());
+        final List<DataTypes.Field> payloadMetadataFields = readableMetadata.stream()
+                .filter(m -> m.isJsonPayload)
+                .map(m -> m.requiredJsonField)
+                .distinct()
+                .collect(Collectors.toList());
         payload = DataTypeUtils.appendRowFields(payload, payloadMetadataFields);
 
         DataType root = payload;
@@ -319,19 +330,20 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         }
 
         // append fields that are required for reading metadata in the root
-        final List<DataTypes.Field> rootMetadataFields =
-                readableMetadata.stream()
-                        .filter(m -> !m.isJsonPayload)
-                        .map(m -> m.requiredJsonField)
-                        .distinct()
-                        .collect(Collectors.toList());
+        final List<DataTypes.Field> rootMetadataFields = readableMetadata.stream()
+                .filter(m -> !m.isJsonPayload)
+                .map(m -> m.requiredJsonField)
+                .distinct()
+                .collect(Collectors.toList());
         root = DataTypeUtils.appendRowFields(root, rootMetadataFields);
 
         return (RowType) root.getLogicalType();
     }
 
     private static MetadataConverter[] createMetadataConverters(
-            RowType jsonRowType, List<ReadableMetadata> requestedMetadata, boolean schemaInclude) {
+            RowType jsonRowType,
+            List<ReadableMetadata> requestedMetadata,
+            boolean schemaInclude) {
         return requestedMetadata.stream()
                 .map(
                         m -> {
@@ -347,6 +359,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     private static MetadataConverter convertInRoot(RowType jsonRowType, ReadableMetadata metadata) {
         final int pos = findFieldPos(metadata, jsonRowType);
         return new MetadataConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -357,10 +370,12 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     }
 
     private static MetadataConverter convertInPayload(
-            RowType jsonRowType, ReadableMetadata metadata, boolean schemaInclude) {
+            RowType jsonRowType, ReadableMetadata metadata,
+            boolean schemaInclude) {
         if (schemaInclude) {
             final int pos = findFieldPos(metadata, (RowType) jsonRowType.getChildren().get(0));
             return new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -380,8 +395,8 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     // --------------------------------------------------------------------------------------------
 
     /**
-     * Converter that extracts a metadata field from the row (root or payload) that comes out of the
-     * JSON schema and converts it to the desired data type.
+     * Converter that extracts a metadata field from the row (root or payload) that
+     * comes out of the JSON schema and converts it to the desired data type.
      */
     interface MetadataConverter extends Serializable {
 

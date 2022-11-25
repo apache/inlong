@@ -17,15 +17,17 @@
 
 package org.apache.inlong.tubemq.manager.controller.topic.request;
 
+import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class DeleteGroupReq extends BaseReq {
+
     private String confModAuthToken;
     private String topicName;
     private String groupName;

@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.common.util;
 
-import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Utils for Network
@@ -36,7 +38,8 @@ public class NetworkUtils {
     /**
      * Get the real IP of the requesting client
      *
-     * @param request HTTP request params from the client
+     * @param request
+     *          HTTP request params from the client
      * @return real IP of the client
      */
     public static String getClientIpAddress(HttpServletRequest request) {
@@ -84,7 +87,8 @@ public class NetworkUtils {
     /**
      * Check if the IP string is valid.
      *
-     * @param text IP string need to check
+     * @param text
+     *          IP string need to check
      * @return true: valid, false: invalid
      */
     public static boolean ipCheck(String text) {
@@ -101,7 +105,8 @@ public class NetworkUtils {
     /**
      * Check if the port is valid.
      *
-     * @param port port need to check
+     * @param port
+     *          port need to check
      * @return true: valid, false: invalid
      */
     public static boolean portCheck(int port) {

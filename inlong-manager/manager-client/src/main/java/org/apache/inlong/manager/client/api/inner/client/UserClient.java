@@ -51,7 +51,8 @@ public class UserClient {
     /**
      * Save user info
      *
-     * @param userInfo user info request
+     * @param userInfo
+     *          user info request
      * @return user id after saving
      */
     public Integer register(UserRequest userInfo) {
@@ -66,7 +67,8 @@ public class UserClient {
     /**
      * Get user info by user id
      *
-     * @param id user id
+     * @param id
+     *          user id
      * @return user info
      */
     public UserInfo getById(Integer id) {
@@ -80,7 +82,8 @@ public class UserClient {
     /**
      * Get user info by username
      *
-     * @param name username
+     * @param name
+     *          username
      * @return user info
      */
     public UserInfo getByName(String name) {
@@ -94,7 +97,8 @@ public class UserClient {
     /**
      * List all users basic info by request condition
      *
-     * @param request request
+     * @param request
+     *          request
      * @return user info list
      */
     public PageResult<UserInfo> list(UserRequest request) {
@@ -108,7 +112,8 @@ public class UserClient {
     /**
      * Update user info
      *
-     * @param userInfo user info request
+     * @param userInfo
+     *          user info request
      * @return user id
      */
     public Integer update(UserRequest userInfo) {
@@ -123,7 +128,8 @@ public class UserClient {
     /**
      * Delete user by id
      *
-     * @param id user id
+     * @param id
+     *          user id
      * @return whether succeed
      */
     public Boolean delete(Integer id) {

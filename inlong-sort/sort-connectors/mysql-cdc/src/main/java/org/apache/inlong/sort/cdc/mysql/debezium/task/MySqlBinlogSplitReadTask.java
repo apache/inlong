@@ -18,7 +18,20 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.task;
 
+import static org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset.NO_STOPPING_OFFSET;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
+
+import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl;
+import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
+import org.apache.inlong.sort.cdc.mysql.debezium.reader.SnapshotSplitReader.SnapshotBinlogSplitChangeEventSourceContextImpl;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.shyiko.mysql.binlog.event.Event;
+
 import io.debezium.DebeziumException;
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
@@ -29,20 +42,10 @@ import io.debezium.connector.mysql.MySqlTaskContext;
 import io.debezium.pipeline.ErrorHandler;
 import io.debezium.relational.TableId;
 import io.debezium.util.Clock;
-import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl;
-import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
-import org.apache.inlong.sort.cdc.mysql.debezium.reader.SnapshotSplitReader.SnapshotBinlogSplitChangeEventSourceContextImpl;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset.NO_STOPPING_OFFSET;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
 
 /**
- * Task to read all binlog for table and also supports read bounded (from lowWatermark to
- * highWatermark) binlog.
+ * Task to read all binlog for table and also supports read bounded (from
+ * lowWatermark to highWatermark) binlog.
  */
 public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
 
@@ -81,9 +84,8 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
         this.eventDispatcher = dispatcher;
         this.offsetContext = offsetContext;
         this.errorHandler = errorHandler;
-        this.signalEventDispatcher =
-                new SignalEventDispatcher(
-                        offsetContext.getPartition(), topic, eventDispatcher.getQueue());
+        this.signalEventDispatcher = new SignalEventDispatcher(
+                offsetContext.getPartition(), topic, eventDispatcher.getQueue());
     }
 
     @Override

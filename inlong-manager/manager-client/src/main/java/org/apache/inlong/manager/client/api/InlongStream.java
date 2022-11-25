@@ -42,12 +42,14 @@ public interface InlongStream {
     List<StreamField> getStreamFields();
 
     /**
-     * Return data sources defined in stream, key is source name which must be unique within one stream scope.
+     * Return data sources defined in stream, key is source name which must be
+     * unique within one stream scope.
      */
     Map<String, StreamSource> getSources();
 
     /**
-     * Return sinks defined in stream, key is sink name which must be unique within one stream scope.
+     * Return sinks defined in stream, key is sink name which must be unique within
+     * one stream scope.
      */
     Map<String, StreamSink> getSinks();
 
@@ -62,23 +64,26 @@ public interface InlongStream {
     StreamSink getSinkInfoByName(String sinkName);
 
     /**
-     * Return data transform node defined in stream(split, string replace etc.)
-     * key is transform name which must be unique within one stream scope.
+     * Return data transform node defined in stream(split, string replace etc.) key
+     * is transform name which must be unique within one stream scope.
      */
     Map<String, StreamTransform> getTransforms();
 
     /**
-     * Add data source to stream, this method will throw exception when source name already exists in stream.
+     * Add data source to stream, this method will throw exception when source name
+     * already exists in stream.
      */
     InlongStream addSource(StreamSource source);
 
     /**
-     * Add sink to stream, this method will throw exception when sink name already exists in stream.
+     * Add sink to stream, this method will throw exception when sink name already
+     * exists in stream.
      */
     InlongStream addSink(StreamSink streamSink);
 
     /**
-     * Add data transform node to stream, this method will throw exception when transform name already exists in stream.
+     * Add data transform node to stream, this method will throw exception when
+     * transform name already exists in stream.
      */
     InlongStream addTransform(StreamTransform transform);
 
@@ -108,7 +113,8 @@ public interface InlongStream {
     InlongStream updateSink(StreamSink streamSink);
 
     /**
-     * Update data transform node by transform name, add new one if transform name not exists.
+     * Update data transform node by transform name, add new one if transform name
+     * not exists.
      */
     InlongStream updateTransform(StreamTransform transform);
 
@@ -118,7 +124,8 @@ public interface InlongStream {
     StreamPipeline createPipeline();
 
     /**
-     * Update stream definition in manager service, which must be invoked after add/delete/update source/sink/transform.
+     * Update stream definition in manager service, which must be invoked after
+     * add/delete/update source/sink/transform.
      */
     InlongStream update();
 

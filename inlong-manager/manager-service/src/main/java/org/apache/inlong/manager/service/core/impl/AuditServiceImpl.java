@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.ibatis.jdbc.SQL;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+
 import org.apache.inlong.manager.common.consts.AuditConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
@@ -37,6 +37,24 @@ import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.resource.sink.ck.ClickHouseConfig;
 import org.apache.inlong.manager.service.resource.sink.es.ElasticsearchApi;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.ibatis.jdbc.SQL;
+
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -56,22 +74,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
-
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-
 /**
  * Audit service layer implementation
  */
@@ -84,7 +86,8 @@ public class AuditServiceImpl implements AuditService {
     private static final String DAY_FORMAT = "yyyy-MM-dd";
 
     // defaults to return all audit ids, can be overwritten in properties file
-    // see audit id definitions: https://inlong.apache.org/docs/modules/audit/overview#audit-id
+    // see audit id definitions:
+    // https://inlong.apache.org/docs/modules/audit/overview#audit-id
     @Value("#{'${audit.admin.ids:3,4,5,6,7,8}'.split(',')}")
     private List<String> auditIdListForAdmin;
     @Value("#{'${audit.user.ids:3,4,5,6,7,8}'.split(',')}")
@@ -113,7 +116,8 @@ public class AuditServiceImpl implements AuditService {
         request.setAuditIds(getAuditIds(groupId, streamId));
 
         // for now, we use the first sink type only.
-        // this is temporary behavior before multiple sinks in one stream is fully supported.
+        // this is temporary behavior before multiple sinks in one stream is fully
+        // supported.
         List<StreamSinkEntity> sinkEntityList = sinkEntityMapper.selectByRelatedId(groupId, streamId);
         String sinkNodeType = null;
         if (CollectionUtils.isNotEmpty(sinkEntityList)) {
@@ -161,7 +165,8 @@ public class AuditServiceImpl implements AuditService {
                     }
                 }
             } else if (AuditQuerySource.CLICKHOUSE == querySource) {
-                try (Connection connection = ClickHouseConfig.getCkConnection();
+                try (
+                        Connection connection = ClickHouseConfig.getCkConnection();
                         Statement statement = connection.createStatement();
                         ResultSet resultSet = statement.executeQuery(
                                 toAuditCkSql(groupId, streamId, auditId, request.getDt()))) {
@@ -183,7 +188,8 @@ public class AuditServiceImpl implements AuditService {
 
     private List<String> getAuditIds(String groupId, String streamId) {
         List<String> auditIds = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN)
-                ? auditIdListForAdmin : auditIdListForUser;
+                ? auditIdListForAdmin
+                : auditIdListForUser;
 
         // auto push source has no agent, return data-proxy audit data instead of agent
         List<StreamSourceEntity> sourceList = sourceEntityMapper.selectByRelatedId(groupId, streamId, null);
@@ -211,9 +217,12 @@ public class AuditServiceImpl implements AuditService {
     /**
      * Convert to elasticsearch search request
      *
-     * @param index The index of elasticsearch
-     * @param groupId The groupId of inlong
-     * @param streamId The streamId of inlong
+     * @param index
+     *          The index of elasticsearch
+     * @param groupId
+     *          The groupId of inlong
+     * @param streamId
+     *          The streamId of inlong
      * @return The search request of elasticsearch
      */
     private SearchRequest toAuditSearchRequest(String index, String groupId, String streamId) {
@@ -234,10 +243,14 @@ public class AuditServiceImpl implements AuditService {
     /**
      * Convert to clickhouse search sql
      *
-     * @param groupId The groupId of inlong
-     * @param streamId The streamId of inlong
-     * @param auditId The auditId of request
-     * @param dt The datetime of request
+     * @param groupId
+     *          The groupId of inlong
+     * @param streamId
+     *          The streamId of inlong
+     * @param auditId
+     *          The auditId of request
+     * @param dt
+     *          The datetime of request
      * @return clickhouse sql
      */
     private String toAuditCkSql(String groupId, String streamId, String auditId, String dt) {

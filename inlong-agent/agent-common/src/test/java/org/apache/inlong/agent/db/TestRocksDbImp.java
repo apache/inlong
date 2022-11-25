@@ -17,21 +17,22 @@
 
 package org.apache.inlong.agent.db;
 
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+
 import org.apache.inlong.agent.AgentBaseTestsHelper;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.db.CommandEntity;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TestRocksDbImp {
 

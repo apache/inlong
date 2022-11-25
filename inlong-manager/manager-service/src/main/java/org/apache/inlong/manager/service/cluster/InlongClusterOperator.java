@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.cluster;
 
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 
 /**
  * Interface of the inlong cluster operator.
@@ -41,8 +41,10 @@ public interface InlongClusterOperator {
     /**
      * Save the inlong cluster info.
      *
-     * @param request request of the cluster
-     * @param operator name of the operator
+     * @param request
+     *          request of the cluster
+     * @param operator
+     *          name of the operator
      * @return cluster id after saving
      */
     Integer saveOpt(ClusterRequest request, String operator);
@@ -50,7 +52,8 @@ public interface InlongClusterOperator {
     /**
      * Get the cluster info from the given entity.
      *
-     * @param entity get field value from the entity
+     * @param entity
+     *          get field value from the entity
      * @return cluster info after encapsulating
      */
     ClusterInfo getFromEntity(InlongClusterEntity entity);
@@ -58,8 +61,10 @@ public interface InlongClusterOperator {
     /**
      * Update the inlong cluster info.
      *
-     * @param request request of update
-     * @param operator name of operator
+     * @param request
+     *          request of update
+     * @param operator
+     *          name of operator
      */
     void updateOpt(ClusterRequest request, String operator);
 

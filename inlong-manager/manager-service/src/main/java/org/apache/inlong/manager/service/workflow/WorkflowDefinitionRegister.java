@@ -17,13 +17,16 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service

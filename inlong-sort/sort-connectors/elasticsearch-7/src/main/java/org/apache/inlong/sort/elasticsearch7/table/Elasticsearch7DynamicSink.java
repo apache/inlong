@@ -18,6 +18,13 @@
 
 package org.apache.inlong.sort.elasticsearch7.table;
 
+import org.apache.inlong.sort.elasticsearch.table.IndexGeneratorFactory;
+import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
+import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
+import org.apache.inlong.sort.elasticsearch.table.RoutingExtractor;
+import org.apache.inlong.sort.elasticsearch.table.RowElasticsearchSinkFunction;
+import org.apache.inlong.sort.elasticsearch7.ElasticsearchSink;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.api.common.serialization.SerializationSchema;
@@ -35,25 +42,21 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.inlong.sort.elasticsearch.table.IndexGeneratorFactory;
-import org.apache.inlong.sort.elasticsearch.table.KeyExtractor;
-import org.apache.inlong.sort.elasticsearch.table.RequestFactory;
-import org.apache.inlong.sort.elasticsearch.table.RoutingExtractor;
-import org.apache.inlong.sort.elasticsearch.table.RowElasticsearchSinkFunction;
-import org.apache.inlong.sort.elasticsearch7.ElasticsearchSink;
+
+import java.util.List;
+import java.util.Objects;
+
+import javax.annotation.Nullable;
+
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Objects;
-
 /**
- * A {@link DynamicTableSink} that describes how to create a {@link ElasticsearchSink} from a
- * logical description.
+ * A {@link DynamicTableSink} that describes how to create a
+ * {@link ElasticsearchSink} from a logical description.
  */
 @Internal
 final class Elasticsearch7DynamicSink implements DynamicTableSink {
@@ -121,24 +124,22 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
     @Override
     public SinkFunctionProvider getSinkRuntimeProvider(Context context) {
         return () -> {
-            SerializationSchema<RowData> format =
-                    this.format.createRuntimeEncoder(context, schema.toRowDataType());
+            SerializationSchema<RowData> format = this.format.createRuntimeEncoder(context, schema.toRowDataType());
 
-            final RowElasticsearchSinkFunction upsertFunction =
-                    new RowElasticsearchSinkFunction(
-                            IndexGeneratorFactory.createIndexGenerator(config.getIndex(), schema),
-                            null, // this is deprecated in es 7+
-                            format,
-                            XContentType.JSON,
-                            REQUEST_FACTORY,
-                            KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
-                            RoutingExtractor.createRoutingExtractor(
-                                    schema, config.getRoutingField().orElse(null)),
-                            inlongMetric,
-                            auditHostAndPorts);
+            final RowElasticsearchSinkFunction upsertFunction = new RowElasticsearchSinkFunction(
+                    IndexGeneratorFactory.createIndexGenerator(config.getIndex(), schema),
+                    null, // this is deprecated in es 7+
+                    format,
+                    XContentType.JSON,
+                    REQUEST_FACTORY,
+                    KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
+                    RoutingExtractor.createRoutingExtractor(
+                            schema, config.getRoutingField().orElse(null)),
+                    inlongMetric,
+                    auditHostAndPorts);
 
-            final ElasticsearchSink.Builder<RowData> builder =
-                    builderProvider.createBuilder(config.getHosts(), upsertFunction);
+            final ElasticsearchSink.Builder<RowData> builder = builderProvider.createBuilder(config.getHosts(),
+                    upsertFunction);
 
             builder.setFailureHandler(config.getFailureHandler());
             builder.setBulkFlushMaxActions(config.getBulkFlushMaxActions());
@@ -150,7 +151,8 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
             config.getBulkFlushBackoffRetries().ifPresent(builder::setBulkFlushBackoffRetries);
             config.getBulkFlushBackoffDelay().ifPresent(builder::setBulkFlushBackoffDelay);
 
-            // we must overwrite the default factory which is defined with a lambda because of a bug
+            // we must overwrite the default factory which is defined with a lambda because
+            // of a bug
             // in shading lambda serialization shading see FLINK-18006
             if (config.getUsername().isPresent()
                     && config.getPassword().isPresent()
@@ -212,7 +214,8 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
     interface ElasticSearchBuilderProvider {
 
         ElasticsearchSink.Builder<RowData> createBuilder(
-                List<HttpHost> httpHosts, RowElasticsearchSinkFunction upsertSinkFunction);
+                List<HttpHost> httpHosts,
+                RowElasticsearchSinkFunction upsertSinkFunction);
     }
 
     /**
@@ -253,7 +256,8 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
     }
 
     /**
-     * Serializable {@link RestClientFactory} used by the sink which enable authentication.
+     * Serializable {@link RestClientFactory} used by the sink which enable
+     * authentication.
      */
     @VisibleForTesting
     static class AuthRestClientFactory implements RestClientFactory {
@@ -281,9 +285,8 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
                         AuthScope.ANY, new UsernamePasswordCredentials(username, password));
             }
             restClientBuilder.setHttpClientConfigCallback(
-                    httpAsyncClientBuilder ->
-                            httpAsyncClientBuilder.setDefaultCredentialsProvider(
-                                    credentialsProvider));
+                    httpAsyncClientBuilder -> httpAsyncClientBuilder.setDefaultCredentialsProvider(
+                            credentialsProvider));
         }
 
         @Override
@@ -307,8 +310,8 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
     }
 
     /**
-     * Version-specific creation of {@link org.elasticsearch.action.ActionRequest}s used by the
-     * sink.
+     * Version-specific creation of {@link org.elasticsearch.action.ActionRequest}s
+     * used by the sink.
      */
     private static class Elasticsearch7RequestFactory implements RequestFactory {
 

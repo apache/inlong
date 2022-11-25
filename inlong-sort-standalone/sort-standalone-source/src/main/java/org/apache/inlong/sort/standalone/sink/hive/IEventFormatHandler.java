@@ -28,8 +28,8 @@ public interface IEventFormatHandler {
     /**
      * format
      * 
-     * @param  event
-     * @param  idConfig
+     * @param event
+     * @param idConfig
      * @return
      */
     byte[] format(ProfileEvent event, HdfsIdConfig idConfig);

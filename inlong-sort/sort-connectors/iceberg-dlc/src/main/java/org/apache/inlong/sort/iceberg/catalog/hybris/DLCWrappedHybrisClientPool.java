@@ -19,7 +19,6 @@
 
 package org.apache.inlong.sort.iceberg.catalog.hybris;
 
-import com.qcloud.dlc.metastore.DLCDataCatalogMetastoreClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.IMetaStoreClient;
@@ -31,13 +30,17 @@ import org.apache.iceberg.relocated.com.google.common.annotations.VisibleForTest
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
 
+import com.qcloud.dlc.metastore.DLCDataCatalogMetastoreClient;
+
 /**
  * DLC Catalog client pool.
  */
 public class DLCWrappedHybrisClientPool extends ClientPoolImpl<IMetaStoreClient, TException> {
 
-    // use appropriate ctor depending on whether we're working with Hive2 or Hive3 dependencies
-    // we need to do this because there is a breaking API change between Hive2 and Hive3
+    // use appropriate ctor depending on whether we're working with Hive2 or Hive3
+    // dependencies
+    // we need to do this because there is a breaking API change between Hive2 and
+    // Hive3
     private static final DynConstructors.Ctor<DLCDataCatalogMetastoreClient> CLIENT_CTOR = DynConstructors.builder()
             .impl(DLCDataCatalogMetastoreClient.class, HiveConf.class)
             .impl(DLCDataCatalogMetastoreClient.class, Configuration.class).build();
@@ -52,7 +55,7 @@ public class DLCWrappedHybrisClientPool extends ClientPoolImpl<IMetaStoreClient,
     }
 
     @Override
-    protected IMetaStoreClient newClient()  {
+    protected IMetaStoreClient newClient() {
         try {
             try {
                 return CLIENT_CTOR.newInstance(hiveConf);

@@ -17,14 +17,15 @@
 
 package org.apache.inlong.sdk.sort.util;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class StringUtil {
 
@@ -37,16 +38,23 @@ public class StringUtil {
     /**
      * Splits the kv text.
      *
-     * <p>Both escaping and quoting is supported. When the escape character is
-     * not '\0', then the next character to the escape character will be
-     * escaped. When the quote character is not '\0', then all characters
-     * between consecutive quote characters will be escaped.</p>
+     * <p>
+     * Both escaping and quoting is supported. When the escape character is not
+     * '\0', then the next character to the escape character will be escaped. When
+     * the quote character is not '\0', then all characters between consecutive
+     * quote characters will be escaped.
+     * </p>
      *
-     * @param text The text to be split.
-     * @param entryDelimiter The delimiter of entries.
-     * @param kvDelimiter The delimiter between key and value.
-     * @param escapeChar The escaping character. Only valid if not '\0'.
-     * @param quoteChar The quoting character.
+     * @param text
+     *          The text to be split.
+     * @param entryDelimiter
+     *          The delimiter of entries.
+     * @param kvDelimiter
+     *          The delimiter between key and value.
+     * @param escapeChar
+     *          The escaping character. Only valid if not '\0'.
+     * @param quoteChar
+     *          The quoting character.
      * @return The fields split from the text.
      */
     @SuppressWarnings("checkstyle:MissingSwitchDefault")
@@ -55,8 +63,7 @@ public class StringUtil {
             @Nonnull Character entryDelimiter,
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar
-    ) {
+            @Nullable Character quoteChar) {
         Map<String, String> fields = new HashMap<>();
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -67,8 +74,7 @@ public class StringUtil {
         int state = STATE_KEY;
 
         /*
-         * The state when entering escaping and quoting. When we exit escaping
-         * or quoting, we should restore this state.
+         * The state when entering escaping and quoting. When we exit escaping or quoting, we should restore this state.
          */
         int kvState = STATE_KEY;
 
@@ -165,9 +171,12 @@ public class StringUtil {
     /**
      * formatDate
      *
-     * @param dateStr String
-     * @param inputFormat String
-     * @param format String
+     * @param dateStr
+     *          String
+     * @param inputFormat
+     *          String
+     * @param format
+     *          String
      * @return String
      */
     public static String formatDate(String dateStr, String inputFormat, String format) {
@@ -186,8 +195,10 @@ public class StringUtil {
     /**
      * formatDate
      *
-     * @param dateStr String
-     * @param format String
+     * @param dateStr
+     *          String
+     * @param format
+     *          String
      * @return String
      */
     public static String formatDate(String dateStr, String format) {
@@ -225,8 +236,10 @@ public class StringUtil {
     /**
      * formatDate
      *
-     * @param date Data
-     * @param format String
+     * @param date
+     *          Data
+     * @param format
+     *          String
      * @return String
      */
     public static String formatDate(Date date, String format) {
@@ -237,7 +250,8 @@ public class StringUtil {
     /**
      * use default time foramt
      *
-     * @param date {@link Date}
+     * @param date
+     *          {@link Date}
      * @return String
      */
     public static String formatDate(Date date) {
@@ -246,11 +260,12 @@ public class StringUtil {
     }
 
     /**
-     * Parse date time form string format to unix format.
-     * Only support <b>yyyyMMdd</b>, <b>yyyyMMddHH</b> and <b>yyyyMMddHHmm</b> precision
-     * whose length is 8, 10 and 12 respectively.
+     * Parse date time form string format to unix format. Only support
+     * <b>yyyyMMdd</b>, <b>yyyyMMddHH</b> and <b>yyyyMMddHHmm</b> precision whose
+     * length is 8, 10 and 12 respectively.
      *
-     * @param value Date time in string format.
+     * @param value
+     *          Date time in string format.
      * @return Unix date time.
      */
     public static long parseDateTime(String value) {

@@ -19,16 +19,7 @@
 package org.apache.inlong.sdk.dataproxy.utils;
 
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -46,6 +37,17 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class EncryptUtil {
 
     public static final String AES = "AES";
@@ -57,9 +59,11 @@ public class EncryptUtil {
     /**
      * load key
      *
-     * @param path path
+     * @param path
+     *          path
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
     public static String loadPublicKeyByFileText(String path) throws Exception {
         try {
@@ -106,12 +110,13 @@ public class EncryptUtil {
     /**
      * get key from public
      *
-     * @param publicKeyStr get key string
+     * @param publicKeyStr
+     *          get key string
      */
     public static RSAPublicKey loadPublicKeyByText(String publicKeyStr) {
         try {
             byte[] buffer = Base64.decodeBase64(publicKeyStr);
-//            byte[] buffer = publicKeyStr.getBytes();
+            // byte[] buffer = publicKeyStr.getBytes();
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(buffer);
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
@@ -127,7 +132,7 @@ public class EncryptUtil {
 
     public static RSAPublicKey loadPublicKeyByBinary(byte[] publicKeyByte) {
         try {
-            //byte[] buffer = Base64.decodeBase64(publicKeyStr);
+            // byte[] buffer = Base64.decodeBase64(publicKeyStr);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyByte);
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
@@ -145,7 +150,8 @@ public class EncryptUtil {
     /**
      * get key from file
      *
-     * @param path key path
+     * @param path
+     *          key path
      * @return whether success
      *
      * @throws Exception
@@ -195,14 +201,15 @@ public class EncryptUtil {
     /**
      * load private key by text
      *
-     * @param privateKeyStr private key
+     * @param privateKeyStr
+     *          private key
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
-    public static RSAPrivateKey loadPrivateKeyByText(String privateKeyStr)
-            throws Exception {
+    public static RSAPrivateKey loadPrivateKeyByText(String privateKeyStr) throws Exception {
         try {
-            //byte[] buffer = Base64.decodeBase64(privateKeyStr);
+            // byte[] buffer = Base64.decodeBase64(privateKeyStr);
             byte[] buffer = privateKeyStr.getBytes();
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(buffer);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -216,10 +223,9 @@ public class EncryptUtil {
         }
     }
 
-    public static RSAPrivateKey loadPrivateKeyByBinary(byte[] privateKeyByte)
-            throws Exception {
+    public static RSAPrivateKey loadPrivateKeyByBinary(byte[] privateKeyByte) throws Exception {
         try {
-            //byte[] buffer = Base64.decodeBase64(privateKeyStr);
+            // byte[] buffer = Base64.decodeBase64(privateKeyStr);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyByte);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
@@ -235,14 +241,16 @@ public class EncryptUtil {
     /**
      * key encrypt
      *
-     * @param publicKey public key
-     * @param data data
+     * @param publicKey
+     *          public key
+     * @param data
+     *          data
      * @return
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
-    public static byte[] rsaEncrypt(RSAPublicKey publicKey, byte[] data)
-            throws Exception {
+    public static byte[] rsaEncrypt(RSAPublicKey publicKey, byte[] data) throws Exception {
 
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
@@ -271,14 +279,16 @@ public class EncryptUtil {
     /**
      * key decrypt
      *
-     * @param privateKey key
-     * @param encryptedData data
+     * @param privateKey
+     *          key
+     * @param encryptedData
+     *          data
      * @return
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
-    public static byte[] decryptByPrivateKey(RSAPrivateKey privateKey, byte[] encryptedData)
-            throws Exception {
+    public static byte[] decryptByPrivateKey(RSAPrivateKey privateKey, byte[] encryptedData) throws Exception {
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         int inputLen = encryptedData.length;
@@ -305,14 +315,16 @@ public class EncryptUtil {
     /**
      * rsa decrypt
      *
-     * @param privateKey private key
-     * @param cipherData data
+     * @param privateKey
+     *          private key
+     * @param cipherData
+     *          data
      * @return message
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
-    public static byte[] rsaDecrypt(RSAPrivateKey privateKey, byte[] cipherData)
-            throws Exception {
+    public static byte[] rsaDecrypt(RSAPrivateKey privateKey, byte[] cipherData) throws Exception {
         if (privateKey == null) {
             throw new Exception("private key is null");
         }
@@ -340,14 +352,16 @@ public class EncryptUtil {
     /**
      * rsa decrypt
      *
-     * @param publicKey public key
-     * @param cipherData cipher data
+     * @param publicKey
+     *          public key
+     * @param cipherData
+     *          cipher data
      * @return
      *
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
-    public static byte[] rsaDecrypt(RSAPublicKey publicKey, byte[] cipherData)
-            throws Exception {
+    public static byte[] rsaDecrypt(RSAPublicKey publicKey, byte[] cipherData) throws Exception {
         if (publicKey == null) {
             throw new Exception("public key is null");
         }

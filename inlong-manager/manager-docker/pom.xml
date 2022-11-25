@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Licensed to the Apache Software Foundation (ASF) under one
@@ -18,15 +19,15 @@
     under the License.
 
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-manager</artifactId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
     <artifactId>manager-docker</artifactId>
-    <modelVersion>4.0.0</modelVersion>
     <name>Apache InLong - Manager Docker</name>
 
     <dependencies>
@@ -72,6 +73,14 @@
                         <groupId>com.spotify</groupId>
                         <artifactId>dockerfile-maven-plugin</artifactId>
                         <version>${dockerfile.maven.version}</version>
+                        <configuration>
+                            <repository>${docker.organization}/manager</repository>
+                            <pullNewerImage>false</pullNewerImage>
+                            <tag>${project.version}</tag>
+                            <buildArgs>
+                                <VERSION>${project.version}</VERSION>
+                            </buildArgs>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>default</id>
@@ -91,14 +100,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <repository>${docker.organization}/manager</repository>
-                            <pullNewerImage>false</pullNewerImage>
-                            <tag>${project.version}</tag>
-                            <buildArgs>
-                                <VERSION>${project.version}</VERSION>
-                            </buildArgs>
-                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>

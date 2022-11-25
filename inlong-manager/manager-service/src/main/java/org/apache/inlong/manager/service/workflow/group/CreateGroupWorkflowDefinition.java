@@ -17,19 +17,21 @@
 
 package org.apache.inlong.manager.service.workflow.group;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
+import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.listener.group.InitGroupCompleteListener;
 import org.apache.inlong.manager.service.listener.group.InitGroupFailedListener;
 import org.apache.inlong.manager.service.listener.group.InitGroupListener;
-import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -89,8 +91,10 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        // Task dependency order: 1.MQ -> 2.Sink-in-Stream -> 3.Sort -> 4.Source-in-Stream
-        // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
+        // Task dependency order: 1.MQ -> 2.Sink-in-Stream -> 3.Sort ->
+        // 4.Source-in-Stream
+        // To ensure that after some tasks fail, data will not start to be collected by
+        // source or consumed by sort
         startEvent.addNext(initMQTask);
         initMQTask.addNext(initSortTask);
         initSortTask.addNext(endEvent);

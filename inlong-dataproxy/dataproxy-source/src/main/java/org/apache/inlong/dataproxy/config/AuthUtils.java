@@ -19,10 +19,11 @@ package org.apache.inlong.dataproxy.config;
 
 import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthUtils {
 

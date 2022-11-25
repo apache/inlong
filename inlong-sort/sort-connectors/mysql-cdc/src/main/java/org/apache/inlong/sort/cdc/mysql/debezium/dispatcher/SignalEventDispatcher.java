@@ -18,11 +18,9 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.dispatcher;
 
-import io.debezium.connector.base.ChangeEventQueue;
-import io.debezium.pipeline.DataChangeEvent;
-import io.debezium.util.SchemaNameAdjuster;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
+
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
@@ -30,11 +28,18 @@ import org.apache.kafka.connect.source.SourceRecord;
 
 import java.util.Map;
 
+import io.debezium.connector.base.ChangeEventQueue;
+import io.debezium.pipeline.DataChangeEvent;
+import io.debezium.util.SchemaNameAdjuster;
+
 /**
  * A dispatcher to dispatch watermark signal events.
  *
- * <p>The watermark signal event is used to describe the start point and end point of a split scan.
- * The Watermark Signal Algorithm is inspired by https://arxiv.org/pdf/2010.12597v1.pdf.</p>
+ * <p>
+ * The watermark signal event is used to describe the start point and end point
+ * of a split scan. The Watermark Signal Algorithm is inspired by
+ * https://arxiv.org/pdf/2010.12597v1.pdf.
+ * </p>
  */
 public class SignalEventDispatcher {
 
@@ -45,8 +50,7 @@ public class SignalEventDispatcher {
     public static final String BINLOG_FILENAME_OFFSET_KEY = "file";
     public static final String BINLOG_POSITION_OFFSET_KEY = "pos";
     public static final String WATERMARK_KIND = "watermark_kind";
-    public static final String SIGNAL_EVENT_KEY_SCHEMA_NAME =
-            "io.debezium.connector.flink.cdc.embedded.watermark.key";
+    public static final String SIGNAL_EVENT_KEY_SCHEMA_NAME = "io.debezium.connector.flink.cdc.embedded.watermark.key";
     public static final String SIGNAL_EVENT_VALUE_SCHEMA_NAME =
             "io.debezium.connector.flink.cdc.embedded.watermark.value";
     private static final SchemaNameAdjuster SCHEMA_NAME_ADJUSTER = SchemaNameAdjuster.create();
@@ -57,37 +61,36 @@ public class SignalEventDispatcher {
     private final ChangeEventQueue<DataChangeEvent> queue;
 
     public SignalEventDispatcher(
-            Map<String, ?> sourcePartition, String topic, ChangeEventQueue<DataChangeEvent> queue) {
+            Map<String, ?> sourcePartition, String topic,
+            ChangeEventQueue<DataChangeEvent> queue) {
         this.sourcePartition = sourcePartition;
         this.topic = topic;
         this.queue = queue;
-        this.signalEventKeySchema =
-                SchemaBuilder.struct()
-                        .name(SCHEMA_NAME_ADJUSTER.adjust(SIGNAL_EVENT_KEY_SCHEMA_NAME))
-                        .field(SPLIT_ID_KEY, Schema.STRING_SCHEMA)
-                        .field(WATERMARK_SIGNAL, Schema.BOOLEAN_SCHEMA)
-                        .build();
-        this.signalEventValueSchema =
-                SchemaBuilder.struct()
-                        .name(SCHEMA_NAME_ADJUSTER.adjust(SIGNAL_EVENT_VALUE_SCHEMA_NAME))
-                        .field(SPLIT_ID_KEY, Schema.STRING_SCHEMA)
-                        .field(WATERMARK_KIND, Schema.STRING_SCHEMA)
-                        .build();
+        this.signalEventKeySchema = SchemaBuilder.struct()
+                .name(SCHEMA_NAME_ADJUSTER.adjust(SIGNAL_EVENT_KEY_SCHEMA_NAME))
+                .field(SPLIT_ID_KEY, Schema.STRING_SCHEMA)
+                .field(WATERMARK_SIGNAL, Schema.BOOLEAN_SCHEMA)
+                .build();
+        this.signalEventValueSchema = SchemaBuilder.struct()
+                .name(SCHEMA_NAME_ADJUSTER.adjust(SIGNAL_EVENT_VALUE_SCHEMA_NAME))
+                .field(SPLIT_ID_KEY, Schema.STRING_SCHEMA)
+                .field(WATERMARK_KIND, Schema.STRING_SCHEMA)
+                .build();
     }
 
     public void dispatchWatermarkEvent(
-            MySqlSplit mySqlSplit, BinlogOffset watermark, WatermarkKind watermarkKind)
+            MySqlSplit mySqlSplit, BinlogOffset watermark,
+            WatermarkKind watermarkKind)
             throws InterruptedException {
 
-        SourceRecord sourceRecord =
-                new SourceRecord(
-                        sourcePartition,
-                        watermark.getOffset(),
-                        topic,
-                        signalEventKeySchema,
-                        signalRecordKey(mySqlSplit.splitId()),
-                        signalEventValueSchema,
-                        signalRecordValue(mySqlSplit.splitId(), watermarkKind));
+        SourceRecord sourceRecord = new SourceRecord(
+                sourcePartition,
+                watermark.getOffset(),
+                topic,
+                signalEventKeySchema,
+                signalRecordKey(mySqlSplit.splitId()),
+                signalEventValueSchema,
+                signalRecordValue(mySqlSplit.splitId(), watermarkKind));
         queue.enqueue(new DataChangeEvent(sourceRecord));
     }
 
@@ -109,9 +112,8 @@ public class SignalEventDispatcher {
      * The watermark kind.
      */
     public enum WatermarkKind {
-        LOW,
-        HIGH,
-        BINLOG_END;
+
+        LOW, HIGH, BINLOG_END;
 
         public WatermarkKind fromString(String kindString) {
             if (LOW.name().equalsIgnoreCase(kindString)) {

@@ -19,6 +19,7 @@ package org.apache.inlong.tubemq.server.master.web.handler;
 
 import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.getRegisteredWebMethod;
 import static org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper.registerWebMethod;
+
 import org.apache.inlong.tubemq.server.master.TMaster;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 
@@ -35,12 +36,12 @@ public abstract class AbstractWebHandler {
     public abstract void registerWebApiMethod();
 
     protected void registerQueryWebMethod(String webMethodName,
-                                          String clsMethodName) {
+            String clsMethodName) {
         innRegisterWebMethod(webMethodName, clsMethodName, false, false);
     }
 
     protected void registerModifyWebMethod(String webMethodName,
-                                           String clsMethodName) {
+            String clsMethodName) {
         innRegisterWebMethod(webMethodName, clsMethodName, true, true);
     }
 
@@ -49,9 +50,9 @@ public abstract class AbstractWebHandler {
     }
 
     private void innRegisterWebMethod(String webMethodName,
-                                      String clsMethodName,
-                                      boolean onlyMasterOp,
-                                      boolean needAuthToken) {
+            String clsMethodName,
+            boolean onlyMasterOp,
+            boolean needAuthToken) {
         registerWebMethod(webMethodName, clsMethodName,
                 onlyMasterOp, needAuthToken, this);
     }

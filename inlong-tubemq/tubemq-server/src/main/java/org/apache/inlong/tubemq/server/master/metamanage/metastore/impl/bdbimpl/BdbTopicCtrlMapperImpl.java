@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
-import com.sleepycat.je.rep.ReplicatedEnvironment;
-import com.sleepycat.persist.EntityCursor;
-import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.PrimaryIndex;
-import com.sleepycat.persist.StoreConfig;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicAuthControlEntity;
@@ -29,7 +24,14 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsTopicCtrlMapperImpl;
 
+import com.sleepycat.je.rep.ReplicatedEnvironment;
+import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.PrimaryIndex;
+import com.sleepycat.persist.StoreConfig;
+
 public class BdbTopicCtrlMapperImpl extends AbsTopicCtrlMapperImpl {
+
     // Topic control store
     private EntityStore topicCtrlStore;
     private final PrimaryIndex<String/* topicName */, BdbTopicAuthControlEntity> topicCtrlIndex;
@@ -38,8 +40,7 @@ public class BdbTopicCtrlMapperImpl extends AbsTopicCtrlMapperImpl {
         super();
         topicCtrlStore = new EntityStore(repEnv,
                 TBDBStoreTables.BDB_TOPIC_AUTH_CONTROL_STORE_NAME, storeConfig);
-        topicCtrlIndex =
-                topicCtrlStore.getPrimaryIndex(String.class, BdbTopicAuthControlEntity.class);
+        topicCtrlIndex = topicCtrlStore.getPrimaryIndex(String.class, BdbTopicAuthControlEntity.class);
     }
 
     @Override
@@ -88,9 +89,8 @@ public class BdbTopicCtrlMapperImpl extends AbsTopicCtrlMapperImpl {
     }
 
     protected boolean putConfig2Persistent(TopicCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
-        BdbTopicAuthControlEntity bdbEntity =
-                entity.buildBdbTopicAuthControlEntity();
+            StringBuilder strBuff, ProcessResult result) {
+        BdbTopicAuthControlEntity bdbEntity = entity.buildBdbTopicAuthControlEntity();
         try {
             topicCtrlIndex.put(bdbEntity);
         } catch (Throwable e) {

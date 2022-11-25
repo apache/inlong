@@ -17,9 +17,10 @@
 
 package org.apache.inlong.tubemq.manager.service.interfaces;
 
+import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
+
 import java.util.Set;
 
-import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.springframework.stereotype.Service;
 
 @Service

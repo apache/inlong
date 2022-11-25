@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.protocol.transformation.relation;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -28,13 +25,15 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
+
 /**
  * Node relation base class which defines the simplest one-to-one relation
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FullOuterJoinRelation.class, name = "fullOuterJoin"),
         @JsonSubTypes.Type(value = InnerJoinNodeRelation.class, name = "innerJoin"),
@@ -60,8 +59,10 @@ public class NodeRelation implements Serializable {
     /**
      * NodeRelation Constructor
      *
-     * @param inputs The inputs is a list of input node id
-     * @param outputs The outputs is a list of output node id
+     * @param inputs
+     *          The inputs is a list of input node id
+     * @param outputs
+     *          The outputs is a list of output node id
      */
     @JsonCreator
     public NodeRelation(@JsonProperty("inputs") List<String> inputs,

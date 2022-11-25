@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.consume;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -30,12 +29,15 @@ import org.apache.inlong.manager.pojo.consume.tubemq.ConsumeTubeMQDTO;
 import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.group.tubemq.InlongTubeMQTopicInfo;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 /**
  * Inlong consume operator for TubeMQ.

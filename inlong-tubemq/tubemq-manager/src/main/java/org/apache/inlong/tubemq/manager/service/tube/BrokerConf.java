@@ -43,7 +43,8 @@ public class BrokerConf {
     /**
      * broker configuration info
      *
-     * @param other broker info
+     * @param other
+     *          broker info
      */
     public BrokerConf(BrokerConf other) {
         this.brokerIp = other.brokerIp;
@@ -66,4 +67,3 @@ public class BrokerConf {
     }
 
 }
-

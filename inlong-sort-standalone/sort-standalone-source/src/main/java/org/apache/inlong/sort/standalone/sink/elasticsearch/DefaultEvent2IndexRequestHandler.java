@@ -17,6 +17,10 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
+import org.apache.inlong.sdk.commons.protocol.EventConstants;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
+
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,10 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.inlong.sdk.commons.protocol.EventConstants;
-import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
 
 /**
  * 
@@ -43,8 +43,8 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
     /**
      * parse
      * 
-     * @param  context
-     * @param  event
+     * @param context
+     * @param event
      * @return
      */
     @Override
@@ -108,7 +108,7 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
     /**
      * getExtInfo
      * 
-     * @param  event
+     * @param event
      * @return
      */
     public static String getExtInfo(ProfileEvent event) {

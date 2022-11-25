@@ -17,19 +17,21 @@
 
 package org.apache.inlong.sdk.commons.admin;
 
+import org.apache.flume.conf.FlumeConfiguration;
+import org.apache.flume.node.AbstractConfigurationProvider;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.flume.conf.FlumeConfiguration;
-import org.apache.flume.node.AbstractConfigurationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * PropertiesConfigurationProvider
  */
-public class PropertiesConfigurationProvider extends
-        AbstractConfigurationProvider {
+public class PropertiesConfigurationProvider
+        extends
+            AbstractConfigurationProvider {
 
     public static final Logger LOG = LoggerFactory.getLogger(PropertiesConfigurationProvider.class);
 

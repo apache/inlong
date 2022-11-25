@@ -17,17 +17,18 @@
 
 package org.apache.inlong.tubemq.corebase.metric.impl;
 
-import java.util.concurrent.atomic.LongAdder;
 import org.apache.inlong.tubemq.corebase.metric.Counter;
+
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * LongOnlineCounter, store current value information.
  *
- * The difference between it and LongMinGauge or LongMaxGauge is that:
- *    1. the value is stored by LongAdder type;
- *    2. this type of metric cannot be reset.
+ * The difference between it and LongMinGauge or LongMaxGauge is that: 1. the
+ * value is stored by LongAdder type; 2. this type of metric cannot be reset.
  */
 public class LongOnlineCounter extends BaseMetric implements Counter {
+
     // value counter
     private final LongAdder value = new LongAdder();
 

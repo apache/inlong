@@ -18,25 +18,15 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.DatagramPacket;
-import io.netty.channel.socket.nio.NioDatagramChannel;
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
+
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.EncryptInfo;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.apache.inlong.sdk.dataproxy.utils.EncryptUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xerial.snappy.Snappy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,8 +38,20 @@ import java.security.SecureRandom;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xerial.snappy.Snappy;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 
 public class UdpClientExample {
 
@@ -69,10 +71,8 @@ public class UdpClientExample {
         UdpClientExample demo = new UdpClientExample();
         Channel channel = demo.initUdpChannel();
         /*
-         * It is recommended to use msg type 7. For others, please refer to the official related
-         * documents
-         * Therefore, use type 7 to assemble the message.
-         * For other types, please refer to the sdk source code
+         * It is recommended to use msg type 7. For others, please refer to the official related documents Therefore,
+         * use type 7 to assemble the message. For other types, please refer to the sdk source code
          */
         try {
             int count = 0;
@@ -80,10 +80,9 @@ public class UdpClientExample {
                 if (count % 1000 == 0) {
                     long seqId = idGenerator.getNextInt();
                     long dt = System.currentTimeMillis() / 1000;
-                    EncodeObject encodeObject =
-                            demo.getEncodeObject(7, false,
-                                    false, false, dt, seqId, groupId,
-                                    streamId, attr);
+                    EncodeObject encodeObject = demo.getEncodeObject(7, false,
+                            false, false, dt, seqId, groupId,
+                            streamId, attr);
                     ByteBuf buffer = demo.getSendBuf(encodeObject);
                     demo.sendUdpMessage(channel, busIp, busPort, buffer);
                     TimeUnit.SECONDS.sleep(1);
@@ -115,12 +114,13 @@ public class UdpClientExample {
     }
 
     private EncodeObject getEncodeObject(int msgType, boolean isCompress, boolean isReport,
-            boolean isGroupIdTransfer, long dt, long seqId, String groupId, String streamId,
-            String attr) throws UnsupportedEncodingException {
-        EncodeObject encodeObject =
-                new EncodeObject(getRandomString(5).getBytes("UTF-8"), msgType,
-                        isCompress,
-                        isReport, isGroupIdTransfer, dt, seqId, groupId, streamId, attr);
+            boolean isGroupIdTransfer, long dt, long seqId, String groupId,
+            String streamId,
+            String attr)
+            throws UnsupportedEncodingException {
+        EncodeObject encodeObject = new EncodeObject(getRandomString(5).getBytes("UTF-8"), msgType,
+                isCompress,
+                isReport, isGroupIdTransfer, dt, seqId, groupId, streamId, attr);
         return encodeObject;
     }
 
@@ -280,8 +280,10 @@ public class UdpClientExample {
                 .channel(NioDatagramChannel.class)
                 .option(ChannelOption.SO_BROADCAST, true)
                 .handler(new SimpleChannelInboundHandler<DatagramPacket>() {
+
                     protected void channelRead0(ChannelHandlerContext var1,
-                            DatagramPacket dmsg) throws Exception {
+                            DatagramPacket dmsg)
+                            throws Exception {
                         String msg = dmsg.content().toString(StandardCharsets.UTF_8);
                         System.out.println("from server:" + msg);
                     }

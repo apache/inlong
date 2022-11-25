@@ -18,7 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
-import io.debezium.relational.TableId;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isInitialAssigningFinished;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isNewlyAddedAssigningFinished;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
+
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.HybridPendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.PendingSplitsState;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
@@ -27,8 +30,6 @@ import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,13 +40,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isInitialAssigningFinished;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isNewlyAddedAssigningFinished;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.relational.TableId;
 
 /**
- * A {@link MySqlSplitAssigner} that splits tables into small chunk splits based on primary key
- * range and chunk size and also continue with a binlog split.
+ * A {@link MySqlSplitAssigner} that splits tables into small chunk splits based
+ * on primary key range and chunk size and also continue with a binlog split.
  */
 public class MySqlHybridSplitAssigner implements MySqlSplitAssigner {
 
@@ -192,8 +194,7 @@ public class MySqlHybridSplitAssigner implements MySqlSplitAssigner {
                         .sorted(Comparator.comparing(MySqlSplit::splitId))
                         .collect(Collectors.toList());
 
-        Map<String, BinlogOffset> splitFinishedOffsets =
-                snapshotSplitAssigner.getSplitFinishedOffsets();
+        Map<String, BinlogOffset> splitFinishedOffsets = snapshotSplitAssigner.getSplitFinishedOffsets();
         final List<FinishedSnapshotSplitInfo> finishedSnapshotSplitInfos = new ArrayList<>();
 
         BinlogOffset minBinlogOffset = null;
@@ -212,7 +213,8 @@ public class MySqlHybridSplitAssigner implements MySqlSplitAssigner {
                             binlogOffset));
         }
 
-        // the finishedSnapshotSplitInfos is too large for transmission, divide it to groups and
+        // the finishedSnapshotSplitInfos is too large for transmission, divide it to
+        // groups and
         // then transfer them
 
         boolean divideMetaToGroups = finishedSnapshotSplitInfos.size() > splitMetaGroupSize;

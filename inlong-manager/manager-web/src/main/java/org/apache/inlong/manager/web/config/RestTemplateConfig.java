@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.web.config;
 
-import lombok.Data;
+import org.apache.inlong.common.constant.ProtocolType;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.config.Registry;
@@ -29,7 +30,12 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
-import org.apache.inlong.common.constant.ProtocolType;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import lombok.Data;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -41,9 +47,6 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 @Data
 @Configuration
@@ -66,18 +69,20 @@ public class RestTemplateConfig {
     private int validateAfterInactivity;
 
     /**
-     * Time to connect to the server (successful handshake), timeout throws connect timeout
+     * Time to connect to the server (successful handshake), timeout throws connect
+     * timeout
      */
     @Value("${common.http-client.connectionTimeout}")
     private int connectionTimeout;
     /**
-     * The time for the server to return data (response), timeout throws read timeout
+     * The time for the server to return data (response), timeout throws read
+     * timeout
      */
     @Value("${common.http-client.readTimeout}")
     private int readTimeout;
     /**
-     * Get the timeout time of the connection from the connection pool,
-     * and throw ConnectionPoolTimeoutException when timeout
+     * Get the timeout time of the connection from the connection pool, and throw
+     * ConnectionPoolTimeoutException when timeout
      */
     @Value("${common.http-client.connectionRequestTimeout}")
     private int connectionRequestTimeout;
@@ -110,9 +115,11 @@ public class RestTemplateConfig {
     public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
         // httpClient connection configuration
         HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient());
-        // Time to connect to the server (successful handshake), timeout throws connect timeout
+        // Time to connect to the server (successful handshake), timeout throws connect
+        // timeout
         factory.setConnectTimeout(connectionTimeout);
-        // The time for the server to return data (response), timeout throws read timeout
+        // The time for the server to return data (response), timeout throws read
+        // timeout
         factory.setReadTimeout(readTimeout);
         // Get the timeout of the connection from the connection pool
         factory.setConnectionRequestTimeout(connectionRequestTimeout);

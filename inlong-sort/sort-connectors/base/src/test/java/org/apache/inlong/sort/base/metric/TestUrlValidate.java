@@ -19,26 +19,28 @@
 package org.apache.inlong.sort.base.metric;
 
 import org.apache.inlong.sort.base.util.JdbcUrlUtils;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Test for validate jdbc url, see https://su18.org/post/jdbc-connection-url-attack/
+ * Test for validate jdbc url, see
+ * https://su18.org/post/jdbc-connection-url-attack/
  */
 public class TestUrlValidate {
 
     @Test
     public void testJdbcUrlValid() {
         final String jdbcUrl = "jdbc:mysql://localhost:8066/dbtest?"
-            + "detectCustomCollations=true&autoDeserialize=true";
+                + "detectCustomCollations=true&autoDeserialize=true";
         final String expectResult = "jdbc:mysql://localhost:8066/dbtest?"
-            + "detectCustomCollations=true&autoDeserialize=false";
+                + "detectCustomCollations=true&autoDeserialize=false";
         Assert.assertEquals(expectResult, JdbcUrlUtils.replaceInvalidUrlProperty(jdbcUrl));
 
         final String jdbcUrlWithCase = "jdbc:mysql://localhost:8066/dbtest?"
-            + "detectCustomCollations=true&autoDeserialize=tRue";
+                + "detectCustomCollations=true&autoDeserialize=tRue";
         final String expectResultWithoutCase = "jdbc:mysql://localhost:8066/dbtest?"
-            + "detectCustomCollations=true&autoDeserialize=false";
+                + "detectCustomCollations=true&autoDeserialize=false";
         Assert.assertEquals(expectResultWithoutCase, JdbcUrlUtils.replaceInvalidUrlProperty(jdbcUrlWithCase));
 
     }

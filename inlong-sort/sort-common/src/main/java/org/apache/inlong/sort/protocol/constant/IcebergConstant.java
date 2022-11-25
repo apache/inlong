@@ -22,10 +22,12 @@ package org.apache.inlong.sort.protocol.constant;
  * Iceberg option constant
  */
 public class IcebergConstant {
+
     /**
      * Iceberg supported catalog type
      */
     public enum CatalogType {
+
         /**
          * Data stored in hive metastore.
          */

@@ -17,12 +17,13 @@
 
 package org.apache.inlong.tubemq.client.consumer;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FetchContext {
 
@@ -50,9 +51,9 @@ public class FetchContext {
     }
 
     public void setSuccessProcessResult(long currOffset,
-                                        String confirmContext,
-                                        List<Message> messageList,
-                                        long maxOffset) {
+            String confirmContext,
+            List<Message> messageList,
+            long maxOffset) {
         this.success = true;
         this.errCode = TErrCodeConstants.SUCCESS;
         this.errMsg = "Ok!";

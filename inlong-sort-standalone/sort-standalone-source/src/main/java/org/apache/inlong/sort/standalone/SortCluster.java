@@ -17,14 +17,16 @@
 
 package org.apache.inlong.sort.standalone;
 
-import org.apache.flume.Context;
+import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
+
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.flume.Context;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,7 +37,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
+import org.slf4j.Logger;
 
 /**
  * 

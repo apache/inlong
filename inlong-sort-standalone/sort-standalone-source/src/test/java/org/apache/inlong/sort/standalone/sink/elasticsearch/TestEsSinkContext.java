@@ -17,8 +17,9 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.BufferQueueChannel;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
@@ -26,19 +27,20 @@ import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.Constants;
+
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 
 /**
  * 
@@ -58,7 +60,8 @@ public class TestEsSinkContext {
      * 
      * @param dispatchQueue
      * @return EsSinkContext
-     * @throws Exception exception
+     * @throws Exception
+     *           exception
      */
     public static EsSinkContext mock(BufferQueue<EsIndexRequest> dispatchQueue) throws Exception {
         PowerMockito.mockStatic(MetricRegister.class);
@@ -75,9 +78,9 @@ public class TestEsSinkContext {
     /**
      * mockProfileEvent
      * 
-     * @param  inlongGroupId
-     * @param  inlongStreamId
-     * @param  content
+     * @param inlongGroupId
+     * @param inlongStreamId
+     * @param content
      * @return
      */
     public static ProfileEvent mockProfileEvent(String inlongGroupId, String inlongStreamId, String content) {

@@ -18,12 +18,6 @@
 
 package org.apache.inlong.sort.cdc.oracle.debezium.utils;
 
-import io.debezium.connector.AbstractSourceInfo;
-import io.debezium.data.Envelope;
-import io.debezium.relational.Column;
-import io.debezium.relational.TableId;
-import java.util.Arrays;
-import java.util.List;
 import org.apache.flink.table.types.logical.BigIntType;
 import org.apache.flink.table.types.logical.BinaryType;
 import org.apache.flink.table.types.logical.BooleanType;
@@ -38,6 +32,14 @@ import org.apache.flink.table.types.logical.TinyIntType;
 import org.apache.flink.table.types.logical.VarCharType;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
+
+import java.util.Arrays;
+import java.util.List;
+
+import io.debezium.connector.AbstractSourceInfo;
+import io.debezium.data.Envelope;
+import io.debezium.relational.Column;
+import io.debezium.relational.TableId;
 
 /**
  * Utility class to deal record.
@@ -60,6 +62,7 @@ public class RecordUtils {
 
     /**
      * Get table id from source record
+     * 
      * @param dataRecord
      * @return
      */
@@ -73,8 +76,9 @@ public class RecordUtils {
     }
 
     /**
-     * According column's type, get it's logicalType
-     * Refer: https://ververica.github.io/flink-cdc-connectors/master/content/connectors/oracle-cdc.html?from_wecom=1
+     * According column's type, get it's logicalType Refer:
+     * https://ververica.github.io/flink-cdc-connectors/master/content/connectors/oracle-cdc.html?from_wecom=1
+     * 
      * @param column
      * @param struct
      * @return

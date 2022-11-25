@@ -17,7 +17,8 @@
 
 package org.apache.inlong.audit.file;
 
-import com.google.gson.Gson;
+import org.apache.inlong.audit.file.holder.PropertiesConfigHolder;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
@@ -26,21 +27,22 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.audit.file.holder.PropertiesConfigHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+
 public class ConfigManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
-    private static final Map<String, ConfigHolder> holderMap =
-            new ConcurrentHashMap<>();
+    private static final Map<String, ConfigHolder> holderMap = new ConcurrentHashMap<>();
 
     private static ConfigManager instance = null;
 
@@ -88,8 +90,7 @@ public class ConfigManager {
     private boolean updatePropertiesHolder(Map<String, String> result,
             String holderName, boolean addElseRemove) {
         if (StringUtils.isNotEmpty(holderName)) {
-            PropertiesConfigHolder holder = (PropertiesConfigHolder)
-                    holderMap.get(holderName + ".properties");
+            PropertiesConfigHolder holder = (PropertiesConfigHolder) holderMap.get(holderName + ".properties");
             return updatePropertiesHolder(result, holder, true);
         }
         return true;
@@ -98,9 +99,12 @@ public class ConfigManager {
     /**
      * update old maps, reload local files if changed.
      *
-     * @param result - map pending to be added
-     * @param holder - property holder
-     * @param addElseRemove - if add(true) else remove(false)
+     * @param result
+     *          - map pending to be added
+     * @param holder
+     *          - property holder
+     * @param addElseRemove
+     *          - if add(true) else remove(false)
      * @return true if changed else false.
      */
     private boolean updatePropertiesHolder(Map<String, String> result,
@@ -109,7 +113,8 @@ public class ConfigManager {
         boolean changed = false;
         for (Entry<String, String> entry : result.entrySet()) {
             String oldValue = addElseRemove
-                    ? tmpHolder.put(entry.getKey(), entry.getValue()) : tmpHolder.remove(entry.getKey());
+                    ? tmpHolder.put(entry.getKey(), entry.getValue())
+                    : tmpHolder.remove(entry.getKey());
             // if addElseRemove is false, that means removing item, changed is true.
             if (oldValue == null || !oldValue.equals(entry.getValue()) || !addElseRemove) {
                 changed = true;
@@ -162,9 +167,8 @@ public class ConfigManager {
         }
 
         private long getSleepTime() {
-            String sleepTimeInMsStr =
-                    configManager.getProperties(DEFAULT_CONFIG_PROPERTIES).get(
-                            "configCheckIntervalMs");
+            String sleepTimeInMsStr = configManager.getProperties(DEFAULT_CONFIG_PROPERTIES).get(
+                    "configCheckIntervalMs");
             long sleepTimeInMs = 10000;
             try {
                 if (sleepTimeInMsStr != null) {

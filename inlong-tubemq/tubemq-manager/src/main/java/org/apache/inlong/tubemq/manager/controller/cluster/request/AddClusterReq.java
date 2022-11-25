@@ -17,15 +17,18 @@
 
 package org.apache.inlong.tubemq.manager.controller.cluster.request;
 
-import lombok.Data;
+import org.apache.inlong.tubemq.manager.entry.MasterEntry;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 
 import java.util.List;
 
+import lombok.Data;
+
 @Data
 public class AddClusterReq {
+
     private Integer id;
     private String clusterName;
     private List<MasterEntry> masterEntries;

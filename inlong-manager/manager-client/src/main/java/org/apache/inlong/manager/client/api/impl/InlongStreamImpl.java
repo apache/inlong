@@ -17,14 +17,6 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
@@ -46,11 +38,22 @@ import org.apache.inlong.manager.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.pojo.transform.TransformResponse;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Inlong stream service implementation.
@@ -102,16 +105,15 @@ public class InlongStreamImpl implements InlongStream {
         if (CollectionUtils.isNotEmpty(streamFields)) {
             this.streamFields = streamFields.stream()
                     .map(fieldInfo -> new StreamField(
-                                    fieldInfo.getId(),
-                                    fieldInfo.getFieldType(),
-                                    fieldInfo.getFieldName(),
-                                    fieldInfo.getFieldComment(),
-                                    fieldInfo.getFieldValue(),
-                                    fieldInfo.getIsMetaField(),
-                                    fieldInfo.getMetaFieldName(),
-                                    fieldInfo.getOriginNodeName()
-                            )
-                    ).collect(Collectors.toList());
+                            fieldInfo.getId(),
+                            fieldInfo.getFieldType(),
+                            fieldInfo.getFieldName(),
+                            fieldInfo.getFieldComment(),
+                            fieldInfo.getFieldValue(),
+                            fieldInfo.getIsMetaField(),
+                            fieldInfo.getMetaFieldName(),
+                            fieldInfo.getOriginNodeName()))
+                    .collect(Collectors.toList());
         }
 
         List<? extends StreamSink> sinkInfos = streamInfo.getSinkList();
@@ -130,8 +132,7 @@ public class InlongStreamImpl implements InlongStream {
                             (source1, source2) -> {
                                 throw new RuntimeException(String.format("duplicate sourceName: %s in streamId: %s",
                                         source1.getSourceName(), this.inlongStreamId));
-                            }
-                    ));
+                            }));
         }
     }
 

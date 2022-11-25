@@ -17,16 +17,18 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import com.google.gson.Gson;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.plugin.sources.reader.BinlogReader;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import com.google.gson.Gson;
 
 public class TestBinlogReader {
 

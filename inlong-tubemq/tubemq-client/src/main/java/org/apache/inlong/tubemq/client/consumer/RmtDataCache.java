@@ -17,24 +17,6 @@
 
 package org.apache.inlong.tubemq.client.consumer;
 
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timeout;
-import io.netty.util.Timer;
-import io.netty.util.TimerTask;
-import java.io.Closeable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
@@ -50,13 +32,35 @@ import org.apache.inlong.tubemq.corebase.utils.DataConverterUtil;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+
+import java.io.Closeable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 
 /**
  * Remote data cache.
  */
 public class RmtDataCache implements Closeable {
+
     private static final Logger logger = LoggerFactory.getLogger(RmtDataCache.class);
     private static final AtomicLong refCont = new AtomicLong(0);
     private static Timer timer;
@@ -65,50 +69,37 @@ public class RmtDataCache implements Closeable {
     private final AtomicLong lstRegMasterTime = new AtomicLong(0);
     private final AtomicBoolean isCurGroupCtrl = new AtomicBoolean(false);
     private final AtomicLong lastCheckTime = new AtomicLong(0);
-    private final FlowCtrlRuleHandler groupFlowCtrlRuleHandler =
-            new FlowCtrlRuleHandler(false);
-    private final FlowCtrlRuleHandler defFlowCtrlRuleHandler =
-            new FlowCtrlRuleHandler(true);
+    private final FlowCtrlRuleHandler groupFlowCtrlRuleHandler = new FlowCtrlRuleHandler(false);
+    private final FlowCtrlRuleHandler defFlowCtrlRuleHandler = new FlowCtrlRuleHandler(true);
     // store broker configure info
     private long lastEmptyBrokerPrintTime = 0;
     private long lastEmptyTopicPrintTime = 0;
     private long lastBrokerUpdatedTime = System.currentTimeMillis();
-    private final AtomicLong lstBrokerConfigId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private Map<Integer, BrokerInfo> brokersMap =
-            new ConcurrentHashMap<>();
+    private final AtomicLong lstBrokerConfigId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private Map<Integer, BrokerInfo> brokersMap = new ConcurrentHashMap<>();
     // require Auth info
     private final AtomicBoolean nextWithAuthInfo2M = new AtomicBoolean(false);
-    private final ConcurrentHashMap<Integer, AtomicBoolean> nextWithAuthInfo2BMap
-            = new ConcurrentHashMap<Integer, AtomicBoolean>();
+    private final ConcurrentHashMap<Integer, AtomicBoolean> nextWithAuthInfo2BMap =
+            new ConcurrentHashMap<Integer, AtomicBoolean>();
     // consume control info
-    private final AtomicLong reqMaxOffsetCsmId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private final AtomicBoolean csmFromMaxOffset =
-            new AtomicBoolean(false);
+    private final AtomicLong reqMaxOffsetCsmId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicBoolean csmFromMaxOffset = new AtomicBoolean(false);
     // meta query result
-    private final AtomicLong topicMetaInfoId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong topicMetaInfoId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private final Set<String> metaInfoSet = new TreeSet<>();
-    private ConcurrentHashMap<String, Tuple2<Partition, Integer>> configuredPartInfoMap =
-            new ConcurrentHashMap<>();
-    private final AtomicLong topicMetaUpdatedTime =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private ConcurrentHashMap<String, Tuple2<Partition, Integer>> configuredPartInfoMap = new ConcurrentHashMap<>();
+    private final AtomicLong topicMetaUpdatedTime = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private boolean isFirstReport = true;
     private long reportIntCount = 0;
     private final long maxReportTimes;
     // partition cache
     private final AtomicInteger waitCont = new AtomicInteger(0);
-    private final ConcurrentHashMap<String, Timeout> timeouts =
-            new ConcurrentHashMap<>();
-    private final ConcurrentLinkedQueue<String> indexPartition =
-            new ConcurrentLinkedQueue<String>();
+    private final ConcurrentHashMap<String, Timeout> timeouts = new ConcurrentHashMap<>();
+    private final ConcurrentLinkedQueue<String> indexPartition = new ConcurrentLinkedQueue<String>();
     private volatile long lstReportTime = 0;
     private final AtomicLong partMapChgTime = new AtomicLong(0);
-    private final ConcurrentHashMap<String /* index */, PartitionExt> partitionMap =
-            new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String /* index */, Long> partitionUsedMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String /* index */, PartitionExt> partitionMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String /* index */, Long> partitionUsedMap = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String /* index */, ConsumeOffsetInfo> partitionOffsetMap =
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String /* index */, Long> partitionFrozenMap =
@@ -117,16 +108,17 @@ public class RmtDataCache implements Closeable {
             new ConcurrentHashMap<>();
     private final ConcurrentHashMap<BrokerInfo/* broker */, ConcurrentLinkedQueue<Partition>> brokerPartitionConMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* partitionKey */, Integer> partRegisterBookMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* partitionKey */, Integer> partRegisterBookMap = new ConcurrentHashMap<>();
     private final AtomicBoolean isClosed = new AtomicBoolean(false);
     private CountDownLatch dataProcessSync = new CountDownLatch(0);
 
     /**
      * Construct a remote data cache object.
      *
-     * @param consumerConfig    consumer configure
-     * @param partitionList     partition list
+     * @param consumerConfig
+     *          consumer configure
+     * @param partitionList
+     *          partition list
      */
     public RmtDataCache(ConsumerConfig consumerConfig, List<Partition> partitionList) {
         this.consumerConfig = consumerConfig;
@@ -147,15 +139,14 @@ public class RmtDataCache implements Closeable {
     }
 
     public void bookBrokerRequireAuthInfo(int brokerId,
-                                          ClientBroker.HeartBeatResponseB2C heartBeatResponseV2) {
+            ClientBroker.HeartBeatResponseB2C heartBeatResponseV2) {
         if (!heartBeatResponseV2.hasRequireAuth()) {
             return;
         }
         AtomicBoolean authStatus = nextWithAuthInfo2BMap.get(brokerId);
         if (authStatus == null) {
             AtomicBoolean tmpAuthStatus = new AtomicBoolean(false);
-            authStatus =
-                    nextWithAuthInfo2BMap.putIfAbsent(brokerId, tmpAuthStatus);
+            authStatus = nextWithAuthInfo2BMap.putIfAbsent(brokerId, tmpAuthStatus);
             if (authStatus == null) {
                 authStatus = tmpAuthStatus;
             }
@@ -166,8 +157,10 @@ public class RmtDataCache implements Closeable {
     /**
      * update ops task in cache
      *
-     * @param opsTaskInfo ops task info
-     * @param strBuff   the string buffer
+     * @param opsTaskInfo
+     *          ops task info
+     * @param strBuff
+     *          the string buffer
      *
      */
     public void updOpsTaskInfo(ClientMaster.OpsTaskInfo opsTaskInfo, StringBuilder strBuff) {
@@ -219,12 +212,14 @@ public class RmtDataCache implements Closeable {
     /**
      * update ops task in cache
      *
-     * @param response   master register response
-     * @param strBuff  the string buffer
+     * @param response
+     *          master register response
+     * @param strBuff
+     *          the string buffer
      *
      */
     public void updFlowCtrlInfoInfo(ClientMaster.RegisterResponseM2C response,
-                                    StringBuilder strBuff) {
+            StringBuilder strBuff) {
         if (response == null) {
             return;
         }
@@ -259,12 +254,14 @@ public class RmtDataCache implements Closeable {
     /**
      * update ops task in cache
      *
-     * @param response   master register response
-     * @param strBuff  the string buffer
+     * @param response
+     *          master register response
+     * @param strBuff
+     *          the string buffer
      *
      */
     public void updFlowCtrlInfoInfo(ClientMaster.HeartResponseM2C response,
-                                    StringBuilder strBuff) {
+            StringBuilder strBuff) {
         if (response == null) {
             return;
         }
@@ -318,8 +315,10 @@ public class RmtDataCache implements Closeable {
     /**
      * store topic meta information
      *
-     * @param curTopicMetaInfoId   the topic meta information id
-     * @param curMetaInfoSet       the topic meta information
+     * @param curTopicMetaInfoId
+     *          the topic meta information id
+     * @param curMetaInfoSet
+     *          the topic meta information
      */
     public void storeTopicMetaInfo(long curTopicMetaInfoId, List<String> curMetaInfoSet) {
         if (curTopicMetaInfoId < 0
@@ -329,8 +328,7 @@ public class RmtDataCache implements Closeable {
         if (curMetaInfoSet == null || curMetaInfoSet.isEmpty()) {
             return;
         }
-        ConcurrentHashMap<String, Tuple2<Partition, Integer>> curConfMetaInfoMap =
-                new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Tuple2<Partition, Integer>> curConfMetaInfoMap = new ConcurrentHashMap<>();
         for (String metaInfo : curMetaInfoSet) {
             if (TStringUtils.isBlank(metaInfo)) {
                 continue;
@@ -349,8 +347,7 @@ public class RmtDataCache implements Closeable {
                 for (int j = 0; j < storeId; j++) {
                     int baseValue = j * TBaseConstants.META_STORE_INS_BASE;
                     for (int i = 0; i < partCnt; i++) {
-                        Partition partition =
-                                new Partition(brokerInfo, strInfo[0], baseValue + i);
+                        Partition partition = new Partition(brokerInfo, strInfo[0], baseValue + i);
                         curConfMetaInfoMap.put(partition.getPartitionKey(),
                                 new Tuple2<>(partition, statusId));
                     }
@@ -369,8 +366,7 @@ public class RmtDataCache implements Closeable {
 
     public Map<String, Boolean> getConfPartMetaInfo() {
         Map<String, Boolean> configMap = new HashMap<>();
-        for (Map.Entry<String, Tuple2<Partition, Integer>> entry
-                : configuredPartInfoMap.entrySet()) {
+        for (Map.Entry<String, Tuple2<Partition, Integer>> entry : configuredPartInfoMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
@@ -380,8 +376,7 @@ public class RmtDataCache implements Closeable {
     }
 
     public boolean isPartSubscribable(String partitionKey) {
-        Tuple2<Partition, Integer> partConfig =
-                configuredPartInfoMap.get(partitionKey);
+        Tuple2<Partition, Integer> partConfig = configuredPartInfoMap.get(partitionKey);
         if (partConfig == null
                 || partConfig.getF0() == null
                 || partConfig.getF1() == null) {
@@ -393,16 +388,18 @@ public class RmtDataCache implements Closeable {
     /**
      * Get subscribable partition information
      *
-     * @param partitionKey   the partition key to query
-     * @param result         the topic meta information
-     * @param sBuffer        the string buffer
-     * @return               whether query success
+     * @param partitionKey
+     *          the partition key to query
+     * @param result
+     *          the topic meta information
+     * @param sBuffer
+     *          the string buffer
+     * @return whether query success
      */
     public boolean getSubscribablePartition(String partitionKey,
-                                            ProcessResult result,
-                                            StringBuilder sBuffer) {
-        Tuple2<Partition, Integer> partStatusInfo =
-                configuredPartInfoMap.get(partitionKey);
+            ProcessResult result,
+            StringBuilder sBuffer) {
+        Tuple2<Partition, Integer> partStatusInfo = configuredPartInfoMap.get(partitionKey);
         if (partStatusInfo == null) {
             result.setFailResult(TErrCodeConstants.NOT_FOUND,
                     sBuffer.append("PartitionKey ").append(partitionKey)
@@ -434,13 +431,16 @@ public class RmtDataCache implements Closeable {
     /**
      * Update broker configure info
      *
-     * @param pkgCheckSum     checkSum Id of packaged information
-     * @param pkgBrokerInfos  packaged broker info string list
-     * @param sBuilder        string process buffer
+     * @param pkgCheckSum
+     *          checkSum Id of packaged information
+     * @param pkgBrokerInfos
+     *          packaged broker info string list
+     * @param sBuilder
+     *          string process buffer
      */
     public void updateBrokerInfoList(long pkgCheckSum,
-                                     List<String> pkgBrokerInfos,
-                                     StringBuilder sBuilder) {
+            List<String> pkgBrokerInfos,
+            StringBuilder sBuilder) {
         if (pkgCheckSum != lstBrokerConfigId.get()) {
             if (pkgBrokerInfos != null) {
                 brokersMap = DataConverterUtil.convertBrokerInfo(
@@ -472,8 +472,9 @@ public class RmtDataCache implements Closeable {
     /**
      * Book and get Master's authentication status
      *
-     * @param isForce    whether force authentication
-     * @return           whether to require authentication
+     * @param isForce
+     *          whether force authentication
+     * @return whether to require authentication
      */
     public boolean markAndGetAuthStatus(boolean isForce) {
         boolean needAuth = false;
@@ -490,17 +491,18 @@ public class RmtDataCache implements Closeable {
     /**
      * Book and get Broker's authentication status
      *
-     * @param brokerId     the broker id to query
-     * @param isForce    whether force authentication
-     * @return           whether to require authentication
+     * @param brokerId
+     *          the broker id to query
+     * @param isForce
+     *          whether force authentication
+     * @return whether to require authentication
      */
     public boolean markAndGetBrokerAuthStatus(int brokerId, boolean isForce) {
         boolean needAuth = false;
         AtomicBoolean authStatus = nextWithAuthInfo2BMap.get(brokerId);
         if (authStatus == null) {
             AtomicBoolean tmpAuthStatus = new AtomicBoolean(false);
-            authStatus =
-                    nextWithAuthInfo2BMap.putIfAbsent(brokerId, tmpAuthStatus);
+            authStatus = nextWithAuthInfo2BMap.putIfAbsent(brokerId, tmpAuthStatus);
             if (authStatus == null) {
                 authStatus = tmpAuthStatus;
             }
@@ -523,8 +525,7 @@ public class RmtDataCache implements Closeable {
      */
     public ClientMaster.OpsTaskInfo buildOpsTaskInfo() {
         boolean hasData = false;
-        ClientMaster.OpsTaskInfo.Builder builder =
-                ClientMaster.OpsTaskInfo.newBuilder();
+        ClientMaster.OpsTaskInfo.Builder builder = ClientMaster.OpsTaskInfo.newBuilder();
         if (defFlowCtrlRuleHandler.getFlowCtrlId() >= 0) {
             builder.setDefFlowCheckId(defFlowCtrlRuleHandler.getFlowCtrlId());
             hasData = true;
@@ -554,8 +555,7 @@ public class RmtDataCache implements Closeable {
      * @return the client subscribe information
      */
     public ClientMaster.ClientSubRepInfo buildClientSubRepInfo() {
-        ClientMaster.ClientSubRepInfo.Builder builder =
-                ClientMaster.ClientSubRepInfo.newBuilder();
+        ClientMaster.ClientSubRepInfo.Builder builder = ClientMaster.ClientSubRepInfo.newBuilder();
         builder.setBrokerConfigId(this.lstBrokerConfigId.get());
         builder.setTopicMetaInfoId(this.topicMetaInfoId.get());
         if (this.topicMetaUpdatedTime.get() >= 0) {
@@ -607,22 +607,32 @@ public class RmtDataCache implements Closeable {
     /**
      * Set partition context information.
      *
-     * @param partitionKey  partition key
-     * @param currOffset    current offset
-     * @param reqProcType   type information
-     * @param errCode       error code
-     * @param isEscLimit    if the limitDlt should be ignored
-     * @param msgSize       message size
-     * @param limitDlt      max offset of the data fetch
-     * @param curDataDlt    the offset of current data fetch
-     * @param isRequireSlow if the server requires slow down
-     * @param maxOffset     partition current max offset
+     * @param partitionKey
+     *          partition key
+     * @param currOffset
+     *          current offset
+     * @param reqProcType
+     *          type information
+     * @param errCode
+     *          error code
+     * @param isEscLimit
+     *          if the limitDlt should be ignored
+     * @param msgSize
+     *          message size
+     * @param limitDlt
+     *          max offset of the data fetch
+     * @param curDataDlt
+     *          the offset of current data fetch
+     * @param isRequireSlow
+     *          if the server requires slow down
+     * @param maxOffset
+     *          partition current max offset
      */
     public void setPartitionContextInfo(String partitionKey, long currOffset,
-                                        int reqProcType, int errCode,
-                                        boolean isEscLimit, int msgSize,
-                                        long limitDlt, long curDataDlt,
-                                        boolean isRequireSlow, long maxOffset) {
+            int reqProcType, int errCode,
+            boolean isEscLimit, int msgSize,
+            long limitDlt, long curDataDlt,
+            boolean isRequireSlow, long maxOffset) {
         PartitionExt partitionExt = partitionMap.get(partitionKey);
         if (partitionExt != null) {
             updateOffsetCache(partitionKey, currOffset, maxOffset);
@@ -634,7 +644,8 @@ public class RmtDataCache implements Closeable {
     /**
      * Check if the partitions are ready.
      *
-     * @param maxWaitTime max wait time in milliseconds
+     * @param maxWaitTime
+     *          max wait time in milliseconds
      * @return partition status
      */
     public boolean isPartitionsReady(long maxWaitTime) {
@@ -653,6 +664,7 @@ public class RmtDataCache implements Closeable {
 
     /**
      * Get current partition's consume status.
+     * 
      * @return current status
      */
     public PartitionSelectResult getCurrPartsStatus() {
@@ -788,7 +800,7 @@ public class RmtDataCache implements Closeable {
                     break;
                 }
                 ThreadUtils.sleep(300);
-                //if no idle partitions to get, wait and cycle 500 times
+                // if no idle partitions to get, wait and cycle 500 times
             } while (cycleCnt++ < 500);
             if (key == null) {
                 return null;
@@ -831,9 +843,12 @@ public class RmtDataCache implements Closeable {
     /**
      * Add a partition.
      *
-     * @param partition  partition to be added
-     * @param currOffset current offset of the partition
-     * @param maxOffset current max offset of the partition
+     * @param partition
+     *          partition to be added
+     * @param currOffset
+     *          current offset of the partition
+     * @param maxOffset
+     *          current max offset of the partition
      */
     public void addPartition(Partition partition, long currOffset, long maxOffset) {
         if (partition == null) {
@@ -848,9 +863,10 @@ public class RmtDataCache implements Closeable {
     /**
      * book a partition for register event.
      *
-     * @param partitionKey  partition key
+     * @param partitionKey
+     *          partition key
      *
-     *  @return Whether to register for the first time
+     * @return Whether to register for the first time
      */
     public boolean bookPartition(String partitionKey) {
         Integer isReged = partRegisterBookMap.get(partitionKey);
@@ -878,9 +894,9 @@ public class RmtDataCache implements Closeable {
     }
 
     protected void succRspRelease(String partitionKey, String topicName,
-                                  long usedToken, boolean isLastPackConsumed,
-                                  boolean isFilterConsume, long currOffset,
-                                  long maxOffset) {
+            long usedToken, boolean isLastPackConsumed,
+            boolean isFilterConsume, long currOffset,
+            long maxOffset) {
         PartitionExt partitionExt = this.partitionMap.get(partitionKey);
         if (partitionExt != null) {
             if (!indexPartition.contains(partitionKey) && !isTimeWait(partitionKey)) {
@@ -890,8 +906,7 @@ public class RmtDataCache implements Closeable {
                     oldUsedToken = partitionUsedMap.remove(partitionKey);
                     if (oldUsedToken != null) {
                         partitionExt.setLastPackConsumed(isLastPackConsumed);
-                        long waitDlt =
-                                partitionExt.procConsumeResult(isFilterConsume);
+                        long waitDlt = partitionExt.procConsumeResult(isFilterConsume);
                         releaseIdlePartition(waitDlt, partitionKey);
                     }
                 }
@@ -902,25 +917,38 @@ public class RmtDataCache implements Closeable {
     /**
      * Release response's partition.
      *
-     * @param partitionKey  the partition key to relased
-     * @param topicName     the topic name
-     * @param usedToken     the used token
-     * @param isLastPackConsumed  whether consumed
-     * @param currOffset    current offset of the partition
-     * @param reqProcType   the request process type
-     * @param errCode       the error code
-     * @param isEscLimit    Whether to escape the limit
-     * @param msgSize       the message size
-     * @param limitDlt      the limit delta
-     * @param isFilterConsume   whether filter consume
-     * @param curDataDlt    the current data delta
-     * @param maxOffset     current max offset of the partition
+     * @param partitionKey
+     *          the partition key to relased
+     * @param topicName
+     *          the topic name
+     * @param usedToken
+     *          the used token
+     * @param isLastPackConsumed
+     *          whether consumed
+     * @param currOffset
+     *          current offset of the partition
+     * @param reqProcType
+     *          the request process type
+     * @param errCode
+     *          the error code
+     * @param isEscLimit
+     *          Whether to escape the limit
+     * @param msgSize
+     *          the message size
+     * @param limitDlt
+     *          the limit delta
+     * @param isFilterConsume
+     *          whether filter consume
+     * @param curDataDlt
+     *          the current data delta
+     * @param maxOffset
+     *          current max offset of the partition
      */
     public void errRspRelease(String partitionKey, String topicName,
-                              long usedToken, boolean isLastPackConsumed,
-                              long currOffset, int reqProcType, int errCode,
-                              boolean isEscLimit, int msgSize, long limitDlt,
-                              boolean isFilterConsume, long curDataDlt, long maxOffset) {
+            long usedToken, boolean isLastPackConsumed,
+            long currOffset, int reqProcType, int errCode,
+            boolean isEscLimit, int msgSize, long limitDlt,
+            boolean isFilterConsume, long curDataDlt, long maxOffset) {
         PartitionExt partitionExt = this.partitionMap.get(partitionKey);
         if (partitionExt != null) {
             if (!indexPartition.contains(partitionKey) && !isTimeWait(partitionKey)) {
@@ -930,9 +958,8 @@ public class RmtDataCache implements Closeable {
                     oldUsedToken = partitionUsedMap.remove(partitionKey);
                     if (oldUsedToken != null) {
                         partitionExt.setLastPackConsumed(isLastPackConsumed);
-                        long waitDlt =
-                                partitionExt.procConsumeResult(isFilterConsume, reqProcType,
-                                        errCode, msgSize, isEscLimit, limitDlt, curDataDlt, false);
+                        long waitDlt = partitionExt.procConsumeResult(isFilterConsume, reqProcType,
+                                errCode, msgSize, isEscLimit, limitDlt, curDataDlt, false);
                         releaseIdlePartition(waitDlt, partitionKey);
                     }
                 }
@@ -1006,8 +1033,10 @@ public class RmtDataCache implements Closeable {
     /**
      * Get the subscribe information of the consumer.
      *
-     * @param consumerId   consumer id
-     * @param consumeGroup consumer group
+     * @param consumerId
+     *          consumer id
+     * @param consumeGroup
+     *          consumer group
      * @return subscribe information list
      */
     public List<SubscribeInfo> getSubscribeInfoList(String consumerId, String consumeGroup) {
@@ -1051,28 +1080,32 @@ public class RmtDataCache implements Closeable {
 
     /**
      * Remove and get required partitions
-     * @param unRegisterInfoMap  the unregistered partitions
-     * @param partitionKeys      the partition keys
-     * @param inUseWaitPeriodMs  the wait period in ms
-     * @param isWaitTimeoutRollBack  whether wait timout
+     * 
+     * @param unRegisterInfoMap
+     *          the unregistered partitions
+     * @param partitionKeys
+     *          the partition keys
+     * @param inUseWaitPeriodMs
+     *          the wait period in ms
+     * @param isWaitTimeoutRollBack
+     *          whether wait timout
      *
      * @return the removed partitions
      */
     public Map<BrokerInfo, List<PartitionSelectResult>> removeAndGetPartition(
             Map<BrokerInfo, List<Partition>> unRegisterInfoMap,
-            List<String> partitionKeys, long inUseWaitPeriodMs,
+            List<String> partitionKeys,
+            long inUseWaitPeriodMs,
             boolean isWaitTimeoutRollBack) {
         StringBuilder sBuilder = new StringBuilder(512);
-        HashMap<BrokerInfo, List<PartitionSelectResult>> unNewRegisterInfoMap =
-                new HashMap<>();
+        HashMap<BrokerInfo, List<PartitionSelectResult>> unNewRegisterInfoMap = new HashMap<>();
         pauseProcess();
         try {
             waitPartitions(partitionKeys, inUseWaitPeriodMs);
             boolean lastPackConsumed = false;
             for (Map.Entry<BrokerInfo, List<Partition>> entry : unRegisterInfoMap.entrySet()) {
                 for (Partition partition : entry.getValue()) {
-                    PartitionExt partitionExt =
-                            rmvPartitionFromMap(partition.getPartitionKey());
+                    PartitionExt partitionExt = rmvPartitionFromMap(partition.getPartitionKey());
                     if (partitionExt != null) {
                         lastPackConsumed = partitionExt.isLastPackConsumed();
                         if (!cancelTimeTask(partition.getPartitionKey())
@@ -1105,12 +1138,10 @@ public class RmtDataCache implements Closeable {
                         }
                         partitionOffsetMap.remove(partition.getPartitionKey());
                         partitionUsedMap.remove(partition.getPartitionKey());
-                        PartitionSelectResult partitionRet =
-                                new PartitionSelectResult(true, TErrCodeConstants.SUCCESS,
-                                        "Ok!", partition, 0, lastPackConsumed);
-                        List<PartitionSelectResult> targetPartitionList =
-                                unNewRegisterInfoMap.computeIfAbsent(
-                                        entry.getKey(), k -> new ArrayList<>());
+                        PartitionSelectResult partitionRet = new PartitionSelectResult(true, TErrCodeConstants.SUCCESS,
+                                "Ok!", partition, 0, lastPackConsumed);
+                        List<PartitionSelectResult> targetPartitionList = unNewRegisterInfoMap.computeIfAbsent(
+                                entry.getKey(), k -> new ArrayList<>());
                         targetPartitionList.add(partitionRet);
                     }
                 }
@@ -1123,25 +1154,30 @@ public class RmtDataCache implements Closeable {
 
     /**
      * Remove and get required partitions
-     * @param partitionKey      the partition key
-     * @param inUseWaitPeriodMs  the wait period in ms
-     * @param isWaitTimeoutRollBack  whether wait timout
-     * @param result  the process result
-     * @param sBuffer  the string buffer
+     * 
+     * @param partitionKey
+     *          the partition key
+     * @param inUseWaitPeriodMs
+     *          the wait period in ms
+     * @param isWaitTimeoutRollBack
+     *          whether wait timout
+     * @param result
+     *          the process result
+     * @param sBuffer
+     *          the string buffer
      *
      * @return removed or not
      */
     public boolean removeAndGetPartition(String partitionKey, long inUseWaitPeriodMs,
-                                         boolean isWaitTimeoutRollBack, ProcessResult result,
-                                         StringBuilder sBuffer) {
+            boolean isWaitTimeoutRollBack, ProcessResult result,
+            StringBuilder sBuffer) {
         boolean lastPackConsumed = false;
         List<String> partitionKeys = new ArrayList<>();
         partitionKeys.add(partitionKey);
         pauseProcess();
         try {
             waitPartitions(partitionKeys, inUseWaitPeriodMs);
-            PartitionExt partitionExt =
-                    rmvPartitionFromMap(partitionKey);
+            PartitionExt partitionExt = rmvPartitionFromMap(partitionKey);
             if (partitionExt == null) {
                 result.setSuccResult(null);
                 return result.isSuccess();
@@ -1159,16 +1195,14 @@ public class RmtDataCache implements Closeable {
                     }
                 }
             }
-            ConcurrentLinkedQueue<Partition> oldPartitionList =
-                    topicPartitionConMap.get(partitionExt.getTopic());
+            ConcurrentLinkedQueue<Partition> oldPartitionList = topicPartitionConMap.get(partitionExt.getTopic());
             if (oldPartitionList != null) {
                 oldPartitionList.remove(partitionExt);
                 if (oldPartitionList.isEmpty()) {
                     topicPartitionConMap.remove(partitionExt.getTopic());
                 }
             }
-            ConcurrentLinkedQueue<Partition> regMapPartitionList =
-                    brokerPartitionConMap.get(partitionExt.getBroker());
+            ConcurrentLinkedQueue<Partition> regMapPartitionList = brokerPartitionConMap.get(partitionExt.getBroker());
             if (regMapPartitionList != null) {
                 regMapPartitionList.remove(partitionExt);
                 if (regMapPartitionList.isEmpty()) {
@@ -1188,7 +1222,8 @@ public class RmtDataCache implements Closeable {
     /**
      * Remove a partition.
      *
-     * @param partition partition to be removed
+     * @param partition
+     *          partition to be removed
      */
     public void removePartition(Partition partition) {
         rmvPartitionFromMap(partition.getPartitionKey());
@@ -1196,16 +1231,14 @@ public class RmtDataCache implements Closeable {
         indexPartition.remove(partition.getPartitionKey());
         partitionUsedMap.remove(partition.getPartitionKey());
         partitionOffsetMap.remove(partition.getPartitionKey());
-        ConcurrentLinkedQueue<Partition> oldPartitionList =
-                topicPartitionConMap.get(partition.getTopic());
+        ConcurrentLinkedQueue<Partition> oldPartitionList = topicPartitionConMap.get(partition.getTopic());
         if (oldPartitionList != null) {
             oldPartitionList.remove(partition);
             if (oldPartitionList.isEmpty()) {
                 topicPartitionConMap.remove(partition.getTopic());
             }
         }
-        ConcurrentLinkedQueue<Partition> regMapPartitionList =
-                brokerPartitionConMap.get(partition.getBroker());
+        ConcurrentLinkedQueue<Partition> regMapPartitionList = brokerPartitionConMap.get(partition.getBroker());
         if (regMapPartitionList != null) {
             regMapPartitionList.remove(partition);
             if (regMapPartitionList.isEmpty()) {
@@ -1231,16 +1264,15 @@ public class RmtDataCache implements Closeable {
      * @return consumer offset information map
      */
     public Map<String, ConsumeOffsetInfo> getCurPartitionInfoMap() {
-        Map<String, ConsumeOffsetInfo> tmpPartitionMap =
-                new ConcurrentHashMap<>();
+        Map<String, ConsumeOffsetInfo> tmpPartitionMap = new ConcurrentHashMap<>();
         for (Map.Entry<String, PartitionExt> entry : partitionMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
             ConsumeOffsetInfo offsetInfo = partitionOffsetMap.get(entry.getKey());
             tmpPartitionMap.put(entry.getKey(),
-                new ConsumeOffsetInfo(entry.getKey(), offsetInfo.getCurrOffset(),
-                        offsetInfo.getMaxOffset(), offsetInfo.getUpdateTime()));
+                    new ConsumeOffsetInfo(entry.getKey(), offsetInfo.getCurrOffset(),
+                            offsetInfo.getMaxOffset(), offsetInfo.getUpdateTime()));
         }
         return tmpPartitionMap;
     }
@@ -1254,12 +1286,10 @@ public class RmtDataCache implements Closeable {
     }
 
     public Map<BrokerInfo, List<PartitionSelectResult>> getAllPartitionListWithStatus() {
-        Map<BrokerInfo, List<PartitionSelectResult>> registeredInfoMap =
-                new HashMap<>();
+        Map<BrokerInfo, List<PartitionSelectResult>> registeredInfoMap = new HashMap<>();
         for (PartitionExt partitionExt : partitionMap.values()) {
-            List<PartitionSelectResult> registerPartitionList =
-                    registeredInfoMap.computeIfAbsent(
-                            partitionExt.getBroker(), k -> new ArrayList<>());
+            List<PartitionSelectResult> registerPartitionList = registeredInfoMap.computeIfAbsent(
+                    partitionExt.getBroker(), k -> new ArrayList<>());
             registerPartitionList.add(new PartitionSelectResult(true,
                     TErrCodeConstants.SUCCESS, "Ok!",
                     partitionExt, 0, partitionExt.isLastPackConsumed()));
@@ -1279,13 +1309,13 @@ public class RmtDataCache implements Closeable {
     /**
      * Get partition list of a broker.
      *
-     * @param brokerInfo broker information
+     * @param brokerInfo
+     *          broker information
      * @return partition list
      */
     public List<Partition> getBrokerPartitionList(BrokerInfo brokerInfo) {
         List<Partition> retPartition = new ArrayList<>();
-        ConcurrentLinkedQueue<Partition> partitionList =
-                brokerPartitionConMap.get(brokerInfo);
+        ConcurrentLinkedQueue<Partition> partitionList = brokerPartitionConMap.get(brokerInfo);
         if (partitionList != null) {
             retPartition.addAll(partitionList);
         }
@@ -1295,18 +1325,19 @@ public class RmtDataCache implements Closeable {
     /**
      * Filter cached partition information
      *
-     * @param registerInfoMap     the partitions to register
-     * @param unRegPartitionList  the unregistered partition list
+     * @param registerInfoMap
+     *          the partitions to register
+     * @param unRegPartitionList
+     *          the unregistered partition list
      */
     public void filterCachedPartitionInfo(Map<BrokerInfo, List<Partition>> registerInfoMap,
-                                          List<Partition> unRegPartitionList) {
+            List<Partition> unRegPartitionList) {
         List<BrokerInfo> brokerInfoList = new ArrayList<>();
         for (Map.Entry<BrokerInfo, List<Partition>> entry : registerInfoMap.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
-            ConcurrentLinkedQueue<Partition> partitionList =
-                    brokerPartitionConMap.get(entry.getKey());
+            ConcurrentLinkedQueue<Partition> partitionList = brokerPartitionConMap.get(entry.getKey());
             if (partitionList == null || partitionList.isEmpty()) {
                 unRegPartitionList.addAll(entry.getValue());
             } else {
@@ -1334,8 +1365,10 @@ public class RmtDataCache implements Closeable {
     /**
      * Resume consume timeout partitions
      *
-     * @param isPullConsume       whether is pull consume
-     * @param allowedPeriodTimes  allowed hold duration
+     * @param isPullConsume
+     *          whether is pull consume
+     * @param allowedPeriodTimes
+     *          allowed hold duration
      */
     public void resumeTimeoutConsumePartitions(boolean isPullConsume, long allowedPeriodTimes) {
         if (isPullConsume) {
@@ -1376,8 +1409,10 @@ public class RmtDataCache implements Closeable {
     /**
      * Freeze or unfreeze partitons
      *
-     * @param partitionKeys    the operation targets
-     * @param isFreeze         Freeze or unfreeze operation
+     * @param partitionKeys
+     *          the operation targets
+     * @param isFreeze
+     *          Freeze or unfreeze operation
      */
     public void freezeOrUnFreezeParts(List<String> partitionKeys, boolean isFreeze) {
         if (partitionKeys == null || partitionKeys.isEmpty()) {
@@ -1457,10 +1492,8 @@ public class RmtDataCache implements Closeable {
         if (currOffset >= 0) {
             ConsumeOffsetInfo currOffsetInfo = partitionOffsetMap.get(partitionKey);
             if (currOffsetInfo == null) {
-                currOffsetInfo =
-                    new ConsumeOffsetInfo(partitionKey, currOffset, maxOffset);
-                ConsumeOffsetInfo tmpOffsetInfo =
-                    partitionOffsetMap.putIfAbsent(partitionKey, currOffsetInfo);
+                currOffsetInfo = new ConsumeOffsetInfo(partitionKey, currOffset, maxOffset);
+                ConsumeOffsetInfo tmpOffsetInfo = partitionOffsetMap.putIfAbsent(partitionKey, currOffsetInfo);
                 if (tmpOffsetInfo != null) {
                     currOffsetInfo = tmpOffsetInfo;
                 }
@@ -1481,12 +1514,12 @@ public class RmtDataCache implements Closeable {
             if (partitionMap.containsKey(partition.getPartitionKey())) {
                 continue;
             }
-            ConcurrentLinkedQueue<Partition> topicPartitionQue =
-                    topicPartitionConMap.get(partition.getTopic());
+            ConcurrentLinkedQueue<Partition> topicPartitionQue = topicPartitionConMap.get(partition.getTopic());
             if (topicPartitionQue == null) {
                 topicPartitionQue = new ConcurrentLinkedQueue<>();
                 ConcurrentLinkedQueue<Partition> tmpTopicPartitionQue =
-                        topicPartitionConMap.putIfAbsent(partition.getTopic(), topicPartitionQue);
+                        topicPartitionConMap.putIfAbsent(partition.getTopic(),
+                                topicPartitionQue);
                 if (tmpTopicPartitionQue != null) {
                     topicPartitionQue = tmpTopicPartitionQue;
                 }
@@ -1494,12 +1527,12 @@ public class RmtDataCache implements Closeable {
             if (!topicPartitionQue.contains(partition)) {
                 topicPartitionQue.add(partition);
             }
-            ConcurrentLinkedQueue<Partition> brokerPartitionQue =
-                    brokerPartitionConMap.get(partition.getBroker());
+            ConcurrentLinkedQueue<Partition> brokerPartitionQue = brokerPartitionConMap.get(partition.getBroker());
             if (brokerPartitionQue == null) {
                 brokerPartitionQue = new ConcurrentLinkedQueue<>();
                 ConcurrentLinkedQueue<Partition> tmpBrokerPartQues =
-                        brokerPartitionConMap.putIfAbsent(partition.getBroker(), brokerPartitionQue);
+                        brokerPartitionConMap.putIfAbsent(partition.getBroker(),
+                                brokerPartitionQue);
                 if (tmpBrokerPartQues != null) {
                     brokerPartitionQue = tmpBrokerPartQues;
                 }
@@ -1595,4 +1628,3 @@ public class RmtDataCache implements Closeable {
         }
     }
 }
-

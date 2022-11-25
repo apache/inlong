@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.client.cli;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import com.beust.jcommander.converters.FileConverter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
@@ -35,12 +31,18 @@ import org.apache.inlong.manager.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.pojo.user.UserRequest;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.util.List;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+import com.beust.jcommander.converters.FileConverter;
+
 /**
- * The update command used to change the fields of inlong groups.
- * Please refer to the document for parameters
+ * The update command used to change the fields of inlong groups. Please refer
+ * to the document for parameters
  */
 @Parameters(commandDescription = "Update resource by json file")
 public class UpdateCommand extends AbstractCommand {
@@ -66,8 +68,7 @@ public class UpdateCommand extends AbstractCommand {
         @Parameter(names = {"--group", "-g"}, required = true, description = "inlong group id")
         private String inlongGroupId;
 
-        @Parameter(names = {"-c", "--config"},
-                required = true, description = "json file")
+        @Parameter(names = {"-c", "--config"}, required = true, description = "json file")
         private File file;
 
         @Override

@@ -31,8 +31,7 @@ public class TClientConstants {
     public static final long CFG_DEFAULT_PULL_PROTECT_CONFIRM_WAIT_PERIOD_MS = 60000L;
     public static final long CFG_DEFAULT_SHUTDOWN_REBALANCE_WAIT_PERIOD_MS = 10000L;
     public static final long CFG_DEFAULT_HEARTBEAT_PERIOD_AFTER_RETRY_FAIL = 60000;
-    public static final int CFG_DEFAULT_CLIENT_PUSH_FETCH_THREAD_CNT =
-            Runtime.getRuntime().availableProcessors();
+    public static final int CFG_DEFAULT_CLIENT_PUSH_FETCH_THREAD_CNT = Runtime.getRuntime().availableProcessors();
 
     public static final int MAX_CONNECTION_FAILURE_LOG_TIMES = 10;
     public static final int MAX_SUBSCRIBE_REPORT_INTERVAL_TIMES = 6;

@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.pojo.stream;
 
-import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import io.swagger.annotations.ApiModel;
 
 /**
- * The base parameter class of InlongStream, support user extend their own business params.
+ * The base parameter class of InlongStream, support user extend their own
+ * business params.
  */
 @Data
 @AllArgsConstructor

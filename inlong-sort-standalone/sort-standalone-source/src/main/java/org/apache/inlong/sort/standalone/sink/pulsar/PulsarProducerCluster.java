@@ -17,14 +17,15 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
-import org.apache.flume.Context;
-import org.apache.flume.Transaction;
-import org.apache.flume.lifecycle.LifecycleAware;
-import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.pojo.CacheClusterConfig;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import org.apache.flume.Context;
+import org.apache.flume.Transaction;
+import org.apache.flume.lifecycle.LifecycleAware;
+import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.pulsar.client.api.AuthenticationFactory;
 import org.apache.pulsar.client.api.BatcherBuilder;
 import org.apache.pulsar.client.api.CompressionType;
@@ -34,7 +35,6 @@ import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.Map;
@@ -42,6 +42,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
 
 /**
  * 
@@ -143,17 +145,17 @@ public class PulsarProducerCluster implements LifecycleAware {
     private CompressionType getPulsarCompressionType() {
         String type = this.context.getString(KEY_COMPRESSIONTYPE);
         switch (type) {
-            case "LZ4" :
+            case "LZ4":
                 return CompressionType.LZ4;
-            case "NONE" :
+            case "NONE":
                 return CompressionType.NONE;
-            case "ZLIB" :
+            case "ZLIB":
                 return CompressionType.ZLIB;
-            case "ZSTD" :
+            case "ZSTD":
                 return CompressionType.ZSTD;
-            case "SNAPPY" :
+            case "SNAPPY":
                 return CompressionType.SNAPPY;
-            default :
+            default:
                 return CompressionType.NONE;
         }
     }
@@ -192,9 +194,9 @@ public class PulsarProducerCluster implements LifecycleAware {
     /**
      * send
      * 
-     * @param  profileEvent
-     * @param  tx
-     * @return              boolean
+     * @param profileEvent
+     * @param tx
+     * @return boolean
      * @throws IOException
      */
     public boolean send(ProfileEvent profileEvent, Transaction tx) throws IOException {

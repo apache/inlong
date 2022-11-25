@@ -18,16 +18,19 @@
 package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
 import java.io.IOException;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.MimeTypes;
 
 public class WebFilter implements Filter {
+
     private static boolean isMultipartFormData(HttpServletRequest req) {
         String contentType = req.getContentType();
         if (contentType != null && MimeTypes.Type.MULTIPART_FORM_DATA.is(
@@ -40,8 +43,9 @@ public class WebFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request,
-                         ServletResponse response,
-                         FilterChain chain) throws IOException, ServletException {
+            ServletResponse response,
+            FilterChain chain)
+            throws IOException, ServletException {
         if (request instanceof HttpServletRequest) {
             HttpServletRequest req = (HttpServletRequest) request;
             if (isMultipartFormData(req)) {

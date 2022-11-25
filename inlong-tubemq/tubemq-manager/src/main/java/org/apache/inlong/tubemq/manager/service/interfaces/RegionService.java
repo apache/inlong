@@ -17,10 +17,10 @@
 
 package org.apache.inlong.tubemq.manager.service.interfaces;
 
-import java.util.List;
-
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.entry.RegionEntry;
+
+import java.util.List;
 
 public interface RegionService {
 
@@ -32,7 +32,7 @@ public interface RegionService {
      * @return
      */
     TubeMQResult createNewRegion(RegionEntry regionEntry,
-                                 List<Long> brokerIdList);
+            List<Long> brokerIdList);
 
     /**
      * delete region and set the brokers in the region to be default region
@@ -44,8 +44,8 @@ public interface RegionService {
     TubeMQResult deleteRegion(long regionId, long clusterId);
 
     /**
-     * update region to contain new brokers
-     * need to check if other region contains the same brokers
+     * update region to contain new brokers need to check if other region contains
+     * the same brokers
      *
      * @param newRegionEntry
      * @param brokerIdList
@@ -55,8 +55,8 @@ public interface RegionService {
     TubeMQResult updateRegion(RegionEntry newRegionEntry, List<Long> brokerIdList, long clusterId);
 
     /**
-     * query region inside a cluster
-     * if no regionId is passed return all regions inside the cluster
+     * query region inside a cluster if no regionId is passed return all regions
+     * inside the cluster
      *
      * @param regionId
      * @param clusterId

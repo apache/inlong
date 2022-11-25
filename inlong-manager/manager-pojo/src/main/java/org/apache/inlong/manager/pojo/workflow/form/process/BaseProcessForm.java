@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.pojo.workflow.form.process;
 
+import lombok.Data;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import lombok.Data;
 
 /**
  * The main form of the process-submitted when the process is initiated

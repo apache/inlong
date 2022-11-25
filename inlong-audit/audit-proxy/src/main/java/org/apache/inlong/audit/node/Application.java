@@ -17,19 +17,6 @@
 
 package org.apache.inlong.audit.node;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -52,8 +39,24 @@ import org.apache.flume.node.MaterializedConfiguration;
 import org.apache.flume.node.PollingPropertiesFileConfigurationProvider;
 import org.apache.flume.node.PropertiesFileConfigurationProvider;
 import org.apache.flume.util.SSLUtil;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 /**
  * 
@@ -105,7 +108,8 @@ public class Application {
             logger.info("Interrupted while trying to handle configuration event");
             return;
         } finally {
-            // If interrupted while trying to lock, we don't own the lock, so must not attempt to unlock
+            // If interrupted while trying to lock, we don't own the lock, so must not
+            // attempt to unlock
             if (lifecycleLock.isHeldByCurrentThread()) {
                 lifecycleLock.unlock();
             }
@@ -256,6 +260,7 @@ public class Application {
 
     /**
      * main
+     * 
      * @param args
      */
     public static void main(String[] args) {
@@ -330,7 +335,7 @@ public class Application {
                 application.handleConfigurationEvent(configurationProvider.getConfiguration());
             }
 
-            //start application
+            // start application
             application.start();
 
             final Application appReference = application;

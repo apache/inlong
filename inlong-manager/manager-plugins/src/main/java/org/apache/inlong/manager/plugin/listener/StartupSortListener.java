@@ -17,9 +17,8 @@
 
 package org.apache.inlong.manager.plugin.listener;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
+
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
@@ -37,11 +36,15 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
+import lombok.extern.slf4j.Slf4j;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 /**
  * Listener of startup sort.
@@ -98,8 +101,8 @@ public class StartupSortListener implements SortOperateListener {
 
         Map<String, String> kvConf = extList.stream().filter(v -> StringUtils.isNotEmpty(v.getKeyName())
                 && StringUtils.isNotEmpty(v.getKeyValue())).collect(Collectors.toMap(
-                InlongGroupExtInfo::getKeyName,
-                InlongGroupExtInfo::getKeyValue));
+                        InlongGroupExtInfo::getKeyName,
+                        InlongGroupExtInfo::getKeyValue));
         String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isNotEmpty(sortExt)) {
             Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(

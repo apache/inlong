@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -45,8 +41,11 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam.TimeUnit;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +53,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Flink sql parser unit test class
@@ -67,7 +69,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
                 new FieldInfo("event_type", new StringFormatInfo()));
-        //if you hope hive load mode of append,please add this config.
+        // if you hope hive load mode of append,please add this config.
         Map<String, String> map = new HashMap<>();
         map.put("append-mode", "true");
         return new MySqlExtractNode(id, "mysql_input", fields,
@@ -98,14 +100,13 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
         return new KafkaLoadNode(id, "kafka_output", fields, relations, null, null,
                 "workerJson", "localhost:9092",
                 new JsonFormat(), null,
@@ -126,14 +127,13 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
         return new HiveLoadNode(id, "hive_output",
                 fields, relations, null, null, 1,
                 null, "myCatalog", "default", "work2",
@@ -149,14 +149,13 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
         return new FileSystemLoadNode(id, "hdfs_output", fields, relations,
                 null, "hdfs://localhost:9000/file", "json",
                 1, null, null, null);
@@ -165,7 +164,8 @@ public class FlinkSqlParserTest extends AbstractTestBase {
     /**
      * Test flink sql mysql cdc to hive
      *
-     * @throws Exception The exception may throws when execute the case
+     * @throws Exception
+     *           The exception may throws when execute the case
      */
     @Test
     public void testMysqlToHive() {
@@ -182,12 +182,12 @@ public class FlinkSqlParserTest extends AbstractTestBase {
         Node kafkaExtractNode = buildKafkaExtractNode("1_2");
         Node kafkaNode = buildKafkaNode("2_1");
         Node hiveNode = buildHiveNode("2_2");
-        //mysql-->hive
+        // mysql-->hive
         StreamInfo streamInfoMySqlToHive = new StreamInfo("1L", Arrays.asList(mysqlExtractNode, hiveNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mysqlExtractNode),
                         Collections.singletonList(hiveNode))));
         GroupInfo groupInfoMySqlToHive = new GroupInfo("1", Collections.singletonList(streamInfoMySqlToHive));
-        //mysql-->kafka--kafka-->hive
+        // mysql-->kafka--kafka-->hive
         StreamInfo streamInfoMySqlToKafkaToHive1 = new StreamInfo("1L", Arrays.asList(mysqlExtractNode, kafkaNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mysqlExtractNode),
                         Collections.singletonList(kafkaNode))));
@@ -203,7 +203,8 @@ public class FlinkSqlParserTest extends AbstractTestBase {
     /**
      * Test flink sql mysql cdc to file system
      *
-     * @throws Exception The exception may throws when execute the case
+     * @throws Exception
+     *           The exception may throws when execute the case
      */
     @Test
     public void testToFileSystem() {
@@ -218,7 +219,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node mysqlExtractNode = buildMySQLExtractNode("1");
         Node fileSystemNode = buildFileSystemNode("2");
-        //mysql-->HDFS OR LOCAL FILE
+        // mysql-->HDFS OR LOCAL FILE
         StreamInfo streamInfoToHDFS = new StreamInfo("1L", Arrays.asList(mysqlExtractNode, fileSystemNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mysqlExtractNode),
                         Collections.singletonList(fileSystemNode))));
@@ -230,7 +231,8 @@ public class FlinkSqlParserTest extends AbstractTestBase {
     /**
      * Test flink sql parse
      *
-     * @throws Exception The exception may throws when execute the case
+     * @throws Exception
+     *           The exception may throws when execute the case
      */
     @Test
     public void testFlinkSqlParse() throws Exception {

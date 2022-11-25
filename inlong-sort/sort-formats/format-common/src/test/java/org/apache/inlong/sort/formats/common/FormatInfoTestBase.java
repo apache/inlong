@@ -21,6 +21,7 @@ package org.apache.inlong.sort.formats.common;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
+
 import org.junit.Test;
 
 /**
@@ -36,8 +37,7 @@ public abstract class FormatInfoTestBase {
     abstract Collection<FormatInfo> createFormatInfos();
 
     /**
-     * Verify that format information can be correctly marshalled and
-     * demarshalled.
+     * Verify that format information can be correctly marshalled and demarshalled.
      */
     @Test
     public void testMarshallAndDemarshall() throws Exception {

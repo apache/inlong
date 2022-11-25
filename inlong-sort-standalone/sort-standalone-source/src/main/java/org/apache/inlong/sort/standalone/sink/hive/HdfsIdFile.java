@@ -17,15 +17,17 @@
 
 package org.apache.inlong.sort.standalone.sink.hive;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.slf4j.Logger;
 
 /**
@@ -60,9 +62,9 @@ public class HdfsIdFile {
     /**
      * Constructor
      * 
-     * @param  context
-     * @param  idConfig
-     * @param  strIdRootPath
+     * @param context
+     * @param idConfig
+     * @param strIdRootPath
      * @throws IOException
      */
     public HdfsIdFile(HiveSinkContext context, HdfsIdConfig idConfig, String strIdRootPath) throws IOException {
@@ -95,8 +97,8 @@ public class HdfsIdFile {
     /**
      * getFileName
      * 
-     * @param  context
-     * @param  fileTime
+     * @param context
+     * @param fileTime
      * @return
      */
     public static String getFileName(HiveSinkContext context, long fileTime) {
@@ -140,7 +142,8 @@ public class HdfsIdFile {
     /**
      * set modifiedTime
      * 
-     * @param modifiedTime the modifiedTime to set
+     * @param modifiedTime
+     *          the modifiedTime to set
      */
     public void setModifiedTime(long modifiedTime) {
         this.modifiedTime = modifiedTime;

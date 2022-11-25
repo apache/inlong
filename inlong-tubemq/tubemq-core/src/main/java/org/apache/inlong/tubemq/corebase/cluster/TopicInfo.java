@@ -17,9 +17,10 @@
 
 package org.apache.inlong.tubemq.corebase.cluster;
 
-import java.io.Serializable;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+
+import java.io.Serializable;
 
 public class TopicInfo implements Serializable {
 
@@ -34,8 +35,8 @@ public class TopicInfo implements Serializable {
     private boolean acceptSubscribe;
 
     public TopicInfo(final BrokerInfo broker, final String topic,
-                     final int partitionNum, final int topicStoreNum,
-                     final boolean acceptPublish, final boolean acceptSubscribe) {
+            final int partitionNum, final int topicStoreNum,
+            final boolean acceptPublish, final boolean acceptSubscribe) {
         this.broker = broker;
         this.topic = topic;
         this.partitionNum = partitionNum;
@@ -79,7 +80,7 @@ public class TopicInfo implements Serializable {
 
     // return result <isChanged, isScaleOut>
     public void updAndJudgeTopicInfo(TopicInfo newTopicInfo,
-                                     Tuple2<Boolean, Boolean> result) {
+            Tuple2<Boolean, Boolean> result) {
         boolean isChanged = false;
         if (this.acceptPublish != newTopicInfo.acceptPublish) {
             isChanged = true;
@@ -111,8 +112,8 @@ public class TopicInfo implements Serializable {
     }
 
     public StringBuilder toStrBuilderString(boolean acceptPub,
-                                            boolean acceptSub,
-                                            StringBuilder sBuilder) {
+            boolean acceptSub,
+            StringBuilder sBuilder) {
         return sBuilder.append(broker.toString()).append(TokenConstants.SEGMENT_SEP)
                 .append(this.topic).append(TokenConstants.ATTR_SEP)
                 .append(this.partitionNum).append(TokenConstants.ATTR_SEP)

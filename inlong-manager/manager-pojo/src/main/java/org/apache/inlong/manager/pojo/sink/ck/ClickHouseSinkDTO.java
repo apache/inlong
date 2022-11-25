@@ -17,21 +17,24 @@
 
 package org.apache.inlong.manager.pojo.sink.ck;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
-import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.StringUtils;
+
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Sink info of ClickHouse
@@ -72,8 +75,7 @@ public class ClickHouseSinkDTO {
     @ApiModelProperty("Partition strategy, support: BALANCE, RANDOM, HASH")
     private String partitionStrategy;
 
-    @ApiModelProperty(value = "Partition files, separate with commas",
-            notes = "Necessary when partitionStrategy is HASH, must be one of the field list")
+    @ApiModelProperty(value = "Partition files, separate with commas", notes = "Necessary when partitionStrategy is HASH, must be one of the field list")
     private String partitionFields;
 
     @ApiModelProperty("Key field names, separate with commas")

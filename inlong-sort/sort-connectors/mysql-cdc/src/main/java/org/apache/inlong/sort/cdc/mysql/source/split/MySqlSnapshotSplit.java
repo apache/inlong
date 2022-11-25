@@ -18,16 +18,19 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges.TableChange;
-import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
-import javax.annotation.Nullable;
+import org.apache.flink.table.types.logical.RowType;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges.TableChange;
 
 /**
  * The split to describe a split of a MySql table snapshot.
@@ -130,10 +133,9 @@ public class MySqlSnapshotSplit extends MySqlSplit {
 
     @Override
     public String toString() {
-        String splitKeyTypeSummary =
-                splitKeyType.getFields().stream()
-                        .map(RowType.RowField::asSummaryString)
-                        .collect(Collectors.joining(",", "[", "]"));
+        String splitKeyTypeSummary = splitKeyType.getFields().stream()
+                .map(RowType.RowField::asSummaryString)
+                .collect(Collectors.joining(",", "[", "]"));
         return "MySqlSnapshotSplit{"
                 + "tableId="
                 + tableId

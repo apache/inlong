@@ -17,9 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.sink.postgresql;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -32,13 +29,19 @@ import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSinkDTO;
 import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLTableInfo;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.sql.Connection;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * PostgreSQL's resource operator
@@ -88,8 +91,7 @@ public class PostgreSQLResourceOperator implements SinkResourceOperator {
         final List<PostgreSQLColumnInfo> columnList = Lists.newArrayList();
         fieldList.forEach(field -> {
             columnList.add(
-                    new PostgreSQLColumnInfo(field.getFieldName(), field.getFieldType(), field.getFieldComment())
-            );
+                    new PostgreSQLColumnInfo(field.getFieldName(), field.getFieldType(), field.getFieldComment()));
         });
 
         PostgreSQLSinkDTO postgreSQLSink = PostgreSQLSinkDTO.getFromJson(sinkInfo.getExtParams());
@@ -97,8 +99,9 @@ public class PostgreSQLResourceOperator implements SinkResourceOperator {
         if (StringUtils.isEmpty(tableInfo.getSchemaName())) {
             tableInfo.setSchemaName(POSTGRESQL_DEFAULT_SCHEMA);
         }
-        try (Connection conn = PostgreSQLJdbcUtils.getConnection(postgreSQLSink.getJdbcUrl(),
-                postgreSQLSink.getUsername(), postgreSQLSink.getPassword())) {
+        try (
+                Connection conn = PostgreSQLJdbcUtils.getConnection(postgreSQLSink.getJdbcUrl(),
+                        postgreSQLSink.getUsername(), postgreSQLSink.getPassword())) {
             // 1.If schema not exists,create it
             PostgreSQLJdbcUtils.createSchema(conn, tableInfo.getTableName(), tableInfo.getUserName());
             // 2.If table not exists, create it

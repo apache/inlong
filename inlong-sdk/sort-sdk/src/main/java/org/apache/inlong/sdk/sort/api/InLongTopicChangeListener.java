@@ -17,17 +17,21 @@
 
 package org.apache.inlong.sdk.sort.api;
 
-import java.util.Set;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
+
+import java.util.Set;
 
 public interface InLongTopicChangeListener {
 
     /**
      * InLongTopic changed
      *
-     * @param allInLongTopics Set
-     * @param newInLongTopics Set
-     * @param removedInLongTopics Set
+     * @param allInLongTopics
+     *          Set
+     * @param newInLongTopics
+     *          Set
+     * @param removedInLongTopics
+     *          Set
      * @return true/false
      */
     boolean onAssignmentsChange(Set<InLongTopic> allInLongTopics,
@@ -42,7 +46,8 @@ public interface InLongTopicChangeListener {
     /**
      * callback sort to get the msgKey's Offset
      *
-     * @param msgKey String
+     * @param msgKey
+     *          String
      * @return String Offset
      */
     String offlineAndGetAckOffset(String msgKey);

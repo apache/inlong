@@ -29,7 +29,8 @@ public interface AgentService {
     /**
      * Report the heartbeat for given source.
      *
-     * @param request Heartbeat request.
+     * @param request
+     *          Heartbeat request.
      * @return Whether succeed.
      */
     Boolean reportSnapshot(TaskSnapshotRequest request);
@@ -37,14 +38,16 @@ public interface AgentService {
     /**
      * Agent report the task result.
      *
-     * @param request Result of the task.
+     * @param request
+     *          Result of the task.
      */
     void report(TaskRequest request);
 
     /**
      * Agent pull task config.
      *
-     * @param request Request of the task.
+     * @param request
+     *          Request of the task.
      * @return Task result.
      */
     TaskResult getTaskResult(TaskRequest request);

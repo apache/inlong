@@ -18,30 +18,6 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.reader;
 
-import com.ververica.cdc.connectors.mysql.source.utils.RecordUtils;
-import io.debezium.data.Envelope;
-import io.debezium.document.Array;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.HistoryRecord;
-import io.debezium.relational.history.TableChanges;
-import io.debezium.relational.history.TableChanges.TableChange;
-import org.apache.flink.api.connector.source.SourceOutput;
-import org.apache.flink.connector.base.source.reader.RecordEmitter;
-import org.apache.flink.util.Collector;
-import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
-import org.apache.inlong.sort.cdc.debezium.history.FlinkJsonTableChangeSerializer;
-import org.apache.inlong.sort.cdc.mysql.source.metrics.MySqlSourceReaderMetrics;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
-import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.source.SourceRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getBinlogPosition;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getFetchTimestamp;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.getHistoryRecord;
@@ -53,18 +29,48 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isHighWa
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isSchemaChangeEvent;
 import static org.apache.inlong.sort.cdc.mysql.source.utils.RecordUtils.isWatermarkEvent;
 
+import org.apache.inlong.sort.cdc.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.cdc.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.cdc.mysql.source.metrics.MySqlSourceReaderMetrics;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
+
+import org.apache.flink.api.connector.source.SourceOutput;
+import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.flink.util.Collector;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.source.SourceRecord;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.ververica.cdc.connectors.mysql.source.utils.RecordUtils;
+
+import io.debezium.data.Envelope;
+import io.debezium.document.Array;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.HistoryRecord;
+import io.debezium.relational.history.TableChanges;
+import io.debezium.relational.history.TableChanges.TableChange;
+
 /**
  * The {@link RecordEmitter} implementation for {@link MySqlSourceReader}.
  *
- * <p>The {@link RecordEmitter} buffers the snapshot records of split and call the binlog reader to
- * emit records rather than emit the records directly.</p>
+ * <p>
+ * The {@link RecordEmitter} buffers the snapshot records of split and call the
+ * binlog reader to emit records rather than emit the records directly.
+ * </p>
  */
 public final class MySqlRecordEmitter<T>
-        implements RecordEmitter<SourceRecord, T, MySqlSplitState> {
+        implements
+            RecordEmitter<SourceRecord, T, MySqlSplitState> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlRecordEmitter.class);
-    private static final FlinkJsonTableChangeSerializer TABLE_CHANGE_SERIALIZER =
-            new FlinkJsonTableChangeSerializer();
+    private static final FlinkJsonTableChangeSerializer TABLE_CHANGE_SERIALIZER = new FlinkJsonTableChangeSerializer();
 
     private final DebeziumDeserializationSchema<T> debeziumDeserializationSchema;
     private final MySqlSourceReaderMetrics sourceReaderMetrics;
@@ -90,8 +96,7 @@ public final class MySqlRecordEmitter<T>
     }
 
     @Override
-    public void emitRecord(SourceRecord element, SourceOutput<T> output, MySqlSplitState splitState)
-            throws Exception {
+    public void emitRecord(SourceRecord element, SourceOutput<T> output, MySqlSplitState splitState) throws Exception {
         if (isWatermarkEvent(element)) {
             BinlogOffset watermark = getWatermark(element);
             if (isHighWatermarkEvent(element) && splitState.isSnapshotSplitState()) {
@@ -99,8 +104,7 @@ public final class MySqlRecordEmitter<T>
             }
         } else if (isSchemaChangeEvent(element) && splitState.isBinlogSplitState()) {
             HistoryRecord historyRecord = getHistoryRecord(element);
-            Array tableChanges =
-                    historyRecord.document().getArray(HistoryRecord.Fields.TABLE_CHANGES);
+            Array tableChanges = historyRecord.document().getArray(HistoryRecord.Fields.TABLE_CHANGES);
             TableChanges changes = TABLE_CHANGE_SERIALIZER.deserialize(tableChanges, true);
             for (TableChange tableChange : changes) {
                 splitState.asBinlogSplitState().recordSchema(tableChange.getId(), tableChange);
@@ -111,15 +115,15 @@ public final class MySqlRecordEmitter<T>
                 emitElement(element, output, null);
             }
         } else if (isDataChangeRecord(element)) {
-//            updateStartingOffsetForSplit(splitState, element);
-//            reportMetrics(element);
-//
-//            final Map<TableId, TableChange> tableSchemas =
-//                splitState.getMySQLSplit().getTableSchemas();
-//            final TableChange tableSchema =
-//                tableSchemas.getOrDefault(getTableId(element), null);
-//
-//            emitElement(element, output, tableSchema);
+            // updateStartingOffsetForSplit(splitState, element);
+            // reportMetrics(element);
+            //
+            // final Map<TableId, TableChange> tableSchemas =
+            // splitState.getMySQLSplit().getTableSchemas();
+            // final TableChange tableSchema =
+            // tableSchemas.getOrDefault(getTableId(element), null);
+            //
+            // emitElement(element, output, tableSchema);
             if (splitState.isBinlogSplitState()) {
                 BinlogOffset position = getBinlogPosition(element);
                 splitState.asBinlogSplitState().setStartingOffset(position);
@@ -135,14 +139,13 @@ public final class MySqlRecordEmitter<T>
             fetchDelay = System.currentTimeMillis() - messageTimestamp;
             reportMetrics(element);
 
-            final Map<TableId, TableChange> tableSchemas =
-                    splitState.getMySQLSplit().getTableSchemas();
-            final TableChange tableSchema =
-                    tableSchemas.getOrDefault(RecordUtils.getTableId(element), null);
+            final Map<TableId, TableChange> tableSchemas = splitState.getMySQLSplit().getTableSchemas();
+            final TableChange tableSchema = tableSchemas.getOrDefault(RecordUtils.getTableId(element), null);
 
             debeziumDeserializationSchema.deserialize(
                     element,
                     new Collector<T>() {
+
                         @Override
                         public void collect(final T t) {
                             long byteNum = t.toString().getBytes(StandardCharsets.UTF_8).length;
@@ -172,7 +175,8 @@ public final class MySqlRecordEmitter<T>
     }
 
     private void emitElement(SourceRecord element, SourceOutput<T> output,
-            TableChange tableSchema) throws Exception {
+            TableChange tableSchema)
+            throws Exception {
         outputCollector.output = output;
         debeziumDeserializationSchema.deserialize(element, outputCollector, tableSchema);
     }

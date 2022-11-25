@@ -17,13 +17,6 @@
 
 package org.apache.inlong.tubemq.server.broker.offset.offsetstorage;
 
-import java.net.BindException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.server.broker.exception.OffsetStoreException;
 import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
@@ -31,7 +24,17 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
 import org.apache.inlong.tubemq.server.common.zookeeper.ZKUtil;
 import org.apache.inlong.tubemq.server.common.zookeeper.ZooKeeperWatcher;
+
 import org.apache.zookeeper.KeeperException;
+
+import java.net.BindException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * A offset storage implementation with zookeeper
  */
 public class ZkOffsetStorage implements OffsetStorage {
+
     private static final Logger logger = LoggerFactory.getLogger(ZkOffsetStorage.class);
 
     static {
@@ -68,9 +72,12 @@ public class ZkOffsetStorage implements OffsetStorage {
     /**
      * Initial ZooKeeper offset storage object
      *
-     * @param zkConfig   the ZooKeeper configure
-     * @param isBroker   whether used in broker node
-     * @param brokerId   the broker id
+     * @param zkConfig
+     *          the ZooKeeper configure
+     * @param isBroker
+     *          whether used in broker node
+     * @param brokerId
+     *          the broker id
      */
     public ZkOffsetStorage(ZKConfig zkConfig, boolean isBroker, int brokerId) {
         this.zkConfig = zkConfig;
@@ -103,8 +110,8 @@ public class ZkOffsetStorage implements OffsetStorage {
 
     @Override
     public void commitOffset(String group,
-                             Collection<OffsetStorageInfo> offsetInfoList,
-                             boolean isFailRetry) {
+            Collection<OffsetStorageInfo> offsetInfoList,
+            boolean isFailRetry) {
         if (this.zkw == null
                 || offsetInfoList == null
                 || offsetInfoList.isEmpty()) {
@@ -153,15 +160,15 @@ public class ZkOffsetStorage implements OffsetStorage {
         if (offsetZkInfo == null) {
             return null;
         }
-        String[] offsetInfoStrs =
-                offsetZkInfo.split(TokenConstants.HYPHEN);
+        String[] offsetInfoStrs = offsetZkInfo.split(TokenConstants.HYPHEN);
         return new OffsetStorageInfo(topic, brokerId, partitionId,
                 Long.parseLong(offsetInfoStrs[1]), Long.parseLong(offsetInfoStrs[0]), false);
 
     }
 
     private void cfmOffset(StringBuilder sb, String group,
-                           Collection<OffsetStorageInfo> infoList) throws OffsetStoreException {
+            Collection<OffsetStorageInfo> infoList)
+            throws OffsetStoreException {
         sb.delete(0, sb.length());
         for (final OffsetStorageInfo info : infoList) {
             long newOffset = -1;
@@ -180,8 +187,7 @@ public class ZkOffsetStorage implements OffsetStorage {
                     .append(info.getBrokerId()).append(TokenConstants.HYPHEN)
                     .append(info.getPartitionId()).toString();
             sb.delete(0, sb.length());
-            String offsetData =
-                    sb.append(msgId).append(TokenConstants.HYPHEN).append(newOffset).toString();
+            String offsetData = sb.append(msgId).append(TokenConstants.HYPHEN).append(newOffset).toString();
             sb.delete(0, sb.length());
             try {
                 ZKUtil.updatePersistentPath(this.zkw, offsetPath, offsetData);
@@ -206,7 +212,7 @@ public class ZkOffsetStorage implements OffsetStorage {
      */
     @Override
     public Map<Integer, Long> queryGroupOffsetInfo(String group, String topic,
-                                                  Set<Integer> partitionIds) {
+            Set<Integer> partitionIds) {
         StringBuilder strBuff = new StringBuilder(512);
         String basePath = strBuff.append(this.consumerZkDir).append("/")
                 .append(group).append("/offsets/").append(topic).append("/")
@@ -222,8 +228,7 @@ public class ZkOffsetStorage implements OffsetStorage {
                 if (offsetZkInfo == null) {
                     offsetMap.put(partitionId, null);
                 } else {
-                    String[] offsetInfoStrs =
-                            offsetZkInfo.split(TokenConstants.HYPHEN);
+                    String[] offsetInfoStrs = offsetZkInfo.split(TokenConstants.HYPHEN);
                     offsetMap.put(partitionId, Long.parseLong(offsetInfoStrs[1]));
                 }
             } catch (Throwable e) {
@@ -236,7 +241,9 @@ public class ZkOffsetStorage implements OffsetStorage {
 
     /**
      * Query booked topic info of groups stored in zookeeper.
-     * @param groupSet query groups
+     * 
+     * @param groupSet
+     *          query groups
      * @return group--topic map info
      */
     @Override
@@ -269,8 +276,7 @@ public class ZkOffsetStorage implements OffsetStorage {
                     if (brokerIds != null) {
                         for (String idStr : brokerIds) {
                             if (idStr != null) {
-                                String[] brokerPartIdStrs =
-                                        idStr.split(TokenConstants.HYPHEN);
+                                String[] brokerPartIdStrs = idStr.split(TokenConstants.HYPHEN);
                                 qryBrokerId = brokerPartIdStrs[0];
                                 if (qryBrokerId != null
                                         && strBrokerId.equals(qryBrokerId.trim())) {
@@ -307,14 +313,14 @@ public class ZkOffsetStorage implements OffsetStorage {
     /**
      * Get offset stored in zookeeper, if not found or error, set null
      *
-     * @param groupTopicPartMap   the group topic-partition map
+     * @param groupTopicPartMap
+     *          the group topic-partition map
      */
     @Override
     public void deleteGroupOffsetInfo(
             Map<String, Map<String, Set<Integer>>> groupTopicPartMap) {
         StringBuilder strBuff = new StringBuilder(512);
-        for (Map.Entry<String, Map<String, Set<Integer>>> entry
-                : groupTopicPartMap.entrySet()) {
+        for (Map.Entry<String, Map<String, Set<Integer>>> entry : groupTopicPartMap.entrySet()) {
             if (entry.getKey() == null
                     || entry.getValue() == null
                     || entry.getValue().isEmpty()) {

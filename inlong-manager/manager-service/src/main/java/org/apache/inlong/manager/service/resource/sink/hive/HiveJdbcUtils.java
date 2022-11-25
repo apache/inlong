@@ -17,12 +17,11 @@
 
 package org.apache.inlong.manager.service.resource.sink.hive;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hive.jdbc.HiveDatabaseMetaData;
 import org.apache.inlong.manager.pojo.sink.hive.HiveColumnInfo;
 import org.apache.inlong.manager.pojo.sink.hive.HiveTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hive.jdbc.HiveDatabaseMetaData;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,6 +29,9 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utils for Hive JDBC.
@@ -66,14 +68,20 @@ public class HiveJdbcUtils {
     /**
      * Execute sql on the specified Hive Server
      *
-     * @param sql need to execute
-     * @param url url of hive server
-     * @param user user of hive server
-     * @param password password of hive server
-     * @throws Exception when executing error
+     * @param sql
+     *          need to execute
+     * @param url
+     *          url of hive server
+     * @param user
+     *          user of hive server
+     * @param password
+     *          password of hive server
+     * @throws Exception
+     *           when executing error
      */
     public static void executeSql(String sql, String url, String user, String password) throws Exception {
-        try (Connection conn = getConnection(url, user, password);
+        try (
+                Connection conn = getConnection(url, user, password);
                 Statement stmt = conn.createStatement()) {
 
             stmt.execute(sql);
@@ -119,10 +127,12 @@ public class HiveJdbcUtils {
      * Query Hive columns
      */
     public static List<HiveColumnInfo> getColumns(String url, String user, String password, String dbName,
-            String tableName) throws Exception {
+            String tableName)
+            throws Exception {
 
         String querySql = SqlBuilder.buildDescTableSql(dbName, tableName);
-        try (Connection conn = getConnection(url, user, password);
+        try (
+                Connection conn = getConnection(url, user, password);
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(querySql)) {
             List<HiveColumnInfo> columnList = new ArrayList<>();
@@ -141,7 +151,8 @@ public class HiveJdbcUtils {
      * Add columns for Hive table
      */
     public static void addColumns(String url, String user, String password, String dbName, String tableName,
-            List<HiveColumnInfo> columnList) throws Exception {
+            List<HiveColumnInfo> columnList)
+            throws Exception {
         String addColumnSql = SqlBuilder.buildAddColumnSql(dbName, tableName, columnList);
         HiveJdbcUtils.executeSql(addColumnSql, url, user, password);
     }

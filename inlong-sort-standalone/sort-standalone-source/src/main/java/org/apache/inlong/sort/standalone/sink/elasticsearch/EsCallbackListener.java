@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import java.util.List;
-
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import java.util.List;
+
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkProcessor;

@@ -17,17 +17,19 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.cursor.Cursor;
-import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.pojo.sort.standalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamPageRequest;
-import org.springframework.stereotype.Repository;
+
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.mapping.ResultSetType;
 
 import java.util.List;
+
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InlongStreamEntityMapper {
@@ -41,9 +43,11 @@ public interface InlongStreamEntityMapper {
     Integer selectExistByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
-     * Query all inlong stream according to conditions (do not specify groupId, query all inlong streams)
+     * Query all inlong stream according to conditions (do not specify groupId,
+     * query all inlong streams)
      *
-     * @param request query request
+     * @param request
+     *          query request
      * @return inlong stream list
      */
     List<InlongStreamEntity> selectByCondition(@Param("request") InlongStreamPageRequest request);

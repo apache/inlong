@@ -18,10 +18,11 @@
 package org.apache.inlong.manager.service.resource.sort;
 
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Factory for {@link SortConfigOperator}.
@@ -35,7 +36,8 @@ public class SortConfigOperatorFactory {
     /**
      * Get a Sort config operator instance.
      *
-     * @param enableZk is the inlong group enable the ZooKeeper, 1: enable, 0: disable
+     * @param enableZk
+     *          is the inlong group enable the ZooKeeper, 1: enable, 0: disable
      */
     public SortConfigOperator getInstance(Integer enableZk) {
         return operatorList.stream()

@@ -17,16 +17,8 @@
 
 package org.apache.inlong.audit.source;
 
-import com.google.gson.Gson;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.group.ChannelGroup;
-import org.apache.flume.Event;
-import org.apache.flume.channel.ChannelProcessor;
-import org.apache.flume.event.EventBuilder;
-import org.apache.flume.source.AbstractSource;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import org.apache.inlong.audit.protocol.AuditApi.AuditMessageBody;
 import org.apache.inlong.audit.protocol.AuditApi.AuditReply;
 import org.apache.inlong.audit.protocol.AuditApi.AuditReply.RSP_CODE;
@@ -34,14 +26,26 @@ import org.apache.inlong.audit.protocol.AuditApi.AuditRequest;
 import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
 import org.apache.inlong.audit.protocol.AuditData;
 import org.apache.inlong.audit.protocol.Commands;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flume.Event;
+import org.apache.flume.channel.ChannelProcessor;
+import org.apache.flume.event.EventBuilder;
+import org.apache.flume.source.AbstractSource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
 
 /**
  * Server message handler

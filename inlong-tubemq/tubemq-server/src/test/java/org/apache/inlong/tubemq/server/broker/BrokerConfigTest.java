@@ -17,13 +17,15 @@
 
 package org.apache.inlong.tubemq.server.broker;
 
+import org.apache.inlong.tubemq.server.common.fileconfig.ADConfig;
+import org.apache.inlong.tubemq.server.common.fileconfig.PrometheusConfig;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
-import org.apache.inlong.tubemq.server.common.fileconfig.ADConfig;
-import org.apache.inlong.tubemq.server.common.fileconfig.PrometheusConfig;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,11 +44,10 @@ public class BrokerConfigTest {
         Assert.assertEquals(auditConfig.getAuditIdConsume(), 4);
         Assert.assertEquals(auditConfig.getAuditCacheMaxRows(), 20000);
         Assert.assertEquals(auditConfig.getAuditCacheFilePath(), "/data/inlong/audit/test");
-        HashSet<String> valueSet =
-                new HashSet<>(Arrays.asList("127.0.0.2:10081", "127.0.0.3:10081"));
+        HashSet<String> valueSet = new HashSet<>(Arrays.asList("127.0.0.2:10081", "127.0.0.3:10081"));
         Assert.assertEquals(auditConfig.getAuditProxyAddrSet(), valueSet);
 
-        final PrometheusConfig promConfig =  brokerConfig.getPrometheusConfig();
+        final PrometheusConfig promConfig = brokerConfig.getPrometheusConfig();
         Assert.assertTrue(promConfig.isPromEnable());
         Assert.assertEquals(promConfig.getPromHttpPort(), 9088);
         Assert.assertEquals(promConfig.getPromClusterName(), "Test");
@@ -65,11 +66,10 @@ public class BrokerConfigTest {
         Assert.assertEquals(auditConfig.getAuditIdConsume(), 10);
         Assert.assertEquals(auditConfig.getAuditCacheMaxRows(), 2000000);
         Assert.assertEquals(auditConfig.getAuditCacheFilePath(), "/data/inlong/audit");
-        HashSet<String> valueSet =
-                new HashSet<>(Arrays.asList("127.0.0.1:10081"));
+        HashSet<String> valueSet = new HashSet<>(Arrays.asList("127.0.0.1:10081"));
         Assert.assertEquals(auditConfig.getAuditProxyAddrSet(), valueSet);
 
-        final PrometheusConfig promConfig =  brokerConfig.getPrometheusConfig();
+        final PrometheusConfig promConfig = brokerConfig.getPrometheusConfig();
         Assert.assertFalse(promConfig.isPromEnable());
         Assert.assertEquals(promConfig.getPromHttpPort(), 9081);
         Assert.assertEquals(promConfig.getPromClusterName(), "InLong");

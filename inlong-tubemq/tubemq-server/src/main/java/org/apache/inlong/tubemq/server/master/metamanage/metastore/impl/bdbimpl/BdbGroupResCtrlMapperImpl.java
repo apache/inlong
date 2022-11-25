@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
-import com.sleepycat.je.rep.ReplicatedEnvironment;
-import com.sleepycat.persist.EntityCursor;
-import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.PrimaryIndex;
-import com.sleepycat.persist.StoreConfig;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
@@ -29,7 +24,14 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsGroupResCtrlMapperImpl;
 
+import com.sleepycat.je.rep.ReplicatedEnvironment;
+import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.PrimaryIndex;
+import com.sleepycat.persist.StoreConfig;
+
 public class BdbGroupResCtrlMapperImpl extends AbsGroupResCtrlMapperImpl {
+
     // consumer group configure store
     private EntityStore groupConfStore;
     private final PrimaryIndex<String/* groupName */, BdbGroupFlowCtrlEntity> groupBaseCtrlIndex;
@@ -38,8 +40,7 @@ public class BdbGroupResCtrlMapperImpl extends AbsGroupResCtrlMapperImpl {
         super();
         groupConfStore = new EntityStore(repEnv,
                 TBDBStoreTables.BDB_GROUP_FLOW_CONTROL_STORE_NAME, storeConfig);
-        groupBaseCtrlIndex =
-                groupConfStore.getPrimaryIndex(String.class, BdbGroupFlowCtrlEntity.class);
+        groupBaseCtrlIndex = groupConfStore.getPrimaryIndex(String.class, BdbGroupFlowCtrlEntity.class);
     }
 
     @Override
@@ -86,9 +87,8 @@ public class BdbGroupResCtrlMapperImpl extends AbsGroupResCtrlMapperImpl {
     }
 
     protected boolean putConfig2Persistent(GroupResCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
-        BdbGroupFlowCtrlEntity bdbEntity =
-                entity.buildBdbGroupFlowCtrlEntity();
+            StringBuilder strBuff, ProcessResult result) {
+        BdbGroupFlowCtrlEntity bdbEntity = entity.buildBdbGroupFlowCtrlEntity();
         try {
             groupBaseCtrlIndex.put(bdbEntity);
         } catch (Throwable e) {

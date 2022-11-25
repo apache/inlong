@@ -17,36 +17,30 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Inlong group related status
  */
 public enum GroupStatus {
 
-    TO_BE_SUBMIT(100, "waiting for submit"),
-    TO_BE_APPROVAL(101, "waiting for approval"),
+    TO_BE_SUBMIT(100, "waiting for submit"), TO_BE_APPROVAL(101, "waiting for approval"),
 
-    APPROVE_REJECTED(102, "approval rejected"),
-    APPROVE_PASSED(103, "approval passed"),
+    APPROVE_REJECTED(102, "approval rejected"), APPROVE_PASSED(103, "approval passed"),
 
-    CONFIG_ING(110, "in configure"),
-    CONFIG_FAILED(120, "configuration failed"),
-    CONFIG_SUCCESSFUL(130, "configuration successful"),
+    CONFIG_ING(110, "in configure"), CONFIG_FAILED(120, "configuration failed"), CONFIG_SUCCESSFUL(130,
+            "configuration successful"),
 
-    SUSPENDING(141, "suspending"),
-    SUSPENDED(140, "suspended"),
+    SUSPENDING(141, "suspending"), SUSPENDED(140, "suspended"),
 
-    RESTARTING(151, "restarting"),
-    RESTARTED(150, "restarted"),
+    RESTARTING(151, "restarting"), RESTARTED(150, "restarted"),
 
-    DELETING(41, "deleting"),
-    DELETED(40, "deleted"),
+    DELETING(41, "deleting"), DELETED(40, "deleted"),
 
     // FINISH is used for batch task.
     FINISH(131, "finish");
@@ -139,7 +133,8 @@ public enum GroupStatus {
     /**
      * Checks whether the given status allows deleting other infos,
      * <p/>
-     * If true, will logically delete all related infos, including streams, sources, sinks, etc.
+     * If true, will logically delete all related infos, including streams, sources,
+     * sinks, etc.
      */
     public static boolean allowedDeleteSubInfos(GroupStatus status) {
         return status == GroupStatus.TO_BE_SUBMIT
@@ -158,7 +153,8 @@ public enum GroupStatus {
     }
 
     /**
-     * Temporary group status, adding, deleting and modifying operations are not allowed
+     * Temporary group status, adding, deleting and modifying operations are not
+     * allowed
      */
     public static boolean isTempStatus(GroupStatus status) {
         return status == TO_BE_APPROVAL

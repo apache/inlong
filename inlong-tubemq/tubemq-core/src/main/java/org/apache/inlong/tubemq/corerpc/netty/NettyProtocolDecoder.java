@@ -19,30 +19,32 @@ package org.apache.inlong.tubemq.corerpc.netty;
 
 import static org.apache.inlong.tubemq.corebase.utils.AddressUtils.getRemoteAddressIP;
 
+import org.apache.inlong.tubemq.corerpc.RpcConstants;
+import org.apache.inlong.tubemq.corerpc.RpcDataPack;
+import org.apache.inlong.tubemq.corerpc.exception.UnknownProtocolException;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import io.netty.util.ReferenceCountUtil;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import org.apache.inlong.tubemq.corerpc.RpcConstants;
-import org.apache.inlong.tubemq.corerpc.RpcDataPack;
-import org.apache.inlong.tubemq.corerpc.exception.UnknownProtocolException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
+
     private static final Logger logger = LoggerFactory.getLogger(NettyProtocolDecoder.class);
 
-    private static final ConcurrentHashMap<String, AtomicLong> errProtolAddrMap =
-            new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, AtomicLong> errSizeAddrMap =
-            new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, AtomicLong> errProtolAddrMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, AtomicLong> errSizeAddrMap = new ConcurrentHashMap<>();
     private static AtomicLong lastProtolTime = new AtomicLong(0);
     private static AtomicLong lastSizeTime = new AtomicLong(0);
     private boolean packHeaderRead = false;
@@ -121,7 +123,8 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
     }
 
     private void filterIllegalPkgToken(int inParamValue, int allowTokenVal,
-            Channel channel) throws UnknownProtocolException {
+            Channel channel)
+            throws UnknownProtocolException {
         if (inParamValue != allowTokenVal) {
             String rmtaddrIp = getRemoteAddressIP(channel);
             if (rmtaddrIp != null) {
@@ -139,8 +142,8 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
                 if (curTime - befTime > 180000) {
                     if (lastProtolTime.compareAndSet(befTime, System.currentTimeMillis())) {
                         logger.warn("[Abnormal Visit] OSS Tube  [inParamValue = {} vs "
-                                        + "allowTokenVal = {}] visit "
-                                        + "list is : {}",
+                                + "allowTokenVal = {}] visit "
+                                + "list is : {}",
                                 inParamValue, allowTokenVal,
                                 errProtolAddrMap.toString());
                         errProtolAddrMap.clear();
@@ -154,7 +157,8 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
     }
 
     private void filterIllegalPackageSize(boolean isFrameSize, int inParamValue,
-                                          int allowSize, Channel channel) throws UnknownProtocolException {
+            int allowSize, Channel channel)
+            throws UnknownProtocolException {
         if (inParamValue < 0 || inParamValue > allowSize) {
             String rmtaddrIp = getRemoteAddressIP(channel);
             if (rmtaddrIp != null) {

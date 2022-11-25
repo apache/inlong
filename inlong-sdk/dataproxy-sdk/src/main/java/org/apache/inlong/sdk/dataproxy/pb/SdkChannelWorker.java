@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sdk.dataproxy.pb;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePack;
@@ -30,6 +26,12 @@ import org.apache.inlong.sdk.dataproxy.pb.context.SdkSinkContext;
 import org.apache.inlong.sdk.dataproxy.pb.dispatch.DispatchProfile;
 import org.apache.inlong.sdk.dataproxy.pb.network.IpPort;
 import org.apache.inlong.sdk.dataproxy.pb.network.TcpResult;
+
+import org.apache.flume.lifecycle.LifecycleState;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.slf4j.Logger;
@@ -152,10 +154,10 @@ public class SdkChannelWorker extends Thread {
     /**
      * checkSendResult
      * 
-     * @param  currentRecord
-     * @param  result
-     * @param  ipPort
-     * @param  tProfile
+     * @param currentRecord
+     * @param result
+     * @param ipPort
+     * @param tProfile
      * @return
      */
     private boolean checkSendResult(DispatchProfile currentRecord, TcpResult result, IpPort ipPort,

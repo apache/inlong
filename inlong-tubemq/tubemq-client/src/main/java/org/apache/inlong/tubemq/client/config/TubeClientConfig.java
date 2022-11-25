@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.corerpc.RpcConstants;
  * Configuration of the Tube client.
  */
 public class TubeClientConfig {
+
     // Master information.
     private final MasterInfo masterInfo;
     // Rpc read time out.
@@ -59,16 +60,22 @@ public class TubeClientConfig {
     // statistics setting
     private final StatsConfig statsConfig = new StatsConfig();
 
-    // The following 5 configuration parameters are used in broker exception process.
+    // The following 5 configuration parameters are used in broker exception
+    // process.
     //
     // If the failure count of a broker meets linkStatsMaxAllowedFailTimes in a
-    // linkStatsForbiddenDurationMs duration. The client will check the current total connection
-    // number. If the blocking connection number / total connection number is lower than
+    // linkStatsForbiddenDurationMs duration. The client will check the current
+    // total connection
+    // number. If the blocking connection number / total connection number is lower
+    // than
     // linkStatsMaxForbiddenRate, the client will block the broker.
     //
-    // After established the connection, the client will check the connection quality based on the
-    // broker response status. If the client confirm the connection is in bad quality during
-    // maxForbiddenCheckDuration, and the exception connection / total connection is lower than
+    // After established the connection, the client will check the connection
+    // quality based on the
+    // broker response status. If the client confirm the connection is in bad
+    // quality during
+    // maxForbiddenCheckDuration, and the exception connection / total connection is
+    // lower than
     // maxSentForbiddenRate, the client will blocking the connection.
     private long linkStatsForbiddenDurationMs = RpcConstants.CFG_LQ_FORBIDDEN_DURATION_MS;
     private int linkStatsMaxAllowedFailTimes = RpcConstants.CFG_LQ_MAX_ALLOWED_FAIL_COUNT;
@@ -138,9 +145,11 @@ public class TubeClientConfig {
 
     /**
      * Set RPC read timeout. Please notice that the value should be between
-     * RpcConstants.CFG_RPC_READ_TIMEOUT_MAX_MS and RpcConstants.CFG_RPC_READ_TIMEOUT_MIN_MS.
+     * RpcConstants.CFG_RPC_READ_TIMEOUT_MAX_MS and
+     * RpcConstants.CFG_RPC_READ_TIMEOUT_MIN_MS.
      *
-     * @param rpcReadTimeoutMs rpc read timeout in ms.
+     * @param rpcReadTimeoutMs
+     *          rpc read timeout in ms.
      */
     public void setRpcTimeoutMs(long rpcReadTimeoutMs) {
         if (rpcReadTimeoutMs >= RpcConstants.CFG_RPC_READ_TIMEOUT_MAX_MS) {
@@ -185,9 +194,11 @@ public class TubeClientConfig {
     }
 
     /**
-     * Set the netty work memory size. Please notice that the value must be larger than 0.
+     * Set the netty work memory size. Please notice that the value must be larger
+     * than 0.
      *
-     * @param rpcNettyWorkMemorySize netty work memory size.
+     * @param rpcNettyWorkMemorySize
+     *          netty work memory size.
      */
     public void setRpcNettyWorkMemorySize(int rpcNettyWorkMemorySize) {
         if (rpcNettyWorkMemorySize <= 0) {
@@ -217,11 +228,9 @@ public class TubeClientConfig {
         if (nettyWriteBufferHighWaterMark >= Integer.MAX_VALUE) {
             this.nettyWriteBufferHighWaterMark = Integer.MAX_VALUE - 1;
         } else if (nettyWriteBufferHighWaterMark <= 0) {
-            this.nettyWriteBufferHighWaterMark =
-                    RpcConstants.CFG_DEFAULT_NETTY_WRITEBUFFER_HIGH_MARK;
+            this.nettyWriteBufferHighWaterMark = RpcConstants.CFG_DEFAULT_NETTY_WRITEBUFFER_HIGH_MARK;
         } else {
-            this.nettyWriteBufferHighWaterMark =
-                    nettyWriteBufferHighWaterMark;
+            this.nettyWriteBufferHighWaterMark = nettyWriteBufferHighWaterMark;
         }
     }
 
@@ -230,21 +239,19 @@ public class TubeClientConfig {
     }
 
     /**
-     * Set netty write buffer low water mark. Please notice this value must be between
-     * 0 and Integer.MAX_VALUE.
+     * Set netty write buffer low water mark. Please notice this value must be
+     * between 0 and Integer.MAX_VALUE.
      *
-     * @param nettyWriteBufferLowWaterMark netty write buffer water mark.
+     * @param nettyWriteBufferLowWaterMark
+     *          netty write buffer water mark.
      */
     public void setNettyWriteBufferLowWaterMark(long nettyWriteBufferLowWaterMark) {
         if (nettyWriteBufferLowWaterMark >= Integer.MAX_VALUE) {
-            this.nettyWriteBufferLowWaterMark =
-                    Integer.MAX_VALUE - 1;
+            this.nettyWriteBufferLowWaterMark = Integer.MAX_VALUE - 1;
         } else if (nettyWriteBufferLowWaterMark <= 0) {
-            this.nettyWriteBufferLowWaterMark =
-                    RpcConstants.CFG_DEFAULT_NETTY_WRITEBUFFER_LOW_MARK;
+            this.nettyWriteBufferLowWaterMark = RpcConstants.CFG_DEFAULT_NETTY_WRITEBUFFER_LOW_MARK;
         } else {
-            this.nettyWriteBufferLowWaterMark =
-                    nettyWriteBufferLowWaterMark;
+            this.nettyWriteBufferLowWaterMark = nettyWriteBufferLowWaterMark;
         }
     }
 
@@ -371,13 +378,16 @@ public class TubeClientConfig {
     /**
      * Set authenticate information
      *
-     * @param needAuthentic   enable or disable authentication
-     * @param usrName         the user name
-     * @param usrPassWord     the password
+     * @param needAuthentic
+     *          enable or disable authentication
+     * @param usrName
+     *          the user name
+     * @param usrPassWord
+     *          the password
      */
     public void setAuthenticInfo(boolean needAuthentic,
-                                 String usrName,
-                                 String usrPassWord) {
+            String usrName,
+            String usrPassWord) {
         if (needAuthentic) {
             if (TStringUtils.isBlank(usrName)) {
                 throw new IllegalArgumentException("Illegal parameter: usrName is Blank!");
@@ -399,12 +409,16 @@ public class TubeClientConfig {
     /**
      * Set TLS information
      *
-     * @param trustStorePath        the trusted store path
-     * @param trustStorePassword    the trusted store password
+     * @param trustStorePath
+     *          the trusted store path
+     * @param trustStorePassword
+     *          the trusted store password
      */
     public void setTLSEnableInfo(String trustStorePath, String trustStorePassword) {
-        // public void setTLSEnableInfo(String trustStorePath, String trustStorePassword,
-        // boolean tlsTwoWayAuthEnable,String keyStorePath, String keyStorePassword) throws Exception {
+        // public void setTLSEnableInfo(String trustStorePath, String
+        // trustStorePassword,
+        // boolean tlsTwoWayAuthEnable,String keyStorePath, String keyStorePassword)
+        // throws Exception {
         if (TStringUtils.isBlank(trustStorePath)) {
             throw new IllegalArgumentException("Illegal parameter: trustStorePath is Blank!");
         }
@@ -416,18 +430,12 @@ public class TubeClientConfig {
         this.tlsConfig.setTlsTrustStorePassword(trustStorePassword);
         this.tlsConfig.setTlsTwoWayAuthEnable(false);
         /*
-        if (tlsTwoWayAuthEnable) {
-            if (TStringUtils.isBlank(keyStorePath)) {
-                throw new Exception("Illegal parameter: keyStorePath is Blank!");
-            }
-            if (TStringUtils.isBlank(keyStorePassword)) {
-                throw new Exception("Illegal parameter: keyStorePassword is Blank!");
-            }
-            this.tlsConfig.setTlsTwoWayAuthEnable(tlsTwoWayAuthEnable);
-            this.tlsConfig.setTlsKeyStorePath(keyStorePath);
-            this.tlsConfig.setTlsKeyStorePassword(keyStorePassword);
-        }
-        */
+         * if (tlsTwoWayAuthEnable) { if (TStringUtils.isBlank(keyStorePath)) { throw new
+         * Exception("Illegal parameter: keyStorePath is Blank!"); } if (TStringUtils.isBlank(keyStorePassword)) { throw
+         * new Exception("Illegal parameter: keyStorePassword is Blank!"); }
+         * this.tlsConfig.setTlsTwoWayAuthEnable(tlsTwoWayAuthEnable); this.tlsConfig.setTlsKeyStorePath(keyStorePath);
+         * this.tlsConfig.setTlsKeyStorePassword(keyStorePassword); }
+         */
     }
 
     public boolean isTlsEnable() {
@@ -471,7 +479,7 @@ public class TubeClientConfig {
     }
 
     public void setStatsConfig(StatsLevel statsLevel, boolean enableSelfPrint,
-                               long selfPrintPeriodMs, long forcedResetPeriodMs) {
+            long selfPrintPeriodMs, long forcedResetPeriodMs) {
         this.statsConfig.updateStatsConfig(statsLevel,
                 enableSelfPrint, selfPrintPeriodMs, forcedResetPeriodMs);
     }
@@ -577,7 +585,7 @@ public class TubeClientConfig {
     /**
      * Get the configured Json string information
      *
-     * @return    the configured Json string information
+     * @return the configured Json string information
      */
     public String toJsonString() {
         int num = 0;

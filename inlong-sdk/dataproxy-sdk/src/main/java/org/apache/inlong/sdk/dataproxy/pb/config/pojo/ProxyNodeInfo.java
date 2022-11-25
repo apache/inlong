@@ -38,7 +38,8 @@ public class ProxyNodeInfo {
     /**
      * set nodeIp
      * 
-     * @param nodeIp the nodeIp to set
+     * @param nodeIp
+     *          the nodeIp to set
      */
     public void setNodeIp(String nodeIp) {
         this.nodeIp = nodeIp;
@@ -56,7 +57,8 @@ public class ProxyNodeInfo {
     /**
      * set nodePort
      * 
-     * @param nodePort the nodePort to set
+     * @param nodePort
+     *          the nodePort to set
      */
     public void setNodePort(int nodePort) {
         this.nodePort = nodePort;

@@ -17,13 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.web.action.screen;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
@@ -42,6 +35,16 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerIn
 import org.apache.inlong.tubemq.server.master.web.simplemvc.Action;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
+import org.apache.commons.collections.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 public class Master implements Action {
 
     private final TMaster master;
@@ -58,8 +61,7 @@ public class Master implements Action {
             if (this.master.isStopped()) {
                 throw new Exception("Sever is stopping...");
             }
-            MetaDataService defMetaDataService =
-                    this.master.getMetaDataService();
+            MetaDataService defMetaDataService = this.master.getMetaDataService();
             if (!defMetaDataService.isSelfMaster()) {
                 throw new StandbyException("Please send your request to the master Node.");
             }
@@ -99,8 +101,7 @@ public class Master implements Action {
         String group = req.getParameter("group");
         if (group != null) {
             int index = 1;
-            List<String> consumerViewInfos =
-                    consumerHolder.getConsumerViewList(group);
+            List<String> consumerViewInfos = consumerHolder.getConsumerViewList(group);
             if (CollectionUtils.isEmpty(consumerViewInfos)) {
                 List<String> groupList = consumerHolder.getAllGroupName();
                 sBuilder.append("No such group.\n\nCurrent all groups(")
@@ -133,8 +134,7 @@ public class Master implements Action {
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
         String group = req.getParameter("group");
         if (group != null) {
-            List<Tuple2<String, Boolean>> consumerList =
-                    consumerHolder.getConsumerIdAndTlsInfos(group);
+            List<Tuple2<String, Boolean>> consumerList = consumerHolder.getConsumerIdAndTlsInfos(group);
             if (CollectionUtils.isEmpty(consumerList)) {
                 List<String> groupList = consumerHolder.getAllGroupName();
                 sBuilder.append("No such group.\n\nCurrent all group(")
@@ -144,16 +144,14 @@ public class Master implements Action {
                 }
             } else {
                 sBuilder.append("\n########################## Subscribe Relationship ############################\n\n");
-                Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap =
-                        master.getCurrentSubInfoMap();
+                Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap = master.getCurrentSubInfoMap();
                 for (int i = 0; i < consumerList.size(); i++) {
                     Tuple2<String, Boolean> consumer = consumerList.get(i);
                     sBuilder.append("*************** ").append(i + 1)
                             .append(". ").append(consumer.getF0())
                             .append("#isOverTLS=").append(consumer.getF1())
                             .append(" ***************");
-                    Map<String, Map<String, Partition>> topicSubMap =
-                            currentSubInfoMap.get(consumer.getF0());
+                    Map<String, Map<String, Partition>> topicSubMap = currentSubInfoMap.get(consumer.getF0());
                     if (topicSubMap != null) {
                         int totalSize = 0;
                         for (Map.Entry<String, Map<String, Partition>> entry : topicSubMap.entrySet()) {
@@ -195,10 +193,8 @@ public class Master implements Action {
         } else {
             String topic = req.getParameter("topic");
             if (topic != null) {
-                TopicPSInfoManager topicPSInfoManager =
-                        master.getTopicPSInfoManager();
-                Set<String> producerSet =
-                        topicPSInfoManager.getTopicPubInfo(topic);
+                TopicPSInfoManager topicPSInfoManager = master.getTopicPSInfoManager();
+                Set<String> producerSet = topicPSInfoManager.getTopicPubInfo(topic);
                 if (producerSet != null && !producerSet.isEmpty()) {
                     int index = 1;
                     for (String producer : producerSet) {
@@ -219,7 +215,7 @@ public class Master implements Action {
      * @return
      */
     private void innGetBrokerInfo(final HttpServletRequest req,
-                                           StringBuilder sBuilder, boolean isOldRet) {
+            StringBuilder sBuilder, boolean isOldRet) {
         Map<Integer, BrokerInfo> brokerInfoMap = null;
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         String brokerIds = req.getParameter("ids");
@@ -242,8 +238,8 @@ public class Master implements Action {
                         .append(index).append(". ").append(broker.toString())
                         .append(" ##################################\n");
                 brokerRunManager.getPubBrokerPushedTopicInfo(broker.getBrokerId(), topicInfoTuple);
-                Map<String, TopicDeployEntity> topicConfigMap =
-                        defMetaDataService.getBrokerTopicConfEntitySet(broker.getBrokerId());
+                Map<String, TopicDeployEntity> topicConfigMap = defMetaDataService
+                        .getBrokerTopicConfEntitySet(broker.getBrokerId());
                 if (topicConfigMap == null) {
                     for (TopicInfo info : topicInfoTuple.getF2()) {
                         sBuilder = info.toStrBuilderString(topicInfoTuple.getF0(),
@@ -288,8 +284,7 @@ public class Master implements Action {
      */
     private void getTopicPubInfo(final HttpServletRequest req, StringBuilder sBuilder) {
         String topic = req.getParameter("topic");
-        Set<String> producerIds =
-                master.getTopicPSInfoManager().getTopicPubInfo(topic);
+        Set<String> producerIds = master.getTopicPSInfoManager().getTopicPubInfo(topic);
         if (producerIds != null && !producerIds.isEmpty()) {
             for (String producerId : producerIds) {
                 sBuilder.append(producerId).append("\n");
@@ -308,8 +303,7 @@ public class Master implements Action {
     private void getUnbalanceGroupInfo(StringBuilder sBuilder) {
         ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
-        Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap =
-                master.getCurrentSubInfoMap();
+        Map<String, Map<String, Map<String, Partition>>> currentSubInfoMap = master.getCurrentSubInfoMap();
         int currPartSize = 0;
         Set<String> topicSet;
         List<Partition> partList;

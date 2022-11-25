@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.listener.sort;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -31,16 +30,19 @@ import org.apache.inlong.manager.service.resource.sort.SortConfigOperatorFactory
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+
+import org.apache.commons.collections.CollectionUtils;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
- * Event listener of build the Sort config,
- * such as update the form config, or build and push config to ZK, etc.
+ * Event listener of build the Sort config, such as update the form config, or
+ * build and push config to ZK, etc.
  */
 @Component
 public class SortConfigListener implements SortOperateListener {

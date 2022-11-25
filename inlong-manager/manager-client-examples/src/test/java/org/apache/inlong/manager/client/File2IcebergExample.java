@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.client;
 
-import com.google.common.collect.Lists;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
@@ -33,13 +31,19 @@ import org.apache.inlong.manager.pojo.sink.iceberg.IcebergPartition;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.source.file.FileSource;
 import org.apache.inlong.manager.pojo.stream.StreamField;
+
 import org.apache.shiro.util.Assert;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.Lists;
 
 /**
  * Test class for file to iceberg.
@@ -142,7 +146,7 @@ public class File2IcebergExample extends BaseExample {
         // field3: decimal column example
         IcebergColumnInfo info3 = new IcebergColumnInfo();
         info3.setScale(5);
-        info3.setPrecision(10);  // scale must be less than or equal to precision
+        info3.setPrecision(10); // scale must be less than or equal to precision
         field3.setExtParams(JsonUtils.toJsonString(info3));
 
         // field4: hour partition example

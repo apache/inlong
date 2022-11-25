@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -30,14 +29,17 @@ import org.apache.inlong.manager.pojo.sink.oracle.OracleTableInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.sink.oracle.OracleJdbcUtils;
+
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * Oracle sink service test
@@ -146,16 +148,17 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
     private List<OracleColumnInfo> buildAddColumns() {
         List<OracleColumnInfo> list = Lists.newArrayList(
                 new OracleColumnInfo("test1", "NUMBER(16)", "test1"),
-                new OracleColumnInfo("test2", "VARCHAR2(10)", "test2")
-        );
+                new OracleColumnInfo("test2", "VARCHAR2(10)", "test2"));
         return list;
     }
 
     /**
      * Build test Oracle table info.
      *
-     * @param userName Oracle database name
-     * @param tableName Oracle table name
+     * @param userName
+     *          Oracle database name
+     * @param tableName
+     *          Oracle table name
      * @return {@link OracleTableInfo}
      */
     private OracleTableInfo bulidTestOracleTableInfo(final String userName, final String tableName) {
@@ -166,8 +169,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
         List<OracleColumnInfo> columnInfos = Lists.newArrayList(
                 new OracleColumnInfo("id", "NUMBER(6)", "id"),
                 new OracleColumnInfo("cell", "VARCHAR2(10)", "cell"),
-                new OracleColumnInfo("name", "VARCHAR2(20)", "name")
-        );
+                new OracleColumnInfo("name", "VARCHAR2(20)", "name"));
         oracleTableInfo.setColumns(columnInfos);
 
         return oracleTableInfo;

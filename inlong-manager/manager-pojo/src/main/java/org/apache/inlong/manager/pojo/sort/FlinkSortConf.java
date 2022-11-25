@@ -17,15 +17,18 @@
 
 package org.apache.inlong.manager.pojo.sort;
 
-import com.google.common.collect.Maps;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 import java.util.Map;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.collect.Maps;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Flink sort base config.

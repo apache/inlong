@@ -134,7 +134,7 @@ public class IpUtils {
     /**
      * normalizeHostAddress
      * 
-     * @param  localHost
+     * @param localHost
      * @return
      */
     public static String normalizeHostAddress(final InetAddress localHost) {
@@ -148,7 +148,7 @@ public class IpUtils {
     /**
      * toBytes
      * 
-     * @param  ipAddr
+     * @param ipAddr
      * @return
      */
     public static byte[] toBytes(String ipAddr) {
@@ -168,7 +168,7 @@ public class IpUtils {
     /**
      * bytesToInt
      * 
-     * @param  bytes
+     * @param bytes
      * @return
      */
     public static int bytesToInt(byte[] bytes) {
@@ -182,7 +182,7 @@ public class IpUtils {
     /**
      * ipToInt
      * 
-     * @param  ipAddr
+     * @param ipAddr
      * @return
      */
     public static int ipToInt(String ipAddr) {
@@ -196,7 +196,7 @@ public class IpUtils {
     /**
      * intToIp
      * 
-     * @param  ipInt
+     * @param ipInt
      * @return
      */
     public static String intToIp(int ipInt) {

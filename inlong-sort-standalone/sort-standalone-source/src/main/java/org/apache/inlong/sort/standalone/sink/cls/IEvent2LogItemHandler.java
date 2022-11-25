@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import com.tencentcloudapi.cls.producer.common.LogItem;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 
 import java.util.List;
+
+import com.tencentcloudapi.cls.producer.common.LogItem;
 
 /**
  * Handler to pares profile event to CLS {@literal List<LogItem>} format.
@@ -30,8 +31,10 @@ public interface IEvent2LogItemHandler {
     /**
      * Parse event into CLS {@literal List<LogItem>} format.
      *
-     * @param context Context of CLS sink.
-     * @param event Event to be pares to {@literal List<LogItem>}
+     * @param context
+     *          Context of CLS sink.
+     * @param event
+     *          Event to be pares to {@literal List<LogItem>}
      * @return {@literal List<LogItem>}
      */
     List<LogItem> parse(ClsSinkContext context, ProfileEvent event);

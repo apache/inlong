@@ -17,14 +17,15 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+
+import org.apache.flume.Context;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 

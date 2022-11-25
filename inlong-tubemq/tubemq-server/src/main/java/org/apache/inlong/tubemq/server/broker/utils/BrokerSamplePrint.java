@@ -17,14 +17,17 @@
 
 package org.apache.inlong.tubemq.server.broker.utils;
 
-import java.io.IOException;
 import org.apache.inlong.tubemq.corebase.utils.AbstractSamplePrint;
+
+import java.io.IOException;
+
 import org.slf4j.Logger;
 
 /**
  * Compressed print broker's statistics.
  */
 public class BrokerSamplePrint extends AbstractSamplePrint {
+
     private final Logger logger;
 
     public BrokerSamplePrint(final Logger logger) {
@@ -33,8 +36,8 @@ public class BrokerSamplePrint extends AbstractSamplePrint {
     }
 
     public BrokerSamplePrint(final Logger logger,
-                             long sampleDetailDur, long sampleResetDur,
-                             long maxDetailCount, long maxTotalCount) {
+            long sampleDetailDur, long sampleResetDur,
+            long maxDetailCount, long maxTotalCount) {
         super(sampleDetailDur, sampleResetDur, maxDetailCount, maxTotalCount);
         this.logger = logger;
     }

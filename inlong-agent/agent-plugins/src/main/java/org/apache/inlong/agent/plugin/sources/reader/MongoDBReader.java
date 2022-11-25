@@ -17,40 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import com.alibaba.fastjson.JSONPath;
-import com.google.common.base.Preconditions;
-import io.debezium.config.Configuration;
-import io.debezium.config.Field;
-import io.debezium.connector.mongodb.MongoDbConnector;
-import io.debezium.engine.ChangeEvent;
-import io.debezium.engine.DebeziumEngine;
-import io.debezium.engine.format.Json;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.SnapshotModeConstants;
-import org.apache.inlong.agent.message.DefaultMessage;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.sources.snapshot.MongoDBSnapshotBase;
-import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
-import org.apache.inlong.agent.pojo.DebeziumFormat;
-import org.apache.inlong.agent.utils.GsonUtil;
-import org.apache.kafka.connect.storage.FileOffsetBackingStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.AUTO_DISCOVER_MEMBERS;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.CAPTURE_MODE;
 import static io.debezium.connector.mongodb.MongoDbConnectorConfig.COLLECTION_EXCLUDE_LIST;
@@ -104,6 +70,44 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SSL_ENABLE
 import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_SSL_INVALID_HOSTNAME_ALLOWED;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_STORE_HISTORY_FILENAME;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_MONGO_USER;
+
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.SnapshotModeConstants;
+import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.sources.snapshot.MongoDBSnapshotBase;
+import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
+import org.apache.inlong.agent.pojo.DebeziumFormat;
+import org.apache.inlong.agent.utils.GsonUtil;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.kafka.connect.storage.FileOffsetBackingStore;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.alibaba.fastjson.JSONPath;
+import com.google.common.base.Preconditions;
+
+import io.debezium.config.Configuration;
+import io.debezium.config.Field;
+import io.debezium.connector.mongodb.MongoDbConnector;
+import io.debezium.engine.ChangeEvent;
+import io.debezium.engine.DebeziumEngine;
+import io.debezium.engine.format.Json;
 
 /**
  * MongoDBReader : mongo source, split mongo source job into multi readers
@@ -214,7 +218,8 @@ public class MongoDBReader extends AbstractReader {
     /**
      * set global parameters value
      *
-     * @param jobConf job conf
+     * @param jobConf
+     *          job conf
      */
     private void setGlobalParamsValue(JobProfile jobConf) {
         bufferPool = new LinkedBlockingQueue<>(jobConf.getInt(JOB_MONGO_QUEUE_SIZE, 1000));
@@ -234,7 +239,8 @@ public class MongoDBReader extends AbstractReader {
     /**
      * start the embedded debezium engine
      *
-     * @param jobConf job conf
+     * @param jobConf
+     *          job conf
      */
     private void startEmbeddedDebeziumEngine(JobProfile jobConf) {
         DebeziumEngine<ChangeEvent<String, String>> debeziumEngine = DebeziumEngine.create(Json.class)
@@ -249,21 +255,25 @@ public class MongoDBReader extends AbstractReader {
     /**
      * Handle the completion of the embedded connector engine.
      *
-     * @param success {@code true} if the connector completed normally,
-     *         or {@code false} if the connector produced an error
-     *         that prevented startup or premature termination.
-     * @param message the completion message; never null
-     * @param error the error, or null if there was no exception
+     * @param success
+     *          {@code true} if the connector completed normally, or {@code false}
+     *          if the connector produced an error that prevented startup or
+     *          premature termination.
+     * @param message
+     *          the completion message; never null
+     * @param error
+     *          the error, or null if there was no exception
      */
     private void handle(boolean success, String message, Throwable error) {
-        //jobConf.getInstanceId()
+        // jobConf.getInstanceId()
         if (!success) {
             LOGGER.error("{}, {}", message, error);
         }
     }
 
     /**
-     * A Configuration object is basically a decorator around a {@link Properties} object.
+     * A Configuration object is basically a decorator around a {@link Properties}
+     * object.
      *
      * @return Configuration
      */
@@ -328,11 +338,15 @@ public class MongoDBReader extends AbstractReader {
     }
 
     /**
-     * Handles a batch of records, calling the {@link DebeziumEngine.RecordCommitter#markProcessed(Object)}
-     * for each record and {@link DebeziumEngine.RecordCommitter#markBatchFinished()} when this batch is finished.
+     * Handles a batch of records, calling the
+     * {@link DebeziumEngine.RecordCommitter#markProcessed(Object)} for each record
+     * and {@link DebeziumEngine.RecordCommitter#markBatchFinished()} when this
+     * batch is finished.
      *
-     * @param records the records to be processed
-     * @param committer the committer that indicates to the system that we are finished
+     * @param records
+     *          the records to be processed
+     * @param committer
+     *          the committer that indicates to the system that we are finished
      */
     private void handleChangeEvent(List<ChangeEvent<String, String>> records,
             DebeziumEngine.RecordCommitter<ChangeEvent<String, String>> committer) {

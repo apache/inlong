@@ -32,6 +32,7 @@ public class ProxyPackEvent extends SdkEvent {
 
     /**
      * Constructor
+     * 
      * @param inlongGroupId
      * @param inlongStreamId
      * @param events
@@ -49,6 +50,7 @@ public class ProxyPackEvent extends SdkEvent {
 
     /**
      * acknowledge
+     * 
      * @param resultCode
      */
     public void acknowledge(ResultCode resultCode) {
@@ -57,6 +59,7 @@ public class ProxyPackEvent extends SdkEvent {
 
     /**
      * get sourceTime
+     * 
      * @return the sourceTime
      */
     public long getSourceTime() {
@@ -65,7 +68,9 @@ public class ProxyPackEvent extends SdkEvent {
 
     /**
      * set sourceTime
-     * @param sourceTime the sourceTime to set
+     * 
+     * @param sourceTime
+     *          the sourceTime to set
      */
     public void setSourceTime(long sourceTime) {
         this.sourceTime = sourceTime;
@@ -73,6 +78,7 @@ public class ProxyPackEvent extends SdkEvent {
 
     /**
      * get events
+     * 
      * @return the events
      */
     public List<ProxyEvent> getEvents() {
@@ -81,7 +87,9 @@ public class ProxyPackEvent extends SdkEvent {
 
     /**
      * set events
-     * @param events the events to set
+     * 
+     * @param events
+     *          the events to set
      */
     public void setEvents(List<ProxyEvent> events) {
         this.events = events;
@@ -89,6 +97,7 @@ public class ProxyPackEvent extends SdkEvent {
 
     /**
      * get callback
+     * 
      * @return the callback
      */
     public SourceCallback getCallback() {
@@ -97,7 +106,9 @@ public class ProxyPackEvent extends SdkEvent {
 
     /**
      * set callback
-     * @param callback the callback to set
+     * 
+     * @param callback
+     *          the callback to set
      */
     public void setCallback(SourceCallback callback) {
         this.callback = callback;

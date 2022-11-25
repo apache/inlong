@@ -19,6 +19,7 @@ package org.apache.inlong.sort.function;
 
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.functions.ScalarFunction;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,8 @@ public class JsonGetterFunction extends ScalarFunction {
     /**
      * eval is String replacement execution method
      *
-     * @param field is the field to be replaced
+     * @param field
+     *          is the field to be replaced
      * @return replaced value
      */
     public String eval(String field, String key) {

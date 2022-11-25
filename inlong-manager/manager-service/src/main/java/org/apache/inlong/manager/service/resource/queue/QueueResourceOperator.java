@@ -36,8 +36,10 @@ public interface QueueResourceOperator {
     /**
      * Create message queue resource for Inlong Group.
      *
-     * @param groupInfo inlong group info
-     * @param operator operator name
+     * @param groupInfo
+     *          inlong group info
+     * @param operator
+     *          operator name
      */
     default void createQueueForGroup(@NotNull InlongGroupInfo groupInfo, @NotBlank String operator) {
     }
@@ -45,8 +47,10 @@ public interface QueueResourceOperator {
     /**
      * Delete message queue resource for Inlong Group.
      *
-     * @param groupInfo inlong group info
-     * @param operator operator name
+     * @param groupInfo
+     *          inlong group info
+     * @param operator
+     *          operator name
      */
     default void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
     }
@@ -54,9 +58,12 @@ public interface QueueResourceOperator {
     /**
      * Create message queue resource for Inlong Stream.
      *
-     * @param groupInfo inlong group info
-     * @param streamInfo inlong stream info
-     * @param operator operator name
+     * @param groupInfo
+     *          inlong group info
+     * @param streamInfo
+     *          inlong stream info
+     * @param operator
+     *          operator name
      */
     default void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
     }
@@ -64,9 +71,12 @@ public interface QueueResourceOperator {
     /**
      * Delete message queue resource for Inlong Stream.
      *
-     * @param groupInfo inlong group info
-     * @param streamInfo inlong stream info
-     * @param operator operator name
+     * @param groupInfo
+     *          inlong group info
+     * @param streamInfo
+     *          inlong stream info
+     * @param operator
+     *          operator name
      */
     default void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
     }

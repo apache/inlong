@@ -17,10 +17,12 @@
 
 package org.apache.inlong.manager.pojo.stream;
 
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.tuple.Pair;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.Sets;
 
 /**
  * Stream pipeline service test for check has circle.

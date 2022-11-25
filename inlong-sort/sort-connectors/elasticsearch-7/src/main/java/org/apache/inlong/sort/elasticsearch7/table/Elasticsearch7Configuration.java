@@ -18,21 +18,22 @@
 
 package org.apache.inlong.sort.elasticsearch7.table;
 
+import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
+
+import org.apache.inlong.sort.elasticsearch.table.ElasticsearchConfiguration;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
-import org.apache.inlong.sort.elasticsearch.table.ElasticsearchConfiguration;
-
 import org.apache.http.HttpHost;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
-
 /** Elasticsearch 7 specific configuration. */
 @Internal
 final class Elasticsearch7Configuration extends ElasticsearchConfiguration {
+
     Elasticsearch7Configuration(ReadableConfig config, ClassLoader classLoader) {
         super(config, classLoader);
     }

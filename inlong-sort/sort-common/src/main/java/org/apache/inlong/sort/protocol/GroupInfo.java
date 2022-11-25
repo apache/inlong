@@ -17,19 +17,21 @@
 
 package org.apache.inlong.sort.protocol;
 
-import com.google.common.base.Preconditions;
-import java.util.HashMap;
-import java.util.Map;
-import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import lombok.Data;
+
+import com.google.common.base.Preconditions;
 
 /**
- * The concept of Groupinfo is the same as that of inlong group,
- * and it is the smallest unit of sort task execution.
+ * The concept of Groupinfo is the same as that of inlong group, and it is the
+ * smallest unit of sort task execution.
  */
 @Data
 public class GroupInfo implements Serializable {
@@ -46,8 +48,10 @@ public class GroupInfo implements Serializable {
     /**
      * Information of group.
      * 
-     * @param groupId Uniquely identifies of GroupInfo
-     * @param streams The StreamInfo list that GroupInfo contains
+     * @param groupId
+     *          Uniquely identifies of GroupInfo
+     * @param streams
+     *          The StreamInfo list that GroupInfo contains
      */
     @JsonCreator
     public GroupInfo(@JsonProperty("groupId") String groupId,
@@ -59,8 +63,8 @@ public class GroupInfo implements Serializable {
     }
 
     public GroupInfo(@JsonProperty("groupId") String groupId,
-        @JsonProperty("streams") List<StreamInfo> streams,
-        Map<String, String> properties) {
+            @JsonProperty("streams") List<StreamInfo> streams,
+            Map<String, String> properties) {
         this.groupId = Preconditions.checkNotNull(groupId, "groupId is null");
         this.streams = Preconditions.checkNotNull(streams, "streams is null");
         this.properties = properties;

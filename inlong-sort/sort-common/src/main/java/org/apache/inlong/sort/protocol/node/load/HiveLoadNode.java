@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -33,10 +26,21 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
-import javax.annotation.Nonnull;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
 
 /**
  * hive load node with flink connectors
@@ -109,8 +113,8 @@ public class HiveLoadNode extends LoadNode implements InlongMetric, Serializable
     }
 
     /**
-     * Dealing with problems caused by time precision in hive
-     * Hive connector requires the time precision of timestamp and localzoned timestamp  must be 9
+     * Dealing with problems caused by time precision in hive Hive connector
+     * requires the time precision of timestamp and localzoned timestamp must be 9
      */
     private void handleTimestampField() {
         getFields().forEach(f -> {

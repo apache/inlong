@@ -34,7 +34,9 @@ public interface Counter extends Counting, Metric {
 
     /**
      * Add delta to the value.
-     * @param delta  delta value
+     * 
+     * @param delta
+     *          delta value
      */
     void addValue(long delta);
 }

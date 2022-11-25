@@ -18,26 +18,27 @@
 package org.apache.inlong.tubemq.corebase.balance;
 
 public enum EventStatus {
+
     /**
      * To be processed state.
-     * */
+     */
     TODO(0, "To be processed"),
     /**
      * On processing state.
-     * */
+     */
     PROCESSING(1, "Being processed"),
     /**
      * Processed state.
-     * */
+     */
     DONE(2, "Process Done"),
 
     /**
      * Unknown state.
-     * */
+     */
     UNKNOWN(-1, "Unknown event status"),
     /**
      * Failed state.
-     * */
+     */
     FAILED(-2, "Process failed");
 
     private int value;
@@ -66,4 +67,3 @@ public enum EventStatus {
     }
 
 }
-

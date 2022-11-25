@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.pojo.user;
 
+import javax.validation.constraints.NotBlank;
+
+import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
 
 /**
  * Login user and password

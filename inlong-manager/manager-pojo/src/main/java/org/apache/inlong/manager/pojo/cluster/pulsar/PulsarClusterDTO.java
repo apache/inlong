@@ -17,17 +17,18 @@
 
 package org.apache.inlong.manager.pojo.cluster.pulsar;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import javax.validation.constraints.NotNull;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Pulsar cluster info
@@ -39,8 +40,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Pulsar cluster info")
 public class PulsarClusterDTO {
 
-    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080",
-            notes = "Pulsar service URL is the 'url' field of the cluster")
+    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080", notes = "Pulsar service URL is the 'url' field of the cluster")
     private String adminUrl;
 
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")

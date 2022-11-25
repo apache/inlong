@@ -19,5 +19,6 @@
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
 public interface SchemaEvolutionFunction<Schema> {
+
     void schemaEvolution(Schema schema) throws Exception;
 }

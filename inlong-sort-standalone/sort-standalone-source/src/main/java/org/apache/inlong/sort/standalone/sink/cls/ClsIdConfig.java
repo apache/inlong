@@ -17,17 +17,18 @@
 
 package org.apache.inlong.sort.standalone.sink.cls;
 
-import lombok.Data;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * Cls config of each uid.
  */
 @Data
 public class ClsIdConfig {
+
     private String inlongGroupId;
     private String inlongStreamId;
     private String separator = "|";
@@ -42,6 +43,7 @@ public class ClsIdConfig {
 
     /**
      * Parse fieldNames to list of fields.
+     * 
      * @return List of fields.
      */
     public List<String> getFieldList() {

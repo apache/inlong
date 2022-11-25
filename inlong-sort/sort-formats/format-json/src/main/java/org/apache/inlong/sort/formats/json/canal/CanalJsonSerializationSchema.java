@@ -20,13 +20,9 @@ package org.apache.inlong.sort.formats.json.canal;
 
 import static org.apache.flink.table.types.utils.TypeConversions.fromLogicalToDataType;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.apache.inlong.sort.formats.json.MysqlBinLogData;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
+
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.formats.json.JsonRowSerializationSchema;
@@ -41,14 +37,20 @@ import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.types.Row;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.formats.json.MysqlBinLogData;
-import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.ReadableMetadata;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Copied from apache flink project with a litter change.
  *
- * Serialization schema that serializes an object of Flink Table/SQL internal data structure {@link
- * RowData} into a Canal JSON bytes.
+ * Serialization schema that serializes an object of Flink Table/SQL internal
+ * data structure {@link RowData} into a Canal JSON bytes.
  *
  * @see <a href="https://github.com/alibaba/canal">Alibaba Canal</a>
  */
@@ -72,8 +74,7 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
     public CanalJsonSerializationSchema(
             RowType physicalRowType,
             Map<Integer, ReadableMetadata> fieldIndexToMetadata,
-            boolean isMigrateAll
-    ) {
+            boolean isMigrateAll) {
         this.isMigrateAll = isMigrateAll;
 
         if (isMigrateAll) {
@@ -161,14 +162,12 @@ public class CanalJsonSerializationSchema implements SerializationSchema<Row> {
         DataType root = DataTypes.ROW(
                 DataTypes.FIELD("data", DataTypes.ARRAY(
                         isMigrateAll ? DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING()) : dataSchema)),
-                DataTypes.FIELD("type", DataTypes.STRING())
-        );
+                DataTypes.FIELD("type", DataTypes.STRING()));
 
-        final List<Field> metadataFields =
-                metadataSet.stream()
-                        .map(m -> m.requiredJsonField)
-                        .distinct()
-                        .collect(Collectors.toList());
+        final List<Field> metadataFields = metadataSet.stream()
+                .map(m -> m.requiredJsonField)
+                .distinct()
+                .collect(Collectors.toList());
 
         return (RowTypeInfo) TypeInfoDataTypeConverter.fromDataTypeToTypeInfo(
                 DataTypeUtils.appendRowFields(root, metadataFields));

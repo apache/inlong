@@ -17,9 +17,12 @@
 
 package org.apache.inlong.sdk.dataproxy.pb.config;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import org.apache.inlong.sdk.dataproxy.pb.config.pojo.GetProxyConfigBySdkRequest;
+import org.apache.inlong.sdk.dataproxy.pb.config.pojo.GetProxyConfigBySdkResponse;
+import org.apache.inlong.sdk.dataproxy.pb.config.pojo.GetProxyConfigByStreamResponse;
+import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyClusterConfig;
+import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyClusterResult;
+import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyInfo;
 
 import org.apache.flume.Context;
 import org.apache.http.HttpHeaders;
@@ -31,12 +34,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.sdk.dataproxy.pb.config.pojo.GetProxyConfigBySdkRequest;
-import org.apache.inlong.sdk.dataproxy.pb.config.pojo.GetProxyConfigBySdkResponse;
-import org.apache.inlong.sdk.dataproxy.pb.config.pojo.GetProxyConfigByStreamResponse;
-import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyClusterConfig;
-import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyClusterResult;
-import org.apache.inlong.sdk.dataproxy.pb.config.pojo.ProxyInfo;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,8 +83,8 @@ public class ManagerProxyClusterConfigLoader implements ProxyClusterConfigLoader
     /**
      * loadByStream
      * 
-     * @param  inlongGroupId
-     * @param  inlongStreamId
+     * @param inlongGroupId
+     * @param inlongStreamId
      * @return
      */
     @Override
@@ -129,7 +131,7 @@ public class ManagerProxyClusterConfigLoader implements ProxyClusterConfigLoader
     /**
      * loadByClusterIds
      * 
-     * @param  proxys
+     * @param proxys
      * @return
      */
     @Override

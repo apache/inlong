@@ -17,11 +17,11 @@
 
 package org.apache.inlong.sort.standalone.sink.pulsar;
 
-import java.util.Map;
-
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.config.pojo.type.DataType;
 import org.apache.inlong.sort.standalone.utils.Constants;
+
+import java.util.Map;
 
 /**
  * 
@@ -74,7 +74,8 @@ public class PulsarIdConfig {
     /**
      * set inlongGroupId
      * 
-     * @param inlongGroupId the inlongGroupId to set
+     * @param inlongGroupId
+     *          the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
         this.inlongGroupId = inlongGroupId;
@@ -92,7 +93,8 @@ public class PulsarIdConfig {
     /**
      * set inlongStreamId
      * 
-     * @param inlongStreamId the inlongStreamId to set
+     * @param inlongStreamId
+     *          the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
         this.inlongStreamId = inlongStreamId;
@@ -110,7 +112,8 @@ public class PulsarIdConfig {
     /**
      * set uid
      * 
-     * @param uid the uid to set
+     * @param uid
+     *          the uid to set
      */
     public void setUid(String uid) {
         this.uid = uid;
@@ -128,7 +131,8 @@ public class PulsarIdConfig {
     /**
      * set separator
      * 
-     * @param separator the separator to set
+     * @param separator
+     *          the separator to set
      */
     public void setSeparator(String separator) {
         this.separator = separator;
@@ -146,7 +150,8 @@ public class PulsarIdConfig {
     /**
      * set topic
      * 
-     * @param topic the topic to set
+     * @param topic
+     *          the topic to set
      */
     public void setTopic(String topic) {
         this.topic = topic;
@@ -164,7 +169,8 @@ public class PulsarIdConfig {
     /**
      * set dataType
      * 
-     * @param dataType the dataType to set
+     * @param dataType
+     *          the dataType to set
      */
     public void setDataType(DataType dataType) {
         this.dataType = dataType;

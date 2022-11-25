@@ -75,7 +75,8 @@ public class EsIdConfig {
     /**
      * set inlongGroupId
      * 
-     * @param inlongGroupId the inlongGroupId to set
+     * @param inlongGroupId
+     *          the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
         this.inlongGroupId = inlongGroupId;
@@ -93,7 +94,8 @@ public class EsIdConfig {
     /**
      * set inlongStreamId
      * 
-     * @param inlongStreamId the inlongStreamId to set
+     * @param inlongStreamId
+     *          the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
         this.inlongStreamId = inlongStreamId;
@@ -111,7 +113,8 @@ public class EsIdConfig {
     /**
      * set separator
      * 
-     * @param separator the separator to set
+     * @param separator
+     *          the separator to set
      */
     public void setSeparator(String separator) {
         this.separator = separator;
@@ -129,7 +132,8 @@ public class EsIdConfig {
     /**
      * set indexNamePattern
      * 
-     * @param indexNamePattern the indexNamePattern to set
+     * @param indexNamePattern
+     *          the indexNamePattern to set
      */
     public void setIndexNamePattern(String indexNamePattern) {
         this.indexNamePattern = indexNamePattern;
@@ -147,7 +151,8 @@ public class EsIdConfig {
     /**
      * set fieldOffset
      * 
-     * @param fieldOffset the fieldOffset to set
+     * @param fieldOffset
+     *          the fieldOffset to set
      */
     public void setFieldOffset(int fieldOffset) {
         this.fieldOffset = fieldOffset;
@@ -172,7 +177,8 @@ public class EsIdConfig {
     /**
      * set fieldList
      * 
-     * @param fieldList the fieldList to set
+     * @param fieldList
+     *          the fieldList to set
      */
     public void setFieldList(List<String> fieldList) {
         this.fieldList = fieldList;
@@ -190,7 +196,8 @@ public class EsIdConfig {
     /**
      * set fieldNames
      * 
-     * @param fieldNames the fieldNames to set
+     * @param fieldNames
+     *          the fieldNames to set
      */
     public void setFieldNames(String fieldNames) {
         this.fieldNames = fieldNames;
@@ -208,7 +215,8 @@ public class EsIdConfig {
     /**
      * set contentOffset
      * 
-     * @param contentOffset the contentOffset to set
+     * @param contentOffset
+     *          the contentOffset to set
      */
     public void setContentOffset(int contentOffset) {
         this.contentOffset = contentOffset;
@@ -217,7 +225,7 @@ public class EsIdConfig {
     /**
      * parseIndexName
      * 
-     * @param  msgTime
+     * @param msgTime
      * @return
      */
     public String parseIndexName(long msgTime) {

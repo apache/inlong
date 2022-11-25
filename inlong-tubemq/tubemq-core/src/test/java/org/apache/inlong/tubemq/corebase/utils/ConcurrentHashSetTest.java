@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corebase.utils;
 
 import junit.framework.TestCase;
+
 import org.junit.Test;
 
 public class ConcurrentHashSetTest extends TestCase {
@@ -25,8 +26,7 @@ public class ConcurrentHashSetTest extends TestCase {
     @Test
     public void test() {
         int count = 0;
-        ConcurrentHashSet<String> testSet =
-                new ConcurrentHashSet<>();
+        ConcurrentHashSet<String> testSet = new ConcurrentHashSet<>();
         for (String item : testSet) {
             System.out.println("Count = " + count++ + ", item = " + item);
         }

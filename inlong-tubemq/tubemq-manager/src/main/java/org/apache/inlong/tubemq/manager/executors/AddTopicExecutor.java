@@ -17,15 +17,6 @@
 
 package org.apache.inlong.tubemq.manager.executors;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 import org.apache.inlong.tubemq.manager.entry.TopicTaskEntry;
 import org.apache.inlong.tubemq.manager.repository.MasterRepository;
@@ -36,6 +27,18 @@ import org.apache.inlong.tubemq.manager.service.interfaces.TopicService;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpBrokerInfoList;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList;
 import org.apache.inlong.tubemq.manager.utils.ValidateUtils;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -70,8 +73,10 @@ public class AddTopicExecutor {
     /**
      * Add topic info
      *
-     * @param clusterId this is the cluster id
-     * @param topicTasks topic info
+     * @param clusterId
+     *          this is the cluster id
+     * @param topicTasks
+     *          topic info
      */
     @Async("asyncExecutor")
     public void addTopicConfig(Long clusterId, List<TopicTaskEntry> topicTasks) {
@@ -88,15 +93,14 @@ public class AddTopicExecutor {
 
         for (List<TopicTaskEntry> taskPart : taskParts) {
             Map<String, TopicTaskEntry> topicEntryMap = taskPart.stream().collect(
-                    Collectors.toMap(TopicTaskEntry::getTopicName, topicTaskEntry
-                            -> topicTaskEntry, (v1, v2) -> v2));
+                    Collectors.toMap(TopicTaskEntry::getTopicName, topicTaskEntry -> topicTaskEntry, (v1, v2) -> v2));
             doConfigTopics(topicEntryMap, masterNode, brokerInfoList);
         }
 
     }
 
     private void doConfigTopics(Map<String, TopicTaskEntry> topicEntryMap,
-                                MasterEntry masterNode, TubeHttpBrokerInfoList brokerInfoList) {
+            MasterEntry masterNode, TubeHttpBrokerInfoList brokerInfoList) {
         handleAddingTopic(masterNode, brokerInfoList, topicEntryMap);
         updateConfigResult(masterNode, topicEntryMap);
     }
@@ -112,8 +116,7 @@ public class AddTopicExecutor {
                 continue;
             }
             // get broker list by topic request
-            Set<Integer> topicBrokerSet =
-                    new HashSet<>(topicInfoList.getTopicBrokerIdList());
+            Set<Integer> topicBrokerSet = new HashSet<>(topicInfoList.getTopicBrokerIdList());
             List<Integer> allBrokerIdList = brokerInfoList.getAllBrokerIdList();
 
             // determine if all topics has been added
@@ -123,7 +126,7 @@ public class AddTopicExecutor {
     }
 
     private void updateTopicRepo(Set<Integer> topicBrokerSet, List<Integer> allBrokerIdList,
-                                 TopicTaskEntry topicTask) {
+            TopicTaskEntry topicTask) {
         if (!topicBrokerSet.containsAll(allBrokerIdList)) {
             Integer retryTimes = topicTask.getConfigRetryTimes() + 1;
             topicTask.setConfigRetryTimes(retryTimes);
@@ -132,8 +135,8 @@ public class AddTopicExecutor {
     }
 
     private void handleAddingTopic(MasterEntry masterEntry,
-                                   TubeHttpBrokerInfoList brokerInfoList,
-                                   Map<String, TopicTaskEntry> pendingTopic) {
+            TubeHttpBrokerInfoList brokerInfoList,
+            Map<String, TopicTaskEntry> pendingTopic) {
         // check tubemq cluster by topic name, remove pending topic if has added.
         Set<String> brandNewTopics = new HashSet<>();
         for (String topic : pendingTopic.keySet()) {
@@ -153,10 +156,9 @@ public class AddTopicExecutor {
     }
 
     private void handleAddingExistTopics(MasterEntry masterEntry, TubeHttpBrokerInfoList brokerInfoList,
-                                         String topic, List<Integer> topicBrokerList) {
+            String topic, List<Integer> topicBrokerList) {
         // remove brokers which have been added.
-        List<Integer> configurableBrokerIdList =
-                brokerInfoList.getConfigurableBrokerIdList();
+        List<Integer> configurableBrokerIdList = brokerInfoList.getConfigurableBrokerIdList();
         configurableBrokerIdList.removeAll(topicBrokerList);
         // add topic to satisfy max broker number.
         Set<String> singleTopic = new HashSet<>();
@@ -167,7 +169,7 @@ public class AddTopicExecutor {
     }
 
     private void handleAddingNewTopics(MasterEntry masterEntry, TubeHttpBrokerInfoList brokerInfoList,
-                                       Set<String> brandNewTopics) {
+            Set<String> brandNewTopics) {
         if (CollectionUtils.isEmpty(brandNewTopics)) {
             return;
         }

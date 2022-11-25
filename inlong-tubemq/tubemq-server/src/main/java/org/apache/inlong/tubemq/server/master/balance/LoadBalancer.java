@@ -17,13 +17,14 @@
 
 package org.apache.inlong.tubemq.server.master.balance;
 
-import java.util.List;
-import java.util.Map;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfoHolder;
+
+import java.util.List;
+import java.util.Map;
 
 public interface LoadBalancer {
 
@@ -44,19 +45,19 @@ public interface LoadBalancer {
             final StringBuilder sBuilder);
 
     Map<String, Map<String, List<Partition>>> bukAssign(ConsumerInfoHolder consumerHolder,
-                                                        BrokerRunManager brokerRunManager,
-                                                        List<String> groups,
-                                                        MetaDataService defMetaDataService,
-                                                        StringBuilder sBuilder);
+            BrokerRunManager brokerRunManager,
+            List<String> groups,
+            MetaDataService defMetaDataService,
+            StringBuilder sBuilder);
 
     Map<String, Map<String, Map<String, Partition>>> resetBukAssign(ConsumerInfoHolder consumerHolder,
-                                                                    BrokerRunManager brokerRunManager,
-                                                                    List<String> groups,
-                                                                    MetaDataService defMetaDataService,
-                                                                    StringBuilder sBuilder);
+            BrokerRunManager brokerRunManager,
+            List<String> groups,
+            MetaDataService defMetaDataService,
+            StringBuilder sBuilder);
 
     Map<String, List<Partition>> roundRobinAssignment(List<Partition> partitions,
-                                                      List<String> consumers);
+            List<String> consumers);
 
     ConsumerInfo randomAssignment(List<ConsumerInfo> servers);
 }

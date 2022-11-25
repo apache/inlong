@@ -17,55 +17,51 @@
 
 package org.apache.inlong.tubemq.server.master.stats;
 
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.metric.impl.ESTHistogram;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongOnlineCounter;
 import org.apache.inlong.tubemq.corebase.metric.impl.LongStatsCounter;
 import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
 
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * MasterSrvStatsHolder, statistics Master's RPC service metric information
  *
- * This class counts the number of consumer groups, timeouts, the load balancing duration
- * distribution of consumer groups, as well as the total number of registered consumers
- * in the system, the number of timeouts, the number of tasks being processed,
- * the total number of producers, the total number of timeouts,
- * and Broker registration and timeouts, etc.
+ * This class counts the number of consumer groups, timeouts, the load balancing
+ * duration distribution of consumer groups, as well as the total number of
+ * registered consumers in the system, the number of timeouts, the number of
+ * tasks being processed, the total number of producers, the total number of
+ * timeouts, and Broker registration and timeouts, etc.
  */
 public class MasterSrvStatsHolder {
+
     // online consume group count statistic
-    private static final LongOnlineCounter csmOnlineGroupCnt =
-            new LongOnlineCounter("csm_online_group_cnt", null);
+    private static final LongOnlineCounter csmOnlineGroupCnt = new LongOnlineCounter("csm_online_group_cnt", null);
     // online client-balance consume group count statistic
-    private static final LongOnlineCounter csmCltBalanceGroupCnt =
-            new LongOnlineCounter("csm_client_bal_group_cnt", null);
+    private static final LongOnlineCounter csmCltBalanceGroupCnt = new LongOnlineCounter("csm_client_bal_group_cnt",
+            null);
     // online consumer count statistic
-    private static final LongOnlineCounter consumerOnlineCnt =
-            new LongOnlineCounter("consumer_online_cnt", null);
+    private static final LongOnlineCounter consumerOnlineCnt = new LongOnlineCounter("consumer_online_cnt", null);
     // in balance with connection event consumer count statistic
     private static final LongOnlineCounter consumerInConnectCount =
             new LongOnlineCounter("consumer_con_event_cnt", null);
     // in balance with disconnection event consumer count statistic
     private static final LongOnlineCounter consumerInDisConnectCount =
-            new LongOnlineCounter("consumer_discon_event_cnt", null);
+            new LongOnlineCounter("consumer_discon_event_cnt",
+                    null);
     // online producer count statistic
-    private static final LongOnlineCounter producerOnlineCnt =
-            new LongOnlineCounter("producer_online_cnt", null);
+    private static final LongOnlineCounter producerOnlineCnt = new LongOnlineCounter("producer_online_cnt", null);
     // configured broker count statistic
-    private static final LongOnlineCounter brokerConfiguredCnt =
-            new LongOnlineCounter("broker_configured_cnt", null);
+    private static final LongOnlineCounter brokerConfiguredCnt = new LongOnlineCounter("broker_configured_cnt", null);
     // broker online count statistic
-    private static final LongOnlineCounter brokerOnlineCnt =
-            new LongOnlineCounter("broker_online_cnt", null);
+    private static final LongOnlineCounter brokerOnlineCnt = new LongOnlineCounter("broker_online_cnt", null);
     // broker abnormal count statistic
-    private static final LongOnlineCounter brokerAbnCurCnt =
-            new LongOnlineCounter("broker_abnormal_cnt", null);
+    private static final LongOnlineCounter brokerAbnCurCnt = new LongOnlineCounter("broker_abnormal_cnt", null);
     // broker forbidden count statistic
-    private static final LongOnlineCounter brokerFbdCurCnt =
-            new LongOnlineCounter("broker_forbidden_cnt", null);
+    private static final LongOnlineCounter brokerFbdCurCnt = new LongOnlineCounter("broker_forbidden_cnt", null);
     // Switchable statistic items
     private static final ServiceStatsSet[] switchableSets = new ServiceStatsSet[2];
     // Current writable index
@@ -117,8 +113,8 @@ public class MasterSrvStatsHolder {
     }
 
     public static void decConsumerCnt(boolean isTimeout,
-                                      boolean isGroupEmpty,
-                                      boolean isCltBal) {
+            boolean isGroupEmpty,
+            boolean isCltBal) {
         consumerOnlineCnt.decValue();
         if (isTimeout) {
             switchableSets[getIndex()].consumerTmoTotCnt.incValue();
@@ -216,8 +212,7 @@ public class MasterSrvStatsHolder {
     private static boolean switchWritingStatsUnit() {
         long curSnapshotTime = lstSnapshotTime.get();
         // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
+        if ((System.currentTimeMillis() - curSnapshotTime) >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
             if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
                 switchableSets[getIndex(writableIndex.incrementAndGet())].resetSinceTime();
                 return true;
@@ -227,8 +222,8 @@ public class MasterSrvStatsHolder {
     }
 
     private static void getStatsValue(ServiceStatsSet statsSet,
-                                      boolean resetValue,
-                                      Map<String, Long> statsMap) {
+            boolean resetValue,
+            Map<String, Long> statsMap) {
         statsMap.put(statsSet.lstResetTime.getFullName(),
                 statsSet.lstResetTime.getSinceTime());
         if (resetValue) {
@@ -309,8 +304,8 @@ public class MasterSrvStatsHolder {
     }
 
     private static void getStatsValue(ServiceStatsSet statsSet,
-                                      boolean resetValue,
-                                      StringBuilder strBuff) {
+            boolean resetValue,
+            StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
                 .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
                 .append("\"");
@@ -409,7 +404,8 @@ public class MasterSrvStatsHolder {
     /**
      * Gets the metric block index based on the specified value.
      *
-     * @param origIndex    the specified value
+     * @param origIndex
+     *          the specified value
      * @return the metric block index
      */
     private static int getIndex(int origIndex) {
@@ -422,29 +418,23 @@ public class MasterSrvStatsHolder {
      * In which the object is the metric item that can be counted in stages
      */
     private static class ServiceStatsSet {
-        protected final SinceTime lstResetTime =
-                new SinceTime("reset_time", null);
+
+        protected final SinceTime lstResetTime = new SinceTime("reset_time", null);
         // consume group timeout statistics
-        protected final LongStatsCounter csmGroupTimeoutCnt =
-                new LongStatsCounter("csm_group_timeout_cnt", null);
+        protected final LongStatsCounter csmGroupTimeoutCnt = new LongStatsCounter("csm_group_timeout_cnt", null);
         // client-balance consume group timeout statistics
         protected final LongStatsCounter cltBalGroupTmototCnt =
                 new LongStatsCounter("client_balance_timeout_cnt", null);
         // consumer timeout statistics
-        protected final LongStatsCounter consumerTmoTotCnt =
-                new LongStatsCounter("consumer_timeout_cnt", null);
+        protected final LongStatsCounter consumerTmoTotCnt = new LongStatsCounter("consumer_timeout_cnt", null);
         // producer timeout statistics
-        protected final LongStatsCounter producerTmoTotCnt =
-                new LongStatsCounter("producer_timeout_cnt", null);
+        protected final LongStatsCounter producerTmoTotCnt = new LongStatsCounter("producer_timeout_cnt", null);
         // broker timeout statistics
-        protected final LongStatsCounter brokerTmoTotCnt =
-                new LongStatsCounter("broker_timeout_cnt", null);
+        protected final LongStatsCounter brokerTmoTotCnt = new LongStatsCounter("broker_timeout_cnt", null);
         // normal server balance delta time statistics
-        protected final ESTHistogram svrNormalBalanceStats =
-                new ESTHistogram("server_balance_normal", null);
+        protected final ESTHistogram svrNormalBalanceStats = new ESTHistogram("server_balance_normal", null);
         // reset server balance delta time statistics
-        protected final ESTHistogram svrResetBalanceStats =
-                new ESTHistogram("server_balance_reset", null);
+        protected final ESTHistogram svrResetBalanceStats = new ESTHistogram("server_balance_reset", null);
 
         public ServiceStatsSet() {
             resetSinceTime();
@@ -455,4 +445,3 @@ public class MasterSrvStatsHolder {
         }
     }
 }
-

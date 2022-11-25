@@ -17,21 +17,24 @@
 
 package org.apache.inlong.manager.pojo.sink.postgresql;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
-import javax.validation.constraints.NotNull;
+import org.apache.commons.lang3.StringUtils;
+
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * PostgreSQL sink info
@@ -91,7 +94,8 @@ public class PostgreSQLSinkDTO {
     /**
      * Get PostgreSQL sink info from JSON string
      *
-     * @param extParams JSON string
+     * @param extParams
+     *          JSON string
      * @return PostgreSQL sink DTO
      */
     public static PostgreSQLSinkDTO getFromJson(@NotNull String extParams) {

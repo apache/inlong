@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.workflow.core;
 
-import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 
 /**
  * WorkflowProcess definition service
@@ -28,9 +28,12 @@ public interface ProcessService {
     /**
      * Initiation process
      *
-     * @param name WorkflowProcess name
-     * @param applicant Applicant
-     * @param form Form information
+     * @param name
+     *          WorkflowProcess name
+     * @param applicant
+     *          Applicant
+     * @param form
+     *          Form information
      * @return Workflow context
      */
     WorkflowContext start(String name, String applicant, ProcessForm form);
@@ -38,9 +41,12 @@ public interface ProcessService {
     /**
      * Continue process when pending or failed
      *
-     * @param processId WorkflowProcess instance ID
-     * @param operator Operator
-     * @param remark Remarks information
+     * @param processId
+     *          WorkflowProcess instance ID
+     * @param operator
+     *          Operator
+     * @param remark
+     *          Remarks information
      * @return Workflow context
      */
     WorkflowContext continueProcess(Integer processId, String operator, String remark);
@@ -48,9 +54,12 @@ public interface ProcessService {
     /**
      * Cancellation process application
      *
-     * @param processId WorkflowProcess instance ID
-     * @param operator Operator
-     * @param remark Remarks information
+     * @param processId
+     *          WorkflowProcess instance ID
+     * @param operator
+     *          Operator
+     * @param remark
+     *          Remarks information
      * @return Workflow context
      */
     WorkflowContext cancel(Integer processId, String operator, String remark);

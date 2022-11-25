@@ -18,27 +18,6 @@
 
 package org.apache.inlong.sort.elasticsearch6.table;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.configuration.ConfigOption;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.ValidationException;
-import org.apache.flink.table.connector.format.EncodingFormat;
-import org.apache.flink.table.connector.sink.DynamicTableSink;
-import org.apache.flink.table.data.RowData;
-import org.apache.flink.table.factories.DynamicTableSinkFactory;
-import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.flink.table.factories.SerializationFormatFactory;
-import org.apache.flink.table.utils.TableSchemaUtils;
-import org.apache.flink.util.StringUtils;
-import org.apache.inlong.sort.elasticsearch.table.ElasticsearchValidationUtils;
-
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.BULK_FLASH_MAX_SIZE_OPTION;
@@ -60,50 +39,70 @@ import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.PA
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FIELD_NAME;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.USERNAME_OPTION;
 
+import org.apache.inlong.sort.elasticsearch.table.ElasticsearchValidationUtils;
+
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.table.api.TableSchema;
+import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.connector.format.EncodingFormat;
+import org.apache.flink.table.connector.sink.DynamicTableSink;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.factories.DynamicTableSinkFactory;
+import org.apache.flink.table.factories.FactoryUtil;
+import org.apache.flink.table.factories.SerializationFormatFactory;
+import org.apache.flink.table.utils.TableSchemaUtils;
+import org.apache.flink.util.StringUtils;
+
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
- * A {@link DynamicTableSinkFactory} for discovering {@link Elasticsearch6DynamicSink}.
+ * A {@link DynamicTableSinkFactory} for discovering
+ * {@link Elasticsearch6DynamicSink}.
  */
 @Internal
 public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory {
 
-    private static final Set<ConfigOption<?>> requiredOptions =
-            Stream.of(HOSTS_OPTION, INDEX_OPTION, DOCUMENT_TYPE_OPTION).collect(Collectors.toSet());
-    private static final Set<ConfigOption<?>> optionalOptions =
-            Stream.of(
-                            KEY_DELIMITER_OPTION,
-                            ROUTING_FIELD_NAME,
-                            FAILURE_HANDLER_OPTION,
-                            FLUSH_ON_CHECKPOINT_OPTION,
-                            BULK_FLASH_MAX_SIZE_OPTION,
-                            BULK_FLUSH_MAX_ACTIONS_OPTION,
-                            BULK_FLUSH_INTERVAL_OPTION,
-                            BULK_FLUSH_BACKOFF_TYPE_OPTION,
-                            BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION,
-                            BULK_FLUSH_BACKOFF_DELAY_OPTION,
-                            CONNECTION_MAX_RETRY_TIMEOUT_OPTION,
-                            CONNECTION_PATH_PREFIX,
-                            FORMAT_OPTION,
-                            PASSWORD_OPTION,
-                            USERNAME_OPTION,
-                            INLONG_METRIC,
-                            INLONG_AUDIT)
-                    .collect(Collectors.toSet());
+    private static final Set<ConfigOption<?>> requiredOptions = Stream
+            .of(HOSTS_OPTION, INDEX_OPTION, DOCUMENT_TYPE_OPTION).collect(Collectors.toSet());
+    private static final Set<ConfigOption<?>> optionalOptions = Stream.of(
+            KEY_DELIMITER_OPTION,
+            ROUTING_FIELD_NAME,
+            FAILURE_HANDLER_OPTION,
+            FLUSH_ON_CHECKPOINT_OPTION,
+            BULK_FLASH_MAX_SIZE_OPTION,
+            BULK_FLUSH_MAX_ACTIONS_OPTION,
+            BULK_FLUSH_INTERVAL_OPTION,
+            BULK_FLUSH_BACKOFF_TYPE_OPTION,
+            BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION,
+            BULK_FLUSH_BACKOFF_DELAY_OPTION,
+            CONNECTION_MAX_RETRY_TIMEOUT_OPTION,
+            CONNECTION_PATH_PREFIX,
+            FORMAT_OPTION,
+            PASSWORD_OPTION,
+            USERNAME_OPTION,
+            INLONG_METRIC,
+            INLONG_AUDIT)
+            .collect(Collectors.toSet());
 
     @Override
     public DynamicTableSink createDynamicTableSink(Context context) {
         TableSchema tableSchema = context.getCatalogTable().getSchema();
         ElasticsearchValidationUtils.validatePrimaryKey(tableSchema);
-        final FactoryUtil.TableFactoryHelper helper =
-                FactoryUtil.createTableFactoryHelper(this, context);
+        final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
 
-        final EncodingFormat<SerializationSchema<RowData>> format =
-                helper.discoverEncodingFormat(SerializationFormatFactory.class, FORMAT_OPTION);
+        final EncodingFormat<SerializationSchema<RowData>> format = helper
+                .discoverEncodingFormat(SerializationFormatFactory.class, FORMAT_OPTION);
 
         helper.validate();
         Configuration configuration = new Configuration();
         context.getCatalogTable().getOptions().forEach(configuration::setString);
-        Elasticsearch6Configuration config =
-                new Elasticsearch6Configuration(configuration, context.getClassLoader());
+        Elasticsearch6Configuration config = new Elasticsearch6Configuration(configuration, context.getClassLoader());
 
         validate(config, configuration);
 
@@ -124,40 +123,36 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
         int maxActions = config.getBulkFlushMaxActions();
         validate(
                 maxActions == -1 || maxActions >= 1,
-                () ->
-                        String.format(
-                                "'%s' must be at least 1. Got: %s",
-                                BULK_FLUSH_MAX_ACTIONS_OPTION.key(), maxActions));
+                () -> String.format(
+                        "'%s' must be at least 1. Got: %s",
+                        BULK_FLUSH_MAX_ACTIONS_OPTION.key(), maxActions));
         long maxSize = config.getBulkFlushMaxByteSize();
         long mb1 = 1024 * 1024;
         validate(
                 maxSize == -1 || (maxSize >= mb1 && maxSize % mb1 == 0),
-                () ->
-                        String.format(
-                                "'%s' must be in MB granularity. Got: %s",
-                                BULK_FLASH_MAX_SIZE_OPTION.key(),
-                                originalConfiguration
-                                        .get(BULK_FLASH_MAX_SIZE_OPTION)
-                                        .toHumanReadableString()));
+                () -> String.format(
+                        "'%s' must be in MB granularity. Got: %s",
+                        BULK_FLASH_MAX_SIZE_OPTION.key(),
+                        originalConfiguration
+                                .get(BULK_FLASH_MAX_SIZE_OPTION)
+                                .toHumanReadableString()));
         validate(
                 config.getBulkFlushBackoffRetries().map(retries -> retries >= 1).orElse(true),
-                () ->
-                        String.format(
-                                "'%s' must be at least 1. Got: %s",
-                                BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION.key(),
-                                config.getBulkFlushBackoffRetries().get()));
+                () -> String.format(
+                        "'%s' must be at least 1. Got: %s",
+                        BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION.key(),
+                        config.getBulkFlushBackoffRetries().get()));
         if (config.getUsername().isPresent()
                 && !StringUtils.isNullOrWhitespaceOnly(config.getUsername().get())) {
             validate(
                     config.getPassword().isPresent()
                             && !StringUtils.isNullOrWhitespaceOnly(config.getPassword().get()),
-                    () ->
-                            String.format(
-                                    "'%s' and '%s' must be set at the same time. Got: username '%s' and password '%s'",
-                                    USERNAME_OPTION.key(),
-                                    PASSWORD_OPTION.key(),
-                                    config.getUsername().get(),
-                                    config.getPassword().orElse("")));
+                    () -> String.format(
+                            "'%s' and '%s' must be set at the same time. Got: username '%s' and password '%s'",
+                            USERNAME_OPTION.key(),
+                            PASSWORD_OPTION.key(),
+                            config.getUsername().get(),
+                            config.getPassword().orElse("")));
         }
     }
 

@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.common.util;
 
-import lombok.experimental.UtilityClass;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Date utils.
@@ -35,7 +35,8 @@ public class DateUtils {
     /**
      * Get the expiration date from the current time.
      *
-     * @param afterDays expires after days
+     * @param afterDays
+     *          expires after days
      * @return expiration date
      */
     public static Date getExpirationDate(Integer afterDays) {
@@ -49,8 +50,10 @@ public class DateUtils {
     /**
      * Get valid days from the beginning date to the end date.
      *
-     * @param begin begin date
-     * @param end due date
+     * @param begin
+     *          begin date
+     * @param end
+     *          due date
      * @return valid days
      */
     public static Integer getValidDays(Date begin, Date end) {

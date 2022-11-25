@@ -18,16 +18,14 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
-import com.google.common.base.Objects;
+import org.apache.inlong.common.msg.InLongMsg;
+
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.common.msg.InLongMsg;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,18 +35,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Objects;
+
 public class InLongMsgDeserializationSchema implements DeserializationSchema<RowData> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InLongMsgDeserializationSchema.class);
 
-    /** Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner packaged
-     *  data buffer message */
+    /**
+     * Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner
+     * packaged data buffer message
+     */
     private final DeserializationSchema<RowData> deserializationSchema;
 
-    /** {@link MetadataConverter} of how to produce metadata from {@link InLongMsg}. */
+    /**
+     * {@link MetadataConverter} of how to produce metadata from {@link InLongMsg}.
+     */
     private final MetadataConverter[] metadataConverters;
 
-    /** {@link TypeInformation} of the produced {@link RowData} (physical + meta data). */
+    /**
+     * {@link TypeInformation} of the produced {@link RowData} (physical + meta
+     * data).
+     */
     private final TypeInformation<RowData> producedTypeInfo;
 
     /** status of error */
@@ -148,6 +158,7 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
     }
 
     interface MetadataConverter extends Serializable {
+
         Object read(InLongMsgHead head);
     }
 
@@ -159,8 +170,7 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
         }
         final int physicalArity = physicalRow.getArity();
         final int metadataArity = metadataConverters.length;
-        final GenericRowData producedRow =
-                new GenericRowData(physicalRow.getRowKind(), physicalArity + metadataArity);
+        final GenericRowData producedRow = new GenericRowData(physicalRow.getRowKind(), physicalArity + metadataArity);
         for (int physicalPos = 0; physicalPos < physicalArity; physicalPos++) {
             producedRow.setField(physicalPos, physicalRow.getField(physicalPos));
         }

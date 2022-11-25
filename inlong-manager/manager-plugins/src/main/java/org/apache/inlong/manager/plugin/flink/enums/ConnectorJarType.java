@@ -86,7 +86,8 @@ public enum ConnectorJarType {
     /**
      * Gets datasource connectorJarType
      *
-     * @param type dataSourceType
+     * @param type
+     *          dataSourceType
      * @return ConnectorType
      */
     public static ConnectorJarType getInstance(String type) {

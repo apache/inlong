@@ -20,8 +20,11 @@ package org.apache.inlong.sort.cdc.mysql.source.assigners.state;
 
 import java.util.Objects;
 
-/** A {@link PendingSplitsState} for pending hybrid (snapshot & binlog) splits. */
+/**
+ * A {@link PendingSplitsState} for pending hybrid (snapshot & binlog) splits.
+ */
 public class HybridPendingSplitsState extends PendingSplitsState {
+
     private final SnapshotPendingSplitsState snapshotPendingSplits;
     private final boolean isBinlogSplitAssigned;
 

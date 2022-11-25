@@ -17,26 +17,28 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkDTO;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Elasticsearch's resource operator
@@ -128,8 +130,7 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
             esFieldInfo.setName(fieldEntity.getFieldName());
             esFieldInfo.setType(fieldEntity.getFieldType());
             esFieldInfo.setFormat(fieldEntity.getFieldFormat());
-            ElasticsearchFieldInfo fieldExtParams =
-                    ElasticsearchFieldInfo.getFromJson(fieldEntity.getExtParams());
+            ElasticsearchFieldInfo fieldExtParams = ElasticsearchFieldInfo.getFromJson(fieldEntity.getExtParams());
             esFieldInfo.setScalingFactor(fieldExtParams.getScalingFactor());
             esFieldInfo.setAnalyzer(fieldExtParams.getAnalyzer());
             esFieldInfo.setSearchAnalyzer(fieldExtParams.getSearchAnalyzer());

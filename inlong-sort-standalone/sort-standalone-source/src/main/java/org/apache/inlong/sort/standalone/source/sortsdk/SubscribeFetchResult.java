@@ -17,24 +17,30 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
  * SubscribeFetchResult is the wrapper of {@link MessageRecord}.
- * <p> SubscribeFetchResult integrate message key, offset and message time in to the header map.</p>
+ * <p>
+ * SubscribeFetchResult integrate message key, offset and message time in to the
+ * header map.
+ * </p>
  */
 public class SubscribeFetchResult {
 
     // The sortId of fetched message.
     private final String sortId;
 
-    // Important metrics called headers of {@link MessageRecord}, including message key.
+    // Important metrics called headers of {@link MessageRecord}, including message
+    // key.
     private final Map<String, String> headers = new ConcurrentHashMap<>();
 
     // Row data in binary format.
@@ -42,10 +48,15 @@ public class SubscribeFetchResult {
 
     /**
      * Private constructor of SubscribeFetchResult.
-     * <p> The construction of SubscribeFetchResult should be initiated by {@link SubscribeFetchResult.Factory}.</p>
+     * <p>
+     * The construction of SubscribeFetchResult should be initiated by
+     * {@link SubscribeFetchResult.Factory}.
+     * </p>
      *
-     * @param sortId The sortId of fetched message.
-     * @param message Message that fetched from upstream data storage.
+     * @param sortId
+     *          The sortId of fetched message.
+     * @param message
+     *          Message that fetched from upstream data storage.
      */
     @Deprecated
     private SubscribeFetchResult(
@@ -55,25 +66,35 @@ public class SubscribeFetchResult {
         this.headers.put(Constants.HEADER_KEY_MESSAGE_KEY, message.getMsgKey());
         this.headers.put(Constants.HEADER_KEY_MSG_OFFSET, message.getOffset());
         this.headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(message.getRecTime()));
-        //TODO to fix here
+        // TODO to fix here
         this.headers.putAll(null);
         this.body = null;
     }
 
     /**
      * Private constructor of SubscribeFetchResult.
-     * <p> The construction of SubscribeFetchResult should be initiated by {@link SubscribeFetchResult.Factory}.</p>
+     * <p>
+     * The construction of SubscribeFetchResult should be initiated by
+     * {@link SubscribeFetchResult.Factory}.
+     * </p>
      *
-     * @param sortId String
-     * @param msgKey String
-     * @param offset String
-     * @param headers Map
-     * @param recTime long
-     * @param body byte[]
+     * @param sortId
+     *          String
+     * @param msgKey
+     *          String
+     * @param offset
+     *          String
+     * @param headers
+     *          Map
+     * @param recTime
+     *          long
+     * @param body
+     *          byte[]
      */
     private SubscribeFetchResult(
             final String sortId,
-            final String msgKey, final String offset, final Map<String, String> headers, final long recTime,
+            final String msgKey, final String offset, final Map<String, String> headers,
+            final long recTime,
             final byte[] body) {
         this.sortId = sortId;
         this.headers.put(Constants.HEADER_KEY_MESSAGE_KEY, msgKey);
@@ -118,10 +139,14 @@ public class SubscribeFetchResult {
 
         /**
          * Create one {@link SubscribeFetchResult}.
-         * <p> Validate sortId and message before the construction of SubscribeFetchResult.</p>
+         * <p>
+         * Validate sortId and message before the construction of SubscribeFetchResult.
+         * </p>
          *
-         * @param sortId The sortId of fetched message.
-         * @param messageRecord Message that fetched from upstream data storage.
+         * @param sortId
+         *          The sortId of fetched message.
+         * @param messageRecord
+         *          Message that fetched from upstream data storage.
          * @return One SubscribeFetchResult.
          */
         @Deprecated
@@ -134,12 +159,18 @@ public class SubscribeFetchResult {
         /**
          * Create one {@link SubscribeFetchResult}.
          *
-         * @param sortId The sortId of fetched message.
-         * @param msgKey The msgKey to ack.
-         * @param offset The offset of this message.
-         * @param headers Headers of message.
-         * @param recTime Receive time of message.
-         * @param body Data of message.
+         * @param sortId
+         *          The sortId of fetched message.
+         * @param msgKey
+         *          The msgKey to ack.
+         * @param offset
+         *          The offset of this message.
+         * @param headers
+         *          Headers of message.
+         * @param recTime
+         *          Receive time of message.
+         * @param body
+         *          Data of message.
          * @return One SubscribeFetchResult.
          */
         public static SubscribeFetchResult create(

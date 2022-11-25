@@ -17,11 +17,13 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.StreamSourceFieldEntity;
-import org.springframework.stereotype.Repository;
+
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StreamSourceFieldEntityMapper {
@@ -33,7 +35,8 @@ public interface StreamSourceFieldEntityMapper {
     /**
      * Select undeleted source field by source id.
      *
-     * @param sourceId source id
+     * @param sourceId
+     *          source id
      * @return stream source field list
      */
     List<StreamSourceFieldEntity> selectBySourceId(@Param("sourceId") Integer sourceId);
@@ -43,7 +46,8 @@ public interface StreamSourceFieldEntityMapper {
     int updateByPrimaryKey(StreamSourceFieldEntity record);
 
     /**
-     * Logically delete all stream source fields based on inlong group id and inlong stream id
+     * Logically delete all stream source fields based on inlong group id and inlong
+     * stream id
      *
      * @return rows deleted
      */
@@ -52,14 +56,16 @@ public interface StreamSourceFieldEntityMapper {
     /**
      * Insert all field list
      *
-     * @param fieldList stream source field list
+     * @param fieldList
+     *          stream source field list
      */
     void insertAll(@Param("list") List<StreamSourceFieldEntity> fieldList);
 
     /**
      * Delete all field list by sourceId
      *
-     * @param sourceId source id
+     * @param sourceId
+     *          source id
      * @return number of records deleted
      */
     int deleteAll(@Param("sourceId") Integer sourceId);

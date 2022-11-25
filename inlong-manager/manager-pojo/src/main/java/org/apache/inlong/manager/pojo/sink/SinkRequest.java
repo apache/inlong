@@ -17,19 +17,24 @@
 
 package org.apache.inlong.manager.pojo.sink;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Maps;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
-import org.hibernate.validator.constraints.Length;
+
+import java.util.List;
+import java.util.Map;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import java.util.List;
-import java.util.Map;
+
+import lombok.Data;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Maps;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Stream sink request
@@ -57,8 +62,7 @@ public abstract class SinkRequest {
 
     @NotBlank(message = "sinkName cannot be blank")
     @Length(min = 1, max = 100, message = "sinkName length must be between 1 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
-            message = "sinkName only supports lowercase letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-z0-9_-]{1,100}$", message = "sinkName only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty("Sink name, unique in one stream")
     private String sinkName;
 

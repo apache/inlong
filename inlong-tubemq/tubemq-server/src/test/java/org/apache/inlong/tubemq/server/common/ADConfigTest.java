@@ -17,9 +17,11 @@
 
 package org.apache.inlong.tubemq.server.common;
 
+import org.apache.inlong.tubemq.server.common.fileconfig.ADConfig;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.inlong.tubemq.server.common.fileconfig.ADConfig;
+
 import org.junit.Assert;
 import org.junit.Test;
 

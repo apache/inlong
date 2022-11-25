@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.common.plugin;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * PluginDefinition should be defined in *.jar/META-INF/plugin.yaml.
- * <p/> For example:
+ * <p/>
+ * For example:
  *
  * <pre>
  *    name: test-plugin

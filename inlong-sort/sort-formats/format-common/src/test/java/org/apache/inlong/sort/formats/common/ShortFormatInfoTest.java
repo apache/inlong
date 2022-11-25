@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
 import java.util.Collections;
+
 import org.junit.Test;
 
 /**
@@ -38,15 +39,13 @@ public class ShortFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() {
         assertEquals(
                 "32767",
-                ShortFormatInfo.INSTANCE.serialize((short) 32767)
-        );
+                ShortFormatInfo.INSTANCE.serialize((short) 32767));
     }
 
     @Test
     public void testDeserialize() {
         assertEquals(
                 Short.valueOf((short) 32767),
-                ShortFormatInfo.INSTANCE.deserialize("32767")
-        );
+                ShortFormatInfo.INSTANCE.deserialize("32767"));
     }
 }

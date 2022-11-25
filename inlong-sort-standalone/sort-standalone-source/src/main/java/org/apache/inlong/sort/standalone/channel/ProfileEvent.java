@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.standalone.channel;
 
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.event.SimpleEvent;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.utils.Constants;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.event.SimpleEvent;
 
 import java.util.Map;
 
@@ -43,6 +44,7 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * Constructor
+     * 
      * @param headers
      * @param body
      */
@@ -106,6 +108,7 @@ public class ProfileEvent extends SimpleEvent {
 
     /**
      * get sourceIp
+     * 
      * @return the sourceIp
      */
     public String getSourceIp() {

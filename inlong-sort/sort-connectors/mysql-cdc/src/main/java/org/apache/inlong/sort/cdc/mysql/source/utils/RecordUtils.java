@@ -18,17 +18,18 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.utils;
 
-import io.debezium.connector.AbstractSourceInfo;
-import io.debezium.data.Envelope;
-import io.debezium.document.DocumentReader;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.HistoryRecord;
-import io.debezium.util.SchemaNameAdjuster;
-import org.apache.flink.table.types.logical.RowType;
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl.HISTORY_RECORD_FIELD;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.SIGNAL_EVENT_VALUE_SCHEMA_NAME;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.SPLIT_ID_KEY;
+import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.WATERMARK_KIND;
+
 import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
+
+import org.apache.flink.table.types.logical.RowType;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -46,21 +47,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl.HISTORY_RECORD_FIELD;
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.SIGNAL_EVENT_VALUE_SCHEMA_NAME;
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.SPLIT_ID_KEY;
-import static org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher.WATERMARK_KIND;
+import io.debezium.connector.AbstractSourceInfo;
+import io.debezium.data.Envelope;
+import io.debezium.document.DocumentReader;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.HistoryRecord;
+import io.debezium.util.SchemaNameAdjuster;
 
 /**
  * Utility class to deal record.
  */
 public class RecordUtils {
 
-    public static final String SCHEMA_CHANGE_EVENT_KEY_NAME =
-            "io.debezium.connector.mysql.SchemaChangeKey";
-    public static final String SCHEMA_HEARTBEAT_EVENT_KEY_NAME =
-            "io.debezium.connector.common.Heartbeat";
+    public static final String SCHEMA_CHANGE_EVENT_KEY_NAME = "io.debezium.connector.mysql.SchemaChangeKey";
+    public static final String SCHEMA_HEARTBEAT_EVENT_KEY_NAME = "io.debezium.connector.common.Heartbeat";
     private static final DocumentReader DOCUMENT_READER = DocumentReader.defaultReader();
 
     private RecordUtils() {
@@ -79,10 +79,10 @@ public class RecordUtils {
     }
 
     /**
-     * Normalize the records of snapshot split which represents the split records state on high
-     * watermark. data input: [low watermark event] [snapshot events ] [high watermark event]
-     * [binlog events] [binlog-end event] data output: [low watermark event] [normalized events]
-     * [high watermark event]
+     * Normalize the records of snapshot split which represents the split records
+     * state on high watermark. data input: [low watermark event] [snapshot events ]
+     * [high watermark event] [binlog events] [binlog-end event] data output: [low
+     * watermark event] [normalized events] [high watermark event]
      */
     public static List<SourceRecord> normalizedSplitRecords(
             MySqlSnapshotSplit snapshotSplit,
@@ -113,12 +113,10 @@ public class RecordUtils {
             }
 
             if (i < sourceRecords.size() - 1) {
-                List<SourceRecord> allBinlogRecords =
-                        sourceRecords.subList(i, sourceRecords.size() - 1);
+                List<SourceRecord> allBinlogRecords = sourceRecords.subList(i, sourceRecords.size() - 1);
                 for (SourceRecord binlog : allBinlogRecords) {
                     if (isDataChangeRecord(binlog)) {
-                        Object[] key =
-                                getSplitKey(snapshotSplit.getSplitKeyType(), binlog, nameAdjuster);
+                        Object[] key = getSplitKey(snapshotSplit.getSplitKeyType(), binlog, nameAdjuster);
                         if (splitKeyRangeContains(
                                 key, snapshotSplit.getSplitStart(), snapshotSplit.getSplitEnd())) {
                             binlogRecords.add(binlog);
@@ -131,8 +129,7 @@ public class RecordUtils {
                     String.format(
                             "The last record should be high watermark signal event, but is %s",
                             highWatermark));
-            normalizedRecords =
-                    upsertBinlog(lowWatermark, highWatermark, snapshotRecords, binlogRecords);
+            normalizedRecords = upsertBinlog(lowWatermark, highWatermark, snapshotRecords, binlogRecords);
         }
         return normalizedRecords;
     }
@@ -148,28 +145,25 @@ public class RecordUtils {
                 Struct key = (Struct) binlog.key();
                 Struct value = (Struct) binlog.value();
                 if (value != null) {
-                    Envelope.Operation operation =
-                            Envelope.Operation.forCode(
-                                    value.getString(Envelope.FieldName.OPERATION));
+                    Envelope.Operation operation = Envelope.Operation.forCode(
+                            value.getString(Envelope.FieldName.OPERATION));
                     switch (operation) {
                         case CREATE:
                         case UPDATE:
                             Envelope envelope = Envelope.fromSchema(binlog.valueSchema());
                             Struct source = value.getStruct(Envelope.FieldName.SOURCE);
                             Struct after = value.getStruct(Envelope.FieldName.AFTER);
-                            Instant fetchTs =
-                                    Instant.ofEpochMilli(
-                                            (Long) source.get(Envelope.FieldName.TIMESTAMP));
-                            SourceRecord record =
-                                    new SourceRecord(
-                                            binlog.sourcePartition(),
-                                            binlog.sourceOffset(),
-                                            binlog.topic(),
-                                            binlog.kafkaPartition(),
-                                            binlog.keySchema(),
-                                            binlog.key(),
-                                            binlog.valueSchema(),
-                                            envelope.read(after, source, fetchTs));
+                            Instant fetchTs = Instant.ofEpochMilli(
+                                    (Long) source.get(Envelope.FieldName.TIMESTAMP));
+                            SourceRecord record = new SourceRecord(
+                                    binlog.sourcePartition(),
+                                    binlog.sourceOffset(),
+                                    binlog.topic(),
+                                    binlog.kafkaPartition(),
+                                    binlog.keySchema(),
+                                    binlog.key(),
+                                    binlog.valueSchema(),
+                                    envelope.read(after, source, fetchTs));
                             snapshotRecords.put(key, record);
                             break;
                         case DELETE:
@@ -196,7 +190,8 @@ public class RecordUtils {
     }
 
     /**
-     * Format message timestamp(source.ts_ms) value to 0L for all records read in snapshot phase.
+     * Format message timestamp(source.ts_ms) value to 0L for all records read in
+     * snapshot phase.
      */
     private static List<SourceRecord> formatMessageTimestamp(
             Collection<SourceRecord> snapshotRecords) {
@@ -210,19 +205,17 @@ public class RecordUtils {
                             Struct source = value.getStruct(Envelope.FieldName.SOURCE);
                             source.put(Envelope.FieldName.TIMESTAMP, 0L);
                             // extend the fetch timestamp(ts_ms)
-                            Instant fetchTs =
-                                    Instant.ofEpochMilli(
-                                            value.getInt64(Envelope.FieldName.TIMESTAMP));
-                            SourceRecord sourceRecord =
-                                    new SourceRecord(
-                                            record.sourcePartition(),
-                                            record.sourceOffset(),
-                                            record.topic(),
-                                            record.kafkaPartition(),
-                                            record.keySchema(),
-                                            record.key(),
-                                            record.valueSchema(),
-                                            envelope.read(updateAfter, source, fetchTs));
+                            Instant fetchTs = Instant.ofEpochMilli(
+                                    value.getInt64(Envelope.FieldName.TIMESTAMP));
+                            SourceRecord sourceRecord = new SourceRecord(
+                                    record.sourcePartition(),
+                                    record.sourceOffset(),
+                                    record.topic(),
+                                    record.kafkaPartition(),
+                                    record.keySchema(),
+                                    record.key(),
+                                    record.valueSchema(),
+                                    envelope.read(updateAfter, source, fetchTs));
                             return sourceRecord;
                         })
                 .collect(Collectors.toList());
@@ -264,8 +257,10 @@ public class RecordUtils {
     /**
      * Return the timestamp when the change event is produced in MySQL.
      *
-     * <p>The field `source.ts_ms` in {@link SourceRecord} data struct is the time when the change
-     * event is operated in MySQL.</p>
+     * <p>
+     * The field `source.ts_ms` in {@link SourceRecord} data struct is the time when
+     * the change event is operated in MySQL.
+     * </p>
      */
     public static Long getMessageTimestamp(SourceRecord record) {
         Schema schema = record.valueSchema();
@@ -283,10 +278,13 @@ public class RecordUtils {
     }
 
     /**
-     * Return the timestamp when the change event is fetched in {@link DebeziumReader}.
+     * Return the timestamp when the change event is fetched in
+     * {@link DebeziumReader}.
      *
-     * <p>The field `ts_ms` in {@link SourceRecord} data struct is the time when the record fetched
-     * by debezium reader, use it as the process time in Source.</p>
+     * <p>
+     * The field `ts_ms` in {@link SourceRecord} data struct is the time when the
+     * record fetched by debezium reader, use it as the process time in Source.
+     * </p>
      */
     public static Long getFetchTimestamp(SourceRecord record) {
         Schema schema = record.valueSchema();
@@ -314,8 +312,8 @@ public class RecordUtils {
     /**
      * Return the finished snapshot split information.
      *
-     * @return [splitId, splitStart, splitEnd, highWatermark], the information will be used to
-     *     filter binlog events when read binlog of table.
+     * @return [splitId, splitStart, splitEnd, highWatermark], the information will
+     *         be used to filter binlog events when read binlog of table.
      */
     public static FinishedSnapshotSplitInfo getSnapshotSplitInfo(
             MySqlSnapshotSplit split, SourceRecord highWatermark) {
@@ -334,10 +332,9 @@ public class RecordUtils {
      */
     public static BinlogOffset getStartingOffsetOfBinlogSplit(
             List<FinishedSnapshotSplitInfo> finishedSnapshotSplits) {
-        BinlogOffset startOffset =
-                finishedSnapshotSplits.isEmpty()
-                        ? BinlogOffset.INITIAL_OFFSET
-                        : finishedSnapshotSplits.get(0).getHighWatermark();
+        BinlogOffset startOffset = finishedSnapshotSplits.isEmpty()
+                ? BinlogOffset.INITIAL_OFFSET
+                : finishedSnapshotSplits.get(0).getHighWatermark();
         for (FinishedSnapshotSplitInfo finishedSnapshotSplit : finishedSnapshotSplits) {
             if (finishedSnapshotSplit.getHighWatermark().isBefore(startOffset)) {
                 startOffset = finishedSnapshotSplit.getHighWatermark();
@@ -362,7 +359,8 @@ public class RecordUtils {
     }
 
     public static Object[] getSplitKey(
-            RowType splitBoundaryType, SourceRecord dataRecord, SchemaNameAdjuster nameAdjuster) {
+            RowType splitBoundaryType, SourceRecord dataRecord,
+            SchemaNameAdjuster nameAdjuster) {
         // the split key field contains single field now
         String splitFieldName = nameAdjuster.adjust(splitBoundaryType.getFieldNames().get(0));
         Struct key = (Struct) dataRecord.key();
@@ -414,7 +412,7 @@ public class RecordUtils {
             }
             return Arrays.stream(lowerBoundRes).anyMatch(value -> value >= 0)
                     && (Arrays.stream(upperBoundRes).anyMatch(value -> value < 0)
-                    && Arrays.stream(upperBoundRes).allMatch(value -> value <= 0));
+                            && Arrays.stream(upperBoundRes).allMatch(value -> value <= 0));
         }
     }
 

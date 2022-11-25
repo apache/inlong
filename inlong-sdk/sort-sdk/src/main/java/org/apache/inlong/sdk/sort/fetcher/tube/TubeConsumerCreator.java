@@ -32,11 +32,13 @@ public class TubeConsumerCreator {
     /**
      * TubeConsumerCreater constructor
      *
-     * @param messageSessionFactory {@link MessageSessionFactory}
-     * @param consumerConfig {@link TubeClientConfig}
+     * @param messageSessionFactory
+     *          {@link MessageSessionFactory}
+     * @param consumerConfig
+     *          {@link TubeClientConfig}
      */
     public TubeConsumerCreator(MessageSessionFactory messageSessionFactory,
-                               TubeClientConfig consumerConfig) {
+            TubeClientConfig consumerConfig) {
         this.messageSessionFactory = messageSessionFactory;
         this.consumerConfig = consumerConfig;
     }

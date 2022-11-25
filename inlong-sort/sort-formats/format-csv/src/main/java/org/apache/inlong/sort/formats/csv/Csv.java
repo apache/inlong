@@ -21,16 +21,19 @@ package org.apache.inlong.sort.formats.csv;
 import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-import java.nio.charset.Charset;
-import java.util.Map;
+import org.apache.inlong.sort.formats.base.TableFormatConstants;
+
 import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.table.descriptors.FormatDescriptor;
-import org.apache.inlong.sort.formats.base.TableFormatConstants;
+
+import java.nio.charset.Charset;
+import java.util.Map;
 
 /**
  * Format descriptor for comma-separated values (CSV).
  *
- * <p>This descriptor aims to comply with RFC-4180 ("Common Format and MIME Type
+ * <p>
+ * This descriptor aims to comply with RFC-4180 ("Common Format and MIME Type
  * for Comma-Separated Values (CSV) Files") proposed by the Internet Engineering
  * Task Force (IETF).
  */
@@ -38,8 +41,7 @@ public class Csv extends FormatDescriptor {
 
     public static final String FORMAT_TYPE_VALUE = "tdcsv";
 
-    private DescriptorProperties internalProperties =
-            new DescriptorProperties(true);
+    private DescriptorProperties internalProperties = new DescriptorProperties(true);
 
     public Csv() {
         super(FORMAT_TYPE_VALUE, 1);
@@ -48,7 +50,8 @@ public class Csv extends FormatDescriptor {
     /**
      * Sets the delimiter character (',' by default).
      *
-     * @param delimiter the field delimiter character
+     * @param delimiter
+     *          the field delimiter character
      */
     public Csv delimiter(char delimiter) {
         internalProperties.putCharacter(TableFormatConstants.FORMAT_DELIMITER, delimiter);
@@ -58,7 +61,8 @@ public class Csv extends FormatDescriptor {
     /**
      * Sets the escape character (disabled by default).
      *
-     * @param escapeCharacter escaping character (e.g. backslash).
+     * @param escapeCharacter
+     *          escaping character (e.g. backslash).
      */
     public Csv escapeCharacter(char escapeCharacter) {
         internalProperties
@@ -69,7 +73,8 @@ public class Csv extends FormatDescriptor {
     /**
      * Sets the quote character (disabled by default).
      *
-     * @param quoteCharacter quoting character (e.g. quotation).
+     * @param quoteCharacter
+     *          quoting character (e.g. quotation).
      */
     public Csv quoteCharacter(char quoteCharacter) {
         internalProperties.putCharacter(TableFormatConstants.FORMAT_QUOTE_CHARACTER, quoteCharacter);
@@ -77,10 +82,11 @@ public class Csv extends FormatDescriptor {
     }
 
     /**
-     * Sets the null literal string that is interpreted as a null value
-     * (disabled by default).
+     * Sets the null literal string that is interpreted as a null value (disabled by
+     * default).
      *
-     * @param nullLiteral null literal (e.g. "null" or "n/a")
+     * @param nullLiteral
+     *          null literal (e.g. "null" or "n/a")
      */
     public Csv nullLiteral(String nullLiteral) {
         checkNotNull(nullLiteral);
@@ -91,7 +97,8 @@ public class Csv extends FormatDescriptor {
     /**
      * Sets the charset of the text.
      *
-     * @param charset The charset of the text.
+     * @param charset
+     *          The charset of the text.
      */
     public Csv charset(Charset charset) {
         checkNotNull(charset);
@@ -110,7 +117,8 @@ public class Csv extends FormatDescriptor {
     /**
      * Sets the format schema. Required if schema is not derived.
      *
-     * @param schema format schema string.
+     * @param schema
+     *          format schema string.
      */
     public Csv schema(String schema) {
         checkNotNull(schema);
@@ -122,12 +130,13 @@ public class Csv extends FormatDescriptor {
      * Derives the format schema from the table's schema. Required if no format
      * schema is defined.
      *
-     * <p>This allows for defining schema information only once.
+     * <p>
+     * This allows for defining schema information only once.
      *
-     * <p>The names, types, and fields' order of the format are determined by
-     * the table's schema. Time attributes are ignored if their origin is not a
-     * field. A "from" definition is interpreted as a field renaming in the
-     * format.
+     * <p>
+     * The names, types, and fields' order of the format are determined by the
+     * table's schema. Time attributes are ignored if their origin is not a field. A
+     * "from" definition is interpreted as a field renaming in the format.
      */
     public Csv deriveSchema() {
         internalProperties.putBoolean(FORMAT_DERIVE_SCHEMA, true);

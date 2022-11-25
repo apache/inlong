@@ -17,14 +17,16 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.flume.Context;
-import org.apache.flume.conf.Configurable;
+import static org.apache.inlong.dataproxy.config.loader.ConfigLoader.RELOAD_INTERVAL;
+import static org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader.IDTOPIC_CONFIG_TYPE;
+
 import org.apache.inlong.dataproxy.config.loader.ContextIdTopicConfigLoader;
 import org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader;
 import org.apache.inlong.dataproxy.config.pojo.IdTopicConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.ClassUtils;
+import org.apache.flume.Context;
+import org.apache.flume.conf.Configurable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,8 +36,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.apache.inlong.dataproxy.config.loader.ConfigLoader.RELOAD_INTERVAL;
-import static org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader.IDTOPIC_CONFIG_TYPE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -150,7 +152,7 @@ public class IdTopicConfigHolder implements Configurable {
     /**
      * getTopic
      * 
-     * @param  uid
+     * @param uid
      * @return
      */
     public String getTopic(String uid) {

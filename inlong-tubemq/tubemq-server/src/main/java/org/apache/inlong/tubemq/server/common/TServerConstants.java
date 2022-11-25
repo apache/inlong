@@ -86,8 +86,7 @@ public final class TServerConstants {
     public static final int CFG_DEFAULT_CONSUME_RULE = 300;
     public static final int CFG_DELETEWHEN_MAX_LENGTH = 1024;
     public static final int CFG_DELETEPOLICY_MAX_LENGTH = 1024;
-    public static final int CFG_CONSUMER_CLIENTID_MAX_LENGTH =
-            TBaseConstants.META_MAX_GROUPNAME_LENGTH + 512;
+    public static final int CFG_CONSUMER_CLIENTID_MAX_LENGTH = TBaseConstants.META_MAX_GROUPNAME_LENGTH + 512;
 
     public static final long CFG_REPORT_DEFAULT_SYNC_DURATION = 2 * 3600 * 1000;
     public static final long CFG_STORE_STATS_MAX_REFRESH_DURATION = 20 * 60 * 1000;
@@ -100,10 +99,8 @@ public final class TServerConstants {
     public static final long CFG_MIN_GROUP_OFFSET_SCAN_DUR = 20000L;
     public static final long CFG_MAX_GROUP_OFFSET_SCAN_DUR = 480000L;
 
-    public static final long CFG_OFFSET_RESET_MIN_ALARM_CHECK =
-            DataStoreUtils.STORE_INDEX_HEAD_LEN * 100000L;
-    public static final long CFG_OFFSET_RESET_MID_ALARM_CHECK =
-            DataStoreUtils.STORE_INDEX_HEAD_LEN * 1000000L;
+    public static final long CFG_OFFSET_RESET_MIN_ALARM_CHECK = DataStoreUtils.STORE_INDEX_HEAD_LEN * 100000L;
+    public static final long CFG_OFFSET_RESET_MID_ALARM_CHECK = DataStoreUtils.STORE_INDEX_HEAD_LEN * 1000000L;
 
     // max statistics token type length
     public static final int META_MAX_STATSTYPE_LENGTH = 256;

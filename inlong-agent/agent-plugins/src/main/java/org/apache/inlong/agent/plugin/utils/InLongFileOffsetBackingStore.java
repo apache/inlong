@@ -17,9 +17,9 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import io.debezium.embedded.EmbeddedEngine;
 import org.apache.inlong.agent.pojo.DebeziumOffset;
 import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
+
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.runtime.WorkerConfig;
@@ -29,8 +29,6 @@ import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
 import org.apache.kafka.connect.storage.OffsetStorageWriter;
 import org.apache.kafka.connect.util.SafeObjectInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.EOFException;
 import java.io.File;
@@ -47,10 +45,16 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.embedded.EmbeddedEngine;
+
 /**
- * Implementation of OffsetBackingStore that saves data locally to a file. To ensure this behaves
- * similarly to a real backing store, operations are executed asynchronously on a background thread.
- * The offset position can be specified
+ * Implementation of OffsetBackingStore that saves data locally to a file. To
+ * ensure this behaves similarly to a real backing store, operations are
+ * executed asynchronously on a background thread. The offset position can be
+ * specified
  */
 public class InLongFileOffsetBackingStore extends MemoryOffsetBackingStore {
 
@@ -67,7 +71,8 @@ public class InLongFileOffsetBackingStore extends MemoryOffsetBackingStore {
     public void configure(WorkerConfig config) {
         super.configure(config);
         file = new File(config.getString(StandaloneConfig.OFFSET_STORAGE_FILE_FILENAME_CONFIG));
-        // eagerly initialize the executor, because OffsetStorageWriter will use it later
+        // eagerly initialize the executor, because OffsetStorageWriter will use it
+        // later
         start();
 
         Map<String, ?> conf = config.originals();
@@ -93,14 +98,13 @@ public class InLongFileOffsetBackingStore extends MemoryOffsetBackingStore {
         Map<String, Object> valueConfigs = new HashMap<>(conf);
         valueConfigs.put("schemas.enable", false);
         valueConverter.configure(valueConfigs, true);
-        OffsetStorageWriter offsetWriter =
-                new OffsetStorageWriter(
-                        this,
-                        // must use engineName as namespace to align with Debezium Engine
-                        // implementation
-                        engineName,
-                        keyConverter,
-                        valueConverter);
+        OffsetStorageWriter offsetWriter = new OffsetStorageWriter(
+                this,
+                // must use engineName as namespace to align with Debezium Engine
+                // implementation
+                engineName,
+                keyConverter,
+                valueConverter);
 
         offsetWriter.offset(debeziumOffset.sourcePartition, debeziumOffset.sourceOffset);
 
@@ -114,15 +118,14 @@ public class InLongFileOffsetBackingStore extends MemoryOffsetBackingStore {
         }
 
         // trigger flushing
-        Future<Void> flushFuture =
-                offsetWriter.doFlush(
-                        (error, result) -> {
-                            if (error != null) {
-                                log.error("Failed to flush initial offset.", error);
-                            } else {
-                                log.debug("Successfully flush initial offset.");
-                            }
-                        });
+        Future<Void> flushFuture = offsetWriter.doFlush(
+                (error, result) -> {
+                    if (error != null) {
+                        log.error("Failed to flush initial offset.", error);
+                    } else {
+                        log.debug("Successfully flush initial offset.");
+                    }
+                });
 
         // wait until flushing finished
         try {

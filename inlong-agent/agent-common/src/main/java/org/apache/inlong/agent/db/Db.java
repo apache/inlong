@@ -19,9 +19,10 @@ package org.apache.inlong.agent.db;
 
 import org.apache.inlong.common.db.CommandEntity;
 
-import javax.management.openmbean.KeyAlreadyExistsException;
 import java.io.Closeable;
 import java.util.List;
+
+import javax.management.openmbean.KeyAlreadyExistsException;
 
 /**
  * local storage for key/value.
@@ -43,56 +44,69 @@ public interface Db extends Closeable {
     /**
      * store keyValue, if key has exists, throw exception.
      *
-     * @param entity key/value
-     * @throws NullPointerException key should not be null
-     * @throws KeyAlreadyExistsException key already exists
+     * @param entity
+     *          key/value
+     * @throws NullPointerException
+     *           key should not be null
+     * @throws KeyAlreadyExistsException
+     *           key already exists
      */
     void set(KeyValueEntity entity);
 
     /**
      * store keyValue, if key has exists, overwrite it.
      *
-     * @param entity key/value
+     * @param entity
+     *          key/value
      * @return null or old value which is overwritten.
-     * @throws NullPointerException key should not be null.
+     * @throws NullPointerException
+     *           key should not be null.
      */
     KeyValueEntity put(KeyValueEntity entity);
 
     /**
      * remove keyValue by key.
      *
-     * @param key key
+     * @param key
+     *          key
      * @return key/value
-     * @throws NullPointerException key should not be null.
+     * @throws NullPointerException
+     *           key should not be null.
      */
     KeyValueEntity remove(String key);
 
     /**
      * search keyValue list by search key.
      *
-     * @param searchKey search keys.
+     * @param searchKey
+     *          search keys.
      * @return key/value list
-     * @throws NullPointerException search key should not be null.
+     * @throws NullPointerException
+     *           search key should not be null.
      */
     List<KeyValueEntity> search(StateSearchKey searchKey);
-
 
     /**
      * search keyValue list by search key.
      *
-     * @param searchKeys search keys.
+     * @param searchKeys
+     *          search keys.
      * @return key/value list
-     * @throws NullPointerException search key should not be null.
+     * @throws NullPointerException
+     *           search key should not be null.
      */
     List<KeyValueEntity> search(List<StateSearchKey> searchKeys);
 
     /**
      * search keyValue list by search key.
      *
-     * @param searchKey search keys.
-     * @param keyPrefix key prefix.
+     * @param searchKey
+     *          search keys.
+     * @param keyPrefix
+     *          key prefix.
      * @return key/value list
-     * @throws NullPointerException search key should not be null.
+     * @throws NullPointerException
+     *           search key should not be null.
      */
     List<KeyValueEntity> searchWithKeyPrefix(StateSearchKey searchKey, String keyPrefix);
 
@@ -104,7 +118,8 @@ public interface Db extends Closeable {
     /**
      * search one keyValue by search key
      *
-     * @param searchKey search key
+     * @param searchKey
+     *          search key
      * @return null or keyValue
      */
     KeyValueEntity searchOne(StateSearchKey searchKey);
@@ -117,7 +132,8 @@ public interface Db extends Closeable {
     /**
      * find all by prefix key.
      *
-     * @param prefix prefix string
+     * @param prefix
+     *          prefix string
      * @return list of k/v
      */
     List<KeyValueEntity> findAll(String prefix);

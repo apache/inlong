@@ -17,10 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.BrokerInfo;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
@@ -32,6 +28,12 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.StepStatus;
 import org.apache.inlong.tubemq.server.master.utils.BrokerStatusSamplePrint;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,49 +42,44 @@ import org.slf4j.LoggerFactory;
  */
 public class BrokerRunStatusInfo {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(BrokerRunStatusInfo.class);
-    private static final BrokerStatusSamplePrint statusFsmSamplePrint =
-            new BrokerStatusSamplePrint(logger);
+    private static final Logger logger = LoggerFactory.getLogger(BrokerRunStatusInfo.class);
+    private static final BrokerStatusSamplePrint statusFsmSamplePrint = new BrokerStatusSamplePrint(logger);
 
     private final BrokerRunManager brokerRunManager;
 
     private BrokerInfo brokerInfo;
     private String createId;
     // config change flag
-    private final AtomicBoolean isConfChanged =
-            new AtomicBoolean(false);
-    private final AtomicLong confChangeNo =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicBoolean isConfChanged = new AtomicBoolean(false);
+    private final AtomicLong confChangeNo = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     // data sync status
     private StepStatus curStepStatus;
     private volatile long nextStepOpTimeInMills = 0;
     // current loaded change No.
-    private final AtomicLong confLoadedNo =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong confLoadedNo = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     // broker sync data info
     BrokerSyncData brokerSyncData = new BrokerSyncData();
     // broker status conditions
-    private boolean isOnline = false;       // broker online flag
+    private boolean isOnline = false; // broker online flag
     private boolean isDoneDataLoad = false;
     private boolean isDoneDataSub = false;
     private boolean isDoneDataPub = false;
-    private boolean isOverTLS = false;    // enable tls
+    private boolean isOverTLS = false; // enable tls
     private long lastBrokerSyncTime = 0;
     private long maxConfLoadedTimeInMs = 0;
     private long curConfLoadTimeInMs = 0;
 
     public BrokerRunStatusInfo(BrokerRunManager brokerRunManager, BrokerInfo brokerInfo,
-                               ManageStatus mngStatus, String brokerConfInfo,
-                               Map<String, String> topicConfInfoMap, boolean isOverTls) {
+            ManageStatus mngStatus, String brokerConfInfo,
+            Map<String, String> topicConfInfoMap, boolean isOverTls) {
         this.brokerRunManager = brokerRunManager;
         reInitRunStatusInfo(brokerInfo, mngStatus,
                 brokerConfInfo, topicConfInfoMap, isOverTls);
     }
 
     public void reInitRunStatusInfo(BrokerInfo brokerInfo, ManageStatus mngStatus,
-                                    String brokerConfInfo, Map<String, String> topicConfInfoMap,
-                                    boolean isOverTls) {
+            String brokerConfInfo, Map<String, String> topicConfInfoMap,
+            boolean isOverTls) {
         resetStatusInfo();
         this.createId = String.valueOf(System.nanoTime());
         this.brokerInfo = brokerInfo;
@@ -109,7 +106,7 @@ public class BrokerRunStatusInfo {
     private boolean isDataChanged() {
         return (this.isConfChanged.get()
                 || (this.curStepStatus == StepStatus.STEP_STATUS_UNDEFINED
-                && this.confChangeNo.get() != this.confLoadedNo.get()));
+                        && this.confChangeNo.get() != this.confLoadedNo.get()));
     }
 
     public String getCreateId() {
@@ -148,27 +145,33 @@ public class BrokerRunStatusInfo {
     /**
      * Book broker report info
      *
-     * @param isRegister         request method
-     * @param isOnline           if broker is ready
-     * @param repConfigId        report configure id
-     * @param repCheckSumId      report configure check sum
-     * @param isTackData         if tack data in request
-     * @param repBrokerConfInfo  tacked broker configure
-     * @param repTopicConfs      tacked topic configure
-     * @param sBuffer            string process container
+     * @param isRegister
+     *          request method
+     * @param isOnline
+     *          if broker is ready
+     * @param repConfigId
+     *          report configure id
+     * @param repCheckSumId
+     *          report configure check sum
+     * @param isTackData
+     *          if tack data in request
+     * @param repBrokerConfInfo
+     *          tacked broker configure
+     * @param repTopicConfs
+     *          tacked topic configure
+     * @param sBuffer
+     *          string process container
      */
     public void bookBrokerReportInfo(boolean isRegister, boolean isOnline,
-                                     long repConfigId, int repCheckSumId,
-                                     boolean isTackData, String repBrokerConfInfo,
-                                     List<String> repTopicConfs,
-                                     StringBuilder sBuffer) {
+            long repConfigId, int repCheckSumId,
+            boolean isTackData, String repBrokerConfInfo,
+            List<String> repTopicConfs,
+            StringBuilder sBuffer) {
         this.isOnline = isOnline;
-        boolean isSynchronized =
-                brokerSyncData.bookBrokerReportInfo(brokerInfo, repConfigId,
-                        repCheckSumId, isTackData, repBrokerConfInfo, repTopicConfs);
+        boolean isSynchronized = brokerSyncData.bookBrokerReportInfo(brokerInfo, repConfigId,
+                repCheckSumId, isTackData, repBrokerConfInfo, repTopicConfs);
         if (isRegister && isOnline && isTackData) {
-            Tuple2<ManageStatus, Map<String, TopicInfo>> syncData =
-                    brokerSyncData.getBrokerPublishInfo();
+            Tuple2<ManageStatus, Map<String, TopicInfo>> syncData = brokerSyncData.getBrokerPublishInfo();
             brokerRunManager.iniBrokerConfInfo(brokerInfo.getBrokerId(),
                     syncData.getF0(), syncData.getF1());
         }
@@ -178,7 +181,8 @@ public class BrokerRunStatusInfo {
     /**
      * Format broker run-status information to json string
      *
-     * @param sBuffer  string process container
+     * @param sBuffer
+     *          string process container
      * @return process result
      */
     public StringBuilder toJsonString(StringBuilder sBuffer) {
@@ -207,8 +211,8 @@ public class BrokerRunStatusInfo {
     }
 
     private void goNextStatus(boolean isRegister,
-                              boolean isSynchronized,
-                              StringBuilder sBuffer) {
+            boolean isSynchronized,
+            StringBuilder sBuffer) {
         if (isRegister) {
             goRegNextStatus(isSynchronized);
         } else {
@@ -222,22 +226,21 @@ public class BrokerRunStatusInfo {
             case STEP_STATUS_LOAD_DATA: {
                 loadNewMetaData(sBuffer);
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_SUBSCRIBE: {
                 if (execSyncDataToSub()) {
                     execSyncDataToPub();
                     curStepStatus = StepStatus.STEP_STATUS_WAIT_PUBLISH;
-                    nextStepOpTimeInMills =
-                            System.currentTimeMillis() + curStepStatus.getShortDelayDurIdnMs();
+                    nextStepOpTimeInMills = System.currentTimeMillis() + curStepStatus.getShortDelayDurIdnMs();
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_PUBLISH: {
                 execSyncDataToPub();
             }
-            break;
+                break;
 
             case STEP_STATUS_UNDEFINED:
             case STEP_STATUS_WAIT_ONLINE:
@@ -266,11 +269,10 @@ public class BrokerRunStatusInfo {
                 if (!isSynchronized || isDataChanged() || needForceSyncData()) {
                     resetStatusInfo();
                     curStepStatus = StepStatus.STEP_STATUS_LOAD_DATA;
-                    nextStepOpTimeInMills =
-                            System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
+                    nextStepOpTimeInMills = System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_LOAD_DATA: {
                 if (isDoneDataLoad) {
@@ -280,12 +282,11 @@ public class BrokerRunStatusInfo {
                         } else {
                             curStepStatus = StepStatus.STEP_STATUS_WAIT_SYNC;
                         }
-                        nextStepOpTimeInMills =
-                                System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
+                        nextStepOpTimeInMills = System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                     }
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_ONLINE: {
                 if (isOnline) {
@@ -294,29 +295,26 @@ public class BrokerRunStatusInfo {
                     } else {
                         curStepStatus = StepStatus.STEP_STATUS_WAIT_SYNC;
                     }
-                    nextStepOpTimeInMills =
-                            System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
+                    nextStepOpTimeInMills = System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_SYNC: {
                 if (isSynchronized) {
                     curStepStatus = StepStatus.STEP_STATUS_WAIT_SUBSCRIBE;
-                    nextStepOpTimeInMills =
-                            System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
+                    nextStepOpTimeInMills = System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_SUBSCRIBE: {
                 if (isDoneDataSub && System.currentTimeMillis() > nextStepOpTimeInMills) {
                     curStepStatus = StepStatus.STEP_STATUS_WAIT_PUBLISH;
-                    nextStepOpTimeInMills =
-                            System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
+                    nextStepOpTimeInMills = System.currentTimeMillis() + curStepStatus.getNormalDelayDurInMs();
                 }
             }
-            break;
+                break;
 
             case STEP_STATUS_WAIT_PUBLISH:
             default: {
@@ -332,8 +330,8 @@ public class BrokerRunStatusInfo {
             return;
         }
         boolean needForceSync = needForceSyncData();
-        Tuple3<ManageStatus, String, Map<String, String>> curConfTuple =
-                brokerRunManager.getBrokerMetaConfigInfo(brokerInfo.getBrokerId());
+        Tuple3<ManageStatus, String, Map<String, String>> curConfTuple = brokerRunManager
+                .getBrokerMetaConfigInfo(brokerInfo.getBrokerId());
         if (TStringUtils.isBlank(curConfTuple.getF1())) {
             statusFsmSamplePrint.printWarn(sBuffer
                     .append("[Broker Sync] found broker(")
@@ -342,10 +340,9 @@ public class BrokerRunStatusInfo {
             sBuffer.delete(0, sBuffer.length());
             return;
         }
-        Tuple2<Boolean, Boolean> updResult =
-                brokerSyncData.updBrokerSyncData(needForceSync,
-                        confChangeNo.get(), curConfTuple.getF0(),
-                        curConfTuple.getF1(), curConfTuple.getF2());
+        Tuple2<Boolean, Boolean> updResult = brokerSyncData.updBrokerSyncData(needForceSync,
+                confChangeNo.get(), curConfTuple.getF0(),
+                curConfTuple.getF1(), curConfTuple.getF2());
         if (updResult == null) {
             return;
         }
@@ -360,8 +357,7 @@ public class BrokerRunStatusInfo {
         if (isDoneDataSub) {
             return (System.currentTimeMillis() > nextStepOpTimeInMills);
         }
-        Tuple2<ManageStatus, Map<String, TopicInfo>> syncData =
-                brokerSyncData.getBrokerPublishInfo();
+        Tuple2<ManageStatus, Map<String, TopicInfo>> syncData = brokerSyncData.getBrokerPublishInfo();
         boolean needFastSync = brokerRunManager.updBrokerCsmConfInfo(
                 brokerInfo.getBrokerId(), syncData.getF0(), syncData.getF1());
         isDoneDataSub = true;
@@ -372,8 +368,7 @@ public class BrokerRunStatusInfo {
         if (isDoneDataPub) {
             return;
         }
-        Tuple2<ManageStatus, Map<String, TopicInfo>> syncData =
-                brokerSyncData.getBrokerPublishInfo();
+        Tuple2<ManageStatus, Map<String, TopicInfo>> syncData = brokerSyncData.getBrokerPublishInfo();
         brokerRunManager.updBrokerPrdConfInfo(brokerInfo.getBrokerId(),
                 syncData.getF0(), syncData.getF1());
         isDoneDataPub = true;
@@ -401,12 +396,12 @@ public class BrokerRunStatusInfo {
     }
 
     /**
-     * According to last report time and current time to decide if need to report data
+     * According to last report time and current time to decide if need to report
+     * data
      *
      * @return true if need report data otherwise false
      */
     private boolean needForceSyncData() {
-        return System.currentTimeMillis() - this.lastBrokerSyncTime
-                > TServerConstants.CFG_REPORT_DEFAULT_SYNC_DURATION;
+        return System.currentTimeMillis() - this.lastBrokerSyncTime > TServerConstants.CFG_REPORT_DEFAULT_SYNC_DURATION;
     }
 }

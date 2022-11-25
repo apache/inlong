@@ -29,7 +29,8 @@ public interface UserService {
     /**
      * Save user info
      *
-     * @param request user info request
+     * @param request
+     *          user info request
      * @return user id after saving
      */
     Integer save(UserRequest request, String currentUser);
@@ -37,7 +38,8 @@ public interface UserService {
     /**
      * Get user info by user id
      *
-     * @param id user id
+     * @param id
+     *          user id
      * @return user info
      */
     UserInfo getById(Integer id, String currentUser);
@@ -45,7 +47,8 @@ public interface UserService {
     /**
      * Get user by name
      *
-     * @param name username
+     * @param name
+     *          username
      * @return user info
      */
     UserInfo getByName(String name);
@@ -53,7 +56,8 @@ public interface UserService {
     /**
      * List all users basic info by request condition
      *
-     * @param request request
+     * @param request
+     *          request
      * @return user info list
      */
     PageResult<UserInfo> list(UserRequest request);
@@ -61,8 +65,10 @@ public interface UserService {
     /**
      * Update user info
      *
-     * @param request user info request
-     * @param currentUser current user name
+     * @param request
+     *          user info request
+     * @param currentUser
+     *          current user name
      * @return user id
      */
     Integer update(UserRequest request, String currentUser);
@@ -70,8 +76,10 @@ public interface UserService {
     /**
      * Delete user by id
      *
-     * @param userId user id
-     * @param currentUser current user name
+     * @param userId
+     *          user id
+     * @param currentUser
+     *          current user name
      * @return whether succeed
      */
     Boolean delete(Integer userId, String currentUser);

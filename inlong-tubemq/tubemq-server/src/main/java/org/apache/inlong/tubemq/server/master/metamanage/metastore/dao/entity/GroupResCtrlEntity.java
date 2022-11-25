@@ -17,18 +17,20 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Objects;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCtrlEntity;
 
+import java.util.Objects;
+
 /*
  * store the group resource control setting
  *
  */
 public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
+
     // group name
     private String groupName = "";
     // resource check control
@@ -38,8 +40,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     private int qryPriorityId = TBaseConstants.META_VALUE_UNDEFINED;
     // consume group flow control info
     private EnableStatus flowCtrlStatus = EnableStatus.STATUS_UNDEFINE;
-    private int ruleCnt = 0;           // flow control rule count
-    private String flowCtrlInfo = "";  // flow control info
+    private int ruleCnt = 0; // flow control rule count
+    private String flowCtrlInfo = ""; // flow control info
 
     // only for query
     public GroupResCtrlEntity() {
@@ -54,7 +56,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * Constructor by BdbGroupFlowCtrlEntity
      *
-     * @param bdbEntity  the BdbGroupFlowCtrlEntity initial object
+     * @param bdbEntity
+     *          the BdbGroupFlowCtrlEntity initial object
      */
     public GroupResCtrlEntity(BdbGroupFlowCtrlEntity bdbEntity) {
         super(bdbEntity.getSerialId(),
@@ -80,12 +83,11 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      * @return the BdbGroupFlowCtrlEntity object
      */
     public BdbGroupFlowCtrlEntity buildBdbGroupFlowCtrlEntity() {
-        //Constructor
+        // Constructor
         int statusId = (this.flowCtrlStatus == EnableStatus.STATUS_ENABLE) ? 1 : 0;
-        BdbGroupFlowCtrlEntity bdbEntity =
-                new BdbGroupFlowCtrlEntity(getDataVerId(), this.groupName,
-                        this.flowCtrlInfo, statusId, this.ruleCnt, this.qryPriorityId,
-                        getAttributes(), getModifyUser(), getModifyDate());
+        BdbGroupFlowCtrlEntity bdbEntity = new BdbGroupFlowCtrlEntity(getDataVerId(), this.groupName,
+                this.flowCtrlInfo, statusId, this.ruleCnt, this.qryPriorityId,
+                getAttributes(), getModifyUser(), getModifyDate());
         bdbEntity.setCreateInfo(getCreateUser(), getCreateDate());
         bdbEntity.setResCheckStatus(resCheckStatus);
         bdbEntity.setAllowedBrokerClientRate(allowedBrokerClientRate);
@@ -198,20 +200,27 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * update subclass field values
      *
-     * @param dataVerId          new data version id
-     * @param resChkEnable       new resource check status
-     * @param allowedB2CRate     new B2C rate value
-     * @param qryPriorityId      new qryPriorityId value
-     * @param flowCtrlEnable     new flow control enable status
-     * @param flowRuleCnt        new flow control rule count
-     * @param flowCtrlRuleInfo   new flow control rule information
+     * @param dataVerId
+     *          new data version id
+     * @param resChkEnable
+     *          new resource check status
+     * @param allowedB2CRate
+     *          new B2C rate value
+     * @param qryPriorityId
+     *          new qryPriorityId value
+     * @param flowCtrlEnable
+     *          new flow control enable status
+     * @param flowRuleCnt
+     *          new flow control rule count
+     * @param flowCtrlRuleInfo
+     *          new flow control rule information
      *
-     * @return  whether changed
+     * @return whether changed
      */
     public boolean updModifyInfo(long dataVerId,
-                                 EnableStatus resChkEnable, int allowedB2CRate,
-                                 int qryPriorityId, EnableStatus flowCtrlEnable,
-                                 int flowRuleCnt, String flowCtrlRuleInfo) {
+            EnableStatus resChkEnable, int allowedB2CRate,
+            int qryPriorityId, EnableStatus flowCtrlEnable,
+            int flowRuleCnt, String flowCtrlRuleInfo) {
         boolean changed = false;
         // check and set dataVerId info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -258,10 +267,10 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     /**
-     * Check whether the specified query item value matches
-     * Allowed query items:
-     *   groupName, qryPriorityId, resCheckStatus,
-     *   flowCtrlStatus, allowedBrokerClientRate
+     * Check whether the specified query item value matches Allowed query items:
+     * groupName, qryPriorityId, resCheckStatus, flowCtrlStatus,
+     * allowedBrokerClientRate
+     * 
      * @return true: matched, false: not match
      */
     public boolean isMatched(GroupResCtrlEntity target) {
@@ -274,26 +283,29 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         return (target.getQryPriorityId() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getQryPriorityId() == this.qryPriorityId)
                 && (TStringUtils.isBlank(target.getGroupName())
-                || target.getGroupName().equals(this.groupName))
+                        || target.getGroupName().equals(this.groupName))
                 && (target.getResCheckStatus() == EnableStatus.STATUS_UNDEFINE
-                || target.getResCheckStatus() == this.resCheckStatus)
+                        || target.getResCheckStatus() == this.resCheckStatus)
                 && (target.getFlowCtrlStatus() == EnableStatus.STATUS_UNDEFINE
-                || target.getFlowCtrlStatus() == this.flowCtrlStatus)
+                        || target.getFlowCtrlStatus() == this.flowCtrlStatus)
                 && (target.getAllowedBrokerClientRate() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getAllowedBrokerClientRate() == this.allowedBrokerClientRate);
+                        || target.getAllowedBrokerClientRate() == this.allowedBrokerClientRate);
     }
 
     /**
      * Serialize field to json format
      *
-     * @param sBuffer   build container
-     * @param isLongName if return field key is long name
-     * @param fullFormat if return full format json
-     * @return    process result
+     * @param sBuffer
+     *          build container
+     * @param isLongName
+     *          if return field key is long name
+     * @param fullFormat
+     *          if return full format json
+     * @return process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuffer,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         if (isLongName) {
             sBuffer.append("{\"groupName\":\"").append(groupName).append("\"")
                     .append(",\"resCheckEnable\":").append(resCheckStatus.isEnable())
@@ -321,12 +333,14 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * Serialize field to old version json format
      *
-     * @param sBuffer   build container
-     * @param isLongName if return field key is long name
-     * @return   process result
+     * @param sBuffer
+     *          build container
+     * @param isLongName
+     *          if return field key is long name
+     * @return process result
      */
     public StringBuilder toOldVerFlowCtrlWebJsonStr(StringBuilder sBuffer,
-                                                    boolean isLongName) {
+            boolean isLongName) {
         int statusId = flowCtrlStatus.isEnable() ? 1 : 0;
         if (isLongName) {
             sBuffer.append("{\"groupName\":\"").append(groupName)
@@ -349,7 +363,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     /**
      * check if subclass fields is equals
      *
-     * @param other  check object
+     * @param other
+     *          check object
      * @return if equals
      */
     public boolean isDataEquals(GroupResCtrlEntity other) {

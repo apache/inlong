@@ -27,13 +27,14 @@ import org.apache.inlong.sdk.dataproxy.metric.MetricTimeNumSummary;
 import org.apache.inlong.sdk.dataproxy.network.Sender;
 import org.apache.inlong.sdk.dataproxy.network.SequentialID;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * metric worker
@@ -93,13 +94,20 @@ public class MetricWorkerThread extends Thread implements Closeable {
     /**
      * record num
      *
-     * @param msgId msg uuid
-     * @param groupId groupId
-     * @param streamId streamId
-     * @param localIp ip
-     * @param packTime package time
-     * @param dt dt
-     * @param num num
+     * @param msgId
+     *          msg uuid
+     * @param groupId
+     *          groupId
+     * @param streamId
+     *          streamId
+     * @param localIp
+     *          ip
+     * @param packTime
+     *          package time
+     * @param dt
+     *          dt
+     * @param num
+     *          num
      */
     public void recordNumByKey(String msgId, String groupId, String streamId,
             String localIp, long packTime, long dt, int num) {
@@ -124,7 +132,8 @@ public class MetricWorkerThread extends Thread implements Closeable {
     /**
      * record success num
      *
-     * @param msgId msg id
+     * @param msgId
+     *          msg id
      */
     public void recordSuccessByMessageId(String msgId) {
         if (!enableSlaMetric) {
@@ -151,7 +160,8 @@ public class MetricWorkerThread extends Thread implements Closeable {
     /**
      * record failed num
      *
-     * @param msgId msg id
+     * @param msgId
+     *          msg id
      */
     public void recordFailedByMessageId(String msgId) {
         MessageRecord messageRecord = metricValueCache.remove(msgId);
@@ -265,7 +275,8 @@ public class MetricWorkerThread extends Thread implements Closeable {
     /**
      * flush metric
      *
-     * @param isClosing whether is closing
+     * @param isClosing
+     *          whether is closing
      */
     private void flushMetric(boolean isClosing) {
         lock.writeLock().lock();

@@ -21,6 +21,7 @@ package org.apache.inlong.tubemq.server.broker.stats;
  * Statistic of message, contains message's count and message's size.
  */
 public class TrafficInfo {
+
     private long msgCnt = 0L;
     private long msgSize = 0L;
 

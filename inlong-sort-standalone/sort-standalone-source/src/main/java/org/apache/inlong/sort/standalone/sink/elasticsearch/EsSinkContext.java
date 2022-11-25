@@ -17,14 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
-import org.apache.http.HttpHost;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -36,7 +28,13 @@ import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.BufferQueue;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
+import org.apache.http.HttpHost;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +42,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
@@ -255,7 +257,7 @@ public class EsSinkContext extends SinkContext {
     /**
      * getIdConfig
      * 
-     * @param  uid
+     * @param uid
      * @return
      */
     public EsIdConfig getIdConfig(String uid) {
@@ -292,7 +294,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set sinkContext
      * 
-     * @param sinkContext the sinkContext to set
+     * @param sinkContext
+     *          the sinkContext to set
      */
     public void setSinkContext(Context sinkContext) {
         this.sinkContext = sinkContext;
@@ -301,7 +304,7 @@ public class EsSinkContext extends SinkContext {
     /**
      * offerDispatchQueue
      * 
-     * @param  indexRequest
+     * @param indexRequest
      * @return
      */
     public void offerDispatchQueue(EsIndexRequest indexRequest) {
@@ -326,7 +329,7 @@ public class EsSinkContext extends SinkContext {
     /**
      * backDispatchQueue
      * 
-     * @param  indexRequest
+     * @param indexRequest
      * @return
      */
     public void backDispatchQueue(EsIndexRequest indexRequest) {
@@ -337,7 +340,7 @@ public class EsSinkContext extends SinkContext {
     /**
      * releaseDispatchQueue
      * 
-     * @param  indexRequest
+     * @param indexRequest
      * @return
      */
     public void releaseDispatchQueue(EsIndexRequest indexRequest) {
@@ -356,7 +359,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set bulkAction
      * 
-     * @param bulkAction the bulkAction to set
+     * @param bulkAction
+     *          the bulkAction to set
      */
     public void setBulkAction(int bulkAction) {
         this.bulkAction = bulkAction;
@@ -374,7 +378,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set bulkSizeMb
      * 
-     * @param bulkSizeMb the bulkSizeMb to set
+     * @param bulkSizeMb
+     *          the bulkSizeMb to set
      */
     public void setBulkSizeMb(int bulkSizeMb) {
         this.bulkSizeMb = bulkSizeMb;
@@ -392,7 +397,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set flushInterval
      * 
-     * @param flushInterval the flushInterval to set
+     * @param flushInterval
+     *          the flushInterval to set
      */
     public void setFlushInterval(int flushInterval) {
         this.flushInterval = flushInterval;
@@ -410,7 +416,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set concurrentRequests
      * 
-     * @param concurrentRequests the concurrentRequests to set
+     * @param concurrentRequests
+     *          the concurrentRequests to set
      */
     public void setConcurrentRequests(int concurrentRequests) {
         this.concurrentRequests = concurrentRequests;
@@ -428,7 +435,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set maxConnect
      * 
-     * @param maxConnect the maxConnect to set
+     * @param maxConnect
+     *          the maxConnect to set
      */
     public void setMaxConnect(int maxConnect) {
         this.maxConnect = maxConnect;
@@ -446,7 +454,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set strHttpHosts
      * 
-     * @param strHttpHosts the strHttpHosts to set
+     * @param strHttpHosts
+     *          the strHttpHosts to set
      */
     public void setStrHttpHosts(String strHttpHosts) {
         this.strHttpHosts = strHttpHosts;
@@ -464,7 +473,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set httpHosts
      * 
-     * @param httpHosts the httpHosts to set
+     * @param httpHosts
+     *          the httpHosts to set
      */
     public void setHttpHosts(HttpHost[] httpHosts) {
         this.httpHosts = httpHosts;
@@ -473,7 +483,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set nodeId
      * 
-     * @param nodeId the nodeId to set
+     * @param nodeId
+     *          the nodeId to set
      */
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
@@ -482,7 +493,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set idConfigMap
      * 
-     * @param idConfigMap the idConfigMap to set
+     * @param idConfigMap
+     *          the idConfigMap to set
      */
     public void setIdConfigMap(Map<String, EsIdConfig> idConfigMap) {
         this.idConfigMap = idConfigMap;
@@ -500,7 +512,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set username
      * 
-     * @param username the username to set
+     * @param username
+     *          the username to set
      */
     public void setUsername(String username) {
         this.username = username;
@@ -518,7 +531,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set password
      * 
-     * @param password the password to set
+     * @param password
+     *          the password to set
      */
     public void setPassword(String password) {
         this.password = password;
@@ -536,7 +550,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set keywordMaxLength
      * 
-     * @param keywordMaxLength the keywordMaxLength to set
+     * @param keywordMaxLength
+     *          the keywordMaxLength to set
      */
     public void setKeywordMaxLength(int keywordMaxLength) {
         this.keywordMaxLength = keywordMaxLength;
@@ -554,7 +569,8 @@ public class EsSinkContext extends SinkContext {
     /**
      * set isUseIndexId
      * 
-     * @param isUseIndexId the isUseIndexId to set
+     * @param isUseIndexId
+     *          the isUseIndexId to set
      */
     public void setUseIndexId(boolean isUseIndexId) {
         this.isUseIndexId = isUseIndexId;

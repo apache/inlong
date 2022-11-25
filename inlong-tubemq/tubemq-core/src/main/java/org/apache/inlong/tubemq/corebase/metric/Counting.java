@@ -30,14 +30,14 @@ public interface Counting {
     /**
      * Get the current value.
      *
-     * @return   the current value
+     * @return the current value
      */
     long getValue();
 
     /**
      * Get and reset the current value.
      *
-     * @return   the current value
+     * @return the current value
      */
     long getAndResetValue();
 

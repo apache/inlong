@@ -17,11 +17,12 @@
 
 package org.apache.inlong.sort.formats.json.debezium;
 
-import io.debezium.relational.history.TableChanges;
 import java.util.List;
 import java.util.Map;
+
 import lombok.Builder;
 import lombok.Data;
+import io.debezium.relational.history.TableChanges;
 
 @Data
 @Builder
@@ -37,6 +38,7 @@ public class DebeziumJson {
     @Builder
     @Data
     public static class Source {
+
         private String name;
         private String db;
         private String table;

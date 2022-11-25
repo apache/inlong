@@ -18,19 +18,22 @@
 
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
-import java.nio.charset.Charset;
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 import org.apache.inlong.sort.formats.util.StringUtils;
+
+import org.apache.flink.types.Row;
+
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +53,7 @@ public class InLongMsgCsvUtils {
             char delimiter,
             Character escapeChar,
             Character quoteChar,
-            boolean deleteHeadDelimiter
-    ) {
+            boolean deleteHeadDelimiter) {
 
         String bodyText;
         if (bytes[0] == delimiter && deleteHeadDelimiter) {
@@ -66,8 +68,7 @@ public class InLongMsgCsvUtils {
                 bytes,
                 null,
                 Arrays.asList(fieldTexts),
-                Collections.emptyMap()
-        );
+                Collections.emptyMap());
     }
 
     public static Row buildRow(
@@ -76,15 +77,14 @@ public class InLongMsgCsvUtils {
             Timestamp time,
             Map<String, String> attributes,
             List<String> predefinedFields,
-            List<String> fields
-    ) {
+            List<String> fields) {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
         int actualNumFields = predefinedFields.size() + fields.size();
         if (actualNumFields != fieldNames.length) {
             LOG.warn("The number of fields mismatches: " + fieldNames.length
-                     + " expected, but was " + actualNumFields + ".");
+                    + " expected, but was " + actualNumFields + ".");
         }
 
         Row row = new Row(2 + fieldNames.length);
@@ -102,13 +102,11 @@ public class InLongMsgCsvUtils {
 
             String fieldText = predefinedFields.get(i);
 
-            Object field =
-                    TableFormatUtils.deserializeBasicField(
-                            fieldName,
-                            fieldFormatInfo,
-                            fieldText,
-                            nullLiteral
-                    );
+            Object field = TableFormatUtils.deserializeBasicField(
+                    fieldName,
+                    fieldFormatInfo,
+                    fieldText,
+                    nullLiteral);
             row.setField(i + 2, field);
         }
 
@@ -123,13 +121,11 @@ public class InLongMsgCsvUtils {
 
             String fieldText = fields.get(i);
 
-            Object field =
-                    TableFormatUtils.deserializeBasicField(
-                            fieldName,
-                            fieldFormatInfo,
-                            fieldText,
-                            nullLiteral
-                    );
+            Object field = TableFormatUtils.deserializeBasicField(
+                    fieldName,
+                    fieldFormatInfo,
+                    fieldText,
+                    nullLiteral);
             row.setField(i + predefinedFields.size() + 2, field);
         }
 

@@ -17,10 +17,11 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Event;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Event;
 
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public class SimpleBatchPackProfileV0 extends BatchPackProfile {
 
     /**
      * Constructor
+     * 
      * @param uid
      * @param inlongGroupId
      * @param inlongStreamId
@@ -45,6 +47,7 @@ public class SimpleBatchPackProfileV0 extends BatchPackProfile {
 
     /**
      * create
+     * 
      * @param event
      * @return
      */
@@ -65,6 +68,7 @@ public class SimpleBatchPackProfileV0 extends BatchPackProfile {
 
     /**
      * get simpleProfile
+     * 
      * @return the simpleProfile
      */
     public Event getSimpleProfile() {

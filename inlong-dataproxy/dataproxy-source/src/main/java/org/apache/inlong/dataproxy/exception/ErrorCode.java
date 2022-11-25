@@ -18,14 +18,11 @@
 package org.apache.inlong.dataproxy.exception;
 
 public enum ErrorCode {
+
     /**
      * attr error
      */
-    ATTR_ERROR(1),
-    DT_ERROR(2),
-    COMPRESS_ERROR(3),
-    OTHER_ERROR(4),
-    TOO_LONG_ERROR(5);
+    ATTR_ERROR(1), DT_ERROR(2), COMPRESS_ERROR(3), OTHER_ERROR(4), TOO_LONG_ERROR(5);
 
     private final int value;
 

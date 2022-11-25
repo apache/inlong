@@ -18,17 +18,17 @@
 
 package org.apache.inlong.sort.tests.utils;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
- * Docker container for MySQL. The difference between this class and {@link
- * org.testcontainers.containers.MySQLContainer} is that TC MySQLContainer has problems when
- * overriding mysql conf file, i.e. my.cnf.
+ * Docker container for MySQL. The difference between this class and
+ * {@link org.testcontainers.containers.MySQLContainer} is that TC
+ * MySQLContainer has problems when overriding mysql conf file, i.e. my.cnf.
  */
 @SuppressWarnings("rawtypes")
 public class MySqlContainer extends JdbcDatabaseContainer {
@@ -60,7 +60,8 @@ public class MySqlContainer extends JdbcDatabaseContainer {
 
     @Override
     protected void configure() {
-        // HERE is the difference, copy to /etc/mysql/, if copy to /etc/mysql/conf.d will be wrong
+        // HERE is the difference, copy to /etc/mysql/, if copy to /etc/mysql/conf.d
+        // will be wrong
         optionallyMapResourceParameterAsVolume(
                 MY_CNF_CONFIG_OVERRIDE_PARAM_NAME, "/etc/mysql/", "mysql-default-conf");
 
@@ -181,10 +182,8 @@ public class MySqlContainer extends JdbcDatabaseContainer {
 
     /** MySql version enum. */
     public enum MySqlVersion {
-        V5_5("5.5"),
-        V5_6("5.6"),
-        V5_7("5.7"),
-        V8_0("8.0");
+
+        V5_5("5.5"), V5_6("5.6"), V5_7("5.7"), V8_0("8.0");
 
         private String version;
 

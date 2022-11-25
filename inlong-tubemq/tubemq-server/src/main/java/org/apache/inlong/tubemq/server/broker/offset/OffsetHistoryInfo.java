@@ -17,16 +17,18 @@
 
 package org.apache.inlong.tubemq.server.broker.offset;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The offset snapshot of the consumer group on the broker.
  */
 public class OffsetHistoryInfo {
+
     private final int brokerId;
     private final String groupName;
     private final Map<String, Map<Integer, OffsetCsmRecord>> histOffsetMap = new HashMap<>();
@@ -39,13 +41,17 @@ public class OffsetHistoryInfo {
     /**
      * Add confirmed offset of topic-partitionId.
      *
-     * @param topicName      topic name
-     * @param partitionId    partition id
-     * @param cfmOffset      the confirmed offset
+     * @param topicName
+     *          topic name
+     * @param partitionId
+     *          partition id
+     * @param cfmOffset
+     *          the confirmed offset
      */
     public void addCfmOffsetInfo(String topicName, int partitionId, long cfmOffset) {
         final int storeId = partitionId < TBaseConstants.META_STORE_INS_BASE
-                ? 0 : partitionId / TBaseConstants.META_STORE_INS_BASE;
+                ? 0
+                : partitionId / TBaseConstants.META_STORE_INS_BASE;
         Map<Integer, OffsetCsmRecord> storeOffsetMap = histOffsetMap.get(topicName);
         if (storeOffsetMap == null) {
             Map<Integer, OffsetCsmRecord> tmpMap = new HashMap<>();
@@ -68,13 +74,17 @@ public class OffsetHistoryInfo {
     /**
      * Add inflight offset of topic-partitionId.
      *
-     * @param topicName      topic name
-     * @param partitionId    partition id
-     * @param tmpOffset      the inflight offset
+     * @param topicName
+     *          topic name
+     * @param partitionId
+     *          partition id
+     * @param tmpOffset
+     *          the inflight offset
      */
     public void addInflightOffsetInfo(String topicName, int partitionId, long tmpOffset) {
         final int storeId = partitionId < TBaseConstants.META_STORE_INS_BASE
-                ? 0 : partitionId / TBaseConstants.META_STORE_INS_BASE;
+                ? 0
+                : partitionId / TBaseConstants.META_STORE_INS_BASE;
         Map<Integer, OffsetCsmRecord> storeOffsetMap = histOffsetMap.get(topicName);
         if (storeOffsetMap == null) {
             Map<Integer, OffsetCsmRecord> tmpMap = new HashMap<>();
@@ -105,8 +115,10 @@ public class OffsetHistoryInfo {
     /**
      * Build brief consumption offset information in string format
      *
-     * @param strBuff     string buffer
-     * @param dataTime    record build time
+     * @param strBuff
+     *          string buffer
+     * @param dataTime
+     *          record build time
      */
     public void buildRecordInfo(StringBuilder strBuff, long dataTime) {
         int topicCnt = 0;

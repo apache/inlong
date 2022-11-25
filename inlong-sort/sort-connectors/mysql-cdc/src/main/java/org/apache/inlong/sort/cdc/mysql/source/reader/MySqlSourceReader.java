@@ -18,17 +18,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.reader;
 
-import io.debezium.connector.mysql.MySqlConnection;
-import io.debezium.relational.TableId;
-import io.debezium.relational.history.TableChanges;
-import org.apache.flink.api.connector.source.SourceEvent;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.connector.base.source.reader.RecordEmitter;
-import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
-import org.apache.flink.connector.base.source.reader.SingleThreadMultiplexSourceReaderBase;
-import org.apache.flink.connector.base.source.reader.fetcher.SingleThreadFetcherManager;
-import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
-import org.apache.flink.util.FlinkRuntimeException;
+import static org.apache.inlong.sort.cdc.mysql.source.events.WakeupReaderEvent.WakeUpTarget.SNAPSHOT_READER;
+import static org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit.toNormalBinlogSplit;
+import static org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit.toSuspendedBinlogSplit;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.ChunkUtils.getNextMetaGroupId;
+
 import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
@@ -53,9 +47,16 @@ import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplitState;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplitState;
 import org.apache.inlong.sort.cdc.mysql.source.utils.TableDiscoveryUtils;
+
+import org.apache.flink.api.connector.source.SourceEvent;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.connector.base.source.reader.RecordEmitter;
+import org.apache.flink.connector.base.source.reader.RecordsWithSplitIds;
+import org.apache.flink.connector.base.source.reader.SingleThreadMultiplexSourceReaderBase;
+import org.apache.flink.connector.base.source.reader.fetcher.SingleThreadFetcherManager;
+import org.apache.flink.connector.base.source.reader.synchronization.FutureCompletingBlockingQueue;
+import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -67,17 +68,19 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.sort.cdc.mysql.source.events.WakeupReaderEvent.WakeUpTarget.SNAPSHOT_READER;
-import static org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit.toNormalBinlogSplit;
-import static org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit.toSuspendedBinlogSplit;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.ChunkUtils.getNextMetaGroupId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.connector.mysql.MySqlConnection;
+import io.debezium.relational.TableId;
+import io.debezium.relational.history.TableChanges;
 
 /**
  * The source reader for MySQL source splits.
  */
 public class MySqlSourceReader<T>
-        extends SingleThreadMultiplexSourceReaderBase<
-        SourceRecord, T, MySqlSplit, MySqlSplitState> {
+        extends
+            SingleThreadMultiplexSourceReaderBase<SourceRecord, T, MySqlSplit, MySqlSplitState> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlSourceReader.class);
 
@@ -133,10 +136,9 @@ public class MySqlSourceReader<T>
         List<MySqlSplit> stateSplits = super.snapshotState(checkpointId);
 
         // unfinished splits
-        List<MySqlSplit> unfinishedSplits =
-                stateSplits.stream()
-                        .filter(split -> !finishedUnackedSplits.containsKey(split.splitId()))
-                        .collect(Collectors.toList());
+        List<MySqlSplit> unfinishedSplits = stateSplits.stream()
+                .filter(split -> !finishedUnackedSplits.containsKey(split.splitId()))
+                .collect(Collectors.toList());
 
         // add finished snapshot splits that didn't receive ack yet
         unfinishedSplits.addAll(finishedUnackedSplits.values());
@@ -210,8 +212,7 @@ public class MySqlSourceReader<T>
                     requestBinlogSplitMetaIfNeeded(split.asBinlogSplit());
                 } else {
                     uncompletedBinlogSplits.remove(split.splitId());
-                    MySqlBinlogSplit mySqlBinlogSplit =
-                            discoverTableSchemasForBinlogSplit(split.asBinlogSplit());
+                    MySqlBinlogSplit mySqlBinlogSplit = discoverTableSchemasForBinlogSplit(split.asBinlogSplit());
                     unfinishedSplits.add(mySqlBinlogSplit);
                 }
             }
@@ -227,10 +228,10 @@ public class MySqlSourceReader<T>
     private MySqlBinlogSplit discoverTableSchemasForBinlogSplit(MySqlBinlogSplit split) {
         final String splitId = split.splitId();
         if (split.getTableSchemas().isEmpty()) {
-            try (MySqlConnection jdbc =
-                    DebeziumUtils.createMySqlConnection(sourceConfig.getDbzConfiguration())) {
-                Map<TableId, TableChanges.TableChange> tableSchemas =
-                        TableDiscoveryUtils.discoverCapturedTableSchemas(sourceConfig, jdbc);
+            try (
+                    MySqlConnection jdbc = DebeziumUtils.createMySqlConnection(sourceConfig.getDbzConfiguration())) {
+                Map<TableId, TableChanges.TableChange> tableSchemas = TableDiscoveryUtils
+                        .discoverCapturedTableSchemas(sourceConfig, jdbc);
                 LOG.info("The table schema discovery for binlog split {} success", splitId);
                 return MySqlBinlogSplit.fillTableSchemas(split, tableSchemas);
             } catch (SQLException e) {
@@ -284,8 +285,7 @@ public class MySqlSourceReader<T>
             if (suspendedBinlogSplit != null) {
                 final int finishedSplitsSize =
                         ((LatestFinishedSplitsSizeEvent) sourceEvent).getLatestFinishedSplitsSize();
-                final MySqlBinlogSplit binlogSplit =
-                        toNormalBinlogSplit(suspendedBinlogSplit, finishedSplitsSize);
+                final MySqlBinlogSplit binlogSplit = toNormalBinlogSplit(suspendedBinlogSplit, finishedSplitsSize);
                 suspendedBinlogSplit = null;
                 this.addSplits(Collections.singletonList(binlogSplit));
             }
@@ -300,8 +300,7 @@ public class MySqlSourceReader<T>
             for (MySqlSnapshotSplit split : finishedUnackedSplits.values()) {
                 finishedOffsets.put(split.splitId(), split.getHighWatermark());
             }
-            FinishedSnapshotSplitsReportEvent reportEvent =
-                    new FinishedSnapshotSplitsReportEvent(finishedOffsets);
+            FinishedSnapshotSplitsReportEvent reportEvent = new FinishedSnapshotSplitsReportEvent(finishedOffsets);
             context.sendSourceEventToCoordinator(reportEvent);
             LOG.debug(
                     "The subtask {} reports offsets of finished snapshot splits {}.",
@@ -313,10 +312,9 @@ public class MySqlSourceReader<T>
     private void requestBinlogSplitMetaIfNeeded(MySqlBinlogSplit binlogSplit) {
         final String splitId = binlogSplit.splitId();
         if (!binlogSplit.isCompletedSplit()) {
-            final int nextMetaGroupId =
-                    getNextMetaGroupId(
-                            binlogSplit.getFinishedSnapshotSplitInfos().size(),
-                            sourceConfig.getSplitMetaGroupSize());
+            final int nextMetaGroupId = getNextMetaGroupId(
+                    binlogSplit.getFinishedSnapshotSplitInfos().size(),
+                    sourceConfig.getSplitMetaGroupSize());
             BinlogSplitMetaRequestEvent splitMetaRequestEvent =
                     new BinlogSplitMetaRequestEvent(splitId, nextMetaGroupId);
             context.sendSourceEventToCoordinator(splitMetaRequestEvent);
@@ -330,15 +328,13 @@ public class MySqlSourceReader<T>
         MySqlBinlogSplit binlogSplit = uncompletedBinlogSplits.get(metadataEvent.getSplitId());
         if (binlogSplit != null) {
             final int receivedMetaGroupId = metadataEvent.getMetaGroupId();
-            final int expectedMetaGroupId =
-                    getNextMetaGroupId(
-                            binlogSplit.getFinishedSnapshotSplitInfos().size(),
-                            sourceConfig.getSplitMetaGroupSize());
+            final int expectedMetaGroupId = getNextMetaGroupId(
+                    binlogSplit.getFinishedSnapshotSplitInfos().size(),
+                    sourceConfig.getSplitMetaGroupSize());
             if (receivedMetaGroupId == expectedMetaGroupId) {
-                List<FinishedSnapshotSplitInfo> metaDataGroup =
-                        metadataEvent.getMetaGroup().stream()
-                                .map(FinishedSnapshotSplitInfo::deserialize)
-                                .collect(Collectors.toList());
+                List<FinishedSnapshotSplitInfo> metaDataGroup = metadataEvent.getMetaGroup().stream()
+                        .map(FinishedSnapshotSplitInfo::deserialize)
+                        .collect(Collectors.toList());
                 uncompletedBinlogSplits.put(
                         binlogSplit.splitId(),
                         MySqlBinlogSplit.appendFinishedSplitInfos(binlogSplit, metaDataGroup));

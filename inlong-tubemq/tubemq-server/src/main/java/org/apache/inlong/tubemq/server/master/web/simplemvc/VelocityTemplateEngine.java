@@ -17,14 +17,16 @@
 
 package org.apache.inlong.tubemq.server.master.web.simplemvc;
 
-import java.io.StringWriter;
-import java.io.Writer;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.master.web.simplemvc.conf.WebConfig;
+
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+
+import java.io.StringWriter;
+import java.io.Writer;
 
 public class VelocityTemplateEngine implements TemplateEngine {
 
@@ -50,7 +52,8 @@ public class VelocityTemplateEngine implements TemplateEngine {
 
     @Override
     public String renderTemplate(String templateName,
-                                 RequestContext context) throws Exception {
+            RequestContext context)
+            throws Exception {
         StringWriter writer = new StringWriter();
         renderTemplate(templateName, context, writer);
         return writer.toString();
@@ -58,8 +61,9 @@ public class VelocityTemplateEngine implements TemplateEngine {
 
     @Override
     public void renderTemplate(String templateName,
-                               RequestContext context,
-                               Writer writer) throws Exception {
+            RequestContext context,
+            Writer writer)
+            throws Exception {
         Template t = engine.getTemplate(templateName);
         if (t != null) {
             t.merge(new VelocityContext(context.getMap()), writer);

@@ -19,6 +19,7 @@ package org.apache.inlong.tubemq.client.consumer;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.factory.TubeBaseSessionFactory;
@@ -26,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.cluster.MasterInfo;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
 import org.apache.inlong.tubemq.corerpc.client.ClientFactory;
 import org.apache.inlong.tubemq.corerpc.netty.NettyClientFactory;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +40,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AddressUtils.class)
 public class MessageFetchManagerTest {
+
     @Test
     public void testMessageFetchManager() throws Exception {
         TubeClientConfig clientConfig = mock(TubeClientConfig.class);

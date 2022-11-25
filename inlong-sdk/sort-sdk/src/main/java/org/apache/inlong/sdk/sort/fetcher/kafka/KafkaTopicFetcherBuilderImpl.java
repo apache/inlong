@@ -18,12 +18,13 @@
 
 package org.apache.inlong.sdk.sort.fetcher.kafka;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.AbstractTopicFetcherBuilder;
 import org.apache.inlong.sdk.sort.api.TopicFetcher;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.impl.decode.MessageDeserializer;
 import org.apache.inlong.sdk.sort.interceptor.MsgTimeInterceptor;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -60,8 +61,8 @@ public class KafkaTopicFetcherBuilderImpl extends AbstractTopicFetcherBuilder {
     private TopicFetcher subscribeSingleTopic() {
         interceptor = Optional.ofNullable(interceptor).orElse(new MsgTimeInterceptor());
         interceptor.configure(topic);
-        TopicFetcher kafkaSingleTopicFetcher =
-                new KafkaSingleTopicFetcher(topic, context, interceptor, deserializer, bootstrapServers);
+        TopicFetcher kafkaSingleTopicFetcher = new KafkaSingleTopicFetcher(topic, context, interceptor, deserializer,
+                bootstrapServers);
         if (!kafkaSingleTopicFetcher.init()) {
             throw new IllegalStateException("init kafka single topic fetcher failed");
         }
@@ -74,8 +75,8 @@ public class KafkaTopicFetcherBuilderImpl extends AbstractTopicFetcherBuilder {
         interceptor.configure(firstTopic);
         String key = Optional.ofNullable(fetchKey)
                 .orElse(firstTopic.getInLongCluster().getClusterId() + new Random().nextLong());
-        TopicFetcher kafkaMultiTopicFetcher =
-                new KafkaMultiTopicsFetcher(topics, context, interceptor, deserializer, bootstrapServers, key);
+        TopicFetcher kafkaMultiTopicFetcher = new KafkaMultiTopicsFetcher(topics, context, interceptor, deserializer,
+                bootstrapServers, key);
         if (!kafkaMultiTopicFetcher.init()) {
             throw new IllegalStateException("init kafka multi topic fetcher failed");
         }

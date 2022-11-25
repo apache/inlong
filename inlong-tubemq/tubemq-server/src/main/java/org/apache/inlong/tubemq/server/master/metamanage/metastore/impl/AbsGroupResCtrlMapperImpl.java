@@ -17,22 +17,24 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupResCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.GroupResCtrlMapper;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
-    protected static final Logger logger =
-            LoggerFactory.getLogger(AbsGroupResCtrlMapperImpl.class);
-    private final ConcurrentHashMap<String/* groupName */, GroupResCtrlEntity>
-            groupBaseCtrlCache = new ConcurrentHashMap<>();
+
+    protected static final Logger logger = LoggerFactory.getLogger(AbsGroupResCtrlMapperImpl.class);
+    private final ConcurrentHashMap<String/* groupName */, GroupResCtrlEntity> groupBaseCtrlCache =
+            new ConcurrentHashMap<>();
 
     public AbsGroupResCtrlMapperImpl() {
         // Initial instant
@@ -40,7 +42,7 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 
     @Override
     public boolean addGroupResCtrlConf(GroupResCtrlEntity entity,
-                                       StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         GroupResCtrlEntity curEntity = groupBaseCtrlCache.get(entity.getGroupName());
         if (curEntity != null) {
@@ -59,7 +61,7 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 
     @Override
     public boolean updGroupResCtrlConf(GroupResCtrlEntity entity,
-                                       StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         GroupResCtrlEntity curEntity = groupBaseCtrlCache.get(entity.getGroupName());
         if (curEntity == null) {
@@ -90,8 +92,7 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 
     @Override
     public boolean delGroupResCtrlConf(String groupName, StringBuilder strBuff, ProcessResult result) {
-        GroupResCtrlEntity curEntity =
-                groupBaseCtrlCache.get(groupName);
+        GroupResCtrlEntity curEntity = groupBaseCtrlCache.get(groupName);
         if (curEntity == null) {
             result.setSuccResult(null);
             return true;
@@ -109,7 +110,7 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
 
     @Override
     public Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupNameSet,
-                                                               GroupResCtrlEntity qryEntry) {
+            GroupResCtrlEntity qryEntry) {
         Map<String, GroupResCtrlEntity> retMap = new HashMap<>();
         if (groupNameSet == null || groupNameSet.isEmpty()) {
             for (GroupResCtrlEntity entry : groupBaseCtrlCache.values()) {
@@ -141,7 +142,8 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
     /**
      * Add or update a record
      *
-     * @param entity  the entity to be added or updated
+     * @param entity
+     *          the entity to be added or updated
      */
     protected void putRecord2Caches(GroupResCtrlEntity entity) {
         groupBaseCtrlCache.put(entity.getGroupName(), entity);
@@ -150,19 +152,24 @@ public abstract class AbsGroupResCtrlMapperImpl implements GroupResCtrlMapper {
     /**
      * Put group control configure information into persistent store
      *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
-     * @param result process result with old value
+     * @param entity
+     *          need add record
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          process result with old value
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(GroupResCtrlEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete group control configure information from persistent storage
      *
-     * @param recordKey  the record key
-     * @param strBuff    the string buffer
+     * @param recordKey
+     *          the record key
+     * @param strBuff
+     *          the string buffer
      * @return the process result
      */
     protected abstract boolean delConfigFromPersistent(String recordKey, StringBuilder strBuff);

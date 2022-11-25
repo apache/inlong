@@ -20,8 +20,8 @@ package org.apache.inlong.tubemq.client.producer.qltystats;
 /**
  * Broker quality statistics.
  *
- * Record the request number and success response number of a broker. We analyze the broker quality
- * based on these information.
+ * Record the request number and success response number of a broker. We analyze
+ * the broker quality based on these information.
  */
 public class BrokerStatsDltTuple {
 

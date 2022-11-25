@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.plugin.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +34,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Util of flink.
@@ -77,8 +78,10 @@ public class FlinkUtils {
     /**
      * fetch sort-single-tenant jar path
      *
-     * @param baseDirName base directory name.
-     * @param pattern pattern of file
+     * @param baseDirName
+     *          base directory name.
+     * @param pattern
+     *          pattern of file
      * @return sort-single-tenant jar path
      */
     public static String findFile(String baseDirName, String pattern) {
@@ -92,8 +95,10 @@ public class FlinkUtils {
     /**
      * fetch target file path
      *
-     * @param baseDirName base directory name.
-     * @param pattern pattern of file
+     * @param baseDirName
+     *          base directory name.
+     * @param pattern
+     *          pattern of file
      * @return matched files
      */
     public static List<String> listFiles(String baseDirName, String pattern, int limit) {
@@ -137,7 +142,8 @@ public class FlinkUtils {
     /**
      * getConfigDirectory
      *
-     * @param name config file name
+     * @param name
+     *          config file name
      * @return config file directory
      */
     public static String getConfigDirectory(String name) {
@@ -147,9 +153,12 @@ public class FlinkUtils {
     /**
      * writeConfigToFile
      *
-     * @param configJobDirectory job config directory
-     * @param configFileName config file name
-     * @param content contents of the file to be written
+     * @param configJobDirectory
+     *          job config directory
+     * @param configFileName
+     *          config file name
+     * @param content
+     *          contents of the file to be written
      * @return whether success
      */
     public static boolean writeConfigToFile(String configJobDirectory, String configFileName, String content) {
@@ -174,7 +183,8 @@ public class FlinkUtils {
     /**
      * Delete configuration file
      *
-     * @param name file config info
+     * @param name
+     *          file config info
      * @return whether sucess
      */
     public static boolean deleteConfigFile(String name) {

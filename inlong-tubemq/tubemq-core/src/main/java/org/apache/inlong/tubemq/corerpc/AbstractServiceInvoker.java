@@ -17,11 +17,12 @@
 
 package org.apache.inlong.tubemq.corerpc;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import org.apache.inlong.tubemq.corerpc.client.Callback;
 import org.apache.inlong.tubemq.corerpc.client.ClientFactory;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 
 public abstract class AbstractServiceInvoker implements InvocationHandler {
 
@@ -31,8 +32,8 @@ public abstract class AbstractServiceInvoker implements InvocationHandler {
     protected int requestTimeout;
 
     protected AbstractServiceInvoker(ClientFactory clientFactory,
-                                     Class serviceClass,
-                                     RpcConfig conf) {
+            Class serviceClass,
+            RpcConfig conf) {
         this.clientFactory = clientFactory;
         this.serviceClass = serviceClass;
         this.conf = conf;
@@ -49,15 +50,15 @@ public abstract class AbstractServiceInvoker implements InvocationHandler {
         Object finalArg = args[0];
         Callback callback = null;
         if (args[args.length - 1] instanceof Callback) {
-            finalInterfaceName =
-                    ((Class) method.getDeclaringClass().getGenericInterfaces()[0]).getName();
+            finalInterfaceName = ((Class) method.getDeclaringClass().getGenericInterfaces()[0]).getName();
             callback = new RpcResponseCallback((Callback<?>) args[args.length - 1]);
         }
         return callMethod(finalInterfaceName, finalMethodName, finalArg, callback);
     }
 
     public abstract Object callMethod(String targetInterface, String method,
-                                      Object arg, Callback callback) throws Throwable;
+            Object arg, Callback callback)
+            throws Throwable;
 
     public void destroy() {
         // client.close();

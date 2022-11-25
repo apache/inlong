@@ -18,16 +18,18 @@
 package org.apache.inlong.manager.service.queue;
 
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
+
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.internal.PulsarAdminImpl;
 import org.apache.pulsar.client.api.Authentication;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.auth.AuthenticationDisabled;
+
+import java.lang.reflect.Field;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ReflectionUtils;
-
-import java.lang.reflect.Field;
 
 /**
  * Test class for Pulsar utils.

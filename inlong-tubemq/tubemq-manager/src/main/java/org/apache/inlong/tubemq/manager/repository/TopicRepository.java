@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.manager.repository;
 
 import org.apache.inlong.tubemq.manager.entry.TopicEntry;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -32,4 +33,3 @@ public interface TopicRepository extends JpaRepository<TopicEntry, Long> {
      */
     TopicEntry findByBusinessName(String businessName);
 }
-

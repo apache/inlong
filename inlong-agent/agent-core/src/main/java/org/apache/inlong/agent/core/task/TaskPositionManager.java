@@ -17,25 +17,26 @@
 
 package org.apache.inlong.agent.core.task;
 
+import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HEARTBEAT_INTERVAL;
+import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
+
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.db.JobProfileDb;
 import org.apache.inlong.agent.utils.ThreadUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HEARTBEAT_INTERVAL;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_FETCHER_INTERVAL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * used to store task position to db, task position is stored as properties in JobProfile.
- * where key is task read file name and value is task sink position
+ * used to store task position to db, task position is stored as properties in
+ * JobProfile. where key is task read file name and value is task sink position
  * note that this class is generated
  */
 public class TaskPositionManager extends AbstractDaemon {
@@ -111,8 +112,7 @@ public class TaskPositionManager extends AbstractDaemon {
 
     private void flushJobProfile(String jobId, JobProfile jobProfile) {
         jobTaskPositionMap.get(jobId).forEach(
-                (fileName, position) -> jobProfile.setLong(fileName + POSITION_SUFFIX, position)
-        );
+                (fileName, position) -> jobProfile.setLong(fileName + POSITION_SUFFIX, position));
         if (jobConfDb.checkJobfinished(jobProfile)) {
             LOGGER.info("Cannot update job profile {}, delete memory job in jobTaskPosition", jobId);
             deleteJobPosition(jobId);
@@ -133,7 +133,8 @@ public class TaskPositionManager extends AbstractDaemon {
     /**
      * update job sink position
      *
-     * @param size add this size to beforePosition
+     * @param size
+     *          add this size to beforePosition
      */
     public void updateSinkPosition(String jobInstanceId, String sourcePath, long size) {
         ConcurrentHashMap<String, Long> positionTemp = new ConcurrentHashMap<>();

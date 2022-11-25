@@ -20,16 +20,19 @@ package org.apache.inlong.sort.formats.kv;
 
 import static org.apache.inlong.sort.formats.util.StringUtils.concatKv;
 
-import java.nio.charset.Charset;
-import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
+
+import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.types.Row;
+
+import java.nio.charset.Charset;
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * The serializer for the records in kv format.
@@ -86,8 +89,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
-            @Nullable String nullLiteral
-    ) {
+            @Nullable String nullLiteral) {
         this.rowFormatInfo = rowFormatInfo;
         this.charset = charset;
         this.entryDelimiter = entryDelimiter;
@@ -98,8 +100,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
     }
 
     public KvSerializationSchema(
-            @Nonnull RowFormatInfo rowFormatInfo
-    ) {
+            @Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
                 TableFormatConstants.DEFAULT_CHARSET,
@@ -107,8 +108,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
                 TableFormatConstants.DEFAULT_KV_DELIMITER,
                 null,
                 null,
-                null
-        );
+                null);
     }
 
     @Override
@@ -123,7 +123,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
 
         if (row.getArity() != fieldFormatInfos.length) {
             throw new RuntimeException("The number of fields mismatches: "
-                   + fieldFormatInfos.length + " expected, but was " + row.getArity() + ".");
+                    + fieldFormatInfos.length + " expected, but was " + row.getArity() + ".");
         }
 
         String[] fieldTexts = new String[row.getArity()];
@@ -131,26 +131,22 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
         for (int i = 0; i < row.getArity(); ++i) {
             Object field = row.getField(i);
 
-            String fieldText =
-                    TableFormatUtils.serializeBasicField(
-                            fieldNames[i],
-                            fieldFormatInfos[i],
-                            field,
-                            nullLiteral
-                    );
+            String fieldText = TableFormatUtils.serializeBasicField(
+                    fieldNames[i],
+                    fieldFormatInfos[i],
+                    field,
+                    nullLiteral);
 
             fieldTexts[i] = fieldText;
         }
 
-        String text =
-                concatKv(
-                        fieldNames,
-                        fieldTexts,
-                        entryDelimiter,
-                        kvDelimiter,
-                        escapeChar,
-                        quoteChar
-                );
+        String text = concatKv(
+                fieldNames,
+                fieldTexts,
+                entryDelimiter,
+                kvDelimiter,
+                escapeChar,
+                quoteChar);
 
         return text.getBytes(Charset.forName(charset));
     }
@@ -167,12 +163,12 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
 
         KvSerializationSchema that = (KvSerializationSchema) o;
         return Objects.equals(rowFormatInfo, that.rowFormatInfo)
-                       && Objects.equals(charset, that.charset)
-                       && Objects.equals(entryDelimiter, that.entryDelimiter)
-                       && Objects.equals(kvDelimiter, that.kvDelimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && Objects.equals(charset, that.charset)
+                && Objects.equals(entryDelimiter, that.entryDelimiter)
+                && Objects.equals(kvDelimiter, that.kvDelimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override
@@ -198,7 +194,8 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
         /**
          * Creates a KV serialization schema for the given type information.
          *
-         * @param rowFormatInfo Type information describing the result type.
+         * @param rowFormatInfo
+         *          Type information describing the result type.
          */
         public Builder(RowFormatInfo rowFormatInfo) {
             this.rowFormatInfo = rowFormatInfo;
@@ -242,8 +239,7 @@ public final class KvSerializationSchema implements SerializationSchema<Row> {
                     kvDelimiter,
                     escapeChar,
                     quoteChar,
-                    nullLiteral
-            );
+                    nullLiteral);
         }
     }
 }

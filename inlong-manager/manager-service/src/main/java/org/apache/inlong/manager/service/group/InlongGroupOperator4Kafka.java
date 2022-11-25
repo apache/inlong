@@ -17,7 +17,8 @@
 
 package org.apache.inlong.manager.service.group;
 
-import org.apache.commons.lang3.StringUtils;
+import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
+
 import org.apache.inlong.manager.common.consts.MQType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -32,14 +33,15 @@ import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaInfo;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaRequest;
 import org.apache.inlong.manager.pojo.group.kafka.InlongKafkaTopicInfo;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.common.constant.ClusterSwitch.BACKUP_MQ_RESOURCE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Inlong group operator for Kafka.

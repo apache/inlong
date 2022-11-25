@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.web.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
@@ -39,7 +35,11 @@ import org.apache.inlong.manager.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.operationlog.OperationLog;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
+
 import org.apache.shiro.authz.annotation.RequiresRoles;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,7 +52,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * Inlong cluster controller
@@ -207,7 +210,8 @@ public class InlongClusterController {
     })
     @OperationLog(operation = OperationType.GET)
     public Response<List<ClusterNodeResponse>> listByGroupId(@RequestParam String inlongGroupId,
-            @RequestParam String clusterType, @RequestParam(required = false) String protocolType) {
+            @RequestParam String clusterType,
+            @RequestParam(required = false) String protocolType) {
         return Response.success(clusterService.listNodeByGroupId(inlongGroupId, clusterType, protocolType));
     }
 

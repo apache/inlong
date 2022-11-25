@@ -18,24 +18,22 @@
 
 package org.apache.inlong.sdk.sort.fetcher.tube;
 
-import com.google.common.base.Splitter;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.Deserializer;
+import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.sdk.sort.api.SingleTopicFetcher;
 import org.apache.inlong.sdk.sort.api.SysConstants;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
-import org.apache.inlong.sdk.sort.api.Interceptor;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.config.TubeClientConfig;
 import org.apache.inlong.tubemq.client.consumer.ConsumerResult;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,10 +44,16 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Splitter;
+
 /**
  * Tube single topic fetcher
  */
 public class TubeSingleTopicFetcher extends SingleTopicFetcher {
+
     private static final Logger LOG = LoggerFactory.getLogger(TubeSingleTopicFetcher.class);
     private PullMessageConsumer messageConsumer;
     private volatile Thread fetchThread;
@@ -176,7 +180,8 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
         /**
          * put the received msg to onFinished method
          *
-         * @param messageRecord {@link MessageRecord}
+         * @param messageRecord
+         *          {@link MessageRecord}
          */
         private void handleAndCallbackMsg(MessageRecord messageRecord) {
             long start = System.currentTimeMillis();
@@ -194,9 +199,12 @@ public class TubeSingleTopicFetcher extends SingleTopicFetcher {
         /**
          * parseAttr from k1=v1&k2=v2 to kv map
          *
-         * @param splitter {@link Splitter}
-         * @param attr String
-         * @param entrySplitterStr String
+         * @param splitter
+         *          {@link Splitter}
+         * @param attr
+         *          String
+         * @param entrySplitterStr
+         *          String
          * @return {@link Map}
          */
         private Map<String, String> parseAttr(Splitter splitter, String attr, String entrySplitterStr) {

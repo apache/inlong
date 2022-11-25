@@ -17,17 +17,19 @@
 
 package org.apache.inlong.tubemq.manager.controller.node.request;
 
+import org.apache.inlong.tubemq.manager.service.tube.AddTopicRequest;
+
 import java.util.List;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.tubemq.manager.service.tube.AddTopicRequest;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class BatchAddTopicReq extends BaseReq {
+
     private String confModAuthToken;
 
     private String createUser;

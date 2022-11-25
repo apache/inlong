@@ -17,32 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import io.debezium.engine.ChangeEvent;
-import io.debezium.engine.DebeziumEngine;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constant.CommonConstants;
-import org.apache.inlong.agent.constant.OracleConstants;
-import org.apache.inlong.agent.metrics.AgentMetricItem;
-import org.apache.inlong.agent.metrics.AgentMetricItemSet;
-import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.sources.reader.OracleReader;
-import org.apache.inlong.agent.plugin.sources.snapshot.OracleSnapshotBase;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicLong;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -55,6 +29,35 @@ import static org.powermock.api.mockito.PowerMockito.field;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.api.mockito.PowerMockito.whenNew;
+
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.constant.OracleConstants;
+import org.apache.inlong.agent.metrics.AgentMetricItem;
+import org.apache.inlong.agent.metrics.AgentMetricItemSet;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.sources.reader.OracleReader;
+import org.apache.inlong.agent.plugin.sources.snapshot.OracleSnapshotBase;
+import org.apache.inlong.common.metric.MetricRegister;
+
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import io.debezium.engine.ChangeEvent;
+import io.debezium.engine.DebeziumEngine;
 
 /**
  * Test cases for {@link OracleReader}.
@@ -141,10 +144,10 @@ public class TestOracleReader {
                 specificOffsetPos);
         whenNew(OracleSnapshotBase.class).withAnyArguments().thenReturn(oracleSnapshot);
 
-        //mock oracleMessageQueue
+        // mock oracleMessageQueue
         whenNew(LinkedBlockingQueue.class).withAnyArguments().thenReturn(oracleMessageQueue);
 
-        //mock DebeziumEngine
+        // mock DebeziumEngine
         mockStatic(DebeziumEngine.class);
         when(DebeziumEngine.create(io.debezium.engine.format.Json.class)).thenReturn(builder);
         when(builder.using(any(Properties.class))).thenReturn(builder);
@@ -152,17 +155,17 @@ public class TestOracleReader {
         when(builder.using(any(DebeziumEngine.CompletionCallback.class))).thenReturn(builder);
         when(builder.build()).thenReturn(engine);
 
-        //mock executorService
+        // mock executorService
         mockStatic(Executors.class);
         when(Executors.newSingleThreadExecutor()).thenReturn(executorService);
 
-        //mock metrics
+        // mock metrics
         whenNew(AgentMetricItemSet.class).withArguments(anyString()).thenReturn(agentMetricItemSet);
         when(agentMetricItemSet.findMetricItem(any())).thenReturn(agentMetricItem);
         field(AgentMetricItem.class, "pluginReadCount").set(agentMetricItem, atomicLong);
         field(AgentMetricItem.class, "pluginReadSuccessCount").set(agentMetricItem, atomicCountLong);
 
-        //init method
+        // init method
         mockStatic(MetricRegister.class);
         (reader = new OracleReader()).init(jobProfile);
     }

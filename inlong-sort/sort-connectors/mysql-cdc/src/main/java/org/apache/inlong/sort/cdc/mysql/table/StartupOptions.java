@@ -18,13 +18,14 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import java.io.Serializable;
 import java.util.Objects;
 
-import static org.apache.flink.util.Preconditions.checkNotNull;
-
 /** Debezium startup options. */
 public final class StartupOptions implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     public final StartupMode startupMode;
@@ -33,33 +34,35 @@ public final class StartupOptions implements Serializable {
     public final Long startupTimestampMillis;
 
     /**
-     * Performs an initial snapshot on the monitored database tables upon first startup, and
-     * continue to read the latest binlog.
+     * Performs an initial snapshot on the monitored database tables upon first
+     * startup, and continue to read the latest binlog.
      */
     public static StartupOptions initial() {
         return new StartupOptions(StartupMode.INITIAL, null, null, null);
     }
 
     /**
-     * Never to perform snapshot on the monitored database tables upon first startup, just read from
-     * the beginning of the binlog. This should be used with care, as it is only valid when the
-     * binlog is guaranteed to contain the entire history of the database.
+     * Never to perform snapshot on the monitored database tables upon first
+     * startup, just read from the beginning of the binlog. This should be used with
+     * care, as it is only valid when the binlog is guaranteed to contain the entire
+     * history of the database.
      */
     public static StartupOptions earliest() {
         return new StartupOptions(StartupMode.EARLIEST_OFFSET, null, null, null);
     }
 
     /**
-     * Never to perform snapshot on the monitored database tables upon first startup, just read from
-     * the end of the binlog which means only have the changes since the connector was started.
+     * Never to perform snapshot on the monitored database tables upon first
+     * startup, just read from the end of the binlog which means only have the
+     * changes since the connector was started.
      */
     public static StartupOptions latest() {
         return new StartupOptions(StartupMode.LATEST_OFFSET, null, null, null);
     }
 
     /**
-     * Never to perform snapshot on the monitored database tables upon first startup, and directly
-     * read binlog from the specified offset.
+     * Never to perform snapshot on the monitored database tables upon first
+     * startup, and directly read binlog from the specified offset.
      */
     public static StartupOptions specificOffset(String specificOffsetFile, int specificOffsetPos) {
         return new StartupOptions(
@@ -67,13 +70,16 @@ public final class StartupOptions implements Serializable {
     }
 
     /**
-     * Never to perform snapshot on the monitored database tables upon first startup, and directly
-     * read binlog from the specified timestamp.
+     * Never to perform snapshot on the monitored database tables upon first
+     * startup, and directly read binlog from the specified timestamp.
      *
-     * <p>The consumer will traverse the binlog from the beginning and ignore change events whose
-     * timestamp is smaller than the specified timestamp.</p>
+     * <p>
+     * The consumer will traverse the binlog from the beginning and ignore change
+     * events whose timestamp is smaller than the specified timestamp.
+     * </p>
      *
-     * @param startupTimestampMillis timestamp for the startup offsets, as milliseconds from epoch.
+     * @param startupTimestampMillis
+     *          timestamp for the startup offsets, as milliseconds from epoch.
      */
     public static StartupOptions timestamp(long startupTimestampMillis) {
         return new StartupOptions(StartupMode.TIMESTAMP, null, null, startupTimestampMillis);

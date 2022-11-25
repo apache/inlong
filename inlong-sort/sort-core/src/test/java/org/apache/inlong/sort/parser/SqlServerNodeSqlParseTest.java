@@ -17,10 +17,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
@@ -36,8 +32,11 @@ import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,8 +45,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
- * Test for SqlServer{@link SqlServerLoadNode} and {@link SqlServerExtractNode} SQL parser.
+ * Test for SqlServer{@link SqlServerLoadNode} and {@link SqlServerExtractNode}
+ * SQL parser.
  */
 public class SqlServerNodeSqlParseTest extends AbstractTestBase {
 
@@ -78,8 +81,7 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("database_name", new StringFormatInfo()),
                 new FieldInfo("table_name", new StringFormatInfo()),
                 new FieldInfo("op_ts", new TimestampFormatInfo()),
-                new FieldInfo("schema_name", new StringFormatInfo())
-        );
+                new FieldInfo("schema_name", new StringFormatInfo()));
         return new SqlServerExtractNode(id, "sqlserver_out", fields, null, null,
                 null, "localhost", 1433, "SA", "INLONG*123",
                 "column_type_test", "dbo", "full_types", null);
@@ -96,8 +98,7 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("database_name", new StringFormatInfo()),
                 new FieldInfo("table_name", new StringFormatInfo()),
                 new FieldInfo("op_ts", new TimestampFormatInfo()),
-                new FieldInfo("schema_name", new StringFormatInfo())
-        );
+                new FieldInfo("schema_name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
                         new FieldInfo("id", new LongFormatInfo())),
@@ -129,10 +130,9 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo()))
-                );
+                                new FieldInfo("name", new StringFormatInfo())));
         return new SqlServerLoadNode(id, "sqlserver_out", fields, relations, null, null, 1,
                 null, "jdbc:sqlserver://localhost:1433;databaseName=column_type_test", "SA",
                 "INLONG*123", "dbo", "work1", "id");

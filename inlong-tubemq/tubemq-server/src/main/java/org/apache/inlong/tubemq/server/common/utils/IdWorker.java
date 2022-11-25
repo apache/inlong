@@ -18,9 +18,11 @@
 package org.apache.inlong.tubemq.server.common.utils;
 
 /**
- * reference :https://github.com/twitter/snowflake/blob/master/src/main/scala/com/twitter/service/snowflake/IdWorker.scala
+ * reference
+ * :https://github.com/twitter/snowflake/blob/master/src/main/scala/com/twitter/service/snowflake/IdWorker.scala
  */
 public class IdWorker {
+
     private static final long twepoch = 1350282310830L;
     private static final long workerIdBits = 10L;
     private static final long maxWorkerId = -1L ^ -1L << workerIdBits;

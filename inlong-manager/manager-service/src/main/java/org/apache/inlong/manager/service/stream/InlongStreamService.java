@@ -29,16 +29,18 @@ import java.util.List;
 /**
  * Inlong stream service layer interface
  *
- * @apiNote InlongStream was associated with various sources, the upstream is StreamSource,
- *         and the downstream is StreamSink
+ * @apiNote InlongStream was associated with various sources, the upstream is
+ *          StreamSource, and the downstream is StreamSink
  */
 public interface InlongStreamService {
 
     /**
      * Save inlong stream information.
      *
-     * @param request Inlong stream information.
-     * @param operator The name of operator.
+     * @param request
+     *          Inlong stream information.
+     * @param operator
+     *          The name of operator.
      * @return Id after successful save.
      */
     Integer save(InlongStreamRequest request, String operator);
@@ -46,8 +48,10 @@ public interface InlongStreamService {
     /**
      * Query whether the inlong stream ID exists
      *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
+     * @param groupId
+     *          inlong group id
+     * @param streamId
+     *          inlong stream id
      * @return true: exists, false: does not exist
      */
     Boolean exist(String groupId, String streamId);
@@ -55,8 +59,10 @@ public interface InlongStreamService {
     /**
      * Query the details of the specified inlong stream
      *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
+     * @param groupId
+     *          Inlong group id
+     * @param streamId
+     *          Inlong stream id
      * @return inlong stream details
      */
     InlongStreamInfo get(String groupId, String streamId);
@@ -64,7 +70,8 @@ public interface InlongStreamService {
     /**
      * List streams contained in one group
      *
-     * @param groupId inlong group id.
+     * @param groupId
+     *          inlong group id.
      * @return Inlong stream info list
      */
     List<InlongStreamInfo> list(String groupId);
@@ -72,15 +79,18 @@ public interface InlongStreamService {
     /**
      * Paging query inlong stream brief info list
      *
-     * @param request query request
+     * @param request
+     *          query request
      * @return inlong stream brief list
      */
     PageResult<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request);
 
     /**
-     * Paging query inlong stream full info list, and get all related sources and sinks
+     * Paging query inlong stream full info list, and get all related sources and
+     * sinks
      *
-     * @param request query request
+     * @param request
+     *          query request
      * @return inlong stream info list
      */
     PageResult<InlongStreamInfo> listAll(InlongStreamPageRequest request);
@@ -88,7 +98,8 @@ public interface InlongStreamService {
     /**
      * Get the inlong stream brief list and related sink brief list.
      *
-     * @param groupId inlong group id
+     * @param groupId
+     *          inlong group id
      * @return brief list of inlong stream
      */
     List<InlongStreamBriefInfo> listBriefWithSink(String groupId);
@@ -96,17 +107,22 @@ public interface InlongStreamService {
     /**
      * Update the InlongStream info
      *
-     * @param request inlong stream info that needs to be modified
-     * @param operator Edit person's name
+     * @param request
+     *          inlong stream info that needs to be modified
+     * @param operator
+     *          Edit person's name
      * @return whether succeed
      */
     Boolean update(InlongStreamRequest request, String operator);
 
     /**
-     * Update the InlongStream - not check the InlongGroup status to which the stream belongs.
+     * Update the InlongStream - not check the InlongGroup status to which the
+     * stream belongs.
      *
-     * @param request inlong stream info that needs to be modified
-     * @param operator Edit person's name
+     * @param request
+     *          inlong stream info that needs to be modified
+     * @param operator
+     *          Edit person's name
      * @return whether succeed
      */
     Boolean updateWithoutCheck(InlongStreamRequest request, String operator);
@@ -114,12 +130,15 @@ public interface InlongStreamService {
     /**
      * Delete the specified inlong stream.
      * <p/>
-     * When deleting an inlong stream, you need to check whether there are some related
-     * stream_sources or stream_sinks
+     * When deleting an inlong stream, you need to check whether there are some
+     * related stream_sources or stream_sinks
      *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
-     * @param operator Edit person's name
+     * @param groupId
+     *          Inlong group id
+     * @param streamId
+     *          Inlong stream id
+     * @param operator
+     *          Edit person's name
      * @return whether succeed
      */
     Boolean delete(String groupId, String streamId, String operator);
@@ -127,16 +146,20 @@ public interface InlongStreamService {
     /**
      * Logically delete all inlong streams under the specified groupId
      *
-     * @param groupId Inlong group id
-     * @param operator Edit person's name
+     * @param groupId
+     *          Inlong group id
+     * @param operator
+     *          Edit person's name
      * @return whether succeed
      */
     Boolean logicDeleteAll(String groupId, String operator);
 
     /**
-     * According to the group id, query the number of valid inlong streams belonging to this service
+     * According to the group id, query the number of valid inlong streams belonging
+     * to this service
      *
-     * @param groupId Inlong group id
+     * @param groupId
+     *          Inlong group id
      * @return Number of inlong streams
      */
     int selectCountByGroupId(String groupId);
@@ -149,8 +172,10 @@ public interface InlongStreamService {
     /**
      * Save the information modified when the approval is passed
      *
-     * @param streamApproveList inlong stream approval information
-     * @param operator Edit person's name
+     * @param streamApproveList
+     *          inlong stream approval information
+     * @param operator
+     *          Edit person's name
      * @return whether succeed
      */
     boolean updateAfterApprove(List<InlongStreamApproveRequest> streamApproveList, String operator);
@@ -158,19 +183,26 @@ public interface InlongStreamService {
     /**
      * Update stream status
      *
-     * @param groupId Inlong group id
-     * @param streamId Inlong stream id
-     * @param status Modified status
-     * @param operator Edit person's name
+     * @param groupId
+     *          Inlong group id
+     * @param streamId
+     *          Inlong stream id
+     * @param status
+     *          Modified status
+     * @param operator
+     *          Edit person's name
      * @return whether succeed
-     * @apiNote If streamId is null, update all inlong stream associated with groupId
+     * @apiNote If streamId is null, update all inlong stream associated with
+     *          groupId
      */
     boolean updateStatus(String groupId, String streamId, Integer status, String operator);
 
     /**
-     * According to the specified DLQ / RLQ name, create the corresponding Pulsar's Topic stream
+     * According to the specified DLQ / RLQ name, create the corresponding Pulsar's
+     * Topic stream
      *
-     * @param topicName Pulsar's Topic name, which is the inlong stream ID
+     * @param topicName
+     *          Pulsar's Topic name, which is the inlong stream ID
      */
     void insertDlqOrRlq(String bid, String topicName, String operator);
 

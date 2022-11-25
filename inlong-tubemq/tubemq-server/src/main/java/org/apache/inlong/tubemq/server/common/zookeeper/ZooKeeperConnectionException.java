@@ -20,10 +20,11 @@ package org.apache.inlong.tubemq.server.common.zookeeper;
 import java.io.IOException;
 
 /**
- * Thrown if the client can't connect to zookeeper
- * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
+ * Thrown if the client can't connect to zookeeper Copied from
+ * <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class ZooKeeperConnectionException extends IOException {
+
     private static final long serialVersionUID = 1L << 23 - 1L;
 
     /**
@@ -36,7 +37,8 @@ public class ZooKeeperConnectionException extends IOException {
     /**
      * Constructor
      *
-     * @param s message
+     * @param s
+     *          message
      */
     public ZooKeeperConnectionException(String s) {
         super(s);
@@ -45,7 +47,8 @@ public class ZooKeeperConnectionException extends IOException {
     /**
      * Constructor taking another exception.
      *
-     * @param e Exception to grab data from.
+     * @param e
+     *          Exception to grab data from.
      */
     public ZooKeeperConnectionException(String message, Exception e) {
         super(message, e);

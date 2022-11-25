@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
 import java.util.Collections;
+
 import org.junit.Test;
 
 /**
@@ -38,15 +39,13 @@ public class LongFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() {
         assertEquals(
                 "2147483647",
-                LongFormatInfo.INSTANCE.serialize(2147483647L)
-        );
+                LongFormatInfo.INSTANCE.serialize(2147483647L));
     }
 
     @Test
     public void testDeserialize() {
         assertEquals(
                 Long.valueOf(2147483647L),
-                LongFormatInfo.INSTANCE.deserialize("2147483647")
-        );
+                LongFormatInfo.INSTANCE.deserialize("2147483647"));
     }
 }

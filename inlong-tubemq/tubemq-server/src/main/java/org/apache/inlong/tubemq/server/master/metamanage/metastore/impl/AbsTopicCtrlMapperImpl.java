@@ -17,6 +17,12 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl;
 
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.TopicCtrlMapper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,20 +30,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
-import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicCtrlEntity;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper.TopicCtrlMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
-    protected static final Logger logger =
-            LoggerFactory.getLogger(AbsTopicCtrlMapperImpl.class);
+
+    protected static final Logger logger = LoggerFactory.getLogger(AbsTopicCtrlMapperImpl.class);
     // data cache
-    private final ConcurrentHashMap<String/* topicName */, TopicCtrlEntity>
-            topicCtrlCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* topicName */, TopicCtrlEntity> topicCtrlCache = new ConcurrentHashMap<>();
 
     public AbsTopicCtrlMapperImpl() {
         // Initial instant
@@ -45,7 +46,7 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
 
     @Override
     public boolean addTopicCtrlConf(TopicCtrlEntity entity,
-                                    StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         TopicCtrlEntity curEntity = topicCtrlCache.get(entity.getTopicName());
         if (curEntity != null) {
@@ -64,7 +65,7 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
 
     @Override
     public boolean updTopicCtrlConf(TopicCtrlEntity entity,
-                                    StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         TopicCtrlEntity curEntity = topicCtrlCache.get(entity.getTopicName());
         if (curEntity == null) {
@@ -94,10 +95,9 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
 
     @Override
     public boolean delTopicCtrlConf(String topicName,
-                                    StringBuilder strBuff,
-                                    ProcessResult result) {
-        TopicCtrlEntity curEntity =
-                topicCtrlCache.get(topicName);
+            StringBuilder strBuff,
+            ProcessResult result) {
+        TopicCtrlEntity curEntity = topicCtrlCache.get(topicName);
         if (curEntity == null) {
             result.setSuccResult(null);
             return result.isSuccess();
@@ -130,7 +130,7 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
 
     @Override
     public Map<String, TopicCtrlEntity> getTopicCtrlConf(Set<String> topicNameSet,
-                                                         TopicCtrlEntity qryEntity) {
+            TopicCtrlEntity qryEntity) {
         Set<String> qryKeySet = new HashSet<>();
         Map<String, TopicCtrlEntity> retEntityMap = new HashMap<>();
         if (topicNameSet == null || topicNameSet.isEmpty()) {
@@ -150,7 +150,7 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
 
     @Override
     public Map<String, Integer> getMaxMsgSizeInBByTopics(int defMaxMsgSizeInB,
-                                                         Set<String> topicNameSet) {
+            Set<String> topicNameSet) {
         Map<String, Integer> resultMap = new HashMap<>();
         if (topicNameSet == null || topicNameSet.isEmpty()) {
             return resultMap;
@@ -184,7 +184,8 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
     /**
      * Add or update a record
      *
-     * @param entity  the entity need to added or updated
+     * @param entity
+     *          the entity need to added or updated
      */
     protected void putRecord2Caches(TopicCtrlEntity entity) {
         topicCtrlCache.put(entity.getTopicName(), entity);
@@ -193,19 +194,24 @@ public abstract class AbsTopicCtrlMapperImpl implements TopicCtrlMapper {
     /**
      * Put topic control configure information into persistent store
      *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
-     * @param result process result with old value
+     * @param entity
+     *          need add record
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          process result with old value
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(TopicCtrlEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete topic control configure information from persistent storage
      *
-     * @param recordKey  the record key
-     * @param strBuff    the string buffer
+     * @param recordKey
+     *          the record key
+     * @param strBuff
+     *          the string buffer
      * @return the process result
      */
     protected abstract boolean delConfigFromPersistent(String recordKey, StringBuilder strBuff);

@@ -17,6 +17,8 @@
 
 package org.apache.inlong.sort.doris.table;
 
+import org.apache.inlong.sort.doris.internal.GenericDorisSinkFunction;
+
 import org.apache.doris.flink.cfg.DorisExecutionOptions;
 import org.apache.doris.flink.cfg.DorisOptions;
 import org.apache.doris.flink.cfg.DorisReadOptions;
@@ -25,11 +27,11 @@ import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.doris.internal.GenericDorisSinkFunction;
 
 /**
- * DorisDynamicTableSink copy from {@link org.apache.doris.flink.table.DorisDynamicTableSink}
- * It supports both single table sink and multiple table sink
+ * DorisDynamicTableSink copy from
+ * {@link org.apache.doris.flink.table.DorisDynamicTableSink} It supports both
+ * single table sink and multiple table sink
  **/
 public class DorisDynamicTableSink implements DynamicTableSink {
 
@@ -119,4 +121,3 @@ public class DorisDynamicTableSink implements DynamicTableSink {
         return "Doris Table Sink Of InLong";
     }
 }
-

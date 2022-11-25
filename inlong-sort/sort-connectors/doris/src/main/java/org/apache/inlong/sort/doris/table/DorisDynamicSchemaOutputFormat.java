@@ -17,6 +17,19 @@
 
 package org.apache.inlong.sort.doris.table;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+
+import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
+import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.doris.model.RespContent;
+import org.apache.inlong.sort.doris.util.DorisParseUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.doris.flink.cfg.DorisExecutionOptions;
 import org.apache.doris.flink.cfg.DorisOptions;
@@ -41,16 +54,6 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
-import org.apache.inlong.sort.base.format.DynamicSchemaFormatFactory;
-import org.apache.inlong.sort.base.format.JsonDynamicSchemaFormat;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.doris.model.RespContent;
-import org.apache.inlong.sort.doris.util.DorisParseUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -70,14 +73,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * DorisDynamicSchemaOutputFormat, copy from {@link org.apache.doris.flink.table.DorisDynamicOutputFormat}
- * It is used in the multiple sink scenario, in this scenario, we directly convert the data format by
- * 'sink.multiple.format' in the data stream to doris json that is used to load
+ * DorisDynamicSchemaOutputFormat, copy from
+ * {@link org.apache.doris.flink.table.DorisDynamicOutputFormat} It is used in
+ * the multiple sink scenario, in this scenario, we directly convert the data
+ * format by 'sink.multiple.format' in the data stream to doris json that is
+ * used to load
  */
 public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
@@ -186,7 +190,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     }
 
     /**
-     * A builder used to set parameters to the output format's configuration in a fluent way.
+     * A builder used to set parameters to the output format's configuration in a
+     * fluent way.
      *
      * @return builder
      */
@@ -543,7 +548,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             if (!ignoreSingleTableErrors) {
                 throw new RuntimeException(
                         String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
-                                tableIdentifier, loadValue), e);
+                                tableIdentifier, loadValue),
+                        e);
             }
             errorTables.add(tableIdentifier);
             LOG.warn("The tableIdentifier: {} load failed and the data will be throw away in the future"
@@ -569,7 +575,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
     private RespContent load(String tableIdentifier, String result) throws IOException {
         String[] tableWithDb = tableIdentifier.split("\\.");
         RespContent respContent = null;
-        // Dynamic set COLUMNS_KEY for tableIdentifier every time for multiple sink scenario
+        // Dynamic set COLUMNS_KEY for tableIdentifier every time for multiple sink
+        // scenario
         if (multipleSink) {
             executionOptions.getStreamLoadProp().put(COLUMNS_KEY, columnsMap.get(tableIdentifier));
         }
@@ -598,7 +605,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     private String getBackend() throws IOException {
         try {
-            //get be url from fe
+            // get be url from fe
             return RestService.randomBackend(options, readOptions, LOG);
         } catch (IOException | DorisException e) {
             LOG.error("get backends info fail");
@@ -618,7 +625,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,

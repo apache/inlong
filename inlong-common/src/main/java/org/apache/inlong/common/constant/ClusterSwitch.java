@@ -28,7 +28,8 @@ public class ClusterSwitch {
     public static final String BACKUP_CLUSTER_TAG = "backup_cluster_tag";
 
     /**
-     * MQ resource for backup, represents the namespace of Pulsar, the topic of TubeMQ, etc.
+     * MQ resource for backup, represents the namespace of Pulsar, the topic of
+     * TubeMQ, etc.
      */
     public static final String BACKUP_MQ_RESOURCE = "backup_mq_resource";
 }

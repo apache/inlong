@@ -18,17 +18,7 @@
 package org.apache.inlong.dataproxy.http;
 
 import static org.apache.inlong.dataproxy.consts.AttrConstants.SEP_HASHTAG;
-import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.flume.ChannelException;
-import org.apache.flume.Event;
-import org.apache.flume.channel.ChannelProcessor;
-import org.apache.flume.event.EventBuilder;
+
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
 import org.apache.inlong.common.msg.AttributeConstants;
@@ -44,6 +34,21 @@ import org.apache.inlong.dataproxy.source.ServiceDecoder;
 import org.apache.inlong.dataproxy.utils.DateTimeUtils;
 import org.apache.inlong.dataproxy.utils.InLongMsgVer;
 import org.apache.inlong.dataproxy.utils.MessageUtils;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.flume.ChannelException;
+import org.apache.flume.Event;
+import org.apache.flume.channel.ChannelProcessor;
+import org.apache.flume.event.EventBuilder;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +69,8 @@ public class SimpleMessageHandler implements MessageHandler {
     private long channelTrace = 0L;
 
     public SimpleMessageHandler(ChannelProcessor processor, MonitorIndex monitorIndex,
-                                MonitorIndexExt monitorIndexExt, DataProxyMetricItemSet metricItemSet,
-                                ServiceDecoder decoder) {
+            MonitorIndexExt monitorIndexExt, DataProxyMetricItemSet metricItemSet,
+            ServiceDecoder decoder) {
         this.processor = processor;
         this.monitorIndex = monitorIndex;
         this.monitorIndexExt = monitorIndexExt;
@@ -124,8 +129,7 @@ public class SimpleMessageHandler implements MessageHandler {
             mxValue = configedMxAttr.trim();
         }
         // convert context to http request
-        HttpServletRequest request =
-                (HttpServletRequest) context.get(AttrConstants.HTTP_REQUEST);
+        HttpServletRequest request = (HttpServletRequest) context.get(AttrConstants.HTTP_REQUEST);
         // get report node ip
         String strRemoteIP = request.getRemoteAddr();
         // get message count
@@ -160,8 +164,7 @@ public class SimpleMessageHandler implements MessageHandler {
         headers.put(AttributeConstants.RCV_TIME, String.valueOf(msgRcvTime));
         Event event = EventBuilder.withBody(data, headers);
         inLongMsg.reset();
-        Pair<Boolean, String> evenProcType =
-                MessageUtils.getEventProcType("", "");
+        Pair<Boolean, String> evenProcType = MessageUtils.getEventProcType("", "");
         // build metric data item
         longDataTime = longDataTime / 1000 / 60 / 10;
         longDataTime = longDataTime * 1000 * 60 * 10;
@@ -229,9 +232,12 @@ public class SimpleMessageHandler implements MessageHandler {
     /**
      * add statistics information
      *
-     * @param isSuccess  success or failure
-     * @param size    message size
-     * @param event   message event
+     * @param isSuccess
+     *          success or failure
+     * @param size
+     *          message size
+     * @param event
+     *          message event
      */
     private void addStatistics(boolean isSuccess, long size, Event event) {
         if (event == null) {

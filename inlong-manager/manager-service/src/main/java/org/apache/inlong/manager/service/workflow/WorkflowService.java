@@ -44,9 +44,12 @@ public interface WorkflowService {
     /**
      * Initiation process
      *
-     * @param process Process name
-     * @param applicant Applicant
-     * @param form Process form
+     * @param process
+     *          Process name
+     * @param applicant
+     *          Applicant
+     * @param form
+     *          Process form
      * @return result
      */
     WorkflowResult start(ProcessName process, String applicant, ProcessForm form);
@@ -54,9 +57,12 @@ public interface WorkflowService {
     /**
      * Continue process when pending or failed
      *
-     * @param processId Process id.
-     * @param operator Operator.
-     * @param remark Remarks information.
+     * @param processId
+     *          Process id.
+     * @param operator
+     *          Operator.
+     * @param remark
+     *          Remarks information.
      * @return Workflow result.
      */
     WorkflowResult continueProcess(Integer processId, String operator, String remark);
@@ -64,9 +70,12 @@ public interface WorkflowService {
     /**
      * Cancellation process application
      *
-     * @param processId Process id.
-     * @param operator Operator.
-     * @param remark Remarks information.
+     * @param processId
+     *          Process id.
+     * @param operator
+     *          Operator.
+     * @param remark
+     *          Remarks information.
      * @return Workflow result.
      */
     WorkflowResult cancel(Integer processId, String operator, String remark);
@@ -74,9 +83,12 @@ public interface WorkflowService {
     /**
      * Approval the process.
      *
-     * @param taskId Task id.
-     * @param form Form information.
-     * @param operator Operator.
+     * @param taskId
+     *          Task id.
+     * @param form
+     *          Form information.
+     * @param operator
+     *          Operator.
      * @return Workflow result.
      */
     WorkflowResult approve(Integer taskId, String remark, TaskForm form, String operator);
@@ -84,9 +96,12 @@ public interface WorkflowService {
     /**
      * reject
      *
-     * @param taskId Task ID
-     * @param remark Remarks information
-     * @param operator Operator
+     * @param taskId
+     *          Task ID
+     * @param remark
+     *          Remarks information
+     * @param operator
+     *          Operator
      * @return result
      */
     WorkflowResult reject(Integer taskId, String remark, String operator);
@@ -94,10 +109,14 @@ public interface WorkflowService {
     /**
      * Change approver
      *
-     * @param taskId Task ID
-     * @param remark Remarks
-     * @param to Transfer to
-     * @param operator Operator
+     * @param taskId
+     *          Task ID
+     * @param remark
+     *          Remarks
+     * @param to
+     *          Transfer to
+     * @param operator
+     *          Operator
      * @return result
      */
     WorkflowResult transfer(Integer taskId, String remark, List<String> to, String operator);
@@ -105,9 +124,12 @@ public interface WorkflowService {
     /**
      * Complete task-true to automatic task
      *
-     * @param taskId Task id.
-     * @param remark Remarks.
-     * @param operator Operator.
+     * @param taskId
+     *          Task id.
+     * @param remark
+     *          Remarks.
+     * @param operator
+     *          Operator.
      * @return Workflow result.
      */
     WorkflowResult complete(Integer taskId, String remark, String operator);
@@ -115,8 +137,10 @@ public interface WorkflowService {
     /**
      * Query process details according to the tracking number
      *
-     * @param processId Process id.
-     * @param taskId Task id.
+     * @param processId
+     *          Process id.
+     * @param taskId
+     *          Task id.
      * @return Detail info.
      */
     ProcessDetailResponse detail(Integer processId, Integer taskId, String operator);
@@ -124,7 +148,8 @@ public interface WorkflowService {
     /**
      * Get a list of process.
      *
-     * @param query Query conditions.
+     * @param query
+     *          Query conditions.
      * @return Process list.
      */
     PageResult<ProcessResponse> listProcess(ProcessRequest query);
@@ -132,7 +157,8 @@ public interface WorkflowService {
     /**
      * Get task list
      *
-     * @param query Query conditions
+     * @param query
+     *          Query conditions
      * @return List
      */
     PageResult<TaskResponse> listTask(TaskRequest query);
@@ -140,7 +166,8 @@ public interface WorkflowService {
     /**
      * Get process statistics
      *
-     * @param query Query conditions
+     * @param query
+     *          Query conditions
      * @return Statistical data
      */
     ProcessCountResponse countProcess(ProcessCountRequest query);
@@ -148,7 +175,8 @@ public interface WorkflowService {
     /**
      * Get task statistics
      *
-     * @param query Query conditions
+     * @param query
+     *          Query conditions
      * @return Statistical data
      */
     TaskCountResponse countTask(TaskCountRequest query);
@@ -156,7 +184,8 @@ public interface WorkflowService {
     /**
      * Get task execution log
      *
-     * @param query Query conditions
+     * @param query
+     *          Query conditions
      * @return Execution log
      */
     PageResult<WorkflowExecuteLog> listTaskLogs(TaskLogRequest query);

@@ -27,7 +27,8 @@ public interface RoleService {
     /**
      * Get roles based on username
      *
-     * @param username username
+     * @param username
+     *          username
      * @return Role list
      */
     List<String> listByUser(String username);

@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.workflow.definition;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -28,6 +26,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Non-terminal element

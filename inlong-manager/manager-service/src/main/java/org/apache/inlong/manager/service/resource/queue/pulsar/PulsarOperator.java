@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.queue.pulsar;
 
-import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -26,6 +24,8 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.pojo.queue.pulsar.PulsarTopicInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.admin.Namespaces;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
@@ -33,13 +33,16 @@ import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.common.policies.data.PersistencePolicies;
 import org.apache.pulsar.common.policies.data.RetentionPolicies;
 import org.apache.pulsar.common.policies.data.TenantInfoImpl;
+
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Sets;
 
 /**
  * Pulsar operator, supports creating topics and creating subscription.
@@ -83,7 +86,8 @@ public class PulsarOperator {
     /**
      * Create Pulsar namespace
      */
-    public void createNamespace(PulsarAdmin pulsarAdmin, InlongPulsarInfo pulsarInfo, String tenant, String namespace)
+    public void createNamespace(PulsarAdmin pulsarAdmin, InlongPulsarInfo pulsarInfo, String tenant,
+            String namespace)
             throws PulsarAdminException {
         Preconditions.checkNotNull(tenant, "pulsar tenant cannot be empty during create namespace");
         Preconditions.checkNotNull(namespace, "pulsar namespace cannot be empty during create namespace");
@@ -222,7 +226,8 @@ public class PulsarOperator {
      * Create a Pulsar subscription for the given topic
      */
     public void createSubscription(PulsarAdmin pulsarAdmin, String fullTopicName, String queueModule,
-            String subscription) throws PulsarAdminException {
+            String subscription)
+            throws PulsarAdminException {
         LOGGER.info("begin to create pulsar subscription={} for topic={}", subscription, fullTopicName);
         try {
             boolean isExists = this.subscriptionExists(pulsarAdmin, fullTopicName, subscription,
@@ -243,7 +248,8 @@ public class PulsarOperator {
      * Create a Pulsar subscription for the specified topic list
      */
     public void createSubscriptions(PulsarAdmin pulsarAdmin, String subscription, PulsarTopicInfo topicInfo,
-            List<String> topicList) throws PulsarAdminException {
+            List<String> topicList)
+            throws PulsarAdminException {
         for (String topic : topicList) {
             topicInfo.setTopicName(topic);
             String fullTopicName = topicInfo.getTenant() + "/" + topicInfo.getNamespace() + "/" + topic;
@@ -263,17 +269,20 @@ public class PulsarOperator {
     /**
      * Check whether the Pulsar namespace exists under the specified tenant
      */
-    private boolean namespaceExists(PulsarAdmin pulsarAdmin, String tenant, String namespace)
+    private boolean namespaceExists(PulsarAdmin pulsarAdmin, String tenant,
+            String namespace)
             throws PulsarAdminException {
         List<String> namespaceList = pulsarAdmin.namespaces().getNamespaces(tenant);
         return namespaceList.contains(tenant + "/" + namespace);
     }
 
     /**
-     * Verify whether the specified Topic exists under the specified Tenant/Namespace
+     * Verify whether the specified Topic exists under the specified
+     * Tenant/Namespace
      *
-     * @apiNote cannot compare whether the string contains, otherwise it may be misjudged, such as:
-     *         Topic "ab" does not exist, but if "abc" exists, "ab" will be mistakenly judged to exist
+     * @apiNote cannot compare whether the string contains, otherwise it may be
+     *          misjudged, such as: Topic "ab" does not exist, but if "abc" exists,
+     *          "ab" will be mistakenly judged to exist
      */
     public boolean topicExists(PulsarAdmin pulsarAdmin, String tenant, String namespace, String topicName,
             boolean isPartitioned) {
@@ -332,7 +341,8 @@ public class PulsarOperator {
                 LOGGER.info("check whether the subscription exists for topic={}, try count={}", topic, count);
                 Thread.sleep(DELAY_SECONDS);
 
-                // first lookup to load the topic, and then query whether the subscription exists
+                // first lookup to load the topic, and then query whether the subscription
+                // exists
                 if (isPartitioned) {
                     Map<String, String> topicMap = pulsarAdmin.lookups().lookupPartitionedTopic(topic);
                     if (topicMap.isEmpty()) {

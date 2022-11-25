@@ -18,10 +18,6 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import io.netty.channel.Channel;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.dataproxy.FileCallback;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
@@ -30,8 +26,10 @@ import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.ProxyConfigEntry;
 import org.apache.inlong.sdk.dataproxy.threads.MetricWorkerThread;
 import org.apache.inlong.sdk.dataproxy.threads.TimeoutScanThread;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -45,6 +43,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.netty.channel.Channel;
 
 public class Sender {
 
@@ -72,7 +75,8 @@ public class Sender {
     }
 
     /**
-     * Constructor of sender takes two arguments {@link ProxyClientConfig} and {@link ThreadFactory}
+     * Constructor of sender takes two arguments {@link ProxyClientConfig} and
+     * {@link ThreadFactory}
      */
     public Sender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         this.configure = configure;
@@ -153,7 +157,7 @@ public class Sender {
         return exceptStr;
     }
 
-    /*Used for asynchronously message sending.*/
+    /* Used for asynchronously message sending. */
     public void notifyCallback(Channel channel, String messageId, SendResult result) {
         LOGGER.debug("Channel = {} , ack messageId = {}", channel, messageId);
         if (channel == null) {
@@ -179,7 +183,9 @@ public class Sender {
     }
 
     private SendResult syncSendInternalMessage(NettyClient client, EncodeObject encodeObject, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ExecutionException, InterruptedException, TimeoutException {
+            long timeout,
+            TimeUnit timeUnit)
+            throws ExecutionException, InterruptedException, TimeoutException {
         if (client == null) {
             return SendResult.NO_CONNECTION;
         }
@@ -194,7 +200,8 @@ public class Sender {
             if (encodeObject.getGroupId().equals(clientMgr.getGroupId())) {
                 groupIdnum = clientMgr.getGroupIdNum();
                 streamIdnum = clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null
-                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) : 0;
+                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId())
+                        : 0;
             }
             encodeObject.setGroupIdNum(groupIdnum);
             encodeObject.setStreamIdNum(streamIdnum);
@@ -216,8 +223,9 @@ public class Sender {
     }
 
     /**
-     * Following methods used by synchronously message sending.
-     * Meanwhile, update this send channel timeout info(including increase or reset), according to the sendResult
+     * Following methods used by synchronously message sending. Meanwhile, update
+     * this send channel timeout info(including increase or reset), according to the
+     * sendResult
      *
      * @param encodeObject
      * @param msgUUID
@@ -245,7 +253,7 @@ public class Sender {
         } catch (TimeoutException e) {
             // TODO Auto-generated catch block
             LOGGER.error("TimeoutException {} ", getExceptionStack(e));
-            //e.printStackTrace();
+            // e.printStackTrace();
             SyncMessageCallable syncMessageCallable = syncCallables.remove(encodeObject.getMessageId());
             if (syncMessageCallable != null) {
                 NettyClient tmpClient = syncMessageCallable.getClient();
@@ -277,7 +285,9 @@ public class Sender {
     }
 
     private SendResult syncSendMessageIndexInternal(NettyClient client, EncodeObject encodeObject, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ExecutionException, InterruptedException, TimeoutException {
+            long timeout,
+            TimeUnit timeUnit)
+            throws ExecutionException, InterruptedException, TimeoutException {
         if (client == null || !client.isActive()) {
             chooseProxy.remove(encodeObject.getMessageId());
             client = clientMgr.getClientByRoundRobin();
@@ -293,7 +303,8 @@ public class Sender {
             if (encodeObject.getGroupId().equals(clientMgr.getGroupId())) {
                 groupIdnum = clientMgr.getGroupIdNum();
                 streamIdnum = clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null
-                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) : 0;
+                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId())
+                        : 0;
             }
             encodeObject.setGroupIdNum(groupIdnum);
             encodeObject.setStreamIdNum(streamIdnum);
@@ -352,7 +363,7 @@ public class Sender {
             } catch (TimeoutException e) {
                 // TODO Auto-generated catch block
                 LOGGER.error("TimeoutException {}", getExceptionStack(e));
-                //e.printStackTrace();
+                // e.printStackTrace();
                 SyncMessageCallable syncMessageCallable = syncCallables.remove(encodeObject.getMessageId());
                 if (syncMessageCallable != null) {
                     NettyClient tmpClient = syncMessageCallable.getClient();
@@ -390,7 +401,8 @@ public class Sender {
      * @throws ProxysdkException
      */
     public void asyncSendMessageIndex(EncodeObject encodeObject, FileCallback callback, String msgUUID, long timeout,
-            TimeUnit timeUnit) throws ProxysdkException {
+            TimeUnit timeUnit)
+            throws ProxysdkException {
         NettyClient client = chooseProxy.get(encodeObject.getMessageId());
         String proxyip = encodeObject.getProxyIp();
         if (proxyip != null && proxyip.length() != 0) {
@@ -441,7 +453,8 @@ public class Sender {
             if ((clientMgr.getGroupId().length() != 0) && (encodeObject.getGroupId().equals(clientMgr.getGroupId()))) {
                 groupIdnum = clientMgr.getGroupIdNum();
                 streamIdnum = (clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null)
-                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) : 0;
+                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId())
+                        : 0;
             }
             encodeObject.setGroupIdNum(groupIdnum);
             encodeObject.setStreamIdNum(streamIdnum);
@@ -506,7 +519,8 @@ public class Sender {
      * Following methods used by asynchronously message sending.
      */
     public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback, String msgUUID,
-            long timeout, TimeUnit timeUnit) throws ProxysdkException {
+            long timeout, TimeUnit timeUnit)
+            throws ProxysdkException {
         metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),
                 encodeObject.getStreamId(), Utils.getLocalIp(), encodeObject.getPackageTime(),
                 encodeObject.getDt(), encodeObject.getRealCnt());
@@ -545,8 +559,8 @@ public class Sender {
                 throw new ProxysdkException("ASYNC_CALLBACK_BUFFER_FULL");
             }
         }
-        ConcurrentHashMap<String, QueueObject> msgQueueMap =
-                callbacks.computeIfAbsent(client.getChannel(), (k) -> new ConcurrentHashMap<>());
+        ConcurrentHashMap<String, QueueObject> msgQueueMap = callbacks.computeIfAbsent(client.getChannel(),
+                (k) -> new ConcurrentHashMap<>());
         QueueObject queueObject = msgQueueMap.putIfAbsent(encodeObject.getMessageId(),
                 new QueueObject(System.currentTimeMillis(), callback, size, timeout, timeUnit));
         if (queueObject != null) {
@@ -593,8 +607,7 @@ public class Sender {
     }
 
     /*
-     * deal with connection disconnection, should we restore it and
-     * re-send on a new channel?
+     * deal with connection disconnection, should we restore it and re-send on a new channel?
      */
     public void notifyConnectionDisconnected(Channel channel) {
         if (channel == null) {
@@ -652,7 +665,7 @@ public class Sender {
         }
     }
 
-    /* Deal with unexpected exception. only used for asyc send*/
+    /* Deal with unexpected exception. only used for asyc send */
     public void waitForAckForChannel(Channel channel) {
         if (channel == null) {
             return;

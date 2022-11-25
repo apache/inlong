@@ -18,10 +18,6 @@
 
 package org.apache.inlong.sort.parser;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
@@ -37,13 +33,19 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.api.EnvironmentSettings;
+import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.flink.test.util.AbstractTestBase;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Test for mongodb extract node
@@ -56,8 +58,7 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
                 new MetaFieldInfo("proctime", MetaField.PROCESS_TIME),
                 new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
                 new MetaFieldInfo("collection_name", MetaField.COLLECTION_NAME),
-                new MetaFieldInfo("op_ts", MetaField.OP_TS)
-        );
+                new MetaFieldInfo("op_ts", MetaField.OP_TS));
         return new MongoExtractNode("1", "mysql_input", fields,
                 null, null, "test", "localhost:27017",
                 "root", "inlong", "test");
@@ -70,8 +71,7 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
                 new FieldInfo("proctime", new TimestampFormatInfo()),
                 new FieldInfo("database_name", new StringFormatInfo()),
                 new FieldInfo("collection_name", new StringFormatInfo()),
-                new FieldInfo("op_ts", new TimestampFormatInfo())
-        );
+                new FieldInfo("op_ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("name", new StringFormatInfo())),
@@ -84,8 +84,7 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
                 new FieldRelation(new FieldInfo("collection_name", new StringFormatInfo()),
                         new FieldInfo("collection_name", new StringFormatInfo())),
                 new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
-                        new FieldInfo("op_ts", new TimestampFormatInfo()))
-        );
+                        new FieldInfo("op_ts", new TimestampFormatInfo())));
         CsvFormat csvFormat = new CsvFormat();
         csvFormat.setDisableQuoteCharacter(true);
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
@@ -103,7 +102,8 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
     /**
      * Test mongodb to kafka
      *
-     * @throws Exception The exception may throws when execute the case
+     * @throws Exception
+     *           The exception may throws when execute the case
      */
     @Test
     public void testMongoDbToKafka() throws Exception {

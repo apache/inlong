@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.client.api.inner.client;
 
-import lombok.SneakyThrows;
-import org.apache.commons.lang3.tuple.Pair;
+import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD;
+import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD_OLD;
+
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.InlongGroupApi;
 import org.apache.inlong.manager.client.api.service.InlongSortApi;
@@ -38,13 +39,16 @@ import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusInfo;
 import org.apache.inlong.manager.pojo.sort.SortStatusRequest;
 import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+
 import retrofit2.Call;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
-import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD;
-import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD_OLD;
+import lombok.SneakyThrows;
+
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 /**
  * Client for {@link InlongGroupApi}.
@@ -73,7 +77,8 @@ public class InlongGroupClient {
     /**
      * Get inlong group by the given inlong group id.
      *
-     * @param inlongGroupId the given inlong group id
+     * @param inlongGroupId
+     *          the given inlong group id
      * @return inlong group info if exists, null will be returned if not exits
      */
     public InlongGroupInfo getGroupIfExists(String inlongGroupId) {
@@ -135,7 +140,8 @@ public class InlongGroupClient {
     /**
      * List inlong group by the page request
      *
-     * @param pageRequest page request
+     * @param pageRequest
+     *          page request
      * @return Response encapsulate of inlong group list
      */
     public PageResult<InlongGroupBriefInfo> listGroups(InlongGroupPageRequest pageRequest) {
@@ -148,7 +154,8 @@ public class InlongGroupClient {
     /**
      * List sort task status for inlong groups
      *
-     * @param request sort status request
+     * @param request
+     *          sort status request
      * @return list of sort status infos
      */
     public List<SortStatusInfo> listSortStatus(SortStatusRequest request) {

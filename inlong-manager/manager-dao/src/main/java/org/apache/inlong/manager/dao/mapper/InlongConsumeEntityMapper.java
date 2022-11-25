@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.InlongConsumeEntity;
 import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumeBriefInfo;
 import org.apache.inlong.manager.pojo.consume.InlongConsumePageRequest;
-import org.springframework.stereotype.Repository;
+
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InlongConsumeEntityMapper {

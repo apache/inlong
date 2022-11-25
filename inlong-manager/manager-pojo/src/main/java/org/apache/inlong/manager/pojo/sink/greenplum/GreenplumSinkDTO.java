@@ -17,18 +17,20 @@
 
 package org.apache.inlong.manager.pojo.sink.greenplum;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Greenplum sink info
@@ -85,8 +87,10 @@ public class GreenplumSinkDTO {
     /**
      * Get Greenplum table info
      *
-     * @param greenplumSink Greenplum sink dto,{@link GreenplumSinkDTO}
-     * @param columnList Greenplum column info list,{@link GreenplumColumnInfo}
+     * @param greenplumSink
+     *          Greenplum sink dto,{@link GreenplumSinkDTO}
+     * @param columnList
+     *          Greenplum column info list,{@link GreenplumColumnInfo}
      * @return {@link GreenplumTableInfo}
      */
     public static GreenplumTableInfo getTableInfo(GreenplumSinkDTO greenplumSink,
@@ -99,4 +103,3 @@ public class GreenplumSinkDTO {
         return tableInfo;
     }
 }
-

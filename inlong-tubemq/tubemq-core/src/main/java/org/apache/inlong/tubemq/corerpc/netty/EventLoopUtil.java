@@ -17,6 +17,10 @@
 
 package org.apache.inlong.tubemq.corerpc.netty;
 
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadFactory;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
@@ -34,11 +38,9 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ThreadFactory;
 
 public class EventLoopUtil {
+
     public EventLoopUtil() {
     }
 
@@ -51,27 +53,30 @@ public class EventLoopUtil {
         } else {
             EpollEventLoopGroup eventLoopGroup = new EpollEventLoopGroup(nThreads,
                     threadFactory, () -> {
-                return (selectSupplier, hasTasks) -> {
-                    return -3;
-                };
-            });
+                        return (selectSupplier, hasTasks) -> {
+                            return -3;
+                        };
+                    });
             return eventLoopGroup;
         }
     }
 
     public static Class<? extends SocketChannel> getClientSocketChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollSocketChannel.class : NioSocketChannel.class;
+                ? EpollSocketChannel.class
+                : NioSocketChannel.class;
     }
 
     public static Class<? extends ServerSocketChannel> getServerSocketChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
+                ? EpollServerSocketChannel.class
+                : NioServerSocketChannel.class;
     }
 
     public static Class<? extends DatagramChannel> getDatagramChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
-                ? EpollDatagramChannel.class : NioDatagramChannel.class;
+                ? EpollDatagramChannel.class
+                : NioDatagramChannel.class;
     }
 
     public static void enableTriggeredMode(ServerBootstrap bootstrap) {
@@ -88,7 +93,8 @@ public class EventLoopUtil {
     /**
      * get CompletableFuture by Future
      *
-     * @param future Future
+     * @param future
+     *          Future
      * @return CompletableFuture
      */
     public static CompletableFuture<Void> toCompletableFutureVoid(Future<?> future) {

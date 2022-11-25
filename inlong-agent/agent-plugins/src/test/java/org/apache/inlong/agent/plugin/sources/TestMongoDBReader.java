@@ -17,28 +17,29 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import com.alibaba.fastjson.JSONPath;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.sources.reader.MongoDBReader;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
+
+import java.util.UUID;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.UUID;
-
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import com.alibaba.fastjson.JSONPath;
 
 /**
  * TestMongoDBReader : TestMongoDBReader
  */
 public class TestMongoDBReader {
-
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestMongoDBReader.class);
 

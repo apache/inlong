@@ -32,7 +32,8 @@ public interface Heartbeat {
     /**
      * Get component heartbeat
      *
-     * @param request query request of heartbeat
+     * @param request
+     *          query request of heartbeat
      * @return component heartbeat
      */
     ComponentHeartbeatResponse getComponentHeartbeat(HeartbeatQueryRequest request);
@@ -40,7 +41,8 @@ public interface Heartbeat {
     /**
      * Get inlong group heartbeat
      *
-     * @param request query request of heartbeat
+     * @param request
+     *          query request of heartbeat
      * @return group heartbeat
      */
     GroupHeartbeatResponse getGroupHeartbeat(HeartbeatQueryRequest request);
@@ -48,7 +50,8 @@ public interface Heartbeat {
     /**
      * Get inlong stream heartbeat
      *
-     * @param request query request of heartbeat
+     * @param request
+     *          query request of heartbeat
      * @return stream heartbeat
      */
     StreamHeartbeatResponse getStreamHeartbeat(HeartbeatQueryRequest request);
@@ -56,7 +59,8 @@ public interface Heartbeat {
     /**
      * List component heartbeat by page
      *
-     * @param request paging query request
+     * @param request
+     *          paging query request
      * @return list of component heartbeat
      */
     PageResult<ComponentHeartbeatResponse> listComponentHeartbeat(HeartbeatPageRequest request);
@@ -64,7 +68,8 @@ public interface Heartbeat {
     /**
      * List group heartbeat by page
      *
-     * @param request paging query request
+     * @param request
+     *          paging query request
      * @return list of group heartbeat
      */
     PageResult<GroupHeartbeatResponse> listGroupHeartbeat(HeartbeatPageRequest request);
@@ -72,7 +77,8 @@ public interface Heartbeat {
     /**
      * List stream heartbeat by page
      *
-     * @param request paging query request
+     * @param request
+     *          paging query request
      * @return list of stream heartbeat
      */
     PageResult<StreamHeartbeatResponse> listStreamHeartbeat(HeartbeatPageRequest request);

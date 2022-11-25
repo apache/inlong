@@ -17,17 +17,19 @@
 
 package org.apache.inlong.sort.standalone.sink.clickhouse;
 
-import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.dispatch.DispatchProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flume.lifecycle.LifecycleState;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ClickHouseChannelWorker
@@ -140,6 +142,7 @@ public class ClickHouseChannelWorker extends Thread {
 
     /**
      * reconnect
+     * 
      * @throws SQLException
      */
     private void reconnect() throws SQLException {

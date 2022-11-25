@@ -17,6 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FIELD_SPLITTER;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_PROXY_BATCH_FLUSH_INTERVAL;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.JobConstants.PROXY_BATCH_FLUSH_INTERVAL;
+
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -28,8 +33,6 @@ import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,10 +42,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FIELD_SPLITTER;
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_PROXY_BATCH_FLUSH_INTERVAL;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
-import static org.apache.inlong.agent.constant.JobConstants.PROXY_BATCH_FLUSH_INTERVAL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * sink message data to inlong-dataproxy
@@ -135,7 +136,7 @@ public class ProxySink extends AbstractSink {
                         if (batchProxyMessage != null) {
                             senderManager.sendBatch(batchProxyMessage);
                             LOGGER.info("send group id {}, message key {},with message size {}, the job id is {}, "
-                                            + "read source is {} sendTime is {}", inlongGroupId, batchKey,
+                                    + "read source is {} sendTime is {}", inlongGroupId, batchKey,
                                     batchProxyMessage.getDataList().size(), jobInstanceId, sourceName,
                                     batchProxyMessage.getDataTime());
                         }

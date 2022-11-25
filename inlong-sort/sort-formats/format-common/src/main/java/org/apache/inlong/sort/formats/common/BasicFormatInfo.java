@@ -21,14 +21,16 @@ package org.apache.inlong.sort.formats.common;
 /**
  * The format information for basic types.
  *
- * @param <T> The type represented by this format information.
+ * @param <T>
+ *          The type represented by this format information.
  */
 public interface BasicFormatInfo<T> extends FormatInfo {
 
     /**
      * Serializes the given record.
      *
-     * @param record The record to be serialized.
+     * @param record
+     *          The record to be serialized.
      * @return The text serialized from the given record.
      */
     String serialize(T record) throws Exception;
@@ -36,7 +38,8 @@ public interface BasicFormatInfo<T> extends FormatInfo {
     /**
      * Deserializes the given text.
      *
-     * @param text The text to be deserialized.
+     * @param text
+     *          The text to be deserialized.
      * @return The record deserialized from the given text.
      */
     T deserialize(String text) throws Exception;

@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink.kafka;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -29,13 +26,18 @@ import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
 
 /** Context of kafka sink. */
 public class KafkaFederationSinkContext extends SinkContext {
@@ -110,8 +112,9 @@ public class KafkaFederationSinkContext extends SinkContext {
     /**
      * get Topic by uid
      *
-     * @param  uid uid
-     * @return     topic
+     * @param uid
+     *          uid
+     * @return topic
      */
     public String getTopic(String uid) {
         KafkaIdConfig idConfig = this.idConfigMap.get(uid);
@@ -124,8 +127,9 @@ public class KafkaFederationSinkContext extends SinkContext {
     /**
      * get KafkaIdConfig by uid
      *
-     * @param  uid uid
-     * @return     KafkaIdConfig
+     * @param uid
+     *          uid
+     * @return KafkaIdConfig
      */
     public KafkaIdConfig getIdConfig(String uid) {
         KafkaIdConfig idConfig = this.idConfigMap.get(uid);

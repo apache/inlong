@@ -17,13 +17,6 @@
 
 package org.apache.inlong.tubemq.server.broker.offset;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.daemon.AbstractDaemonService;
 import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
@@ -32,28 +25,36 @@ import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.server.broker.BrokerConfig;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
-import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
-import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
-import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.OffsetStorage;
 import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.OffsetStorageInfo;
 import org.apache.inlong.tubemq.server.broker.offset.offsetstorage.ZkOffsetStorage;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
+import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default offset manager.
- * Conduct consumer's commit offset operation and consumer's offset that has consumed but not committed.
+ * Default offset manager. Conduct consumer's commit offset operation and
+ * consumer's offset that has consumed but not committed.
  */
 public class DefaultOffsetManager extends AbstractDaemonService implements OffsetService {
+
     private static final Logger logger = LoggerFactory.getLogger(DefaultOffsetManager.class);
     private final BrokerConfig brokerConfig;
     private final OffsetStorage zkOffsetStorage;
-    private final ConcurrentHashMap<String/* group */,
-            ConcurrentHashMap<String/* topic - partitionId*/, OffsetStorageInfo>> cfmOffsetMap =
+    private final ConcurrentHashMap<String/* group */, ConcurrentHashMap<String/* topic - partitionId */, OffsetStorageInfo>> cfmOffsetMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* group */,
-            ConcurrentHashMap<String/* topic - partitionId*/, Long>> tmpOffsetMap =
+    private final ConcurrentHashMap<String/* group */, ConcurrentHashMap<String/* topic - partitionId */, Long>> tmpOffsetMap =
             new ConcurrentHashMap<>();
 
     public DefaultOffsetManager(final BrokerConfig brokerConfig) {
@@ -89,25 +90,32 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Load offset.
      *
-     * @param msgStore       the message store instance
-     * @param group          the consume group name
-     * @param topic          the consumed topic name
-     * @param partitionId    the consumed partition id
-     * @param readStatus     the consume behavior of the consumer group
-     * @param reqOffset      the bootstrap offset
-     * @param sBuilder       the string buffer
-     * @return               the loaded offset information
+     * @param msgStore
+     *          the message store instance
+     * @param group
+     *          the consume group name
+     * @param topic
+     *          the consumed topic name
+     * @param partitionId
+     *          the consumed partition id
+     * @param readStatus
+     *          the consume behavior of the consumer group
+     * @param reqOffset
+     *          the bootstrap offset
+     * @param sBuilder
+     *          the string buffer
+     * @return the loaded offset information
      */
     @Override
     public OffsetStorageInfo loadOffset(final MessageStore msgStore, final String group,
-                                        final String topic, int partitionId, int readStatus,
-                                        long reqOffset, final StringBuilder sBuilder) {
+            final String topic, int partitionId, int readStatus,
+            long reqOffset, final StringBuilder sBuilder) {
         OffsetStorageInfo regInfo;
         long indexMaxOffset = msgStore.getIndexMaxOffset();
         long indexMinOffset = msgStore.getIndexMinOffset();
-        long defOffset =
-                (readStatus == TBaseConstants.CONSUME_MODEL_READ_NORMAL)
-                        ? indexMinOffset : indexMaxOffset;
+        long defOffset = (readStatus == TBaseConstants.CONSUME_MODEL_READ_NORMAL)
+                ? indexMinOffset
+                : indexMaxOffset;
         String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
         regInfo = loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, defOffset);
         getAndResetTmpOffset(group, offsetCacheKey);
@@ -153,23 +161,29 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Get offset by parameters.
      *
-     * @param msgStore       the message store instance
-     * @param group          the consume group name
-     * @param topic          the consumed topic name
-     * @param partitionId    the consumed partition id
-     * @param isManCommit    whether manual commit offset
-     * @param lastConsumed   whether the latest fetch is consumed
-     * @param sb             the string buffer
-     * @return               the current offset
+     * @param msgStore
+     *          the message store instance
+     * @param group
+     *          the consume group name
+     * @param topic
+     *          the consumed topic name
+     * @param partitionId
+     *          the consumed partition id
+     * @param isManCommit
+     *          whether manual commit offset
+     * @param lastConsumed
+     *          whether the latest fetch is consumed
+     * @param sb
+     *          the string buffer
+     * @return the current offset
      */
     @Override
     public long getOffset(final MessageStore msgStore, final String group,
-                          final String topic, int partitionId,
-                          boolean isManCommit, boolean lastConsumed,
-                          final StringBuilder sb) {
+            final String topic, int partitionId,
+            boolean isManCommit, boolean lastConsumed,
+            final StringBuilder sb) {
         String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
-        OffsetStorageInfo regInfo =
-                loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
+        OffsetStorageInfo regInfo = loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
         long requestOffset = regInfo.getOffset();
         if (isManCommit) {
             requestOffset = requestOffset + getTmpOffset(group, topic, partitionId);
@@ -209,16 +223,15 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
 
     @Override
     public long getOffset(final String group, final String topic, int partitionId) {
-        OffsetStorageInfo regInfo =
-                loadOrCreateOffset(group, topic, partitionId,
-                        getOffsetCacheKey(topic, partitionId), 0);
+        OffsetStorageInfo regInfo = loadOrCreateOffset(group, topic, partitionId,
+                getOffsetCacheKey(topic, partitionId), 0);
         return regInfo.getOffset();
     }
 
     @Override
     public void bookOffset(final String group, final String topic, int partitionId,
-                           int readDalt, boolean isManCommit, boolean isMsgEmpty,
-                           final StringBuilder sb) {
+            int readDalt, boolean isManCommit, boolean isMsgEmpty,
+            final StringBuilder sb) {
         if (readDalt == 0) {
             return;
         }
@@ -237,23 +250,26 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Commit offset.
      *
-     * @param group         the consume group name
-     * @param topic         the consumed topic name
-     * @param partitionId   the consumed partition id
-     * @param isConsumed    whether the latest fetch is consumed
-     * @return              the current offset
+     * @param group
+     *          the consume group name
+     * @param topic
+     *          the consumed topic name
+     * @param partitionId
+     *          the consumed partition id
+     * @param isConsumed
+     *          whether the latest fetch is consumed
+     * @return the current offset
      */
     @Override
     public long commitOffset(final String group, final String topic,
-                             int partitionId, boolean isConsumed) {
+            int partitionId, boolean isConsumed) {
         long updatedOffset;
         String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
         long tmpOffset = getAndResetTmpOffset(group, offsetCacheKey);
         if (!isConsumed) {
             tmpOffset = 0;
         }
-        OffsetStorageInfo regInfo =
-                loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
+        OffsetStorageInfo regInfo = loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
         if ((tmpOffset == 0) && (!regInfo.isFirstCreate())) {
             return regInfo.getOffset();
         }
@@ -269,26 +285,31 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Reset offset.
      *
-     * @param store          the message store instance
-     * @param group          the consume group name
-     * @param topic          the consumed topic name
-     * @param partitionId    the consumed partition id
-     * @param reSetOffset    the reset offset
-     * @param modifier       the modifier
-     * @return               the current offset
+     * @param store
+     *          the message store instance
+     * @param group
+     *          the consume group name
+     * @param topic
+     *          the consumed topic name
+     * @param partitionId
+     *          the consumed partition id
+     * @param reSetOffset
+     *          the reset offset
+     * @param modifier
+     *          the modifier
+     * @return the current offset
      */
     @Override
     public long resetOffset(final MessageStore store, final String group,
-                            final String topic, int partitionId,
-                            long reSetOffset, final String modifier) {
+            final String topic, int partitionId,
+            long reSetOffset, final String modifier) {
         long oldOffset = -1;
         if (store != null) {
             long indexMaxOffset = store.getIndexMaxOffset();
             reSetOffset = MixedUtils.mid(reSetOffset, store.getIndexMinOffset(), indexMaxOffset);
             String offsetCacheKey = getOffsetCacheKey(topic, partitionId);
             getAndResetTmpOffset(group, offsetCacheKey);
-            OffsetStorageInfo regInfo =
-                    loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
+            OffsetStorageInfo regInfo = loadOrCreateOffset(group, topic, partitionId, offsetCacheKey, 0);
             oldOffset = regInfo.getAndSetOffset(reSetOffset);
             long currentOffset = regInfo.getOffset();
             long offsetDelta = indexMaxOffset - currentOffset;
@@ -309,10 +330,13 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Get temp offset.
      *
-     * @param group          the consume group name
-     * @param topic          the consumed topic name
-     * @param partitionId    the consumed partition id
-     * @return               the inflight offset
+     * @param group
+     *          the consume group name
+     * @param topic
+     *          the consumed topic name
+     * @param partitionId
+     *          the consumed partition id
+     * @return the inflight offset
      */
     @Override
     public long getTmpOffset(final String group, final String topic, int partitionId) {
@@ -336,10 +360,8 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
      */
     @Override
     public Set<String> getBookedGroups() {
-        Set<String> groupSet =
-                new HashSet<>(cfmOffsetMap.keySet());
-        Map<String, Set<String>> localGroups =
-                zkOffsetStorage.queryZkAllGroupTopicInfos();
+        Set<String> groupSet = new HashSet<>(cfmOffsetMap.keySet());
+        Map<String, Set<String>> localGroups = zkOffsetStorage.queryZkAllGroupTopicInfos();
         groupSet.addAll(localGroups.keySet());
         return groupSet;
     }
@@ -361,8 +383,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     @Override
     public Set<String> getUnusedGroupInfo() {
         Set<String> unUsedGroups = new HashSet<>();
-        Map<String, Set<String>> localGroups =
-                zkOffsetStorage.queryZkAllGroupTopicInfos();
+        Map<String, Set<String>> localGroups = zkOffsetStorage.queryZkAllGroupTopicInfos();
         for (String groupName : localGroups.keySet()) {
             if (!cfmOffsetMap.containsKey(groupName)) {
                 unUsedGroups.add(groupName);
@@ -374,8 +395,9 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Get the topic set subscribed by the consumer group
      *
-     * @param group    the queries group name
-     * @return         the topic set subscribed
+     * @param group
+     *          the queries group name
+     * @return the topic set subscribed
      */
     @Override
     public Set<String> getGroupSubInfo(String group) {
@@ -384,8 +406,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         if (topicPartOffsetMap == null) {
             List<String> groupLst = new ArrayList<>(1);
             groupLst.add(group);
-            Map<String, Set<String>> groupTopicInfo =
-                    zkOffsetStorage.queryZKGroupTopicInfo(groupLst);
+            Map<String, Set<String>> groupTopicInfo = zkOffsetStorage.queryZKGroupTopicInfo(groupLst);
             result = groupTopicInfo.get(group);
         } else {
             for (OffsetStorageInfo storageInfo : topicPartOffsetMap.values()) {
@@ -398,13 +419,16 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Get group's offset by Specified topic-partitions
      *
-     * @param group           the consume group that to query
-     * @param topicPartMap    the topic partition map that to query
+     * @param group
+     *          the consume group that to query
+     * @param topicPartMap
+     *          the topic partition map that to query
      * @return group offset info in memory or zk
      */
     @Override
     public Map<String, Map<Integer, Tuple2<Long, Long>>> queryGroupOffset(
-            String group, Map<String, Set<Integer>> topicPartMap) {
+            String group,
+            Map<String, Set<Integer>> topicPartMap) {
         Map<String, Map<Integer, Tuple2<Long, Long>>> result = new HashMap<>();
         // search group from memory
         Map<String, OffsetStorageInfo> topicPartOffsetMap = cfmOffsetMap.get(group);
@@ -414,12 +438,11 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
                 if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                     continue;
                 }
-                Map<Integer, Long> qryResult =
-                        zkOffsetStorage.queryGroupOffsetInfo(group,
-                                entry.getKey(), entry.getValue());
+                Map<Integer, Long> qryResult = zkOffsetStorage.queryGroupOffsetInfo(group,
+                        entry.getKey(), entry.getValue());
                 Map<Integer, Tuple2<Long, Long>> offsetMap = new HashMap<>();
                 for (Map.Entry<Integer, Long> item : qryResult.entrySet()) {
-                    if (item == null || item.getKey() == null || item.getValue() == null)  {
+                    if (item == null || item.getKey() == null || item.getValue() == null) {
                         continue;
                     }
                     offsetMap.put(item.getKey(), new Tuple2<>(item.getValue(), 0L));
@@ -434,8 +457,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
             for (Map.Entry<String, Set<Integer>> entry : topicPartMap.entrySet()) {
                 Map<Integer, Tuple2<Long, Long>> offsetMap = new HashMap<>();
                 for (Integer partitionId : entry.getValue()) {
-                    String offsetCacheKey =
-                            getOffsetCacheKey(entry.getKey(), partitionId);
+                    String offsetCacheKey = getOffsetCacheKey(entry.getKey(), partitionId);
                     OffsetStorageInfo offsetInfo = topicPartOffsetMap.get(offsetCacheKey);
                     Long tmpOffset = tmpPartOffsetMap.get(offsetCacheKey);
                     if (tmpOffset == null) {
@@ -464,8 +486,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         OffsetHistoryInfo recordInfo;
         Map<String, OffsetStorageInfo> storeMap;
         Map<String, OffsetHistoryInfo> result = new HashMap<>();
-        for (Map.Entry<String,
-                ConcurrentHashMap<String, OffsetStorageInfo>> entry : cfmOffsetMap.entrySet()) {
+        for (Map.Entry<String, ConcurrentHashMap<String, OffsetStorageInfo>> entry : cfmOffsetMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
@@ -494,15 +515,18 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Reset offset.
      *
-     * @param groups              the groups to reset offset
-     * @param topicPartOffsets    the reset offset information
-     * @param modifier            the modifier
+     * @param groups
+     *          the groups to reset offset
+     * @param topicPartOffsets
+     *          the reset offset information
+     * @param modifier
+     *          the modifier
      * @return at least one record modified
      */
     @Override
     public boolean modifyGroupOffset(Set<String> groups,
-                                     List<Tuple3<String, Integer, Long>> topicPartOffsets,
-                                     String modifier) {
+            List<Tuple3<String, Integer, Long>> topicPartOffsets,
+            String modifier) {
         long oldOffset;
         boolean changed = false;
         String offsetCacheKey;
@@ -539,18 +563,20 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Delete offset.
      *
-     * @param onlyMemory          whether only memory cached value
-     * @param groupTopicPartMap   need removed group and topic map
-     * @param modifier            the modifier
+     * @param onlyMemory
+     *          whether only memory cached value
+     * @param groupTopicPartMap
+     *          need removed group and topic map
+     * @param modifier
+     *          the modifier
      */
     @Override
     public void deleteGroupOffset(boolean onlyMemory,
-                                  Map<String, Map<String, Set<Integer>>> groupTopicPartMap,
-                                  String modifier) {
+            Map<String, Map<String, Set<Integer>>> groupTopicPartMap,
+            String modifier) {
         String printBase;
         StringBuilder strBuff = new StringBuilder(512);
-        for (Map.Entry<String, Map<String, Set<Integer>>> entry
-                : groupTopicPartMap.entrySet()) {
+        for (Map.Entry<String, Map<String, Set<Integer>>> entry : groupTopicPartMap.entrySet()) {
             if (entry.getKey() == null
                     || entry.getValue() == null
                     || entry.getValue().isEmpty()) {
@@ -570,8 +596,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         }
         strBuff.delete(0, strBuff.length());
         // print log
-        for (Map.Entry<String, Map<String, Set<Integer>>> entry
-                : groupTopicPartMap.entrySet()) {
+        for (Map.Entry<String, Map<String, Set<Integer>>> entry : groupTopicPartMap.entrySet()) {
             if (entry.getKey() == null
                     || entry.getValue() == null
                     || entry.getValue().isEmpty()) {
@@ -586,10 +611,13 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Set temp offset.
      *
-     * @param group               the consume group name
-     * @param offsetCacheKey      the offset store key
-     * @param origOffset          the set value
-     * @return                    the current inflight offset
+     * @param group
+     *          the consume group name
+     * @param offsetCacheKey
+     *          the offset store key
+     * @param origOffset
+     *          the set value
+     * @return the current inflight offset
      */
     private long setTmpOffset(final String group, final String offsetCacheKey, long origOffset) {
         long tmpOffset = origOffset - origOffset % DataStoreUtils.STORE_INDEX_HEAD_LEN;
@@ -653,20 +681,24 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
     /**
      * Load or create offset.
      *
-     * @param group            the consume group name
-     * @param topic            the consumed topic name
-     * @param partitionId      the consumed partition id
-     * @param offsetCacheKey   the offset store key
-     * @param defOffset        the default offset if not found
-     * @return                 the stored offset object
+     * @param group
+     *          the consume group name
+     * @param topic
+     *          the consumed topic name
+     * @param partitionId
+     *          the consumed partition id
+     * @param offsetCacheKey
+     *          the offset store key
+     * @param defOffset
+     *          the default offset if not found
+     * @return the stored offset object
      */
     private OffsetStorageInfo loadOrCreateOffset(final String group, final String topic,
-                                                 int partitionId, final String offsetCacheKey,
-                                                 long defOffset) {
+            int partitionId, final String offsetCacheKey,
+            long defOffset) {
         ConcurrentHashMap<String, OffsetStorageInfo> regInfoMap = cfmOffsetMap.get(group);
         if (regInfoMap == null) {
-            ConcurrentHashMap<String, OffsetStorageInfo> tmpRegInfoMap
-                    = new ConcurrentHashMap<>();
+            ConcurrentHashMap<String, OffsetStorageInfo> tmpRegInfoMap = new ConcurrentHashMap<>();
             regInfoMap = cfmOffsetMap.putIfAbsent(group, tmpRegInfoMap);
             if (regInfoMap == null) {
                 regInfoMap = tmpRegInfoMap;
@@ -674,8 +706,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
         }
         OffsetStorageInfo regInfo = regInfoMap.get(offsetCacheKey);
         if (regInfo == null) {
-            OffsetStorageInfo tmpRegInfo =
-                    zkOffsetStorage.loadOffset(group, topic, partitionId);
+            OffsetStorageInfo tmpRegInfo = zkOffsetStorage.loadOffset(group, topic, partitionId);
             if (tmpRegInfo == null) {
                 tmpRegInfo = new OffsetStorageInfo(topic,
                         brokerConfig.getBrokerId(), partitionId, defOffset, 0);
@@ -739,6 +770,7 @@ public class DefaultOffsetManager extends AbstractDaemonService implements Offse
 
     private int getLagLevel(long lagValue) {
         return (lagValue > TServerConstants.CFG_OFFSET_RESET_MID_ALARM_CHECK)
-                ? 2 : (lagValue > TServerConstants.CFG_OFFSET_RESET_MIN_ALARM_CHECK) ? 1 : 0;
+                ? 2
+                : (lagValue > TServerConstants.CFG_OFFSET_RESET_MIN_ALARM_CHECK) ? 1 : 0;
     }
 }

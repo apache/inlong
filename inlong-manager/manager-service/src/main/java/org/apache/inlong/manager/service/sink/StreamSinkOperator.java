@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.github.pagehelper.Page;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.pojo.common.PageResult;
@@ -25,9 +24,12 @@ import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
+
+import javax.validation.constraints.NotNull;
+
+import com.github.pagehelper.Page;
 
 /**
  * Interface of the sink operator
@@ -42,8 +44,10 @@ public interface StreamSinkOperator {
     /**
      * Save the sink info.
      *
-     * @param request sink request needs to save
-     * @param operator name of the operator
+     * @param request
+     *          sink request needs to save
+     * @param operator
+     *          name of the operator
      * @return sink id after saving
      */
     Integer saveOpt(SinkRequest request, String operator);
@@ -51,7 +55,8 @@ public interface StreamSinkOperator {
     /**
      * Get the target from the given entity.
      *
-     * @param entity get field value from the entity
+     * @param entity
+     *          get field value from the entity
      * @return sink info
      */
     StreamSink getFromEntity(StreamSinkEntity entity);
@@ -59,7 +64,8 @@ public interface StreamSinkOperator {
     /**
      * Get stream sink field list by the given sink id.
      *
-     * @param sinkId sink id
+     * @param sinkId
+     *          sink id
      * @return stream sink field list
      */
     List<SinkField> getSinkFields(@NotNull Integer sinkId);
@@ -67,7 +73,8 @@ public interface StreamSinkOperator {
     /**
      * Get sink info list from the given sink entity page.
      *
-     * @param entityPage sink entity page
+     * @param entityPage
+     *          sink entity page
      * @return sink info list
      */
     PageResult<? extends StreamSink> getPageInfo(Page<StreamSinkEntity> entityPage);
@@ -75,28 +82,35 @@ public interface StreamSinkOperator {
     /**
      * Update the sink info.
      *
-     * @param request sink info needs to update
-     * @param nextStatus next status
-     * @param operator name of the operator
+     * @param request
+     *          sink info needs to update
+     * @param nextStatus
+     *          next status
+     * @param operator
+     *          name of the operator
      */
     void updateOpt(SinkRequest request, SinkStatus nextStatus, String operator);
 
     /**
      * Update the sink fields.
      * <p/>
-     * If `onlyAdd` is <code>true</code>, only adding is allowed, modification and deletion are not allowed,
-     * and the order of existing fields cannot be changed
+     * If `onlyAdd` is <code>true</code>, only adding is allowed, modification and
+     * deletion are not allowed, and the order of existing fields cannot be changed
      *
-     * @param onlyAdd whether to add fields only.
-     * @param request sink request info needs to update
+     * @param onlyAdd
+     *          whether to add fields only.
+     * @param request
+     *          sink request info needs to update
      */
     void updateFieldOpt(Boolean onlyAdd, SinkRequest request);
 
     /**
      * Delete the sink info.
      *
-     * @param entity sink info needs to delete
-     * @param operator name of the operator
+     * @param entity
+     *          sink info needs to delete
+     * @param operator
+     *          name of the operator
      */
     void deleteOpt(StreamSinkEntity entity, String operator);
 

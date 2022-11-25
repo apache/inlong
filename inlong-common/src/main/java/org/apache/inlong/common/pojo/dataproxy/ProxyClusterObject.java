@@ -45,7 +45,8 @@ public class ProxyClusterObject {
     /**
      * set name
      *
-     * @param name the name to set
+     * @param name
+     *          the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -63,7 +64,8 @@ public class ProxyClusterObject {
     /**
      * set setName
      *
-     * @param setName the setName to set
+     * @param setName
+     *          the setName to set
      */
     public void setSetName(String setName) {
         this.setName = setName;
@@ -81,7 +83,8 @@ public class ProxyClusterObject {
     /**
      * set zone
      *
-     * @param zone the zone to set
+     * @param zone
+     *          the zone to set
      */
     public void setZone(String zone) {
         this.zone = zone;
@@ -99,7 +102,8 @@ public class ProxyClusterObject {
     /**
      * set channels
      *
-     * @param channels the channels to set
+     * @param channels
+     *          the channels to set
      */
     public void setChannels(List<ProxyChannel> channels) {
         this.channels = channels;
@@ -117,7 +121,8 @@ public class ProxyClusterObject {
     /**
      * set inlongIds
      *
-     * @param inlongIds the inlongIds to set
+     * @param inlongIds
+     *          the inlongIds to set
      */
     public void setInlongIds(List<InLongIdObject> inlongIds) {
         this.inlongIds = inlongIds;
@@ -135,7 +140,8 @@ public class ProxyClusterObject {
     /**
      * set sources
      *
-     * @param sources the sources to set
+     * @param sources
+     *          the sources to set
      */
     public void setSources(List<ProxySource> sources) {
         this.sources = sources;
@@ -153,7 +159,8 @@ public class ProxyClusterObject {
     /**
      * set sinks
      *
-     * @param sinks the sinks to set
+     * @param sinks
+     *          the sinks to set
      */
     public void setSinks(List<ProxySink> sinks) {
         this.sinks = sinks;

@@ -17,13 +17,13 @@
 
 package org.apache.inlong.audit;
 
+import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDIT_REQUEST;
+
 import org.apache.inlong.audit.protocol.AuditApi;
 import org.apache.inlong.audit.send.SenderManager;
 import org.apache.inlong.audit.util.AuditConfig;
 import org.apache.inlong.audit.util.Config;
 import org.apache.inlong.audit.util.StatInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,7 +36,8 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.apache.inlong.audit.protocol.AuditApi.BaseCommand.Type.AUDIT_REQUEST;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Audit operator, which is singleton.
@@ -61,6 +62,7 @@ public class AuditOperator {
     private SenderManager manager;
 
     private final TimerTask timerTask = new TimerTask() {
+
         @Override
         public void run() {
             try {
@@ -155,7 +157,8 @@ public class AuditOperator {
     public synchronized void send() {
         manager.clearBuffer();
         resetStat();
-        // Retrieve statistics from the list of objects without statistics to be eliminated
+        // Retrieve statistics from the list of objects without statistics to be
+        // eliminated
         for (Map.Entry<String, StatInfo> entry : this.deleteCountMap.entrySet()) {
             this.sumThreadGroup(entry.getKey(), entry.getValue());
         }

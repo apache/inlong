@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import static org.junit.Assert.assertEquals;
+
+import org.apache.inlong.common.msg.InLongMsg;
+
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.configuration.Configuration;
@@ -31,8 +35,6 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.data.binary.BinaryStringData;
 import org.apache.flink.table.factories.utils.FactoryMocks;
 import org.apache.flink.table.runtime.connector.source.ScanRuntimeProviderContext;
-import org.apache.inlong.common.msg.InLongMsg;
-import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -44,7 +46,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class InLongMsgRowDataSerDeTest {
 
@@ -69,20 +71,17 @@ public class InLongMsgRowDataSerDeTest {
                 GenericRowData.of(1L, BinaryStringData.fromString("asdqw")),
                 GenericRowData.of(2L, BinaryStringData.fromString("testData")),
                 GenericRowData.of(3L, BinaryStringData.fromString("dwqdqw")),
-                GenericRowData.of(4L, BinaryStringData.fromString("asdqdqwe"))
-        ).collect(Collectors.toList());
+                GenericRowData.of(4L, BinaryStringData.fromString("asdqdqwe"))).collect(Collectors.toList());
 
         // deserialize
-        final Map<String, String> tableOptions =
-                InLongMsgFormatFactoryTest.getModifiedOptions(opts -> {
-                    opts.put("inlong-msg.inner.format", "csv");
-                });
+        final Map<String, String> tableOptions = InLongMsgFormatFactoryTest.getModifiedOptions(opts -> {
+            opts.put("inlong-msg.inner.format", "csv");
+        });
         ResolvedSchema schema = ResolvedSchema.of(
                 Column.physical("id", DataTypes.BIGINT()),
-                Column.physical("name", DataTypes.STRING())
-        );
-        DeserializationSchema<RowData> inLongMsgDeserializationSchema =
-                InLongMsgFormatFactoryTest.createDeserializationSchema(tableOptions, schema);
+                Column.physical("name", DataTypes.STRING()));
+        DeserializationSchema<RowData> inLongMsgDeserializationSchema = InLongMsgFormatFactoryTest
+                .createDeserializationSchema(tableOptions, schema);
         List<RowData> deData = new ArrayList<>();
         ListCollector<RowData> out = new ListCollector<>(deData);
         for (byte[] bytes : input) {
@@ -104,17 +103,15 @@ public class InLongMsgRowDataSerDeTest {
                 .collect(Collectors.toList());
 
         // deserialize
-        final Map<String, String> tableOptions =
-                InLongMsgFormatFactoryTest.getModifiedOptions(opts -> {
-                    opts.put("inlong-msg.inner.format", "csv");
-                    opts.put("inlong-msg.ignore-parse-errors", "true");
-                });
+        final Map<String, String> tableOptions = InLongMsgFormatFactoryTest.getModifiedOptions(opts -> {
+            opts.put("inlong-msg.inner.format", "csv");
+            opts.put("inlong-msg.ignore-parse-errors", "true");
+        });
         ResolvedSchema schema = ResolvedSchema.of(
                 Column.physical("id", DataTypes.BIGINT()),
-                Column.physical("name", DataTypes.STRING())
-        );
-        DeserializationSchema<RowData> inLongMsgDeserializationSchema =
-                InLongMsgFormatFactoryTest.createDeserializationSchema(tableOptions, schema);
+                Column.physical("name", DataTypes.STRING()));
+        DeserializationSchema<RowData> inLongMsgDeserializationSchema = InLongMsgFormatFactoryTest
+                .createDeserializationSchema(tableOptions, schema);
         List<RowData> deData = new ArrayList<>();
         ListCollector<RowData> out = new ListCollector<>(deData);
         for (byte[] bytes : input) {
@@ -147,8 +144,8 @@ public class InLongMsgRowDataSerDeTest {
                 GenericRowData.of(3L, BinaryStringData.fromString("dwqdqw"),
                         TimestampData.fromTimestamp(new Timestamp(1652153468000L))),
                 GenericRowData.of(4L, BinaryStringData.fromString("asdqdqwe"),
-                        TimestampData.fromTimestamp(new Timestamp(1652153469000L)))
-        ).collect(Collectors.toList());
+                        TimestampData.fromTimestamp(new Timestamp(1652153469000L))))
+                .collect(Collectors.toList());
 
         // deserialize
         final Map<String, String> tableOptions = new HashMap<>();
@@ -163,7 +160,7 @@ public class InLongMsgRowDataSerDeTest {
         // apply metadata
         InLongMsgFormatFactory factory = new InLongMsgFormatFactory();
         DecodingFormat<DeserializationSchema<RowData>> decodingFormat = factory.createDecodingFormat(FactoryMocks
-                        .createTableContext(schema, tableOptions), Configuration.fromMap(tableOptions));
+                .createTableContext(schema, tableOptions), Configuration.fromMap(tableOptions));
         decodingFormat.applyReadableMetadata(Stream.of("create-time").collect(Collectors.toList()));
         DeserializationSchema<RowData> inLongMsgDeserializationSchema = decodingFormat
                 .createRuntimeDecoder(ScanRuntimeProviderContext.INSTANCE, schema.toPhysicalRowDataType());

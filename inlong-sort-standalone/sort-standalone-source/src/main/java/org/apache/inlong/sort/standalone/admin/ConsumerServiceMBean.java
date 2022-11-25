@@ -22,8 +22,10 @@ import javax.management.MXBean;
 /**
  * ConsumerServiceMBean<br>
  * Stop cache consumer before stopping Sort-Standalone process.<br>
- * Avoid to miss the Event data in the channel when stopping Sort-Standalone process immediately.<br>
- * After Sort-Standalone send all channel data to sink target and acknowledge all offset,<br>
+ * Avoid to miss the Event data in the channel when stopping Sort-Standalone
+ * process immediately.<br>
+ * After Sort-Standalone send all channel data to sink target and acknowledge
+ * all offset,<br>
  * Sort-Standalone can be stopped.<br>
  */
 @MXBean

@@ -34,8 +34,8 @@ public class HiveValidator extends ConnectorDescriptorValidator {
     public static final String CONNECTOR_HIVE_DATABASE = "default-database";
     public static final String CONNECTOR_HIVE_TABLE = "table-name";
     /**
-     * Key for describing the property version. This property can be used for backwards
-     * compatibility in case the property format changes.
+     * Key for describing the property version. This property can be used for
+     * backwards compatibility in case the property format changes.
      */
     public static final String HIVE_PROPERTY_VERSION = "property-version";
 

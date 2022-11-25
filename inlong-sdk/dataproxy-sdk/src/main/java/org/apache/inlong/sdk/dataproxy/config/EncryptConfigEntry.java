@@ -18,14 +18,16 @@
 
 package org.apache.inlong.sdk.dataproxy.config;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.inlong.sdk.dataproxy.utils.EncryptUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.codec.binary.Base64;
 
 import java.net.URLEncoder;
 import java.security.interfaces.RSAPublicKey;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EncryptConfigEntry implements java.io.Serializable {
 

@@ -41,7 +41,8 @@ public class CacheClusterConfig {
     /**
      * set clusterName
      * 
-     * @param clusterName the clusterName to set
+     * @param clusterName
+     *          the clusterName to set
      */
     public void setClusterName(String clusterName) {
         this.clusterName = clusterName;
@@ -59,7 +60,8 @@ public class CacheClusterConfig {
     /**
      * set params
      * 
-     * @param params the params to set
+     * @param params
+     *          the params to set
      */
     public void setParams(Map<String, String> params) {
         this.params = params;

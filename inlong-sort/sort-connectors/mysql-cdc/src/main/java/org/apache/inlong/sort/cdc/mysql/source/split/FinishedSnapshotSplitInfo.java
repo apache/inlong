@@ -18,28 +18,30 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.split;
 
-import io.debezium.relational.TableId;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.rowToSerializedString;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.serializedStringToRow;
+import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writeBinlogPosition;
+
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+
 import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
 import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.readBinlogPosition;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.rowToSerializedString;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.serializedStringToRow;
-import static org.apache.inlong.sort.cdc.mysql.source.utils.SerializerUtils.writeBinlogPosition;
+import io.debezium.relational.TableId;
 
 /**
  * The information used to describe a finished snapshot split.
  */
 public class FinishedSnapshotSplitInfo {
 
-    private static final ThreadLocal<DataOutputSerializer> SERIALIZER_CACHE =
-            ThreadLocal.withInitial(() -> new DataOutputSerializer(64));
+    private static final ThreadLocal<DataOutputSerializer> SERIALIZER_CACHE = ThreadLocal
+            .withInitial(() -> new DataOutputSerializer(64));
 
     private final TableId tableId;
     private final String splitId;
@@ -61,7 +63,8 @@ public class FinishedSnapshotSplitInfo {
     }
 
     // ------------------------------------------------------------------------------------
-    // Utils to serialize/deserialize for transmission between Enumerator and SourceReader
+    // Utils to serialize/deserialize for transmission between Enumerator and
+    // SourceReader
     // ------------------------------------------------------------------------------------
     public static byte[] serialize(FinishedSnapshotSplitInfo splitInfo) {
         try {

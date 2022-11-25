@@ -17,12 +17,6 @@
 
 package org.apache.inlong.manager.service.source;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -45,6 +39,17 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.group.GroupCheckService;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,12 +58,10 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Implementation of source service interface
@@ -175,7 +178,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         OrderTypeEnum.checkOrderType(request);
         List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
 
-        // Encapsulate the paging query results into the PageInfo object to obtain related paging information
+        // Encapsulate the paging query results into the PageInfo object to obtain
+        // related paging information
         Map<String, Page<StreamSourceEntity>> sourceMap = Maps.newHashMap();
         for (StreamSourceEntity entity : entityList) {
             sourceMap.computeIfAbsent(entity.getSourceType(), k -> new Page<>()).add(entity);
@@ -196,8 +200,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean update(SourceRequest request, String operator) {
         LOGGER.info("begin to update source info: {}", request);
         this.checkParams(request);
@@ -220,8 +223,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator) {
         sourceMapper.updateStatusByRelatedId(groupId, streamId, targetStatus);
         LOGGER.info("success to update source status={} for groupId={}, streamId={} by {}",
@@ -230,8 +232,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete source for id={} by user={}", id, operator);
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
@@ -242,7 +243,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         SourceStatus curStatus = SourceStatus.forCode(entity.getStatus());
         SourceStatus nextStatus = SourceStatus.TO_BE_ISSUED_DELETE;
-        // if source is frozen|failed|new, or if it is a template source or auto push source, delete directly
+        // if source is frozen|failed|new, or if it is a template source or auto push
+        // source, delete directly
         if (curStatus == SourceStatus.SOURCE_FROZEN || curStatus == SourceStatus.SOURCE_FAILED
                 || curStatus == SourceStatus.SOURCE_NEW || isTemplateSource
                 || SourceType.AUTO_PUSH.equals(entity.getSourceType())) {
@@ -277,13 +279,12 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         int sourceCount = sourceMapper.updateByRelatedId(groupId, streamId, SourceStatus.SOURCE_DISABLE.getCode());
         int fieldCount = sourceFieldMapper.updateByRelatedId(groupId, streamId);
         LOGGER.info("success to force delete source for groupId={} and streamId={} by user={},"
-                        + " update {} sources and {} fields", groupId, streamId, operator, sourceCount, fieldCount);
+                + " update {} sources and {} fields", groupId, streamId, operator, sourceCount, fieldCount);
         return true;
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean restart(Integer id, String operator) {
         LOGGER.info("begin to restart source by id={}", id);
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
@@ -299,8 +300,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean stop(Integer id, String operator) {
         LOGGER.info("begin to stop source by id={}", id);
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
@@ -316,8 +316,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean logicDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to logic delete all source info by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
@@ -353,8 +352,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean deleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to delete all source by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());

@@ -17,10 +17,10 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Map;
 
 /**
  * metadata of k8s utils test

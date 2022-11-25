@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.resource.sink.ck;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import static java.util.stream.Collectors.toList;
+
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -35,18 +35,21 @@ import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
 import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-
 /**
- * Operator for clickHouse resource, such as create sink resource, clickHouse tables, etc.
+ * Operator for clickHouse resource, such as create sink resource, clickHouse
+ * tables, etc.
  */
 @Service
 public class ClickHouseResourceOperator implements SinkResourceOperator {

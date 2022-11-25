@@ -17,22 +17,24 @@
 
 package org.apache.inlong.dataproxy.sink.mqzone.impl.kafkazone;
 
-import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
 import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneClusterProducer;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
+
+import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * KafkaClusterProducer

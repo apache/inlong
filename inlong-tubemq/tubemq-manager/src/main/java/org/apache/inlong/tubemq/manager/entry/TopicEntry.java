@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.manager.entry;
 
 import java.sql.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -29,6 +30,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import lombok.Data;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -36,6 +38,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Data
 @EntityListeners(AuditingEntityListener.class) // support CreationTimestamp annotation
 public class TopicEntry {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long businessId;
@@ -118,7 +121,7 @@ public class TopicEntry {
     private String issueMethod;
 
     public TopicEntry(String businessName, String schemaName,
-                      String username, String passwd, String topic, String encodingType) {
+            String username, String passwd, String topic, String encodingType) {
         this.businessName = businessName;
         this.schemaName = schemaName;
         this.username = username;

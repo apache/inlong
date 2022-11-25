@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,15 +32,13 @@ public class MonitorIndexExt {
 
     private IndexCollectThread indexCol;
     private String name;
-    private ConcurrentHashMap<String, AtomicLong> counterMap =
-            new ConcurrentHashMap<String, AtomicLong>();
+    private ConcurrentHashMap<String, AtomicLong> counterMap = new ConcurrentHashMap<String, AtomicLong>();
     private int intervalSec;
     private int maxCnt;
 
     public MonitorIndexExt(String name, int intervalSec, int maxCnt) {
         /*
-         * key
-         * Almost unchanging. Component indicators, flume_monitors.log
+         * key Almost unchanging. Component indicators, flume_monitors.log
          */
         this.intervalSec = intervalSec;
         /*
@@ -55,6 +54,7 @@ public class MonitorIndexExt {
 
     /**
      * incrementAndGet
+     * 
      * @param key
      */
     public void incrementAndGet(String key) {
@@ -91,7 +91,8 @@ public class MonitorIndexExt {
     }
 
     private class IndexCollectThread
-            extends Thread {
+            extends
+                Thread {
 
         private boolean bShutDown = false;
 
@@ -131,4 +132,3 @@ public class MonitorIndexExt {
         }
     }
 }
-

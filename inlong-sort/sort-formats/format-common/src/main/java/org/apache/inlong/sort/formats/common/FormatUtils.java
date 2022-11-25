@@ -18,11 +18,13 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import java.io.IOException;
-import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.DeserializationFeature;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.SerializationFeature;
+
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
 
 /**
  * A utility class to marshall and demarshall format information.
@@ -32,13 +34,15 @@ public class FormatUtils {
     /**
      * Returns the json representing the given format.
      *
-     * @param format The format to be marshalled.
+     * @param format
+     *          The format to be marshalled.
      * @return The json representing the given format.
-     * @throws IOException Thrown when the format cannot be marshalled.
+     * @throws IOException
+     *           Thrown when the format cannot be marshalled.
      */
     public static String marshall(
-            @Nonnull FormatInfo format
-    ) throws IOException {
+            @Nonnull FormatInfo format)
+            throws IOException {
         ObjectMapper objectMapper = getObjectMapper();
         return objectMapper.writeValueAsString(format);
     }
@@ -46,27 +50,27 @@ public class FormatUtils {
     /**
      * Returns the format represented by the given json.
      *
-     * @param json The json representing the given format.
+     * @param json
+     *          The json representing the given format.
      * @return The format represented by the given json.
-     * @throws IOException Thrown when the format cannot be demarshalled.
+     * @throws IOException
+     *           Thrown when the format cannot be demarshalled.
      */
     public static FormatInfo demarshall(
-            @Nonnull String json
-    ) throws IOException {
+            @Nonnull String json)
+            throws IOException {
         ObjectMapper objectMapper = getObjectMapper();
         return objectMapper.readValue(json, FormatInfo.class);
     }
 
     private static ObjectMapper getObjectMapper() {
         return new ObjectMapper()
-                       .enable(
-                               DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
-                               DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
-                               DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY
-                       )
-                       .disable(
-                               SerializationFeature.FAIL_ON_EMPTY_BEANS
-                       );
+                .enable(
+                        DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
+                        DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES,
+                        DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
+                .disable(
+                        SerializationFeature.FAIL_ON_EMPTY_BEANS);
     }
 
     private FormatUtils() {

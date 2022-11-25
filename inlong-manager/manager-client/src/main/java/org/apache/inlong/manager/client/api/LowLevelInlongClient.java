@@ -24,16 +24,17 @@ import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 
 /**
- * An interface to provide original Inlong Apis.
- * Not recommend to use
+ * An interface to provide original Inlong Apis. Not recommend to use
  */
 public interface LowLevelInlongClient {
 
     /**
      * Create inlong client.
      *
-     * @param serviceUrl the service url
-     * @param configuration the configuration
+     * @param serviceUrl
+     *          the service url
+     * @param configuration
+     *          the configuration
      * @return the inlong client
      */
     static LowLevelInlongClient create(String serviceUrl, ClientConfiguration configuration) {
@@ -43,18 +44,22 @@ public interface LowLevelInlongClient {
     /**
      * Create cluster.
      *
-     * @param request cluster request
+     * @param request
+     *          cluster request
      * @return cluster index
-     * @throws Exception the exception may throw
+     * @throws Exception
+     *           the exception may throw
      */
     Integer saveCluster(ClusterRequest request) throws Exception;
 
     /**
      * List inlong group.
      *
-     * @param request page request
+     * @param request
+     *          page request
      * @return group info page
-     * @throws Exception the exception may throw
+     * @throws Exception
+     *           the exception may throw
      */
     PageResult<InlongGroupBriefInfo> listGroup(InlongGroupPageRequest request) throws Exception;
 

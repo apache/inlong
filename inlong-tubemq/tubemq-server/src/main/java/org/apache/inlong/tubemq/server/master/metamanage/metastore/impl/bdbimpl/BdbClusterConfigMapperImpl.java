@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
-import com.sleepycat.je.rep.ReplicatedEnvironment;
-import com.sleepycat.persist.EntityCursor;
-import com.sleepycat.persist.EntityStore;
-import com.sleepycat.persist.PrimaryIndex;
-import com.sleepycat.persist.StoreConfig;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.exception.LoadMetaException;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbClusterSettingEntity;
@@ -29,7 +24,14 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.ClusterSettingEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsClusterConfigMapperImpl;
 
+import com.sleepycat.je.rep.ReplicatedEnvironment;
+import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.persist.EntityStore;
+import com.sleepycat.persist.PrimaryIndex;
+import com.sleepycat.persist.StoreConfig;
+
 public class BdbClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
+
     // bdb store
     private EntityStore clsDefSettingStore;
     private final PrimaryIndex<String, BdbClusterSettingEntity> clsDefSettingIndex;
@@ -38,8 +40,7 @@ public class BdbClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
         super();
         clsDefSettingStore = new EntityStore(repEnv,
                 TBDBStoreTables.BDB_CLUSTER_SETTING_STORE_NAME, storeConfig);
-        clsDefSettingIndex =
-                clsDefSettingStore.getPrimaryIndex(String.class, BdbClusterSettingEntity.class);
+        clsDefSettingIndex = clsDefSettingStore.getPrimaryIndex(String.class, BdbClusterSettingEntity.class);
     }
 
     @Override
@@ -90,9 +91,8 @@ public class BdbClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
     }
 
     protected boolean putConfig2Persistent(ClusterSettingEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
-        BdbClusterSettingEntity bdbEntity =
-                entity.buildBdbClsDefSettingEntity();
+            StringBuilder strBuff, ProcessResult result) {
+        BdbClusterSettingEntity bdbEntity = entity.buildBdbClsDefSettingEntity();
         try {
             clsDefSettingIndex.put(bdbEntity);
         } catch (Throwable e) {

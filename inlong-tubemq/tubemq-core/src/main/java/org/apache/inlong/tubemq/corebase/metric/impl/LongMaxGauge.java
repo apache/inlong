@@ -17,8 +17,9 @@
 
 package org.apache.inlong.tubemq.corebase.metric.impl;
 
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.metric.Gauge;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * LongMaxGauge, store max value information.
@@ -26,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.metric.Gauge;
  * The metric includes a atomic long value, to store the current max value.
  */
 public class LongMaxGauge extends BaseMetric implements Gauge {
+
     // value counter
     private final AtomicLong value = new AtomicLong(Long.MIN_VALUE);
 

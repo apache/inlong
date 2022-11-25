@@ -22,8 +22,10 @@ public interface StreamSource {
     /**
      * Force deletes the stream source by groupId and streamId
      *
-     * @param groupId The belongs group id.
-     * @param streamId The belongs stream id.
+     * @param groupId
+     *          The belongs group id.
+     * @param streamId
+     *          The belongs stream id.
      * @return Whether succeed
      */
     Boolean forceDelete(String groupId, String streamId);

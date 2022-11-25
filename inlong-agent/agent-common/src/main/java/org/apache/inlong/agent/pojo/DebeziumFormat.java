@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.pojo;
 
 import java.util.Map;
+
 import lombok.Data;
 
 @Data
@@ -32,7 +33,6 @@ public class DebeziumFormat {
      * no need to deserialize
      */
     private Map<String, String> after;
-
 
     /**
      * extra info about db

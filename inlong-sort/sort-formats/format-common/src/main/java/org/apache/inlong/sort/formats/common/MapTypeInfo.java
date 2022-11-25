@@ -18,10 +18,12 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import java.util.Objects;
-import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
 
 /**
  * The type information for maps.
@@ -50,8 +52,7 @@ public class MapTypeInfo implements TypeInfo {
     @JsonCreator
     public MapTypeInfo(
             @JsonProperty(FIELD_KEY_TYPE) @Nonnull TypeInfo keyTypeInfo,
-            @JsonProperty(FIELD_VALUE_TYPE) @Nonnull TypeInfo valueTypeInfo
-    ) {
+            @JsonProperty(FIELD_VALUE_TYPE) @Nonnull TypeInfo valueTypeInfo) {
         this.keyTypeInfo = keyTypeInfo;
         this.valueTypeInfo = valueTypeInfo;
     }
@@ -78,7 +79,7 @@ public class MapTypeInfo implements TypeInfo {
 
         MapTypeInfo that = (MapTypeInfo) o;
         return keyTypeInfo.equals(that.keyTypeInfo)
-                       && valueTypeInfo.equals(that.valueTypeInfo);
+                && valueTypeInfo.equals(that.valueTypeInfo);
     }
 
     @Override

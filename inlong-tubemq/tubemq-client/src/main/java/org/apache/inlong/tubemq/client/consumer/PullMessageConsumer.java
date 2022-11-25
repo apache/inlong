@@ -17,25 +17,29 @@
 
 package org.apache.inlong.tubemq.client.consumer;
 
-import java.util.TreeSet;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
+
+import java.util.TreeSet;
 
 public interface PullMessageConsumer extends MessageConsumer {
 
     boolean isPartitionsReady(long maxWaitTime);
 
     PullMessageConsumer subscribe(String topic,
-                                  TreeSet<String> filterConds) throws TubeClientException;
+            TreeSet<String> filterConds)
+            throws TubeClientException;
 
     // getMessage() use note:
     // This getMessage have a blocking situation: when the current
     // consumer consumption situation is not satisfied (including
     // without partitions to consumption, or allocated partitions but
     // the partitions do not meet the consumption situation),
-    // the call will sleep at intervals of ConsumerConfig.getPullConsumeReadyChkSliceMs(),
+    // the call will sleep at intervals of
+    // ConsumerConfig.getPullConsumeReadyChkSliceMs(),
     // until the total time of ConsumerConfig.getPullConsumeReadyWaitPeriodMs
     ConsumerResult getMessage() throws TubeClientException;
 
     ConsumerResult confirmConsume(String confirmContext,
-                                  boolean isConsumed) throws TubeClientException;
+            boolean isConsumed)
+            throws TubeClientException;
 }

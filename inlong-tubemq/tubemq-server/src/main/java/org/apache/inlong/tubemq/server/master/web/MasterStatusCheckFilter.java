@@ -17,7 +17,12 @@
 
 package org.apache.inlong.tubemq.server.master.web;
 
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.server.master.TMaster;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
+
 import java.io.IOException;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -27,10 +32,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
-
 public class MasterStatusCheckFilter implements Filter {
 
     private TMaster master;
@@ -38,8 +39,7 @@ public class MasterStatusCheckFilter implements Filter {
 
     public MasterStatusCheckFilter(TMaster master) {
         this.master = master;
-        this.defMetaDataService =
-                this.master.getMetaDataService();
+        this.defMetaDataService = this.master.getMetaDataService();
     }
 
     @Override
@@ -48,21 +48,20 @@ public class MasterStatusCheckFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request,
-                         ServletResponse response,
-                         FilterChain chain) throws IOException, ServletException {
+            ServletResponse response,
+            FilterChain chain)
+            throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
         if (!defMetaDataService.isSelfMaster()) {
-            String masterAdd =
-                    defMetaDataService.getMasterAddress();
+            String masterAdd = defMetaDataService.getMasterAddress();
             if (masterAdd == null) {
                 throw new IOException("Not found the master node address!");
             }
-            StringBuilder sBuilder =
-                    new StringBuilder(512).append("http://")
-                            .append(masterAdd).append(":")
-                            .append(master.getMasterConfig().getWebPort())
-                            .append(req.getRequestURI());
+            StringBuilder sBuilder = new StringBuilder(512).append("http://")
+                    .append(masterAdd).append(":")
+                    .append(master.getMasterConfig().getWebPort())
+                    .append(req.getRequestURI());
             if (TStringUtils.isNotBlank(req.getQueryString())) {
                 sBuilder.append("?").append(req.getQueryString());
             }

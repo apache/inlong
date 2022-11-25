@@ -17,14 +17,15 @@
 
 package org.apache.inlong.agent.plugin.fetcher;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * check manager interface result with json formatter.
@@ -56,8 +57,10 @@ public class ManagerResultFormatter {
     /**
      * get random list of base list.
      *
-     * @param baseList base list
-     * @param num max Num
+     * @param baseList
+     *          base list
+     * @param num
+     *          max Num
      * @return random list
      */
     public static <T> List<T> getRandomList(List<T> baseList, int num) {

@@ -27,6 +27,7 @@ import java.util.List;
  * DispatchProfile
  */
 public class BatchPackProfile {
+
     public static final long MINUTE_MS = 60L * 1000;
 
     private final String inlongGroupId;
@@ -57,9 +58,9 @@ public class BatchPackProfile {
     /**
      * addEvent
      * 
-     * @param  event
-     * @param  maxPackCount
-     * @param  maxPackSize
+     * @param event
+     * @param maxPackCount
+     * @param maxPackSize
      * @return
      */
     public boolean addEvent(ProxyEvent event, long maxPackCount, long maxPackSize) {
@@ -76,7 +77,7 @@ public class BatchPackProfile {
     /**
      * isTimeout
      * 
-     * @param  createThreshold
+     * @param createThreshold
      * @return
      */
     public boolean isTimeout(long createThreshold) {
@@ -104,7 +105,8 @@ public class BatchPackProfile {
     /**
      * set events
      * 
-     * @param events the events to set
+     * @param events
+     *          the events to set
      */
     public void setEvents(List<ProxyEvent> events) {
         this.events = events;
@@ -122,7 +124,8 @@ public class BatchPackProfile {
     /**
      * set count
      * 
-     * @param count the count to set
+     * @param count
+     *          the count to set
      */
     public void setCount(long count) {
         this.count = count;
@@ -140,7 +143,8 @@ public class BatchPackProfile {
     /**
      * set size
      * 
-     * @param size the size to set
+     * @param size
+     *          the size to set
      */
     public void setSize(long size) {
         this.size = size;
@@ -184,6 +188,7 @@ public class BatchPackProfile {
 
     /**
      * fail
+     * 
      * @return
      */
     public void fail() {
@@ -194,6 +199,7 @@ public class BatchPackProfile {
 
     /**
      * isResend
+     * 
      * @return
      */
     public boolean isResend() {
@@ -202,6 +208,7 @@ public class BatchPackProfile {
 
     /**
      * get callback
+     * 
      * @return the callback
      */
     public BatchPackProfileCallback getCallback() {
@@ -210,7 +217,9 @@ public class BatchPackProfile {
 
     /**
      * set callback
-     * @param callback the callback to set
+     * 
+     * @param callback
+     *          the callback to set
      */
     public void setCallback(BatchPackProfileCallback callback) {
         this.callback = callback;

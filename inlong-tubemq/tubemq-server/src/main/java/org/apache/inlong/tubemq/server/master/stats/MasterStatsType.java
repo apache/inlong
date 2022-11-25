@@ -18,9 +18,9 @@
 package org.apache.inlong.tubemq.server.master.stats;
 
 public enum MasterStatsType {
-    ALL(0, "all", "all statistics types"),
-    SERVICESTATUS(1, "serviceStatus", "service rpc statistics"),
-    WEBAPI(2, "webAPI", "web api call statistics");
+
+    ALL(0, "all", "all statistics types"), SERVICESTATUS(1, "serviceStatus", "service rpc statistics"), WEBAPI(2,
+            "webAPI", "web api call statistics");
 
     MasterStatsType(int id, String name, String desc) {
         this.id = id;

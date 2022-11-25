@@ -19,6 +19,12 @@
 
 package org.apache.inlong.sort.iceberg.flink;
 
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
+
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.Configuration;
@@ -43,54 +49,48 @@ import org.apache.iceberg.flink.IcebergTableSource;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
 
 import java.util.Map;
 import java.util.Set;
-
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /**
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, DynamicTableSourceFactory {
+
     static final String FACTORY_IDENTIFIER = "dlc-inlong";
 
-    public static final ConfigOption<String> CATALOG_NAME =
-            ConfigOptions.key("catalog-name")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Catalog name");
+    public static final ConfigOption<String> CATALOG_NAME = ConfigOptions.key("catalog-name")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Catalog name");
 
-    public static final ConfigOption<String> CATALOG_TYPE =
-            ConfigOptions.key(FlinkCatalogFactory.ICEBERG_CATALOG_TYPE)
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Catalog type, the optional types are: custom, hadoop, hive.");
+    public static final ConfigOption<String> CATALOG_TYPE = ConfigOptions.key(FlinkCatalogFactory.ICEBERG_CATALOG_TYPE)
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Catalog type, the optional types are: custom, hadoop, hive.");
 
-    public static final ConfigOption<String> CATALOG_DATABASE =
-            ConfigOptions.key("catalog-database")
-                    .stringType()
-                    .defaultValue(FlinkCatalogFactory.DEFAULT_DATABASE_NAME)
-                    .withDescription("Database name managed in the iceberg catalog.");
+    public static final ConfigOption<String> CATALOG_DATABASE = ConfigOptions.key("catalog-database")
+            .stringType()
+            .defaultValue(FlinkCatalogFactory.DEFAULT_DATABASE_NAME)
+            .withDescription("Database name managed in the iceberg catalog.");
 
-    public static final ConfigOption<String> CATALOG_TABLE =
-            ConfigOptions.key("catalog-table")
-                    .stringType()
-                    .noDefaultValue()
-                    .withDescription("Table name managed in the underlying iceberg catalog and database.");
+    public static final ConfigOption<String> CATALOG_TABLE = ConfigOptions.key("catalog-table")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("Table name managed in the underlying iceberg catalog and database.");
 
-    public static final ConfigOption<Boolean> ICEBERG_IGNORE_ALL_CHANGELOG =
-            ConfigOptions.key("sink.ignore.changelog")
-                    .booleanType()
-                    .defaultValue(false)
-                    .withDescription("Regard upsert delete as insert kind.");
+    public static final ConfigOption<Boolean> ICEBERG_IGNORE_ALL_CHANGELOG = ConfigOptions.key("sink.ignore.changelog")
+            .booleanType()
+            .defaultValue(false)
+            .withDescription("Regard upsert delete as insert kind.");
 
-    // Flink 1.13.x change the return type from CatalogTable interface to ResolvedCatalogTable which extends the
-    // CatalogTable. Here we use the dynamic method loading approach to avoid adding explicit CatalogTable or
-    // ResolvedCatalogTable class into the iceberg-flink-runtime jar for compatibility purpose.
+    // Flink 1.13.x change the return type from CatalogTable interface to
+    // ResolvedCatalogTable which extends the
+    // CatalogTable. Here we use the dynamic method loading approach to avoid adding
+    // explicit CatalogTable or
+    // ResolvedCatalogTable class into the iceberg-flink-runtime jar for
+    // compatibility purpose.
     private static final DynMethods.UnboundMethod GET_CATALOG_TABLE = DynMethods.builder("getCatalogTable")
             .impl(Context.class, "getCatalogTable")
             .orNoop()

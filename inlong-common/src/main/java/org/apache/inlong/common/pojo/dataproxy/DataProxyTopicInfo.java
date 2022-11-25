@@ -18,7 +18,8 @@
 package org.apache.inlong.common.pojo.dataproxy;
 
 /**
- * Topic info for DataProxy, includes the topic name and the inlongGroupId to which it belongs.
+ * Topic info for DataProxy, includes the topic name and the inlongGroupId to
+ * which it belongs.
  */
 public class DataProxyTopicInfo {
 

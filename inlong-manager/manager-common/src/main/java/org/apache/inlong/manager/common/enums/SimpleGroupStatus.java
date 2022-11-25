@@ -30,7 +30,8 @@ public enum SimpleGroupStatus {
     /**
      * Parse SimpleGroupStatus from the status code
      *
-     * @param code of status
+     * @param code
+     *          of status
      * @see org.apache.inlong.manager.common.enums.GroupStatus
      */
     public static SimpleGroupStatus parseStatusByCode(int code) {
@@ -117,4 +118,3 @@ public enum SimpleGroupStatus {
     }
 
 }
-

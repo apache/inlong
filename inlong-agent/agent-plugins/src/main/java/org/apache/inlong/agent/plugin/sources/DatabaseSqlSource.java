@@ -21,12 +21,13 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Make database as Source
@@ -47,7 +48,8 @@ public class DatabaseSqlSource extends AbstractSource {
     /**
      * Use SQL to read data.
      *
-     * @param sqlPattern sql pattern
+     * @param sqlPattern
+     *          sql pattern
      * @return list of readers or null if sql is not correct.
      */
     private List<Reader> splitSqlJob(String sqlPattern) {

@@ -17,15 +17,10 @@
 
 package org.apache.inlong.manager.service.plugin;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.plugin.PluginDefinition;
 import org.apache.inlong.manager.common.util.Preconditions;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +38,14 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * Plugin class loader.
@@ -90,6 +93,7 @@ public class PluginClassLoader extends URLClassLoader {
         checkClassLoader(parent);
         checkUrl(url);
         return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {
+
             @SneakyThrows
             @Override
             public PluginClassLoader run() {

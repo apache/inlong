@@ -17,7 +17,18 @@
 
 package org.apache.inlong.agent.plugin;
 
-import org.apache.commons.io.IOUtils;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
+import static org.awaitility.Awaitility.await;
+
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.FileCollectType;
@@ -26,12 +37,8 @@ import org.apache.inlong.agent.core.trigger.TriggerManager;
 import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.plugin.utils.TestUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.IOUtils;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,17 +54,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
-import static org.awaitility.Awaitility.await;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestFileAgent {
 
@@ -178,10 +180,8 @@ public class TestFileAgent {
         Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
         AtomicBoolean result = new AtomicBoolean(false);
         if (jobs.size() == 1) {
-            jobs.forEach((s, jobWrapper) ->
-                    result.set(jobWrapper.getJob().getJobConf().get(JOB_DIR_FILTER_PATTERN)
-                            .equals(testRootDir + FileSystems.getDefault().getSeparator() + "test0.dat"))
-            );
+            jobs.forEach((s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf().get(JOB_DIR_FILTER_PATTERN)
+                    .equals(testRootDir + FileSystems.getDefault().getSeparator() + "test0.dat")));
         }
         return result.get();
     }

@@ -33,7 +33,8 @@ public interface User {
     /**
      * Save user info
      *
-     * @param userInfo user info request
+     * @param userInfo
+     *          user info request
      * @return user id after saving
      */
     Integer register(UserRequest userInfo);
@@ -41,7 +42,8 @@ public interface User {
     /**
      * Get user info by user id
      *
-     * @param id user id
+     * @param id
+     *          user id
      * @return user info
      */
     UserInfo getById(Integer id);
@@ -49,7 +51,8 @@ public interface User {
     /**
      * Get user info by username
      *
-     * @param name username
+     * @param name
+     *          username
      * @return user info
      */
     UserInfo getByName(String name);
@@ -57,7 +60,8 @@ public interface User {
     /**
      * List all users basic info by request condition
      *
-     * @param request request
+     * @param request
+     *          request
      * @return user info list
      */
     PageResult<UserInfo> list(UserRequest request);
@@ -65,7 +69,8 @@ public interface User {
     /**
      * Update user info
      *
-     * @param userInfo user info request
+     * @param userInfo
+     *          user info request
      * @return user id
      */
     Integer update(UserRequest userInfo);
@@ -73,7 +78,8 @@ public interface User {
     /**
      * Delete user by id
      *
-     * @param id user id
+     * @param id
+     *          user id
      * @return whether succeed
      */
     Boolean delete(Integer id);

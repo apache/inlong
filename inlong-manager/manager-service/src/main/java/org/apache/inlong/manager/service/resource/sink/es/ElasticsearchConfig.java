@@ -17,14 +17,20 @@
 
 package org.apache.inlong.manager.service.resource.sink.es;
 
-import lombok.Data;
+import org.apache.inlong.common.constant.ProtocolType;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.inlong.common.constant.ProtocolType;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.Data;
+
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -32,9 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Elasticsearch config information, including host, port, etc.
@@ -90,7 +93,8 @@ public class ElasticsearchConfig {
     /**
      * Elasticsearch authentication
      *
-     * @param builder The builder
+     * @param builder
+     *          The builder
      */
     private void setEsAuth(RestClientBuilder builder) {
         try {

@@ -21,6 +21,7 @@ public interface SnapshotBase {
 
     /**
      * get snapshot of the job
+     * 
      * @return
      */
     String getSnapshot();

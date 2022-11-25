@@ -17,22 +17,20 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.apache.inlong.sort.protocol.FieldInfo;
+
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.sort.protocol.FieldInfo;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Defines the relation between fields from input to output field
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonTypeName("fieldRelation")
 @Data
 @NoArgsConstructor

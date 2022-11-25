@@ -17,14 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.LookupOptions;
 import org.apache.inlong.sort.protocol.constant.RedisConstant;
@@ -33,11 +25,23 @@ import org.apache.inlong.sort.protocol.enums.RedisMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Redis extract node for extract data from redis
@@ -62,7 +66,8 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("command")
     private RedisCommand command;
     /**
-     * The cluster node infos connect to redis only used for {@link RedisMode#CLUSTER}
+     * The cluster node infos connect to redis only used for
+     * {@link RedisMode#CLUSTER}
      */
     @Nullable
     @JsonProperty("clusterNodes")
@@ -104,7 +109,8 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("additionalKey")
     private String additionalKey;
     /**
-     * The database connect to redis used for {@link RedisMode#STANDALONE} and {@link RedisMode#SENTINEL}
+     * The database connect to redis used for {@link RedisMode#STANDALONE} and
+     * {@link RedisMode#SENTINEL}
      */
     @Nullable
     @JsonProperty("database")
@@ -152,25 +158,44 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
     /**
      * RedisExtract constructor only used for {@link RedisMode#STANDALONE}
      *
-     * @param id The id of extract node
-     * @param name The name of extract node
-     * @param fields The fields of extract node
-     * @param watermarkField The watermark field of extract node
-     * @param properties The custom properties of extract node
-     * @param primaryKey The primary key of extract node
-     * @param command The redis command connect to redis
-     * @param host The host connect to redis only used for {@link RedisMode#STANDALONE}
-     * @param port The port connect to redis only used for {@link RedisMode#STANDALONE}
-     * @param password The password connect to redis
-     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data type
-     * @param database The database connect to redis
-     *         used for {@link RedisMode#STANDALONE} and {@link RedisMode#SENTINEL}
-     * @param timeout The timeout connect to redis
-     * @param soTimeout The soTimeout connect to redis
-     * @param maxTotal The maxTotal connect to redis
-     * @param maxIdle The maxIdle connect to redis
-     * @param minIdle The minIdle connect to redis
-     * @param lookupOptions The lookup options for connector redis
+     * @param id
+     *          The id of extract node
+     * @param name
+     *          The name of extract node
+     * @param fields
+     *          The fields of extract node
+     * @param watermarkField
+     *          The watermark field of extract node
+     * @param properties
+     *          The custom properties of extract node
+     * @param primaryKey
+     *          The primary key of extract node
+     * @param command
+     *          The redis command connect to redis
+     * @param host
+     *          The host connect to redis only used for {@link RedisMode#STANDALONE}
+     * @param port
+     *          The port connect to redis only used for {@link RedisMode#STANDALONE}
+     * @param password
+     *          The password connect to redis
+     * @param additionalKey
+     *          The additional key connect to redis only used for [Hash|Sorted-Set]
+     *          data type
+     * @param database
+     *          The database connect to redis used for {@link RedisMode#STANDALONE}
+     *          and {@link RedisMode#SENTINEL}
+     * @param timeout
+     *          The timeout connect to redis
+     * @param soTimeout
+     *          The soTimeout connect to redis
+     * @param maxTotal
+     *          The maxTotal connect to redis
+     * @param maxIdle
+     *          The maxIdle connect to redis
+     * @param minIdle
+     *          The minIdle connect to redis
+     * @param lookupOptions
+     *          The lookup options for connector redis
      */
     public RedisExtractNode(
             @Nonnull @JsonProperty("id") String id,
@@ -200,24 +225,43 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
     /**
      * RedisExtract constructor only used for {@link RedisMode#CLUSTER}
      *
-     * @param id The id of extract node
-     * @param name The name of extract node
-     * @param fields The fields of extract node
-     * @param watermarkField The watermark field of extract node
-     * @param properties The custom properties of extract node
-     * @param primaryKey The primary key of extract node
-     * @param command The redis command connect to redis
-     * @param clusterNodes The cluster node infos connect to redis only used for {@link RedisMode#CLUSTER}
-     * @param password The password connect to redis
-     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data type
-     * @param database The database connect to redis
-     *         used for {@link RedisMode#STANDALONE} and {@link RedisMode#SENTINEL}
-     * @param timeout The timeout connect to redis
-     * @param soTimeout The soTimeout connect to redis
-     * @param maxTotal The maxTotal connect to redis
-     * @param maxIdle The maxIdle connect to redis
-     * @param minIdle The minIdle connect to redis
-     * @param lookupOptions The lookup options for connector redis
+     * @param id
+     *          The id of extract node
+     * @param name
+     *          The name of extract node
+     * @param fields
+     *          The fields of extract node
+     * @param watermarkField
+     *          The watermark field of extract node
+     * @param properties
+     *          The custom properties of extract node
+     * @param primaryKey
+     *          The primary key of extract node
+     * @param command
+     *          The redis command connect to redis
+     * @param clusterNodes
+     *          The cluster node infos connect to redis only used for
+     *          {@link RedisMode#CLUSTER}
+     * @param password
+     *          The password connect to redis
+     * @param additionalKey
+     *          The additional key connect to redis only used for [Hash|Sorted-Set]
+     *          data type
+     * @param database
+     *          The database connect to redis used for {@link RedisMode#STANDALONE}
+     *          and {@link RedisMode#SENTINEL}
+     * @param timeout
+     *          The timeout connect to redis
+     * @param soTimeout
+     *          The soTimeout connect to redis
+     * @param maxTotal
+     *          The maxTotal connect to redis
+     * @param maxIdle
+     *          The maxIdle connect to redis
+     * @param minIdle
+     *          The minIdle connect to redis
+     * @param lookupOptions
+     *          The lookup options for connector redis
      */
     public RedisExtractNode(
             @Nonnull @JsonProperty("id") String id,
@@ -245,25 +289,46 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
     /**
      * RedisExtract constructor only used for {@link RedisMode#SENTINEL}
      *
-     * @param id The id of extract node
-     * @param name The name of extract node
-     * @param fields The fields of extract node
-     * @param watermarkField The watermark field of extract node
-     * @param properties The custom properties of extract node
-     * @param primaryKey The primary key of extract node
-     * @param command The redis command connect to redis
-     * @param masterName The master name connect to redis only used for {@link RedisMode#SENTINEL}
-     * @param sentinelsInfo The sentinels connect to redis info only used for {@link RedisMode#SENTINEL}
-     * @param password The password connect to redis
-     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data type
-     * @param database The database connect to redis
-     *         used for {@link RedisMode#STANDALONE} and {@link RedisMode#SENTINEL}
-     * @param timeout The timeout connect to redis
-     * @param soTimeout The soTimeout connect to redis
-     * @param maxTotal The maxTotal connect to redis
-     * @param maxIdle The maxIdle connect to redis
-     * @param minIdle The minIdle connect to redis
-     * @param lookupOptions The lookup options for connector redis
+     * @param id
+     *          The id of extract node
+     * @param name
+     *          The name of extract node
+     * @param fields
+     *          The fields of extract node
+     * @param watermarkField
+     *          The watermark field of extract node
+     * @param properties
+     *          The custom properties of extract node
+     * @param primaryKey
+     *          The primary key of extract node
+     * @param command
+     *          The redis command connect to redis
+     * @param masterName
+     *          The master name connect to redis only used for
+     *          {@link RedisMode#SENTINEL}
+     * @param sentinelsInfo
+     *          The sentinels connect to redis info only used for
+     *          {@link RedisMode#SENTINEL}
+     * @param password
+     *          The password connect to redis
+     * @param additionalKey
+     *          The additional key connect to redis only used for [Hash|Sorted-Set]
+     *          data type
+     * @param database
+     *          The database connect to redis used for {@link RedisMode#STANDALONE}
+     *          and {@link RedisMode#SENTINEL}
+     * @param timeout
+     *          The timeout connect to redis
+     * @param soTimeout
+     *          The soTimeout connect to redis
+     * @param maxTotal
+     *          The maxTotal connect to redis
+     * @param maxIdle
+     *          The maxIdle connect to redis
+     * @param minIdle
+     *          The minIdle connect to redis
+     * @param lookupOptions
+     *          The lookup options for connector redis
      */
     public RedisExtractNode(
             @Nonnull @JsonProperty("id") String id,
@@ -292,29 +357,55 @@ public class RedisExtractNode extends ExtractNode implements Serializable {
     /**
      * RedisExtract base constructor
      *
-     * @param id The id of extract node
-     * @param name The name of extract node
-     * @param fields The fields of extract node
-     * @param watermarkField The watermark field of extract node
-     * @param properties The custom properties of extract node
-     * @param primaryKey The primary key of extract node
-     * @param redisMode The redis deploy mode connect to redis
-     * @param command The redis command connect to redis
-     * @param clusterNodes The cluster node infos connect to redis only used for {@link RedisMode#CLUSTER}
-     * @param masterName The master name connect to redis only used for {@link RedisMode#SENTINEL}
-     * @param sentinelsInfo The sentinels connect to redis info used for {@link RedisMode#SENTINEL}
-     * @param host The host connect to redis only used for {@link RedisMode#STANDALONE}
-     * @param port The port connect to redis only used for {@link RedisMode#STANDALONE}
-     * @param password The password connect to redis
-     * @param additionalKey The additional key connect to redis only used for [Hash|Sorted-Set] data type
-     * @param database The database connect to redis
-     *         used for {@link RedisMode#STANDALONE} and {@link RedisMode#SENTINEL}
-     * @param timeout The timeout connect to redis
-     * @param soTimeout The soTimeout connect to redis
-     * @param maxTotal The maxTotal connect to redis
-     * @param maxIdle The maxIdle connect to redis
-     * @param minIdle The minIdle connect to redis
-     * @param lookupOptions The lookup options for connector redis
+     * @param id
+     *          The id of extract node
+     * @param name
+     *          The name of extract node
+     * @param fields
+     *          The fields of extract node
+     * @param watermarkField
+     *          The watermark field of extract node
+     * @param properties
+     *          The custom properties of extract node
+     * @param primaryKey
+     *          The primary key of extract node
+     * @param redisMode
+     *          The redis deploy mode connect to redis
+     * @param command
+     *          The redis command connect to redis
+     * @param clusterNodes
+     *          The cluster node infos connect to redis only used for
+     *          {@link RedisMode#CLUSTER}
+     * @param masterName
+     *          The master name connect to redis only used for
+     *          {@link RedisMode#SENTINEL}
+     * @param sentinelsInfo
+     *          The sentinels connect to redis info used for
+     *          {@link RedisMode#SENTINEL}
+     * @param host
+     *          The host connect to redis only used for {@link RedisMode#STANDALONE}
+     * @param port
+     *          The port connect to redis only used for {@link RedisMode#STANDALONE}
+     * @param password
+     *          The password connect to redis
+     * @param additionalKey
+     *          The additional key connect to redis only used for [Hash|Sorted-Set]
+     *          data type
+     * @param database
+     *          The database connect to redis used for {@link RedisMode#STANDALONE}
+     *          and {@link RedisMode#SENTINEL}
+     * @param timeout
+     *          The timeout connect to redis
+     * @param soTimeout
+     *          The soTimeout connect to redis
+     * @param maxTotal
+     *          The maxTotal connect to redis
+     * @param maxIdle
+     *          The maxIdle connect to redis
+     * @param minIdle
+     *          The minIdle connect to redis
+     * @param lookupOptions
+     *          The lookup options for connector redis
      */
     @JsonCreator
     public RedisExtractNode(

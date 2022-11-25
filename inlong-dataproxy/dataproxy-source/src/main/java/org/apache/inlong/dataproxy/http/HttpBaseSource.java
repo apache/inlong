@@ -18,13 +18,7 @@
 package org.apache.inlong.dataproxy.http;
 
 import static org.apache.inlong.dataproxy.consts.ConfigConstants.MAX_MONITOR_CNT;
-import com.google.common.base.Preconditions;
-import org.apache.flume.ChannelSelector;
-import org.apache.flume.Context;
-import org.apache.flume.EventDrivenSource;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.conf.Configurables;
-import org.apache.flume.source.AbstractSource;
+
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.common.monitor.MonitorIndex;
 import org.apache.inlong.common.monitor.MonitorIndexExt;
@@ -33,8 +27,18 @@ import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItemSet;
 import org.apache.inlong.dataproxy.utils.ConfStringUtils;
+
+import org.apache.flume.ChannelSelector;
+import org.apache.flume.Context;
+import org.apache.flume.EventDrivenSource;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.conf.Configurables;
+import org.apache.flume.source.AbstractSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 public class HttpBaseSource extends AbstractSource implements EventDrivenSource, Configurable {
 
@@ -79,12 +83,10 @@ public class HttpBaseSource extends AbstractSource implements EventDrivenSource,
         }
         // register metrics
         ConfigManager configManager = ConfigManager.getInstance();
-        String clusterId =
-                configManager.getCommonProperties().getOrDefault(
-                        ConfigConstants.PROXY_CLUSTER_NAME,
-                        ConfigConstants.DEFAULT_PROXY_CLUSTER_NAME);
-        this.metricItemSet =
-                new DataProxyMetricItemSet(clusterId, this.getName(), String.valueOf(port));
+        String clusterId = configManager.getCommonProperties().getOrDefault(
+                ConfigConstants.PROXY_CLUSTER_NAME,
+                ConfigConstants.DEFAULT_PROXY_CLUSTER_NAME);
+        this.metricItemSet = new DataProxyMetricItemSet(clusterId, this.getName(), String.valueOf(port));
         MetricRegister.register(metricItemSet);
         super.start();
         logger.info("{} started!", this.getName());

@@ -19,14 +19,17 @@ package org.apache.inlong.dataproxy.sink.mqzone;
 
 import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
 import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.flume.Context;
-import org.apache.flume.lifecycle.LifecycleAware;
-import org.apache.flume.lifecycle.LifecycleState;
+
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
 import org.apache.inlong.sdk.commons.protocol.EventConstants;
+
+import org.apache.flume.Context;
+import org.apache.flume.lifecycle.LifecycleAware;
+import org.apache.flume.lifecycle.LifecycleState;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class AbstractZoneClusterProducer implements LifecycleAware {
 
@@ -66,7 +69,8 @@ public abstract class AbstractZoneClusterProducer implements LifecycleAware {
     /**
      * send DispatchProfile
      *
-     * @param event DispatchProfile
+     * @param event
+     *          DispatchProfile
      * @return boolean sendResult
      */
     public abstract boolean send(DispatchProfile event);
@@ -74,8 +78,8 @@ public abstract class AbstractZoneClusterProducer implements LifecycleAware {
     /**
      * encodeCacheMessageHeaders
      *
-     * @param  event
-     * @return       Map
+     * @param event
+     * @return Map
      */
     public Map<String, String> encodeCacheMessageHeaders(DispatchProfile event) {
         Map<String, String> headers = new HashMap<>();

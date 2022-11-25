@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.sink.mqzone.impl.tubezone;
 
 import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneSink;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

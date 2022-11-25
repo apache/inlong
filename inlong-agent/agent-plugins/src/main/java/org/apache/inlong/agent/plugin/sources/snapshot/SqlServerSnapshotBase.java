@@ -17,10 +17,10 @@
 
 package org.apache.inlong.agent.plugin.sources.snapshot;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 /**
  * SqlServer Snapshot

@@ -18,11 +18,13 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 /**
  * The format information for rows.
@@ -34,8 +36,7 @@ public class RowFormatInfo implements FormatInfo {
     private static final String FIELD_FIELD_NAMES = "fieldNames";
     private static final String FIELD_FIELD_FORMATS = "fieldFormats";
 
-    public static final RowFormatInfo EMPTY =
-            new RowFormatInfo(new String[0], new FormatInfo[0]);
+    public static final RowFormatInfo EMPTY = new RowFormatInfo(new String[0], new FormatInfo[0]);
 
     @JsonProperty(FIELD_FIELD_NAMES)
     @Nonnull
@@ -48,8 +49,7 @@ public class RowFormatInfo implements FormatInfo {
     @JsonCreator
     public RowFormatInfo(
             @JsonProperty(FIELD_FIELD_NAMES) @Nonnull String[] fieldNames,
-            @JsonProperty(FIELD_FIELD_FORMATS) @Nonnull FormatInfo[] fieldFormatInfos
-    ) {
+            @JsonProperty(FIELD_FIELD_FORMATS) @Nonnull FormatInfo[] fieldFormatInfos) {
         checkArity(fieldNames, fieldFormatInfos);
         checkDuplicates(fieldNames);
 
@@ -79,8 +79,7 @@ public class RowFormatInfo implements FormatInfo {
 
     private static void checkArity(
             String[] fieldNames,
-            FormatInfo[] fieldFormatInfos
-    ) {
+            FormatInfo[] fieldFormatInfos) {
         if (fieldNames.length != fieldFormatInfos.length) {
             throw new IllegalArgumentException("The number of names and " + "formats is not equal.");
         }
@@ -88,10 +87,9 @@ public class RowFormatInfo implements FormatInfo {
 
     private static void checkDuplicates(String[] fieldNames) {
         long numFieldNames = fieldNames.length;
-        long numDistinctFieldNames =
-                Arrays.stream(fieldNames)
-                        .collect(Collectors.toSet())
-                        .size();
+        long numDistinctFieldNames = Arrays.stream(fieldNames)
+                .collect(Collectors.toSet())
+                .size();
 
         if (numDistinctFieldNames != numFieldNames) {
             throw new IllegalArgumentException("There exist duplicated " + "field names.");

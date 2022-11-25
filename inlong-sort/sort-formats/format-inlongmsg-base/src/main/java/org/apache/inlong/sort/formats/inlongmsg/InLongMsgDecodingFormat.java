@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.table.api.DataTypes;
@@ -29,7 +31,6 @@ import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgDeserializationSchema.MetadataConverter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +56,7 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
             String innerFormatMetaPrefix,
             boolean ignoreErrors) {
         this.innerDecodingFormat = innerDecodingFormat;
-        this.innerFormatMetaPrefix =  innerFormatMetaPrefix;
+        this.innerFormatMetaPrefix = innerFormatMetaPrefix;
         this.metadataKeys = Collections.emptyList();
         this.ignoreErrors = ignoreErrors;
     }
@@ -66,23 +67,18 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
                 .filter(metadata -> metadataKeys.contains(metadata.key))
                 .map(metadata -> metadata.converter)
                 .toArray(MetadataConverter[]::new);
-        final List<ReadableMetadata> readableMetadata =
-                metadataKeys.stream()
-                        .map(
-                                k ->
-                                        Stream.of(ReadableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .orElseThrow(IllegalStateException::new))
-                        .collect(Collectors.toList());
-        final List<DataTypes.Field> metadataFields =
-                readableMetadata.stream()
-                        .map(m -> DataTypes.FIELD(m.key, m.dataType))
-                        .collect(Collectors.toList());
-        final DataType producedDataType =
-                DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
-        final TypeInformation<RowData> producedTypeInfo =
-                context.createTypeInformation(producedDataType);
+        final List<ReadableMetadata> readableMetadata = metadataKeys.stream()
+                .map(
+                        k -> Stream.of(ReadableMetadata.values())
+                                .filter(rm -> rm.key.equals(k))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
+                .collect(Collectors.toList());
+        final List<DataTypes.Field> metadataFields = readableMetadata.stream()
+                .map(m -> DataTypes.FIELD(m.key, m.dataType))
+                .collect(Collectors.toList());
+        final DataType producedDataType = DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
+        final TypeInformation<RowData> producedTypeInfo = context.createTypeInformation(producedDataType);
 
         return new InLongMsgDeserializationSchema(
                 innerDecodingFormat.createRuntimeDecoder(context, physicalDataType),
@@ -110,10 +106,9 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
     @Override
     public void applyReadableMetadata(List<String> metadataKeys) {
         // separate inner format and format metadata
-        final List<String> innerFormatMetadataKeys =
-                metadataKeys.stream()
-                        .filter(k -> k.startsWith(innerFormatMetaPrefix))
-                        .collect(Collectors.toList());
+        final List<String> innerFormatMetadataKeys = metadataKeys.stream()
+                .filter(k -> k.startsWith(innerFormatMetaPrefix))
+                .collect(Collectors.toList());
         final List<String> formatMetadataKeys = new ArrayList<>(metadataKeys);
         formatMetadataKeys.removeAll(innerFormatMetadataKeys);
         this.metadataKeys = formatMetadataKeys;
@@ -121,10 +116,9 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
         // push down inner format metadata
         final Map<String, DataType> formatMetadata = innerDecodingFormat.listReadableMetadata();
         if (formatMetadata.size() > 0) {
-            final List<String> requestedFormatMetadataKeys =
-                    innerFormatMetadataKeys.stream()
-                            .map(k -> k.substring(innerFormatMetaPrefix.length()))
-                            .collect(Collectors.toList());
+            final List<String> requestedFormatMetadataKeys = innerFormatMetadataKeys.stream()
+                    .map(k -> k.substring(innerFormatMetaPrefix.length()))
+                    .collect(Collectors.toList());
             innerDecodingFormat.applyReadableMetadata(requestedFormatMetadataKeys);
         }
     }
@@ -139,10 +133,12 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
+
         CREATE_TIME(
                 "create-time",
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -155,6 +151,7 @@ public class InLongMsgDecodingFormat implements DecodingFormat<DeserializationSc
                 "stream-id",
                 DataTypes.STRING().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

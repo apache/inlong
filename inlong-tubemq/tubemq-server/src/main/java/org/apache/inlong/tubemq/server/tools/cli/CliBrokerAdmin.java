@@ -17,25 +17,29 @@
 
 package org.apache.inlong.tubemq.server.tools.cli;
 
-import com.google.gson.JsonObject;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.fielddef.CliArgDef;
 import org.apache.inlong.tubemq.server.common.utils.HttpUtils;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+
 /**
- * This class is use to process CLI Broker Admin process for script #{bin/tubemq-broker-admin.sh}.
+ * This class is use to process CLI Broker Admin process for script
+ * #{bin/tubemq-broker-admin.sh}.
  *
  */
 public class CliBrokerAdmin extends CliAbstractBase {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(CliBrokerAdmin.class);
+    private static final Logger logger = LoggerFactory.getLogger(CliBrokerAdmin.class);
 
     private static final String defBrokerPortal = "127.0.0.1:8081";
 
@@ -57,8 +61,10 @@ public class CliBrokerAdmin extends CliAbstractBase {
 
     /**
      * Call the broker's HTTP API by the tubemq-broker-admin.sh script
-     * @param args     Call parameter array,
-     *                 the relevant parameters are dynamic mode, which is parsed by CommandLine.
+     * 
+     * @param args
+     *          Call parameter array, the relevant parameters are dynamic mode,
+     *          which is parsed by CommandLine.
      */
     public boolean processParams(String[] args) throws Exception {
         // parse parameters and check value

@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.pojo.sink.hbase;
 
-import lombok.Data;
-
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
 
 /**
  * HBase table info

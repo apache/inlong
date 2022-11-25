@@ -21,10 +21,8 @@ import java.util.Locale;
 
 public enum PulsarScanStartupMode {
 
-    EARLIEST("earliest"),
-    LATEST("latest"),
-    EXTERNAL_SUBSCRIPTION("external-subscription"),
-    SPECIFIC_OFFSETS("specific-offsets");
+    EARLIEST("earliest"), LATEST("latest"), EXTERNAL_SUBSCRIPTION("external-subscription"), SPECIFIC_OFFSETS(
+            "specific-offsets");
 
     PulsarScanStartupMode(String value) {
         this.value = value;

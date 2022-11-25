@@ -17,14 +17,14 @@
 
 package org.apache.inlong.sdk.commons.admin;
 
+import org.apache.flume.Event;
+import org.apache.flume.conf.Configurable;
+import org.apache.flume.source.http.HTTPBadRequestException;
+
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.flume.Event;
-import org.apache.flume.conf.Configurable;
-import org.apache.flume.source.http.HTTPBadRequestException;
 
 /**
  * 
@@ -33,18 +33,24 @@ import org.apache.flume.source.http.HTTPBadRequestException;
 public interface AdminHttpSourceHandler extends Configurable {
 
     /**
-     * Takes an {@linkplain HttpServletRequest} and returns a list of Flume Events. If this request cannot be parsed
-     * into Flume events based on the format this method will throw an exception. This method may also throw an
-     * exception if there is some sort of other error.
+     * Takes an {@linkplain HttpServletRequest} and returns a list of Flume Events.
+     * If this request cannot be parsed into Flume events based on the format this
+     * method will throw an exception. This method may also throw an exception if
+     * there is some sort of other error.
      * <p>
      *
-     * @param  request                 The request to be parsed into Flume events.
-     * @param  response                The response to be parsed into Flume events.
-     * @return                         List of Flume events generated from the request.
-     * @throws HTTPBadRequestException If the was not parsed correctly into an event because the request was not in the
-     *                                 expected format.
-     * @throws Exception               If there was an unexpected error.
+     * @param request
+     *          The request to be parsed into Flume events.
+     * @param response
+     *          The response to be parsed into Flume events.
+     * @return List of Flume events generated from the request.
+     * @throws HTTPBadRequestException
+     *           If the was not parsed correctly into an event because the request
+     *           was not in the expected format.
+     * @throws Exception
+     *           If there was an unexpected error.
      */
-    List<Event> getEvents(HttpServletRequest request, HttpServletResponse response)
+    List<Event> getEvents(HttpServletRequest request,
+            HttpServletResponse response)
             throws HTTPBadRequestException, Exception;
 }

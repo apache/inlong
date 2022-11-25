@@ -17,16 +17,16 @@
 
 package org.apache.inlong.agent.plugin.message;
 
+import java.io.IOException;
+
 import io.debezium.document.Document;
 import io.debezium.document.DocumentWriter;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.TableChanges.TableChange;
 
-import java.io.IOException;
-
 /**
- * The Record represents a schema change event, it contains either one {@link HistoryRecord} or
- * {@link TableChange}.
+ * The Record represents a schema change event, it contains either one
+ * {@link HistoryRecord} or {@link TableChange}.
  */
 public class SchemaRecord {
 

@@ -42,17 +42,19 @@ public class KafkaConstant {
     /**
      * upsert-kafka
      *
-     * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/upsert-kafka/">
-     *         Upsert Kafka</a>
+     * @see <a href=
+     *      "https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/upsert-kafka/">
+     *      Upsert Kafka</a>
      */
     public static final String UPSERT_KAFKA = "upsert-kafka-inlong";
 
     /**
-     * The Raw Data Hash Partitioner is used to extract partition from raw data(bytes array):
-     * It needs a partitionPattern used to parse the pattern and a format 'canal-jon' or 'debezium-json'
-     * to deserialization the raw data(bytes array)
-     * This partitioner will extract primary key from raw data as the partition key used hash if the 'partitionPattern'
-     * equals 'PRIMARY_KEY' else it will parse partition key from raw data.
+     * The Raw Data Hash Partitioner is used to extract partition from raw
+     * data(bytes array): It needs a partitionPattern used to parse the pattern and
+     * a format 'canal-jon' or 'debezium-json' to deserialization the raw data(bytes
+     * array) This partitioner will extract primary key from raw data as the
+     * partition key used hash if the 'partitionPattern' equals 'PRIMARY_KEY' else
+     * it will parse partition key from raw data.
      */
     public static final String RAW_HASH = "raw-hash";
 

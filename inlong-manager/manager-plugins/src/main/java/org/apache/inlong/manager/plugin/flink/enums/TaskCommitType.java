@@ -44,7 +44,8 @@ public enum TaskCommitType {
     /**
      * Gets task commit type
      *
-     * @param code the code
+     * @param code
+     *          the code
      * @return the sync type
      */
     public static TaskCommitType getInstance(Integer code) {

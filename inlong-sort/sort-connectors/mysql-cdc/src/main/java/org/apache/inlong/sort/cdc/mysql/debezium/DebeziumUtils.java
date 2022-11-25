@@ -18,7 +18,24 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium;
 
+import static org.apache.inlong.sort.cdc.mysql.source.utils.TableDiscoveryUtils.listTables;
+
+import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
+import org.apache.inlong.sort.cdc.mysql.source.connection.JdbcConnectionFactory;
+import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
+
+import org.apache.flink.util.FlinkRuntimeException;
+
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.shyiko.mysql.binlog.BinaryLogClient;
+
 import io.debezium.config.Configuration;
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
@@ -33,19 +50,6 @@ import io.debezium.relational.RelationalTableFilters;
 import io.debezium.relational.TableId;
 import io.debezium.schema.TopicSelector;
 import io.debezium.util.SchemaNameAdjuster;
-import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-import org.apache.inlong.sort.cdc.mysql.source.connection.JdbcConnectionFactory;
-import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.inlong.sort.cdc.mysql.source.utils.TableDiscoveryUtils.listTables;
 
 /**
  * Utilities related to Debezium.
@@ -58,10 +62,9 @@ public class DebeziumUtils {
      * Creates and opens a new {@link JdbcConnection} backing connection pool.
      */
     public static JdbcConnection openJdbcConnection(MySqlSourceConfig sourceConfig) {
-        JdbcConnection jdbc =
-                new JdbcConnection(
-                        sourceConfig.getDbzConfiguration(),
-                        new JdbcConnectionFactory(sourceConfig));
+        JdbcConnection jdbc = new JdbcConnection(
+                sourceConfig.getDbzConfiguration(),
+                new JdbcConnectionFactory(sourceConfig));
         try {
             jdbc.connect();
         } catch (Exception e) {
@@ -100,10 +103,12 @@ public class DebeziumUtils {
     }
 
     /**
-     * Creates a new {@link MySqlDatabaseSchema} to monitor the latest MySql database schemas.
+     * Creates a new {@link MySqlDatabaseSchema} to monitor the latest MySql
+     * database schemas.
      */
     public static MySqlDatabaseSchema createMySqlDatabaseSchema(
-            MySqlConnectorConfig dbzMySqlConfig, boolean isTableIdCaseSensitive) {
+            MySqlConnectorConfig dbzMySqlConfig,
+            boolean isTableIdCaseSensitive) {
         TopicSelector<TableId> topicSelector = MySqlTopicSelector.defaultSelector(dbzMySqlConfig);
         SchemaNameAdjuster schemaNameAdjuster = SchemaNameAdjuster.create();
         MySqlValueConverters valueConverters = getValueConverters(dbzMySqlConfig);
@@ -127,8 +132,7 @@ public class DebeziumUtils {
                         if (rs.next()) {
                             final String binlogFilename = rs.getString(1);
                             final long binlogPosition = rs.getLong(2);
-                            final String gtidSet =
-                                    rs.getMetaData().getColumnCount() > 4 ? rs.getString(5) : null;
+                            final String gtidSet = rs.getMetaData().getColumnCount() > 4 ? rs.getString(5) : null;
                             return new BinlogOffset(
                                     binlogFilename, binlogPosition, 0L, 0, 0, gtidSet, null);
                         } else {
@@ -152,18 +156,16 @@ public class DebeziumUtils {
     private static MySqlValueConverters getValueConverters(MySqlConnectorConfig dbzMySqlConfig) {
         TemporalPrecisionMode timePrecisionMode = dbzMySqlConfig.getTemporalPrecisionMode();
         JdbcValueConverters.DecimalMode decimalMode = dbzMySqlConfig.getDecimalMode();
-        String bigIntUnsignedHandlingModeStr =
-                dbzMySqlConfig
-                        .getConfig()
-                        .getString(MySqlConnectorConfig.BIGINT_UNSIGNED_HANDLING_MODE);
+        String bigIntUnsignedHandlingModeStr = dbzMySqlConfig
+                .getConfig()
+                .getString(MySqlConnectorConfig.BIGINT_UNSIGNED_HANDLING_MODE);
         MySqlConnectorConfig.BigIntUnsignedHandlingMode bigIntUnsignedHandlingMode =
-                MySqlConnectorConfig.BigIntUnsignedHandlingMode.parse(
-                        bigIntUnsignedHandlingModeStr);
-        JdbcValueConverters.BigIntUnsignedMode bigIntUnsignedMode =
-                bigIntUnsignedHandlingMode.asBigIntUnsignedMode();
+                MySqlConnectorConfig.BigIntUnsignedHandlingMode
+                        .parse(
+                                bigIntUnsignedHandlingModeStr);
+        JdbcValueConverters.BigIntUnsignedMode bigIntUnsignedMode = bigIntUnsignedHandlingMode.asBigIntUnsignedMode();
 
-        boolean timeAdjusterEnabled =
-                dbzMySqlConfig.getConfig().getBoolean(MySqlConnectorConfig.ENABLE_TIME_ADJUSTER);
+        boolean timeAdjusterEnabled = dbzMySqlConfig.getConfig().getBoolean(MySqlConnectorConfig.ENABLE_TIME_ADJUSTER);
         return new MySqlValueConverters(
                 decimalMode,
                 timePrecisionMode,
@@ -200,7 +202,8 @@ public class DebeziumUtils {
     }
 
     public static Map<String, String> readMySqlSystemVariables(JdbcConnection connection) {
-        // Read the system variables from the MySQL instance and get the current database name ...
+        // Read the system variables from the MySQL instance and get the current
+        // database name ...
         return querySystemVariables(connection, "SHOW VARIABLES");
     }
 
@@ -227,8 +230,9 @@ public class DebeziumUtils {
     }
 
     /**
-     * Creates {@link RelationalTableFilters} from configuration. The {@link RelationalTableFilters}
-     * can be used to filter tables according to "table.whitelist" and "database.whitelist" options.
+     * Creates {@link RelationalTableFilters} from configuration. The
+     * {@link RelationalTableFilters} can be used to filter tables according to
+     * "table.whitelist" and "database.whitelist" options.
      */
     public static RelationalTableFilters createTableFilters(MySqlSourceConfig configuration) {
         Configuration debeziumConfig = configuration.getDbzConfiguration();

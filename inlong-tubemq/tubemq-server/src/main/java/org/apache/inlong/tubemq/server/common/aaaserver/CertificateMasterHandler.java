@@ -17,21 +17,22 @@
 
 package org.apache.inlong.tubemq.server.common.aaaserver;
 
+import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 
 public interface CertificateMasterHandler {
 
     CertifiedResult identityValidBrokerInfo(ClientMaster.MasterCertificateInfo authenticInfo);
 
     CertifiedResult identityValidUserInfo(ClientMaster.MasterCertificateInfo authenticInfo,
-                                          boolean isProduce);
+            boolean isProduce);
 
     CertifiedResult validProducerAuthorizeInfo(String userName, Set<String> topics, String clientIp);
 
     CertifiedResult validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
-                                               Map<String, TreeSet<String>> topicConds, String clientIp);
+            Map<String, TreeSet<String>> topicConds, String clientIp);
 
 }

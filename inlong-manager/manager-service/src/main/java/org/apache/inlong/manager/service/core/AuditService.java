@@ -27,11 +27,11 @@ import java.util.List;
  */
 public interface AuditService {
 
-
     /**
      * Query audit data for list by condition
      *
-     * @param request The audit request of query condition
+     * @param request
+     *          The audit request of query condition
      * @return The result of query
      */
     List<AuditVO> listByCondition(AuditRequest request) throws Exception;

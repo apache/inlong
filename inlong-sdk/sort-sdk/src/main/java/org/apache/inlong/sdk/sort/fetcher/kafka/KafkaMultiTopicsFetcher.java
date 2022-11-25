@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sdk.sort.fetcher.kafka;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.Deserializer;
 import org.apache.inlong.sdk.sort.api.Interceptor;
@@ -28,6 +27,8 @@ import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sdk.sort.fetcher.pulsar.PulsarMultiTopicsFetcher;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -39,8 +40,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -55,10 +54,14 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Kafka multi topics fetcher
  */
 public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarMultiTopicsFetcher.class);
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap;
     private final ConcurrentHashMap<TopicPartition, ConcurrentSkipListMap<Long, Boolean>> ackOffsetMap;
@@ -136,7 +139,8 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
     @Override
     public void ack(String msgOffset) throws Exception {
         LOGGER.info("ack {}", msgOffset);
-        // the format of multi topic kafka fetcher msg offset is topic:partitionId:offset, such as topic1:20:1746839
+        // the format of multi topic kafka fetcher msg offset is
+        // topic:partitionId:offset, such as topic1:20:1746839
         String[] offset = msgOffset.split(":");
         if (offset.length != 3) {
             throw new Exception("offset is illegal, the correct format is topic:partitionId:offset, "
@@ -286,7 +290,8 @@ public class KafkaMultiTopicsFetcher extends MultiTopicsFetcher {
         /**
          * put the received msg to onFinished method
          *
-         * @param messageRecords {@link List < MessageRecord >}
+         * @param messageRecords
+         *          {@link List < MessageRecord >}
          */
         private void handleAndCallbackMsg(List<MessageRecord> messageRecords) {
             long start = System.currentTimeMillis();

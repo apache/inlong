@@ -21,6 +21,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
 public class PeerInfo {
+
     private int partitionId = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerHost = "";
     private String partitionKey = "";
@@ -61,8 +62,7 @@ public class PeerInfo {
         this.currOffset = newOffset;
         this.maxOffset = maxOffset;
         if (this.currOffset >= 0 && this.maxOffset >= 0) {
-            this.msgLagCount =
-                    (this.maxOffset - this.currOffset) / TBaseConstants.INDEX_MSG_UNIT_SIZE;
+            this.msgLagCount = (this.maxOffset - this.currOffset) / TBaseConstants.INDEX_MSG_UNIT_SIZE;
         }
     }
 

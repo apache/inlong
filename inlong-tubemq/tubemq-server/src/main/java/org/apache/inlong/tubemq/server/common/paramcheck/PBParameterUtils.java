@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.server.common.paramcheck;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
@@ -37,6 +32,13 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Gr
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumeType;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerInfo;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,12 +49,14 @@ public class PBParameterUtils {
     /**
      * Check request topic list of producer
      *
-     * @param reqTopicLst the topic list to be checked.
-     * @param strBuffer   a string buffer used to construct the result
+     * @param reqTopicLst
+     *          the topic list to be checked.
+     * @param strBuffer
+     *          a string buffer used to construct the result
      * @return the check result
      */
     public static ParamCheckResult checkProducerTopicList(final List<String> reqTopicLst,
-                                                          final StringBuilder strBuffer) {
+            final StringBuilder strBuffer) {
         ParamCheckResult retResult = new ParamCheckResult();
         if (reqTopicLst == null) {
             retResult.setCheckResult(false,
@@ -95,15 +99,18 @@ public class PBParameterUtils {
     /**
      * Check request topic list of consumer
      *
-     * @param depTopicSet  the deployed topic set
-     * @param reqTopicLst the topic list to be checked.
-     * @param strBuff   a string buffer used to construct the result
+     * @param depTopicSet
+     *          the deployed topic set
+     * @param reqTopicLst
+     *          the topic list to be checked.
+     * @param strBuff
+     *          a string buffer used to construct the result
      * @return the check result
      */
     public static boolean checkConsumerTopicList(Set<String> depTopicSet,
-                                                 List<String> reqTopicLst,
-                                                 ProcessResult result,
-                                                 StringBuilder strBuff) {
+            List<String> reqTopicLst,
+            ProcessResult result,
+            StringBuilder strBuff) {
         if ((reqTopicLst == null) || (reqTopicLst.isEmpty())) {
             result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "Request miss necessary subscribed topicList data!");
@@ -149,18 +156,23 @@ public class PBParameterUtils {
     }
 
     /**
-     * Check the validity of the bootstrap Offset information specified by the consumer.
+     * Check the validity of the bootstrap Offset information specified by the
+     * consumer.
      *
-     * @param csmType        the topic list to be checked.
-     * @param reqTopicSet    the subscribed topic set
-     * @param requiredParts  the specified partitionKey-bootstrap offset map
-     * @param strBuffer      the string buffer used to construct the result
+     * @param csmType
+     *          the topic list to be checked.
+     * @param reqTopicSet
+     *          the subscribed topic set
+     * @param requiredParts
+     *          the specified partitionKey-bootstrap offset map
+     * @param strBuffer
+     *          the string buffer used to construct the result
      * @return the check result
      */
     public static ParamCheckResult checkConsumerOffsetSetInfo(ConsumeType csmType,
-                                                              final Set<String> reqTopicSet,
-                                                              final String requiredParts,
-                                                              final StringBuilder strBuffer) {
+            final Set<String> reqTopicSet,
+            final String requiredParts,
+            final StringBuilder strBuffer) {
         Map<String, Long> requiredPartMap = new HashMap<>();
         ParamCheckResult retResult = new ParamCheckResult();
         if (csmType != ConsumeType.CONSUME_BAND) {
@@ -212,21 +224,27 @@ public class PBParameterUtils {
     }
 
     /**
-     * Check the validity of consumer parameters
-     *  which specify partition boostrap Offset and use server-side balancing.
+     * Check the validity of consumer parameters which specify partition boostrap
+     * Offset and use server-side balancing.
      *
-     * @param inConsumerInfo      the consumer information
-     * @param masterConfig        the master configure
-     * @param defMetaDataService  the cluster meta information
-     * @param brokerRunManager    the broker running information
-     * @param strBuffer           the string buffer used to construct the result
+     * @param inConsumerInfo
+     *          the consumer information
+     * @param masterConfig
+     *          the master configure
+     * @param defMetaDataService
+     *          the cluster meta information
+     * @param brokerRunManager
+     *          the broker running information
+     * @param strBuffer
+     *          the string buffer used to construct the result
      * @return the check result
      */
     public static ParamCheckResult checkConsumerInputInfo(ConsumerInfo inConsumerInfo,
-                                                          MasterConfig masterConfig,
-                                                          MetaDataService defMetaDataService,
-                                                          BrokerRunManager brokerRunManager,
-                                                          StringBuilder strBuffer) throws Exception {
+            MasterConfig masterConfig,
+            MetaDataService defMetaDataService,
+            BrokerRunManager brokerRunManager,
+            StringBuilder strBuffer)
+            throws Exception {
         ParamCheckResult retResult = new ParamCheckResult();
         if (!inConsumerInfo.isRequireBound()) {
             retResult.setCheckData(inConsumerInfo);
@@ -245,8 +263,7 @@ public class PBParameterUtils {
                     "[Parameter error] totalSourceCount must over zero!");
             return retResult;
         }
-        GroupResCtrlEntity offsetResetGroupEntity =
-                defMetaDataService.getGroupCtrlConf(inConsumerInfo.getGroupName());
+        GroupResCtrlEntity offsetResetGroupEntity = defMetaDataService.getGroupCtrlConf(inConsumerInfo.getGroupName());
         if (masterConfig.isStartOffsetResetCheck()) {
             if (offsetResetGroupEntity == null) {
                 retResult.setCheckResult(false,
@@ -260,9 +277,9 @@ public class PBParameterUtils {
         }
         int allowRate = (offsetResetGroupEntity != null
                 && offsetResetGroupEntity.getAllowedBrokerClientRate() > 0)
-                ? offsetResetGroupEntity.getAllowedBrokerClientRate() : masterConfig.getMaxGroupBrokerConsumeRate();
-        int maxBrokerCount =
-                brokerRunManager.getSubTopicMaxBrokerCount(inConsumerInfo.getTopicSet());
+                        ? offsetResetGroupEntity.getAllowedBrokerClientRate()
+                        : masterConfig.getMaxGroupBrokerConsumeRate();
+        int maxBrokerCount = brokerRunManager.getSubTopicMaxBrokerCount(inConsumerInfo.getTopicSet());
         int curBClientRate = (int) Math.floor(maxBrokerCount / inConsumerInfo.getSourceCount());
         if (curBClientRate > allowRate) {
             int minClientCnt = maxBrokerCount / allowRate;
@@ -283,12 +300,14 @@ public class PBParameterUtils {
     /**
      * Check the id of broker
      *
-     * @param brokerId  the id of broker to be checked
-     * @param strBuffer the string buffer used to construct check result
+     * @param brokerId
+     *          the id of broker to be checked
+     * @param strBuffer
+     *          the string buffer used to construct check result
      * @return the check result
      */
     public static ParamCheckResult checkBrokerId(final String brokerId,
-                                                 final StringBuilder strBuffer) {
+            final StringBuilder strBuffer) {
         ParamCheckResult retResult = new ParamCheckResult();
         if (TStringUtils.isBlank(brokerId)) {
             retResult.setCheckResult(false,
@@ -312,8 +331,10 @@ public class PBParameterUtils {
     /**
      * Check the clientID.
      *
-     * @param clientId  the client id to be checked
-     * @param strBuffer the string used to construct the result
+     * @param clientId
+     *          the client id to be checked
+     * @param strBuffer
+     *          the string used to construct the result
      * @return the check result
      */
     public static ParamCheckResult checkClientId(final String clientId, final StringBuilder strBuffer) {
@@ -324,8 +345,10 @@ public class PBParameterUtils {
     /**
      * Check the hostname.
      *
-     * @param hostName  the hostname to be checked.
-     * @param strBuffer the string used to construct the result
+     * @param hostName
+     *          the hostname to be checked.
+     * @param strBuffer
+     *          the string used to construct the result
      * @return the check result
      */
     public static ParamCheckResult checkHostName(final String hostName, final StringBuilder strBuffer) {
@@ -336,8 +359,10 @@ public class PBParameterUtils {
     /**
      * Check the group name
      *
-     * @param groupName the group name to be checked
-     * @param strBuffer the string used to construct the result
+     * @param groupName
+     *          the group name to be checked
+     * @param strBuffer
+     *          the string used to construct the result
      * @return the check result
      */
     public static ParamCheckResult checkGroupName(final String groupName, final StringBuilder strBuffer) {
@@ -346,9 +371,9 @@ public class PBParameterUtils {
     }
 
     private static ParamCheckResult validStringParameter(final String paramName,
-                                                         final String paramValue,
-                                                         int paramMaxLen,
-                                                         final StringBuilder strBuffer) {
+            final String paramValue,
+            int paramMaxLen,
+            final StringBuilder strBuffer) {
         ParamCheckResult retResult = new ParamCheckResult();
         if (TStringUtils.isBlank(paramValue)) {
             retResult.setCheckResult(false,
@@ -375,16 +400,20 @@ public class PBParameterUtils {
     /**
      * Check the string parameter
      *
-     * @param fieldDef  the field to be checked
-     * @param paramValue the field value to be checked
-     * @param strBuffer the string pool construct the result
-     * @param result    the checked result
+     * @param fieldDef
+     *          the field to be checked
+     * @param paramValue
+     *          the field value to be checked
+     * @param strBuffer
+     *          the string pool construct the result
+     * @param result
+     *          the checked result
      * @return result success or failure
      */
     public static boolean getStringParameter(WebFieldDef fieldDef,
-                                             String paramValue,
-                                             StringBuilder strBuffer,
-                                             ProcessResult result) {
+            String paramValue,
+            StringBuilder strBuffer,
+            ProcessResult result) {
         if (TStringUtils.isBlank(paramValue)) {
             result.setFailResult(strBuffer.append("Request miss necessary ")
                     .append(fieldDef.name).append(" data!").toString());
@@ -406,16 +435,20 @@ public class PBParameterUtils {
     /**
      * Check the topic name.
      *
-     * @param topicName      the topic name to check
-     * @param metadataManager the metadata manager which contains topic information
-     * @param strBuffer      the string buffer used to construct the check result
-     * @param result         the checked result
+     * @param topicName
+     *          the topic name to check
+     * @param metadataManager
+     *          the metadata manager which contains topic information
+     * @param strBuffer
+     *          the string buffer used to construct the check result
+     * @param result
+     *          the checked result
      * @return the check result
      */
     public static boolean getTopicNameParameter(String topicName,
-                                                MetadataManager metadataManager,
-                                                StringBuilder strBuffer,
-                                                ProcessResult result) {
+            MetadataManager metadataManager,
+            StringBuilder strBuffer,
+            ProcessResult result) {
         if (!getStringParameter(WebFieldDef.TOPICNAME,
                 topicName, strBuffer, result)) {
             return result.isSuccess();
@@ -434,19 +467,25 @@ public class PBParameterUtils {
     /**
      * Check the existing topic name info
      *
-     * @param isProduce      whether to call on the production side
-     * @param topicName      the topic name to be checked.
-     * @param partitionId    the partition ID where the topic locates
-     * @param metadataManager the metadata manager which contains topic information
-     * @param strBuffer      the string buffer used to construct the check result
-     * @param result         the checked result
+     * @param isProduce
+     *          whether to call on the production side
+     * @param topicName
+     *          the topic name to be checked.
+     * @param partitionId
+     *          the partition ID where the topic locates
+     * @param metadataManager
+     *          the metadata manager which contains topic information
+     * @param strBuffer
+     *          the string buffer used to construct the check result
+     * @param result
+     *          the checked result
      * @return the check result
      */
     public static boolean getTopicNamePartIdInfo(boolean isProduce,
-                                                 String topicName, int partitionId,
-                                                 MetadataManager metadataManager,
-                                                 StringBuilder strBuffer,
-                                                 ProcessResult result) {
+            String topicName, int partitionId,
+            MetadataManager metadataManager,
+            StringBuilder strBuffer,
+            ProcessResult result) {
         // Check and get topic name
         if (!getStringParameter(WebFieldDef.TOPICNAME,
                 topicName, strBuffer, result)) {
@@ -482,7 +521,8 @@ public class PBParameterUtils {
             return result.isSuccess();
         }
         int realPartition = partitionId < TBaseConstants.META_STORE_INS_BASE
-                ? partitionId : partitionId % TBaseConstants.META_STORE_INS_BASE;
+                ? partitionId
+                : partitionId % TBaseConstants.META_STORE_INS_BASE;
         if ((realPartition < 0) || (realPartition >= topicMetadata.getNumPartitions())) {
             result.setFailResult(TErrCodeConstants.FORBIDDEN,
                     strBuffer.append(WebFieldDef.PARTITIONID.name)

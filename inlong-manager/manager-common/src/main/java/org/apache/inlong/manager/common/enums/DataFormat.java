@@ -17,22 +17,16 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import lombok.Getter;
-
 import java.util.Locale;
+
+import lombok.Getter;
 
 /**
  * Enum of data format.
  */
 public enum DataFormat {
 
-    CSV("csv"),
-    AVRO("avro"),
-    CANAL("canal"),
-    JSON("json"),
-    DEBEZIUM_JSON("debezium_json"),
-    RAW("raw"),
-    NONE("none");
+    CSV("csv"), AVRO("avro"), CANAL("canal"), JSON("json"), DEBEZIUM_JSON("debezium_json"), RAW("raw"), NONE("none");
 
     @Getter
     private final String name;

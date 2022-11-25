@@ -27,11 +27,13 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Topic fetcher that only consumer one topic.
- * The advantage of single topic fetcher is that it provide much flexible configuration ability to customize the
- * components such as {@link Deserializer} and {@link Interceptor} for this very topic.
+ * Topic fetcher that only consumer one topic. The advantage of single topic
+ * fetcher is that it provide much flexible configuration ability to customize
+ * the components such as {@link Deserializer} and {@link Interceptor} for this
+ * very topic.
  */
 public abstract class SingleTopicFetcher implements TopicFetcher {
+
     protected InLongTopic topic;
     protected ClientContext context;
     protected Deserializer deserializer;

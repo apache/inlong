@@ -56,7 +56,7 @@ public enum CacheType {
     /**
      * convert
      *
-     * @param  value
+     * @param value
      * @return
      */
     public static CacheType convert(String value) {

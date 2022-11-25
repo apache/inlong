@@ -17,6 +17,9 @@
 
 package org.apache.inlong.audit.service.consume;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.inlong.audit.config.ClickHouseConfig;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
@@ -28,14 +31,12 @@ import org.apache.inlong.audit.service.MySqlService;
 import org.apache.inlong.tubemq.client.consumer.ConsumerResult;
 import org.apache.inlong.tubemq.client.consumer.PullMessageConsumer;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TubeConsumeTest {
 
@@ -62,6 +63,7 @@ public class TubeConsumeTest {
 
     /**
      * testConsume
+     * 
      * @throws InterruptedException
      */
     @Test
@@ -75,6 +77,7 @@ public class TubeConsumeTest {
 
     /**
      * getInsertServiceList
+     * 
      * @return
      */
     private List<InsertData> getInsertServiceList() {

@@ -29,7 +29,8 @@ public interface InlongJedisConfigHandler extends RedisHandler {
     /**
      * create flink jedis config use sepecified properties.
      *
-     * @param config The config
+     * @param config
+     *          The config
      * @return flink jedis config
      */
     FlinkJedisConfigBase createFlinkJedisConfig(ReadableConfig config);

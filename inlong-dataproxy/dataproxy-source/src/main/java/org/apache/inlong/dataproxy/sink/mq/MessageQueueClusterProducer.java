@@ -17,9 +17,11 @@
 
 package org.apache.inlong.dataproxy.sink.mq;
 
+import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
-import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,6 +106,7 @@ public class MessageQueueClusterProducer implements LifecycleAware {
 
     /**
      * get workerName
+     * 
      * @return the workerName
      */
     public String getWorkerName() {
@@ -112,6 +115,7 @@ public class MessageQueueClusterProducer implements LifecycleAware {
 
     /**
      * get state
+     * 
      * @return the state
      */
     public LifecycleState getState() {
@@ -120,6 +124,7 @@ public class MessageQueueClusterProducer implements LifecycleAware {
 
     /**
      * get config
+     * 
      * @return the config
      */
     public CacheClusterConfig getConfig() {

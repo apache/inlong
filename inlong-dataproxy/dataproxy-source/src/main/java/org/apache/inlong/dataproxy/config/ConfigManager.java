@@ -17,16 +17,8 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import com.google.gson.Gson;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_INTERVAL;
+
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
@@ -41,8 +33,16 @@ import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttrConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.utils.HttpUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,12 +53,16 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_INTERVAL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * Config manager class.
  */
 public class ConfigManager {
+
     private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
     public static final List<ConfigHolder> CONFIG_HOLDER_LIST = new ArrayList<>();
@@ -162,12 +166,14 @@ public class ConfigManager {
     /**
      * update old maps, reload local files if changed.
      *
-     * @param result - map pending to be added
-     * @param holder - property holder
+     * @param result
+     *          - map pending to be added
+     * @param holder
+     *          - property holder
      * @return true if changed else false.
      */
     private boolean updatePropertiesHolder(Map<String, String> result,
-                                           PropertiesConfigHolder holder) {
+            PropertiesConfigHolder holder) {
         boolean changed = false;
         Map<String, String> tmpHolder = holder.forkHolder();
         // Delete non-existent configuration records
@@ -197,14 +203,17 @@ public class ConfigManager {
     /**
      * update old maps, reload local files if changed.
      *
-     * @param result - map pending to be added
-     * @param holder - property holder
-     * @param addElseRemove - if add(true) else remove(false)
+     * @param result
+     *          - map pending to be added
+     * @param holder
+     *          - property holder
+     * @param addElseRemove
+     *          - if add(true) else remove(false)
      * @return true if changed else false.
      */
     private boolean updatePropertiesHolder(Map<String, String> result,
-                                           PropertiesConfigHolder holder,
-                                           boolean addElseRemove) {
+            PropertiesConfigHolder holder,
+            boolean addElseRemove) {
         Map<String, String> tmpHolder = holder.forkHolder();
         boolean changed = false;
 
@@ -371,9 +380,9 @@ public class ConfigManager {
                 if (configJson.isSuccess() && configJson.getData() != null) {
                     LOG.info("getConfig result: {}", returnStr);
                     /*
-                     * get mqUrls <->token maps;
-                     * if mq is pulsar, store format: mq_cluster.index1=cluster1url1,cluster1url2=token
-                     * if mq is tubemq, token is "", store format: mq_cluster.index1=cluster1url1,cluster1url2=
+                     * get mqUrls <->token maps; if mq is pulsar, store format:
+                     * mq_cluster.index1=cluster1url1,cluster1url2=token if mq is tubemq, token is "", store format:
+                     * mq_cluster.index1=cluster1url1,cluster1url2=
                      */
                     int index = 1;
                     List<MQClusterInfo> clusterSet = configJson.getData().getMqClusterList();
@@ -383,8 +392,7 @@ public class ConfigManager {
                     }
                     for (MQClusterInfo mqCluster : clusterSet) {
                         String key = MQClusterConfigHolder.URL_STORE_PREFIX + index;
-                        String value =
-                                mqCluster.getUrl() + AttrConstants.KEY_VALUE_SEPARATOR + mqCluster.getToken();
+                        String value = mqCluster.getUrl() + AttrConstants.KEY_VALUE_SEPARATOR + mqCluster.getToken();
                         mqConfig.put(key, value);
                         ++index;
                     }

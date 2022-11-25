@@ -18,26 +18,30 @@
 
 package org.apache.inlong.sort.cdc.oracle.debezium.utils;
 
-import io.debezium.relational.history.DatabaseHistory;
+import org.apache.inlong.sort.cdc.oracle.debezium.internal.SchemaRecord;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.inlong.sort.cdc.oracle.debezium.internal.SchemaRecord;
+
+import io.debezium.relational.history.DatabaseHistory;
 
 /**
- * Util to safely visit schema history between {@link DatabaseHistory} and {@link DebeziumSourceFunction}.
+ * Util to safely visit schema history between {@link DatabaseHistory} and
+ * {@link DebeziumSourceFunction}.
  */
 public class DatabaseHistoryUtil {
 
     /**
-     * Structure to maintain the current schema history. The content in {@link SchemaRecord} is up
-     * to the implementation of the {@link DatabaseHistory}.
+     * Structure to maintain the current schema history. The content in
+     * {@link SchemaRecord} is up to the implementation of the
+     * {@link DatabaseHistory}.
      */
     private static final Map<String, Collection<SchemaRecord>> HISTORY = new HashMap<>();
     /**
-     * The schema history will be clean up once {@link DatabaseHistory#stop()}, the checkpoint
-     * should fail when this happens.
+     * The schema history will be clean up once {@link DatabaseHistory#stop()}, the
+     * checkpoint should fail when this happens.
      */
     private static final Map<String, Boolean> HISTORY_CLEANUP_STATUS = new HashMap<>();
 
@@ -66,9 +70,10 @@ public class DatabaseHistoryUtil {
     }
 
     /**
-     * Retrieves history of schema safely, this method firstly checks the history status of specific
-     * engine, and then return the history of schema if the history exists(didn't clean up yet).
-     * Returns null when the history of schema has been clean up.
+     * Retrieves history of schema safely, this method firstly checks the history
+     * status of specific engine, and then return the history of schema if the
+     * history exists(didn't clean up yet). Returns null when the history of schema
+     * has been clean up.
      */
     public static Collection<SchemaRecord> retrieveHistory(String engineName) {
         synchronized (HISTORY) {

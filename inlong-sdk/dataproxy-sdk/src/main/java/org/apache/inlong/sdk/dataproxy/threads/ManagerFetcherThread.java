@@ -18,11 +18,13 @@
 
 package org.apache.inlong.sdk.dataproxy.threads;
 
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.utils.ServiceDiscoveryUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * manager fetch thread
  */
 public class ManagerFetcherThread extends Thread {
+
     private final Logger logger = LoggerFactory.getLogger(ManagerFetcherThread.class);
     private volatile boolean isShutdown;
     private final ProxyClientConfig proxyClientConfig;
@@ -56,7 +59,7 @@ public class ManagerFetcherThread extends Thread {
                     logger.error("ManagerFetcher get managerIpList is blank.");
                 } else {
                     ServiceDiscoveryUtils.updateManagerInfo2Local(managerIpList,
-                        proxyClientConfig.getManagerIpLocalPath());
+                            proxyClientConfig.getManagerIpLocalPath());
                 }
                 TimeUnit.MILLISECONDS.sleep((long) proxyClientConfig.getProxyUpdateIntervalMinutes() * 60 * 1000);
             } catch (Throwable e) {

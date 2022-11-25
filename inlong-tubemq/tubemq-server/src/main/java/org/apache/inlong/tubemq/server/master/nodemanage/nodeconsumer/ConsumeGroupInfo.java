@@ -17,6 +17,14 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer;
 
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
+
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,26 +38,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.corebase.utils.Tuple2;
-import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsumeGroupInfo {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ConsumeGroupInfo.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(ConsumeGroupInfo.class);
     private final String groupName;
     private final ConsumeType consumeType;
-    private final long createTime;                                        //create time
-    private final Set<String> topicSet = new HashSet<>();                 //topic set
-    private final Map<String, TreeSet<String>> topicConditions =          //filter condition set
+    private final long createTime; // create time
+    private final Set<String> topicSet = new HashSet<>(); // topic set
+    private final Map<String, TreeSet<String>> topicConditions = // filter condition set
             new HashMap<>();
     private final ReadWriteLock csmInfoRWLock = new ReentrantReadWriteLock();
-    private final Map<String, ConsumerInfo> consumerInfoMap =   //consumer info
+    private final Map<String, ConsumerInfo> consumerInfoMap = // consumer info
             new HashMap<>();
     // session key, the same batch consumer have the same session key
     private String sessionKey = "";
@@ -60,21 +63,17 @@ public class ConsumeGroupInfo {
     // select the bigger offset when offset conflict
     private boolean isSelectedBig = true;
     // allocate offset flag
-    private final AtomicBoolean notAllocate =
-            new AtomicBoolean(true);
+    private final AtomicBoolean notAllocate = new AtomicBoolean(true);
     // current check cycle
     private final AtomicLong curCheckCycle = new AtomicLong(0);
     // allocate times
     private final AtomicInteger allocatedTimes = new AtomicInteger(0);
     // partition info
-    private final ConcurrentHashMap<String, String> partitionInfoMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> partitionInfoMap = new ConcurrentHashMap<>();
     // partition offset
-    private final ConcurrentHashMap<String, Long> partOffsetMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Long> partOffsetMap = new ConcurrentHashMap<>();
     // load balance
-    private final ConcurrentHashMap<String, NodeRebInfo> balanceNodeMap =
-            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, NodeRebInfo> balanceNodeMap = new ConcurrentHashMap<>();
     // config broker/client ratio
     private int confResourceRate = TBaseConstants.META_VALUE_UNDEFINED;
     // current broker/client ratio
@@ -86,19 +85,16 @@ public class ConsumeGroupInfo {
     // log print flag
     private boolean enableBalanceChkPrint = true;
     //
-    private final AtomicLong csmCtrlId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private final AtomicLong topicMetaInfoId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private final ConcurrentHashMap<String, String> topicMetaInfoMap =
-            new ConcurrentHashMap<>();
-    private final AtomicLong lastMetaInfoFreshTime =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong csmCtrlId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicLong topicMetaInfoId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final ConcurrentHashMap<String, String> topicMetaInfoMap = new ConcurrentHashMap<>();
+    private final AtomicLong lastMetaInfoFreshTime = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
     /**
-     *  Initial a consumer group node information.
+     * Initial a consumer group node information.
      *
-     * @param consumer   the consumer of consume group.
+     * @param consumer
+     *          the consumer of consume group.
      */
     public ConsumeGroupInfo(ConsumerInfo consumer) {
         this.groupName = consumer.getGroupName();
@@ -111,14 +107,17 @@ public class ConsumeGroupInfo {
     /**
      * Add consumer to consume group
      *
-     * @param inConsumer consumer object
-     * @param sBuffer    the string buffer
-     * @param result     the process result
-     * @return           whether the addition is successful
+     * @param inConsumer
+     *          consumer object
+     * @param sBuffer
+     *          the string buffer
+     * @param result
+     *          the process result
+     * @return whether the addition is successful
      */
     public boolean addConsumer(ConsumerInfo inConsumer,
-                               StringBuilder sBuffer,
-                               ParamCheckResult result) {
+            StringBuilder sBuffer,
+            ParamCheckResult result) {
         try {
             csmInfoRWLock.writeLock().lock();
             if (this.consumerInfoMap.isEmpty()) {
@@ -135,8 +134,7 @@ public class ConsumeGroupInfo {
                 if (!validConsumerInfo(inConsumer, sBuffer, result)) {
                     return false;
                 }
-                ConsumerInfo curConsumerInfo =
-                        consumerInfoMap.get(inConsumer.getConsumerId());
+                ConsumerInfo curConsumerInfo = consumerInfoMap.get(inConsumer.getConsumerId());
                 if (curConsumerInfo != null) {
                     curConsumerInfo.updCurConsumerInfo(inConsumer);
                     result.setCheckData(false);
@@ -157,8 +155,9 @@ public class ConsumeGroupInfo {
     /**
      * Remove consumer
      *
-     * @param consumerId consumer id
-     * @return  consumer object
+     * @param consumerId
+     *          consumer id
+     * @return consumer object
      */
     public ConsumerInfo removeConsumer(String consumerId) {
         if (consumerId == null) {
@@ -202,8 +201,10 @@ public class ConsumeGroupInfo {
     /**
      * Add node balance info
      *
-     * @param clientId        need add client id
-     * @param waitDuration    wait duration
+     * @param clientId
+     *          need add client id
+     * @param waitDuration
+     *          wait duration
      */
     public void addNodeRelInfo(String clientId, int waitDuration) {
         NodeRebInfo nodeRebInfo = this.balanceNodeMap.get(clientId);
@@ -228,7 +229,7 @@ public class ConsumeGroupInfo {
     /**
      * Get the client nodes that need to be balanced
      *
-     * @return     the client nodes
+     * @return the client nodes
      */
     public RebProcessInfo getNeedBalanceNodes() {
         List<String> needProcessList = new ArrayList<>();
@@ -259,7 +260,8 @@ public class ConsumeGroupInfo {
     /**
      * Update the client nodes status that has completed balancing
      *
-     * @param processList the client nodes that has completed balancing
+     * @param processList
+     *          the client nodes that has completed balancing
      */
     public void setBalanceNodeProcessed(List<String> processList) {
         if (processList == null
@@ -290,7 +292,8 @@ public class ConsumeGroupInfo {
     /**
      * Update topic meta information
      *
-     * @param newMetaInfoMap  the newly acquired topic metadata
+     * @param newMetaInfoMap
+     *          the newly acquired topic metadata
      */
     public void updCsmTopicMetaInfo(Map<String, String> newMetaInfoMap) {
         lastMetaInfoFreshTime.set(System.currentTimeMillis());
@@ -419,17 +422,21 @@ public class ConsumeGroupInfo {
     }
 
     /**
-     * Set current consumer  broker/client ratio
+     * Set current consumer broker/client ratio
      *
-     * @param confResourceRate configured broker/client ratio
-     * @param curResourceRate  current broker/client ratio
-     * @param minReqClientCnt  minimal client count
-     * @param isRebalanced     Whether balanced
+     * @param confResourceRate
+     *          configured broker/client ratio
+     * @param curResourceRate
+     *          current broker/client ratio
+     * @param minReqClientCnt
+     *          minimal client count
+     * @param isRebalanced
+     *          Whether balanced
      */
     public void setConsumeResourceInfo(int confResourceRate,
-                                       int curResourceRate,
-                                       int minReqClientCnt,
-                                       boolean isRebalanced) {
+            int curResourceRate,
+            int minReqClientCnt,
+            boolean isRebalanced) {
         this.confResourceRate = confResourceRate;
         this.curResourceRate = curResourceRate;
         this.minReqClientCnt = minReqClientCnt;
@@ -566,7 +573,8 @@ public class ConsumeGroupInfo {
     /**
      * book bound report partition information
      *
-     * @param consumer consumer info
+     * @param consumer
+     *          consumer info
      */
     private void bookPartitionInfo(ConsumerInfo consumer) {
         if (consumeType != ConsumeType.CONSUME_BAND) {
@@ -618,14 +626,17 @@ public class ConsumeGroupInfo {
     /**
      * Check the validity of consumer's parameters
      *
-     * @param inConsumer consumer info
-     * @param sBuffer string buffer
-     * @param result process result
+     * @param inConsumer
+     *          consumer info
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
      * @return true if valid, or false if invalid
      */
     private boolean validConsumerInfo(ConsumerInfo inConsumer,
-                                      StringBuilder sBuffer,
-                                      ParamCheckResult result) {
+            StringBuilder sBuffer,
+            ParamCheckResult result) {
         // check whether the consumer behavior is consistent
         if (inConsumer.getConsumeType() != this.consumeType) {
             sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
@@ -642,7 +653,7 @@ public class ConsumeGroupInfo {
         // check the topics of consumption
         if (CollectionUtils.isNotEmpty(topicSet)
                 && (topicSet.size() != inConsumer.getTopicSet().size()
-                || !topicSet.containsAll(inConsumer.getTopicSet()))) {
+                        || !topicSet.containsAll(inConsumer.getTopicSet()))) {
             sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())
                     .append(" subscribed topics ").append(inConsumer.getTopicSet())
                     .append(" is inconsistency with other consumers in the group, existedTopics: ")
@@ -684,10 +695,10 @@ public class ConsumeGroupInfo {
                             .append(topicConditions);
                 } else {
                     for (String topicKey : existedCondTopics) {
-                        if ((topicConditions.get(topicKey).size()
-                                != inConsumer.getTopicConditions().get(topicKey).size())
+                        if ((topicConditions.get(topicKey).size() != inConsumer.getTopicConditions().get(topicKey)
+                                .size())
                                 || (!topicConditions.get(topicKey).containsAll(
-                                inConsumer.getTopicConditions().get(topicKey)))) {
+                                        inConsumer.getTopicConditions().get(topicKey)))) {
                             isCondEqual = false;
                             sBuffer.append("[Inconsistency subscribe] ")
                                     .append(inConsumer.getConsumerId())
@@ -759,20 +770,25 @@ public class ConsumeGroupInfo {
     /**
      * Check the validity of bound consumer's parameters
      *
-     * @param inConsumer consumer info
-     * @param sBuffer string buffer
-     * @param result process result
+     * @param inConsumer
+     *          consumer info
+     * @param sBuffer
+     *          string buffer
+     * @param result
+     *          process result
      * @return true if valid, or false if invalid
      */
     private boolean validBoundParameters(ConsumerInfo inConsumer,
-                                         StringBuilder sBuffer,
-                                         ParamCheckResult result) {
+            StringBuilder sBuffer,
+            ParamCheckResult result) {
         if (consumeType != ConsumeType.CONSUME_BAND) {
             result.setCheckData("");
             return true;
         }
-        // If the sessionKey is inconsistent, it means that the previous round of consumption has not completely
-        // exited. In order to avoid the incomplete offset setting, it is necessary to completely clear the above
+        // If the sessionKey is inconsistent, it means that the previous round of
+        // consumption has not completely
+        // exited. In order to avoid the incomplete offset setting, it is necessary to
+        // completely clear the above
         // data before resetting and consuming this round of consumption
         if (!sessionKey.equals(inConsumer.getSessionKey())) {
             sBuffer.append("[Inconsistency subscribe] ").append(inConsumer.getConsumerId())

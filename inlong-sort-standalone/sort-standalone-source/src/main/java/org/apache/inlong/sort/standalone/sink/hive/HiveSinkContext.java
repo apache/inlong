@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort.standalone.sink.hive;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.common.util.NetworkUtils;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -35,7 +28,12 @@ import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.sink.SinkContext;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.flume.Channel;
+import org.apache.flume.Context;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -47,6 +45,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
@@ -195,8 +197,9 @@ public class HiveSinkContext extends SinkContext {
         long size = currentRecord.getSize();
         metricItem.sendCount.addAndGet(count);
         metricItem.sendSize.addAndGet(size);
-//        LOG.info("addSendMetric,bid:{},count:{},metric:{}",
-//                bid, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+        // LOG.info("addSendMetric,bid:{},count:{},metric:{}",
+        // bid, currentRecord.getCount(),
+        // JSON.toJSONString(metricItemSet.getItemMap()));
     }
 
     /**
@@ -265,20 +268,22 @@ public class HiveSinkContext extends SinkContext {
                 metricItem.nodeDuration.addAndGet(nodeDuration * count);
                 metricItem.wholeDuration.addAndGet(wholeDuration * count);
             }
-//            LOG.info("addSendTrueMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
-//                    bid, result, sendTime, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+            // LOG.info("addSendTrueMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
+            // bid, result, sendTime, currentRecord.getCount(),
+            // JSON.toJSONString(metricItemSet.getItemMap()));
         } else {
             metricItem.sendFailCount.addAndGet(count);
             metricItem.sendFailSize.addAndGet(size);
-//            LOG.info("addSendFalseMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
-//                    bid, result, sendTime, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+            // LOG.info("addSendFalseMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
+            // bid, result, sendTime, currentRecord.getCount(),
+            // JSON.toJSONString(metricItemSet.getItemMap()));
         }
     }
 
     /**
      * getHiveConnection
      * 
-     * @return                        Connection
+     * @return Connection
      * @throws SQLException
      * @throws ClassNotFoundException
      */
@@ -322,7 +327,7 @@ public class HiveSinkContext extends SinkContext {
     /**
      * getTopic
      * 
-     * @param  uid
+     * @param uid
      * @return
      */
     public HdfsIdConfig getIdConfig(String uid) {
@@ -431,7 +436,8 @@ public class HiveSinkContext extends SinkContext {
     /**
      * set hiveJdbcUrl
      * 
-     * @param hiveJdbcUrl the hiveJdbcUrl to set
+     * @param hiveJdbcUrl
+     *          the hiveJdbcUrl to set
      */
     public void setHiveJdbcUrl(String hiveJdbcUrl) {
         this.hiveJdbcUrl = hiveJdbcUrl;
@@ -449,7 +455,8 @@ public class HiveSinkContext extends SinkContext {
     /**
      * set hiveUsername
      * 
-     * @param hiveUsername the hiveUsername to set
+     * @param hiveUsername
+     *          the hiveUsername to set
      */
     public void setHiveUsername(String hiveUsername) {
         this.hiveUsername = hiveUsername;
@@ -467,7 +474,8 @@ public class HiveSinkContext extends SinkContext {
     /**
      * set hivePassword
      * 
-     * @param hivePassword the hivePassword to set
+     * @param hivePassword
+     *          the hivePassword to set
      */
     public void setHivePassword(String hivePassword) {
         this.hivePassword = hivePassword;

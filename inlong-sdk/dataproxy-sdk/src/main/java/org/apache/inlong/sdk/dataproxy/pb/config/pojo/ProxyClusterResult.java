@@ -40,7 +40,8 @@ public class ProxyClusterResult {
     /**
      * set clusterId
      * 
-     * @param clusterId the clusterId to set
+     * @param clusterId
+     *          the clusterId to set
      */
     public void setClusterId(String clusterId) {
         this.clusterId = clusterId;
@@ -58,7 +59,8 @@ public class ProxyClusterResult {
     /**
      * set hasUpdated
      * 
-     * @param hasUpdated the hasUpdated to set
+     * @param hasUpdated
+     *          the hasUpdated to set
      */
     public void setHasUpdated(boolean hasUpdated) {
         this.hasUpdated = hasUpdated;
@@ -76,7 +78,8 @@ public class ProxyClusterResult {
     /**
      * set md5
      * 
-     * @param md5 the md5 to set
+     * @param md5
+     *          the md5 to set
      */
     public void setMd5(String md5) {
         this.md5 = md5;
@@ -94,7 +97,8 @@ public class ProxyClusterResult {
     /**
      * set config
      * 
-     * @param config the config to set
+     * @param config
+     *          the config to set
      */
     public void setConfig(ProxyClusterConfig config) {
         this.config = config;

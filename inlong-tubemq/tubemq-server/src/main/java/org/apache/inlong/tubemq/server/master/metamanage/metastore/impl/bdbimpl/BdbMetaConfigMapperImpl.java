@@ -17,6 +17,19 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.bdbimpl;
 
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.TokenConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.corebase.utils.Tuple2;
+import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
+import org.apache.inlong.tubemq.server.master.MasterConfig;
+import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
+import org.apache.inlong.tubemq.server.master.bdbstore.MasterNodeInfo;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsMetaConfigMapperImpl;
+import org.apache.inlong.tubemq.server.master.utils.MetaConfigSamplePrint;
+import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
+import org.apache.inlong.tubemq.server.master.web.model.ClusterNodeVO;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -27,6 +40,9 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Durability;
@@ -48,27 +64,12 @@ import com.sleepycat.je.rep.UnknownMasterException;
 import com.sleepycat.je.rep.util.ReplicationGroupAdmin;
 import com.sleepycat.je.rep.utilint.ServiceDispatcher;
 import com.sleepycat.persist.StoreConfig;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.TokenConstants;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.corebase.utils.Tuple2;
-import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
-import org.apache.inlong.tubemq.server.master.MasterConfig;
-import org.apache.inlong.tubemq.server.master.bdbstore.MasterGroupStatus;
-import org.apache.inlong.tubemq.server.master.bdbstore.MasterNodeInfo;
-import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsMetaConfigMapperImpl;
-import org.apache.inlong.tubemq.server.master.utils.MetaConfigSamplePrint;
-import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
-import org.apache.inlong.tubemq.server.master.web.model.ClusterNodeVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
+
     private static final int REP_HANDLE_RETRY_MAX = 1;
-    protected static final Logger logger =
-            LoggerFactory.getLogger(BdbMetaConfigMapperImpl.class);
-    private final MetaConfigSamplePrint metaSamplePrint =
-            new MetaConfigSamplePrint(logger);
+    protected static final Logger logger = LoggerFactory.getLogger(BdbMetaConfigMapperImpl.class);
+    private final MetaConfigSamplePrint metaSamplePrint = new MetaConfigSamplePrint(logger);
     // bdb meta store configure
     private final BdbMetaConfig bdbMetaConfig;
     // bdb environment configure
@@ -95,6 +96,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
 
     /**
      * Constructor of BdbMetaConfigMapperImpl.
+     * 
      * @param masterConfig
      */
     public BdbMetaConfigMapperImpl(MasterConfig masterConfig) {
@@ -106,8 +108,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             helpers.add(new InetSocketAddress(this.masterConfig.getHostName(),
                     bdbMetaConfig.getRepNodePort() + i));
         }
-        this.replicationGroupAdmin =
-                new ReplicationGroupAdmin(bdbMetaConfig.getRepGroupName(), helpers);
+        this.replicationGroupAdmin = new ReplicationGroupAdmin(bdbMetaConfig.getRepGroupName(), helpers);
         // Initialize configuration for BDB-JE replication environment.
         // Set envHome and generate a ReplicationConfig. Note that ReplicationConfig and
         // EnvironmentConfig values could all be specified in the je.properties file,
@@ -130,7 +131,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         // A replicated environment must be opened with transactions enabled.
         // Environments on a master must be read/write, while environments
         // on a client can be read/write or read/only. Since the master's
-        // identity may change, it's most convenient to open the environment in the default
+        // identity may change, it's most convenient to open the environment in the
+        // default
         // read/write mode. All write operations will be refused on the client though.
         this.envConfig = new EnvironmentConfig();
         this.envConfig.setTransactional(true);
@@ -221,8 +223,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         }
         for (ReplicationNode node : replicationGroup.getNodes()) {
             try {
-                NodeState nodeState =
-                        replicationGroupAdmin.getNodeState(node, 2000);
+                NodeState nodeState = replicationGroupAdmin.getNodeState(node, 2000);
                 if (nodeState != null) {
                     if (nodeState.getNodeState().isMaster()) {
                         return node.getSocketAddress().getAddress().getHostAddress();
@@ -279,8 +280,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             return clusterGroupVO;
         }
         // translate replication group info to ClusterGroupVO structure
-        Tuple2<Boolean, List<ClusterNodeVO>> transResult =
-                transReplicateNodes(replicationGroup);
+        Tuple2<Boolean, List<ClusterNodeVO>> transResult = transReplicateNodes(replicationGroup);
         clusterGroupVO.setNodeData(transResult.getF1());
         clusterGroupVO.setPrimaryNodeActive(isPrimaryNodeActive());
         if (transResult.getF0()) {
@@ -332,9 +332,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         boolean isMasterActive = false;
         Set<String> tmp = new HashSet<>();
         for (ReplicationNode node : replicationGroup.getNodes()) {
-            MasterNodeInfo masterNodeInfo =
-                    new MasterNodeInfo(replicationGroup.getName(),
-                            node.getName(), node.getHostName(), node.getPort());
+            MasterNodeInfo masterNodeInfo = new MasterNodeInfo(replicationGroup.getName(),
+                    node.getName(), node.getHostName(), node.getPort());
             try {
                 NodeState nodeState = replicationGroupAdmin.getNodeState(node, 2000);
                 if (nodeState != null) {
@@ -392,19 +391,19 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     protected void initMetaStore(StringBuilder strBuff) {
         clusterConfigMapper = new BdbClusterConfigMapperImpl(repEnv, storeConfig);
         brokerConfigMapper = new BdbBrokerConfigMapperImpl(repEnv, storeConfig);
-        topicDeployMapper =  new BdbTopicDeployMapperImpl(repEnv, storeConfig);
+        topicDeployMapper = new BdbTopicDeployMapperImpl(repEnv, storeConfig);
         groupResCtrlMapper = new BdbGroupResCtrlMapperImpl(repEnv, storeConfig);
         topicCtrlMapper = new BdbTopicCtrlMapperImpl(repEnv, storeConfig);
         consumeCtrlMapper = new BdbConsumeCtrlMapperImpl(repEnv, storeConfig);
     }
 
     /**
-     * State Change Listener,
-     * through this object, it complete the metadata cache cleaning
-     * and loading of the latest data.
+     * State Change Listener, through this object, it complete the metadata cache
+     * cleaning and loading of the latest data.
      *
-     * */
+     */
     public class Listener implements StateChangeListener {
+
         @Override
         public void stateChange(StateChangeEvent stateChangeEvent) throws RuntimeException {
             if (repConfig != null) {
@@ -419,7 +418,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         /**
          * process replicate nodes status event
          *
-         * @param stateChangeEvent status change event
+         * @param stateChangeEvent
+         *          status change event
          */
         public void doWork(final StateChangeEvent stateChangeEvent) {
 
@@ -432,8 +432,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
                 return;
             }
             executorService.submit(() -> {
-                StringBuilder sBuilder =
-                        new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
+                StringBuilder sBuilder = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
                 switch (stateChangeEvent.getState()) {
                     case MASTER:
                         if (!isMaster) {
@@ -469,17 +468,19 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     }
 
     /**
-     * Creates the replicated environment handle and returns it. It will retry indefinitely if a
-     * master could not be established because a sufficient number of nodes were not available, or
-     * there were networking issues, etc.
+     * Creates the replicated environment handle and returns it. It will retry
+     * indefinitely if a master could not be established because a sufficient number
+     * of nodes were not available, or there were networking issues, etc.
      *
      * @return the newly created replicated environment handle
-     * @throws InterruptedException if the operation was interrupted
+     * @throws InterruptedException
+     *           if the operation was interrupted
      */
     private ReplicatedEnvironment getEnvironment() throws InterruptedException {
         DatabaseException exception = null;
-        //In this example we retry REP_HANDLE_RETRY_MAX times, but a production HA application may
-        //retry indefinitely.
+        // In this example we retry REP_HANDLE_RETRY_MAX times, but a production HA
+        // application may
+        // retry indefinitely.
         for (int i = 0; i < REP_HANDLE_RETRY_MAX; i++) {
             try {
                 return new ReplicatedEnvironment(envHome, repConfig, envConfig);
@@ -528,7 +529,8 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     /**
      * Query replication group nodes status and translate to ClusterNodeVO type
      *
-     * @param replicationGroup  the replication group
+     * @param replicationGroup
+     *          the replication group
      * @return if has master, replication nodes info
      */
     private Tuple2<Boolean, List<ClusterNodeVO>> transReplicateNodes(
@@ -541,8 +543,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             clusterNodeVO.setNodeName(node.getName());
             clusterNodeVO.setPort(node.getPort());
             try {
-                NodeState nodeState =
-                        replicationGroupAdmin.getNodeState(node, 2000);
+                NodeState nodeState = replicationGroupAdmin.getNodeState(node, 2000);
                 if (nodeState != null) {
                     if (nodeState.getNodeState() == ReplicatedEnvironment.State.MASTER) {
                         hasMaster = true;

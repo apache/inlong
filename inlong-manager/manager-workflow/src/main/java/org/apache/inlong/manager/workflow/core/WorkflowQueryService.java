@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.workflow.core;
 
+import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
+import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
+import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
@@ -25,9 +28,6 @@ import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
 import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
 import org.apache.inlong.manager.pojo.workflow.TaskRequest;
-import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
-import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
-import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 
 import java.util.List;
 
@@ -39,7 +39,8 @@ public interface WorkflowQueryService {
     /**
      * Get an instance of a process sheet
      *
-     * @param processId WorkflowProcess ID
+     * @param processId
+     *          WorkflowProcess ID
      * @return WorkflowProcess single instance
      */
     WorkflowProcessEntity getProcessEntity(Integer processId);
@@ -47,7 +48,8 @@ public interface WorkflowQueryService {
     /**
      * Obtain the approval history according to the process ticket number
      *
-     * @param processId WorkflowProcess ID
+     * @param processId
+     *          WorkflowProcess ID
      * @return Approval history
      */
     List<WorkflowTaskEntity> listApproveHistory(Integer processId);
@@ -55,7 +57,8 @@ public interface WorkflowQueryService {
     /**
      * Obtain task instance based on task ID
      *
-     * @param taskId WorkflowTask ID
+     * @param taskId
+     *          WorkflowTask ID
      * @return WorkflowTask instance
      */
     WorkflowTaskEntity getTaskEntity(Integer taskId);
@@ -63,7 +66,8 @@ public interface WorkflowQueryService {
     /**
      * Query the list of process sheet
      *
-     * @param processRequest Query conditions
+     * @param processRequest
+     *          Query conditions
      * @return The list of the process sheet
      */
     List<WorkflowProcessEntity> listProcessEntity(ProcessRequest processRequest);
@@ -71,7 +75,8 @@ public interface WorkflowQueryService {
     /**
      * Query task list
      *
-     * @param taskQuery Query conditions
+     * @param taskQuery
+     *          Query conditions
      * @return the list of task sheet
      */
     List<WorkflowTaskEntity> listTaskEntity(TaskRequest taskQuery);
@@ -79,7 +84,8 @@ public interface WorkflowQueryService {
     /**
      * WorkflowProcess statistics
      *
-     * @param query Query conditions
+     * @param query
+     *          Query conditions
      * @return statistical results
      */
     ProcessCountResponse countProcess(ProcessCountRequest query);
@@ -87,7 +93,8 @@ public interface WorkflowQueryService {
     /**
      * WorkflowTask statistics
      *
-     * @param query Query conditions
+     * @param query
+     *          Query conditions
      * @return statistical results
      */
     TaskCountResponse countTask(TaskCountRequest query);
@@ -95,9 +102,12 @@ public interface WorkflowQueryService {
     /**
      * Get the details of the process
      *
-     * @param processId Process ID
-     * @param taskId Task ID
-     * @param operator Operator
+     * @param processId
+     *          Process ID
+     * @param taskId
+     *          Task ID
+     * @param operator
+     *          Operator
      * @return Detail
      */
     ProcessDetailResponse detail(Integer processId, Integer taskId, String operator);
@@ -110,7 +120,8 @@ public interface WorkflowQueryService {
     /**
      * Query event logs based on conditions
      *
-     * @param query Query conditions
+     * @param query
+     *          Query conditions
      * @return the list of log
      */
     List<WorkflowEventLogEntity> listEventLog(EventLogRequest query);

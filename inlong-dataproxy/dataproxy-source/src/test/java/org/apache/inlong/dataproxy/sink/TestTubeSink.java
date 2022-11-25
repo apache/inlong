@@ -17,14 +17,16 @@
 
 package org.apache.inlong.dataproxy.sink;
 
-import com.google.common.base.Charsets;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.channel.MemoryChannel;
 import org.apache.flume.event.EventBuilder;
+
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.base.Charsets;
 
 public class TestTubeSink {
 

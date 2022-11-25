@@ -17,9 +17,9 @@
 
 package org.apache.inlong.sort.standalone.metrics;
 
-import java.util.Map;
-
 import org.apache.inlong.common.metric.MetricValue;
+
+import java.util.Map;
 
 /**
  * 

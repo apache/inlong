@@ -17,18 +17,21 @@
 
 package org.apache.inlong.tubemq.server.common.utils;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.server.Stoppable;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Sleeper for current thread. Sleeps for passed period. Also checks passed boolean and if
- * interrupted, will return if the flag is set (rather than go back to sleep until its sleep time is
- * up).
- * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
+ * Sleeper for current thread. Sleeps for passed period. Also checks passed
+ * boolean and if interrupted, will return if the flag is set (rather than go
+ * back to sleep until its sleep time is up). Copied from
+ * <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class Sleeper {
+
     private static final long MINIMAL_DELTA_FOR_LOGGING = 10000;
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private final int period;
@@ -39,9 +42,11 @@ public class Sleeper {
     /**
      * Initial a Sleeper object
      *
-     * @param sleep   sleep time in milliseconds
-     * @param stopper When {@link Stoppable#isStopped()} is true, this thread will cleanup and exit
-     *                cleanly.
+     * @param sleep
+     *          sleep time in milliseconds
+     * @param stopper
+     *          When {@link Stoppable#isStopped()} is true, this thread will cleanup
+     *          and exit cleanly.
      */
     public Sleeper(final int sleep, final Stoppable stopper) {
         this.period = sleep;
@@ -49,7 +54,8 @@ public class Sleeper {
     }
 
     /**
-     * If currently asleep, stops sleeping; if not asleep, will skip the next sleep cycle.
+     * If currently asleep, stops sleeping; if not asleep, will skip the next sleep
+     * cycle.
      */
     public void skipSleepCycle() {
         if (triggerWake.compareAndSet(false, true)) {
@@ -69,7 +75,8 @@ public class Sleeper {
     /**
      * Sleep for period adjusted by passed startTime
      *
-     * @param startTime Time some task started previous to now.
+     * @param startTime
+     *          Time some task started previous to now.
      */
     public void sleep(final long startTime) {
         if (this.stopper.isStopped()) {

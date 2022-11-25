@@ -18,6 +18,23 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.ADMIN_URL;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.KEY_FIELDS;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.KEY_FIELDS_PREFIX;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.KEY_FORMAT;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.PROPERTIES;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.SERVICE_URL;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.TOPIC;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.TOPIC_PATTERN;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.VALUE_FIELDS_INCLUDE;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.VALUE_FORMAT;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.createKeyFormatProjection;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.createValueFormatProjection;
+import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.getPulsarProperties;
+import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
+import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
+
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -52,23 +69,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.ADMIN_URL;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.KEY_FIELDS;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.KEY_FIELDS_PREFIX;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.KEY_FORMAT;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.PROPERTIES;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.SERVICE_URL;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.TOPIC;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.TOPIC_PATTERN;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.VALUE_FIELDS_INCLUDE;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.VALUE_FORMAT;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.createKeyFormatProjection;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.createValueFormatProjection;
-import static org.apache.flink.streaming.connectors.pulsar.table.PulsarTableOptions.getPulsarProperties;
-import static org.apache.flink.table.factories.FactoryUtil.FORMAT;
-import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /**
  * Upsert-Pulsar factory.
@@ -274,10 +274,11 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
     // --------------------------------------------------------------------------------------------
 
     /**
-     * It is used to wrap the decoding format and expose the desired changelog mode. It's only works
-     * for insert-only format.
+     * It is used to wrap the decoding format and expose the desired changelog mode.
+     * It's only works for insert-only format.
      */
     protected static class DecodingFormatWrapper implements DecodingFormat<DeserializationSchema<RowData>> {
+
         private static final ChangelogMode SOURCE_CHANGELOG_MODE = ChangelogMode.newBuilder()
                 .addContainedKind(RowKind.UPDATE_AFTER)
                 .addContainedKind(RowKind.DELETE)
@@ -290,7 +291,8 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
 
         @Override
         public DeserializationSchema<RowData> createRuntimeDecoder(
-                DynamicTableSource.Context context, DataType producedDataType) {
+                DynamicTableSource.Context context,
+                DataType producedDataType) {
             return innerDecodingFormat.createRuntimeDecoder(context, producedDataType);
         }
 
@@ -320,10 +322,11 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
     }
 
     /**
-     * It is used to wrap the encoding format and expose the desired changelog mode. It's only works
-     * for insert-only format.
+     * It is used to wrap the encoding format and expose the desired changelog mode.
+     * It's only works for insert-only format.
      */
     protected static class EncodingFormatWrapper implements EncodingFormat<SerializationSchema<RowData>> {
+
         public static final ChangelogMode SINK_CHANGELOG_MODE = ChangelogMode.newBuilder()
                 .addContainedKind(RowKind.INSERT)
                 .addContainedKind(RowKind.UPDATE_AFTER)
@@ -337,7 +340,8 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
 
         @Override
         public SerializationSchema<RowData> createRuntimeEncoder(
-                DynamicTableSink.Context context, DataType consumedDataType) {
+                DynamicTableSink.Context context,
+                DataType consumedDataType) {
             return innerEncodingFormat.createRuntimeEncoder(context, consumedDataType);
         }
 
@@ -366,4 +370,3 @@ public class UpsertPulsarDynamicTableFactory implements DynamicTableSourceFactor
         }
     }
 }
-

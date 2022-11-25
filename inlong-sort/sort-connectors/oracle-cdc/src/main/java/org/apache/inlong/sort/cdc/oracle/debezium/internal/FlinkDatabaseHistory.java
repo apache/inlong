@@ -22,23 +22,27 @@ import static org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUt
 import static org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil.removeHistory;
 import static org.apache.inlong.sort.cdc.oracle.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
+import java.util.Collection;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
+
 import io.debezium.config.Configuration;
 import io.debezium.relational.history.AbstractDatabaseHistory;
 import io.debezium.relational.history.DatabaseHistoryException;
 import io.debezium.relational.history.DatabaseHistoryListener;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.HistoryRecordComparator;
-import java.util.Collection;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Consumer;
 
 /**
- * Inspired from {@link io.debezium.relational.history.MemoryDatabaseHistory} but we will store the
- * HistoryRecords in Flink's state for persistence.
+ * Inspired from {@link io.debezium.relational.history.MemoryDatabaseHistory}
+ * but we will store the HistoryRecords in Flink's state for persistence.
  *
- * <p>Note: This is not a clean solution because we depends on a global variable and all the history
- * records will be stored in state (grow infinitely). We may need to come up with a
- * FileSystemDatabaseHistory in the future to store history in HDFS.</p>
+ * <p>
+ * Note: This is not a clean solution because we depends on a global variable
+ * and all the history records will be stored in state (grow infinitely). We may
+ * need to come up with a FileSystemDatabaseHistory in the future to store
+ * history in HDFS.
+ * </p>
  */
 public class FlinkDatabaseHistory extends AbstractDatabaseHistory {
 
@@ -48,7 +52,8 @@ public class FlinkDatabaseHistory extends AbstractDatabaseHistory {
     private String instanceName;
 
     /**
-     * Determine whether the {@link FlinkDatabaseHistory} is compatible with the specified state.
+     * Determine whether the {@link FlinkDatabaseHistory} is compatible with the
+     * specified state.
      */
     public static boolean isCompatible(Collection<SchemaRecord> records) {
         for (SchemaRecord record : records) {

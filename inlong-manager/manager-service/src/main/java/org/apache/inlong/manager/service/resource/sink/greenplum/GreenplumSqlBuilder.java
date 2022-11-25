@@ -17,15 +17,17 @@
 
 package org.apache.inlong.manager.service.resource.sink.greenplum;
 
-import org.apache.commons.compress.utils.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumColumnInfo;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumTableInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.commons.compress.utils.Lists;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GreenplumSqlBuilder {
 
@@ -34,8 +36,10 @@ public class GreenplumSqlBuilder {
     /**
      * Build SQL to check whether the table exists.
      *
-     * @param schemaName Greenplum schema name
-     * @param tableName Greenplum table name
+     * @param schemaName
+     *          Greenplum schema name
+     * @param tableName
+     *          Greenplum table name
      * @return the check table SQL string
      */
     public static String getCheckTable(final String schemaName, final String tableName) {
@@ -68,8 +72,10 @@ public class GreenplumSqlBuilder {
     /**
      * Build create Greenplum schema SQL String
      *
-     * @param schemaName schema name
-     * @param user user name
+     * @param schemaName
+     *          schema name
+     * @param user
+     *          user name
      * @return SQL String
      */
     public static String buildCreateSchema(final String schemaName, final String user) {
@@ -85,8 +91,10 @@ public class GreenplumSqlBuilder {
     /**
      * Build SQL to check whether the column exists.
      *
-     * @param schemaName Greenplum table name
-     * @param columnName Greenplum column name
+     * @param schemaName
+     *          Greenplum table name
+     * @param columnName
+     *          Greenplum column name
      * @return the check column SQL string
      */
     public static String getCheckColumn(final String schemaName, final String tableName, final String columnName) {
@@ -105,7 +113,8 @@ public class GreenplumSqlBuilder {
     /**
      * Build create table SQL by GreenplumTableInfo.
      *
-     * @param table Greenplum table info {@link GreenplumTableInfo}
+     * @param table
+     *          Greenplum table info {@link GreenplumTableInfo}
      * @return the create table SQL String
      */
     public static List<String> buildCreateTableSql(final GreenplumTableInfo table) {
@@ -131,9 +140,12 @@ public class GreenplumSqlBuilder {
     /**
      * Build add columns SQL.
      *
-     * @param schemaName Greenplum schema name
-     * @param tableName Greenplum table name
-     * @param columnList Greenplum column list {@link List}
+     * @param schemaName
+     *          Greenplum schema name
+     * @param tableName
+     *          Greenplum table name
+     * @param columnList
+     *          Greenplum column list {@link List}
      * @return add column SQL string list
      */
     public static List<String> buildAddColumnsSql(final String schemaName, final String tableName,
@@ -162,7 +174,8 @@ public class GreenplumSqlBuilder {
     /**
      * Build create column SQL.
      *
-     * @param table Greenplum table info {@link GreenplumTableInfo}
+     * @param table
+     *          Greenplum table info {@link GreenplumTableInfo}
      * @return create column SQL string
      */
     private static String buildCreateColumnsSql(final GreenplumTableInfo table) {
@@ -182,7 +195,8 @@ public class GreenplumSqlBuilder {
     /**
      * Build column info by GreenplumColumnInfo list.
      *
-     * @param columns Greenplum column info {@link GreenplumColumnInfo} list
+     * @param columns
+     *          Greenplum column info {@link GreenplumColumnInfo} list
      * @return the SQL list
      */
     private static List<String> getColumnsInfo(final List<GreenplumColumnInfo> columns) {
@@ -203,8 +217,10 @@ public class GreenplumSqlBuilder {
     /**
      * Build columns comment SQLs
      *
-     * @param tableName Greenplum table name
-     * @param columns Greenplum colum list {@link GreenplumColumnInfo}
+     * @param tableName
+     *          Greenplum table name
+     * @param columns
+     *          Greenplum colum list {@link GreenplumColumnInfo}
      * @return the SQL String list
      */
     private static List<String> getColumnsComment(final String schemaName, final String tableName,
@@ -231,7 +247,8 @@ public class GreenplumSqlBuilder {
     /**
      * Build table comment SQL
      *
-     * @param tableInfo Greenplum table info {@link GreenplumTableInfo}
+     * @param tableInfo
+     *          Greenplum table info {@link GreenplumTableInfo}
      * @return the SQL String
      */
     private static String getTableComment(final GreenplumTableInfo tableInfo) {
@@ -249,13 +266,15 @@ public class GreenplumSqlBuilder {
     /**
      * Build query table's all cloumn SQL.
      *
-     * @param schemaName Greenplum schema name
-     * @param tableName Greenplum table name
+     * @param schemaName
+     *          Greenplum schema name
+     * @param tableName
+     *          Greenplum table name
      * @return desc table SQL string
      */
     public static String buildDescTableSql(final String schemaName, final String tableName) {
         StringBuilder sql = new StringBuilder().append(
-                        "SELECT A.COLUMN_NAME,A.UDT_NAME,C.DESCRIPTION FROM INFORMATION_SCHEMA.COLUMNS A")
+                "SELECT A.COLUMN_NAME,A.UDT_NAME,C.DESCRIPTION FROM INFORMATION_SCHEMA.COLUMNS A")
                 .append(" LEFT JOIN   (SELECT PC.OID AS OOID,PN.NSPNAME,PC.RELNAME")
                 .append(" FROM PG_CLASS PC LEFT OUTER JOIN PG_NAMESPACE PN ON PC.RELNAMESPACE = PN.OID ")
                 .append(" WHERE PN.NSPNAME ='")

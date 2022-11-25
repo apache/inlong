@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.load;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.InlongMetric;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
@@ -31,9 +24,19 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Sqlserver load node
@@ -51,19 +54,19 @@ public class SqlServerLoadNode extends LoadNode implements InlongMetric, Seriali
      */
     @JsonProperty("url")
     private String url;
-    
+
     @JsonProperty("username")
     private String username;
-    
+
     @JsonProperty("password")
     private String password;
-    
+
     @JsonProperty(value = "schemaName", defaultValue = "dbo")
     private String schemaName;
-    
+
     @JsonProperty("tableName")
     private String tableName;
-    
+
     @JsonProperty("primaryKey")
     private String primaryKey;
 

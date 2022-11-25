@@ -22,7 +22,9 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_HTTP;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
 
-import com.google.gson.Gson;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.apache.inlong.agent.core.conf.ResponseResult;
+
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -31,12 +33,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.core.conf.ResponseResult;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import com.google.gson.Gson;
 
 public class TestConfigJetty {
 

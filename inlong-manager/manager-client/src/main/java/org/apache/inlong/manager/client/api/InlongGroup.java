@@ -30,7 +30,8 @@ public interface InlongGroup {
     /**
      * Create inlong stream
      *
-     * @param streamInfo inlong stream info
+     * @param streamInfo
+     *          inlong stream info
      * @return inlong stream builder
      */
     InlongStreamBuilder createStream(InlongStreamInfo streamInfo) throws Exception;
@@ -39,23 +40,25 @@ public interface InlongGroup {
      * Create snapshot for Inlong group
      *
      * @return inlong group context
-     * @throws Exception the exception
+     * @throws Exception
+     *           the exception
      */
     InlongGroupContext context() throws Exception;
 
     /**
      * Create snapshot for Inlong group with credential info such as sort token
      *
-     * @param credentials credential info such as sort token
+     * @param credentials
+     *          credential info such as sort token
      * @return inlong group context
-     * @throws Exception the exception
+     * @throws Exception
+     *           the exception
      */
     InlongGroupContext context(String credentials) throws Exception;
 
     /**
-     * Init inlong group.
-     * This operation will init all physical resources needed to start a stream group
-     * Must be operated after all inlong streams were created;
+     * Init inlong group. This operation will init all physical resources needed to
+     * start a stream group Must be operated after all inlong streams were created;
      *
      * @return inlong group info
      */
@@ -66,23 +69,28 @@ public interface InlongGroup {
      *
      * Update inlong group and sort conf
      *
-     * @param originGroupInfo origin group info that need to update
-     * @param sortConf sort config that need to update
-     * @throws Exception any exception
+     * @param originGroupInfo
+     *          origin group info that need to update
+     * @param sortConf
+     *          sort config that need to update
+     * @throws Exception
+     *           any exception
      */
     void update(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) throws Exception;
 
     /**
      * Update sort conf for Inlong group
      *
-     * @param sortConf sort config that need to update
-     * @throws Exception any exception
+     * @param sortConf
+     *          sort config that need to update
+     * @throws Exception
+     *           any exception
      */
     void update(BaseSortConf sortConf) throws Exception;
 
     /**
-     * ReInit inlong group after update configuration for group.
-     * Must be invoked when group is rejected, failed or started
+     * ReInit inlong group after update configuration for group. Must be invoked
+     * when group is rejected, failed or started
      *
      * @return inlong group info
      */
@@ -138,13 +146,16 @@ public interface InlongGroup {
     List<InlongStream> listStreams() throws Exception;
 
     /**
-     * Reset group status when group is in INITIALIZING or OPERATING status for a long time.
-     * You can choose to rerun process, or reset to final status directly, both can push the group to next status.
-     * This method has side effect on group you create, use carefully
+     * Reset group status when group is in INITIALIZING or OPERATING status for a
+     * long time. You can choose to rerun process, or reset to final status
+     * directly, both can push the group to next status. This method has side effect
+     * on group you create, use carefully
      *
-     * @param rerun 1: rerun the process; 0: not rerun the process
-     * @param resetFinalStatus 1: reset to success status;  0: reset to failed status, this params will work
-     *         when rerun = 0
+     * @param rerun
+     *          1: rerun the process; 0: not rerun the process
+     * @param resetFinalStatus
+     *          1: reset to success status; 0: reset to failed status, this params
+     *          will work when rerun = 0
      * @return group info
      * @throws Exception
      */
@@ -160,7 +171,8 @@ public interface InlongGroup {
     /**
      * Get InLong group topic info by topic id.
      *
-     * @param id topic id
+     * @param id
+     *          topic id
      * @return {@link InlongGroupTopicInfo}
      */
     InlongGroupTopicInfo getTopic(String id) throws Exception;

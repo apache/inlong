@@ -20,6 +20,7 @@ package org.apache.inlong.agent.conf;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.inlong.agent.constant.JobConstants;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

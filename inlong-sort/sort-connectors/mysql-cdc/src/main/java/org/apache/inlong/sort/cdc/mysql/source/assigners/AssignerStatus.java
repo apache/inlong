@@ -18,14 +18,15 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
+import static java.lang.String.format;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.lang.String.format;
-
 /**
- * The state of split assigner finite state machine, tips: we use word status instead of word state
- * to avoid conflict with Flink state keyword. The assigner finite state machine goes this way.
+ * The state of split assigner finite state machine, tips: we use word status
+ * instead of word state to avoid conflict with Flink state keyword. The
+ * assigner finite state machine goes this way.
  *
  * <pre>
  *        INITIAL_ASSIGNING(start)
@@ -47,7 +48,9 @@ import static java.lang.String.format;
  * </pre>
  */
 public enum AssignerStatus {
+
     INITIAL_ASSIGNING(0) {
+
         @Override
         public AssignerStatus getNextStatus() {
             return INITIAL_ASSIGNING_FINISHED;
@@ -61,6 +64,7 @@ public enum AssignerStatus {
         }
     },
     INITIAL_ASSIGNING_FINISHED(1) {
+
         @Override
         public AssignerStatus getNextStatus() {
             return SUSPENDED;
@@ -73,6 +77,7 @@ public enum AssignerStatus {
         }
     },
     SUSPENDED(2) {
+
         @Override
         public AssignerStatus getNextStatus() {
             return NEWLY_ADDED_ASSIGNING;
@@ -85,6 +90,7 @@ public enum AssignerStatus {
         }
     },
     NEWLY_ADDED_ASSIGNING(3) {
+
         @Override
         public AssignerStatus getNextStatus() {
             return NEWLY_ADDED_ASSIGNING_FINISHED;
@@ -98,6 +104,7 @@ public enum AssignerStatus {
         }
     },
     NEWLY_ADDED_ASSIGNING_FINISHED(4) {
+
         @Override
         public AssignerStatus getNextStatus() {
             return SUSPENDED;
@@ -175,8 +182,9 @@ public enum AssignerStatus {
     }
 
     /**
-     * Returns whether the split assigner has assigned all snapshot splits, which indicates there is
-     * no more splits and all records of splits have been completely processed in the pipeline.
+     * Returns whether the split assigner has assigned all snapshot splits, which
+     * indicates there is no more splits and all records of splits have been
+     * completely processed in the pipeline.
      */
     public static boolean isAssigningFinished(AssignerStatus assignerStatus) {
         return assignerStatus == INITIAL_ASSIGNING_FINISHED
@@ -188,17 +196,25 @@ public enum AssignerStatus {
         return assignerStatus == INITIAL_ASSIGNING || assignerStatus == NEWLY_ADDED_ASSIGNING;
     }
 
-    /** Returns whether the split assigner is assigning newly added snapshot splits. */
+    /**
+     * Returns whether the split assigner is assigning newly added snapshot splits.
+     */
     public static boolean isNewlyAddedAssigning(AssignerStatus assignerStatus) {
         return assignerStatus == NEWLY_ADDED_ASSIGNING;
     }
 
-    /** Returns whether the split assigner has finished its initial tables assignment. */
+    /**
+     * Returns whether the split assigner has finished its initial tables
+     * assignment.
+     */
     public static boolean isInitialAssigningFinished(AssignerStatus assignerStatus) {
         return assignerStatus == INITIAL_ASSIGNING_FINISHED;
     }
 
-    /** Returns whether the split assigner has finished its newly added tables assignment. */
+    /**
+     * Returns whether the split assigner has finished its newly added tables
+     * assignment.
+     */
     public static boolean isNewlyAddedAssigningFinished(AssignerStatus assignerStatus) {
         return assignerStatus == NEWLY_ADDED_ASSIGNING_FINISHED;
     }

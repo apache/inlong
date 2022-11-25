@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.pojo.common.CountInfo;
 import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
 import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
-import org.springframework.stereotype.Repository;
+
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+
+import org.springframework.stereotype.Repository;
 
 /**
  * Workflow process mapper

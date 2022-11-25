@@ -18,10 +18,12 @@
 
 package org.apache.inlong.sort.formats.common;
 
-import java.util.Objects;
-import javax.annotation.Nonnull;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
 
 /**
  * The type information for arrays.
@@ -41,8 +43,7 @@ public class ArrayTypeInfo implements TypeInfo {
 
     @JsonCreator
     public ArrayTypeInfo(
-            @JsonProperty(FIELD_ELEMENT_TYPE) @Nonnull TypeInfo elementTypeInfo
-    ) {
+            @JsonProperty(FIELD_ELEMENT_TYPE) @Nonnull TypeInfo elementTypeInfo) {
         this.elementTypeInfo = elementTypeInfo;
     }
 

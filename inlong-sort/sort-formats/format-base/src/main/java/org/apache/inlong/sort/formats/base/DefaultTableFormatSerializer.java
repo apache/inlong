@@ -20,10 +20,12 @@ package org.apache.inlong.sort.formats.base;
 
 import static org.apache.inlong.sort.formats.base.TableFormatConstants.DEFAULT_IGNORE_ERRORS;
 
-import java.util.Objects;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
+
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,23 +50,21 @@ public class DefaultTableFormatSerializer implements TableFormatSerializer {
 
     public DefaultTableFormatSerializer(
             SerializationSchema<Row> serializationSchema,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         this.serializationSchema = serializationSchema;
         this.ignoreErrors = ignoreErrors;
     }
 
     public DefaultTableFormatSerializer(
-            SerializationSchema<Row> serializationSchema
-    ) {
+            SerializationSchema<Row> serializationSchema) {
         this(serializationSchema, DEFAULT_IGNORE_ERRORS);
     }
 
     @Override
     public void flatMap(
             Row row,
-            Collector<byte[]> collector
-    ) throws Exception {
+            Collector<byte[]> collector)
+            throws Exception {
         byte[] bytes;
 
         try {
@@ -93,7 +93,7 @@ public class DefaultTableFormatSerializer implements TableFormatSerializer {
 
         DefaultTableFormatSerializer that = (DefaultTableFormatSerializer) o;
         return ignoreErrors == that.ignoreErrors
-                       && Objects.equals(serializationSchema, that.serializationSchema);
+                && Objects.equals(serializationSchema, that.serializationSchema);
     }
 
     @Override

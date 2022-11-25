@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
@@ -26,15 +25,19 @@ import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
 import org.apache.inlong.sort.standalone.source.SourceContext;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import org.apache.flume.Context;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
- * Derived class of {@link SourceContext} which implements methods to report metrics.
+ * Derived class of {@link SourceContext} which implements methods to report
+ * metrics.
  */
 public final class SortSdkSourceContext extends SourceContext {
 
@@ -44,18 +47,22 @@ public final class SortSdkSourceContext extends SourceContext {
     /**
      * Type of metrics to report.
      *
-     * <p> For {@link SortSdkSource}, there are only two types of fetch results, success or failure.</p>
+     * <p>
+     * For {@link SortSdkSource}, there are only two types of fetch results, success
+     * or failure.
+     * </p>
      */
     public enum FetchResult {
-        SUCCESS,
-        FAILURE
+        SUCCESS, FAILURE
     }
 
     /**
      * Constructor of {@link SourceContext}.
      *
-     * @param sourceName Name of source. Usually the class name of source.
-     * @param context The configured source context.
+     * @param sourceName
+     *          Name of source. Usually the class name of source.
+     * @param context
+     *          The configured source context.
      */
     public SortSdkSourceContext(
             @NotBlank(message = "sourceName should not be empty or null") final String sourceName,
@@ -69,10 +76,15 @@ public final class SortSdkSourceContext extends SourceContext {
     /**
      * Entrance to report fetch metrics.
      *
-     * @param event The fetched event. May be <b>null</b> when fetch failed occurs.
-     * @param sortId Sort id of event.
-     * @param topic Topic that event fetched from. May be <b>null</b> when fetch failed occurs.
-     * @param fetchResult Result of fetching, SUCCESS or FAILURE.
+     * @param event
+     *          The fetched event. May be <b>null</b> when fetch failed occurs.
+     * @param sortId
+     *          Sort id of event.
+     * @param topic
+     *          Topic that event fetched from. May be <b>null</b> when fetch failed
+     *          occurs.
+     * @param fetchResult
+     *          Result of fetching, SUCCESS or FAILURE.
      */
     public void reportToMetric(
             @Nullable final ProfileEvent event,
@@ -89,10 +101,14 @@ public final class SortSdkSourceContext extends SourceContext {
     /**
      * Selector of metric report flow.
      *
-     * @param event The fetched event. May be <b>null</b> when fetch failed occurs.
-     * @param item MetricItem that report to.
-     * @param fetchResult Result of fetching, SUCCESS or FAILURE.
-     * @param size The fetch length. -1 means fetch failure.
+     * @param event
+     *          The fetched event. May be <b>null</b> when fetch failed occurs.
+     * @param item
+     *          MetricItem that report to.
+     * @param fetchResult
+     *          Result of fetching, SUCCESS or FAILURE.
+     * @param size
+     *          The fetch length. -1 means fetch failure.
      */
     private void reportToMetric(
             @Nullable final ProfileEvent event,
@@ -116,9 +132,12 @@ public final class SortSdkSourceContext extends SourceContext {
     /**
      * Report to a specific metric group.
      *
-     * @param countMetric Metric of event count.
-     * @param sizeMetric Metric of event size.
-     * @param size Size of event.
+     * @param countMetric
+     *          Metric of event count.
+     * @param sizeMetric
+     *          Metric of event size.
+     * @param size
+     *          Size of event.
      */
     private void reportToMetric(
             @NotNull final AtomicLong countMetric,
@@ -131,13 +150,20 @@ public final class SortSdkSourceContext extends SourceContext {
     /**
      * Generator of report dimensions.
      *
-     * <p> For the case of fetch {@link FetchResult#FAILURE}, the event may be null,
-     * the {@link org.apache.inlong.sort.standalone.utils.Constants#INLONG_GROUP_ID}
-     * and the {@link org.apache.inlong.sort.standalone.utils.Constants#INLONG_STREAM_ID} will not be specified. </p>
+     * <p>
+     * For the case of fetch {@link FetchResult#FAILURE}, the event may be null, the
+     * {@link org.apache.inlong.sort.standalone.utils.Constants#INLONG_GROUP_ID} and
+     * the
+     * {@link org.apache.inlong.sort.standalone.utils.Constants#INLONG_STREAM_ID}
+     * will not be specified.
+     * </p>
      *
-     * @param event Event to be reported.
-     * @param sortId Sort id of fetched event.
-     * @param topic Topic of event.
+     * @param event
+     *          Event to be reported.
+     * @param sortId
+     *          Sort id of fetched event.
+     * @param topic
+     *          Topic of event.
      *
      * @return The dimensions of reported event.
      */

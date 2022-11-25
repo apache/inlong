@@ -17,10 +17,11 @@
 
 package org.apache.inlong.sdk.dataproxy.pb;
 
-import org.apache.flume.Context;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
 import org.apache.inlong.sdk.dataproxy.MessageSender;
 import org.apache.inlong.sdk.dataproxy.pb.config.LoaderType;
+
+import org.apache.flume.Context;
 
 /**
  * MessageSenderBuilder
@@ -67,7 +68,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set name
      * 
-     * @param name the name to set
+     * @param name
+     *          the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -85,7 +87,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set context
      * 
-     * @param context the context to set
+     * @param context
+     *          the context to set
      */
     public void setContext(Context context) {
         this.context = context;
@@ -103,7 +106,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set reloadInterval
      * 
-     * @param reloadInterval the reloadInterval to set
+     * @param reloadInterval
+     *          the reloadInterval to set
      */
     public void setReloadInterval(long reloadInterval) {
         this.reloadInterval = reloadInterval;
@@ -122,7 +126,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set maxBufferQueueSizeKb
      * 
-     * @param maxBufferQueueSizeKb the maxBufferQueueSizeKb to set
+     * @param maxBufferQueueSizeKb
+     *          the maxBufferQueueSizeKb to set
      */
     public void setMaxBufferQueueSizeKb(int maxBufferQueueSizeKb) {
         this.maxBufferQueueSizeKb = maxBufferQueueSizeKb;
@@ -141,7 +146,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set loaderType
      * 
-     * @param loaderType the loaderType to set
+     * @param loaderType
+     *          the loaderType to set
      */
     public void setLoaderType(LoaderType loaderType) {
         this.loaderType = loaderType;
@@ -160,7 +166,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set loaderReloadInterval
      * 
-     * @param loaderReloadInterval the loaderReloadInterval to set
+     * @param loaderReloadInterval
+     *          the loaderReloadInterval to set
      */
     public void setLoaderReloadInterval(long loaderReloadInterval) {
         this.loaderReloadInterval = loaderReloadInterval;
@@ -179,7 +186,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set loaderFileName
      * 
-     * @param loaderFileName the loaderFileName to set
+     * @param loaderFileName
+     *          the loaderFileName to set
      */
     public void setLoaderFileName(String loaderFileName) {
         this.loaderFileName = loaderFileName;
@@ -198,7 +206,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set loaderContextKey
      * 
-     * @param loaderContextKey the loaderContextKey to set
+     * @param loaderContextKey
+     *          the loaderContextKey to set
      */
     public void setLoaderContextKey(String loaderContextKey) {
         this.loaderContextKey = loaderContextKey;
@@ -217,7 +226,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set loaderManagerStreamUrl
      * 
-     * @param loaderManagerStreamUrl the loaderManagerStreamUrl to set
+     * @param loaderManagerStreamUrl
+     *          the loaderManagerStreamUrl to set
      */
     public void setLoaderManagerStreamUrl(String loaderManagerStreamUrl) {
         this.loaderManagerStreamUrl = loaderManagerStreamUrl;
@@ -236,7 +246,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set loaderManagerSdkUrl
      * 
-     * @param loaderManagerSdkUrl the loaderManagerSdkUrl to set
+     * @param loaderManagerSdkUrl
+     *          the loaderManagerSdkUrl to set
      */
     public void setLoaderManagerSdkUrl(String loaderManagerSdkUrl) {
         this.loaderManagerSdkUrl = loaderManagerSdkUrl;
@@ -255,7 +266,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set loaderPluginClass
      * 
-     * @param loaderPluginClass the loaderPluginClass to set
+     * @param loaderPluginClass
+     *          the loaderPluginClass to set
      */
     public void setLoaderPluginClass(String loaderPluginClass) {
         this.loaderPluginClass = loaderPluginClass;
@@ -274,7 +286,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set sdkPackTimeout
      * 
-     * @param sdkPackTimeout the sdkPackTimeout to set
+     * @param sdkPackTimeout
+     *          the sdkPackTimeout to set
      */
     public void setSdkPackTimeout(long sdkPackTimeout) {
         this.sdkPackTimeout = sdkPackTimeout;
@@ -293,7 +306,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set compressedType
      * 
-     * @param compressedType the compressedType to set
+     * @param compressedType
+     *          the compressedType to set
      */
     public void setCompressedType(INLONG_COMPRESSED_TYPE compressedType) {
         this.compressedType = compressedType;
@@ -312,7 +326,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set nodeId
      * 
-     * @param nodeId the nodeId to set
+     * @param nodeId
+     *          the nodeId to set
      */
     public void setNodeId(String nodeId) {
         this.nodeId = nodeId;
@@ -331,7 +346,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set maxThreads
      * 
-     * @param maxThreads the maxThreads to set
+     * @param maxThreads
+     *          the maxThreads to set
      */
     public void setMaxThreads(int maxThreads) {
         this.maxThreads = maxThreads;
@@ -350,7 +366,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set processInterval
      * 
-     * @param processInterval the processInterval to set
+     * @param processInterval
+     *          the processInterval to set
      */
     public void setProcessInterval(long processInterval) {
         this.processInterval = processInterval;
@@ -369,7 +386,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set auditFormatInterval
      * 
-     * @param auditFormatInterval the auditFormatInterval to set
+     * @param auditFormatInterval
+     *          the auditFormatInterval to set
      */
     public void setAuditFormatInterval(long auditFormatInterval) {
         this.auditFormatInterval = auditFormatInterval;
@@ -388,7 +406,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set dispatchTimeout
      * 
-     * @param dispatchTimeout the dispatchTimeout to set
+     * @param dispatchTimeout
+     *          the dispatchTimeout to set
      */
     public void setDispatchTimeout(long dispatchTimeout) {
         this.dispatchTimeout = dispatchTimeout;
@@ -407,7 +426,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set dispatchMaxPackCount
      * 
-     * @param dispatchMaxPackCount the dispatchMaxPackCount to set
+     * @param dispatchMaxPackCount
+     *          the dispatchMaxPackCount to set
      */
     public void setDispatchMaxPackCount(int dispatchMaxPackCount) {
         this.dispatchMaxPackCount = dispatchMaxPackCount;
@@ -426,7 +446,8 @@ public class MessageSenderBuilder implements ISenderBuilder {
     /**
      * set dispatchMaxPackSize
      * 
-     * @param dispatchMaxPackSize the dispatchMaxPackSize to set
+     * @param dispatchMaxPackSize
+     *          the dispatchMaxPackSize to set
      */
     public void setDispatchMaxPackSize(int dispatchMaxPackSize) {
         this.dispatchMaxPackSize = dispatchMaxPackSize;

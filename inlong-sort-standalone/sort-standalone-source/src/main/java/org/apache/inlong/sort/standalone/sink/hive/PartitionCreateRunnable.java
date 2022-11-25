@@ -19,6 +19,14 @@ package org.apache.inlong.sort.standalone.sink.hive;
 
 import static org.apache.inlong.sort.standalone.sink.hive.HiveSinkContext.MINUTE_MS;
 
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
@@ -26,12 +34,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
 /**
@@ -106,9 +108,9 @@ public class PartitionCreateRunnable implements Runnable {
     /**
      * canArchive
      * 
-     * @param  idFile
-     * @param  rootPath
-     * @return                       boolean
+     * @param idFile
+     * @param rootPath
+     * @return boolean
      * @throws IOException
      * @throws FileNotFoundException
      */
@@ -148,7 +150,7 @@ public class PartitionCreateRunnable implements Runnable {
     /**
      * process
      * 
-     * @param  idFile
+     * @param idFile
      * @throws IOException
      * @throws FileNotFoundException
      */
@@ -238,12 +240,13 @@ public class PartitionCreateRunnable implements Runnable {
     /**
      * concatInFiles2OuttmpFile
      * 
-     * @param  idFile
-     * @param  concatInFiles
-     * @param  fs
+     * @param idFile
+     * @param concatInFiles
+     * @param fs
      * @throws IOException
      */
-    private void concatInFiles2OuttmpFile(HdfsIdFile idFile, List<Path> concatInFiles, DistributedFileSystem fs)
+    private void concatInFiles2OuttmpFile(HdfsIdFile idFile, List<Path> concatInFiles,
+            DistributedFileSystem fs)
             throws IOException {
         Path outtmpFilePath = new Path(idFile.getInPath(),
                 HdfsIdFile.getFileName(context, System.currentTimeMillis()) + HdfsIdFile.OUTTMP_FILE_POSTFIX);
@@ -267,7 +270,8 @@ public class PartitionCreateRunnable implements Runnable {
     /**
      * set state
      * 
-     * @param state the state to set
+     * @param state
+     *          the state to set
      */
     public void setState(PartitionState state) {
         this.state = state;
@@ -321,7 +325,8 @@ public class PartitionCreateRunnable implements Runnable {
     /**
      * set isForce
      * 
-     * @param isForce the isForce to set
+     * @param isForce
+     *          the isForce to set
      */
     public void setForce(boolean isForce) {
         this.isForce = isForce;

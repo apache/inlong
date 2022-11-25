@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
+
 import org.junit.Test;
 
 /**
@@ -40,9 +41,7 @@ public class DecimalFormatInfoTest extends FormatInfoTestBase {
         assertEquals(
                 "1111.0000000000000000000000001",
                 DecimalFormatInfo.INSTANCE.serialize(
-                        new BigDecimal("1111.0000000000000000000000001")
-                )
-        );
+                        new BigDecimal("1111.0000000000000000000000001")));
     }
 
     @Test
@@ -50,8 +49,6 @@ public class DecimalFormatInfoTest extends FormatInfoTestBase {
         assertEquals(
                 new BigDecimal("1111.0000000000000000000000001"),
                 DecimalFormatInfo.INSTANCE.deserialize(
-                        "1111.0000000000000000000000001"
-                )
-        );
+                        "1111.0000000000000000000000001"));
     }
 }

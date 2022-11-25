@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.pulsar.table;
 
+import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkArgument;
+
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -39,24 +41,24 @@ import org.apache.pulsar.client.api.TypedMessageBuilder;
 import org.apache.pulsar.common.schema.SchemaInfo;
 import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditions.checkArgument;
+import javax.annotation.Nullable;
 
 /**
  * A specific Serializer for {@link PulsarDynamicTableSink}.
  */
 class DynamicPulsarSerializationSchema
-        implements PulsarSerializationSchema<RowData>, PulsarContextAware<RowData> {
+        implements
+            PulsarSerializationSchema<RowData>,
+            PulsarContextAware<RowData> {
 
     private static final long serialVersionUID = 1L;
 
-    private final @Nullable
-    SerializationSchema<RowData> keySerialization;
+    private final @Nullable SerializationSchema<RowData> keySerialization;
 
     private final SerializationSchema<RowData> valueSerialization;
 
@@ -69,8 +71,9 @@ class DynamicPulsarSerializationSchema
     private final boolean upsertMode;
 
     /**
-     * Contains the position for each value of {@link PulsarDynamicTableSink.WritableMetadata} in the consumed row or
-     * -1 if this metadata key is not used.
+     * Contains the position for each value of
+     * {@link PulsarDynamicTableSink.WritableMetadata} in the consumed row or -1 if
+     * this metadata key is not used.
      */
     private final int[] metadataPositions;
 
@@ -179,7 +182,7 @@ class DynamicPulsarSerializationSchema
     }
 
     public Optional<String> getTargetTopic(RowData element) {
-        //TODO need get topic from row.
+        // TODO need get topic from row.
         return Optional.empty();
     }
 
@@ -235,7 +238,8 @@ class DynamicPulsarSerializationSchema
         if (valueSerialization instanceof PbRowDataSerializationSchema) {
             try {
                 final String messageClassName =
-                        (String) FieldUtils.readDeclaredField(valueSerialization, "messageClassName", true);
+                        (String) FieldUtils.readDeclaredField(valueSerialization, "messageClassName",
+                                true);
                 configuration.set(PbFormatOptions.MESSAGE_CLASS_NAME, messageClassName);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -246,6 +250,7 @@ class DynamicPulsarSerializationSchema
     // --------------------------------------------------------------------------------------------
 
     interface MetadataConverter extends Serializable {
+
         Object read(RowData consumedRow, int pos);
     }
 }

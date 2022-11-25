@@ -20,13 +20,9 @@ package org.apache.inlong.sdk.dataproxy;
 
 public enum SendResult {
     INVALID_ATTRIBUTES, // including DataProxyErrCode(100,101,102,112)
-    OK,
-    TIMEOUT,
-    CONNECTION_BREAK,
-    THREAD_INTERRUPT,
-    ASYNC_CALLBACK_BUFFER_FULL,
-    NO_CONNECTION,
-    INVALID_DATA, // including DataProxyErrCode(103, 111)
+    OK, TIMEOUT, CONNECTION_BREAK, THREAD_INTERRUPT, ASYNC_CALLBACK_BUFFER_FULL, NO_CONNECTION, INVALID_DATA, // including
+                                                                                                              // DataProxyErrCode(103,
+                                                                                                              // 111)
     BODY_EXCEED_MAX_LEN, // DataProxyErrCode(104)
     SINK_SERVICE_UNREADY, // DataProxyErrCode(1)
     UNCONFIGURED_GROUPID_OR_STREAMID, // DataProxyErrCode(113)

@@ -18,27 +18,29 @@
 
 package org.apache.inlong.sort.cdc.mysql.debezium.task.context;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.debezium.DebeziumException;
 import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.connector.mysql.MySqlTaskContext;
 import io.debezium.pipeline.ErrorHandler;
 import io.debezium.relational.TableId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * A subclass implementation of {@link ErrorHandler} which filter some {@link DebeziumException}, we
- * use this class instead of {@link io.debezium.connector.mysql.MySqlErrorHandler}.
+ * A subclass implementation of {@link ErrorHandler} which filter some
+ * {@link DebeziumException}, we use this class instead of
+ * {@link io.debezium.connector.mysql.MySqlErrorHandler}.
  */
 public class MySqlErrorHandler extends ErrorHandler {
+
     private static final Logger LOG = LoggerFactory.getLogger(MySqlErrorHandler.class);
-    private static final Pattern NOT_FOUND_TABLE_MSG_PATTERN =
-            Pattern.compile(
-                    "Encountered change event for table (.+)\\.(.+) whose schema isn't known to this connector");
+    private static final Pattern NOT_FOUND_TABLE_MSG_PATTERN = Pattern.compile(
+            "Encountered change event for table (.+)\\.(.+) whose schema isn't known to this connector");
 
     MySqlTaskContext context;
 

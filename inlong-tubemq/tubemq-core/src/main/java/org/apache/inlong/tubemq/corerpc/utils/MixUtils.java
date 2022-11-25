@@ -17,31 +17,35 @@
 
 package org.apache.inlong.tubemq.corerpc.utils;
 
-import java.lang.reflect.Constructor;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corerpc.exception.RemoteException;
 import org.apache.inlong.tubemq.corerpc.protocol.RpcProtocol;
+
+import java.lang.reflect.Constructor;
 
 public class MixUtils {
 
     /**
      * Substitute class name prefix
      *
-     * After TubeMQ was donated to Apache, the package prefix name was not migrated to
-     * the name of apache for a long time, and some errors on the server side were returned
-     * to the client by throwing exceptions.
-     * In order to maintain the compatibility between the previous and previous versions,
-     * the the class name in exception information is replaced through this function
+     * After TubeMQ was donated to Apache, the package prefix name was not migrated
+     * to the name of apache for a long time, and some errors on the server side
+     * were returned to the client by throwing exceptions. In order to maintain the
+     * compatibility between the previous and previous versions, the the class name
+     * in exception information is replaced through this function
      *
-     * @param className        the class name
-     * @param toOldVersion     whether the client is old version
-     * @param toProtocolVer     the client's protocol version
-     * @return                 the translated class name
+     * @param className
+     *          the class name
+     * @param toOldVersion
+     *          whether the client is old version
+     * @param toProtocolVer
+     *          the client's protocol version
+     * @return the translated class name
      */
     public static String replaceClassNamePrefix(String className,
-                                                boolean toOldVersion,
-                                                int toProtocolVer) {
+            boolean toOldVersion,
+            int toProtocolVer) {
 
         if (toProtocolVer == RpcProtocol.RPC_PROTOCOL_VERSION_OLD_1) {
             if (toOldVersion) {
@@ -63,14 +67,14 @@ public class MixUtils {
     /**
      * Construct the corresponding exception object according to the exception text
      *
-     * @param exceptionMsg     the exception text
-     * @return                 the exception object
+     * @param exceptionMsg
+     *          the exception text
+     * @return the exception object
      */
     public static Throwable unwrapException(String exceptionMsg) {
         // Perform string to exception conversion processing
         try {
-            String[] strExceptionMsgSet =
-                    exceptionMsg.split(TokenConstants.SEGMENT_SEP);
+            String[] strExceptionMsgSet = exceptionMsg.split(TokenConstants.SEGMENT_SEP);
             if (strExceptionMsgSet.length > 0) {
                 if (!TStringUtils.isBlank(strExceptionMsgSet[0])) {
                     Class clazz = Class.forName(strExceptionMsgSet[0]);

@@ -42,7 +42,8 @@ public class ProxySink {
     /**
      * set name
      *
-     * @param name the name to set
+     * @param name
+     *          the name to set
      */
     public void setName(String name) {
         this.name = name;
@@ -60,7 +61,8 @@ public class ProxySink {
     /**
      * set type
      *
-     * @param type the type to set
+     * @param type
+     *          the type to set
      */
     public void setType(String type) {
         this.type = type;
@@ -78,7 +80,8 @@ public class ProxySink {
     /**
      * set channel
      *
-     * @param channel the channel to set
+     * @param channel
+     *          the channel to set
      */
     public void setChannel(String channel) {
         this.channel = channel;
@@ -96,7 +99,8 @@ public class ProxySink {
     /**
      * set params
      *
-     * @param params the params to set
+     * @param params
+     *          the params to set
      */
     public void setParams(Map<String, String> params) {
         this.params = params;

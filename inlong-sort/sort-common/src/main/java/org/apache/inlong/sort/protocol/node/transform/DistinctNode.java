@@ -17,31 +17,30 @@
 
 package org.apache.inlong.sort.protocol.node.transform;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.OrderDirection;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.util.List;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
+
 /**
- * TimeWindowDistinctNode class is a distinct node based time window
- * It implements distinct operation by ROW_NUMBER such as:
- * SELECT f1,f2,f3,f4,ts,rownum
- * FROM (
- * SELECT f1, f2, f3,f4,ts,
- * ROW_NUMBER() OVER (PARTITION BY f2 ORDER BY ts desc) AS row_num -- desc use the latest one,
- * FROM distinct_table)
- * WHERE rownum=1
- * ————————————————
+ * TimeWindowDistinctNode class is a distinct node based time window It
+ * implements distinct operation by ROW_NUMBER such as: SELECT
+ * f1,f2,f3,f4,ts,rownum FROM ( SELECT f1, f2, f3,f4,ts, ROW_NUMBER() OVER
+ * (PARTITION BY f2 ORDER BY ts desc) AS row_num -- desc use the latest one,
+ * FROM distinct_table) WHERE rownum=1 ————————————————
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("distinct")
@@ -60,15 +59,23 @@ public class DistinctNode extends TransformNode {
     /**
      * TimeWindowDistinctNode constructor
      *
-     * @param id node id
-     * @param name node name
-     * @param fields The fields used to describe node schema
-     * @param fieldRelations field relations used to describe the relation between fields
-     * @param filters The filters used for data filter
-     * @param distinctFields The distinct fields used for partition
-     * @param orderField the order field used for sorting in partition
-     * @param orderDirection The orderDirection used for sorting after partition,
-     *         support [ASC|DESC] default ASC
+     * @param id
+     *          node id
+     * @param name
+     *          node name
+     * @param fields
+     *          The fields used to describe node schema
+     * @param fieldRelations
+     *          field relations used to describe the relation between fields
+     * @param filters
+     *          The filters used for data filter
+     * @param distinctFields
+     *          The distinct fields used for partition
+     * @param orderField
+     *          the order field used for sorting in partition
+     * @param orderDirection
+     *          The orderDirection used for sorting after partition, support
+     *          [ASC|DESC] default ASC
      */
     @JsonCreator
     public DistinctNode(@JsonProperty("id") String id,

@@ -17,10 +17,12 @@
 
 package org.apache.inlong.tubemq.server.common;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 

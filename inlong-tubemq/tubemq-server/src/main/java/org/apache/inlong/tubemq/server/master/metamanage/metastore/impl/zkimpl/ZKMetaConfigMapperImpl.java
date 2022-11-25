@@ -17,16 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.zkimpl;
 
-import java.net.BindException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.cluster.NodeAddrInfo;
@@ -40,16 +30,27 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsMetaC
 import org.apache.inlong.tubemq.server.master.utils.MetaConfigSamplePrint;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterGroupVO;
 import org.apache.inlong.tubemq.server.master.web.model.ClusterNodeVO;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+
+import java.net.BindException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ZKMetaConfigMapperImpl.class);
-    private final MetaConfigSamplePrint metaSamplePrint =
-            new MetaConfigSamplePrint(logger);
+
+    private static final Logger logger = LoggerFactory.getLogger(ZKMetaConfigMapperImpl.class);
+    private final MetaConfigSamplePrint metaSamplePrint = new MetaConfigSamplePrint(logger);
     // the meta data path in ZooKeeper
     private final String metaZkRoot;
     // the ha path in ZooKeeper
@@ -83,6 +84,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
 
     /**
      * Constructor of ZKMetaConfigMapperImpl.
+     * 
      * @param masterConfig
      */
     public ZKMetaConfigMapperImpl(MasterConfig masterConfig) {
@@ -90,8 +92,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         this.localNodeAdd = new NodeAddrInfo(
                 masterConfig.getHostName(), masterConfig.getPort());
         String tubeZkRoot = ZKUtil.normalizePath(masterConfig.getZkMetaConfig().getZkNodeRoot());
-        StringBuilder strBuff =
-                new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
+        StringBuilder strBuff = new StringBuilder(TBaseConstants.BUILDER_DEFAULT_SIZE);
         this.metaZkRoot = strBuff.append(tubeZkRoot).append(TokenConstants.SLASH)
                 .append(TZKNodeKeys.ZK_BRANCH_META_DATA).toString();
         strBuff.delete(0, strBuff.length());
@@ -111,13 +112,13 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
             System.exit(1);
         }
         initMetaStore(strBuff);
-        this.executorService =
-                Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        return new Thread(r, "Master selector thread");
-                    }
-                });
+        this.executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "Master selector thread");
+            }
+        });
     }
 
     @Override
@@ -239,7 +240,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     protected void initMetaStore(StringBuilder strBuff) {
         clusterConfigMapper = new ZKClusterConfigMapperImpl(metaZkRoot, zkWatcher, strBuff);
         brokerConfigMapper = new ZKBrokerConfigMapperImpl(metaZkRoot, zkWatcher, strBuff);
-        topicDeployMapper =  new ZKTopicDeployMapperImpl(metaZkRoot, zkWatcher, strBuff);
+        topicDeployMapper = new ZKTopicDeployMapperImpl(metaZkRoot, zkWatcher, strBuff);
         groupResCtrlMapper = new ZKGroupResCtrlMapperImpl(metaZkRoot, zkWatcher, strBuff);
         topicCtrlMapper = new ZKTopicCtrlMapperImpl(metaZkRoot, zkWatcher, strBuff);
         consumeCtrlMapper = new ZKConsumeCtrlMapperImpl(metaZkRoot, zkWatcher, strBuff);
@@ -249,6 +250,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
      * Master selector logic
      */
     private class MasterSelectorTask implements Runnable {
+
         @Override
         public void run() {
             long startTime = System.currentTimeMillis();
@@ -325,13 +327,13 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     }
 
     private Tuple2<Boolean, Long> getCusterNodes(
-            Map<Long, String> clusterNodeMap) throws KeeperException {
+            Map<Long, String> clusterNodeMap)
+            throws KeeperException {
         String nodeAdd;
         long materNodeId;
         boolean foundSelf = false;
         long minNodeId = Long.MAX_VALUE;
-        List<ZKUtil.NodeAndData> childNodes =
-                ZKUtil.getChildDataAndWatchForNewChildren(zkWatcher, haParentPath);
+        List<ZKUtil.NodeAndData> childNodes = ZKUtil.getChildDataAndWatchForNewChildren(zkWatcher, haParentPath);
         for (ZKUtil.NodeAndData child : childNodes) {
             // select the first registered node as Master
             if (child == null) {

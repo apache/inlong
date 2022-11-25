@@ -24,11 +24,11 @@ import org.apache.inlong.tubemq.corebase.utils.Tuple2;
  */
 public enum ManageStatus {
 
-    STATUS_MANAGE_UNDEFINED(-2, "-", false, false),
-    STATUS_MANAGE_APPLY(1, "draft", false, false),
-    STATUS_MANAGE_ONLINE(5, "online", true, true),
-    STATUS_MANAGE_ONLINE_NOT_WRITE(6, "only-read", false, true),
-    STATUS_MANAGE_ONLINE_NOT_READ(7, "only-write", true, false),
+    STATUS_MANAGE_UNDEFINED(-2, "-", false, false), STATUS_MANAGE_APPLY(1, "draft", false, false),
+    STATUS_MANAGE_ONLINE(5,
+            "online", true, true),
+    STATUS_MANAGE_ONLINE_NOT_WRITE(6, "only-read", false, true), STATUS_MANAGE_ONLINE_NOT_READ(
+            7, "only-write", true, false),
     STATUS_MANAGE_OFFLINE(9, "offline", false, false);
 
     private int code;
@@ -37,8 +37,8 @@ public enum ManageStatus {
     private boolean isAcceptSubscribe;
 
     ManageStatus(int code, String description,
-                 boolean acceptPublish,
-                 boolean acceptSubscribe) {
+            boolean acceptPublish,
+            boolean acceptSubscribe) {
         this.code = code;
         this.description = description;
         this.isAcceptPublish = acceptPublish;
@@ -98,14 +98,17 @@ public enum ManageStatus {
     /**
      * Change broker read write status
      *
-     * @param oldStatus        current broker manage status
-     * @param acceptPublish    current broker reported publish status
-     * @param acceptSubscribe  current broker reported subscribe status
-     * @return   current broker's new manage status
+     * @param oldStatus
+     *          current broker manage status
+     * @param acceptPublish
+     *          current broker reported publish status
+     * @param acceptSubscribe
+     *          current broker reported subscribe status
+     * @return current broker's new manage status
      */
     public static ManageStatus getNewStatus(ManageStatus oldStatus,
-                                            Boolean acceptPublish,
-                                            Boolean acceptSubscribe) {
+            Boolean acceptPublish,
+            Boolean acceptSubscribe) {
         if (acceptPublish == null && acceptSubscribe == null) {
             return oldStatus;
         }

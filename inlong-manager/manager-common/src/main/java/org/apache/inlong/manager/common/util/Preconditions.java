@@ -128,9 +128,12 @@ public class Preconditions {
     /**
      * Whether a target string is in a string separated by the separator.
      *
-     * @param target target string, such as "foo"
-     * @param separatedStr separated string, such as "boo,and,foo"
-     * @param separator separator of separatedStr, such as ","
+     * @param target
+     *          target string, such as "foo"
+     * @param separatedStr
+     *          separated string, such as "boo,and,foo"
+     * @param separator
+     *          separator of separatedStr, such as ","
      * @return true if target in separatedStr
      */
     public static boolean inSeparatedString(String target, String separatedStr, String separator) {

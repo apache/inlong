@@ -18,6 +18,24 @@
 
 package org.apache.inlong.sort.iceberg.sink.multiple;
 
+import static org.apache.iceberg.TableProperties.DEFAULT_FILE_FORMAT;
+import static org.apache.iceberg.TableProperties.DEFAULT_FILE_FORMAT_DEFAULT;
+import static org.apache.iceberg.TableProperties.UPSERT_ENABLED;
+import static org.apache.iceberg.TableProperties.UPSERT_ENABLED_DEFAULT;
+import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES;
+import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES_DEFAULT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.sink.MultipleSinkOption;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+import org.apache.inlong.sort.iceberg.sink.RowDataTaskWriterFactory;
+
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
@@ -38,17 +56,7 @@ import org.apache.iceberg.flink.FlinkSchemaUtil;
 import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.types.Types.NestedField;
 import org.apache.iceberg.util.PropertyUtil;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.apache.inlong.sort.base.sink.MultipleSinkOption;
-import org.apache.inlong.sort.iceberg.sink.RowDataTaskWriterFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.util.HashMap;
 import java.util.List;
@@ -57,22 +65,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import static org.apache.iceberg.TableProperties.DEFAULT_FILE_FORMAT;
-import static org.apache.iceberg.TableProperties.DEFAULT_FILE_FORMAT_DEFAULT;
-import static org.apache.iceberg.TableProperties.UPSERT_ENABLED;
-import static org.apache.iceberg.TableProperties.UPSERT_ENABLED_DEFAULT;
-import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES;
-import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES_DEFAULT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Iceberg writer that can distinguish different sink tables and route and distribute data into different
- * IcebergStreamWriter.
+ * Iceberg writer that can distinguish different sink tables and route and
+ * distribute data into different IcebergStreamWriter.
  */
 public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWithSchema, MultipleWriteResult>
-        implements CheckpointedFunction, BoundedOneInput {
+        implements
+            CheckpointedFunction,
+            BoundedOneInput {
+
     private static final Logger LOG = LoggerFactory.getLogger(IcebergMultipleStreamWriter.class);
 
     private final boolean appendMode;
@@ -135,7 +141,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
 
     @Override
     public void endInput() throws Exception {
-        for (Entry<TableIdentifier, IcebergSingleStreamWriter<RowData>> entry: multipleWriters.entrySet()) {
+        for (Entry<TableIdentifier, IcebergSingleStreamWriter<RowData>> entry : multipleWriters.entrySet()) {
             entry.getValue().endInput();
         }
     }
@@ -143,7 +149,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
     @Override
     public void dispose() throws Exception {
         super.dispose();
-        for (Entry<TableIdentifier, IcebergSingleStreamWriter<RowData>> entry: multipleWriters.entrySet()) {
+        for (Entry<TableIdentifier, IcebergSingleStreamWriter<RowData>> entry : multipleWriters.entrySet()) {
             entry.getValue().dispose();
         }
         multipleWriters.clear();
@@ -194,14 +200,15 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
                         tableId.toString(), taskWriterFactory, null, null);
                 writer.setup(getRuntimeContext(),
-                        new CallbackCollector<>(writeResult ->
-                                collector.collect(new MultipleWriteResult(tableId, writeResult))),
+                        new CallbackCollector<>(
+                                writeResult -> collector.collect(new MultipleWriteResult(tableId, writeResult))),
                         context);
                 writer.initializeState(functionInitializationContext);
                 writer.open(new Configuration());
                 multipleWriters.put(tableId, writer);
-            } else {  // only if second times schema will evolute
-                // Refresh new schema maybe cause previous file writer interrupted, so here should handle it
+            } else { // only if second times schema will evolute
+                // Refresh new schema maybe cause previous file writer interrupted, so here
+                // should handle it
                 multipleWriters.get(tableId).schemaEvolution(taskWriterFactory);
             }
 
@@ -221,14 +228,14 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
 
     @Override
     public void prepareSnapshotPreBarrier(long checkpointId) throws Exception {
-        for (Entry<TableIdentifier, IcebergSingleStreamWriter<RowData>> entry: multipleWriters.entrySet()) {
+        for (Entry<TableIdentifier, IcebergSingleStreamWriter<RowData>> entry : multipleWriters.entrySet()) {
             entry.getValue().prepareSnapshotPreBarrier(checkpointId);
         }
     }
 
     @Override
     public void snapshotState(FunctionSnapshotContext context) throws Exception {
-        for (Entry<TableIdentifier, IcebergSingleStreamWriter<RowData>> entry: multipleWriters.entrySet()) {
+        for (Entry<TableIdentifier, IcebergSingleStreamWriter<RowData>> entry : multipleWriters.entrySet()) {
             entry.getValue().snapshotState(context);
         }
 
@@ -248,7 +255,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,

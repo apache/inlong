@@ -17,6 +17,12 @@
 
 package org.apache.inlong.sort.redis.source;
 
+import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
+import org.apache.inlong.sort.redis.common.container.InlongRedisCommandsContainer;
+import org.apache.inlong.sort.redis.common.container.RedisCommandsContainerBuilder;
+import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
+import org.apache.inlong.sort.redis.common.mapper.RedisCommandDescription;
+
 import org.apache.flink.shaded.guava18.com.google.common.cache.Cache;
 import org.apache.flink.shaded.guava18.com.google.common.cache.CacheBuilder;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
@@ -25,16 +31,12 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.functions.FunctionContext;
 import org.apache.flink.table.functions.TableFunction;
-import org.apache.inlong.sort.redis.common.config.RedisLookupOptions;
-import org.apache.inlong.sort.redis.common.container.InlongRedisCommandsContainer;
-import org.apache.inlong.sort.redis.common.container.RedisCommandsContainerBuilder;
-import org.apache.inlong.sort.redis.common.mapper.RedisCommand;
-import org.apache.inlong.sort.redis.common.mapper.RedisCommandDescription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Redis RowData lookup function
@@ -65,9 +67,11 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
     }
 
     /**
-     * This is a lookup method which is called by Flink framework in runtime, only support one key
+     * This is a lookup method which is called by Flink framework in runtime, only
+     * support one key
      *
-     * @param keys lookup keys
+     * @param keys
+     *          lookup keys
      */
     public void eval(Object... keys) {
         RowData keyRow = GenericRowData.of(keys);
@@ -132,10 +136,11 @@ public class RedisRowDataLookupFunction extends TableFunction<RowData> {
         try {
             this.redisCommandsContainer = RedisCommandsContainerBuilder.build(this.flinkJedisConfigBase);
             this.redisCommandsContainer.open();
-            this.cache = cacheMaxSize == -1 || cacheExpireMs == -1 ? null : CacheBuilder.newBuilder()
-                    .expireAfterWrite(cacheExpireMs, TimeUnit.MILLISECONDS)
-                    .maximumSize(cacheMaxSize)
-                    .build();
+            this.cache = cacheMaxSize == -1 || cacheExpireMs == -1 ? null
+                    : CacheBuilder.newBuilder()
+                            .expireAfterWrite(cacheExpireMs, TimeUnit.MILLISECONDS)
+                            .maximumSize(cacheMaxSize)
+                            .build();
         } catch (Exception e) {
             LOG.error("Redis has not been properly initialized: ", e);
             throw e;

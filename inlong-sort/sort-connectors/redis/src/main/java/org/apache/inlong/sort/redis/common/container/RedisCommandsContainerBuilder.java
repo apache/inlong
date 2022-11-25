@@ -17,30 +17,33 @@
 
 package org.apache.inlong.sort.redis.common.container;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisClusterConfig;
-import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
-import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
-import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisSentinelConfig;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisSentinelPool;
 
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisClusterConfig;
+import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisConfigBase;
+import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
+import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisSentinelConfig;
+
 import java.util.Objects;
 
 /**
- * The redis command container builder and
- * copy from {@link org.apache.flink.streaming.connectors.redis.common.container.RedisCommandsContainerBuilder}
+ * The redis command container builder and copy from
+ * {@link org.apache.flink.streaming.connectors.redis.common.container.RedisCommandsContainerBuilder}
  */
 public class RedisCommandsContainerBuilder {
 
     /**
-     * Initialize the {@link InlongRedisCommandsContainer} based on the instance type.
+     * Initialize the {@link InlongRedisCommandsContainer} based on the instance
+     * type.
      *
-     * @param flinkJedisConfigBase configuration base
-     * @return @throws IllegalArgumentException if jedisPoolConfig, jedisClusterConfig and jedisSentinelConfig are all
-     *         null
+     * @param flinkJedisConfigBase
+     *          configuration base
+     * @return @throws IllegalArgumentException if jedisPoolConfig,
+     *         jedisClusterConfig and jedisSentinelConfig are all null
      */
     public static InlongRedisCommandsContainer build(FlinkJedisConfigBase flinkJedisConfigBase) {
         if (flinkJedisConfigBase instanceof FlinkJedisPoolConfig) {
@@ -60,9 +63,11 @@ public class RedisCommandsContainerBuilder {
     /**
      * Builds container for single Redis environment.
      *
-     * @param jedisPoolConfig configuration for JedisPool
+     * @param jedisPoolConfig
+     *          configuration for JedisPool
      * @return container for single Redis environment
-     * @throws NullPointerException if jedisPoolConfig is null
+     * @throws NullPointerException
+     *           if jedisPoolConfig is null
      */
     public static InlongRedisCommandsContainer build(FlinkJedisPoolConfig jedisPoolConfig) {
         Objects.requireNonNull(jedisPoolConfig, "Redis pool config should not be Null");
@@ -78,9 +83,11 @@ public class RedisCommandsContainerBuilder {
     /**
      * Builds container for Redis Cluster environment.
      *
-     * @param jedisClusterConfig configuration for JedisCluster
+     * @param jedisClusterConfig
+     *          configuration for JedisCluster
      * @return container for Redis Cluster environment
-     * @throws NullPointerException if jedisClusterConfig is null
+     * @throws NullPointerException
+     *           if jedisClusterConfig is null
      */
     public static InlongRedisCommandsContainer build(FlinkJedisClusterConfig jedisClusterConfig) {
         Objects.requireNonNull(jedisClusterConfig, "Redis cluster config should not be Null");
@@ -99,9 +106,11 @@ public class RedisCommandsContainerBuilder {
     /**
      * Builds container for Redis Sentinel environment.
      *
-     * @param jedisSentinelConfig configuration for JedisSentinel
+     * @param jedisSentinelConfig
+     *          configuration for JedisSentinel
      * @return container for Redis sentinel environment
-     * @throws NullPointerException if jedisSentinelConfig is null
+     * @throws NullPointerException
+     *           if jedisSentinelConfig is null
      */
     public static InlongRedisCommandsContainer build(FlinkJedisSentinelConfig jedisSentinelConfig) {
         Objects.requireNonNull(jedisSentinelConfig, "Redis sentinel config should not be Null");
@@ -116,8 +125,8 @@ public class RedisCommandsContainerBuilder {
     }
 
     public static GenericObjectPoolConfig getGenericObjectPoolConfig(FlinkJedisConfigBase jedisConfig) {
-        GenericObjectPoolConfig genericObjectPoolConfig =
-                jedisConfig.getTestWhileIdle() ? new JedisPoolConfig() : new GenericObjectPoolConfig();
+        GenericObjectPoolConfig genericObjectPoolConfig = jedisConfig.getTestWhileIdle() ? new JedisPoolConfig()
+                : new GenericObjectPoolConfig();
         genericObjectPoolConfig.setMaxIdle(jedisConfig.getMaxIdle());
         genericObjectPoolConfig.setMaxTotal(jedisConfig.getMaxTotal());
         genericObjectPoolConfig.setMinIdle(jedisConfig.getMinIdle());

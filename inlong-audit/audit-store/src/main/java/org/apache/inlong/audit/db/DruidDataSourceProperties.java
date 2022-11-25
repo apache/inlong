@@ -19,6 +19,7 @@ package org.apache.inlong.audit.db;
 
 import lombok.Getter;
 import lombok.Setter;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "spring.datasource.druid")

@@ -17,13 +17,6 @@
 
 package org.apache.inlong.sdk.sort.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.api.InlongTopicManager;
@@ -36,6 +29,14 @@ import org.apache.inlong.sdk.sort.entity.HeartBeatParams;
 import org.apache.inlong.sdk.sort.entity.HeartBeatResult;
 import org.apache.inlong.sdk.sort.util.PeriodicTask;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
 public class ManagerReporter extends PeriodicTask {
 
     private final ConcurrentHashMap<Integer, Long> reportApiRunTimeMs = new ConcurrentHashMap<>();
@@ -47,11 +48,16 @@ public class ManagerReporter extends PeriodicTask {
     /**
      * ManagerReporter Constructor
      *
-     * @param context ClientContext
-     * @param reportHandler ManagerReportHandler
-     * @param inLongTopicManager InLongTopicManager
-     * @param runInterval long
-     * @param timeUnit TimeUnit
+     * @param context
+     *          ClientContext
+     * @param reportHandler
+     *          ManagerReportHandler
+     * @param inLongTopicManager
+     *          InLongTopicManager
+     * @param runInterval
+     *          long
+     * @param timeUnit
+     *          TimeUnit
      */
     public ManagerReporter(ClientContext context, ManagerReportHandler reportHandler,
             InlongTopicManager inLongTopicManager,
@@ -68,16 +74,16 @@ public class ManagerReporter extends PeriodicTask {
     }
 
     private void reportManager() {
-        //1.report heartbeat to manager
+        // 1.report heartbeat to manager
         heartBeat();
-        //2.report consume status to manager
+        // 2.report consume status to manager
         updateConsumeStatus();
     }
 
     private long getReportInterval(int methodId) {
         Long reportIntervalMs = reportApiInterval.get(methodId);
         if (reportIntervalMs == null) {
-            //default report interval 5s
+            // default report interval 5s
             reportIntervalMs = 5000L;
         }
         return reportIntervalMs;
@@ -158,8 +164,7 @@ public class ManagerReporter extends PeriodicTask {
             consumeStatusParams.setSubscribedId(context.getConfig().getSortTaskId());
             consumeStatusParams.setIp(context.getConfig().getLocalIp());
             List<ConsumeState> consumeStates = new ArrayList<>();
-            Collection<InLongTopicFetcher> allFetchers =
-                    inLongTopicManager.getAllFetchers();
+            Collection<InLongTopicFetcher> allFetchers = inLongTopicManager.getAllFetchers();
             for (InLongTopicFetcher fetcher : allFetchers) {
                 ConsumeState consumeState = new ConsumeState();
                 consumeState.setTopic(fetcher.getInLongTopic().getTopic());

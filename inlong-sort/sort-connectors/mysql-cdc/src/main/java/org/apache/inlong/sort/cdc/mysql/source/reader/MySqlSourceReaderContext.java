@@ -21,8 +21,8 @@ package org.apache.inlong.sort.cdc.mysql.source.reader;
 import org.apache.flink.api.connector.source.SourceReaderContext;
 
 /**
- * A wrapper class that wraps {@link SourceReaderContext} for sharing message between {@link
- * MySqlSourceReader} and {@link MySqlSplitReader}.
+ * A wrapper class that wraps {@link SourceReaderContext} for sharing message
+ * between {@link MySqlSourceReader} and {@link MySqlSplitReader}.
  */
 public class MySqlSourceReaderContext {
 

@@ -17,13 +17,6 @@
 
 package org.apache.inlong.manager.pojo.source.file;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -32,6 +25,14 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 
 import java.util.List;
 import java.util.Map;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * File source info
@@ -44,7 +45,7 @@ import java.util.Map;
 @ApiModel(value = "File source info")
 @JsonTypeDefine(value = SourceType.FILE)
 public class FileSource extends StreamSource {
-    
+
     @ApiModelProperty("Path regex pattern for file, such as /a/b/*.txt")
     private String pattern;
 

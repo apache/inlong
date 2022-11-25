@@ -17,10 +17,10 @@
 
 package org.apache.inlong.tubemq.corebase.policies;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.TokenConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -32,48 +32,42 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.TokenConstants;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 /**
- * Flow control rule processing logic, including parsing the flow control json string,
- * obtaining the largest and smallest flow control values of each type to improve
- * the processing speed
+ * Flow control rule processing logic, including parsing the flow control json
+ * string, obtaining the largest and smallest flow control values of each type
+ * to improve the processing speed
  */
 public class FlowCtrlRuleHandler {
+
     private final boolean isDefaultHandler;
     private final String flowCtrlName;
-    private static final Logger logger =
-            LoggerFactory.getLogger(FlowCtrlRuleHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(FlowCtrlRuleHandler.class);
     private final TimeZone timeZone = TimeZone.getTimeZone("GMT+8:00");
     private final ReentrantLock writeLock = new ReentrantLock();
     // Flow control ID and string information obtained from the server
-    private AtomicLong flowCtrlId =
-            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private AtomicInteger qryPriorityId =
-            new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
+    private AtomicLong flowCtrlId = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private AtomicInteger qryPriorityId = new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
     private String strFlowCtrlInfo;
     // The maximum interval of the flow control extracts the set of values,
-    //improving the efficiency of the search return in the range
-    private AtomicInteger minZeroCnt =
-            new AtomicInteger(Integer.MAX_VALUE);
-    private AtomicLong minDataLimitDlt =
-            new AtomicLong(Long.MAX_VALUE);
-    private AtomicInteger dataLimitStartTime =
-            new AtomicInteger(2500);
-    private AtomicInteger dataLimitEndTime =
-            new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
-    private FlowCtrlItem filterCtrlItem =
-            new FlowCtrlItem(3, TBaseConstants.META_VALUE_UNDEFINED,
-                    TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED);
-    private long lastUpdateTime =
-            System.currentTimeMillis();
+    // improving the efficiency of the search return in the range
+    private AtomicInteger minZeroCnt = new AtomicInteger(Integer.MAX_VALUE);
+    private AtomicLong minDataLimitDlt = new AtomicLong(Long.MAX_VALUE);
+    private AtomicInteger dataLimitStartTime = new AtomicInteger(2500);
+    private AtomicInteger dataLimitEndTime = new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
+    private FlowCtrlItem filterCtrlItem = new FlowCtrlItem(3, TBaseConstants.META_VALUE_UNDEFINED,
+            TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED);
+    private long lastUpdateTime = System.currentTimeMillis();
     // Decoded flow control rules
-    private Map<Integer, List<FlowCtrlItem>> flowCtrlRuleSet =
-            new ConcurrentHashMap<>();
+    private Map<Integer, List<FlowCtrlItem>> flowCtrlRuleSet = new ConcurrentHashMap<>();
 
     public FlowCtrlRuleHandler(boolean isDefault) {
         this.isDefaultHandler = isDefault;
@@ -88,14 +82,20 @@ public class FlowCtrlRuleHandler {
     /**
      * Parse flow control information and update stored cached old content
      *
-     * @param qryPriorityId    the query priority id
-     * @param flowCtrlId       flow control information id
-     * @param flowCtrlInfo     flow control information content
-     * @param strBuff          the string buffer
-     * @throws Exception       the exception thrown
+     * @param qryPriorityId
+     *          the query priority id
+     * @param flowCtrlId
+     *          flow control information id
+     * @param flowCtrlInfo
+     *          flow control information content
+     * @param strBuff
+     *          the string buffer
+     * @throws Exception
+     *           the exception thrown
      */
     public void updateFlowCtrlInfo(int qryPriorityId, long flowCtrlId,
-                                   String flowCtrlInfo, StringBuilder strBuff) throws Exception {
+            String flowCtrlInfo, StringBuilder strBuff)
+            throws Exception {
         if (flowCtrlId == this.flowCtrlId.get()) {
             return;
         }
@@ -140,8 +140,9 @@ public class FlowCtrlRuleHandler {
     /**
      * Get current data lag limit strategy
      *
-     * @param lastDataDlt      current consumption lag of data
-     * @return FlowCtrlResult  current flow control policy
+     * @param lastDataDlt
+     *          current consumption lag of data
+     * @return FlowCtrlResult current flow control policy
      */
     public FlowCtrlResult getCurDataLimit(long lastDataDlt) {
         Calendar rightNow = Calendar.getInstance(timeZone);
@@ -153,8 +154,7 @@ public class FlowCtrlRuleHandler {
                 || curTime > this.dataLimitEndTime.get()) {
             return null;
         }
-        List<FlowCtrlItem> flowCtrlItemList =
-                flowCtrlRuleSet.get(0);
+        List<FlowCtrlItem> flowCtrlItemList = flowCtrlRuleSet.get(0);
         if (flowCtrlItemList == null
                 || flowCtrlItemList.isEmpty()) {
             return null;
@@ -163,8 +163,7 @@ public class FlowCtrlRuleHandler {
             if (flowCtrlItem == null) {
                 continue;
             }
-            FlowCtrlResult flowCtrlResult =
-                    flowCtrlItem.getDataLimit(lastDataDlt, hour, minu);
+            FlowCtrlResult flowCtrlResult = flowCtrlItem.getDataLimit(lastDataDlt, hour, minu);
             if (flowCtrlResult != null) {
                 return flowCtrlResult;
             }
@@ -272,16 +271,17 @@ public class FlowCtrlRuleHandler {
     /**
      * Get the current fetch frequency limit strategy
      *
-     * @param msgZeroCnt   the continuous consumption count without messages
-     * @param rcmVal       the default frequency limit value
-     * @return             the required frequency limit value
+     * @param msgZeroCnt
+     *          the continuous consumption count without messages
+     * @param rcmVal
+     *          the default frequency limit value
+     * @return the required frequency limit value
      */
     public int getCurFreqLimitTime(int msgZeroCnt, int rcmVal) {
         if (msgZeroCnt < this.minZeroCnt.get()) {
             return rcmVal;
         }
-        List<FlowCtrlItem> flowCtrlItemList =
-                flowCtrlRuleSet.get(1);
+        List<FlowCtrlItem> flowCtrlItemList = flowCtrlRuleSet.get(1);
         if (flowCtrlItemList == null
                 || flowCtrlItemList.isEmpty()) {
             return rcmVal;
@@ -304,7 +304,9 @@ public class FlowCtrlRuleHandler {
 
     /**
      * Set query priority id value
-     * @param qryPriorityId   need to set value
+     * 
+     * @param qryPriorityId
+     *          need to set value
      */
     public void setQryPriorityId(int qryPriorityId) {
         this.qryPriorityId.set(qryPriorityId);
@@ -329,12 +331,13 @@ public class FlowCtrlRuleHandler {
     /**
      * Parse FlowCtrlInfo value
      *
-     * @param flowCtrlInfo    flowCtrlInfo json value
-     * @return                parse result
-     * @throws Exception      Exception thrown
+     * @param flowCtrlInfo
+     *          flowCtrlInfo json value
+     * @return parse result
+     * @throws Exception
+     *           Exception thrown
      */
-    public Map<Integer, List<FlowCtrlItem>> parseFlowCtrlInfo(final String flowCtrlInfo)
-            throws Exception {
+    public Map<Integer, List<FlowCtrlItem>> parseFlowCtrlInfo(final String flowCtrlInfo) throws Exception {
         Map<Integer, List<FlowCtrlItem>> flowCtrlMap = new ConcurrentHashMap<>();
         if (TStringUtils.isBlank(flowCtrlInfo)) {
             throw new Exception("Parsing error, flowCtrlInfo value is blank!");
@@ -377,7 +380,7 @@ public class FlowCtrlRuleHandler {
                         flowCtrlItemList = parseFreqLimit(recordNo, typeVal, jsonObject);
                         break;
 
-                    case 2:  /* Deprecated  */
+                    case 2: /* Deprecated */
                         flowCtrlItemList = null;
                         break;
 
@@ -406,16 +409,21 @@ public class FlowCtrlRuleHandler {
     /**
      * lizard forgives
      *
-     *  Parse data consumption limit rule info
+     * Parse data consumption limit rule info
      *
-     * @param recordNo    record no
-     * @param typeVal     type value
-     * @param jsonObject  record json value
-     * @return             parsed result
-     * @throws Exception   Exception thrown
+     * @param recordNo
+     *          record no
+     * @param typeVal
+     *          type value
+     * @param jsonObject
+     *          record json value
+     * @return parsed result
+     * @throws Exception
+     *           Exception thrown
      */
     private List<FlowCtrlItem> parseDataLimit(int recordNo, int typeVal,
-                                              JsonObject jsonObject) throws Exception {
+            JsonObject jsonObject)
+            throws Exception {
         if (jsonObject == null || jsonObject.get("type").getAsInt() != 0) {
             throw new Exception(new StringBuilder(512)
                     .append("parse data_limit rule failure in record(")
@@ -499,6 +507,7 @@ public class FlowCtrlRuleHandler {
                     .append(recordNo).append(") of flowCtrlInfo value!").toString());
         }
         Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
+
             @Override
             public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
                 if (o1.getStartTime() > o2.getStartTime()) {
@@ -514,16 +523,21 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     *  Parse frequent limit rule info
+     * Parse frequent limit rule info
      *
-     * @param recordNo    record no
-     * @param typeVal     type value
-     * @param jsonObject  record json value
-     * @return            parsed result
-     * @throws Exception  Exception thrown
+     * @param recordNo
+     *          record no
+     * @param typeVal
+     *          type value
+     * @param jsonObject
+     *          record json value
+     * @return parsed result
+     * @throws Exception
+     *           Exception thrown
      */
     private List<FlowCtrlItem> parseFreqLimit(int recordNo, int typeVal,
-                                              JsonObject jsonObject) throws Exception {
+            JsonObject jsonObject)
+            throws Exception {
         if (jsonObject == null || jsonObject.get("type").getAsInt() != 1) {
             throw new Exception(new StringBuilder(512)
                     .append("parse freq_limit rule failure in record(")
@@ -582,6 +596,7 @@ public class FlowCtrlRuleHandler {
         }
         // sort rule set by the value of FIELD zeroCnt
         Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
+
             @Override
             public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
                 if (o1.getZeroCnt() > o2.getZeroCnt()) {
@@ -597,16 +612,21 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     *  Parse low frequent fetch count
+     * Parse low frequent fetch count
      *
-     * @param recordNo    record no
-     * @param typeVal     type value
-     * @param jsonObject  record json value
-     * @return            parsed result
-     * @throws Exception   Exception thrown
+     * @param recordNo
+     *          record no
+     * @param typeVal
+     *          type value
+     * @param jsonObject
+     *          record json value
+     * @return parsed result
+     * @throws Exception
+     *           Exception thrown
      */
     private List<FlowCtrlItem> parseLowFetchLimit(int recordNo, int typeVal,
-                                                  JsonObject jsonObject) throws Exception {
+            JsonObject jsonObject)
+            throws Exception {
         if (jsonObject == null || jsonObject.get("type").getAsInt() != 3) {
             throw new Exception(new StringBuilder(512)
                     .append("parse low_fetch_limit rule failure in record(")
@@ -698,6 +718,7 @@ public class FlowCtrlRuleHandler {
         }
         // sort rule set by the value of filterFreqInMs
         Collections.sort(flowCtrlItems, new Comparator<FlowCtrlItem>() {
+
             @Override
             public int compare(final FlowCtrlItem o1, final FlowCtrlItem o2) {
                 if (o1.getFreqLtInMs() > o2.getFreqLtInMs()) {
@@ -718,17 +739,23 @@ public class FlowCtrlRuleHandler {
     }
 
     /**
-     *  Parse time information
+     * Parse time information
      *
-     * @param ruleObject   rule value object
-     * @param fieldName     field name
-     * @param itemNo        rule no
-     * @param recordNo      record no
-     * @return              parse result
-     * @throws Exception    Exception thrown
+     * @param ruleObject
+     *          rule value object
+     * @param fieldName
+     *          field name
+     * @param itemNo
+     *          rule no
+     * @param recordNo
+     *          record no
+     * @return parse result
+     * @throws Exception
+     *           Exception thrown
      */
     private int validAndGetTimeValue(JsonObject ruleObject, String fieldName,
-                                     int itemNo, int recordNo) throws Exception {
+            int itemNo, int recordNo)
+            throws Exception {
         if (!ruleObject.has(fieldName)) {
             throw new Exception(new StringBuilder(512)
                     .append("FIELD ").append(fieldName).append(" is required ")

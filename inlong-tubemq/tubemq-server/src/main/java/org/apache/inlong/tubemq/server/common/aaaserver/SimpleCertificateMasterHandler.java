@@ -17,13 +17,14 @@
 
 package org.apache.inlong.tubemq.server.common.aaaserver;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientMaster;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class SimpleCertificateMasterHandler implements CertificateMasterHandler {
 
@@ -67,16 +68,15 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
                     "Illegal value: userName is not equal in authenticateToken!");
             return result;
         }
-        if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp())
-                > masterConfig.getAuthValidTimeStampPeriodMs()) {
+        if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp()) > masterConfig
+                .getAuthValidTimeStampPeriodMs()) {
             result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: timestamp out of effective period in authenticateToken!");
             return result;
         }
-        String signature =
-                TStringUtils.getAuthSignature(inUserName,
-                        masterConfig.getVisitPassword(),
-                        authInfo.getTimestamp(), authInfo.getNonce());
+        String signature = TStringUtils.getAuthSignature(inUserName,
+                masterConfig.getVisitPassword(),
+                authInfo.getTimestamp(), authInfo.getNonce());
         if (!inSignature.equals(signature)) {
             result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: userName or password is not correct!");
@@ -88,7 +88,7 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
 
     @Override
     public CertifiedResult identityValidUserInfo(final ClientMaster.MasterCertificateInfo certificateInfo,
-                                                 boolean isProduce) {
+            boolean isProduce) {
         String inUserName = "";
         String authorizedToken = "";
         String othParams = "";
@@ -130,14 +130,14 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
             return result;
         }
         String inSignature = authInfo.getSignature().trim();
-        if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp())
-                > masterConfig.getAuthValidTimeStampPeriodMs()) {
+        if (Math.abs(System.currentTimeMillis() - authInfo.getTimestamp()) > masterConfig
+                .getAuthValidTimeStampPeriodMs()) {
             result.setFailureResult(TErrCodeConstants.CERTIFICATE_FAILURE,
                     "Illegal value: timestamp out of effective period in authenticateToken!");
             return result;
         }
-        // get username and password from certificate center  begin
-        // get username and password from certificate center  end
+        // get username and password from certificate center begin
+        // get username and password from certificate center end
         // get identified userName and authorized token info and return
         result.setSuccessResult(inUserName, authorizedToken);
         return result;
@@ -158,7 +158,7 @@ public class SimpleCertificateMasterHandler implements CertificateMasterHandler 
 
     @Override
     public CertifiedResult validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
-                                                      Map<String, TreeSet<String>> topicConds, String clientIp) {
+            Map<String, TreeSet<String>> topicConds, String clientIp) {
         CertifiedResult result = new CertifiedResult();
         if (!masterConfig.isStartProduceAuthorize()) {
             result.setSuccessResult("", "");

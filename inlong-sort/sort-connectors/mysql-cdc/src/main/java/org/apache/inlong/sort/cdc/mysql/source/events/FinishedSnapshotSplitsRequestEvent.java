@@ -18,14 +18,15 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.events;
 
-import org.apache.flink.api.connector.source.SourceEvent;
 import org.apache.inlong.sort.cdc.mysql.source.enumerator.MySqlSourceEnumerator;
 import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
 
+import org.apache.flink.api.connector.source.SourceEvent;
+
 /**
- * The {@link SourceEvent} that {@link MySqlSourceEnumerator} sends to {@link MySqlSourceReader} to
- * notify reader should report its finished snapshot splits, i.e. sending {@link
- * FinishedSnapshotSplitsReportEvent}.
+ * The {@link SourceEvent} that {@link MySqlSourceEnumerator} sends to
+ * {@link MySqlSourceReader} to notify reader should report its finished
+ * snapshot splits, i.e. sending {@link FinishedSnapshotSplitsReportEvent}.
  */
 public class FinishedSnapshotSplitsRequestEvent implements SourceEvent {
 

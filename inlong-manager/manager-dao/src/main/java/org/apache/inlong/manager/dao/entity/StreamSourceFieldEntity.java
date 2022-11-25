@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
+
+import lombok.Data;
 
 /**
  * Stream source field entity, including field name, field value, etc.

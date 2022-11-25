@@ -18,15 +18,8 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import com.sun.management.OperatingSystemMXBean;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
@@ -34,7 +27,18 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.management.OperatingSystemMXBean;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+
 public class NettyClient {
+
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
     private Channel channel = null;
@@ -55,7 +59,7 @@ public class NettyClient {
     }
 
     public NettyClient(Bootstrap bootstrap, String serverIP,
-                       int serverPort, ProxyClientConfig configure) {
+            int serverPort, ProxyClientConfig configure) {
         this.bootstrap = bootstrap;
         this.serverIP = serverIP;
         this.serverPort = serverPort;
@@ -79,6 +83,7 @@ public class NettyClient {
         ChannelFuture future = bootstrap.connect(new InetSocketAddress(
                 serverIP, serverPort));
         future.addListener(new ChannelFutureListener() {
+
             public void operationComplete(ChannelFuture arg0) throws Exception {
                 logger.info("connect ack! {}", serverIP);
                 awaitLatch.countDown();
@@ -113,8 +118,8 @@ public class NettyClient {
             if (channel != null) {
                 ChannelFuture future = channel.close();
                 future.addListener(new ChannelFutureListener() {
-                    public void operationComplete(ChannelFuture arg0)
-                            throws Exception {
+
+                    public void operationComplete(ChannelFuture arg0) throws Exception {
                         logger.info("close client ack {}", serverIP);
                         awaitLatch.countDown();
                     }

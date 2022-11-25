@@ -23,17 +23,18 @@ import org.apache.flink.table.api.TableColumn;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.data.RowData;
 
-import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.function.Function;
+
+import javax.annotation.Nullable;
 
 /**
  * An extractor for a Elasticsearch routing from a {@link RowData}.
  */
 @Internal
 public class RoutingExtractor {
+
     private RoutingExtractor() {
     }
 

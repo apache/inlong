@@ -18,16 +18,19 @@
 
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
-import java.util.Objects;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.inlongmsg.AbstractInLongMsgMixedFormatDeserializer;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
+
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.types.Row;
+
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * The deserializer for the records in InLongMsgCsv format.
@@ -71,8 +74,7 @@ public final class InLongMsgCsvMixedFormatDeserializer extends AbstractInLongMsg
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
             boolean deleteHeadDelimiter,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         super(ignoreErrors);
 
         this.delimiter = delimiter;
@@ -89,8 +91,7 @@ public final class InLongMsgCsvMixedFormatDeserializer extends AbstractInLongMsg
                 null,
                 null,
                 InLongMsgCsvUtils.DEFAULT_DELETE_HEAD_DELIMITER,
-                TableFormatConstants.DEFAULT_IGNORE_ERRORS
-        );
+                TableFormatConstants.DEFAULT_IGNORE_ERRORS);
     }
 
     @Override
@@ -111,8 +112,7 @@ public final class InLongMsgCsvMixedFormatDeserializer extends AbstractInLongMsg
                 delimiter,
                 escapeChar,
                 quoteChar,
-                deleteHeadDelimiter
-        );
+                deleteHeadDelimiter);
     }
 
     @Override
@@ -136,10 +136,10 @@ public final class InLongMsgCsvMixedFormatDeserializer extends AbstractInLongMsg
 
         InLongMsgCsvMixedFormatDeserializer that = (InLongMsgCsvMixedFormatDeserializer) o;
         return deleteHeadDelimiter == that.deleteHeadDelimiter
-                       && charset.equals(that.charset)
-                       && delimiter.equals(that.delimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar);
+                && charset.equals(that.charset)
+                && delimiter.equals(that.delimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar);
     }
 
     @Override

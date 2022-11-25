@@ -18,11 +18,12 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
+import org.apache.inlong.common.msg.InLongMsg;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.apache.inlong.common.msg.InLongMsg;
 
 /**
  * The body deserialized from {@link InLongMsg}.
@@ -55,8 +56,7 @@ public class InLongMsgBody implements Serializable {
             byte[] data,
             String tid,
             List<String> fields,
-            Map<String, String> entries
-    ) {
+            Map<String, String> entries) {
         this.data = data;
         this.tid = tid;
         this.fields = fields;
@@ -101,6 +101,6 @@ public class InLongMsgBody implements Serializable {
     @Override
     public String toString() {
         return "InLongMsgBody{" + "data=" + Arrays.toString(data) + ", tid='" + tid + '\''
-               + ", fields=" + fields + ", entries=" + entries + '}';
+                + ", fields=" + fields + ", entries=" + entries + '}';
     }
 }

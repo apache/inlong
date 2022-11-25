@@ -17,11 +17,6 @@
 
 package org.apache.inlong.manager.service.source.pulsar;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
@@ -44,11 +39,19 @@ import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Pulsar stream source operator
@@ -107,13 +110,15 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
 
     @Override
     public Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo,
-            List<InlongStreamInfo> streamInfos, List<StreamSource> streamSources) {
+            List<InlongStreamInfo> streamInfos,
+            List<StreamSource> streamSources) {
         ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null, ClusterType.PULSAR);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
         String adminUrl = pulsarCluster.getAdminUrl();
         String serviceUrl = pulsarCluster.getUrl();
         String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                ? InlongConstants.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+                ? InlongConstants.DEFAULT_PULSAR_TENANT
+                : pulsarCluster.getTenant();
 
         Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
         streamInfos.forEach(streamInfo -> {

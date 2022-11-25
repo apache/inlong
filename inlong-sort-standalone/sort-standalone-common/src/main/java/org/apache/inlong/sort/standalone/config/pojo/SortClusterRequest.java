@@ -39,7 +39,8 @@ public class SortClusterRequest {
     /**
      * set clusterName
      * 
-     * @param clusterName the clusterName to set
+     * @param clusterName
+     *          the clusterName to set
      */
     public void setClusterName(String clusterName) {
         this.clusterName = clusterName;
@@ -57,7 +58,8 @@ public class SortClusterRequest {
     /**
      * set md5
      * 
-     * @param md5 the md5 to set
+     * @param md5
+     *          the md5 to set
      */
     public void setMd5(String md5) {
         this.md5 = md5;
@@ -75,7 +77,8 @@ public class SortClusterRequest {
     /**
      * set apiVersion
      * 
-     * @param apiVersion the apiVersion to set
+     * @param apiVersion
+     *          the apiVersion to set
      */
     public void setApiVersion(String apiVersion) {
         this.apiVersion = apiVersion;

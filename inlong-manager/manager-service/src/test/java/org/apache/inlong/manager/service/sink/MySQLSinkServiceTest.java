@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.sink;
 
-import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -29,13 +28,16 @@ import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.sink.mysql.MySQLJdbcUtils;
+
+import java.sql.Connection;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.sql.Connection;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 /**
  * MySQL sink service test.
@@ -136,16 +138,17 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
     private List<MySQLColumnInfo> buildAddColumns() {
         List<MySQLColumnInfo> list = Lists.newArrayList(
                 new MySQLColumnInfo("add_column1", "int(12)", ""),
-                new MySQLColumnInfo("add_column2", "varchar(22)", "")
-        );
+                new MySQLColumnInfo("add_column2", "varchar(22)", ""));
         return list;
     }
 
     /**
      * Build test mysql table info.
      *
-     * @param dbName MySQL database name
-     * @param tableName MySQL table name
+     * @param dbName
+     *          MySQL database name
+     * @param tableName
+     *          MySQL table name
      * @return {@link MySQLTableInfo}
      */
     private MySQLTableInfo bulidTestMySQLTableInfo(final String dbName, final String tableName) {
@@ -154,8 +157,7 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
                 new MySQLColumnInfo("age", "int(12)", "age"),
                 new MySQLColumnInfo("cell", "varchar(20)", "cell"),
                 new MySQLColumnInfo("name", "varchar(40)", "name"),
-                new MySQLColumnInfo("create_time", "datetime", "create time")
-        );
+                new MySQLColumnInfo("create_time", "datetime", "create time"));
 
         MySQLTableInfo tableInfo = new MySQLTableInfo();
         tableInfo.setColumns(columnInfoList);

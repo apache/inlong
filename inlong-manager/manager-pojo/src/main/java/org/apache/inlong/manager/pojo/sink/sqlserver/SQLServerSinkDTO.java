@@ -17,17 +17,19 @@
 
 package org.apache.inlong.manager.pojo.sink.sqlserver;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
+
+import javax.validation.constraints.NotNull;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * SQLServer source info
@@ -92,8 +94,10 @@ public class SQLServerSinkDTO {
     /**
      * Get SqlServer table info
      *
-     * @param sqlServerSink SqlServer sink dto,{@link OracleSinkDTO}
-     * @param columnList SqlServer column info list,{@link OracleColumnInfo}
+     * @param sqlServerSink
+     *          SqlServer sink dto,{@link OracleSinkDTO}
+     * @param columnList
+     *          SqlServer column info list,{@link OracleColumnInfo}
      * @return {@link SQLServerTableInfo}
      */
     public static SQLServerTableInfo getTableInfo(SQLServerSinkDTO sqlServerSink,

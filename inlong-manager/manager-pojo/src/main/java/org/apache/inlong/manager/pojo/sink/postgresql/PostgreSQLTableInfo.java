@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.pojo.sink.postgresql;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * PostgreSQL table info.

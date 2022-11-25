@@ -29,14 +29,18 @@ public interface Segment {
     void close();
 
     /**
-     * Messages can only be appended to the last FileSegment.
-     * The last FileSegment is writable, the others are mutable.
+     * Messages can only be appended to the last FileSegment. The last FileSegment
+     * is writable, the others are mutable.
      *
-     * @param buf            data buffer
-     * @param leftTime       the first record timestamp
-     * @param rightTime      the latest record timestamp
-     * @return               latest writable position
-     * @throws IOException   exception while force data to disk
+     * @param buf
+     *          data buffer
+     * @param leftTime
+     *          the first record timestamp
+     * @param rightTime
+     *          the latest record timestamp
+     * @return latest writable position
+     * @throws IOException
+     *           exception while force data to disk
      */
     long append(ByteBuffer buf, long leftTime, long rightTime) throws IOException;
 
@@ -75,16 +79,20 @@ public interface Segment {
     /**
      * Read data to buffer from absolute position.
      *
-     * @param bf          buffer to store data
-     * @param absOffset   absolute read position
+     * @param bf
+     *          buffer to store data
+     * @param absOffset
+     *          absolute read position
      */
     void read(ByteBuffer bf, long absOffset) throws IOException;
 
     /**
      * Read data to buffer from relative position.
      *
-     * @param bf          buffer to store data
-     * @param relOffset   relative read position
+     * @param bf
+     *          buffer to store data
+     * @param relOffset
+     *          relative read position
      */
     void relRead(ByteBuffer bf, long relOffset) throws IOException;
 

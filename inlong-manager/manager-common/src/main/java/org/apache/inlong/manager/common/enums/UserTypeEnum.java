@@ -17,12 +17,13 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.Getter;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * User type enum

@@ -18,16 +18,20 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.connection;
 
-import com.zaxxer.hikari.HikariDataSource;
-import io.debezium.jdbc.JdbcConfiguration;
-import io.debezium.jdbc.JdbcConnection;
-import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.apache.flink.util.FlinkRuntimeException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.zaxxer.hikari.HikariDataSource;
+
+import io.debezium.jdbc.JdbcConfiguration;
+import io.debezium.jdbc.JdbcConnection;
 
 /**
  * A factory to create JDBC connection for MySQL.
@@ -49,9 +53,8 @@ public class JdbcConnectionFactory implements JdbcConnection.ConnectionFactory {
         final ConnectionPoolId connectionPoolId =
                 new ConnectionPoolId(sourceConfig.getHostname(), sourceConfig.getPort());
 
-        HikariDataSource dataSource =
-                JdbcConnectionPools.getInstance()
-                        .getOrCreateConnectionPool(connectionPoolId, sourceConfig);
+        HikariDataSource dataSource = JdbcConnectionPools.getInstance()
+                .getOrCreateConnectionPool(connectionPoolId, sourceConfig);
 
         int i = 0;
         while (i < connectRetryTimes) {

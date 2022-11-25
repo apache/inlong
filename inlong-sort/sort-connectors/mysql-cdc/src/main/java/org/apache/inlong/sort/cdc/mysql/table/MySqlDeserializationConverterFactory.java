@@ -18,21 +18,15 @@
 
 package org.apache.inlong.sort.cdc.mysql.table;
 
-import com.esri.core.geometry.ogc.OGCGeometry;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import io.debezium.data.EnumSet;
-import io.debezium.data.geometry.Geometry;
-import io.debezium.data.geometry.Point;
+import org.apache.inlong.sort.cdc.debezium.table.DeserializationRuntimeConverter;
+import org.apache.inlong.sort.cdc.debezium.table.DeserializationRuntimeConverterFactory;
+
 import org.apache.flink.table.data.GenericArrayData;
 import org.apache.flink.table.data.StringData;
 import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.LogicalTypeFamily;
 import org.apache.flink.table.types.logical.utils.LogicalTypeChecks;
-import org.apache.inlong.sort.cdc.debezium.table.DeserializationRuntimeConverter;
-import org.apache.inlong.sort.cdc.debezium.table.DeserializationRuntimeConverterFactory;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Struct;
 
@@ -42,8 +36,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.esri.core.geometry.ogc.OGCGeometry;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
+import io.debezium.data.EnumSet;
+import io.debezium.data.geometry.Geometry;
+import io.debezium.data.geometry.Point;
+
 /**
- * Used to create {@link DeserializationRuntimeConverterFactory} specified to MySQL.
+ * Used to create {@link DeserializationRuntimeConverterFactory} specified to
+ * MySQL.
  */
 public class MySqlDeserializationConverterFactory {
 
@@ -57,7 +61,8 @@ public class MySqlDeserializationConverterFactory {
 
             @Override
             public Optional<DeserializationRuntimeConverter> createUserDefinedConverter(
-                    LogicalType logicalType, ZoneId serverTimeZone) {
+                    LogicalType logicalType,
+                    ZoneId serverTimeZone) {
                 switch (logicalType.getTypeRoot()) {
                     case CHAR:
                     case VARCHAR:
@@ -92,11 +97,9 @@ public class MySqlDeserializationConverterFactory {
                             try {
                                 Struct geometryStruct = (Struct) dbzObj;
                                 byte[] wkb = geometryStruct.getBytes("wkb");
-                                String geoJson =
-                                        OGCGeometry.fromBinary(ByteBuffer.wrap(wkb)).asGeoJson();
+                                String geoJson = OGCGeometry.fromBinary(ByteBuffer.wrap(wkb)).asGeoJson();
                                 JsonNode originGeoNode = objectMapper.readTree(geoJson);
-                                Optional<Integer> srid =
-                                        Optional.ofNullable(geometryStruct.getInt32("srid"));
+                                Optional<Integer> srid = Optional.ofNullable(geometryStruct.getInt32("srid"));
                                 Map<String, Object> geometryInfo = new HashMap<>();
                                 String geometryType = originGeoNode.get("type").asText();
                                 geometryInfo.put("type", geometryType);
@@ -132,6 +135,7 @@ public class MySqlDeserializationConverterFactory {
             // only map MySQL SET type to Flink ARRAY<STRING> type
             return Optional.of(
                     new DeserializationRuntimeConverter() {
+
                         private static final long serialVersionUID = 1L;
 
                         @Override

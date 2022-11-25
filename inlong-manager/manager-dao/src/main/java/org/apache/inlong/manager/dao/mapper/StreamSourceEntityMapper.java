@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.pojo.source.SourcePageRequest;
-import org.springframework.stereotype.Repository;
+
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StreamSourceEntityMapper {
@@ -34,9 +36,11 @@ public interface StreamSourceEntityMapper {
     StreamSourceEntity selectByIdForUpdate(Integer id);
 
     /**
-     * Only used for agent collector, which will select all tasks related include deleted tasks.
+     * Only used for agent collector, which will select all tasks related include
+     * deleted tasks.
      *
-     * @param id stream source id
+     * @param id
+     *          stream source id
      * @return stream source info
      */
     StreamSourceEntity selectForAgentTask(Integer id);
@@ -47,7 +51,8 @@ public interface StreamSourceEntityMapper {
     List<StreamSourceEntity> selectByAgentIp(@Param("agentIp") String agentIp);
 
     /**
-     * According to the inlong group id and inlong stream id, query the number of valid source
+     * According to the inlong group id and inlong stream id, query the number of
+     * valid source
      */
     int selectCount(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
@@ -71,22 +76,26 @@ public interface StreamSourceEntityMapper {
      * Query the tasks by the given status list and type List.
      */
     List<StreamSourceEntity> selectByStatusAndType(@Param("statusList") List<Integer> statusList,
-            @Param("sourceTypeList") List<String> sourceTypeList, @Param("limit") int limit);
+            @Param("sourceTypeList") List<String> sourceTypeList,
+            @Param("limit") int limit);
 
     /**
      * Query the tasks by the given status list and type List.
      */
     List<StreamSourceEntity> selectByAgentIpOrCluster(@Param("statusList") List<Integer> statusList,
-            @Param("sourceTypeList") List<String> sourceTypeList, @Param("agentIp") String agentIp,
+            @Param("sourceTypeList") List<String> sourceTypeList,
+            @Param("agentIp") String agentIp,
             @Param("clusterName") String clusterName);
 
     /**
      * Query the sources by the given status and Agent cluster info.
      *
-     * @apiNote Sources with is_deleted > 0 should also be returned to agents to clear their local tasks.
+     * @apiNote Sources with is_deleted > 0 should also be returned to agents to
+     *          clear their local tasks.
      */
     List<StreamSourceEntity> selectByStatusAndCluster(@Param("statusList") List<Integer> statusList,
-            @Param("clusterName") String clusterName, @Param("agentIp") String agentIp, @Param("uuid") String uuid);
+            @Param("clusterName") String clusterName,
+            @Param("agentIp") String agentIp, @Param("uuid") String uuid);
 
     /**
      * Select all sources by groupIds

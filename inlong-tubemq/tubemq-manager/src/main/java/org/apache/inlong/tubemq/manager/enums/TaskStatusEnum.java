@@ -19,9 +19,7 @@ package org.apache.inlong.tubemq.manager.enums;
 
 public enum TaskStatusEnum {
 
-    ADDING(1, "topicAdding"),
-    FAILED(2, "failed"),
-    SUCCESS(3, "success");
+    ADDING(1, "topicAdding"), FAILED(2, "failed"), SUCCESS(3, "success");
 
     private Integer code;
 

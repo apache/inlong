@@ -17,36 +17,39 @@
 
 package org.apache.inlong.tubemq.corerpc.netty;
 
-import com.google.protobuf.ByteString;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.util.List;
 import org.apache.inlong.tubemq.corebase.protobuf.generated.RPCProtos;
 import org.apache.inlong.tubemq.corerpc.RequestWrapper;
 import org.apache.inlong.tubemq.corerpc.ResponseWrapper;
 import org.apache.inlong.tubemq.corerpc.RpcDataPack;
 import org.apache.inlong.tubemq.corerpc.codec.PbEnDecoder;
 import org.apache.inlong.tubemq.corerpc.server.RequestContext;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.protobuf.ByteString;
+
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+
 public class NettyRequestContext implements RequestContext {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(NettyRequestContext.class);
+    private static final Logger logger = LoggerFactory.getLogger(NettyRequestContext.class);
 
     private RequestWrapper request;
     private ChannelHandlerContext ctx;
     private long receiveTime;
 
     public NettyRequestContext(RequestWrapper request,
-                               ChannelHandlerContext ctx,
-                               long receiveTime) {
+            ChannelHandlerContext ctx,
+            long receiveTime) {
         this.request = request;
         this.ctx = ctx;
         this.receiveTime = receiveTime;
@@ -80,6 +83,7 @@ public class NettyRequestContext implements RequestContext {
         dataPack = new RpcDataPack(response.getSerialNo(), prepareResponse(response));
         ChannelFuture wf = ctx.channel().writeAndFlush(dataPack);
         wf.addListener(new ChannelFutureListener() {
+
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
@@ -110,18 +114,15 @@ public class NettyRequestContext implements RequestContext {
         ByteBufferOutputStream buf = new ByteBufferOutputStream();
         DataOutputStream out = new DataOutputStream(buf);
         try {
-            RPCProtos.RpcConnHeader.Builder connBuilder =
-                    RPCProtos.RpcConnHeader.newBuilder();
+            RPCProtos.RpcConnHeader.Builder connBuilder = RPCProtos.RpcConnHeader.newBuilder();
             connBuilder.setFlag(response.getFlagId());
             connBuilder.build().writeDelimitedTo(out);
-            RPCProtos.ResponseHeader.Builder rpcBuilder =
-                    RPCProtos.ResponseHeader.newBuilder();
+            RPCProtos.ResponseHeader.Builder rpcBuilder = RPCProtos.ResponseHeader.newBuilder();
             if (response.isSuccess()) {
                 rpcBuilder.setStatus(RPCProtos.ResponseHeader.Status.SUCCESS);
                 rpcBuilder.setProtocolVer(response.getProtocolVersion());
                 rpcBuilder.build().writeDelimitedTo(out);
-                RPCProtos.RspResponseBody.Builder dataBuilder =
-                        RPCProtos.RspResponseBody.newBuilder();
+                RPCProtos.RspResponseBody.Builder dataBuilder = RPCProtos.RspResponseBody.newBuilder();
                 dataBuilder.setMethod(response.getMethodId());
                 if (response.getResponseData() != null) {
                     try {
@@ -140,8 +141,7 @@ public class NettyRequestContext implements RequestContext {
                 rpcBuilder.setStatus(RPCProtos.ResponseHeader.Status.ERROR);
                 rpcBuilder.setProtocolVer(response.getProtocolVersion());
                 rpcBuilder.build().writeDelimitedTo(out);
-                RPCProtos.RspExceptionBody.Builder b =
-                        RPCProtos.RspExceptionBody.newBuilder();
+                RPCProtos.RspExceptionBody.Builder b = RPCProtos.RspExceptionBody.newBuilder();
                 b.setExceptionName(response.getErrMsg());
                 b.setStackTrace(response.getStackTrace());
                 b.build().writeDelimitedTo(out);

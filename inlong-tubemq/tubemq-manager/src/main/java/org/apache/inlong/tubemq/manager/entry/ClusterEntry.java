@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.manager.entry;
 
 import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -29,10 +30,10 @@ import lombok.Data;
  * cluster machine for tube cluster. broker/master/standby
  */
 @Entity
-@Table(name = "cluster",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"clusterName"}))
+@Table(name = "cluster", uniqueConstraints = @UniqueConstraint(columnNames = {"clusterName"}))
 @Data
 public class ClusterEntry {
+
     @Id
     private long clusterId;
 

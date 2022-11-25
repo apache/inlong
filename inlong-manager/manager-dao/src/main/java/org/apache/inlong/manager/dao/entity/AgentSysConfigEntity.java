@@ -18,10 +18,12 @@
 package org.apache.inlong.manager.dao.entity;
 
 import java.io.Serializable;
+
 import lombok.Data;
 
 /**
- * Agent system config info, including retry thread info, message queue info, etc.
+ * Agent system config info, including retry thread info, message queue info,
+ * etc.
  */
 @Data
 public class AgentSysConfigEntity implements Serializable {

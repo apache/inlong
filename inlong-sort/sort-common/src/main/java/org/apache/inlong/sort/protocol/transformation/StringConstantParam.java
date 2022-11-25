@@ -17,17 +17,19 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 /**
- * StringConstantParam class is used for the definition and encapsulation of time unit constant param.
- * The difference between {@link StringConstantParam} and ConstantParam is that it only accepts string constants,
- * and it will automatically add single quotes when formatting to make it conform
- * to the standard definition of strings in sql.
+ * StringConstantParam class is used for the definition and encapsulation of
+ * time unit constant param. The difference between {@link StringConstantParam}
+ * and ConstantParam is that it only accepts string constants, and it will
+ * automatically add single quotes when formatting to make it conform to the
+ * standard definition of strings in sql.
  */
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -40,7 +42,8 @@ public class StringConstantParam extends ConstantParam {
     /**
      * StringConstantParam constructor
      *
-     * @param value It is used to store string constant value
+     * @param value
+     *          It is used to store string constant value
      */
     public StringConstantParam(@JsonProperty("value") String value) {
         super(value);

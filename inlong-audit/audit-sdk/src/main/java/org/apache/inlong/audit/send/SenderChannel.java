@@ -17,19 +17,21 @@
 
 package org.apache.inlong.audit.send;
 
+import org.apache.inlong.audit.util.EventLoopUtil;
+import org.apache.inlong.audit.util.IpPort;
+
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.apache.inlong.audit.util.EventLoopUtil;
-import org.apache.inlong.audit.util.IpPort;
-import io.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadFactory;
 
 public class SenderChannel {
 
@@ -92,7 +94,8 @@ public class SenderChannel {
     /**
      * set ipPort
      *
-     * @param ipPort the ipPort to set
+     * @param ipPort
+     *          the ipPort to set
      */
     public void setIpPort(IpPort ipPort) {
         this.ipPort = ipPort;
@@ -110,7 +113,8 @@ public class SenderChannel {
     /**
      * set channel
      *
-     * @param channel the channel to set
+     * @param channel
+     *          the channel to set
      */
     public void setChannel(Channel channel) {
         this.channel = channel;

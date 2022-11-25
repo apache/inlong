@@ -72,7 +72,8 @@ public class SortEvent extends ProxyEvent {
     /**
      * set messageKey
      * 
-     * @param messageKey the messageKey to set
+     * @param messageKey
+     *          the messageKey to set
      */
     public void setMessageKey(String messageKey) {
         this.messageKey = messageKey;
@@ -90,7 +91,8 @@ public class SortEvent extends ProxyEvent {
     /**
      * set messageOffset
      * 
-     * @param messageOffset the messageOffset to set
+     * @param messageOffset
+     *          the messageOffset to set
      */
     public void setMessageOffset(String messageOffset) {
         this.messageOffset = messageOffset;
@@ -108,7 +110,8 @@ public class SortEvent extends ProxyEvent {
     /**
      * set sendTime
      * 
-     * @param sendTime the sendTime to set
+     * @param sendTime
+     *          the sendTime to set
      */
     public void setSendTime(long sendTime) {
         this.sendTime = sendTime;

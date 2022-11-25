@@ -23,11 +23,14 @@ package org.apache.inlong.tubemq.server.common.zookeeper;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public interface Abortable {
+
     /**
      * Abort the server or client.
      *
-     * @param why Why we're aborting.
-     * @param e   Throwable that caused abort. Can be null.
+     * @param why
+     *          Why we're aborting.
+     * @param e
+     *          Throwable that caused abort. Can be null.
      */
     void abort(String why, Throwable e);
 

@@ -17,20 +17,6 @@
 
 package org.apache.inlong.manager.pojo.sink;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.pojo.stream.StreamNode;
@@ -38,6 +24,23 @@ import org.apache.inlong.manager.pojo.stream.StreamNode;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Stream sink info.
@@ -83,8 +86,7 @@ public abstract class StreamSink extends StreamNode {
     private String sortConsumerGroup;
 
     @Builder.Default
-    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1",
-            notes = "Such as enable or disable to create Hive table")
+    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1", notes = "Such as enable or disable to create Hive table")
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty("Backend operation log")

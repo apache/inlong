@@ -17,11 +17,13 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.commons.lang3.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +34,15 @@ import org.slf4j.LoggerFactory;
  */
 public class SourceReportConfigHolder {
 
-    public static final Logger LOG =
-            LoggerFactory.getLogger(SourceReportConfigHolder.class);
+    public static final Logger LOG = LoggerFactory.getLogger(SourceReportConfigHolder.class);
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Map<String, SourceReportInfo> sourceConfMap = new HashMap<>();
     // Begin: this part can be optimized later
-    //        after optimizing the implementation of the heartbeat reporting interface
-    //        between Manager and DataProxy, the report is directly configured according to
-    //        the SourceReportInfo of each source, instead of splicing report items separately.
+    // after optimizing the implementation of the heartbeat reporting interface
+    // between Manager and DataProxy, the report is directly configured according to
+    // the SourceReportInfo of each source, instead of splicing report items
+    // separately.
     private String ipSet = "";
     private String portSet = "";
     private String protocolTypeSet = "";
@@ -59,8 +61,7 @@ public class SourceReportConfigHolder {
             return;
         }
         String recordKey = sourceIp + "#" + sourcePort + "#" + protocolType;
-        SourceReportInfo sourceReportInfo =
-                new SourceReportInfo(sourceIp, sourcePort, protocolType);
+        SourceReportInfo sourceReportInfo = new SourceReportInfo(sourceIp, sourcePort, protocolType);
         try {
             readWriteLock.writeLock().lock();
             if (sourceConfMap.putIfAbsent(recordKey, sourceReportInfo) == null) {

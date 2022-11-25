@@ -17,9 +17,6 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
-import com.google.common.base.Preconditions;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -27,17 +24,20 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 
 import java.io.Serializable;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import com.google.common.base.Preconditions;
+
 /**
- * ConstantParam class is used for the definition and encapsulation of constant param.
- * It can represent any constant, but it is simply implemented by toString() of {@link Object}
- * in the format function used for sql.
- * It contains two subclasses, one is {@link TimeUnitConstantParam} for the definition of time unit constant,
- * and the other is {@link StringConstantParam} for the definition of string constant.
+ * ConstantParam class is used for the definition and encapsulation of constant
+ * param. It can represent any constant, but it is simply implemented by
+ * toString() of {@link Object} in the format function used for sql. It contains
+ * two subclasses, one is {@link TimeUnitConstantParam} for the definition of
+ * time unit constant, and the other is {@link StringConstantParam} for the
+ * definition of string constant.
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
         @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant"),
@@ -55,7 +55,8 @@ public class ConstantParam implements FunctionParam, Serializable {
     /**
      * ConstantParam constructor
      *
-     * @param value It is used to store constant value
+     * @param value
+     *          It is used to store constant value
      */
     @JsonCreator
     public ConstantParam(@JsonProperty("value") Object value) {

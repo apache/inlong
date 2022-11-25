@@ -17,10 +17,12 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
-import java.util.Date;
 import org.apache.inlong.tubemq.corebase.utils.KeyBuilderUtils;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbTopicConfEntity;
+
+import java.util.Date;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,11 +48,10 @@ public class TopicDeployEntityTest {
         Date createDate1 = new Date();
         String modifyUser1 = "modifyer";
         Date modifyDate1 = new Date();
-        BdbTopicConfEntity bdbEntry1 =
-                new BdbTopicConfEntity(brokerId1, brokerIp1, brokerPort1, topicName1,
-                        numPartitions1, unflushThreshold1, unflushInterval1, deleteWhen1,
-                        deletePolicy1, acceptPublish1, acceptSubscribe1, numTopicStores1,
-                        attributes1, createUser1, createDate1, modifyUser1, modifyDate1);
+        BdbTopicConfEntity bdbEntry1 = new BdbTopicConfEntity(brokerId1, brokerIp1, brokerPort1, topicName1,
+                numPartitions1, unflushThreshold1, unflushInterval1, deleteWhen1,
+                deletePolicy1, acceptPublish1, acceptSubscribe1, numTopicStores1,
+                attributes1, createUser1, createDate1, modifyUser1, modifyDate1);
         TopicDeployEntity deployEntity1 = new TopicDeployEntity(bdbEntry1);
         // check confEntity1
         Assert.assertEquals(deployEntity1.getRecordKey(), bdbEntry1.getRecordKey());
@@ -106,8 +107,7 @@ public class TopicDeployEntityTest {
         Assert.assertTrue(deployEntity2.updModifyInfo(dataVerId2,
                 topicNameId2, brokerPort2, brokerIp2, deployStatus2, topicProps2));
         TopicDeployEntity deployEntity31 = deployEntity2.clone();
-        BdbTopicConfEntity bdbEntry3 =
-                deployEntity31.buildBdbTopicConfEntity();
+        BdbTopicConfEntity bdbEntry3 = deployEntity31.buildBdbTopicConfEntity();
         TopicDeployEntity deployEntity32 = new TopicDeployEntity(bdbEntry3);
         Assert.assertTrue(deployEntity32.isDataEquals(deployEntity32));
         // check value

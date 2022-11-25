@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.client.cli.pojo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.Date;
+
 import lombok.Data;
 
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
  * User info, including user id, username, etc.

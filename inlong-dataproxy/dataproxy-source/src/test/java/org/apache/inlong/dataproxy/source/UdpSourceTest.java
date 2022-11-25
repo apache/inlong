@@ -17,10 +17,13 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+
+import org.apache.flume.Context;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.flume.Context;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
+
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -17,11 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import java.io.Serializable;
-import java.util.Date;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
@@ -29,33 +24,42 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstants;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.sleepycat.persist.model.Entity;
+import com.sleepycat.persist.model.PrimaryKey;
+
 @Entity
 public class BdbTopicConfEntity implements Serializable {
+
     private static final long serialVersionUID = -3266492818900652275L;
 
     @PrimaryKey
     private String recordKey;
     private int topicStatusId = 0; // topic status, 0: valid, 1: soft deleted
-    private int brokerId = -2;      //broker id
-    private String brokerIp;        //broker ip
-    private int brokerPort;         //broker port
-    private String brokerAddress;   //broker address
-    private String topicName;       //topic name
-    private int numPartitions = -2;     //partition num
-    private int unflushThreshold = -2;  //flush threshold
-    private int unflushInterval = -2;   //flush interval
-    private boolean acceptPublish = true;   //enable publish
-    private boolean acceptSubscribe = true; //enable subscribe
-    private int numTopicStores = 1;     //store num
-    private String deleteWhen;          //delete policy execute time
-    private String deletePolicy;        //delete policy
-    private int dataStoreType = -2;     //type
-    private String dataPath;            //data path
-    private String attributes;          //extra attribute
-    private String createUser;          //create user
-    private Date createDate;            //create date
-    private String modifyUser;          //modify user
-    private Date modifyDate;            //modify date
+    private int brokerId = -2; // broker id
+    private String brokerIp; // broker ip
+    private int brokerPort; // broker port
+    private String brokerAddress; // broker address
+    private String topicName; // topic name
+    private int numPartitions = -2; // partition num
+    private int unflushThreshold = -2; // flush threshold
+    private int unflushInterval = -2; // flush interval
+    private boolean acceptPublish = true; // enable publish
+    private boolean acceptSubscribe = true; // enable subscribe
+    private int numTopicStores = 1; // store num
+    private String deleteWhen; // delete policy execute time
+    private String deletePolicy; // delete policy
+    private int dataStoreType = -2; // type
+    private String dataPath; // data path
+    private String attributes; // extra attribute
+    private String createUser; // create user
+    private Date createDate; // create date
+    private String modifyUser; // modify user
+    private Date modifyDate; // modify date
 
     public BdbTopicConfEntity() {
     }
@@ -63,33 +67,50 @@ public class BdbTopicConfEntity implements Serializable {
     /**
      * Build topic configure entity
      *
-     * @param brokerId            the broker id
-     * @param brokerIp            the broker ip
-     * @param brokerPort          the broker port
-     * @param topicName           the topic name
-     * @param numPartitions       the number of partition
-     * @param unflushThreshold    the un-flushed message count
-     * @param unflushInterval     the un-flushed time delta
-     * @param deleteWhen          the delete time
-     * @param deletePolicy        the delete policy
-     * @param acceptPublish       whether accept publish
-     * @param acceptSubscribe     whether accept subscribe
-     * @param numTopicStores      the number of topic store
-     * @param attributes          the attribute information
-     * @param createUser          the creator
-     * @param createDate          the create date
-     * @param modifyUser          the modifier
-     * @param modifyDate          the modify date
+     * @param brokerId
+     *          the broker id
+     * @param brokerIp
+     *          the broker ip
+     * @param brokerPort
+     *          the broker port
+     * @param topicName
+     *          the topic name
+     * @param numPartitions
+     *          the number of partition
+     * @param unflushThreshold
+     *          the un-flushed message count
+     * @param unflushInterval
+     *          the un-flushed time delta
+     * @param deleteWhen
+     *          the delete time
+     * @param deletePolicy
+     *          the delete policy
+     * @param acceptPublish
+     *          whether accept publish
+     * @param acceptSubscribe
+     *          whether accept subscribe
+     * @param numTopicStores
+     *          the number of topic store
+     * @param attributes
+     *          the attribute information
+     * @param createUser
+     *          the creator
+     * @param createDate
+     *          the create date
+     * @param modifyUser
+     *          the modifier
+     * @param modifyDate
+     *          the modify date
      */
     public BdbTopicConfEntity(final int brokerId, final String brokerIp,
-                              final int brokerPort, final String topicName,
-                              final int numPartitions, final int unflushThreshold,
-                              final int unflushInterval, final String deleteWhen,
-                              final String deletePolicy, final boolean acceptPublish,
-                              final boolean acceptSubscribe, final int numTopicStores,
-                              final String attributes, final String createUser,
-                              final Date createDate, final String modifyUser,
-                              final Date modifyDate) {
+            final int brokerPort, final String topicName,
+            final int numPartitions, final int unflushThreshold,
+            final int unflushInterval, final String deleteWhen,
+            final String deletePolicy, final boolean acceptPublish,
+            final boolean acceptSubscribe, final int numTopicStores,
+            final String attributes, final String createUser,
+            final Date createDate, final String modifyUser,
+            final Date modifyDate) {
         StringBuilder sBuilder = new StringBuilder(512);
         this.recordKey = sBuilder.append(brokerId)
                 .append(TokenConstants.ATTR_SEP).append(topicName).toString();
@@ -116,7 +137,7 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public void setBrokerAndTopicInfo(int brokerId, String brokerIp,
-                                      int brokerPort, String topicName) {
+            int brokerPort, String topicName) {
         StringBuilder sBuilder = new StringBuilder(512);
         this.recordKey = sBuilder.append(brokerId)
                 .append(TokenConstants.ATTR_SEP).append(topicName).toString();
@@ -151,10 +172,9 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public void setUnflushDataHold(final int unFlushDataHold) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_UNFLUSHHOLD,
-                        String.valueOf(unFlushDataHold));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_UNFLUSHHOLD,
+                String.valueOf(unFlushDataHold));
     }
 
     public void setDataStore(int dataStoreType, String dataPath) {
@@ -303,9 +323,8 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public int getUnflushDataHold() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_UNFLUSHHOLD);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_UNFLUSHHOLD);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -313,9 +332,8 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public int getMemCacheMsgCntInK() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_MSG_CNT);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_MSG_CNT);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -323,16 +341,14 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public void setMemCacheMsgCntInK(final int memCacheMsgCntInK) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_MSG_CNT,
-                        String.valueOf(memCacheMsgCntInK));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_MSG_CNT,
+                String.valueOf(memCacheMsgCntInK));
     }
 
     public int getMemCacheMsgSizeInMB() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_MSG_SIZE);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_MSG_SIZE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -340,16 +356,14 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public void setMemCacheMsgSizeInMB(final int memCacheMsgSizeInMB) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_MSG_SIZE,
-                        String.valueOf(memCacheMsgSizeInMB));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_MSG_SIZE,
+                String.valueOf(memCacheMsgSizeInMB));
     }
 
     public int getMemCacheFlushIntvl() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -357,16 +371,14 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public void setMemCacheFlushIntvl(final int memCacheFlushIntvl) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL,
-                        String.valueOf(memCacheFlushIntvl));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_MCACHE_FLUSH_INTVL,
+                String.valueOf(memCacheFlushIntvl));
     }
 
     public int getMaxMsgSize() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MAX_MSG_SIZE);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_MAX_MSG_SIZE);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -374,16 +386,14 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public void setMaxMsgSize(int maxMsgSize) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_MAX_MSG_SIZE,
-                        String.valueOf(maxMsgSize));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_MAX_MSG_SIZE,
+                String.valueOf(maxMsgSize));
     }
 
     public long getDataVerId() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_VERSION_ID);
         if (atrVal != null) {
             return Long.parseLong(atrVal);
         }
@@ -391,16 +401,14 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public void setDataVerId(long dataVerId) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_DATA_VERSION_ID,
-                        String.valueOf(dataVerId));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_DATA_VERSION_ID,
+                String.valueOf(dataVerId));
     }
 
     public int getTopicId() {
-        String atrVal =
-                TStringUtils.getAttrValFrmAttributes(this.attributes,
-                        TStoreConstants.TOKEN_TOPICNAME_ID);
+        String atrVal = TStringUtils.getAttrValFrmAttributes(this.attributes,
+                TStoreConstants.TOKEN_TOPICNAME_ID);
         if (atrVal != null) {
             return Integer.parseInt(atrVal);
         }
@@ -408,15 +416,13 @@ public class BdbTopicConfEntity implements Serializable {
     }
 
     public void setTopicId(int topicId) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes,
-                        TStoreConstants.TOKEN_TOPICNAME_ID,
-                        String.valueOf(topicId));
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes,
+                TStoreConstants.TOKEN_TOPICNAME_ID,
+                String.valueOf(topicId));
     }
 
     public void appendAttributes(String attrKey, String attrVal) {
-        this.attributes =
-                TStringUtils.setAttrValToAttributes(this.attributes, attrKey, attrVal);
+        this.attributes = TStringUtils.setAttrValToAttributes(this.attributes, attrKey, attrVal);
     }
 
     /**

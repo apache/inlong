@@ -17,17 +17,20 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.util.InlongCollectionUtils;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 import java.util.function.Function;
+
+import com.google.common.collect.Lists;
 
 /**
  * ApplicationEnv info
  */
 public enum ApplicationEnv {
+
     /**
      * Development env
      */
@@ -46,8 +49,7 @@ public enum ApplicationEnv {
     private static final Map<String, ApplicationEnv> NAME_MAP = InlongCollectionUtils.transformToImmutableMap(
             Lists.newArrayList(ApplicationEnv.values()),
             ApplicationEnv::name,
-            Function.identity()
-    );
+            Function.identity());
 
     /**
      * Get application environment by name.

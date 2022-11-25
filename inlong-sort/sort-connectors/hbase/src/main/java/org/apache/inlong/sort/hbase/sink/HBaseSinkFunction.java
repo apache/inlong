@@ -18,6 +18,18 @@
 
 package org.apache.inlong.sort.hbase.sink;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
+import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+
+import org.apache.inlong.sort.base.metric.MetricOption;
+import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
+import org.apache.inlong.sort.base.metric.MetricState;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.util.MetricStateUtils;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.state.ListState;
@@ -41,13 +53,6 @@ import org.apache.hadoop.hbase.client.BufferedMutatorParams;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
-import org.apache.inlong.sort.base.metric.MetricOption;
-import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
-import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
-import org.apache.inlong.sort.base.util.MetricStateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -58,23 +63,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
-import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
-import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
-import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The sink function for HBase.
  *
- * <p>This class leverage {@link BufferedMutator} to buffer multiple {@link
- * org.apache.hadoop.hbase.client.Mutation Mutations} before sending the requests to cluster. The
- * buffering strategy can be configured by {@code bufferFlushMaxSizeInBytes}, {@code
+ * <p>
+ * This class leverage {@link BufferedMutator} to buffer multiple
+ * {@link org.apache.hadoop.hbase.client.Mutation Mutations} before sending the
+ * requests to cluster. The buffering strategy can be configured by
+ * {@code bufferFlushMaxSizeInBytes}, {@code
  * bufferFlushMaxMutations} and {@code bufferFlushIntervalMillis}.
  */
 @Internal
 public class HBaseSinkFunction<T> extends RichSinkFunction<T>
-        implements CheckpointedFunction, BufferedMutator.ExceptionListener {
+        implements
+            CheckpointedFunction,
+            BufferedMutator.ExceptionListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(HBaseSinkFunction.class);
@@ -89,12 +95,12 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     private final String inlongMetric;
     private final String inlongAudit;
     /**
-     * This is set from inside the {@link BufferedMutator.ExceptionListener} if a {@link Throwable}
-     * was thrown.
+     * This is set from inside the {@link BufferedMutator.ExceptionListener} if a
+     * {@link Throwable} was thrown.
      *
      * <p>
-     * Errors will be checked and rethrown before processing each input element, and when the
-     * sink is closed.
+     * Errors will be checked and rethrown before processing each input element, and
+     * when the sink is closed.
      * </p>
      */
     private final AtomicReference<Throwable> failureThrowable = new AtomicReference<>();
@@ -155,29 +161,27 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             if (null == connection) {
                 this.connection = ConnectionFactory.createConnection(config);
             }
-            // create a parameter instance, set the table name and custom listener reference.
-            BufferedMutatorParams params =
-                    new BufferedMutatorParams(TableName.valueOf(hTableName)).listener(this);
+            // create a parameter instance, set the table name and custom listener
+            // reference.
+            BufferedMutatorParams params = new BufferedMutatorParams(TableName.valueOf(hTableName)).listener(this);
             if (bufferFlushMaxSizeInBytes > 0) {
                 params.writeBufferSize(bufferFlushMaxSizeInBytes);
             }
             this.mutator = connection.getBufferedMutator(params);
 
             if (bufferFlushIntervalMillis > 0 && bufferFlushMaxMutations != 1) {
-                this.executor =
-                        Executors.newScheduledThreadPool(
-                                1, new ExecutorThreadFactory("hbase-upsert-sink-flusher"));
-                this.scheduledFuture =
-                        this.executor.scheduleWithFixedDelay(
-                                () -> {
-                                    if (closed) {
-                                        return;
-                                    }
-                                    reportMetricAfterFlush();
-                                },
-                                bufferFlushIntervalMillis,
-                                bufferFlushIntervalMillis,
-                                TimeUnit.MILLISECONDS);
+                this.executor = Executors.newScheduledThreadPool(
+                        1, new ExecutorThreadFactory("hbase-upsert-sink-flusher"));
+                this.scheduledFuture = this.executor.scheduleWithFixedDelay(
+                        () -> {
+                            if (closed) {
+                                return;
+                            }
+                            reportMetricAfterFlush();
+                        },
+                        bufferFlushIntervalMillis,
+                        bufferFlushIntervalMillis,
+                        TimeUnit.MILLISECONDS);
             }
         } catch (TableNotFoundException tnfe) {
             LOG.error("The table " + hTableName + " not found ", tnfe);
@@ -190,14 +194,15 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     }
 
     private org.apache.hadoop.conf.Configuration prepareRuntimeConfiguration() throws IOException {
-        // create default configuration from current runtime env (`hbase-site.xml` in classpath)
+        // create default configuration from current runtime env (`hbase-site.xml` in
+        // classpath)
         // first,
-        // and overwrite configuration using serialized configuration from client-side env
+        // and overwrite configuration using serialized configuration from client-side
+        // env
         // (`hbase-site.xml` in classpath).
         // user params from client-side have the highest priority
-        org.apache.hadoop.conf.Configuration runtimeConfig =
-                HBaseConfigurationUtil.deserializeConfiguration(
-                        serializedConfig, HBaseConfigurationUtil.getHBaseConfiguration());
+        org.apache.hadoop.conf.Configuration runtimeConfig = HBaseConfigurationUtil.deserializeConfiguration(
+                serializedConfig, HBaseConfigurationUtil.getHBaseConfiguration());
 
         // do validation: check key option(s) in final runtime configuration
         if (StringUtils.isNullOrWhitespaceOnly(runtimeConfig.get(HConstants.ZOOKEEPER_QUORUM))) {
@@ -236,7 +241,8 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             failureThrowable.compareAndSet(null, e);
         }
 
-        // flush when the buffer number of mutations greater than the configured max size.
+        // flush when the buffer number of mutations greater than the configured max
+        // size.
         if (bufferFlushMaxMutations > 0
                 && numPendingRequests.incrementAndGet() >= bufferFlushMaxMutations) {
             reportMetricAfterFlush();
@@ -320,7 +326,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
@@ -329,7 +335,8 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     }
 
     @Override
-    public void onException(RetriesExhaustedWithDetailsException exception, BufferedMutator mutator)
+    public void onException(RetriesExhaustedWithDetailsException exception,
+            BufferedMutator mutator)
             throws RetriesExhaustedWithDetailsException {
         // fail the sink and skip the rest of the items
         // if the failure handler decides to throw an exception

@@ -24,12 +24,7 @@ import java.util.Locale;
  */
 public enum DataTypeEnum {
 
-    CSV("csv"),
-    AVRO("avro"),
-    JSON("json"),
-    CANAL("canal"),
-    DEBEZIUM_JSON("debezium_json"),
-    RAW("raw"),
+    CSV("csv"), AVRO("avro"), JSON("json"), CANAL("canal"), DEBEZIUM_JSON("debezium_json"), RAW("raw"),
 
     ;
 

@@ -29,6 +29,7 @@ public interface Seeker extends Configurable {
 
     /**
      * return the expected seek time of seeker
+     * 
      * @return expected seek time
      */
     long getSeekTime();

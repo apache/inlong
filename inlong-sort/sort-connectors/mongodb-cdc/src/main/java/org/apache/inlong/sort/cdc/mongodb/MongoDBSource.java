@@ -18,15 +18,11 @@
 
 package org.apache.inlong.sort.cdc.mongodb;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.client.model.changestream.FullDocument;
-import com.mongodb.kafka.connect.source.MongoSourceConfig;
-import com.mongodb.kafka.connect.source.MongoSourceConfig.ErrorTolerance;
-import com.mongodb.kafka.connect.source.MongoSourceConfig.OutputFormat;
-import com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceConnector;
-import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
-import com.ververica.cdc.debezium.Validator;
-import io.debezium.heartbeat.Heartbeat;
+import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.COLLECTION_INCLUDE_LIST;
+import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.DATABASE_INCLUDE_LIST;
+import static org.apache.flink.util.Preconditions.checkArgument;
+import static org.apache.flink.util.Preconditions.checkNotNull;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -39,14 +35,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.COLLECTION_INCLUDE_LIST;
-import static com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceTask.DATABASE_INCLUDE_LIST;
-import static org.apache.flink.util.Preconditions.checkArgument;
-import static org.apache.flink.util.Preconditions.checkNotNull;
+import com.mongodb.ConnectionString;
+import com.mongodb.client.model.changestream.FullDocument;
+import com.mongodb.kafka.connect.source.MongoSourceConfig;
+import com.mongodb.kafka.connect.source.MongoSourceConfig.ErrorTolerance;
+import com.mongodb.kafka.connect.source.MongoSourceConfig.OutputFormat;
+import com.ververica.cdc.connectors.mongodb.internal.MongoDBConnectorSourceConnector;
+import com.ververica.cdc.debezium.DebeziumDeserializationSchema;
+import com.ververica.cdc.debezium.Validator;
+import io.debezium.heartbeat.Heartbeat;
 
 /**
- * A builder to build a SourceFunction which can read snapshot and continue to consume change stream
- * events.
+ * A builder to build a SourceFunction which can read snapshot and continue to
+ * consume change stream events.
  */
 @PublicEvolving
 public class MongoDBSource {
@@ -65,47 +66,45 @@ public class MongoDBSource {
 
     public static final String HEARTBEAT_TOPIC_NAME_DEFAULT = "__mongodb_heartbeats";
 
-    public static final String OUTPUT_FORMAT_SCHEMA =
-            OutputFormat.SCHEMA.name().toLowerCase(Locale.ROOT);
+    public static final String OUTPUT_FORMAT_SCHEMA = OutputFormat.SCHEMA.name().toLowerCase(Locale.ROOT);
 
     // Add "source" field to adapt to debezium SourceRecord
-    public static final String OUTPUT_SCHEMA_VALUE_DEFAULT =
-            "{"
-                    + "  \"name\": \"ChangeStream\","
-                    + "  \"type\": \"record\","
-                    + "  \"fields\": ["
-                    + "    { \"name\": \"_id\", \"type\": \"string\" },"
-                    + "    { \"name\": \"operationType\", \"type\": [\"string\", \"null\"] },"
-                    + "    { \"name\": \"fullDocument\", \"type\": [\"string\", \"null\"] },"
-                    + "    { \"name\": \"source\","
-                    + "      \"type\": [{\"name\": \"source\", \"type\": \"record\", \"fields\": ["
-                    + "                {\"name\": \"ts_ms\", \"type\": \"long\"},"
-                    + "                {\"name\": \"snapshot\", \"type\": [\"string\", \"null\"] } ]"
-                    + "               }, \"null\" ] },"
-                    + "    { \"name\": \"ns\","
-                    + "      \"type\": [{\"name\": \"ns\", \"type\": \"record\", \"fields\": ["
-                    + "                {\"name\": \"db\", \"type\": \"string\"},"
-                    + "                {\"name\": \"coll\", \"type\": [\"string\", \"null\"] } ]"
-                    + "               }, \"null\" ] },"
-                    + "    { \"name\": \"to\","
-                    + "      \"type\": [{\"name\": \"to\", \"type\": \"record\",  \"fields\": ["
-                    + "                {\"name\": \"db\", \"type\": \"string\"},"
-                    + "                {\"name\": \"coll\", \"type\": [\"string\", \"null\"] } ]"
-                    + "               }, \"null\" ] },"
-                    + "    { \"name\": \"documentKey\", \"type\": [\"string\", \"null\"] },"
-                    + "    { \"name\": \"updateDescription\","
-                    + "      \"type\": [{\"name\": \"updateDescription\",  \"type\": \"record\", \"fields\": ["
-                    + "                 {\"name\": \"updatedFields\", \"type\": [\"string\", \"null\"]},"
-                    + "                 {\"name\": \"removedFields\","
-                    + "                  \"type\": [{\"type\": \"array\", \"items\": \"string\"}, \"null\"]"
-                    + "                  }] }, \"null\"] },"
-                    + "    { \"name\": \"clusterTime\", \"type\": [\"string\", \"null\"] },"
-                    + "    { \"name\": \"txnNumber\", \"type\": [\"long\", \"null\"]},"
-                    + "    { \"name\": \"lsid\", \"type\": [{\"name\": \"lsid\", \"type\": \"record\","
-                    + "               \"fields\": [ {\"name\": \"id\", \"type\": \"string\"},"
-                    + "                             {\"name\": \"uid\", \"type\": \"string\"}] }, \"null\"] }"
-                    + "  ]"
-                    + "}";
+    public static final String OUTPUT_SCHEMA_VALUE_DEFAULT = "{"
+            + "  \"name\": \"ChangeStream\","
+            + "  \"type\": \"record\","
+            + "  \"fields\": ["
+            + "    { \"name\": \"_id\", \"type\": \"string\" },"
+            + "    { \"name\": \"operationType\", \"type\": [\"string\", \"null\"] },"
+            + "    { \"name\": \"fullDocument\", \"type\": [\"string\", \"null\"] },"
+            + "    { \"name\": \"source\","
+            + "      \"type\": [{\"name\": \"source\", \"type\": \"record\", \"fields\": ["
+            + "                {\"name\": \"ts_ms\", \"type\": \"long\"},"
+            + "                {\"name\": \"snapshot\", \"type\": [\"string\", \"null\"] } ]"
+            + "               }, \"null\" ] },"
+            + "    { \"name\": \"ns\","
+            + "      \"type\": [{\"name\": \"ns\", \"type\": \"record\", \"fields\": ["
+            + "                {\"name\": \"db\", \"type\": \"string\"},"
+            + "                {\"name\": \"coll\", \"type\": [\"string\", \"null\"] } ]"
+            + "               }, \"null\" ] },"
+            + "    { \"name\": \"to\","
+            + "      \"type\": [{\"name\": \"to\", \"type\": \"record\",  \"fields\": ["
+            + "                {\"name\": \"db\", \"type\": \"string\"},"
+            + "                {\"name\": \"coll\", \"type\": [\"string\", \"null\"] } ]"
+            + "               }, \"null\" ] },"
+            + "    { \"name\": \"documentKey\", \"type\": [\"string\", \"null\"] },"
+            + "    { \"name\": \"updateDescription\","
+            + "      \"type\": [{\"name\": \"updateDescription\",  \"type\": \"record\", \"fields\": ["
+            + "                 {\"name\": \"updatedFields\", \"type\": [\"string\", \"null\"]},"
+            + "                 {\"name\": \"removedFields\","
+            + "                  \"type\": [{\"type\": \"array\", \"items\": \"string\"}, \"null\"]"
+            + "                  }] }, \"null\"] },"
+            + "    { \"name\": \"clusterTime\", \"type\": [\"string\", \"null\"] },"
+            + "    { \"name\": \"txnNumber\", \"type\": [\"long\", \"null\"]},"
+            + "    { \"name\": \"lsid\", \"type\": [{\"name\": \"lsid\", \"type\": \"record\","
+            + "               \"fields\": [ {\"name\": \"id\", \"type\": \"string\"},"
+            + "                             {\"name\": \"uid\", \"type\": \"string\"}] }, \"null\"] }"
+            + "  ]"
+            + "}";
 
     public static <T> Builder<T> builder() {
         return new Builder<>();
@@ -177,8 +176,9 @@ public class MongoDBSource {
         }
 
         /**
-         * Regular expressions that match fully-qualified collection identifiers for collections to
-         * be monitored. Each identifier is of the form {@code <databaseName>.<collectionName>}.
+         * Regular expressions that match fully-qualified collection identifiers for
+         * collections to be monitored. Each identifier is of the form
+         * {@code <databaseName>.<collectionName>}.
          */
         public Builder<T> collectionList(String... collectionList) {
             this.collectionList = Arrays.asList(collectionList);
@@ -188,7 +188,8 @@ public class MongoDBSource {
         /**
          * batch.size
          *
-         * <p>The cursor batch size. Default: 0
+         * <p>
+         * The cursor batch size. Default: 0
          */
         public Builder<T> batchSize(int batchSize) {
             checkArgument(batchSize >= 0);
@@ -199,8 +200,9 @@ public class MongoDBSource {
         /**
          * poll.await.time.ms
          *
-         * <p>The amount of time to wait before checking for new results on the change stream.
-         * Default: 3000
+         * <p>
+         * The amount of time to wait before checking for new results on the change
+         * stream. Default: 3000
          */
         public Builder<T> pollAwaitTimeMillis(int pollAwaitTimeMillis) {
             checkArgument(pollAwaitTimeMillis > 0);
@@ -211,9 +213,10 @@ public class MongoDBSource {
         /**
          * poll.max.batch.size
          *
-         * <p>Maximum number of change stream documents to include in a single batch when polling
-         * for new data. This setting can be used to limit the amount of data buffered internally in
-         * the connector. Default: 1000
+         * <p>
+         * Maximum number of change stream documents to include in a single batch when
+         * polling for new data. This setting can be used to limit the amount of data
+         * buffered internally in the connector. Default: 1000
          */
         public Builder<T> pollMaxBatchSize(int pollMaxBatchSize) {
             checkArgument(pollMaxBatchSize > 0);
@@ -224,9 +227,10 @@ public class MongoDBSource {
         /**
          * copy.existing
          *
-         * <p>Copy existing data from source collections and convert them to Change Stream events on
-         * their respective topics. Any changes to the data that occur during the copy process are
-         * applied once the copy is completed.
+         * <p>
+         * Copy existing data from source collections and convert them to Change Stream
+         * events on their respective topics. Any changes to the data that occur during
+         * the copy process are applied once the copy is completed.
          */
         public Builder<T> copyExisting(boolean copyExisting) {
             this.copyExisting = copyExisting;
@@ -236,8 +240,9 @@ public class MongoDBSource {
         /**
          * copy.existing.max.threads
          *
-         * <p>The number of threads to use when performing the data copy. Defaults to the number of
-         * processors. Default: defaults to the number of processors
+         * <p>
+         * The number of threads to use when performing the data copy. Defaults to the
+         * number of processors. Default: defaults to the number of processors
          */
         public Builder<T> copyExistingMaxThreads(int copyExistingMaxThreads) {
             checkArgument(copyExistingMaxThreads > 0);
@@ -248,7 +253,8 @@ public class MongoDBSource {
         /**
          * copy.existing.queue.size
          *
-         * <p>The max size of the queue to use when copying data. Default: 16000
+         * <p>
+         * The max size of the queue to use when copying data. Default: 16000
          */
         public Builder<T> copyExistingQueueSize(int copyExistingQueueSize) {
             checkArgument(copyExistingQueueSize > 0);
@@ -259,9 +265,10 @@ public class MongoDBSource {
         /**
          * copy.existing.pipeline eg. [ { "$match": { "closed": "false" } } ]
          *
-         * <p>An array of JSON objects describing the pipeline operations to run when copying
-         * existing data. This can improve the use of indexes by the copying manager and make
-         * copying more efficient.
+         * <p>
+         * An array of JSON objects describing the pipeline operations to run when
+         * copying existing data. This can improve the use of indexes by the copying
+         * manager and make copying more efficient.
          */
         public Builder<T> copyExistingPipeline(String copyExistingPipeline) {
             this.copyExistingPipeline = copyExistingPipeline;
@@ -271,9 +278,11 @@ public class MongoDBSource {
         /**
          * errors.log.enable
          *
-         * <p>Whether details of failed operations should be written to the log file. When set to
-         * true, both errors that are tolerated (determined by the errors.tolerance setting) and not
-         * tolerated are written. When set to false, errors that are tolerated are omitted.
+         * <p>
+         * Whether details of failed operations should be written to the log file. When
+         * set to true, both errors that are tolerated (determined by the
+         * errors.tolerance setting) and not tolerated are written. When set to false,
+         * errors that are tolerated are omitted.
          */
         public Builder<T> errorsLogEnable(boolean errorsLogEnable) {
             this.errorsLogEnable = errorsLogEnable;
@@ -283,12 +292,14 @@ public class MongoDBSource {
         /**
          * errors.tolerance
          *
-         * <p>Whether to continue processing messages if an error is encountered. When set to none,
-         * the connector reports an error and blocks further processing of the rest of the records
-         * when it encounters an error. When set to all, the connector silently ignores any bad
-         * messages.
+         * <p>
+         * Whether to continue processing messages if an error is encountered. When set
+         * to none, the connector reports an error and blocks further processing of the
+         * rest of the records when it encounters an error. When set to all, the
+         * connector silently ignores any bad messages.
          *
-         * <p>Default: "none" Accepted Values: "none" or "all"
+         * <p>
+         * Default: "none" Accepted Values: "none" or "all"
          */
         public Builder<T> errorsTolerance(String errorsTolerance) {
             this.errorsTolerance = errorsTolerance;
@@ -298,10 +309,12 @@ public class MongoDBSource {
         /**
          * heartbeat.interval.ms
          *
-         * <p>The length of time in milliseconds between sending heartbeat messages. Heartbeat
-         * messages contain the post batch resume token and are sent when no source records have
-         * been published in the specified interval. This improves the resumability of the connector
-         * for low volume namespaces. Use 0 to disable.
+         * <p>
+         * The length of time in milliseconds between sending heartbeat messages.
+         * Heartbeat messages contain the post batch resume token and are sent when no
+         * source records have been published in the specified interval. This improves
+         * the resumability of the connector for low volume namespaces. Use 0 to
+         * disable.
          */
         public Builder<T> heartbeatIntervalMillis(int heartbeatIntervalMillis) {
             checkArgument(heartbeatIntervalMillis >= 0);
@@ -310,8 +323,8 @@ public class MongoDBSource {
         }
 
         /**
-         * The deserializer used to convert from consumed {@link
-         * org.apache.kafka.connect.source.SourceRecord}.
+         * The deserializer used to convert from consumed
+         * {@link org.apache.kafka.connect.source.SourceRecord}.
          */
         public Builder<T> deserializer(DebeziumDeserializationSchema<T> deserializer) {
             this.deserializer = deserializer;

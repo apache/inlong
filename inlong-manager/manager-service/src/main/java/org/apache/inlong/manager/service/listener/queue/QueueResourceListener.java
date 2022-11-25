@@ -17,8 +17,13 @@
 
 package org.apache.inlong.manager.service.listener.queue;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
+import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
+import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
+import static org.apache.inlong.manager.common.enums.GroupOperateType.INIT;
+import static org.apache.inlong.manager.common.enums.ProcessName.CREATE_STREAM_RESOURCE;
+
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.TaskEvent;
@@ -37,8 +42,6 @@ import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -48,16 +51,16 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.inlong.manager.common.consts.InlongConstants.ALIVE_TIME_MS;
-import static org.apache.inlong.manager.common.consts.InlongConstants.CORE_POOL_SIZE;
-import static org.apache.inlong.manager.common.consts.InlongConstants.MAX_POOL_SIZE;
-import static org.apache.inlong.manager.common.consts.InlongConstants.QUEUE_SIZE;
-import static org.apache.inlong.manager.common.enums.GroupOperateType.INIT;
-import static org.apache.inlong.manager.common.enums.ProcessName.CREATE_STREAM_RESOURCE;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
- * Create message queue resources,
- * such as Pulsar Topic and Subscription, TubeMQ Topic and ConsumerGroup, etc.
+ * Create message queue resources, such as Pulsar Topic and Subscription, TubeMQ
+ * Topic and ConsumerGroup, etc.
  */
 @Slf4j
 @Service
@@ -159,7 +162,8 @@ public class QueueResourceListener implements QueueOperateListener {
                     });
             try {
                 // wait for the current process complete before starting the next stream,
-                // otherwise, an exception is thrown and the next stream process will not be started.
+                // otherwise, an exception is thrown and the next stream process will not be
+                // started.
                 future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
             } catch (Exception e) {
                 String msg = "failed to execute stream process in asynchronously ";

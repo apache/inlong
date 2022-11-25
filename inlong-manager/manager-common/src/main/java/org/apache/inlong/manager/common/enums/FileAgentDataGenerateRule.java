@@ -21,13 +21,12 @@ import java.util.Arrays;
 
 public enum FileAgentDataGenerateRule {
 
-    DAY("day", "5 1 0 * * ?"),
-    HOUR("hour", "5 1 0/1 * * ?"),
-    MINUTE("minute", "1 0/10 * * * ?"),
-    RANDOM("random", "run_once");
+    DAY("day", "5 1 0 * * ?"), HOUR("hour", "5 1 0/1 * * ?"), MINUTE("minute", "1 0/10 * * * ?"), RANDOM("random",
+            "run_once");
 
     private final String rule;
     private final String scheduleRule;
+
     FileAgentDataGenerateRule(String rule, String scheduleRule) {
         this.rule = rule;
         this.scheduleRule = scheduleRule;

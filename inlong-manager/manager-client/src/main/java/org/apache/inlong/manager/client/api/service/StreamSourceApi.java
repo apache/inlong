@@ -21,6 +21,7 @@ import org.apache.inlong.manager.pojo.common.PageResult;
 import org.apache.inlong.manager.pojo.common.Response;
 import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -39,7 +40,8 @@ public interface StreamSourceApi {
 
     @GET("source/list")
     Call<Response<PageResult<StreamSource>>> listSources(@Query("inlongGroupId") String groupId,
-            @Query("inlongStreamId") String streamId, @Query("sourceType") String sourceType);
+            @Query("inlongStreamId") String streamId,
+            @Query("sourceType") String sourceType);
 
     @DELETE("source/delete/{id}")
     Call<Response<Boolean>> deleteSource(@Path("id") Integer sourceId);

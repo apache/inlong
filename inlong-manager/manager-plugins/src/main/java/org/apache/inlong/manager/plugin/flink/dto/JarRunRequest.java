@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.plugin.flink.dto;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * The request info of jar run.
@@ -40,6 +40,5 @@ public class JarRunRequest {
     private List<String> programArgsList;
 
     private String savepointPath;
-
 
 }

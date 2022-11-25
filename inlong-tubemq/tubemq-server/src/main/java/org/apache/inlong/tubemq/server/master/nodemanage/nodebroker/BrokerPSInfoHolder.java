@@ -17,9 +17,6 @@
 
 package org.apache.inlong.tubemq.server.master.nodemanage.nodebroker;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
@@ -27,15 +24,18 @@ import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.corebase.utils.Tuple3;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /*
  *  Broker publish and subscribe information holder
  */
 public class BrokerPSInfoHolder {
+
     // broker manage status
-    private final ConcurrentHashSet<Integer/* brokerId */> enablePubBrokerIdSet =
-            new ConcurrentHashSet<>();
-    private final ConcurrentHashSet<Integer/* brokerId */> enableSubBrokerIdSet =
-            new ConcurrentHashSet<>();
+    private final ConcurrentHashSet<Integer/* brokerId */> enablePubBrokerIdSet = new ConcurrentHashSet<>();
+    private final ConcurrentHashSet<Integer/* brokerId */> enableSubBrokerIdSet = new ConcurrentHashSet<>();
     // broker subscribe topic view info
     private final BrokerTopicInfoView subTopicInfoView = new BrokerTopicInfoView();
     // broker publish topic view info
@@ -48,7 +48,8 @@ public class BrokerPSInfoHolder {
     /**
      * remove broker all configure info
      *
-     * @param brokerId broker id index
+     * @param brokerId
+     *          broker id index
      */
     public void rmvBrokerAllPushedInfo(int brokerId) {
         // remove broker status Info
@@ -62,14 +63,17 @@ public class BrokerPSInfoHolder {
     /**
      * initial broker configure info
      *
-     * @param brokerId broker id index
-     * @param mngStatus broker's manage status
-     * @param topicInfoMap broker's topic configure info,
-     *                     if topicInfoMap is null, reserve current configure;
-     *                     if topicInfoMap is empty, clear current configure.
+     * @param brokerId
+     *          broker id index
+     * @param mngStatus
+     *          broker's manage status
+     * @param topicInfoMap
+     *          broker's topic configure info, if topicInfoMap is null, reserve
+     *          current configure; if topicInfoMap is empty, clear current
+     *          configure.
      */
     public void iniBrokerConfigInfo(int brokerId, ManageStatus mngStatus,
-                                    Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         // initial broker manage status
         updBrokerMangeStatus(brokerId, mngStatus);
         if (topicInfoMap == null) {
@@ -84,8 +88,10 @@ public class BrokerPSInfoHolder {
     /**
      * update broker manage status
      *
-     * @param brokerId broker id index
-     * @param mngStatus broker's manage status
+     * @param brokerId
+     *          broker id index
+     * @param mngStatus
+     *          broker's manage status
      */
     public void updBrokerMangeStatus(int brokerId, ManageStatus mngStatus) {
         if (mngStatus.isAcceptPublish()) {
@@ -108,14 +114,16 @@ public class BrokerPSInfoHolder {
     /**
      * update broker's subscribe topicInfo configures
      *
-     * @param brokerId broker id index
-     * @param topicInfoMap broker's topic configure info,
-     *                    if topicInfoMap is null, reserve current configure;
-     *                    if topicInfoMap is empty, clear current configure.
+     * @param brokerId
+     *          broker id index
+     * @param topicInfoMap
+     *          broker's topic configure info, if topicInfoMap is null, reserve
+     *          current configure; if topicInfoMap is empty, clear current
+     *          configure.
      * @return if fast sync data
      */
     public boolean updBrokerSubTopicConfInfo(int brokerId,
-                                          Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         if (topicInfoMap == null) {
             return true;
         }
@@ -126,13 +134,15 @@ public class BrokerPSInfoHolder {
     /**
      * update broker's publish topicInfo configures
      *
-     * @param brokerId broker id index
-     * @param topicInfoMap broker's topic configure info,
-     *                    if topicInfoMap is null, reserve current configure;
-     *                    if topicInfoMap is empty, clear current configure.
+     * @param brokerId
+     *          broker id index
+     * @param topicInfoMap
+     *          broker's topic configure info, if topicInfoMap is null, reserve
+     *          current configure; if topicInfoMap is empty, clear current
+     *          configure.
      */
     public void updBrokerPubTopicConfInfo(int brokerId,
-                                          Map<String, TopicInfo> topicInfoMap) {
+            Map<String, TopicInfo> topicInfoMap) {
         if (topicInfoMap == null) {
             return;
         }
@@ -142,7 +152,8 @@ public class BrokerPSInfoHolder {
     /**
      * Get the maximum number of broker distributions of topic
      *
-     * @param topicSet need query topic set
+     * @param topicSet
+     *          need query topic set
      */
     public int getTopicMaxSubBrokerCnt(Set<String> topicSet) {
         return subTopicInfoView.getMaxTopicBrokerCnt(topicSet, enableSubBrokerIdSet);
@@ -151,7 +162,8 @@ public class BrokerPSInfoHolder {
     /**
      * Gets the map of topic partitions whose subscribe status is enabled
      *
-     * @param topicSet need query topic set
+     * @param topicSet
+     *          need query topic set
      */
     public Map<String, Partition> getAcceptSubParts(Set<String> topicSet) {
         return subTopicInfoView.getAcceptSubParts(topicSet, enableSubBrokerIdSet);
@@ -160,7 +172,8 @@ public class BrokerPSInfoHolder {
     /**
      * Gets the list of topic partitions whose subscribe status is enabled
      *
-     * @param topic need query topic set
+     * @param topic
+     *          need query topic set
      */
     public List<Partition> getAcceptSubParts(String topic) {
         return subTopicInfoView.getAcceptSubParts(topic, enableSubBrokerIdSet);
@@ -169,12 +182,15 @@ public class BrokerPSInfoHolder {
     /**
      * Get the subscribed TopicInfo information of topic in broker
      *
-     * @param brokerId need query broker
-     * @param topic    need query topic
-     * @param result   query result(broker accept subscribe, null or topicInfo configure)
+     * @param brokerId
+     *          need query broker
+     * @param topic
+     *          need query topic
+     * @param result
+     *          query result(broker accept subscribe, null or topicInfo configure)
      */
     public void getBrokerSubPushedTopicInfo(int brokerId, String topic,
-                                            Tuple2<Boolean, TopicInfo> result) {
+            Tuple2<Boolean, TopicInfo> result) {
         result.setF0AndF1(enableSubBrokerIdSet.contains(brokerId),
                 subTopicInfoView.getBrokerPushedTopicInfo(brokerId, topic));
     }
@@ -182,7 +198,8 @@ public class BrokerPSInfoHolder {
     /**
      * Gets the string map of topic partitions whose publish status is enabled
      *
-     * @param topicSizeMap need query topic set and topic's max message size
+     * @param topicSizeMap
+     *          need query topic set and topic's max message size
      */
     public Map<String, String> getAcceptPubPartInfo(Map<String, Integer> topicSizeMap) {
         return pubTopicInfoView.getAcceptPubPartInfo(topicSizeMap, enablePubBrokerIdSet);
@@ -191,13 +208,16 @@ public class BrokerPSInfoHolder {
     /**
      * Get the published TopicInfo information of topic in broker
      *
-     * @param brokerId need query broker
-     * @param topic    need query topic
-     * @param result   query result(broker accept publish,
-     *                       broker accept subscribe, null or topicInfo configure)
+     * @param brokerId
+     *          need query broker
+     * @param topic
+     *          need query topic
+     * @param result
+     *          query result(broker accept publish, broker accept subscribe, null or
+     *          topicInfo configure)
      */
     public void getBrokerPubPushedTopicInfo(int brokerId, String topic,
-                                            Tuple3<Boolean, Boolean, TopicInfo> result) {
+            Tuple3<Boolean, Boolean, TopicInfo> result) {
         result.setFieldsValue(enablePubBrokerIdSet.contains(brokerId),
                 enableSubBrokerIdSet.contains(brokerId),
                 pubTopicInfoView.getBrokerPushedTopicInfo(brokerId, topic));
@@ -206,12 +226,14 @@ public class BrokerPSInfoHolder {
     /**
      * Get all published TopicInfo information of broker
      *
-     * @param brokerId need query broker
-     * @param result   query result(broker accept publish,
-     *                       broker accept subscribe, null or topicInfo configure)
+     * @param brokerId
+     *          need query broker
+     * @param result
+     *          query result(broker accept publish, broker accept subscribe, null or
+     *          topicInfo configure)
      */
     public void getPubBrokerPushedTopicInfo(int brokerId,
-                                            Tuple3<Boolean, Boolean, List<TopicInfo>> result) {
+            Tuple3<Boolean, Boolean, List<TopicInfo>> result) {
         result.setFieldsValue(enablePubBrokerIdSet.contains(brokerId),
                 enableSubBrokerIdSet.contains(brokerId),
                 pubTopicInfoView.getBrokerPushedTopicInfo(brokerId));

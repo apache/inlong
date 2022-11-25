@@ -17,6 +17,23 @@
 
 package org.apache.inlong.tubemq.server.broker.msgstore;
 
+import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
+import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
+import org.apache.inlong.tubemq.server.broker.BrokerConfig;
+import org.apache.inlong.tubemq.server.broker.TubeBroker;
+import org.apache.inlong.tubemq.server.broker.exception.StartupException;
+import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
+import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
+import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
+import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetCsmRecord;
+import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
+import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
+import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
+import org.apache.inlong.tubemq.server.common.TStatusConstants;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -40,37 +57,23 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.inlong.tubemq.corebase.TBaseConstants;
-import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
-import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
-import org.apache.inlong.tubemq.corebase.utils.ThreadUtils;
-import org.apache.inlong.tubemq.server.broker.BrokerConfig;
-import org.apache.inlong.tubemq.server.broker.TubeBroker;
-import org.apache.inlong.tubemq.server.broker.exception.StartupException;
-import org.apache.inlong.tubemq.server.broker.metadata.MetadataManager;
-import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
-import org.apache.inlong.tubemq.server.broker.msgstore.disk.GetMessageResult;
-import org.apache.inlong.tubemq.server.broker.nodeinfo.ConsumerNodeInfo;
-import org.apache.inlong.tubemq.server.broker.offset.OffsetCsmRecord;
-import org.apache.inlong.tubemq.server.broker.offset.OffsetHistoryInfo;
-import org.apache.inlong.tubemq.server.broker.utils.DataStoreUtils;
-import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
-import org.apache.inlong.tubemq.server.common.TStatusConstants;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Message storage management. It contains all topics on broker. In charge of store, expire, and flush operation,
+ * Message storage management. It contains all topics on broker. In charge of
+ * store, expire, and flush operation,
  */
 public class MessageStoreManager implements StoreService {
+
     private static final Logger logger = LoggerFactory.getLogger(MessageStoreManager.class);
     private final BrokerConfig tubeConfig;
     private final TubeBroker tubeBroker;
     // metadata manager, get metadata from master.
     private final MetadataManager metadataManager;
     // storeId to store on each topic.
-    private final ConcurrentHashMap<String/* topic */,
-            ConcurrentHashMap<Integer/* storeId */, MessageStore>> dataStores =
+    private final ConcurrentHashMap<String/* topic */, ConcurrentHashMap<Integer/* storeId */, MessageStore>> dataStores =
             new ConcurrentHashMap<>();
     // store service status
     private final AtomicBoolean stopped = new AtomicBoolean(false);
@@ -88,51 +91,53 @@ public class MessageStoreManager implements StoreService {
     /**
      * Initial the message-store manager.
      *
-     * @param tubeBroker      the broker instance
-     * @param tubeConfig      the initial configure
-     * @throws IOException    the exception during processing
+     * @param tubeBroker
+     *          the broker instance
+     * @param tubeConfig
+     *          the initial configure
+     * @throws IOException
+     *           the exception during processing
      */
     public MessageStoreManager(final TubeBroker tubeBroker,
-                               final BrokerConfig tubeConfig) throws IOException {
+            final BrokerConfig tubeConfig)
+            throws IOException {
         super();
         this.tubeConfig = tubeConfig;
         this.tubeBroker = tubeBroker;
         this.metadataManager = this.tubeBroker.getMetadataManager();
         this.isRemovingTopic.set(false);
-        this.maxMsgTransferSize =
-                Math.min(tubeConfig.getTransferSize(), DataStoreUtils.MAX_MSG_TRANSFER_SIZE);
+        this.maxMsgTransferSize = Math.min(tubeConfig.getTransferSize(), DataStoreUtils.MAX_MSG_TRANSFER_SIZE);
         this.metadataManager.addPropertyChangeListener("topicConfigMap", new PropertyChangeListener() {
+
             @Override
             public void propertyChange(final PropertyChangeEvent evt) {
-                Map<String, TopicMetadata> oldTopicConfigMap
-                        = (Map<String, TopicMetadata>) evt.getOldValue();
-                Map<String, TopicMetadata> newTopicConfigMap
-                        = (Map<String, TopicMetadata>) evt.getNewValue();
+                Map<String, TopicMetadata> oldTopicConfigMap = (Map<String, TopicMetadata>) evt.getOldValue();
+                Map<String, TopicMetadata> newTopicConfigMap = (Map<String, TopicMetadata>) evt.getNewValue();
                 MessageStoreManager.this.refreshMessageStoresHoldVals(oldTopicConfigMap, newTopicConfigMap);
 
             }
         });
-        this.logClearScheduler =
-                Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        return new Thread(r, "Broker Log Clear Thread");
-                    }
-                });
-        this.unFlushDiskScheduler =
-                Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        return new Thread(r, "Broker Log Disk Flush Thread");
-                    }
-                });
-        this.unFlushMemScheduler =
-                Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        return new Thread(r, "Broker Log Mem Flush Thread");
-                    }
-                });
+        this.logClearScheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "Broker Log Clear Thread");
+            }
+        });
+        this.unFlushDiskScheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "Broker Log Disk Flush Thread");
+            }
+        });
+        this.unFlushMemScheduler = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "Broker Log Mem Flush Thread");
+            }
+        });
 
     }
 
@@ -173,8 +178,7 @@ public class MessageStoreManager implements StoreService {
             this.logClearScheduler.shutdownNow();
             this.unFlushDiskScheduler.shutdownNow();
             this.unFlushMemScheduler.shutdownNow();
-            for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry :
-                    this.dataStores.entrySet()) {
+            for (Map.Entry<String, ConcurrentHashMap<Integer, MessageStore>> entry : this.dataStores.entrySet()) {
                 if (entry.getValue() != null) {
                     ConcurrentHashMap<Integer, MessageStore> subMap = entry.getValue();
                     for (Map.Entry<Integer, MessageStore> subEntry : subMap.entrySet()) {
@@ -204,10 +208,8 @@ public class MessageStoreManager implements StoreService {
             return null;
         }
         try {
-            List<String> removedTopics =
-                    new ArrayList<>();
-            Map<String, TopicMetadata> removedTopicMap =
-                    this.metadataManager.getRemovedTopicConfigMap();
+            List<String> removedTopics = new ArrayList<>();
+            Map<String, TopicMetadata> removedTopicMap = this.metadataManager.getRemovedTopicConfigMap();
             if (removedTopicMap.isEmpty()) {
                 return removedTopics;
             }
@@ -225,8 +227,7 @@ public class MessageStoreManager implements StoreService {
             }
             logger.info("[Remove Topic] start remove topics : {}", targetTopics);
             for (String tmpTopic : targetTopics) {
-                ConcurrentHashMap<Integer, MessageStore> topicStores =
-                        dataStores.get(tmpTopic);
+                ConcurrentHashMap<Integer, MessageStore> topicStores = dataStores.get(tmpTopic);
                 if (topicStores != null) {
                     Set<Integer> storeIds = topicStores.keySet();
                     for (Integer storeId : storeIds) {
@@ -274,13 +275,13 @@ public class MessageStoreManager implements StoreService {
     /**
      * Get message store by topic.
      *
-     * @param topic  query topic name
-     * @return       the queried topic's store list
+     * @param topic
+     *          query topic name
+     * @return the queried topic's store list
      */
     @Override
     public Collection<MessageStore> getMessageStoresByTopic(final String topic) {
-        final ConcurrentHashMap<Integer, MessageStore> map
-                = this.dataStores.get(topic);
+        final ConcurrentHashMap<Integer, MessageStore> map = this.dataStores.get(topic);
         if (map == null) {
             return Collections.emptyList();
         }
@@ -290,19 +291,25 @@ public class MessageStoreManager implements StoreService {
     /**
      * Get or create message store.
      *
-     * @param topic           the topic name
-     * @param partition       the partition id
-     * @return                the message-store instance
-     * @throws IOException    the exception during processing
+     * @param topic
+     *          the topic name
+     * @param partition
+     *          the partition id
+     * @return the message-store instance
+     * @throws IOException
+     *           the exception during processing
      */
     @Override
     public MessageStore getOrCreateMessageStore(final String topic,
-                                                final int partition) throws Throwable {
+            final int partition)
+            throws Throwable {
         StringBuilder sBuilder = new StringBuilder(512);
         final int storeId = partition < TBaseConstants.META_STORE_INS_BASE
-                ? 0 : partition / TBaseConstants.META_STORE_INS_BASE;
+                ? 0
+                : partition / TBaseConstants.META_STORE_INS_BASE;
         int realPartition = partition < TBaseConstants.META_STORE_INS_BASE
-                ? partition : partition % TBaseConstants.META_STORE_INS_BASE;
+                ? partition
+                : partition % TBaseConstants.META_STORE_INS_BASE;
         final String dataStoreToken = sBuilder.append("tube_store_manager_").append(topic).toString();
         sBuilder.delete(0, sBuilder.length());
         if (realPartition < 0 || realPartition >= this.metadataManager.getNumPartitions(topic)) {
@@ -313,8 +320,7 @@ public class MessageStoreManager implements StoreService {
         }
         ConcurrentHashMap<Integer, MessageStore> dataMap = dataStores.get(topic);
         if (dataMap == null) {
-            ConcurrentHashMap<Integer, MessageStore> tmpTopicMap =
-                    new ConcurrentHashMap<>();
+            ConcurrentHashMap<Integer, MessageStore> tmpTopicMap = new ConcurrentHashMap<>();
             dataMap = this.dataStores.putIfAbsent(topic, tmpTopicMap);
             if (dataMap == null) {
                 dataMap = tmpTopicMap;
@@ -325,11 +331,9 @@ public class MessageStoreManager implements StoreService {
             synchronized (dataStoreToken.intern()) {
                 messageStore = dataMap.get(storeId);
                 if (messageStore == null) {
-                    TopicMetadata topicMetadata =
-                            metadataManager.getTopicMetadata(topic);
-                    MessageStore tmpMessageStore =
-                            new MessageStore(this, topicMetadata, storeId,
-                                    tubeConfig, 0, maxMsgTransferSize);
+                    TopicMetadata topicMetadata = metadataManager.getTopicMetadata(topic);
+                    MessageStore tmpMessageStore = new MessageStore(this, topicMetadata, storeId,
+                            tubeConfig, 0, maxMsgTransferSize);
                     messageStore = dataMap.putIfAbsent(storeId, tmpMessageStore);
                     if (messageStore == null) {
                         messageStore = tmpMessageStore;
@@ -352,25 +356,31 @@ public class MessageStoreManager implements StoreService {
     /**
      * Get message from store.
      *
-     * @param msgStore        the message-store
-     * @param topic           the topic name
-     * @param partitionId     the partition id
-     * @param msgCount        the message count to read
-     * @param filterCondSet   the filter condition set
-     * @return                the query result
-     * @throws IOException    the exception during processing
+     * @param msgStore
+     *          the message-store
+     * @param topic
+     *          the topic name
+     * @param partitionId
+     *          the partition id
+     * @param msgCount
+     *          the message count to read
+     * @param filterCondSet
+     *          the filter condition set
+     * @return the query result
+     * @throws IOException
+     *           the exception during processing
      */
     public GetMessageResult getMessages(final MessageStore msgStore,
-                                        final String topic,
-                                        final int partitionId,
-                                        final int msgCount,
-                                        final Set<String> filterCondSet) throws IOException {
+            final String topic,
+            final int partitionId,
+            final int msgCount,
+            final Set<String> filterCondSet)
+            throws IOException {
         long requestOffset = 0L;
         try {
             final long maxOffset = msgStore.getIndexMaxOffset();
-            ConsumerNodeInfo consumerNodeInfo =
-                    new ConsumerNodeInfo(tubeBroker.getStoreManager(), "visit",
-                            "visit", filterCondSet, "", System.currentTimeMillis(), "", "");
+            ConsumerNodeInfo consumerNodeInfo = new ConsumerNodeInfo(tubeBroker.getStoreManager(), "visit",
+                    "visit", filterCondSet, "", System.currentTimeMillis(), "", "");
             int maxIndexReadSize = (msgCount + 1)
                     * DataStoreUtils.STORE_INDEX_HEAD_LEN * msgStore.getPartitionNum();
             if (filterCondSet != null && !filterCondSet.isEmpty()) {
@@ -400,7 +410,8 @@ public class MessageStoreManager implements StoreService {
     /**
      * Query topic's publish info.
      *
-     * @param topicSet query's topic set
+     * @param topicSet
+     *          query's topic set
      *
      * @return the topic's offset info
      */
@@ -458,7 +469,8 @@ public class MessageStoreManager implements StoreService {
     /**
      * Query topic's publish info.
      *
-     * @param groupOffsetMap query's topic set
+     * @param groupOffsetMap
+     *          query's topic set
      *
      */
     @Override
@@ -472,8 +484,7 @@ public class MessageStoreManager implements StoreService {
             }
             topicOffsetMap = entry.getValue().getOffsetMap();
             // Get offset records by topic
-            for (Map.Entry<String, Map<Integer, OffsetCsmRecord>> entryTopic
-                    : topicOffsetMap.entrySet()) {
+            for (Map.Entry<String, Map<Integer, OffsetCsmRecord>> entryTopic : topicOffsetMap.entrySet()) {
                 if (entryTopic == null
                         || entryTopic.getKey() == null
                         || entryTopic.getValue() == null) {
@@ -484,8 +495,7 @@ public class MessageStoreManager implements StoreService {
                 if (storeMap == null) {
                     continue;
                 }
-                for (Map.Entry<Integer, OffsetCsmRecord> entryRcd
-                        : entryTopic.getValue().entrySet()) {
+                for (Map.Entry<Integer, OffsetCsmRecord> entryRcd : entryTopic.getValue().entrySet()) {
                     store = storeMap.get(entryRcd.getValue().getStoreId());
                     if (store == null) {
                         continue;
@@ -531,12 +541,14 @@ public class MessageStoreManager implements StoreService {
     /**
      * Load stores sequential.
      *
-     * @param tubeConfig             the broker's configure
-     * @throws IOException           the exception during processing
-     * @throws InterruptedException  the exception during processing
+     * @param tubeConfig
+     *          the broker's configure
+     * @throws IOException
+     *           the exception during processing
+     * @throws InterruptedException
+     *           the exception during processing
      */
-    private void loadMessageStores(final BrokerConfig tubeConfig)
-            throws IOException, InterruptedException {
+    private void loadMessageStores(final BrokerConfig tubeConfig) throws IOException, InterruptedException {
         StringBuilder sBuilder = new StringBuilder(512);
         logger.info(sBuilder.append("[Store Manager] Begin to load message stores from path ")
                 .append(tubeConfig.getPrimaryPath()).toString());
@@ -580,14 +592,14 @@ public class MessageStoreManager implements StoreService {
                 final int storeId = Integer.parseInt(name.substring(index + 1));
                 final MessageStoreManager messageStoreManager = this;
                 tasks.add(new Callable<MessageStore>() {
+
                     @Override
                     public MessageStore call() throws Exception {
                         MessageStore msgStore = null;
                         try {
                             msgStore = new MessageStore(messageStoreManager,
                                     topicMetadata, storeId, tubeConfig, maxMsgTransferSize);
-                            ConcurrentHashMap<Integer, MessageStore> map =
-                                    dataStores.get(msgStore.getTopic());
+                            ConcurrentHashMap<Integer, MessageStore> map = dataStores.get(msgStore.getTopic());
                             if (map == null) {
                                 map = new ConcurrentHashMap<>();
                                 ConcurrentHashMap<Integer, MessageStore> oldmap =
@@ -634,14 +646,14 @@ public class MessageStoreManager implements StoreService {
     /**
      * Load stores in parallel.
      *
-     * @param tasks                    the load tasks
-     * @throws InterruptedException    the exception during processing
+     * @param tasks
+     *          the load tasks
+     * @throws InterruptedException
+     *           the exception during processing
      */
     private void loadStoresInParallel(List<Callable<MessageStore>> tasks) throws InterruptedException {
-        ExecutorService executor =
-                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-        CompletionService<MessageStore> completionService =
-                new ExecutorCompletionService<>(executor);
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+        CompletionService<MessageStore> completionService = new ExecutorCompletionService<>(executor);
         for (Callable<MessageStore> task : tasks) {
             completionService.submit(task);
         }
@@ -675,11 +687,13 @@ public class MessageStoreManager implements StoreService {
     /**
      * Refresh message-store's dynamic configures
      *
-     * @param oldTopicConfigMap     the stored topic configure map
-     * @param newTopicConfigMap     the newly topic configure map
+     * @param oldTopicConfigMap
+     *          the stored topic configure map
+     * @param newTopicConfigMap
+     *          the newly topic configure map
      */
     public void refreshMessageStoresHoldVals(Map<String, TopicMetadata> oldTopicConfigMap,
-                                             Map<String, TopicMetadata> newTopicConfigMap) {
+            Map<String, TopicMetadata> newTopicConfigMap) {
         if (((newTopicConfigMap == null) || newTopicConfigMap.isEmpty())
                 || ((oldTopicConfigMap == null) || oldTopicConfigMap.isEmpty())) {
             return;
@@ -690,8 +704,8 @@ public class MessageStoreManager implements StoreService {
             if ((oldTopicMetadata == null) || oldTopicMetadata.isPropertyEquals(newTopicMetadata)) {
                 continue;
             }
-            ConcurrentHashMap<Integer, MessageStore> messageStores =
-                    MessageStoreManager.this.dataStores.get(newTopicMetadata.getTopic());
+            ConcurrentHashMap<Integer, MessageStore> messageStores = MessageStoreManager.this.dataStores
+                    .get(newTopicMetadata.getTopic());
             if ((messageStores == null) || messageStores.isEmpty()) {
                 continue;
             }

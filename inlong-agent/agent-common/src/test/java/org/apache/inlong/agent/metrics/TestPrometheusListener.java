@@ -17,25 +17,6 @@
 
 package org.apache.inlong.agent.metrics;
 
-import org.apache.inlong.common.metric.MetricItemValue;
-import org.apache.inlong.common.metric.MetricListener;
-import org.apache.inlong.common.metric.MetricListenerRunnable;
-import org.apache.inlong.common.metric.MetricRegister;
-import org.apache.inlong.common.metric.MetricValue;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
@@ -54,6 +35,26 @@ import static org.apache.inlong.agent.metrics.AgentMetricItem.M_SOURCE_SUCCESS_C
 import static org.apache.inlong.agent.metrics.AgentMetricItem.M_TASK_FATAL_COUNT;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.M_TASK_RETRYING_COUNT;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.M_TASK_RUNNING_COUNT;
+
+import org.apache.inlong.common.metric.MetricItemValue;
+import org.apache.inlong.common.metric.MetricListener;
+import org.apache.inlong.common.metric.MetricListenerRunnable;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricValue;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * use to test prometheus listener.
@@ -110,6 +111,7 @@ public class TestPrometheusListener {
         metricItem.pluginReadSuccessCount.incrementAndGet();
         // report
         MetricListener listener = new MetricListener() {
+
             @Override
             public void snapshot(String domain, List<MetricItemValue> itemValues) {
                 for (MetricItemValue itemValue : itemValues) {

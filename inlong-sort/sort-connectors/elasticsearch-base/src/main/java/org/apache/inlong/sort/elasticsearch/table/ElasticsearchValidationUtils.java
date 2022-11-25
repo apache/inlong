@@ -19,6 +19,8 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
+import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRoot;
+
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.types.logical.DistinctType;
@@ -30,8 +32,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.apache.flink.table.types.logical.utils.LogicalTypeChecks.hasRoot;
 
 /** Utility methods for validating Elasticsearch properties. */
 public class ElasticsearchValidationUtils {
@@ -50,37 +50,36 @@ public class ElasticsearchValidationUtils {
     }
 
     /**
-     * Checks that the table does not have primary key defined on illegal types. In Elasticsearch
-     * the primary key is used to calculate the Elasticsearch document id, which is a string of up
-     * to 512 bytes. It cannot have whitespaces. As of now it is calculated by concatenating the
-     * fields. Certain types do not have a good string representation to be used in this scenario.
-     * The illegal types are mostly {@link LogicalTypeFamily#COLLECTION} types and {@link
-     * LogicalTypeRoot#RAW} type.
+     * Checks that the table does not have primary key defined on illegal types. In
+     * Elasticsearch the primary key is used to calculate the Elasticsearch document
+     * id, which is a string of up to 512 bytes. It cannot have whitespaces. As of
+     * now it is calculated by concatenating the fields. Certain types do not have a
+     * good string representation to be used in this scenario. The illegal types are
+     * mostly {@link LogicalTypeFamily#COLLECTION} types and
+     * {@link LogicalTypeRoot#RAW} type.
      */
     public static void validatePrimaryKey(TableSchema schema) {
         schema.getPrimaryKey()
                 .ifPresent(
                         key -> {
-                            List<LogicalTypeRoot> illegalTypes =
-                                    key.getColumns().stream()
-                                            .map(
-                                                    fieldName -> {
-                                                        LogicalType logicalType =
-                                                                schema.getFieldDataType(fieldName)
-                                                                        .get()
-                                                                        .getLogicalType();
-                                                        if (hasRoot(
-                                                                logicalType,
-                                                                LogicalTypeRoot.DISTINCT_TYPE)) {
-                                                            return ((DistinctType) logicalType)
-                                                                    .getSourceType()
-                                                                    .getTypeRoot();
-                                                        } else {
-                                                            return logicalType.getTypeRoot();
-                                                        }
-                                                    })
-                                            .filter(ILLEGAL_PRIMARY_KEY_TYPES::contains)
-                                            .collect(Collectors.toList());
+                            List<LogicalTypeRoot> illegalTypes = key.getColumns().stream()
+                                    .map(
+                                            fieldName -> {
+                                                LogicalType logicalType = schema.getFieldDataType(fieldName)
+                                                        .get()
+                                                        .getLogicalType();
+                                                if (hasRoot(
+                                                        logicalType,
+                                                        LogicalTypeRoot.DISTINCT_TYPE)) {
+                                                    return ((DistinctType) logicalType)
+                                                            .getSourceType()
+                                                            .getTypeRoot();
+                                                } else {
+                                                    return logicalType.getTypeRoot();
+                                                }
+                                            })
+                                    .filter(ILLEGAL_PRIMARY_KEY_TYPES::contains)
+                                    .collect(Collectors.toList());
 
                             if (!illegalTypes.isEmpty()) {
                                 throw new ValidationException(

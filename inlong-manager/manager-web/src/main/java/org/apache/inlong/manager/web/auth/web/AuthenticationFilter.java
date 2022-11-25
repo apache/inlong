@@ -17,15 +17,15 @@
 
 package org.apache.inlong.manager.web.auth.web;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.pojo.user.UserInfo;
 import org.apache.inlong.manager.service.user.LoginUserUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -35,7 +35,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Filter of web user authentication.
@@ -55,7 +59,8 @@ public class AuthenticationFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain filterChain)
             throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
 
@@ -85,7 +90,8 @@ public class AuthenticationFilter implements Filter {
     }
 
     private void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain,
-            UserInfo userInfo) throws IOException, ServletException {
+            UserInfo userInfo)
+            throws IOException, ServletException {
         LoginUserUtils.setUserLoginInfo(userInfo);
         try {
             filterChain.doFilter(servletRequest, servletResponse);

@@ -17,12 +17,8 @@
 
 package org.apache.inlong.audit.send;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelFuture;
 import org.apache.inlong.audit.util.IpPort;
 import org.apache.inlong.audit.util.SenderResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -32,7 +28,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
+
 public class SenderGroup {
+
     private static final Logger logger = LoggerFactory.getLogger(SenderGroup.class);
     // maximum number of sending
     public static final int MAX_SEND_TIMES = 3;
@@ -223,11 +226,11 @@ public class SenderGroup {
     /**
      * set hasSendError
      *
-     * @param hasSendError the hasSendError to set
+     * @param hasSendError
+     *          the hasSendError to set
      */
     public void setHasSendError(boolean hasSendError) {
         this.hasSendError = hasSendError;
     }
 
 }
-

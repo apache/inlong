@@ -31,7 +31,8 @@ public interface Workflow {
     /**
      * Initiation process
      *
-     * @param request workflow operation request
+     * @param request
+     *          workflow operation request
      * @return workflow result info
      */
     WorkflowResult start(WorkflowOperationRequest request);
@@ -39,8 +40,10 @@ public interface Workflow {
     /**
      * Initiation process
      *
-     * @param processId process id
-     * @param request workflow operation request
+     * @param processId
+     *          process id
+     * @param request
+     *          workflow operation request
      * @return workflow result info
      */
     WorkflowResult cancel(Integer processId, WorkflowOperationRequest request);
@@ -48,8 +51,10 @@ public interface Workflow {
     /**
      * Continue process when pending or failed
      *
-     * @param processId process id
-     * @param request workflow operation request
+     * @param processId
+     *          process id
+     * @param request
+     *          workflow operation request
      * @return workflow result info
      */
     WorkflowResult continueProcess(Integer processId, WorkflowOperationRequest request);
@@ -57,8 +62,10 @@ public interface Workflow {
     /**
      * Cancellation process application
      *
-     * @param taskId taskId
-     * @param request workflow operation request
+     * @param taskId
+     *          taskId
+     * @param request
+     *          workflow operation request
      * @return workflow result info
      */
     WorkflowResult reject(Integer taskId, WorkflowOperationRequest request);
@@ -66,8 +73,10 @@ public interface Workflow {
     /**
      * Complete task-true to automatic task
      *
-     * @param taskId taskId
-     * @param request workflow operation request
+     * @param taskId
+     *          taskId
+     * @param request
+     *          workflow operation request
      * @return workflow result info
      */
     WorkflowResult complete(Integer taskId, WorkflowOperationRequest request);
@@ -75,8 +84,10 @@ public interface Workflow {
     /**
      * Query process details according to the tracking number
      *
-     * @param processId processId
-     * @param taskId taskId
+     * @param processId
+     *          processId
+     * @param taskId
+     *          taskId
      * @return process detail response
      */
     ProcessDetailResponse detail(Integer processId, Integer taskId);
@@ -84,7 +95,8 @@ public interface Workflow {
     /**
      * Get process list
      *
-     * @param request workflow process request
+     * @param request
+     *          workflow process request
      * @return process response list
      */
     PageResult<ProcessResponse> listProcess(ProcessRequest request);
@@ -92,7 +104,8 @@ public interface Workflow {
     /**
      * Get task list
      *
-     * @param request workflow task query request
+     * @param request
+     *          workflow task query request
      * @return task response list
      */
     PageResult<TaskResponse> listTask(TaskRequest request);

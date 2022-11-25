@@ -18,12 +18,10 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.enumerator;
 
-import org.apache.flink.annotation.Internal;
-import org.apache.flink.api.connector.source.SourceEvent;
-import org.apache.flink.api.connector.source.SplitEnumerator;
-import org.apache.flink.api.connector.source.SplitEnumeratorContext;
-import org.apache.flink.shaded.guava18.com.google.common.collect.Lists;
-import org.apache.flink.util.FlinkRuntimeException;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigning;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigningFinished;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
+
 import org.apache.inlong.sort.cdc.mysql.source.assigners.MySqlHybridSplitAssigner;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.MySqlSplitAssigner;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.PendingSplitsState;
@@ -41,10 +39,14 @@ import org.apache.inlong.sort.cdc.mysql.source.events.WakeupReaderEvent;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import org.apache.flink.annotation.Internal;
+import org.apache.flink.api.connector.source.SourceEvent;
+import org.apache.flink.api.connector.source.SplitEnumerator;
+import org.apache.flink.api.connector.source.SplitEnumeratorContext;
+import org.apache.flink.shaded.guava18.com.google.common.collect.Lists;
+import org.apache.flink.util.FlinkRuntimeException;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -53,13 +55,14 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigning;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigningFinished;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * A MySQL CDC source enumerator that enumerates receive the split request and assign the split to
- * source readers.
+ * A MySQL CDC source enumerator that enumerates receive the split request and
+ * assign the split to source readers.
  */
 @Internal
 public class MySqlSourceEnumerator implements SplitEnumerator<MySqlSplit, PendingSplitsState> {
@@ -139,8 +142,7 @@ public class MySqlSourceEnumerator implements SplitEnumerator<MySqlSplit, Pendin
                     "The enumerator receives finished split offsets {} from subtask {}.",
                     sourceEvent,
                     subtaskId);
-            FinishedSnapshotSplitsReportEvent reportEvent =
-                    (FinishedSnapshotSplitsReportEvent) sourceEvent;
+            FinishedSnapshotSplitsReportEvent reportEvent = (FinishedSnapshotSplitsReportEvent) sourceEvent;
             Map<String, BinlogOffset> finishedOffsets = reportEvent.getFinishedOffsets();
 
             splitAssigner.onFinishedSplits(finishedOffsets);
@@ -148,8 +150,8 @@ public class MySqlSourceEnumerator implements SplitEnumerator<MySqlSplit, Pendin
             wakeupBinlogReaderIfNeed();
 
             // send acknowledge event
-            FinishedSnapshotSplitsAckEvent ackEvent =
-                    new FinishedSnapshotSplitsAckEvent(new ArrayList<>(finishedOffsets.keySet()));
+            FinishedSnapshotSplitsAckEvent ackEvent = new FinishedSnapshotSplitsAckEvent(
+                    new ArrayList<>(finishedOffsets.keySet()));
             context.sendEventToSourceReader(subtaskId, ackEvent);
         } else if (sourceEvent instanceof BinlogSplitMetaRequestEvent) {
             LOG.debug(
@@ -259,29 +261,26 @@ public class MySqlSourceEnumerator implements SplitEnumerator<MySqlSplit, Pendin
     private void sendBinlogMeta(int subTask, BinlogSplitMetaRequestEvent requestEvent) {
         // initialize once
         if (binlogSplitMeta == null) {
-            final List<FinishedSnapshotSplitInfo> finishedSnapshotSplitInfos =
-                    splitAssigner.getFinishedSplitInfos();
+            final List<FinishedSnapshotSplitInfo> finishedSnapshotSplitInfos = splitAssigner.getFinishedSplitInfos();
             if (finishedSnapshotSplitInfos.isEmpty()) {
                 LOG.error(
                         "The assigner offer empty finished split information, this should not happen");
                 throw new FlinkRuntimeException(
                         "The assigner offer empty finished split information, this should not happen");
             }
-            binlogSplitMeta =
-                    Lists.partition(
-                            finishedSnapshotSplitInfos, sourceConfig.getSplitMetaGroupSize());
+            binlogSplitMeta = Lists.partition(
+                    finishedSnapshotSplitInfos, sourceConfig.getSplitMetaGroupSize());
         }
         final int requestMetaGroupId = requestEvent.getRequestMetaGroupId();
 
         if (binlogSplitMeta.size() > requestMetaGroupId) {
             List<FinishedSnapshotSplitInfo> metaToSend = binlogSplitMeta.get(requestMetaGroupId);
-            BinlogSplitMetaEvent metadataEvent =
-                    new BinlogSplitMetaEvent(
-                            requestEvent.getSplitId(),
-                            requestMetaGroupId,
-                            metaToSend.stream()
-                                    .map(FinishedSnapshotSplitInfo::serialize)
-                                    .collect(Collectors.toList()));
+            BinlogSplitMetaEvent metadataEvent = new BinlogSplitMetaEvent(
+                    requestEvent.getSplitId(),
+                    requestMetaGroupId,
+                    metaToSend.stream()
+                            .map(FinishedSnapshotSplitInfo::serialize)
+                            .collect(Collectors.toList()));
             context.sendEventToSourceReader(subTask, metadataEvent);
         } else {
             LOG.error(

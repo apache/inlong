@@ -17,13 +17,6 @@
 
 package org.apache.inlong.manager.service.cluster;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
@@ -67,13 +60,9 @@ import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,6 +73,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 
 /**
  * Inlong cluster service layer implementation
@@ -194,7 +197,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to update cluster tag");
 
-        // if the cluster tag was changed, need to check whether the new tag already exists
+        // if the cluster tag was changed, need to check whether the new tag already
+        // exists
         String oldClusterTag = exist.getClusterTag();
         if (!newClusterTag.equals(oldClusterTag)) {
             InlongClusterTagEntity tagConflict = clusterTagMapper.selectByTag(newClusterTag);
@@ -325,8 +329,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         PageResult<ClusterInfo> pageResult = new PageResult<>(
                 list, entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize()
-        );
+                entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list inlong cluster by {}", request);
         return pageResult;
@@ -587,8 +590,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         String message = "Current user does not have permission to get cluster node list";
         checkUser(cluster, currentUser, message);
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<InlongClusterNodeEntity> entityPage = (Page<InlongClusterNodeEntity>)
-                clusterNodeMapper.selectByCondition(request);
+        Page<InlongClusterNodeEntity> entityPage = (Page<InlongClusterNodeEntity>) clusterNodeMapper
+                .selectByCondition(request);
         List<ClusterNodeResponse> nodeList = CommonBeanUtils.copyListProperties(entityPage, ClusterNodeResponse::new);
 
         PageResult<ClusterNodeResponse> pageResult = new PageResult<>(nodeList, entityPage.getTotal(),
@@ -789,7 +792,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             return result;
         }
 
-        // get all inlong groups which was successful and belongs to this data proxy cluster
+        // get all inlong groups which was successful and belongs to this data proxy
+        // cluster
         Set<String> tagSet = new HashSet<>(16);
         clusterEntityList.forEach(e -> tagSet.addAll(Arrays.asList(e.getClusterTags().split(InlongConstants.COMMA))));
         List<String> clusterTagList = new ArrayList<>(tagSet);

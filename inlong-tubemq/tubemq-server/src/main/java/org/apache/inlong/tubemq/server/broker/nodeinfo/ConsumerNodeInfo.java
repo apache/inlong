@@ -17,14 +17,15 @@
 
 package org.apache.inlong.tubemq.server.broker.nodeinfo;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.policies.FlowCtrlResult;
 import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Consumer node info, which broker contains.
@@ -56,29 +57,35 @@ public class ConsumerNodeInfo {
     private int sentUnit = TServerConstants.CFG_STORE_DEFAULT_MSG_READ_UNIT;
     private long totalUnitSec = 0L;
     private long totalUnitMin = 0L;
-    private FlowCtrlResult curFlowCtrlVal =
-            new FlowCtrlResult(Long.MAX_VALUE, 0);
+    private FlowCtrlResult curFlowCtrlVal = new FlowCtrlResult(Long.MAX_VALUE, 0);
     private long nextLimitUpdateTime = 0;
-    private final AtomicInteger qryPriorityId =
-            new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicInteger qryPriorityId = new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
     private long createTime = System.currentTimeMillis();
 
     /**
      * Initial consumer node information
      *
-     * @param storeManager    the store manager
-     * @param groupName       the group name
-     * @param consumerId      the consumer id
-     * @param filterCodes     the filter condition items
-     * @param sessionKey      the session key
-     * @param sessionTime     the session create time
-     * @param partStr         the partition information
-     * @param msgRcvFrom      the address message received
+     * @param storeManager
+     *          the store manager
+     * @param groupName
+     *          the group name
+     * @param consumerId
+     *          the consumer id
+     * @param filterCodes
+     *          the filter condition items
+     * @param sessionKey
+     *          the session key
+     * @param sessionTime
+     *          the session create time
+     * @param partStr
+     *          the partition information
+     * @param msgRcvFrom
+     *          the address message received
      */
     public ConsumerNodeInfo(MessageStoreManager storeManager, String groupName,
-                            String consumerId, Set<String> filterCodes,
-                            String sessionKey, long sessionTime, String partStr,
-                            String msgRcvFrom) {
+            String consumerId, Set<String> filterCodes,
+            String sessionKey, long sessionTime, String partStr,
+            String msgRcvFrom) {
         this(storeManager, TBaseConstants.META_VALUE_UNDEFINED, groupName,
                 consumerId, filterCodes, sessionKey, sessionTime, false,
                 partStr, msgRcvFrom);
@@ -87,21 +94,30 @@ public class ConsumerNodeInfo {
     /**
      * Initial consumer node information
      *
-     * @param storeManager       the store manager
-     * @param qryPriorityId      the query priority id
-     * @param consumerId         the consumer id
-     * @param filterCodes        the filter condition items
-     * @param sessionKey         the session key
-     * @param sessionTime        the session create time
-     * @param isSupportLimit     whether to support limited consumption function
-     * @param partStr            the partition information
-     * @param msgRcvFrom         the address message received
+     * @param storeManager
+     *          the store manager
+     * @param qryPriorityId
+     *          the query priority id
+     * @param consumerId
+     *          the consumer id
+     * @param filterCodes
+     *          the filter condition items
+     * @param sessionKey
+     *          the session key
+     * @param sessionTime
+     *          the session create time
+     * @param isSupportLimit
+     *          whether to support limited consumption function
+     * @param partStr
+     *          the partition information
+     * @param msgRcvFrom
+     *          the address message received
      */
     public ConsumerNodeInfo(MessageStoreManager storeManager, int qryPriorityId,
-                            String groupName, String consumerId,
-                            Set<String> filterCodes, String sessionKey,
-                            long sessionTime, boolean isSupportLimit,
-                            String partStr, String msgRcvFrom) {
+            String groupName, String consumerId,
+            Set<String> filterCodes, String sessionKey,
+            long sessionTime, boolean isSupportLimit,
+            String partStr, String msgRcvFrom) {
         setConsumerId(consumerId);
         if (filterCodes != null) {
             for (String filterItem : filterCodes) {
@@ -126,17 +142,22 @@ public class ConsumerNodeInfo {
     /**
      * Query the current allowed maximum consumption size
      *
-     * @param storeKey              the store block key
-     * @param flowCtrlRuleHandler   the flow-control rule handler
-     * @param currMaxDataOffset     the current max data offset
-     * @param maxMsgTransferSize    the max message transfer size
-     * @param isEscFlowCtrl         whether need escape flow-control process
-     * @return                      the allowed consumption size
+     * @param storeKey
+     *          the store block key
+     * @param flowCtrlRuleHandler
+     *          the flow-control rule handler
+     * @param currMaxDataOffset
+     *          the current max data offset
+     * @param maxMsgTransferSize
+     *          the max message transfer size
+     * @param isEscFlowCtrl
+     *          whether need escape flow-control process
+     * @return the allowed consumption size
      */
     public int getCurrentAllowedSize(final String storeKey,
-                                     final FlowCtrlRuleHandler flowCtrlRuleHandler,
-                                     final long currMaxDataOffset, int maxMsgTransferSize,
-                                     boolean isEscFlowCtrl) {
+            final FlowCtrlRuleHandler flowCtrlRuleHandler,
+            final long currMaxDataOffset, int maxMsgTransferSize,
+            boolean isEscFlowCtrl) {
         if (lastDataRdOffset >= 0) {
             long curDataDlt = currMaxDataOffset - lastDataRdOffset;
             long currTime = System.currentTimeMillis();
@@ -144,7 +165,7 @@ public class ConsumerNodeInfo {
                     currTime, maxMsgTransferSize, flowCtrlRuleHandler);
             if (isEscFlowCtrl
                     || (totalUnitSec > sentMsgSize
-                    && this.curFlowCtrlVal.dataLtInSize > totalUnitMin)) {
+                            && this.curFlowCtrlVal.dataLtInSize > totalUnitMin)) {
                 return this.sentUnit;
             } else {
                 if (this.isSupportLimit) {
@@ -277,13 +298,17 @@ public class ConsumerNodeInfo {
     /**
      * Recalculate message limit value.
      *
-     * @param curDataDlt              current data lag
-     * @param currTime                current time
-     * @param maxMsgTransferSize      the max message transfer size
-     * @param flowCtrlRuleHandler     the flow-control rule handler
+     * @param curDataDlt
+     *          current data lag
+     * @param currTime
+     *          current time
+     * @param maxMsgTransferSize
+     *          the max message transfer size
+     * @param flowCtrlRuleHandler
+     *          the flow-control rule handler
      */
     private void recalcMsgLimitValue(long curDataDlt, long currTime, int maxMsgTransferSize,
-                                     final FlowCtrlRuleHandler flowCtrlRuleHandler) {
+            final FlowCtrlRuleHandler flowCtrlRuleHandler) {
         if (currTime > nextLimitUpdateTime) {
             this.curFlowCtrlVal = flowCtrlRuleHandler.getCurDataLimit(curDataDlt);
             if (this.curFlowCtrlVal == null) {
@@ -292,17 +317,13 @@ public class ConsumerNodeInfo {
             currTime = System.currentTimeMillis();
             this.sentMsgSize = 0;
             this.totalUnitMin = 0;
-            this.nextStatTime =
-                    currTime + TBaseConstants.CFG_FC_MAX_SAMPLING_PERIOD;
-            this.nextLimitUpdateTime =
-                    currTime + TBaseConstants.CFG_FC_MAX_LIMITING_DURATION;
+            this.nextStatTime = currTime + TBaseConstants.CFG_FC_MAX_SAMPLING_PERIOD;
+            this.nextLimitUpdateTime = currTime + TBaseConstants.CFG_FC_MAX_LIMITING_DURATION;
             this.totalUnitSec = this.curFlowCtrlVal.dataLtInSize / 12;
-            this.sentUnit =
-                    totalUnitSec > maxMsgTransferSize ? maxMsgTransferSize : (int) totalUnitSec;
+            this.sentUnit = totalUnitSec > maxMsgTransferSize ? maxMsgTransferSize : (int) totalUnitSec;
         } else if (currTime > nextStatTime) {
             sentMsgSize = 0;
-            nextStatTime =
-                    currTime + TBaseConstants.CFG_FC_MAX_SAMPLING_PERIOD;
+            nextStatTime = currTime + TBaseConstants.CFG_FC_MAX_SAMPLING_PERIOD;
         }
     }
 }

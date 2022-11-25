@@ -17,29 +17,30 @@
 
 package org.apache.inlong.manager.service.resource.sink.oracle;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleColumnInfo;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleSinkDTO;
 import org.apache.inlong.manager.pojo.sink.oracle.OracleTableInfo;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OracleResourceOperator implements SinkResourceOperator {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+public class OracleResourceOperator implements SinkResourceOperator {
 
     private static final Logger LOG = LoggerFactory.getLogger(OracleResourceOperator.class);
 
@@ -70,7 +71,8 @@ public class OracleResourceOperator implements SinkResourceOperator {
     /**
      * Create Oracle table by SinkInfo.
      *
-     * @param sinkInfo {@link SinkInfo}
+     * @param sinkInfo
+     *          {@link SinkInfo}
      */
     private void createTable(SinkInfo sinkInfo) {
         LOG.info("begin to create Oracle table for sinkId={}", sinkInfo.getId());
@@ -89,8 +91,9 @@ public class OracleResourceOperator implements SinkResourceOperator {
         final OracleSinkDTO oracleSink = OracleSinkDTO.getFromJson(sinkInfo.getExtParams());
         final OracleTableInfo tableInfo = OracleSinkDTO.getTableInfo(oracleSink, columnList);
 
-        try (Connection conn = OracleJdbcUtils.getConnection(oracleSink.getJdbcUrl(),
-                oracleSink.getUsername(), oracleSink.getPassword())) {
+        try (
+                Connection conn = OracleJdbcUtils.getConnection(oracleSink.getJdbcUrl(),
+                        oracleSink.getUsername(), oracleSink.getPassword())) {
 
             // In Oracle, there is no need to consider whether the database exists
             // 1.If table not exists, create it

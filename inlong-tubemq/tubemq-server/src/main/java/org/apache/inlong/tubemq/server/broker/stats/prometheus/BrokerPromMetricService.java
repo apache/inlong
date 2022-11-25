@@ -17,6 +17,12 @@
 
 package org.apache.inlong.tubemq.server.broker.stats.prometheus;
 
+import org.apache.inlong.tubemq.server.broker.TubeBroker;
+import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
+import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
+import org.apache.inlong.tubemq.server.common.fileconfig.PrometheusConfig;
+import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,27 +30,24 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import io.prometheus.client.Collector;
-import io.prometheus.client.CounterMetricFamily;
-import io.prometheus.client.exporter.HTTPServer;
-import org.apache.inlong.tubemq.server.broker.TubeBroker;
-import org.apache.inlong.tubemq.server.broker.msgstore.MessageStore;
-import org.apache.inlong.tubemq.server.broker.stats.BrokerSrvStatsHolder;
-import org.apache.inlong.tubemq.server.common.fileconfig.PrometheusConfig;
-import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.prometheus.client.Collector;
+import io.prometheus.client.CounterMetricFamily;
+import io.prometheus.client.exporter.HTTPServer;
+
 public class BrokerPromMetricService extends Collector {
-    private static final Logger logger =
-            LoggerFactory.getLogger(BrokerPromMetricService.class);
+
+    private static final Logger logger = LoggerFactory.getLogger(BrokerPromMetricService.class);
     private TubeBroker tubeBroker;
     private PrometheusConfig promConfig = new PrometheusConfig();
     private HTTPServer httpServer;
     private volatile boolean started = false;
 
     public BrokerPromMetricService(TubeBroker tubeBroker,
-                                   PrometheusConfig prometheusConfig) {
+            PrometheusConfig prometheusConfig) {
         if (prometheusConfig == null || !prometheusConfig.isPromEnable()) {
             return;
         }
@@ -72,11 +75,10 @@ public class BrokerPromMetricService extends Collector {
         // service status metric data
         Map<String, Long> statsMap = new LinkedHashMap<>();
         StringBuilder strBuff = new StringBuilder(512);
-        CounterMetricFamily srvStatusCounter =
-                new CounterMetricFamily(strBuff.append(promConfig.getPromClusterName())
-                        .append("&group=serviceStatus").toString(),
-                        "The service status metrics of TubeMQ-Broker node.",
-                        Arrays.asList("serviceStatus"));
+        CounterMetricFamily srvStatusCounter = new CounterMetricFamily(strBuff.append(promConfig.getPromClusterName())
+                .append("&group=serviceStatus").toString(),
+                "The service status metrics of TubeMQ-Broker node.",
+                Arrays.asList("serviceStatus"));
         strBuff.delete(0, strBuff.length());
         BrokerSrvStatsHolder.snapShort(statsMap);
         for (Map.Entry<String, Long> entry : statsMap.entrySet()) {
@@ -84,11 +86,10 @@ public class BrokerPromMetricService extends Collector {
         }
         mfs.add(srvStatusCounter);
         // web api call status metric data
-        CounterMetricFamily webAPICounter =
-                new CounterMetricFamily(strBuff.append(promConfig.getPromClusterName())
-                        .append("&group=webAPI").toString(),
-                        "The web api call metrics of TubeMQ-Broker node.",
-                        Arrays.asList("webAPI"));
+        CounterMetricFamily webAPICounter = new CounterMetricFamily(strBuff.append(promConfig.getPromClusterName())
+                .append("&group=webAPI").toString(),
+                "The web api call metrics of TubeMQ-Broker node.",
+                Arrays.asList("webAPI"));
         strBuff.delete(0, strBuff.length());
         statsMap.clear();
         WebCallStatsHolder.snapShort(statsMap);
@@ -97,18 +98,16 @@ public class BrokerPromMetricService extends Collector {
         }
         mfs.add(webAPICounter);
         // msg store metric data
-        CounterMetricFamily msgStoreCounter =
-                new CounterMetricFamily(strBuff.append(promConfig.getPromClusterName())
-                        .append("&group=msgStore").toString(),
-                        "The message store metrics of TubeMQ-Broker node.",
-                        Arrays.asList("msgStore"));
+        CounterMetricFamily msgStoreCounter = new CounterMetricFamily(strBuff.append(promConfig.getPromClusterName())
+                .append("&group=msgStore").toString(),
+                "The message store metrics of TubeMQ-Broker node.",
+                Arrays.asList("msgStore"));
         strBuff.delete(0, strBuff.length());
         // set topic's statistic status
         List<String> labelValues = new ArrayList<>();
-        Map<String, ConcurrentHashMap<Integer, MessageStore>> msgTopicStores =
-                tubeBroker.getStoreManager().getMessageStores();
-        for (ConcurrentHashMap<Integer, MessageStore> storeMap
-                : msgTopicStores.values()) {
+        Map<String, ConcurrentHashMap<Integer, MessageStore>> msgTopicStores = tubeBroker.getStoreManager()
+                .getMessageStores();
+        for (ConcurrentHashMap<Integer, MessageStore> storeMap : msgTopicStores.values()) {
             if (storeMap == null) {
                 continue;
             }

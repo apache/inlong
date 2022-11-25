@@ -18,11 +18,11 @@
 
 package org.apache.inlong.sort.cdc.mysql.source.assigners;
 
-import io.debezium.jdbc.JdbcConnection;
-import io.debezium.relational.TableId;
-import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.apache.flink.util.FlinkRuntimeException;
-import org.apache.flink.util.Preconditions;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.discoverCapturedTables;
+import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigningFinished;
+import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
+
 import org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils;
 import org.apache.inlong.sort.cdc.mysql.schema.MySqlSchema;
 import org.apache.inlong.sort.cdc.mysql.source.assigners.state.SnapshotPendingSplitsState;
@@ -32,10 +32,11 @@ import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSnapshotSplit;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlSplit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.flink.util.Preconditions;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -50,18 +51,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.discoverCapturedTables;
-import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcConnection;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isAssigningFinished;
-import static org.apache.inlong.sort.cdc.mysql.source.assigners.AssignerStatus.isSuspended;
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.jdbc.JdbcConnection;
+import io.debezium.relational.TableId;
 
 /**
- * A {@link MySqlSplitAssigner} that splits tables into small chunk splits based on primary key
- * range and chunk size.
+ * A {@link MySqlSplitAssigner} that splits tables into small chunk splits based
+ * on primary key range and chunk size.
  *
  * @see MySqlSourceOptions#SCAN_INCREMENTAL_SNAPSHOT_CHUNK_SIZE
  */
 public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
+
     private static final Logger LOG = LoggerFactory.getLogger(MySqlSnapshotSplitAssigner.class);
 
     private final List<TableId> alreadyProcessedTables;
@@ -152,7 +157,8 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
         lock = new Object();
         chunkSplitter = createChunkSplitter(sourceConfig, isTableIdCaseSensitive);
 
-        // the legacy state didn't snapshot remaining tables, discovery remaining table here
+        // the legacy state didn't snapshot remaining tables, discovery remaining table
+        // here
         if (!isRemainingTablesCheckpointed && !isAssigningFinished(assignerStatus)) {
             try (JdbcConnection jdbc = openJdbcConnection(sourceConfig)) {
                 final List<TableId> discoverTables = discoverCapturedTables(jdbc, sourceConfig);
@@ -198,8 +204,7 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
     private void startAsynchronouslySplit() {
         if (!remainingTables.isEmpty()) {
             if (executor == null) {
-                ThreadFactory threadFactory =
-                        new ThreadFactoryBuilder().setNameFormat("snapshot-splitting").build();
+                ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("snapshot-splitting").build();
                 this.executor = Executors.newSingleThreadExecutor(threadFactory);
             }
 
@@ -209,8 +214,7 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
                         while (iterator.hasNext()) {
                             TableId nextTable = iterator.next();
                             // split the given table into chunks (snapshot splits)
-                            Collection<MySqlSnapshotSplit> splits =
-                                    chunkSplitter.generateSplits(nextTable);
+                            Collection<MySqlSnapshotSplit> splits = chunkSplitter.generateSplits(nextTable);
                             synchronized (lock) {
                                 remainingSplits.addAll(splits);
                                 remainingTables.remove(nextTable);
@@ -261,10 +265,9 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
             throw new FlinkRuntimeException(
                     "The assigner is not ready to offer finished split information, this should not be called");
         }
-        final List<MySqlSnapshotSplit> assignedSnapshotSplit =
-                assignedSplits.values().stream()
-                        .sorted(Comparator.comparing(MySqlSplit::splitId))
-                        .collect(Collectors.toList());
+        final List<MySqlSnapshotSplit> assignedSnapshotSplit = assignedSplits.values().stream()
+                .sorted(Comparator.comparing(MySqlSplit::splitId))
+                .collect(Collectors.toList());
         List<FinishedSnapshotSplitInfo> finishedSnapshotSplitInfos = new ArrayList<>();
         for (MySqlSnapshotSplit split : assignedSnapshotSplit) {
             BinlogOffset binlogOffset = splitFinishedOffsets.get(split.splitId());
@@ -283,8 +286,10 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
     public void onFinishedSplits(Map<String, BinlogOffset> splitFinishedOffsets) {
         this.splitFinishedOffsets.putAll(splitFinishedOffsets);
         if (allSplitsFinished() && AssignerStatus.isAssigning(assignerStatus)) {
-            // Skip the waiting checkpoint when current parallelism is 1 which means we do not need
-            // to care about the global output data order of snapshot splits and binlog split.
+            // Skip the waiting checkpoint when current parallelism is 1 which means we do
+            // not need
+            // to care about the global output data order of snapshot splits and binlog
+            // split.
             if (currentParallelism == 1) {
                 assignerStatus = assignerStatus.onFinish();
                 LOG.info(
@@ -311,17 +316,17 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
 
     @Override
     public SnapshotPendingSplitsState snapshotState(long checkpointId) {
-        SnapshotPendingSplitsState state =
-                new SnapshotPendingSplitsState(
-                        alreadyProcessedTables,
-                        remainingSplits,
-                        assignedSplits,
-                        splitFinishedOffsets,
-                        assignerStatus,
-                        remainingTables,
-                        isTableIdCaseSensitive,
-                        true);
-        // we need a complete checkpoint before mark this assigner to be finished, to wait for all
+        SnapshotPendingSplitsState state = new SnapshotPendingSplitsState(
+                alreadyProcessedTables,
+                remainingSplits,
+                assignedSplits,
+                splitFinishedOffsets,
+                assignerStatus,
+                remainingTables,
+                isTableIdCaseSensitive,
+                true);
+        // we need a complete checkpoint before mark this assigner to be finished, to
+        // wait for all
         // records of snapshot splits are completely processed
         if (checkpointIdToFinish == null
                 && !isAssigningFinished(assignerStatus)
@@ -333,7 +338,8 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
 
     @Override
     public void notifyCheckpointComplete(long checkpointId) {
-        // we have waited for at-least one complete checkpoint after all snapshot-splits are
+        // we have waited for at-least one complete checkpoint after all snapshot-splits
+        // are
         // finished, then we can mark snapshot assigner as finished.
         if (checkpointIdToFinish != null
                 && !isAssigningFinished(assignerStatus)
@@ -399,8 +405,8 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
     }
 
     /**
-     * Returns whether all splits are finished which means no more splits and all assigned splits
-     * are finished.
+     * Returns whether all splits are finished which means no more splits and all
+     * assigned splits are finished.
      */
     private boolean allSplitsFinished() {
         return noMoreSplits() && assignedSplits.size() == splitFinishedOffsets.size();

@@ -17,17 +17,20 @@
 
 package org.apache.inlong.sort.standalone.sink.kafka;
 
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+
 import org.apache.flume.Context;
 import org.apache.flume.Sink;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+
 public class KafkaFederationSink extends AbstractSink implements Configurable {
+
     private static final Logger LOG = InlongLoggerFactory.getLogger(KafkaFederationSink.class);
     private Context parentContext;
     private KafkaFederationSinkContext context;
@@ -66,7 +69,9 @@ public class KafkaFederationSink extends AbstractSink implements Configurable {
 
     /**
      * configure
-     * @param context context
+     * 
+     * @param context
+     *          context
      */
     @Override
     public void configure(Context context) {
@@ -79,6 +84,7 @@ public class KafkaFederationSink extends AbstractSink implements Configurable {
 
     /**
      * process
+     * 
      * @return Status
      */
     @Override

@@ -17,20 +17,24 @@
 
 package org.apache.inlong.sort.protocol.transformation.function;
 
-import com.google.common.base.Preconditions;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.CascadeFunction;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
+
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.base.Preconditions;
 
 /**
  * EncryptFunction class is the logic encapsulation of String encryption
@@ -52,9 +56,12 @@ public class EncryptFunction implements CascadeFunction, Serializable {
     /**
      * EncryptFunction constructor
      *
-     * @param field it is character to be encrypted
-     * @param key the key of encryption
-     * @param encrypt encryption algorithm
+     * @param field
+     *          it is character to be encrypted
+     * @param key
+     *          the key of encryption
+     * @param encrypt
+     *          encryption algorithm
      */
     @JsonCreator
     public EncryptFunction(@JsonProperty("field") FieldInfo field,

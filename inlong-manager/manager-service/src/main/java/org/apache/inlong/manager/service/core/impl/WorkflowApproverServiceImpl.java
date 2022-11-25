@@ -17,8 +17,6 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -35,10 +33,6 @@ import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +40,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 
 /**
  * Operation of workflow approvers
@@ -104,8 +106,8 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
                 .build();
         List<WorkflowApproverEntity> approverEntities = approverMapper.selectByCondition(pageRequest);
         Set<String> resultSet = new HashSet<>();
-        approverEntities.forEach(entity ->
-                resultSet.addAll(Arrays.asList(entity.getApprovers().split(InlongConstants.COMMA))));
+        approverEntities
+                .forEach(entity -> resultSet.addAll(Arrays.asList(entity.getApprovers().split(InlongConstants.COMMA))));
 
         return new ArrayList<>(resultSet);
     }

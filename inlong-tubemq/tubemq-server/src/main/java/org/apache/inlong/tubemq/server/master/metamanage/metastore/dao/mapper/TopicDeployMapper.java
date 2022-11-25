@@ -17,70 +17,89 @@
 
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.mapper;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface TopicDeployMapper extends AbstractMapper {
 
     /**
      * Add a new topic deploy configure info from store
      *
-     * @param entity   the record to be added
-     * @param strBuff  the string buffer
-     * @param result   the process result
-     * @return         whether success
+     * @param entity
+     *          the record to be added
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          the process result
+     * @return whether success
      */
     boolean addTopicDeployConf(TopicDeployEntity entity,
-                               StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update the topic deploy configure info from store
      *
-     * @param entity   the record to be updated
-     * @param strBuff  the string buffer
-     * @param result   the process result
-     * @return         whether success
+     * @param entity
+     *          the record to be updated
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          the process result
+     * @return whether success
      */
     boolean updTopicDeployConf(TopicDeployEntity entity,
-                               StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update topic deploy status info from store
      *
-     * @param opEntity    the operator info
-     * @param brokerId    the broker id
-     * @param topicName   the topic name
-     * @param topicStatus the new topic status
-     * @param strBuff     the string buffer
-     * @param result      the process result
-     * @return            whether success
+     * @param opEntity
+     *          the operator info
+     * @param brokerId
+     *          the broker id
+     * @param topicName
+     *          the topic name
+     * @param topicStatus
+     *          the new topic status
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          the process result
+     * @return whether success
      */
     boolean updTopicDeployStatus(BaseEntity opEntity, int brokerId,
-                                 String topicName, TopicStatus topicStatus,
-                                 StringBuilder strBuff, ProcessResult result);
+            String topicName, TopicStatus topicStatus,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete topic deploy configure info from store
      *
-     * @param recordKey  the record key to be deleted
-     * @param strBuff    the string buffer
-     * @param result     the process result
-     * @return           whether success
+     * @param recordKey
+     *          the record key to be deleted
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          the process result
+     * @return whether success
      */
     boolean delTopicDeployConf(String recordKey, StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete topic deploy configure info from store
      *
-     * @param brokerId   the broker id to be deleted
-     * @param strBuff    the string buffer
-     * @param result     the process result
-     * @return           whether success
+     * @param brokerId
+     *          the broker id to be deleted
+     * @param strBuff
+     *          the string buffer
+     * @param result
+     *          the process result
+     * @return whether success
      */
     boolean delTopicConfByBrokerId(Integer brokerId, StringBuilder strBuff, ProcessResult result);
 
@@ -97,20 +116,24 @@ public interface TopicDeployMapper extends AbstractMapper {
     /**
      * Get broker topic entity, if query entity is null, return all topic entity
      *
-     * @param topicNameSet need query topic name set
-     * @param brokerIdSet  need query broker id set
-     * @param qryEntity   must not null
-     * @return  topic deploy info by topicName's key
+     * @param topicNameSet
+     *          need query topic name set
+     * @param brokerIdSet
+     *          need query broker id set
+     * @param qryEntity
+     *          must not null
+     * @return topic deploy info by topicName's key
      */
     Map<String, List<TopicDeployEntity>> getTopicConfMap(Set<String> topicNameSet,
-                                                         Set<Integer> brokerIdSet,
-                                                         TopicDeployEntity qryEntity);
+            Set<Integer> brokerIdSet,
+            TopicDeployEntity qryEntity);
 
     Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                                Set<Integer> brokerIdSet);
+            Set<Integer> brokerIdSet);
 
     Map<String/* topicName */, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(
-            Set<String> topicSet, Set<Integer> brokerIdSet);
+            Set<String> topicSet,
+            Set<Integer> brokerIdSet);
 
     Map<String, TopicDeployEntity> getConfiguredTopicInfo(int brokerId);
 

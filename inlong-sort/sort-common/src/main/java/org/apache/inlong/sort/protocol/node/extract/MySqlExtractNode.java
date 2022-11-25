@@ -17,16 +17,6 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
-import com.google.common.base.Preconditions;
-import java.util.stream.Collectors;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.common.enums.RowKindEnum;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -36,13 +26,27 @@ import org.apache.inlong.sort.protocol.enums.ExtractMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Mysql extract node using debezium engine
@@ -87,22 +91,38 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     /**
      * Constructor only used for {@link ExtractMode#CDC}
      *
-     * @param id The id of node
-     * @param name The name of node
-     * @param fields The field list of node
-     * @param watermarkField The watermark field of node only used for {@link ExtractMode#CDC}
-     * @param properties The properties connect to mysql
-     * @param primaryKey The primark key connect to mysql
-     * @param tableNames The table names connect to mysql
-     * @param hostname The hostname connect to mysql only used for {@link ExtractMode#CDC}
-     * @param username The username connect to mysql
-     * @param password The password connect to mysql
-     * @param database The database connect to mysql only used for {@link ExtractMode#CDC}
-     * @param port The port connect to mysql only used for {@link ExtractMode#CDC}
-     * @param serverId The server id connect to mysql only used for {@link ExtractMode#CDC}
-     * @param incrementalSnapshotEnabled The incremental snapshot enabled connect to mysql
-     *         only used for {@link ExtractMode#CDC}
-     * @param serverTimeZone The server time zone connect to mysql only used for {@link ExtractMode#CDC}
+     * @param id
+     *          The id of node
+     * @param name
+     *          The name of node
+     * @param fields
+     *          The field list of node
+     * @param watermarkField
+     *          The watermark field of node only used for {@link ExtractMode#CDC}
+     * @param properties
+     *          The properties connect to mysql
+     * @param primaryKey
+     *          The primark key connect to mysql
+     * @param tableNames
+     *          The table names connect to mysql
+     * @param hostname
+     *          The hostname connect to mysql only used for {@link ExtractMode#CDC}
+     * @param username
+     *          The username connect to mysql
+     * @param password
+     *          The password connect to mysql
+     * @param database
+     *          The database connect to mysql only used for {@link ExtractMode#CDC}
+     * @param port
+     *          The port connect to mysql only used for {@link ExtractMode#CDC}
+     * @param serverId
+     *          The server id connect to mysql only used for {@link ExtractMode#CDC}
+     * @param incrementalSnapshotEnabled
+     *          The incremental snapshot enabled connect to mysql only used for
+     *          {@link ExtractMode#CDC}
+     * @param serverTimeZone
+     *          The server time zone connect to mysql only used for
+     *          {@link ExtractMode#CDC}
      */
     public MySqlExtractNode(@Nonnull @JsonProperty("id") String id,
             @Nonnull @JsonProperty("name") String name,
@@ -126,15 +146,24 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     /**
      * Constructor only used for {@link ExtractMode#SCAN}
      *
-     * @param id The id of node
-     * @param name The name of node
-     * @param fields The field list of node
-     * @param properties The properties connect to mysql
-     * @param primaryKey The primark key connect to mysql
-     * @param tableNames The table names connect to mysql
-     * @param username The username connect to mysql
-     * @param password The password connect to mysql
-     * @param url The url connect to mysql only used for {@link ExtractMode#SCAN}
+     * @param id
+     *          The id of node
+     * @param name
+     *          The name of node
+     * @param fields
+     *          The field list of node
+     * @param properties
+     *          The properties connect to mysql
+     * @param primaryKey
+     *          The primark key connect to mysql
+     * @param tableNames
+     *          The table names connect to mysql
+     * @param username
+     *          The username connect to mysql
+     * @param password
+     *          The password connect to mysql
+     * @param url
+     *          The url connect to mysql only used for {@link ExtractMode#SCAN}
      */
     public MySqlExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -153,24 +182,42 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     /**
      * Base constructor
      *
-     * @param id The id of node
-     * @param name The name of node
-     * @param fields The field list of node
-     * @param watermarkField The watermark field of node only used for {@link ExtractMode#CDC}
-     * @param properties The properties connect to mysql
-     * @param primaryKey The primark key connect to mysql
-     * @param tableNames The table names connect to mysql
-     * @param hostname The hostname connect to mysql only used for {@link ExtractMode#CDC}
-     * @param username The username connect to mysql
-     * @param password The password connect to mysql
-     * @param database The database connect to mysql only used for {@link ExtractMode#CDC}
-     * @param port The port connect to mysql only used for {@link ExtractMode#CDC}
-     * @param serverId The server id connect to mysql only used for {@link ExtractMode#CDC}
-     * @param incrementalSnapshotEnabled The incremental snapshot enabled connect to mysql
-     *         only used for {@link ExtractMode#CDC}
-     * @param serverTimeZone The server time zone connect to mysql only used for {@link ExtractMode#CDC}
-     * @param extractMode The extract mode connect mysql {@link ExtractMode}
-     * @param url The url connect to mysql only used for {@link ExtractMode#SCAN}
+     * @param id
+     *          The id of node
+     * @param name
+     *          The name of node
+     * @param fields
+     *          The field list of node
+     * @param watermarkField
+     *          The watermark field of node only used for {@link ExtractMode#CDC}
+     * @param properties
+     *          The properties connect to mysql
+     * @param primaryKey
+     *          The primark key connect to mysql
+     * @param tableNames
+     *          The table names connect to mysql
+     * @param hostname
+     *          The hostname connect to mysql only used for {@link ExtractMode#CDC}
+     * @param username
+     *          The username connect to mysql
+     * @param password
+     *          The password connect to mysql
+     * @param database
+     *          The database connect to mysql only used for {@link ExtractMode#CDC}
+     * @param port
+     *          The port connect to mysql only used for {@link ExtractMode#CDC}
+     * @param serverId
+     *          The server id connect to mysql only used for {@link ExtractMode#CDC}
+     * @param incrementalSnapshotEnabled
+     *          The incremental snapshot enabled connect to mysql only used for
+     *          {@link ExtractMode#CDC}
+     * @param serverTimeZone
+     *          The server time zone connect to mysql only used for
+     *          {@link ExtractMode#CDC}
+     * @param extractMode
+     *          The extract mode connect mysql {@link ExtractMode}
+     * @param url
+     *          The url connect to mysql only used for {@link ExtractMode#SCAN}
      */
     @JsonCreator
     public MySqlExtractNode(@JsonProperty("id") String id,
@@ -233,7 +280,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             options.put("database-name", database);
             if (rowKindsFiltered != null) {
                 List<String> rowKinds = rowKindsFiltered.stream().map(RowKindEnum::shortString)
-                    .collect(Collectors.toList());
+                        .collect(Collectors.toList());
                 options.put("row-kinds-filtered", StringUtils.join(rowKinds, "&"));
             }
             if (port != null) {
@@ -256,8 +303,8 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
         }
         options.put("username", username);
         options.put("password", password);
-        String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
-                String.format("(%s)", StringUtils.join(tableNames, "|"));
+        String formatTable = tableNames.size() == 1 ? tableNames.get(0)
+                : String.format("(%s)", StringUtils.join(tableNames, "|"));
         options.put("table-name", String.format("%s", formatTable));
         return options;
     }
@@ -324,9 +371,9 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     @Override
     public Set<MetaField> supportedMetaFields() {
         return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATA_CANAL,
-            MetaField.DATABASE_NAME, MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL,
-            MetaField.TS, MetaField.SQL_TYPE, MetaField.MYSQL_TYPE, MetaField.PK_NAMES,
-            MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA_BYTES_DEBEZIUM,
-            MetaField.DATA_DEBEZIUM, MetaField.DATA_BYTES_CANAL, MetaField.DATA, MetaField.DATA_BYTES);
+                MetaField.DATABASE_NAME, MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL,
+                MetaField.TS, MetaField.SQL_TYPE, MetaField.MYSQL_TYPE, MetaField.PK_NAMES,
+                MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA_BYTES_DEBEZIUM,
+                MetaField.DATA_DEBEZIUM, MetaField.DATA_BYTES_CANAL, MetaField.DATA, MetaField.DATA_BYTES);
     }
 }
