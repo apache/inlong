@@ -27,7 +27,6 @@ import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.types.RowKind;
 import org.apache.hadoop.conf.Configuration;
 
 /** HBase table sink implementation. */
@@ -75,14 +74,7 @@ public class HBaseDynamicTableSink implements DynamicTableSink {
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
-        // UPSERT mode
-        ChangelogMode.Builder builder = ChangelogMode.newBuilder();
-        for (RowKind kind : requestedMode.getContainedKinds()) {
-            if (kind != RowKind.UPDATE_BEFORE) {
-                builder.addContainedKind(kind);
-            }
-        }
-        return builder.build();
+        return ChangelogMode.all();
     }
 
     @Override

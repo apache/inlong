@@ -32,6 +32,8 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.util.ExecutorThreadFactory;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.types.RowKind;
 import org.apache.flink.util.StringUtils;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.TableName;
@@ -228,7 +230,10 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     public void invoke(T value, Context context) {
         checkErrorAndRethrow();
         try {
-            mutator.mutate(mutationConverter.convertToMutation(value));
+            RowData rowData = (RowData) value;
+            if (RowKind.UPDATE_BEFORE != rowData.getRowKind()) {
+                mutator.mutate(mutationConverter.convertToMutation(value));
+            }
             rowSize++;
             dataSize = dataSize + value.toString().getBytes(StandardCharsets.UTF_8).length;
         } catch (Exception e) {
