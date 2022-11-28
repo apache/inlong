@@ -24,8 +24,8 @@ import org.apache.inlong.sort.base.dirty.sink.DirtySinkFactory;
 
 import java.util.HashSet;
 import java.util.Set;
-import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_FIELD_DELIMITER;
-import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_FORMAT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_FIELD_DELIMITER;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_FORMAT;
 
 /**
  * Log dirty sink factory
@@ -38,8 +38,8 @@ public class LogDirtySinkFactory implements DirtySinkFactory {
     public <T> DirtySink<T> createDirtySink(Context context) {
         final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         FactoryUtil.validateFactoryOptions(this, helper.getOptions());
-        String format = helper.getOptions().get(SINK_DIRTY_FORMAT);
-        String fieldDelimiter = helper.getOptions().get(SINK_DIRTY_FIELD_DELIMITER);
+        String format = helper.getOptions().get(DIRTY_SIDE_OUTPUT_FORMAT);
+        String fieldDelimiter = helper.getOptions().get(DIRTY_SIDE_OUTPUT_FIELD_DELIMITER);
         return new LogDirtySink<>(format, fieldDelimiter,
                 context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType());
     }
@@ -57,8 +57,8 @@ public class LogDirtySinkFactory implements DirtySinkFactory {
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(SINK_DIRTY_FORMAT);
-        options.add(SINK_DIRTY_FIELD_DELIMITER);
+        options.add(DIRTY_SIDE_OUTPUT_FORMAT);
+        options.add(DIRTY_SIDE_OUTPUT_FIELD_DELIMITER);
         return options;
     }
 }

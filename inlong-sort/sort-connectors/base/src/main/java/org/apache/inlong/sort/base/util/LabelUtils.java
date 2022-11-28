@@ -57,7 +57,7 @@ public final class LabelUtils {
         for (String label : labelArray) {
             int index = label.indexOf(KEY_VALUE_DELIMITER);
             if (index < 1 || index == label.length() - 1) {
-                throw new IllegalArgumentException("The format of option 'sink.dirty.labels' must be key=value");
+                throw new IllegalArgumentException("The format of labels must be like 'key1=value1&key2=value2...'");
             }
             labelMap.put(label.substring(0, index), label.substring(index + 1));
         }
