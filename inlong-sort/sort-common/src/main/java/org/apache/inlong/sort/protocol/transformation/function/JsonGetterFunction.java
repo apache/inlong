@@ -37,7 +37,7 @@ public class JsonGetterFunction implements CascadeFunction, Serializable  {
     private static final long serialVersionUID = -2701547146694616429L;
 
     @JsonProperty("field")
-    private FieldInfo field;
+    private FunctionParam field;
     @JsonProperty("key")
     private StringConstantParam key;
 
@@ -48,7 +48,7 @@ public class JsonGetterFunction implements CascadeFunction, Serializable  {
      * @param key the key of the field in the json
      */
     @JsonCreator
-    public JsonGetterFunction(@JsonProperty("field") FieldInfo field,
+    public JsonGetterFunction(@JsonProperty("field") FunctionParam field,
         @JsonProperty("key") StringConstantParam key) {
         this.field = Preconditions.checkNotNull(field, "field is null");
         this.key = Preconditions.checkNotNull(key, "key is null");

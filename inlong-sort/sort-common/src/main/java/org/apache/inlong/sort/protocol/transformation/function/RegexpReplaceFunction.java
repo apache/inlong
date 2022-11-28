@@ -44,7 +44,7 @@ public class RegexpReplaceFunction implements CascadeFunction, Serializable {
     private static final long serialVersionUID = -2701547146694616429L;
 
     @JsonProperty("field")
-    private FieldInfo field;
+    private FunctionParam field;
     @JsonProperty("regex")
     private StringConstantParam regex;
     @JsonProperty("replacement")
@@ -58,7 +58,7 @@ public class RegexpReplaceFunction implements CascadeFunction, Serializable {
      * @param replacement the value that to be replaced
      */
     @JsonCreator
-    public RegexpReplaceFunction(@JsonProperty("field") FieldInfo field,
+    public RegexpReplaceFunction(@JsonProperty("field") FunctionParam field,
             @JsonProperty("regex") StringConstantParam regex,
             @JsonProperty("replacement") StringConstantParam replacement) {
         this.field = Preconditions.checkNotNull(field, "field is null");

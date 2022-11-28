@@ -43,7 +43,7 @@ public class SplitIndexFunction implements Function, Serializable {
     private static final long serialVersionUID = 460250096378706646L;
 
     @JsonProperty("field")
-    private FieldInfo field;
+    private FunctionParam field;
     @JsonProperty("separator")
     private StringConstantParam separator;
     @JsonProperty("index")
@@ -56,7 +56,7 @@ public class SplitIndexFunction implements Function, Serializable {
      * @param separator the delimiting expression
      * @param index which value to take after delimitted
      */
-    public SplitIndexFunction(@JsonProperty("field") FieldInfo field,
+    public SplitIndexFunction(@JsonProperty("field") FunctionParam field,
             @JsonProperty("separator") StringConstantParam separator,
             @JsonProperty("index") ConstantParam index) {
         this.field = Preconditions.checkNotNull(field, "field is null");

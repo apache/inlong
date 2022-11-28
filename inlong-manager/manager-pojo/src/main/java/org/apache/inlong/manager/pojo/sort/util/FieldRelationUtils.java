@@ -42,6 +42,7 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.function.CascadeFunctionWrapper;
+import org.apache.inlong.sort.protocol.transformation.function.CustomFunction;
 import org.apache.inlong.sort.protocol.transformation.function.EncryptFunction;
 import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunction;
@@ -104,12 +105,16 @@ public class FieldRelationUtils {
                     FunctionParam inputField;
                     String fieldKey = String.format("%s-%s", fieldInfo.getNodeId(), fieldInfo.getName());
                     StreamField constantField = constantFieldMap.get(fieldKey);
-                    if (constantField != null) {
-                        if (fieldInfo.getFormatInfo() != null
-                                && fieldInfo.getFormatInfo().getTypeInfo() == StringTypeInfo.INSTANCE) {
-                            inputField = new StringConstantParam(constantField.getFieldValue());
+                    if (constantField != null ) {
+                        if (!FieldType.FUNCTION.equals(constantField.getFieldType())) {
+                            if (fieldInfo.getFormatInfo() != null
+                                    && fieldInfo.getFormatInfo().getTypeInfo() == StringTypeInfo.INSTANCE) {
+                                inputField = new StringConstantParam(constantField.getFieldValue());
+                            } else {
+                                inputField = new ConstantParam(constantField.getFieldValue());
+                            }
                         } else {
-                            inputField = new ConstantParam(constantField.getFieldValue());
+                            inputField = new CustomFunction(constantField.getFieldValue());
                         }
                     } else {
                         inputField = new FieldInfo(fieldInfo.getName(), fieldInfo.getNodeId(),
@@ -134,10 +139,14 @@ public class FieldRelationUtils {
                             streamField.getOriginFieldName());
                     StreamField constantField = constantFieldMap.get(fieldKey);
                     if (constantField != null) {
-                        if (formatInfo != null && formatInfo.getTypeInfo() == StringTypeInfo.INSTANCE) {
-                            inputField = new StringConstantParam(constantField.getFieldValue());
+                        if (!FieldType.FUNCTION.equals(constantField.getFieldType())) {
+                            if (formatInfo != null && formatInfo.getTypeInfo() == StringTypeInfo.INSTANCE) {
+                                inputField = new StringConstantParam(constantField.getFieldValue());
+                            } else {
+                                inputField = new ConstantParam(constantField.getFieldValue());
+                            }
                         } else {
-                            inputField = new ConstantParam(constantField.getFieldValue());
+                            inputField = new CustomFunction(constantField.getFieldValue());
                         }
                     } else {
                         inputField = new FieldInfo(streamField.getOriginFieldName(),
