@@ -26,13 +26,21 @@ import org.apache.iceberg.actions.RewriteDataFiles;
 import java.io.Serializable;
 import java.util.Map;
 
+/**
+ * An implementation of {@link ActionsProvider} for Flink.
+ * <p>
+ * This class is the primary API for Flink runtime to execute some iceberg metadata action.
+ * For example, execunte compact action、expire action at checkpoint.
+ */
 public interface FlinkActions extends ActionsProvider, Serializable {
+
     String COMPACT_ENABLED = "write.compact.enable";
     boolean COMPACT_ENABLED_DEFAULT = false;
 
     void init(Map<String, String> actionProperties);
 
     class FlinkDefaultActions implements FlinkActions {
+
         private static final long serialVersionUID = 1L;
 
         private Map<String, String> actionProperties;
