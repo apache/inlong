@@ -120,7 +120,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             valueDeserialization.deserialize(record.value(), collector);
             // output metrics
             if (metricData != null) {
-                metricData.outputMetrics(1, record.value().length);
+                outputMetrics(record);
             }
             return;
         }
@@ -142,7 +142,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             valueDeserialization.deserialize(record.value(), outputCollector);
             // output metrics
             if (metricData != null) {
-                metricData.outputMetrics(1, record.value().length);
+                outputMetrics(record);
             }
         }
 
@@ -150,8 +150,9 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
     }
 
     private void outputMetrics(ConsumerRecord<byte[], byte[]> record) {
+        long dataSize = record.value() == null ? 0L : record.value().length;
         if (metricData != null) {
-            metricData.outputMetrics(1, record.value().length);
+            metricData.outputMetrics(1L, dataSize);
         }
     }
 
