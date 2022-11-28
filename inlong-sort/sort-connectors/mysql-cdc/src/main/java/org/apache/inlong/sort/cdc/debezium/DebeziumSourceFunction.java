@@ -62,6 +62,7 @@ import org.apache.inlong.sort.cdc.debezium.internal.FlinkDatabaseSchemaHistory;
 import org.apache.inlong.sort.cdc.debezium.internal.FlinkOffsetBackingStore;
 import org.apache.inlong.sort.cdc.debezium.internal.Handover;
 import org.apache.inlong.sort.cdc.debezium.internal.SchemaRecord;
+import org.apache.inlong.sort.cdc.debezium.utils.CallbackCollector;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -487,19 +488,23 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                if (sourceMetricData != null) {
-                                    sourceMetricData.outputMetricsWithEstimate(record.value());
-                                }
-                                deserializer.deserialize(record, out);
+                                deserializer.deserialize(record, new CallbackCollector<>(inputRow -> {
+                                    if (sourceMetricData != null) {
+                                        sourceMetricData.outputMetricsWithEstimate(record.value());
+                                    }
+                                    out.collect(inputRow);
+                                }));
                             }
 
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out,
                                     TableChange tableSchema) throws Exception {
-                                if (sourceMetricData != null) {
-                                    sourceMetricData.outputMetricsWithEstimate(record.value());
-                                }
-                                deserializer.deserialize(record, out, tableSchema);
+                                deserializer.deserialize(record, new CallbackCollector<>(inputRow -> {
+                                    if (sourceMetricData != null) {
+                                        sourceMetricData.outputMetricsWithEstimate(record.value());
+                                    }
+                                    out.collect(inputRow);
+                                }), tableSchema);
                             }
 
                             @Override
