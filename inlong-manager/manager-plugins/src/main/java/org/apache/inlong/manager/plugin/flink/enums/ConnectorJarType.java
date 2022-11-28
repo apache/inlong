@@ -70,6 +70,7 @@ public enum ConnectorJarType {
     HIVE_SINK("hiveLoad", "hive"),
 
     ICEBERG_SINK("icebergLoad", "iceberg"),
+    HUDI_SINK("hudiLoad", "hudi"),
 
     HDFS_SINK("fileSystemLoad", ""),
 

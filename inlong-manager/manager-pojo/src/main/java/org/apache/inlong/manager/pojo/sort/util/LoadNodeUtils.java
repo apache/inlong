@@ -36,6 +36,7 @@ import org.apache.inlong.manager.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.pojo.sink.hdfs.HDFSSink;
 import org.apache.inlong.manager.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.pojo.sink.hudi.HudiSink;
 import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
@@ -63,6 +64,7 @@ import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
+import org.apache.inlong.sort.protocol.node.load.HudiLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
@@ -122,6 +124,8 @@ public class LoadNodeUtils {
                 return createLoadNode((ClickHouseSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.ICEBERG:
                 return createLoadNode((IcebergSink) streamSink, fieldInfos, fieldRelations, properties);
+            case SinkType.HUDI:
+                return createLoadNode((HudiSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.SQLSERVER:
                 return createLoadNode((SQLServerSink) streamSink, fieldInfos, fieldRelations, properties);
             case SinkType.ELASTICSEARCH:
@@ -352,6 +356,29 @@ public class LoadNodeUtils {
                 catalogType,
                 icebergSink.getCatalogUri(),
                 icebergSink.getWarehouse());
+    }
+
+    /**
+     * Create load node of Hudi.
+     */
+    public static HudiLoadNode createLoadNode(HudiSink hudiSink, List<FieldInfo> fieldInfos,
+            List<FieldRelation> fieldRelations, Map<String, String> properties) {
+        CatalogType catalogType = CatalogType.forName(hudiSink.getCatalogType());
+        return new HudiLoadNode(
+                hudiSink.getSinkName(),
+                hudiSink.getSinkName(),
+                fieldInfos,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                hudiSink.getDbName(),
+                hudiSink.getTableName(),
+                hudiSink.getPrimaryKey(),
+                catalogType,
+                hudiSink.getCatalogUri(),
+                hudiSink.getWarehouse());
     }
 
     /**
