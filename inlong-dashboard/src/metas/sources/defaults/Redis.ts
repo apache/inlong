@@ -47,7 +47,7 @@ export default class RedisSource
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
-      min: 1,
+      min: 0,
     }),
   })
   @I18n('meta.Sources.Redis.Database')
