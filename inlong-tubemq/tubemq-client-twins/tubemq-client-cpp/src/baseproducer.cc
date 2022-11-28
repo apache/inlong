@@ -50,7 +50,7 @@ BaseProducer::BaseProducer() : BaseClient(true) {
 BaseProducer::~BaseProducer() {}
 
 bool BaseProducer::Start(string& err_info, const ProducerConfig& config) {
-  if (!status_.CompareAndSet(0, 1)) {
+  if (!status_.CompareAndSet(tb_config::kMasterUnRegistered, tb_config::kMasterRegistering)) {
     err_info = "Ok";
     return true;
   }
@@ -58,13 +58,13 @@ bool BaseProducer::Start(string& err_info, const ProducerConfig& config) {
   // check master addr info
   if (config.GetMasterAddrInfo().length() == 0) {
     err_info = "Parameter error: not set master address info!";
-    status_.CompareAndSet(1, 0);
+    status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterUnRegistered);
     return false;
   }
 
   if (!TubeMQService::Instance()->IsRunning()) {
     err_info = "TubeMQ Service not startted!";
-    status_.CompareAndSet(1, 0);
+    status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterUnRegistered);
     return false;
   }
 
@@ -72,14 +72,14 @@ bool BaseProducer::Start(string& err_info, const ProducerConfig& config) {
   if (!TubeMQService::Instance()->AddClientObj(err_info, shared_from_this())) {
     printf("Add to tubemq service failed!!!\n");
     client_index_ = tb_config::kInvalidValue;
-    status_.CompareAndSet(1, 0);
+    status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterUnRegistered);
     return false;
   }
 
   config_ = config;
   if (!initMasterAddress(err_info, config.GetMasterAddrInfo())) {
     TubeMQService::Instance()->RmvClientObj(shared_from_this());
-    status_.CompareAndSet(1, 0);
+    status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterUnRegistered);
     return false;
   }
 
@@ -90,10 +90,10 @@ bool BaseProducer::Start(string& err_info, const ProducerConfig& config) {
   int32_t error_code;
   if (!register2Master(error_code, err_info, false)) {
     TubeMQService::Instance()->RmvClientObj(shared_from_this());
-    status_.CompareAndSet(1, 0);
+    status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterUnRegistered);
     return false;
   }
-  status_.CompareAndSet(1, 2);  // register2Master done, change status_ to `2`
+  status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterRegistered);  // register2Master done, change status_ to `2`
 
   // set heartbeat timer
   heart_beat_timer_ = TubeMQService::Instance()->CreateTimer();
@@ -110,7 +110,7 @@ bool BaseProducer::Start(string& err_info, const ProducerConfig& config) {
 }
 
 void BaseProducer::ShutDown() {
-  if (!status_.CompareAndSet(2, 0)) {
+  if (!status_.CompareAndSet(tb_config::kMasterRegistered, tb_config::kMasterUnRegistered)) {
     return;
   }
 
@@ -159,8 +159,6 @@ bool BaseProducer::SendMessage(string& err_info, const Message& message, bool is
     ResponseContext response_context;
     ErrorCode error = SyncRequest(response_context, request, req_protocol);
     if (error.Value() != err_code::kErrSuccess) {
-      std::cout << "*** err Code = " << error.Value() << ", err Msg = " << error.Message()
-                << std::endl;
       return false;
     }
     int32_t error_code = 0;
@@ -168,8 +166,6 @@ bool BaseProducer::SendMessage(string& err_info, const Message& message, bool is
     auto rsp = any_cast<TubeMQCodec::RspProtocolPtr>(response_context.rsp_);
     bool res = processSendMessageResponseB2P(error_code, err_msg, rsp);
     if (!res) {
-      std::cout << "*** Sync Request return from tubemq server, error_code = " << error_code
-                << ", err_msg = " << err_msg << std::endl;
       return false;
     }
   } else {
@@ -257,14 +253,14 @@ bool BaseProducer::register2Master(int32_t& error_code, string& err_info, bool n
 
 void BaseProducer::heartBeat2Master() {
   // check status
-  if (!master_hb_status_.CompareAndSet(0, 1)) {
+  if (!master_hb_status_.CompareAndSet(tb_config::kMasterHBWaiting, tb_config::kMasterHBRunning)) {
     LOG_INFO("check hb process status, heartBeat2Master process has began!");
     return;
   }
 
   // check the service is running
   if (!TubeMQService::Instance()->IsRunning()) {
-    master_hb_status_.CompareAndSet(1, 0);
+    master_hb_status_.CompareAndSet(tb_config::kMasterHBRunning, tb_config::kMasterHBWaiting);
     LOG_INFO("[PRODUCER] heartBeat2Master failure: TubeMQ Service is stopped! client=%s",
              client_uuid_.c_str());
     return;
@@ -272,7 +268,7 @@ void BaseProducer::heartBeat2Master() {
 
   // check the status of client, wheter register
   if (!isClientRunning()) {
-    master_hb_status_.CompareAndSet(1, 0);
+    master_hb_status_.CompareAndSet(tb_config::kMasterHBRunning, tb_config::kMasterHBWaiting);
     LOG_INFO("[PRODUCER] heartBeat2Master failure: TubeMQ Client stopped! client=%s",
              client_uuid_.c_str());
     return;
@@ -299,7 +295,7 @@ void BaseProducer::heartBeat2Master() {
       .AddCallBack([=](ErrorCode error, const ResponseContext& response_context) {
         if (GetClientIndex() == tb_config::kInvalidValue ||
             !TubeMQService::Instance()->IsRunning() || !isClientRunning()) {
-          master_hb_status_.CompareAndSet(1, 0);
+          master_hb_status_.CompareAndSet(tb_config::kMasterHBRunning, tb_config::kMasterHBWaiting);
           return;
         }
 
@@ -313,7 +309,7 @@ void BaseProducer::heartBeat2Master() {
             master_sh_retry_cnt_ = 0;
             is_master_actived_.Set(false);
             //     asyncRegister2Master(true);
-            master_hb_status_.CompareAndSet(1, 0);
+            master_hb_status_.CompareAndSet(tb_config::kMasterHBRunning, tb_config::kMasterHBWaiting);
             return;
           }
         } else {
@@ -322,7 +318,6 @@ void BaseProducer::heartBeat2Master() {
           int32_t error_code = 0;
           std::string error_info;
           bool ret_result = processHBResponseM2P(error_code, error_info, rsp);
-          std::cout << "*** Process ret_result = " << ret_result << std::endl;
           if (ret_result) {
             is_master_actived_.Set(true);
             master_sh_retry_cnt_ = 0;
@@ -335,14 +330,14 @@ void BaseProducer::heartBeat2Master() {
               LOG_WARN("[PRODUCER] heartBeat2Master found no-node or standby, client=%s, change=%d",
                        client_uuid_.c_str(), need_change);
               //       asyncRegister2Master(need_change);
-              master_hb_status_.CompareAndSet(1, 0);
+              master_hb_status_.CompareAndSet(tb_config::kMasterHBRunning, tb_config::kMasterHBWaiting);
               return;
             }
           }
         }
         if (GetClientIndex() == tb_config::kInvalidValue ||
             !TubeMQService::Instance()->IsRunning() || !isClientRunning()) {
-          master_hb_status_.CompareAndSet(1, 0);
+          master_hb_status_.CompareAndSet(tb_config::kMasterHBRunning, tb_config::kMasterHBWaiting);
           return;
         }
         heart_beat_timer_->expires_after(std::chrono::milliseconds(2000));
@@ -353,7 +348,7 @@ void BaseProducer::heartBeat2Master() {
           }
           heartBeat2Master();
         });
-        master_hb_status_.CompareAndSet(1, 0);
+        master_hb_status_.CompareAndSet(tb_config::kMasterHBRunning, tb_config::kMasterHBWaiting);
       });
   return;
 }
@@ -682,8 +677,6 @@ bool BaseProducer::processHBResponseM2P(int32_t& error_code, string& err_info,
   if (!rsp_protocol->success_) {
     error_code = rsp_protocol->code_;
     err_info = rsp_protocol->error_msg_;
-    std::cout << "*** !rsp->success, error_code = " << error_code << ", err_info = " << err_info
-              << std::endl;
     return false;
   };
 
@@ -699,7 +692,6 @@ bool BaseProducer::processHBResponseM2P(int32_t& error_code, string& err_info,
   if (!rsp_m2p.success()) {
     error_code = rsp_m2p.errcode();
     err_info = rsp_m2p.errmsg();
-    std::cout << "*** err_code = " << error_code << ", err_info = " << err_info << std::endl;
     return false;
   }
 

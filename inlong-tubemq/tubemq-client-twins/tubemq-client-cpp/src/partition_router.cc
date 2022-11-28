@@ -34,10 +34,6 @@ int RoundRobinPartitionRouter::GetPartition(const Message& message,
   if (partitions.empty()) return -1;
   const std::string topic = message.GetTopic();
 
-  // for (const auto& part : partitions) {
-  //   std::cout << "*** part_id = " << part.GetPartitionId() << std::endl;
-  // }
-
   if (partition_router_map_.count(topic) == 0) {
     std::srand(std::time(0));
     AtomicInteger new_counter(std::rand());

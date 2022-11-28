@@ -113,10 +113,18 @@ static const char kRsvPropKeyFilterItem[] = "$msgType$";
 // reserved property key message send time
 static const char kRsvPropKeyMsgTime[] = "$msgTime$";
 
-// the status of `register2Master`
-static const uint32_t kMasterUnRegistered = 0;
-static const uint32_t kMasterRegistering = 1;
-static const uint32_t kMasterRegistered = 2;
+// enum RegisterMasterStatus
+enum RegisterMasterStatus {
+  kMasterUnRegistered = 0,
+  kMasterRegistering = 1,
+  kMasterRegistered = 2
+}; 
+
+// enum MasterHBStatus
+enum MasterHBStatus {
+  kMasterHBWaiting = 0,
+  kMasterHBRunning = 1
+};
 
 }  // namespace tb_config
 

@@ -195,7 +195,7 @@ bool TubeMQProducer::Start(string& err_info, const ProducerConfig& config) {
   BaseProducerPtr rmt_client = std::make_shared<BaseProducer>();
   if (rmt_client == nullptr) {
     err_info = "No memory for create PRODUCER remote object!";
-    status_.CompareAndSet(1, 0);
+    status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterUnRegistered);
     return false;
   }
 
@@ -212,7 +212,7 @@ bool TubeMQProducer::Start(string& err_info, const ProducerConfig& config) {
 }
 
 void TubeMQProducer::ShutDown() {
-  if (!status_.CompareAndSet(2, 0)) {
+  if (!status_.CompareAndSet(tb_config::kMasterRegistered, tb_config::kMasterUnRegistered)) {
     return;
   }
   if (client_id_ != tb_config::kInvalidValue) {
