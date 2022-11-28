@@ -65,6 +65,7 @@ function transType(editing: boolean, conf) {
         'name',
         'description',
         'inCharges',
+        'dataReportType',
         'ensemble',
         'writeQuorum',
         'ackQuorum',
