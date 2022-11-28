@@ -105,6 +105,7 @@ public interface MetricData {
      * Register a meter metric
      *
      * @param metricName The metric name
+     * @param counter The counter of metric
      * @return Meter of registered
      */
     default Meter registerMeter(String metricName, Counter counter) {
@@ -114,5 +115,4 @@ public interface MetricData {
         }
         return inlongMetricGroup.meter(metricName, new MeterView(counter, TIME_SPAN_IN_SECONDS));
     }
-
 }

@@ -18,6 +18,8 @@
 
 package org.apache.inlong.sort.base.util;
 
+import java.util.Map.Entry;
+import java.util.Set;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SinkMetricData;
@@ -32,6 +34,7 @@ import java.util.Map;
 
 import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
+import static org.apache.inlong.sort.base.Constants.READ_PHASE;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
@@ -47,6 +50,7 @@ public class MetricStateUtils {
     /**
      *
      * restore metric state data
+     *
      * @param metricStateListState state data list
      * @param subtaskIndex current subtask index
      * @param currentSubtaskNum number of current parallel subtask
@@ -69,8 +73,10 @@ public class MetricStateUtils {
         if (currentSubtaskNum >= previousSubtaskNum) {
             currentMetricState = map.get(subtaskIndex);
         } else {
-            Map<String, Long> metrics = new HashMap<>(16);
+            Map<String, MetricState> subMetricStateMap = new HashMap<>();
+            Map<String, Long> metrics = new HashMap<>(4);
             currentMetricState = new MetricState(subtaskIndex, metrics);
+            currentMetricState.setSubMetricStateMap(subMetricStateMap);
             List<Integer> indexList = computeIndexList(subtaskIndex, currentSubtaskNum, previousSubtaskNum);
             for (Integer index : indexList) {
                 MetricState metricState = map.get(index);
@@ -79,6 +85,30 @@ public class MetricStateUtils {
                         metrics.put(entry.getKey(), metrics.get(entry.getKey()) + entry.getValue());
                     } else {
                         metrics.put(entry.getKey(), entry.getValue());
+                    }
+                }
+                // handle sub metric state
+                Map<String, MetricState> subIndexMetricStateMap = metricState.getSubMetricStateMap();
+                if (subIndexMetricStateMap != null && !subIndexMetricStateMap.isEmpty()) {
+                    for (Entry<String, MetricState> entry : subIndexMetricStateMap.entrySet()) {
+                        MetricState subMetricState;
+                        if (subMetricStateMap.containsKey(entry.getKey())) {
+                            subMetricState = subMetricStateMap.get(entry.getKey());
+                            Map<String, Long> subMetrics = subMetricState.getMetrics();
+                            Map<String, Long> currentSubMetrics = entry.getValue().getMetrics();
+                            for (Entry<String, Long> currentSubEntry : currentSubMetrics.entrySet()) {
+                                if (subMetrics.containsKey(currentSubEntry.getKey())) {
+                                    subMetrics.put(currentSubEntry.getKey(),
+                                            subMetrics.get(currentSubEntry.getKey()) + currentSubEntry.getValue());
+                                } else {
+                                    subMetrics.put(currentSubEntry.getKey(), currentSubEntry.getValue());
+                                }
+                            }
+                        } else {
+                            subMetricState = entry.getValue();
+                            subMetricState.setSubtaskIndex(subtaskIndex);
+                        }
+                        subMetricStateMap.put(entry.getKey(), subMetricState);
                     }
                 }
             }
@@ -125,10 +155,23 @@ public class MetricStateUtils {
         LOGGER.info("snapshotMetricStateForSourceMetricData:{}, sourceMetricData:{}, subtaskIndex:{}",
                 metricStateListState, sourceMetricData, subtaskIndex);
         metricStateListState.clear();
-        Map<String, Long> metricDataMap = new HashMap<>();
+        Map<String, Long> metricDataMap = new HashMap<>(4);
         metricDataMap.put(NUM_RECORDS_IN, sourceMetricData.getNumRecordsIn().getCount());
         metricDataMap.put(NUM_BYTES_IN, sourceMetricData.getNumBytesIn().getCount());
+        metricDataMap.put(READ_PHASE, sourceMetricData.getReadPhase().getCount());
         MetricState metricState = new MetricState(subtaskIndex, metricDataMap);
+        Map<String, SourceMetricData> subSourceMetricMap = sourceMetricData.getSubSourceMetricMap();
+        if (subSourceMetricMap != null && !subSourceMetricMap.isEmpty()) {
+            Map<String, MetricState> subMetricStateMap = new HashMap<>();
+            Set<Entry<String, SourceMetricData>> entries = subSourceMetricMap.entrySet();
+            for (Entry<String, SourceMetricData> entry : entries) {
+                Map<String, Long> subMetricDataMap = new HashMap<>(4);
+                subMetricDataMap.put(NUM_RECORDS_IN, entry.getValue().getNumRecordsIn().getCount());
+                subMetricDataMap.put(NUM_BYTES_IN, entry.getValue().getNumBytesIn().getCount());
+                subMetricStateMap.put(entry.getKey(), new MetricState(subtaskIndex, subMetricDataMap));
+            }
+            metricState.setSubMetricStateMap(subMetricStateMap);
+        }
         metricStateListState.add(metricState);
     }
 
