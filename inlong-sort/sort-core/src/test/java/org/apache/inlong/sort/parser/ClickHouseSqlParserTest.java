@@ -77,7 +77,7 @@ public class ClickHouseSqlParserTest {
                 null,
                 1,
                 null,
-                "ck_demo",
+                "demo.ck_demo",
                 "jdbc:clickhouse://localhost:8123/demo",
                 "default",
                 "",

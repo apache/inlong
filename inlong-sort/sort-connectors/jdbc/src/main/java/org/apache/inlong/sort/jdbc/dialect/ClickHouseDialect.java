@@ -18,11 +18,14 @@
 
 package org.apache.inlong.sort.jdbc.dialect;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.inlong.sort.jdbc.converter.clickhouse.ClickHouseRowConverter;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,6 +39,8 @@ import static java.lang.String.format;
  */
 public class ClickHouseDialect extends AbstractJdbcDialect {
 
+    public static final Logger LOG = LoggerFactory.getLogger(ClickHouseDialect.class);
+
     // Define MAX/MIN precision of TIMESTAMP type according to ClickHouse docs:
     // https://clickhouse.com/docs/zh/sql-reference/data-types/datetime64
     private static final int MAX_TIMESTAMP_PRECISION = 8;
@@ -45,6 +50,7 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
     // https://clickhouse.com/docs/zh/sql-reference/data-types/decimal/
     private static final int MAX_DECIMAL_PRECISION = 128;
     private static final int MIN_DECIMAL_PRECISION = 32;
+    private static final String POINT = ".";
 
     @Override
     public String dialectName() {
@@ -129,20 +135,44 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
     @Override
     public String getUpdateStatement(
             String tableName, String[] fieldNames, String[] conditionFields) {
+        List<String> conditionFieldList = Arrays.asList(conditionFields);
         String setClause =
                 Arrays.stream(fieldNames)
+                        .filter(fieldName -> !conditionFieldList.contains(fieldName))
                         .map(f -> format("%s = :%s", quoteIdentifier(f), f))
                         .collect(Collectors.joining(", "));
+
         String conditionClause =
                 Arrays.stream(conditionFields)
                         .map(f -> format("%s = :%s", quoteIdentifier(f), f))
                         .collect(Collectors.joining(" AND "));
+        Pair<String, String> databaseAndTableName = getDatabaseAndTableName(tableName);
         return "ALTER TABLE "
-                + quoteIdentifier(tableName)
+                + quoteIdentifier(databaseAndTableName.getLeft())
+                + POINT
+                + quoteIdentifier(databaseAndTableName.getRight())
                 + " UPDATE "
                 + setClause
                 + " WHERE "
                 + conditionClause;
+    }
+
+    /**
+     * ClickHouse throw exception "Table default.test_user doesn't exist". But jdbc-url have database name.
+     * So we specify database when exec query. This method parse tableName to database and table.
+     * @param tableName include database.table
+     * @return pair left is database, right is table
+     */
+    private Pair<String, String> getDatabaseAndTableName(String tableName) {
+        String databaseName = "default";
+        if (tableName.contains(POINT)) {
+            String[] tableNameArray = tableName.split("\\.");
+            databaseName = tableNameArray[0];
+            tableName = tableNameArray[1];
+        } else {
+            LOG.warn("TableName doesn't include database name, so using default as database name");
+        }
+        return Pair.of(databaseName, tableName);
     }
 
     /**
@@ -154,6 +184,67 @@ public class ClickHouseDialect extends AbstractJdbcDialect {
                 Arrays.stream(conditionFields)
                         .map(f -> format("%s = :%s", quoteIdentifier(f), f))
                         .collect(Collectors.joining(" AND "));
-        return "ALTER TABLE " + quoteIdentifier(tableName) + " DELETE WHERE " + conditionClause;
+        Pair<String, String> databaseAndTableName = getDatabaseAndTableName(tableName);
+        return "ALTER TABLE "
+                + quoteIdentifier(databaseAndTableName.getLeft())
+                + POINT
+                + quoteIdentifier(databaseAndTableName.getRight())
+                + " DELETE WHERE " + conditionClause;
+    }
+
+    @Override
+    public String getInsertIntoStatement(String tableName, String[] fieldNames) {
+        String columns =
+                Arrays.stream(fieldNames)
+                        .map(this::quoteIdentifier)
+                        .collect(Collectors.joining(", "));
+        String placeholders =
+                Arrays.stream(fieldNames).map(f -> ":" + f).collect(Collectors.joining(", "));
+        Pair<String, String> databaseAndTableName = getDatabaseAndTableName(tableName);
+        return "INSERT INTO "
+                + quoteIdentifier(databaseAndTableName.getLeft())
+                + POINT
+                + quoteIdentifier(databaseAndTableName.getRight())
+                + "("
+                + columns
+                + ")"
+                + " VALUES ("
+                + placeholders
+                + ")";
+    }
+
+    @Override
+    public String getSelectFromStatement(
+            String tableName, String[] selectFields, String[] conditionFields) {
+        String selectExpressions =
+                Arrays.stream(selectFields)
+                        .map(this::quoteIdentifier)
+                        .collect(Collectors.joining(", "));
+        String fieldExpressions =
+                Arrays.stream(conditionFields)
+                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                        .collect(Collectors.joining(" AND "));
+        Pair<String, String> databaseAndTableName = getDatabaseAndTableName(tableName);
+        return "SELECT "
+                + selectExpressions
+                + " FROM "
+                + quoteIdentifier(databaseAndTableName.getLeft())
+                + POINT
+                + quoteIdentifier(databaseAndTableName.getRight())
+                + (conditionFields.length > 0 ? " WHERE " + fieldExpressions : "");
+    }
+
+    @Override
+    public String getRowExistsStatement(String tableName, String[] conditionFields) {
+        String fieldExpressions =
+                Arrays.stream(conditionFields)
+                        .map(f -> format("%s = :%s", quoteIdentifier(f), f))
+                        .collect(Collectors.joining(" AND "));
+        Pair<String, String> pair = getDatabaseAndTableName(tableName);
+        return "SELECT 1 FROM "
+                + quoteIdentifier(pair.getLeft())
+                + POINT
+                + quoteIdentifier(pair.getRight())
+                + " WHERE " + fieldExpressions;
     }
 }
