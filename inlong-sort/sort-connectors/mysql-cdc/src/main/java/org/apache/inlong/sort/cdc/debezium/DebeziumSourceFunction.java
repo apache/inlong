@@ -498,7 +498,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out,
-                                TableChange tableSchema) throws Exception {
+                                    TableChange tableSchema) throws Exception {
                                 deserializer.deserialize(record, new CallbackCollector<>(inputRow -> {
                                     if (sourceMetricData != null) {
                                         sourceMetricData.outputMetricsWithEstimate(record.value());
