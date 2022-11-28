@@ -148,6 +148,7 @@
         <ini4j.version>0.5.4</ini4j.version>
         <dom4j.version>2.1.3</dom4j.version>
 
+        <aws.sdk.version>1.12.346</aws.sdk.version>
         <zookeeper.version>3.6.3</zookeeper.version>
         <pulsar.version>2.8.1</pulsar.version>
         <pulsar.testcontainers.version>1.15.3</pulsar.testcontainers.version>
@@ -1071,6 +1072,12 @@
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-jdbc_${flink.scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-s3</artifactId>
+                <version>${aws.sdk.version}</version>
             </dependency>
 
             <dependency>

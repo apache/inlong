@@ -14,3 +14,4 @@
 # limitations under the License.
 
 org.apache.inlong.sort.base.dirty.sink.log.LogDirtySinkFactory
+org.apache.inlong.sort.base.dirty.sink.s3.S3DirtySinkFactory
