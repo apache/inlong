@@ -25,7 +25,7 @@ public interface PullMessageConsumer extends MessageConsumer {
     boolean isPartitionsReady(long maxWaitTime);
 
     PullMessageConsumer subscribe(String topic,
-                                  TreeSet<String> filterConds) throws TubeClientException;
+            TreeSet<String> filterConds) throws TubeClientException;
 
     // getMessage() use note:
     // This getMessage have a blocking situation: when the current
@@ -37,5 +37,5 @@ public interface PullMessageConsumer extends MessageConsumer {
     ConsumerResult getMessage() throws TubeClientException;
 
     ConsumerResult confirmConsume(String confirmContext,
-                                  boolean isConsumed) throws TubeClientException;
+            boolean isConsumed) throws TubeClientException;
 }

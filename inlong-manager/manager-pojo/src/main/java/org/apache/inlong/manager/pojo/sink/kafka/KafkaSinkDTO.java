@@ -50,8 +50,7 @@ public class KafkaSinkDTO {
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
 
-    @ApiModelProperty(value = "The strategy of auto offset reset",
-            notes = "including earliest, latest (the default), none")
+    @ApiModelProperty(value = "The strategy of auto offset reset", notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
     @ApiModelProperty("Primary key is required when serializationType is json, avro")

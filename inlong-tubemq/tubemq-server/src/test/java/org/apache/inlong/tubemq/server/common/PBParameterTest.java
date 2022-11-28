@@ -29,6 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class PBParameterTest {
+
     @Test
     public void checkProducerTopicTest() {
         ParamCheckResult result = PBParameterUtils.checkProducerTopicList(null, null);

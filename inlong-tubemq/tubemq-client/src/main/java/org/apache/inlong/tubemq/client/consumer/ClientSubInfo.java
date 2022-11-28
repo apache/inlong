@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
 public class ClientSubInfo {
+
     private final ConcurrentHashMap<String/* topic */, TopicProcessor> topicCondRegistry =
             new ConcurrentHashMap<>();
     private boolean requireBound = false;
@@ -79,7 +80,7 @@ public class ClientSubInfo {
     }
 
     public TopicProcessor putIfAbsentTopicProcessor(String topic,
-                                                    TopicProcessor topicProcessor) {
+            TopicProcessor topicProcessor) {
         TopicProcessor topicProcessor1 =
                 this.topicCondRegistry.putIfAbsent(topic, topicProcessor);
         if (topicProcessor1 == null) {
@@ -149,9 +150,9 @@ public class ClientSubInfo {
      *
      */
     public void setRequireBound(final String sessionKey,
-                                final int sourceCount,
-                                final boolean isSelectBig,
-                                final Map<String, Long> partOffsetMap) {
+            final int sourceCount,
+            final boolean isSelectBig,
+            final Map<String, Long> partOffsetMap) {
         this.requireBound = true;
         this.subscribedTime = System.currentTimeMillis();
         this.sessionKey = sessionKey;

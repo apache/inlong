@@ -72,7 +72,8 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * RowData}.
  */
 public final class RowDataDebeziumDeserializeSchema
-        implements DebeziumDeserializationSchema<RowData> {
+        implements
+            DebeziumDeserializationSchema<RowData> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RowDataDebeziumDeserializeSchema.class);
 
@@ -539,11 +540,10 @@ public final class RowDataDebeziumDeserializeSchema
                 rowType.getFields().stream()
                         .map(RowType.RowField::getType)
                         .map(
-                                logicType ->
-                                        createConverter(
-                                                logicType,
-                                                serverTimeZone,
-                                                userDefinedConverterFactory))
+                                logicType -> createConverter(
+                                        logicType,
+                                        serverTimeZone,
+                                        userDefinedConverterFactory))
                         .toArray(DeserializationRuntimeConverter[]::new);
         final String[] fieldNames = rowType.getFieldNames().toArray(new String[0]);
 
@@ -638,7 +638,7 @@ public final class RowDataDebeziumDeserializeSchema
             case ZonedTimestamp.SCHEMA_NAME:
                 ZonedDateTime zonedDateTime = ZonedDateTime.parse((CharSequence) fieldValue);
                 fieldValue = zonedDateTime.withZoneSameInstant(serverTimeZone).toLocalDateTime()
-                    .atZone(ZONE_UTC).format(DateTimeFormatter.ISO_INSTANT);
+                        .atZone(ZONE_UTC).format(DateTimeFormatter.ISO_INSTANT);
                 break;
             case Timestamp.SCHEMA_NAME:
                 Instant instantTime = Instant.ofEpochMilli((Long) fieldValue);
@@ -660,7 +660,7 @@ public final class RowDataDebeziumDeserializeSchema
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out,
-                            TableChange tableSchema)
+            TableChange tableSchema)
             throws Exception {
         Envelope.Operation op = Envelope.operationFor(record);
         Struct value = (Struct) record.value();
@@ -699,8 +699,7 @@ public final class RowDataDebeziumDeserializeSchema
     }
 
     private void emit(SourceRecord inRecord, RowData physicalRow,
-                      TableChange tableChange, Collector<RowData> collector
-    ) {
+            TableChange tableChange, Collector<RowData> collector) {
         if (!rowKindValidator.validate(physicalRow.getRowKind())) {
             return;
         }

@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.master.bdbstore;
 
 public class MasterGroupStatus {
+
     private boolean isMaster = false;
     private boolean isWritable = false;
     private boolean isReadable = false;
@@ -31,14 +32,14 @@ public class MasterGroupStatus {
     }
 
     public MasterGroupStatus(final boolean isMaster, final boolean isWritable,
-                             final boolean isReadable) {
+            final boolean isReadable) {
         this.isMaster = isMaster;
         this.isWritable = isWritable;
         this.isReadable = isReadable;
     }
 
     public void setMasterGroupStatus(final boolean isMaster, final boolean isWritable,
-                                     final boolean isReadable) {
+            final boolean isReadable) {
         this.isMaster = isMaster;
         this.isWritable = isWritable;
         this.isReadable = isReadable;

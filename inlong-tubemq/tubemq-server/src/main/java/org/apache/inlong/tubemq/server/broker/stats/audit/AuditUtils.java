@@ -96,9 +96,9 @@ public class AuditUtils {
                 continue;
             }
             // like: test_1#127.0.0.1#test_consume_127.0.0.1-32677-1656672066382-1-Pull-3.9.2
-            //       #127.0.0.1#32677#test_consume#2#202207041219
-            //       topicName, brokerIP, clientId,
-            //       clientIP, client processId, consume group, partitionId, msgTime
+            // #127.0.0.1#32677#test_consume#2#202207041219
+            // topicName, brokerIP, clientId,
+            // clientIP, client processId, consume group, partitionId, msgTime
             AuditOperator.getInstance().add(auditConfig.getAuditIdConsume(),
                     statKeyItems[0], statKeyItems[5], DateTimeConvertUtils.yyyyMMddHHmm2ms(statKeyItems[7]),
                     entry.getValue().getMsgCount(), entry.getValue().getMsgSize());

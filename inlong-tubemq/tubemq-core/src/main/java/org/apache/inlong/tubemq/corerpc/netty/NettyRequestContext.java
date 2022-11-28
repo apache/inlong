@@ -45,8 +45,8 @@ public class NettyRequestContext implements RequestContext {
     private long receiveTime;
 
     public NettyRequestContext(RequestWrapper request,
-                               ChannelHandlerContext ctx,
-                               long receiveTime) {
+            ChannelHandlerContext ctx,
+            long receiveTime) {
         this.request = request;
         this.ctx = ctx;
         this.receiveTime = receiveTime;
@@ -80,6 +80,7 @@ public class NettyRequestContext implements RequestContext {
         dataPack = new RpcDataPack(response.getSerialNo(), prepareResponse(response));
         ChannelFuture wf = ctx.channel().writeAndFlush(dataPack);
         wf.addListener(new ChannelFutureListener() {
+
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {

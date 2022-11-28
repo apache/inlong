@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbBrokerConfE
  */
 
 public class BrokerConfEntity extends BaseEntity implements Cloneable {
+
     // Primary Key
     private int brokerId = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerIp = "";
@@ -43,11 +44,11 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     private int groupId = TBaseConstants.META_VALUE_UNDEFINED;
     private TopicPropGroup topicProps = new TopicPropGroup();
     // Redundant fields begin
-    private String brokerAddress = "";       // broker ip:port
-    private String brokerFullInfo = "";      // broker brokerId:ip:port
-    private String brokerSimpleInfo = "";    // broker brokerId:ip:
-    private String brokerTLSSimpleInfo = ""; //tls simple info
-    private String brokerTLSFullInfo = "";   //tls full info
+    private String brokerAddress = ""; // broker ip:port
+    private String brokerFullInfo = ""; // broker brokerId:ip:port
+    private String brokerSimpleInfo = ""; // broker brokerId:ip:
+    private String brokerTLSSimpleInfo = ""; // tls simple info
+    private String brokerTLSFullInfo = ""; // tls full info
     // Redundant fields end
 
     public BrokerConfEntity() {
@@ -61,7 +62,7 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     }
 
     public BrokerConfEntity(BaseEntity opEntity, int brokerId,
-                            String brokerIp, ClusterSettingEntity defSetting) {
+            String brokerIp, ClusterSettingEntity defSetting) {
         super(opEntity);
         this.brokerWebPort = defSetting.getBrokerWebPort();
         this.topicProps.updModifyInfo(defSetting.getClsDefTopicProps());
@@ -156,7 +157,7 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
     }
 
     public void setBrokerIpAndAllPort(int brokerId, String brokerIp,
-                                      int brokerPort, int brokerTLSPort) {
+            int brokerPort, int brokerTLSPort) {
         this.brokerId = brokerId;
         this.brokerIp = brokerIp;
         this.brokerPort = brokerPort;
@@ -253,8 +254,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
      * @return if changed
      */
     public boolean updModifyInfo(long dataVerId, int brokerPort, int brokerTlsPort,
-                                 int brokerWebPort, int regionId, int groupId,
-                                 ManageStatus manageStatus, TopicPropGroup topicProps) {
+            int brokerWebPort, int regionId, int groupId,
+            ManageStatus manageStatus, TopicPropGroup topicProps) {
         boolean changed = false;
         // check and set dataVerId info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -330,19 +331,19 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
         return (target.getBrokerId() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getBrokerId() == this.brokerId)
                 && (TStringUtils.isBlank(target.getBrokerIp())
-                || target.getBrokerIp().equals(this.brokerIp))
+                        || target.getBrokerIp().equals(this.brokerIp))
                 && (target.getBrokerPort() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getBrokerPort() == this.brokerPort)
+                        || target.getBrokerPort() == this.brokerPort)
                 && (target.getBrokerTLSPort() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getBrokerTLSPort() == this.brokerTLSPort)
+                        || target.getBrokerTLSPort() == this.brokerTLSPort)
                 && (target.getRegionId() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getRegionId() == this.regionId)
+                        || target.getRegionId() == this.regionId)
                 && (target.getGroupId() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getGroupId() == this.groupId)
+                        || target.getGroupId() == this.groupId)
                 && (target.getManageStatus() == ManageStatus.STATUS_MANAGE_UNDEFINED
-                || target.getManageStatus() == this.manageStatus)
+                        || target.getManageStatus() == this.manageStatus)
                 && (target.getBrokerWebPort() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getBrokerWebPort() == this.brokerWebPort)
+                        || target.getBrokerWebPort() == this.brokerWebPort)
                 && this.topicProps.isMatched(target.getTopicProps());
     }
 
@@ -357,8 +358,8 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
      * @return process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuffer,
-                                      boolean isConfUpdated, boolean isConfLoaded,
-                                      boolean isLongName, boolean fullFormat) {
+            boolean isConfUpdated, boolean isConfLoaded,
+            boolean isLongName, boolean fullFormat) {
         if (isLongName) {
             sBuffer.append("{\"brokerId\":").append(brokerId)
                     .append(",\"brokerIp\":\"").append(brokerIp).append("\"")
@@ -397,40 +398,51 @@ public class BrokerConfEntity extends BaseEntity implements Cloneable {
      * @param strBuff     the string buffer
      */
     public void getBrokerDefaultConfInfo(ClusterSettingEntity defSetting,
-                                         StringBuilder strBuff) {
+            StringBuilder strBuff) {
         TopicPropGroup defTopicProps = defSetting.getClsDefTopicProps();
         strBuff.append((topicProps.getNumPartitions() == TBaseConstants.META_VALUE_UNDEFINED)
-                ? defTopicProps.getNumPartitions() : topicProps.getNumPartitions())
+                ? defTopicProps.getNumPartitions()
+                : topicProps.getNumPartitions())
                 .append(TokenConstants.ATTR_SEP)
                 .append((topicProps.getAcceptPublish() == null)
-                        ? defTopicProps.isAcceptPublish() : topicProps.isAcceptPublish())
+                        ? defTopicProps.isAcceptPublish()
+                        : topicProps.isAcceptPublish())
                 .append(TokenConstants.ATTR_SEP)
                 .append((topicProps.getAcceptSubscribe() == null)
-                        ? defTopicProps.isAcceptSubscribe() : topicProps.isAcceptSubscribe())
+                        ? defTopicProps.isAcceptSubscribe()
+                        : topicProps.isAcceptSubscribe())
                 .append(TokenConstants.ATTR_SEP)
                 .append((topicProps.getUnflushThreshold() == TBaseConstants.META_VALUE_UNDEFINED)
-                        ? defTopicProps.getUnflushThreshold() : topicProps.getUnflushThreshold())
+                        ? defTopicProps.getUnflushThreshold()
+                        : topicProps.getUnflushThreshold())
                 .append(TokenConstants.ATTR_SEP)
                 .append((topicProps.getUnflushInterval() == TBaseConstants.META_VALUE_UNDEFINED)
-                        ? defTopicProps.getUnflushInterval() : topicProps.getUnflushInterval())
+                        ? defTopicProps.getUnflushInterval()
+                        : topicProps.getUnflushInterval())
                 .append(TokenConstants.ATTR_SEP).append(" ").append(TokenConstants.ATTR_SEP)
                 .append((TStringUtils.isEmpty(topicProps.getDeletePolicy()))
-                        ? defTopicProps.getDeletePolicy() : topicProps.getDeletePolicy())
+                        ? defTopicProps.getDeletePolicy()
+                        : topicProps.getDeletePolicy())
                 .append(TokenConstants.ATTR_SEP)
                 .append((topicProps.getNumTopicStores() == TBaseConstants.META_VALUE_UNDEFINED)
-                        ? defTopicProps.getNumTopicStores() : topicProps.getNumTopicStores())
+                        ? defTopicProps.getNumTopicStores()
+                        : topicProps.getNumTopicStores())
                 .append(TokenConstants.ATTR_SEP)
                 .append((topicProps.getUnflushDataHold() == TBaseConstants.META_VALUE_UNDEFINED)
-                        ? defTopicProps.getUnflushDataHold() : topicProps.getUnflushDataHold())
+                        ? defTopicProps.getUnflushDataHold()
+                        : topicProps.getUnflushDataHold())
                 .append(TokenConstants.ATTR_SEP)
                 .append((topicProps.getMemCacheMsgSizeInMB() == TBaseConstants.META_VALUE_UNDEFINED)
-                        ? defTopicProps.getMemCacheMsgSizeInMB() : topicProps.getMemCacheMsgSizeInMB())
+                        ? defTopicProps.getMemCacheMsgSizeInMB()
+                        : topicProps.getMemCacheMsgSizeInMB())
                 .append(TokenConstants.ATTR_SEP)
                 .append((topicProps.getMemCacheMsgCntInK() == TBaseConstants.META_VALUE_UNDEFINED)
-                        ? defTopicProps.getMemCacheMsgCntInK() : topicProps.getMemCacheMsgCntInK())
+                        ? defTopicProps.getMemCacheMsgCntInK()
+                        : topicProps.getMemCacheMsgCntInK())
                 .append(TokenConstants.ATTR_SEP)
                 .append((topicProps.getMemCacheFlushIntvl() == TBaseConstants.META_VALUE_UNDEFINED)
-                        ? defTopicProps.getMemCacheFlushIntvl() : topicProps.getMemCacheFlushIntvl());
+                        ? defTopicProps.getMemCacheFlushIntvl()
+                        : topicProps.getMemCacheFlushIntvl());
     }
 
     /**

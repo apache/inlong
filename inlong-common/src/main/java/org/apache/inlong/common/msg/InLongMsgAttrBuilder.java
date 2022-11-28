@@ -25,6 +25,7 @@ import java.util.Map;
 public class InLongMsgAttrBuilder {
 
     public enum PartitionUnit {
+
         DAY("d"), HOUR("h"), HALFHOUR("n"),
         QUARTER("q"), TENMINS("t"), FIVEMINS("f");
         private static final Map<String, PartitionUnit> STRING_TO_TYPE_MAP =
@@ -57,6 +58,7 @@ public class InLongMsgAttrBuilder {
     }
 
     public enum TimeType {
+
         MS("#ms"), S("#s"),
         STANDARD("#")/* yyyy-MM-dd HH:mm:ss */,
         NORMAL("#n")/* yyyyMMddHH */;
@@ -90,6 +92,7 @@ public class InLongMsgAttrBuilder {
     }
 
     public static class MsgAttrProtocolM0 {
+
         private final StringBuffer attrBuffer;
         private String id = null;
         private String t = null;

@@ -75,8 +75,8 @@ public class SplitIndexFunctionTest extends AbstractTestBase {
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
+                .hasNext();) {
             String ss = it.next();
             result.add(ss);
         }

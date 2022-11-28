@@ -20,6 +20,7 @@ package org.apache.inlong.audit.utils;
 import org.apache.flume.channel.ChannelProcessor;
 
 public class FailoverChannelProcessorHolder {
+
     private static ChannelProcessor channelProcessor;
 
     public static ChannelProcessor getChannelProcessor() {

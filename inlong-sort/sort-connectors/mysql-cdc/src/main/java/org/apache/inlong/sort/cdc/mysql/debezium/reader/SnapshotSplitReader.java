@@ -166,8 +166,7 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecord, MySqlSp
         final MySqlOffsetContext.Loader loader =
                 new MySqlOffsetContext.Loader(statefulTaskContext.getConnectorConfig());
         final MySqlOffsetContext mySqlOffsetContext =
-                (MySqlOffsetContext)
-                        loader.load(backfillBinlogSplit.getStartingOffset().getOffset());
+                (MySqlOffsetContext) loader.load(backfillBinlogSplit.getStartingOffset().getOffset());
         // we should only capture events for the current table,
         // otherwise, we may can't find corresponding schema
         Configuration dezConf =
@@ -188,8 +187,7 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecord, MySqlSp
                 statefulTaskContext.getErrorHandler(),
                 StatefulTaskContext.getClock(),
                 statefulTaskContext.getTaskContext(),
-                (MySqlStreamingChangeEventSourceMetrics)
-                        statefulTaskContext.getStreamingChangeEventSourceMetrics(),
+                (MySqlStreamingChangeEventSourceMetrics) statefulTaskContext.getStreamingChangeEventSourceMetrics(),
                 statefulTaskContext.getTopicSelector().getPrimaryTopic(),
                 backfillBinlogSplit);
     }
@@ -273,7 +271,8 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecord, MySqlSp
      * watermark for each {@link MySqlSnapshotSplit}.
      */
     public class SnapshotSplitChangeEventSourceContextImpl
-            implements ChangeEventSource.ChangeEventSourceContext {
+            implements
+                ChangeEventSource.ChangeEventSourceContext {
 
         private BinlogOffset lowWatermark;
         private BinlogOffset highWatermark;
@@ -305,7 +304,8 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecord, MySqlSp
      * of a snapshot split task.
      */
     public class SnapshotBinlogSplitChangeEventSourceContextImpl
-            implements ChangeEventSource.ChangeEventSourceContext {
+            implements
+                ChangeEventSource.ChangeEventSourceContext {
 
         public void finished() {
             currentTaskRunning = false;

@@ -142,21 +142,19 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
                 // using decimal(20, 0) to support db type bigint unsigned, user should define
                 // decimal(20, 0) in SQL,
                 // but other precision like decimal(30, 0) can work too from lenient consideration.
-                return val ->
-                        val instanceof BigInteger
-                                ? DecimalData.fromBigDecimal(
+                return val -> val instanceof BigInteger
+                        ? DecimalData.fromBigDecimal(
                                 new BigDecimal((BigInteger) val, 0), precision, scale)
-                                : DecimalData.fromBigDecimal((BigDecimal) val, precision, scale);
+                        : DecimalData.fromBigDecimal((BigDecimal) val, precision, scale);
             case DATE:
                 return val -> (int) (((Date) val).toLocalDate().toEpochDay());
             case TIME_WITHOUT_TIME_ZONE:
                 return val -> (int) (((Time) val).toLocalTime().toNanoOfDay() / 1_000_000L);
             case TIMESTAMP_WITH_TIME_ZONE:
             case TIMESTAMP_WITHOUT_TIME_ZONE:
-                return val ->
-                        val instanceof LocalDateTime
-                                ? TimestampData.fromLocalDateTime((LocalDateTime) val)
-                                : TimestampData.fromTimestamp((Timestamp) val);
+                return val -> val instanceof LocalDateTime
+                        ? TimestampData.fromLocalDateTime((LocalDateTime) val)
+                        : TimestampData.fromTimestamp((Timestamp) val);
             case CHAR:
             case VARCHAR:
                 return val -> StringData.fromString((String) val);
@@ -200,8 +198,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
     protected JdbcSerializationConverter createExternalConverter(LogicalType type) {
         switch (type.getTypeRoot()) {
             case BOOLEAN:
-                return (val, index, statement) ->
-                        statement.setBoolean(index, val.getBoolean(index));
+                return (val, index, statement) -> statement.setBoolean(index, val.getBoolean(index));
             case TINYINT:
                 return (val, index, statement) -> statement.setByte(index, val.getByte(index));
             case SMALLINT:
@@ -219,35 +216,30 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
             case CHAR:
             case VARCHAR:
                 // value is BinaryString
-                return (val, index, statement) ->
-                        statement.setString(index, val.getString(index).toString());
+                return (val, index, statement) -> statement.setString(index, val.getString(index).toString());
             case BINARY:
             case VARBINARY:
                 return (val, index, statement) -> statement.setBytes(index, val.getBinary(index));
             case DATE:
-                return (val, index, statement) ->
-                        statement.setDate(
-                                index, Date.valueOf(LocalDate.ofEpochDay(val.getInt(index))));
+                return (val, index, statement) -> statement.setDate(
+                        index, Date.valueOf(LocalDate.ofEpochDay(val.getInt(index))));
             case TIME_WITHOUT_TIME_ZONE:
-                return (val, index, statement) ->
-                        statement.setTime(
-                                index,
-                                Time.valueOf(
-                                        LocalTime.ofNanoOfDay(val.getInt(index) * 1_000_000L)));
+                return (val, index, statement) -> statement.setTime(
+                        index,
+                        Time.valueOf(
+                                LocalTime.ofNanoOfDay(val.getInt(index) * 1_000_000L)));
             case TIMESTAMP_WITH_TIME_ZONE:
             case TIMESTAMP_WITHOUT_TIME_ZONE:
                 final int timestampPrecision = ((TimestampType) type).getPrecision();
-                return (val, index, statement) ->
-                        statement.setTimestamp(
-                                index, val.getTimestamp(index, timestampPrecision).toTimestamp());
+                return (val, index, statement) -> statement.setTimestamp(
+                        index, val.getTimestamp(index, timestampPrecision).toTimestamp());
             case DECIMAL:
                 final int decimalPrecision = ((DecimalType) type).getPrecision();
                 final int decimalScale = ((DecimalType) type).getScale();
-                return (val, index, statement) ->
-                        statement.setBigDecimal(
-                                index,
-                                val.getDecimal(index, decimalPrecision, decimalScale)
-                                        .toBigDecimal());
+                return (val, index, statement) -> statement.setBigDecimal(
+                        index,
+                        val.getDecimal(index, decimalPrecision, decimalScale)
+                                .toBigDecimal());
             case ARRAY:
             case MAP:
             case MULTISET:
@@ -263,6 +255,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
      */
     @FunctionalInterface
     public interface JdbcDeserializationConverter extends Serializable {
+
         /**
          * Convert a jdbc field object of {@link ResultSet} to the internal data structure object.
          *
@@ -277,6 +270,7 @@ public abstract class AbstractJdbcRowConverter implements JdbcRowConverter {
      */
     @FunctionalInterface
     public interface JdbcSerializationConverter extends Serializable {
+
         void serialize(RowData rowData, int index, FieldNamedPreparedStatement statement)
                 throws SQLException;
     }

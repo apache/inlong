@@ -24,13 +24,14 @@ import org.apache.flume.instrumentation.SinkCounter;
  * Counters for tube sink
  */
 public class TubeSinkCounter extends SinkCounter {
+
     private static final String COUNT_ROLLBACK =
             "sink.rollback.count";
 
     private static final String COUNT_SEND =
             "sink.send.count";
 
-    private static final String[] ATTRIBUTES = { COUNT_ROLLBACK, COUNT_SEND };
+    private static final String[] ATTRIBUTES = {COUNT_ROLLBACK, COUNT_SEND};
 
     public TubeSinkCounter(String name) {
         super(name, ATTRIBUTES);

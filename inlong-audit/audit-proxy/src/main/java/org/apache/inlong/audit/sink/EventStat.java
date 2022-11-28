@@ -24,6 +24,7 @@ import org.apache.flume.Event;
 @Getter
 @Setter
 public class EventStat {
+
     private Event event;
     private int myRetryCnt;
 

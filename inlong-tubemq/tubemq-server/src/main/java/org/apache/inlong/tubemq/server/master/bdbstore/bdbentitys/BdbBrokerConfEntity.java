@@ -31,6 +31,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstan
 
 @Entity
 public class BdbBrokerConfEntity implements Serializable {
+
     private static final long serialVersionUID = 3961934697293763691L;
 
     @PrimaryKey
@@ -43,23 +44,23 @@ public class BdbBrokerConfEntity implements Serializable {
     private int regionId = -2;
     private int manageStatus = -2; // broker status, -2:undefine, 1:Pending for approval, 5:online, 7:offline
     private int numPartitions = -2; // number of partitions
-    private int unflushThreshold = -2;  //flush threshold
-    private int unflushInterval = -2;   //flush interval
-    private String deleteWhen;  //delete policy execute time
-    private String deletePolicy;    //delete policy
-    private int dataStoreType = -2; //date store type
-    private String dataPath;    //data path
-    private String attributes;  //extra attributes
-    private boolean acceptPublish = true;   //enable publish
-    private boolean acceptSubscribe = true; //enable subscribe
-    private boolean isConfDataUpdated = false;  //conf data update flag
-    private boolean isBrokerLoaded = false; //broker conf load flag
-    private String createUser;  //broker create user
-    private Date createDate;    //broker create date
-    private String modifyUser;  //broker modify user
-    private Date modifyDate;    //broker modify date
-    private String brokerTLSSimpleInfo; //tls simple info
-    private String brokerTLSFullInfo;   //tls full info
+    private int unflushThreshold = -2; // flush threshold
+    private int unflushInterval = -2; // flush interval
+    private String deleteWhen; // delete policy execute time
+    private String deletePolicy; // delete policy
+    private int dataStoreType = -2; // date store type
+    private String dataPath; // data path
+    private String attributes; // extra attributes
+    private boolean acceptPublish = true; // enable publish
+    private boolean acceptSubscribe = true; // enable subscribe
+    private boolean isConfDataUpdated = false; // conf data update flag
+    private boolean isBrokerLoaded = false; // broker conf load flag
+    private String createUser; // broker create user
+    private Date createDate; // broker create date
+    private String modifyUser; // broker modify user
+    private Date modifyDate; // broker modify date
+    private String brokerTLSSimpleInfo; // tls simple info
+    private String brokerTLSFullInfo; // tls full info
 
     public BdbBrokerConfEntity() {
     }
@@ -87,14 +88,14 @@ public class BdbBrokerConfEntity implements Serializable {
      * @param modifyDate          the modify date
      */
     public BdbBrokerConfEntity(final int brokerId, final String brokerIp,
-                               final int brokerPort, final int numPartitions,
-                               final int unflushThreshold, final int unflushInterval,
-                               final String deleteWhen, final String deletePolicy,
-                               final int manageStatus, final boolean acceptPublish,
-                               final boolean acceptSubscribe, final String attributes,
-                               final boolean isConfDataUpdated, final boolean isBrokerLoaded,
-                               final String createUser, final Date createDate,
-                               final String modifyUser, final Date modifyDate) {
+            final int brokerPort, final int numPartitions,
+            final int unflushThreshold, final int unflushInterval,
+            final String deleteWhen, final String deletePolicy,
+            final int manageStatus, final boolean acceptPublish,
+            final boolean acceptSubscribe, final String attributes,
+            final boolean isConfDataUpdated, final boolean isBrokerLoaded,
+            final String createUser, final Date createDate,
+            final String modifyUser, final Date modifyDate) {
         this.brokerId = brokerId;
         this.brokerIp = brokerIp;
         this.brokerPort = brokerPort;

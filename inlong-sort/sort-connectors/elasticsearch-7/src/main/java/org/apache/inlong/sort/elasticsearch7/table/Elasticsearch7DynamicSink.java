@@ -281,9 +281,8 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
                         AuthScope.ANY, new UsernamePasswordCredentials(username, password));
             }
             restClientBuilder.setHttpClientConfigCallback(
-                    httpAsyncClientBuilder ->
-                            httpAsyncClientBuilder.setDefaultCredentialsProvider(
-                                    credentialsProvider));
+                    httpAsyncClientBuilder -> httpAsyncClientBuilder.setDefaultCredentialsProvider(
+                            credentialsProvider));
         }
 
         @Override

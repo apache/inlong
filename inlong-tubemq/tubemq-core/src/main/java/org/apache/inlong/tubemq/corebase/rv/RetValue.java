@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.corebase.rv;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 
 public class RetValue {
+
     private boolean success = true;
     private int errCode = TErrCodeConstants.SUCCESS;
     private String errMsg = "";

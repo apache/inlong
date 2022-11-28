@@ -55,8 +55,7 @@ public class StringUtil {
             @Nonnull Character entryDelimiter,
             @Nonnull Character kvDelimiter,
             @Nullable Character escapeChar,
-            @Nullable Character quoteChar
-    ) {
+            @Nullable Character quoteChar) {
         Map<String, String> fields = new HashMap<>();
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -67,8 +66,7 @@ public class StringUtil {
         int state = STATE_KEY;
 
         /*
-         * The state when entering escaping and quoting. When we exit escaping
-         * or quoting, we should restore this state.
+         * The state when entering escaping and quoting. When we exit escaping or quoting, we should restore this state.
          */
         int kvState = STATE_KEY;
 

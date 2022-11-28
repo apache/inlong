@@ -41,8 +41,7 @@ public class ArrayFormatInfo implements FormatInfo {
 
     @JsonCreator
     public ArrayFormatInfo(
-            @JsonProperty(FIELD_ELEMENT_FORMAT) @Nonnull FormatInfo elementFormatInfo
-    ) {
+            @JsonProperty(FIELD_ELEMENT_FORMAT) @Nonnull FormatInfo elementFormatInfo) {
         this.elementFormatInfo = elementFormatInfo;
     }
 

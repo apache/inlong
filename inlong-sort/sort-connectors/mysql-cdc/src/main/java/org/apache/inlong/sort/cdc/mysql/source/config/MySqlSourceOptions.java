@@ -185,16 +185,16 @@ public class MySqlSourceOptions {
                                     + "latest available binlog offsets");
 
     public static final ConfigOption<String> ROW_KINDS_FILTERED =
-        ConfigOptions.key("row-kinds-filtered")
-            .stringType()
-            .defaultValue("+I&-U&+U&-D")
-            .withDescription("row kinds to be filtered,"
-                + " here filtered means keep the data of certain row kind"
-                + "the format follows rowKind1&rowKind2, supported row kinds are "
-                + "\"+I\" represents INSERT.\n"
-                + "\"-U\" represents UPDATE_BEFORE.\n"
-                + "\"+U\" represents UPDATE_AFTER.\n"
-                + "\"-D\" represents DELETE.");
+            ConfigOptions.key("row-kinds-filtered")
+                    .stringType()
+                    .defaultValue("+I&-U&+U&-D")
+                    .withDescription("row kinds to be filtered,"
+                            + " here filtered means keep the data of certain row kind"
+                            + "the format follows rowKind1&rowKind2, supported row kinds are "
+                            + "\"+I\" represents INSERT.\n"
+                            + "\"-U\" represents UPDATE_BEFORE.\n"
+                            + "\"+U\" represents UPDATE_AFTER.\n"
+                            + "\"-D\" represents DELETE.");
     public static final ConfigOption<Boolean> APPEND_MODE =
             ConfigOptions.key("append-mode")
                     .booleanType()

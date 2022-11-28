@@ -27,6 +27,7 @@ import java.util.List;
  * DispatchProfile
  */
 public class BatchPackProfile {
+
     public static final long MINUTE_MS = 60L * 1000;
 
     private final String inlongGroupId;

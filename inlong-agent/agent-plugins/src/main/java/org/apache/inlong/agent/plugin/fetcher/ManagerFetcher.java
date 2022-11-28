@@ -156,7 +156,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private String buildBaseUrl() {
         return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
                 + ":" + conf.get(AGENT_MANAGER_VIP_HTTP_PORT) + conf.get(
-                AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
+                        AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
     }
 
     /**
@@ -412,9 +412,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
                 triggerProfile, dataTime);
         Collection<File> suitFiles = PluginUtils.findSuitFiles(triggerProfile);
         // filter files exited before
-        List<File> pendingFiles = suitFiles.stream().filter(file ->
-                !agentManager.getJobManager().checkJobExist(file.getAbsolutePath()))
-                .collect(Collectors.toList());
+        List<File> pendingFiles =
+                suitFiles.stream().filter(file -> !agentManager.getJobManager().checkJobExist(file.getAbsolutePath()))
+                        .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
             JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,
                     pendingFile);

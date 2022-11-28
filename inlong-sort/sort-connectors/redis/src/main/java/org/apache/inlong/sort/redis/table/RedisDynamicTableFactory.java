@@ -55,6 +55,7 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory {
      * Supported redis mode, contains [standalone|cluster|sentinel].
      */
     public static final Set<String> SUPPORT_REDIS_MODE = new HashSet<String>() {
+
         private static final long serialVersionUID = 1L;
 
         {
@@ -67,6 +68,7 @@ public class RedisDynamicTableFactory implements DynamicTableSourceFactory {
      * Supported redis source commands, contain [GET|HGET|ZREVRANK|ZSCORE] at now.
      */
     public static Set<String> SUPPORT_SOURCE_COMMANDS = new HashSet<String>() {
+
         private static final long serialVersionUID = 1L;
 
         {

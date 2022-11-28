@@ -28,14 +28,14 @@ public interface CertificateBrokerHandler {
     void appendVisitToken(ClientMaster.MasterBrokerAuthorizedInfo authorizedInfo);
 
     CertifiedResult identityValidUserInfo(ClientBroker.AuthorizedInfo authorizedInfo,
-                                          boolean isProduce);
+            boolean isProduce);
 
     CertifiedResult validProduceAuthorizeInfo(String userName, String topicName,
-                                              String msgType, String clientIp);
+            String msgType, String clientIp);
 
     CertifiedResult validConsumeAuthorizeInfo(String userName, String groupName,
-                                              String topicName, Set<String> msgTypeLst,
-                                              boolean isRegister, String clientIp);
+            String topicName, Set<String> msgTypeLst,
+            boolean isRegister, String clientIp);
 
     boolean isEnableProduceAuthenticate();
 

@@ -64,8 +64,7 @@ public class AgentDbUtils {
         /* TODO: try to decrypt password, if failed then use raw password */
 
         /*
-         * NOTE: THIS MAY CAUSE DEADLOAK WHEN MULTIPLE THREADS CALLED AT THE
-         * SAME TIME
+         * NOTE: THIS MAY CAUSE DEADLOAK WHEN MULTIPLE THREADS CALLED AT THE SAME TIME
          * sun.security.jca.ProviderConfig.getProvider(ProviderConfig.java:188)
          */
         synchronized (AgentDbUtils.class) {

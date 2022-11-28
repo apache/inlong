@@ -61,6 +61,7 @@ import org.apache.inlong.sort.formats.json.canal.CanalJsonDecodingFormat.Readabl
  * @see <a href="https://github.com/alibaba/canal">Alibaba Canal</a>
  */
 public final class CanalJsonDeserializationSchema implements DeserializationSchema<RowData> {
+
     private static final long serialVersionUID = 1L;
 
     private static final String FIELD_OLD = "old";
@@ -148,6 +149,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     /** A builder for creating a {@link CanalJsonDeserializationSchema}. */
     @Internal
     public static final class Builder {
+
         private final DataType physicalDataType;
         private final List<ReadableMetadata> requestedMetadata;
         private final TypeInformation<RowData> producedTypeInfo;
@@ -303,8 +305,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
             metadataMap.put(
                     StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),
-                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString())
-            );
+                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString()));
         }
         producedRow.setField(0, new GenericMapData(metadataMap));
 
@@ -381,6 +382,7 @@ public final class CanalJsonDeserializationSchema implements DeserializationSche
     private static MetadataConverter convert(RowType jsonRowType, ReadableMetadata metadata) {
         final int pos = jsonRowType.getFieldNames().indexOf(metadata.requiredJsonField.getName());
         return new MetadataConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override

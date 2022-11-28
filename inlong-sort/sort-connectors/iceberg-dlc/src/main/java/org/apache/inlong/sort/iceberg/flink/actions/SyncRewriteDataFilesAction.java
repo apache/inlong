@@ -36,8 +36,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Do rewrite action with dlc Spark SQL.
  */
-public class SyncRewriteDataFilesAction implements
-        Action<SyncRewriteDataFilesAction, RewriteResult> {
+public class SyncRewriteDataFilesAction
+        implements
+            Action<SyncRewriteDataFilesAction, RewriteResult> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncRewriteDataFilesAction.class);
     private static final String DLC_JDBC_CLASS = "com.tencent.cloud.dlc.jdbc.DlcDriver";

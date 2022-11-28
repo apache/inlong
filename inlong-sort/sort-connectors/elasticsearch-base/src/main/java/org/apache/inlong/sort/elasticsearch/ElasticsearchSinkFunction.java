@@ -70,7 +70,7 @@ public interface ElasticsearchSinkFunction<T> extends Serializable, Function {
 
     }
 
-    default  void setRuntimeContext(RuntimeContext ctx) {
+    default void setRuntimeContext(RuntimeContext ctx) {
 
     }
 }

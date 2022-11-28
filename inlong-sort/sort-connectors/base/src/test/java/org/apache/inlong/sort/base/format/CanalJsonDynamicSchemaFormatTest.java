@@ -37,6 +37,7 @@ import java.util.Map;
  * Test for {@link CanalJsonDynamicSchemaFormat}
  */
 public class CanalJsonDynamicSchemaFormatTest extends DynamicSchemaFormatBaseTest<JsonNode> {
+
     private AbstractDynamicSchemaFormat schemaFormat = DynamicSchemaFormatFactory.getFormat("canal-json");
 
     @Override

@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Daemon threads to check timeout for asynchronous callback.
  */
 public class TimeoutScanThread extends Thread {
+
     private static final int MAX_CHANNEL_TIMEOUT = 5 * 60 * 1000;
     private final Logger logger = LoggerFactory.getLogger(TimeoutScanThread.class);
     private final ConcurrentHashMap<Channel, ConcurrentHashMap<String, QueueObject>> callbacks;
@@ -100,7 +101,7 @@ public class TimeoutScanThread extends Thread {
      * check timeout
      */
     private void checkTimeoutChannel() {
-        //if timeout >3,set channel busy
+        // if timeout >3,set channel busy
         for (Channel tmpChannel : timeoutChannelStat.keySet()) {
             TimeScanObject timeScanObject = tmpChannel != null ? timeoutChannelStat.get(tmpChannel) : null;
             if (timeScanObject == null) {

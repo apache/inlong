@@ -46,6 +46,7 @@ public class Job {
     private String description;
     private String jobInstanceId;
     private ThreadLocal<Integer> threadNum = new ThreadLocal<Integer>() {
+
         protected Integer initialValue() {
             return 0;
         }

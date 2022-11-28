@@ -54,6 +54,7 @@ import java.util.stream.Stream;
 import static org.junit.Assert.assertEquals;
 
 public class CanalJsonEnhancedSerDeSchemaTest {
+
     public static final String DATABASE = "TEST";
 
     public static final String TABLE = "TEST";
@@ -95,8 +96,7 @@ public class CanalJsonEnhancedSerDeSchemaTest {
                     ReadableMetadata.IS_DDL,
                     ReadableMetadata.MYSQL_TYPE,
                     ReadableMetadata.BATCH_ID,
-                    ReadableMetadata.UPDATE_BEFORE
-            ).collect(Collectors.toList());
+                    ReadableMetadata.UPDATE_BEFORE).collect(Collectors.toList());
 
     public static final List<WriteableMetadata> WRITEABLE_METADATA =
             Stream.of(
@@ -110,8 +110,7 @@ public class CanalJsonEnhancedSerDeSchemaTest {
                     WriteableMetadata.IS_DDL,
                     WriteableMetadata.MYSQL_TYPE,
                     WriteableMetadata.BATCH_ID,
-                    WriteableMetadata.UPDATE_BEFORE
-            ).collect(Collectors.toList());
+                    WriteableMetadata.UPDATE_BEFORE).collect(Collectors.toList());
 
     @Test
     public void testSerDeWithMetadata() throws Exception {
@@ -146,9 +145,9 @@ public class CanalJsonEnhancedSerDeSchemaTest {
                                 .map(m -> DataTypes.FIELD(m.key, m.dataType))
                                 .collect(Collectors.toList()));
         return CanalJsonEnhancedDeserializationSchema.builder(
-                        PHYSICAL_DATA_TYPE,
-                        requestedMetadata,
-                        InternalTypeInfo.of(producedDataType.getLogicalType()))
+                PHYSICAL_DATA_TYPE,
+                requestedMetadata,
+                InternalTypeInfo.of(producedDataType.getLogicalType()))
                 .setDatabase(DATABASE)
                 .setTable(TABLE)
                 .setIgnoreParseErrors(JsonOptions.IGNORE_PARSE_ERRORS.defaultValue())
@@ -179,7 +178,7 @@ public class CanalJsonEnhancedSerDeSchemaTest {
         assert url != null;
         Path path = new File(url.getFile()).toPath();
         ObjectInputStream in = new ObjectInputStream(new FileInputStream(path.toString()));
-        return (List<RowData>)in.readObject();
+        return (List<RowData>) in.readObject();
     }
 
     public void compareJson(String json1, String json2) throws JsonProcessingException {

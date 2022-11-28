@@ -83,8 +83,7 @@ public class ClickHouseLoadNode extends LoadNode implements InlongMetric, Serial
             @Nonnull @JsonProperty("url") String url,
             @Nonnull @JsonProperty("userName") String userName,
             @Nonnull @JsonProperty("passWord") String password,
-            @JsonProperty("primaryKey") String primaryKey
-    ) {
+            @JsonProperty("primaryKey") String primaryKey) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.url = Preconditions.checkNotNull(url, "url is null");

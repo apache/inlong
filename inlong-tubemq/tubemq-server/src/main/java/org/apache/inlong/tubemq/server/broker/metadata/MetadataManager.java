@@ -26,21 +26,22 @@ import org.apache.inlong.tubemq.corebase.policies.FlowCtrlRuleHandler;
  * Metadata's management interface.
  */
 public interface MetadataManager {
+
     void close(long waitTimeMs);
 
     void updateBrokerTopicConfigMap(long newBrokerMetaConfId,
-                                    int newConfCheckSumId,
-                                    String newBrokerDefMetaConfInfo,
-                                    List<String> newTopicMetaConfInfoLst,
-                                    boolean isForce,
-                                    StringBuilder sb);
+            int newConfCheckSumId,
+            String newBrokerDefMetaConfInfo,
+            List<String> newTopicMetaConfInfoLst,
+            boolean isForce,
+            StringBuilder sb);
 
     boolean updateBrokerRemoveTopicMap(boolean isTakeRemoveTopics,
-                                       List<String> rmvTopicMetaConfInfoLst,
-                                       StringBuilder sb);
+            List<String> rmvTopicMetaConfInfoLst,
+            StringBuilder sb);
 
     void addPropertyChangeListener(String propertyName,
-                                   PropertyChangeListener listener);
+            PropertyChangeListener listener);
 
     List<String> getTopics();
 

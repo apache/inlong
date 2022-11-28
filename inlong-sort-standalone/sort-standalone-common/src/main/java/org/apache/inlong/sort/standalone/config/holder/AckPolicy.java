@@ -50,11 +50,11 @@ public enum AckPolicy {
      */
     public static AckPolicy getAckPolicy(int value) {
         switch (value) {
-            case 0 :
+            case 0:
                 return COUNT;
-            case 1 :
+            case 1:
                 return TOKEN;
-            default :
+            default:
                 return COUNT;
         }
     }

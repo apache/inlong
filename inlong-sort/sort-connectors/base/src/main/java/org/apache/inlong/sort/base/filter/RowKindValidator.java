@@ -46,20 +46,20 @@ public class RowKindValidator implements RowValidator {
 
     public RowKindValidator(List<String> rowKinds) {
         Preconditions.checkArgument(!rowKinds.isEmpty(),
-            "rowKinds should not be empty");
+                "rowKinds should not be empty");
         for (String rowKind : rowKinds) {
             Arrays.stream(RowKind.values()).filter(value -> value.shortString().equals(rowKind))
-                .findFirst().ifPresent(rowKindsFiltered::add);
+                    .findFirst().ifPresent(rowKindsFiltered::add);
         }
     }
 
     public RowKindValidator(String rowKinds) {
         Preconditions.checkArgument(Pattern.matches(pattern, rowKinds),
-             String.format("rowKinds is not valid, should match the pattern %s,"
-                 + " the input value is %s", pattern, rowKinds));
+                String.format("rowKinds is not valid, should match the pattern %s,"
+                        + " the input value is %s", pattern, rowKinds));
         for (String rowKind : rowKinds.split(DELIMITER)) {
             Arrays.stream(RowKind.values()).filter(value -> value.shortString().equals(rowKind))
-                .findFirst().ifPresent(rowKindsFiltered::add);
+                    .findFirst().ifPresent(rowKindsFiltered::add);
         }
     }
 

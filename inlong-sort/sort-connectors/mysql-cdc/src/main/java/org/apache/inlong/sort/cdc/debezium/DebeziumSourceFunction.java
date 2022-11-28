@@ -85,7 +85,6 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
 import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
 import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
 
-
 /**
  * The {@link DebeziumSourceFunction} is a streaming data source that pulls captured change data
  * from databases into Flink.
@@ -116,7 +115,10 @@ import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retr
  */
 @PublicEvolving
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
-        implements CheckpointedFunction, CheckpointListener, ResultTypeQueryable<T> {
+        implements
+            CheckpointedFunction,
+            CheckpointListener,
+            ResultTypeQueryable<T> {
 
     /**
      * State name of the consumer's partition offset states.
@@ -158,8 +160,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /**
      * The specific binlog offset to read from when the first startup.
      */
-    private final @Nullable
-    DebeziumOffset specificOffset;
+    private final @Nullable DebeziumOffset specificOffset;
 
     /**
      * Data for pending but uncommitted offsets.
@@ -266,7 +267,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     }
 
     // ------------------------------------------------------------------------
-    //  Checkpoint and restore
+    // Checkpoint and restore
     // ------------------------------------------------------------------------
 
     @Override
@@ -286,7 +287,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                     stateStore.getUnionListState(
                             new ListStateDescriptor<>(
                                     INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                            })));
+                                    })));
         }
 
         if (context.isRestored()) {
@@ -483,6 +484,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 new DebeziumChangeFetcher<>(
                         sourceContext,
                         new DebeziumDeserializationSchema<T>() {
+
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
                                 if (sourceMetricData != null) {
@@ -493,7 +495,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out,
-                                TableChange tableSchema) throws Exception {
+                                    TableChange tableSchema) throws Exception {
                                 if (sourceMetricData != null) {
                                     sourceMetricData.outputMetricsWithEstimate(record.value());
                                 }

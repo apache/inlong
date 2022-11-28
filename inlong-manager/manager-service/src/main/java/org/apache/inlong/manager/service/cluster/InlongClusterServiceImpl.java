@@ -325,8 +325,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         PageResult<ClusterInfo> pageResult = new PageResult<>(
                 list, entityPage.getTotal(),
-                entityPage.getPageNum(), entityPage.getPageSize()
-        );
+                entityPage.getPageNum(), entityPage.getPageSize());
 
         LOGGER.debug("success to list inlong cluster by {}", request);
         return pageResult;
@@ -587,8 +586,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         String message = "Current user does not have permission to get cluster node list";
         checkUser(cluster, currentUser, message);
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<InlongClusterNodeEntity> entityPage = (Page<InlongClusterNodeEntity>)
-                clusterNodeMapper.selectByCondition(request);
+        Page<InlongClusterNodeEntity> entityPage =
+                (Page<InlongClusterNodeEntity>) clusterNodeMapper.selectByCondition(request);
         List<ClusterNodeResponse> nodeList = CommonBeanUtils.copyListProperties(entityPage, ClusterNodeResponse::new);
 
         PageResult<ClusterNodeResponse> pageResult = new PageResult<>(nodeList, entityPage.getTotal(),

@@ -29,6 +29,7 @@ import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.master.nodemanage.nodebroker.BrokerRunManager;
 
 public class ClientSyncInfo {
+
     private boolean updated = false;
     private long brokerConfigId = TBaseConstants.META_VALUE_UNDEFINED;
     private long topicMetaInfoId = TBaseConstants.META_VALUE_UNDEFINED;
@@ -47,7 +48,7 @@ public class ClientSyncInfo {
      * @param clientSubRepInfo   the client reported subscription information
      */
     public void updSubRepInfo(BrokerRunManager brokerRunManager,
-                              ClientMaster.ClientSubRepInfo clientSubRepInfo) {
+            ClientMaster.ClientSubRepInfo clientSubRepInfo) {
         if (clientSubRepInfo == null) {
             return;
         }

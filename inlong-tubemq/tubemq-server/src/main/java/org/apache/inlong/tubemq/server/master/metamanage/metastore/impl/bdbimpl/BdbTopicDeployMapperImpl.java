@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.To
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsTopicDeployMapperImpl;
 
 public class BdbTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
+
     // Topic configure store
     private EntityStore topicConfStore;
     private final PrimaryIndex<String/* recordKey */, BdbTopicConfEntity> topicConfIndex;
@@ -86,7 +87,7 @@ public class BdbTopicDeployMapperImpl extends AbsTopicDeployMapperImpl {
     }
 
     protected boolean putConfig2Persistent(TopicDeployEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         BdbTopicConfEntity bdbEntity =
                 entity.buildBdbTopicConfEntity();
         try {

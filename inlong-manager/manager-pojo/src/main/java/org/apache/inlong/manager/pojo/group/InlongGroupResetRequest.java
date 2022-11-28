@@ -39,9 +39,8 @@ public class InlongGroupResetRequest {
 
     @ApiModelProperty(value = "Inlong group id", required = true)
     @Length(min = 4, max = 200)
-    @Pattern(regexp = "^(?![0-9]+$)[a-z][a-z0-9_-]{1,200}$",
-            message = "inlongGroupId must starts with a lowercase letter "
-                    + "and contains only lowercase letters, digits, `-` or `_`")
+    @Pattern(regexp = "^(?![0-9]+$)[a-z][a-z0-9_-]{1,200}$", message = "inlongGroupId must starts with a lowercase letter "
+            + "and contains only lowercase letters, digits, `-` or `_`")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "If rerun process when group is in operating, 0: false 1: true")

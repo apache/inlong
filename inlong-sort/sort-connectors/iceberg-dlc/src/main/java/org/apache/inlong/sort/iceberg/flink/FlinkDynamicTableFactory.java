@@ -56,6 +56,7 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, DynamicTableSourceFactory {
+
     static final String FACTORY_IDENTIFIER = "dlc-inlong";
 
     public static final ConfigOption<String> CATALOG_NAME =

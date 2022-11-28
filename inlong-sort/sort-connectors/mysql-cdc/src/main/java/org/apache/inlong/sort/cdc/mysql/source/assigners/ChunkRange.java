@@ -28,6 +28,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
  * (exclusive). Note that {@code null} represents unbounded chunk start/end.
  */
 class ChunkRange {
+
     private final @Nullable Object chunkStart;
     private final @Nullable Object chunkEnd;
 

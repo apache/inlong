@@ -29,7 +29,7 @@ public class TubeClientConfigUtils {
      * @param isSingleSession    whether single session factory
      */
     public static RpcConfig getRpcConfigByClientConfig(final TubeClientConfig tubeClientConfig,
-                                                       boolean isSingleSession) {
+            boolean isSingleSession) {
         RpcConfig config = new RpcConfig();
         config.put(RpcConstants.TLS_OVER_TCP, tubeClientConfig.isTlsEnable());
         if (tubeClientConfig.isTlsEnable()) {

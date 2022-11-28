@@ -84,7 +84,7 @@ public class FileDataUtils {
      * Filter file by conditions
      */
     public static Collection<File> filterFile(Collection<File> allFiles, JobProfile jobConf) {
-        // filter file by labels 
+        // filter file by labels
         Collection<File> files = null;
         try {
             files = filterByLabels(allFiles, jobConf);

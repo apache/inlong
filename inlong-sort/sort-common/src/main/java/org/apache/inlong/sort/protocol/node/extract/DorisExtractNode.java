@@ -62,14 +62,14 @@ public class DorisExtractNode extends ExtractNode implements Serializable {
 
     @JsonCreator
     public DorisExtractNode(@JsonProperty("id") String id,
-                            @JsonProperty("name") String name,
-                            @JsonProperty("fields") List<FieldInfo> fields,
-                            @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
-                            @JsonProperty("properties") Map<String, String> properties,
-                            @JsonProperty("feNodes") @Nonnull String feNodes,
-                            @JsonProperty("username") String userName,
-                            @JsonProperty("password") String password,
-                            @JsonProperty("tableIdentifier") String tableIdentifier) {
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
+            @JsonProperty("properties") Map<String, String> properties,
+            @JsonProperty("feNodes") @Nonnull String feNodes,
+            @JsonProperty("username") String userName,
+            @JsonProperty("password") String password,
+            @JsonProperty("tableIdentifier") String tableIdentifier) {
         super(id, name, fields, waterMarkField, properties);
         this.feNodes = Preconditions.checkNotNull(feNodes, "feNodes is null");
         this.userName = Preconditions.checkNotNull(userName, "username is null");

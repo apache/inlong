@@ -157,7 +157,7 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public TubeMQResult addTopicsToBrokers(MasterEntry masterEntry, List<Integer> brokerIds,
-                                           List<AddTopicReq> addTopicReqs) {
+            List<AddTopicReq> addTopicReqs) {
         TubeMQResult tubeResult = new TubeMQResult();
         AddTopicsResult addTopicsResult = new AddTopicsResult();
 
@@ -225,7 +225,7 @@ public class NodeServiceImpl implements NodeService {
 
     @Override
     public boolean configBrokersForTopics(MasterEntry masterEntry,
-                                          Set<String> topics, List<Integer> brokerList, int maxBrokers) {
+            Set<String> topics, List<Integer> brokerList, int maxBrokers) {
         if (maxBrokers == 0) {
             return false;
         }
@@ -393,7 +393,7 @@ public class NodeServiceImpl implements NodeService {
         HttpGet httpget = new HttpGet(url);
         try (CloseableHttpResponse response = httpclient.execute(httpget)) {
             return gson.fromJson(new InputStreamReader(response.getEntity().getContent(),
-                            StandardCharsets.UTF_8),
+                    StandardCharsets.UTF_8),
                     AddBrokerResult.class);
         } catch (Exception ex) {
             log.error("exception caught while requesting broker status", ex);

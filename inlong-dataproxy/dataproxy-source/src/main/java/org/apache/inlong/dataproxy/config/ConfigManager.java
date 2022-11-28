@@ -59,6 +59,7 @@ import static org.apache.inlong.dataproxy.consts.ConfigConstants.CONFIG_CHECK_IN
  * Config manager class.
  */
 public class ConfigManager {
+
     private static final Logger LOG = LoggerFactory.getLogger(ConfigManager.class);
 
     public static final List<ConfigHolder> CONFIG_HOLDER_LIST = new ArrayList<>();
@@ -167,7 +168,7 @@ public class ConfigManager {
      * @return true if changed else false.
      */
     private boolean updatePropertiesHolder(Map<String, String> result,
-                                           PropertiesConfigHolder holder) {
+            PropertiesConfigHolder holder) {
         boolean changed = false;
         Map<String, String> tmpHolder = holder.forkHolder();
         // Delete non-existent configuration records
@@ -203,8 +204,8 @@ public class ConfigManager {
      * @return true if changed else false.
      */
     private boolean updatePropertiesHolder(Map<String, String> result,
-                                           PropertiesConfigHolder holder,
-                                           boolean addElseRemove) {
+            PropertiesConfigHolder holder,
+            boolean addElseRemove) {
         Map<String, String> tmpHolder = holder.forkHolder();
         boolean changed = false;
 
@@ -371,9 +372,9 @@ public class ConfigManager {
                 if (configJson.isSuccess() && configJson.getData() != null) {
                     LOG.info("getConfig result: {}", returnStr);
                     /*
-                     * get mqUrls <->token maps;
-                     * if mq is pulsar, store format: mq_cluster.index1=cluster1url1,cluster1url2=token
-                     * if mq is tubemq, token is "", store format: mq_cluster.index1=cluster1url1,cluster1url2=
+                     * get mqUrls <->token maps; if mq is pulsar, store format:
+                     * mq_cluster.index1=cluster1url1,cluster1url2=token if mq is tubemq, token is "", store format:
+                     * mq_cluster.index1=cluster1url1,cluster1url2=
                      */
                     int index = 1;
                     List<MQClusterInfo> clusterSet = configJson.getData().getMqClusterList();

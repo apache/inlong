@@ -73,6 +73,7 @@ import org.slf4j.LoggerFactory;
  * {@link HiveMetaStoreClient} to {@link DLCDataCatalogMetastoreClient}
  */
 public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements SupportsNamespaces, Configurable {
+
     public static final String LIST_ALL_TABLES = "list-all-tables";
     public static final String LIST_ALL_TABLES_DEFAULT = "false";
     public static final Set<String> DLC_WHITELIST_PARAMS = Stream.of(
@@ -92,8 +93,7 @@ public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements Sup
             CosNConfigKeys.COSN_REGION_PREV_KEY,
             CosNConfigKeys.COSN_CREDENTIALS_PROVIDER,
             "fs.lakefs.impl",
-            "fs.cosn.impl"
-        ).collect(Collectors.toSet());
+            "fs.cosn.impl").collect(Collectors.toSet());
 
     private static final Logger LOG = LoggerFactory.getLogger(DlcWrappedHybrisCatalog.class);
 
@@ -133,7 +133,8 @@ public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements Sup
 
         String fileIOImpl = properties.get(CatalogProperties.FILE_IO_IMPL);
         this.fileIO = fileIOImpl == null
-                ? new HadoopFileIO(conf) : CatalogUtil.loadFileIO(fileIOImpl, properties, conf);
+                ? new HadoopFileIO(conf)
+                : CatalogUtil.loadFileIO(fileIOImpl, properties, conf);
 
         this.clients = new CachedClientPool(conf, properties);
     }
@@ -157,8 +158,9 @@ public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements Sup
                 tableIdentifiers = tableObjects.stream()
                         .filter(table -> table.getParameters() != null
                                 && BaseMetastoreTableOperations.ICEBERG_TABLE_TYPE_VALUE
-                                    .equalsIgnoreCase(
-                                            table.getParameters().get(BaseMetastoreTableOperations.TABLE_TYPE_PROP)))
+                                        .equalsIgnoreCase(
+                                                table.getParameters()
+                                                        .get(BaseMetastoreTableOperations.TABLE_TYPE_PROP)))
                         .map(table -> TableIdentifier.of(namespace, table.getTableName()))
                         .collect(Collectors.toList());
             }
@@ -334,7 +336,7 @@ public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements Sup
             return namespaces;
 
         } catch (TException e) {
-            throw new RuntimeException("Failed to list all namespace: " + namespace + " in Hive Metastore",  e);
+            throw new RuntimeException("Failed to list all namespace: " + namespace + " in Hive Metastore", e);
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -378,7 +380,7 @@ public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements Sup
     }
 
     @Override
-    public boolean setProperties(Namespace namespace,  Map<String, String> properties) {
+    public boolean setProperties(Namespace namespace, Map<String, String> properties) {
         Map<String, String> parameter = Maps.newHashMap();
 
         parameter.putAll(loadNamespaceMetadata(namespace));
@@ -393,7 +395,7 @@ public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements Sup
     }
 
     @Override
-    public boolean removeProperties(Namespace namespace,  Set<String> properties) {
+    public boolean removeProperties(Namespace namespace, Set<String> properties) {
         Map<String, String> parameter = Maps.newHashMap();
 
         parameter.putAll(loadNamespaceMetadata(namespace));
@@ -407,7 +409,7 @@ public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements Sup
         return true;
     }
 
-    private void alterHiveDataBase(Namespace namespace,  Database database) {
+    private void alterHiveDataBase(Namespace namespace, Database database) {
         try {
             clients.run(client -> {
                 client.alterDatabase(namespace.level(0), database);

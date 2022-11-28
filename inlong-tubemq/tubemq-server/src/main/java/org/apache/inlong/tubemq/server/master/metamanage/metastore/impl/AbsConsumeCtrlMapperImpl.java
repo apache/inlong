@@ -35,15 +35,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
+
     protected static final Logger logger =
             LoggerFactory.getLogger(AbsConsumeCtrlMapperImpl.class);
     // configure cache
-    private final ConcurrentHashMap<String/* recordKey */, GroupConsumeCtrlEntity>
-            consumeCtrlCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
-            topic2RecordCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* groupName */, ConcurrentHashSet<String>>
-            group2RecordCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* recordKey */, GroupConsumeCtrlEntity> consumeCtrlCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>> topic2RecordCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* groupName */, ConcurrentHashSet<String>> group2RecordCache =
+            new ConcurrentHashMap<>();
 
     public AbsConsumeCtrlMapperImpl() {
         // Initial instant
@@ -51,7 +52,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public boolean addGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         GroupConsumeCtrlEntity curEntity = consumeCtrlCache.get(entity.getRecordKey());
         if (curEntity != null) {
@@ -70,7 +71,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public boolean updGroupConsumeCtrlConf(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         GroupConsumeCtrlEntity curEntity = consumeCtrlCache.get(entity.getRecordKey());
         if (curEntity == null) {
@@ -114,8 +115,8 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public boolean delGroupConsumeCtrlConf(String recordKey,
-                                           StringBuilder strBuff,
-                                           ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         GroupConsumeCtrlEntity curEntity =
                 consumeCtrlCache.get(recordKey);
         if (curEntity == null) {
@@ -130,7 +131,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
 
     @Override
     public boolean delGroupConsumeCtrlConf(String groupName, String topicName,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         ConcurrentHashSet<String> keySet =
                 new ConcurrentHashSet<>();
         // get need deleted record key
@@ -422,7 +423,7 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(GroupConsumeCtrlEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete consume control configure information from persistent storage

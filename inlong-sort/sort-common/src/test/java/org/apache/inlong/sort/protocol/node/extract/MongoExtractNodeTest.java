@@ -41,8 +41,7 @@ public class MongoExtractNodeTest extends SerializeBaseTest<MongoExtractNode> {
                 new FieldInfo("age", new IntFormatInfo()));
         return new MongoExtractNode(
                 "1", "test", fields, null, null,
-                "test", "localhost", "inlong", "password", "test"
-        );
+                "test", "localhost", "inlong", "password", "test");
     }
 
     @Test

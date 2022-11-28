@@ -25,6 +25,7 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
  * These metadata will be overwrite if explicitly be set.
  */
 public class BrokerDefMetadata {
+
     // topic's store file count.
     private int numTopicStores = 1;
     // topic's partition count.

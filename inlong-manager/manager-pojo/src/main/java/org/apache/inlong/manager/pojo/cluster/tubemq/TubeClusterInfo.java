@@ -37,8 +37,7 @@ import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 @ApiModel("Inlong cluster info for TubeMQ")
 public class TubeClusterInfo extends ClusterInfo {
 
-    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080",
-            notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
+    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080", notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
     private String masterWebUrl;
 
     public TubeClusterInfo() {

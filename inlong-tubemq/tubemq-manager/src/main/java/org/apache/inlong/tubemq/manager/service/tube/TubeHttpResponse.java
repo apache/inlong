@@ -24,6 +24,7 @@ import lombok.Data;
  */
 @Data
 public class TubeHttpResponse {
+
     private int code;
     private String errMsg;
     private int errCode;

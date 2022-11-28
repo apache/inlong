@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @Data
 public class QueryCanWriteReq {
+
     private String topicName;
     private Long clusterId;
 

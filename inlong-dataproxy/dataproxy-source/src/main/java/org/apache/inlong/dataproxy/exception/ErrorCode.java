@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.exception;
 
 public enum ErrorCode {
+
     /**
      * attr error
      */

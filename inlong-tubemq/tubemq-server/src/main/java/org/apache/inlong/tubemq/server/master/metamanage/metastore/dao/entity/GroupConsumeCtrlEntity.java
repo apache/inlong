@@ -29,6 +29,7 @@ import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFilter
  *
  */
 public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
+
     private String recordKey = "";
     private String topicName = "";
     private String groupName = "";
@@ -44,7 +45,7 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
     }
 
     public GroupConsumeCtrlEntity(BaseEntity opInfoEntity,
-                                  String groupName, String topicName) {
+            String groupName, String topicName) {
         super(opInfoEntity);
         setGroupAndTopic(groupName, topicName);
     }
@@ -171,8 +172,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      * @return    whether data is changed
      */
     public boolean updModifyInfo(long dataVerId, EnableStatus consumeEnable,
-                                 String disableRsn, EnableStatus filterEnable,
-                                 String filterCondStr) {
+            String disableRsn, EnableStatus filterEnable,
+            String filterCondStr) {
         boolean changed = false;
         // check and set brokerPort info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -243,11 +244,11 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
         return (TStringUtils.isBlank(target.getTopicName())
                 || target.getTopicName().equals(this.topicName))
                 && (TStringUtils.isBlank(target.getGroupName())
-                || target.getGroupName().equals(this.groupName))
+                        || target.getGroupName().equals(this.groupName))
                 && (target.getConsumeEnable() == EnableStatus.STATUS_UNDEFINE
-                || target.getConsumeEnable() == this.consumeEnable)
+                        || target.getConsumeEnable() == this.consumeEnable)
                 && (target.getFilterEnable() == EnableStatus.STATUS_UNDEFINE
-                || target.getFilterEnable() == this.filterEnable);
+                        || target.getFilterEnable() == this.filterEnable);
     }
 
     /**
@@ -259,8 +260,8 @@ public class GroupConsumeCtrlEntity extends BaseEntity implements Cloneable {
      * @return   process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuilder,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         String tmpFilterConds = filterCondStr;
         if (tmpFilterConds.length() <= 2) {
             tmpFilterConds = "";

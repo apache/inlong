@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Wrapper of pulsar consumer.
  */
 public class PulsarConsumer {
+
     private final ConcurrentHashMap<String, Tuple2<InLongTopic, MessageId>> offsetCache = new ConcurrentHashMap<>();
     private final Consumer<byte[]> consumer;
     private long stopTime = -1;

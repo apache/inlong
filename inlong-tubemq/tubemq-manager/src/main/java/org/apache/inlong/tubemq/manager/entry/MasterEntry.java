@@ -32,6 +32,7 @@ import lombok.Data;
 @Table(name = "master")
 @Data
 public class MasterEntry {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

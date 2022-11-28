@@ -49,7 +49,7 @@ public class MemoryChannel implements Channel {
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryChannel.class);
 
     private LinkedBlockingQueue<Message> queue;
-    //metric
+    // metric
     private AgentMetricItemSet metricItemSet;
     private static final AtomicLong METRIC_INDEX = new AtomicLong(0);
     private String inlongGroupId;

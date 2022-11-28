@@ -30,15 +30,15 @@ import org.apache.inlong.sort.filesystem.stream.AbstractStreamingWriter;
  * Writer for emitting {@link InputFile} and {@link EndCheckpoint} to downstream.
  */
 public class CompactFileWriter<T>
-        extends AbstractStreamingWriter<T, CoordinatorInput> {
+        extends
+            AbstractStreamingWriter<T, CoordinatorInput> {
 
     private static final long serialVersionUID = 1L;
 
     public CompactFileWriter(
             long bucketCheckInterval,
-            StreamingFileSink.BucketsBuilder<
-                    T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>>
-                    bucketsBuilder, String inlongMetric, String inlongAudit) {
+            StreamingFileSink.BucketsBuilder<T, String, ? extends StreamingFileSink.BucketsBuilder<T, String, ?>> bucketsBuilder,
+            String inlongMetric, String inlongAudit) {
         super(bucketCheckInterval, bucketsBuilder, inlongMetric, inlongAudit);
     }
 

@@ -34,6 +34,7 @@ import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
  * extreme time consumption of each method
  */
 public class WebCallStatsHolder {
+
     // Switchable statistic items
     private static final WebCallStatsItemSet[] switchableSets = new WebCallStatsItemSet[2];
     // Current writable index
@@ -117,8 +118,7 @@ public class WebCallStatsHolder {
     private static boolean switchWritingStatsUnit() {
         long curSnapshotTime = lstSnapshotTime.get();
         // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
+        if ((System.currentTimeMillis() - curSnapshotTime) >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
             if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
                 switchableSets[getIndex(writableIndex.incrementAndGet())].resetSinceTime();
                 return true;
@@ -128,8 +128,8 @@ public class WebCallStatsHolder {
     }
 
     private static void getStatsValue(WebCallStatsItemSet statsSet,
-                                      boolean resetValue,
-                                      Map<String, Long> statsMap) {
+            boolean resetValue,
+            Map<String, Long> statsMap) {
         statsMap.put(statsSet.lstResetTime.getFullName(),
                 statsSet.lstResetTime.getSinceTime());
         statsMap.put("isClosed", (isManualClosed ? 1L : 0L));
@@ -142,8 +142,8 @@ public class WebCallStatsHolder {
     }
 
     private static void getStatsValue(WebCallStatsItemSet statsSet,
-                                      boolean resetValue,
-                                      StringBuilder strBuff) {
+            boolean resetValue,
+            StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
                 .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
                 .append("\",\"isClosed\":").append(isManualClosed).append(",");
@@ -182,6 +182,7 @@ public class WebCallStatsHolder {
      * In which the object is the metric item that can be counted in stages
      */
     private static class WebCallStatsItemSet {
+
         protected final SinceTime lstResetTime =
                 new SinceTime("reset_time", null);
         // Total call statistics
@@ -239,4 +240,3 @@ public class WebCallStatsHolder {
         }
     }
 }
-

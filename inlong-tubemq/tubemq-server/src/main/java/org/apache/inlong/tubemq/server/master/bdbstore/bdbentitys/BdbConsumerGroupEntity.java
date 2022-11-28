@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 
 @Entity
 public class BdbConsumerGroupEntity implements Serializable {
+
     private static final long serialVersionUID = 4395735199580415319L;
     @PrimaryKey
     private String recordKey;
@@ -41,7 +42,7 @@ public class BdbConsumerGroupEntity implements Serializable {
     }
 
     public BdbConsumerGroupEntity(String topicName, String consumerGroupName,
-                                  String createUser, Date createDate) {
+            String createUser, Date createDate) {
         this.recordKey = new StringBuilder(512).append(topicName)
                 .append(TokenConstants.ATTR_SEP).append(consumerGroupName).toString();
         this.topicName = topicName;

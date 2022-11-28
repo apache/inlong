@@ -82,6 +82,7 @@ import static org.apache.iceberg.TableProperties.GC_ENABLED;
  * avoid code duplication between this class and Metacat Tables.
  */
 public class HiveTableOperations extends BaseMetastoreTableOperations {
+
     private static final Logger LOG = LoggerFactory.getLogger(HiveTableOperations.class);
 
     private static final String HIVE_ACQUIRE_LOCK_TIMEOUT_MS = "iceberg.hive.lock-timeout-ms";
@@ -104,9 +105,8 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
             .build();
     private static final BiMap<String, String> ICEBERG_TO_HMS_TRANSLATION = ImmutableBiMap.of(
             // gc.enabled in Iceberg and external.table.purge in Hive
-            //      are meant to do the same things but with different names
-            GC_ENABLED, "external.table.purge"
-    );
+            // are meant to do the same things but with different names
+            GC_ENABLED, "external.table.purge");
 
     private static Cache<String, ReentrantLock> commitLockCache;
 
@@ -137,6 +137,7 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
     }
 
     private static class WaitingForLockException extends RuntimeException {
+
         WaitingForLockException(String message) {
             super(message);
         }
@@ -215,7 +216,8 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
     @Override
     protected void doCommit(TableMetadata base, TableMetadata metadata) {
         String newMetadataLocation = base == null && metadata.metadataFileLocation() != null
-                ? metadata.metadataFileLocation() : writeNewMetadata(metadata, currentVersion() + 1);
+                ? metadata.metadataFileLocation()
+                : writeNewMetadata(metadata, currentVersion() + 1);
         boolean hiveEngineEnabled = hiveEngineEnabled(metadata, conf);
         boolean keepHiveStats = conf.getBoolean(ConfigProperties.KEEP_HIVE_STATS, false);
 
@@ -316,8 +318,7 @@ public class HiveTableOperations extends BaseMetastoreTableOperations {
         if (updateHiveTable) {
             metaClients.run(client -> {
                 EnvironmentContext envContext = new EnvironmentContext(
-                        ImmutableMap.of(StatsSetupConst.DO_NOT_UPDATE_STATS, StatsSetupConst.TRUE)
-                );
+                        ImmutableMap.of(StatsSetupConst.DO_NOT_UPDATE_STATS, StatsSetupConst.TRUE));
                 ALTER_TABLE.invoke(client, database, tableName, hmsTable, envContext);
                 return null;
             });

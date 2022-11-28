@@ -35,8 +35,7 @@ public interface InLongMsgMixedFormatFactory {
      *         provide an instance of the class.
      */
     InLongMsgMixedFormatConverter createMixedFormatConverter(
-            final Map<String, String> properties
-    );
+            final Map<String, String> properties);
 
     /**
      * Creates and configures a {@link TableFormatDeserializer} using the given
@@ -47,6 +46,5 @@ public interface InLongMsgMixedFormatFactory {
      *         provide an instance of the class.
      */
     AbstractInLongMsgMixedFormatDeserializer createMixedFormatDeserializer(
-            final Map<String, String> properties
-    );
+            final Map<String, String> properties);
 }

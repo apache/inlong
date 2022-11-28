@@ -75,7 +75,7 @@ public class InLongMsgFormatFactoryTest {
     }
 
     // ------------------------------------------------------------------------
-    //  Public Tools
+    // Public Tools
     // ------------------------------------------------------------------------
     public static DeserializationSchema<RowData> createDeserializationSchema(
             Map<String, String> options, ResolvedSchema schema) {

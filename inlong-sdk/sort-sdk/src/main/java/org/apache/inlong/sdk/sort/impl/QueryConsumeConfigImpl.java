@@ -140,22 +140,22 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     private boolean handleSortTaskConfResult(String getUrl, SortSourceConfigResponse response, int respCodeValue)
             throws Exception {
         switch (respCodeValue) {
-            case NOUPDATE_VALUE :
+            case NOUPDATE_VALUE:
                 logger.debug("manager conf noupdate");
                 return true;
-            case UPDATE_VALUE :
+            case UPDATE_VALUE:
                 logger.info("manager conf update");
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addManagerConfChangedTimes(1);
                 this.md5 = response.getMd5();
                 updateSortTaskConf(response);
                 break;
-            case REQ_PARAMS_ERROR :
+            case REQ_PARAMS_ERROR:
                 logger.error("return code error:{}", respCodeValue);
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addRequestManagerParamErrorTimes(1);
                 break;
-            default :
+            default:
                 logger.error("return code error:{},request:{},response:{}",
                         respCodeValue, getUrl, new ObjectMapper().writeValueAsString(response));
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())

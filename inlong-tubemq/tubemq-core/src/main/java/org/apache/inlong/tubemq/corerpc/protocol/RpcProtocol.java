@@ -54,7 +54,7 @@ public class RpcProtocol implements Protocol {
 
     @Override
     public void registerService(boolean isOverTLS, String serviceName,
-                                Object instance, ExecutorService threadPool) throws Exception {
+            Object instance, ExecutorService threadPool) throws Exception {
         this.isOverTLS = isOverTLS;
         int serviceId = PbEnDecoder.getServiceIdByServiceName(serviceName);
         processors.put(serviceId, instance);
@@ -115,7 +115,7 @@ public class RpcProtocol implements Protocol {
         if (System.currentTimeMillis() - context.getReceiveTime() > requestWrapper.getTimeout()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Timeout when request arrived, so give up processing this request from : {}",
-                       rmtAddress);
+                        rmtAddress);
             }
             return;
         }

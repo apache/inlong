@@ -82,17 +82,17 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
     private final int maxRetries;
 
     public TubemqSinkFunction(String topic,
-                              String masterAddress,
-                              SerializationSchema<T> serializationSchema,
-                              Configuration configuration) {
+            String masterAddress,
+            SerializationSchema<T> serializationSchema,
+            Configuration configuration) {
         Preconditions.checkNotNull(topic,
-            "The topic must not be null.");
+                "The topic must not be null.");
         Preconditions.checkNotNull(masterAddress,
-            "The master address must not be null.");
+                "The master address must not be null.");
         Preconditions.checkNotNull(serializationSchema,
-            "The serialization schema must not be null.");
+                "The serialization schema must not be null.");
         Preconditions.checkNotNull(configuration,
-            "The configuration must not be null.");
+                "The configuration must not be null.");
 
         this.topic = topic;
         this.masterAddress = masterAddress;
@@ -145,7 +145,7 @@ public class TubemqSinkFunction<T> extends RichSinkFunction<T> implements Checkp
                     return;
                 } else {
                     LOG.warn("Send msg fail, error code: {}, error message: {}",
-                        sendResult.getErrCode(), sendResult.getErrMsg());
+                            sendResult.getErrCode(), sendResult.getErrMsg());
                 }
             } catch (Exception e) {
                 LOG.warn("Could not properly send the message to hippo "

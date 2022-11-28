@@ -326,7 +326,8 @@ public abstract class JsonDynamicSchemaFormat extends AbstractDynamicSchemaForma
 
     private LogicalType sqlType2FlinkType(int jdbcType) {
         Map<Integer, LogicalType> typeMap = adaptSparkEngine
-                ? SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING : SQL_TYPE_2_FLINK_TYPE_MAPPING;
+                ? SQL_TYPE_2_SPARK_SUPPORTED_FLINK_TYPE_MAPPING
+                : SQL_TYPE_2_FLINK_TYPE_MAPPING;
         if (typeMap.containsKey(jdbcType)) {
             return typeMap.get(jdbcType);
         } else {

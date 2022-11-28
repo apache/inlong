@@ -25,6 +25,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class BrokerSetReadOrWriteReq extends BaseReq {
+
     private Boolean acceptPublish;
     private Boolean acceptSubscribe;
     private String modifyUser;

@@ -57,6 +57,7 @@ import java.util.concurrent.TimeoutException;
  * @see DebeziumSourceFunction
  */
 public class FlinkOffsetBackingStore implements OffsetBackingStore {
+
     public static final String OFFSET_STATE_VALUE = "offset.storage.flink.state.value";
     public static final int FLUSH_TIMEOUT_SECONDS = 10;
     private static final Logger LOG = LoggerFactory.getLogger(FlinkOffsetBackingStore.class);

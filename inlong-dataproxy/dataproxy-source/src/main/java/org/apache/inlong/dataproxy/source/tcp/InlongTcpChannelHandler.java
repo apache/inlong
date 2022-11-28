@@ -112,12 +112,12 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
             // read version
             int version = cb.readShort();
             switch (version) {
-                case VERSION_1 :
+                case VERSION_1:
                     // decode version 1
                     int bodyLength = totalPackLength - VERSION_PARAM_LENGTH;
                     decodeVersion1(ctx, cb, bodyLength);
                     break;
-                default :
+                default:
                     this.addMetric(false, 0, null);
                     throw new Exception("err version, unknown version:" + version);
             }

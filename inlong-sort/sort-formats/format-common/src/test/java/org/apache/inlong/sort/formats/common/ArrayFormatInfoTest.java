@@ -33,16 +33,13 @@ public class ArrayFormatInfoTest extends FormatInfoTestBase {
 
         ArrayFormatInfo formatInfo2 =
                 new ArrayFormatInfo(
-                        new ArrayFormatInfo(new DateFormatInfo("YYYY-MM-DD"))
-                );
+                        new ArrayFormatInfo(new DateFormatInfo("YYYY-MM-DD")));
 
         ArrayFormatInfo formatInfo3 =
                 new ArrayFormatInfo(
                         new MapFormatInfo(
                                 StringFormatInfo.INSTANCE,
-                                new ArrayFormatInfo(FloatFormatInfo.INSTANCE)
-                        )
-                );
+                                new ArrayFormatInfo(FloatFormatInfo.INSTANCE)));
 
         return Arrays.asList(formatInfo1, formatInfo2, formatInfo3);
     }

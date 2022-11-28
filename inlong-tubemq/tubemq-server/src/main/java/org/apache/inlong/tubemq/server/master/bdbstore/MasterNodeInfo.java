@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.master.bdbstore;
 
 public class MasterNodeInfo {
+
     private String groupName;
     private String nodeName;
     private String hostName;

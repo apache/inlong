@@ -204,8 +204,9 @@ public class InstantiationUtil {
      *
      * @see <a href="https://issues.apache.org/jira/browse/FLINK-6869">FLINK-6869</a>
      */
-    public static class FailureTolerantObjectInputStream extends
-            InstantiationUtil.ClassLoaderObjectInputStream {
+    public static class FailureTolerantObjectInputStream
+            extends
+                InstantiationUtil.ClassLoaderObjectInputStream {
 
         // initialize this set to support compatible manually
         private static final Set<String> compatibleClasses = new HashSet<>();
@@ -231,7 +232,7 @@ public class InstantiationUtil {
                 final ObjectStreamClass localClassDescriptor = ObjectStreamClass.lookup(localClass);
                 if (localClassDescriptor != null
                         && localClassDescriptor.getSerialVersionUID() != streamClassDescriptor
-                        .getSerialVersionUID()) {
+                                .getSerialVersionUID()) {
                     LOG.warn("Ignoring serialVersionUID mismatch for class {}; was {}, now {}.",
                             streamClassDescriptor.getName(),
                             streamClassDescriptor.getSerialVersionUID(),

@@ -70,8 +70,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryBookedResCtrlGroups(HttpServletRequest req,
-                                                       StringBuilder strBuff,
-                                                       ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         return innQueryGroupResCtrlInfo(req, strBuff, result, true);
     }
 
@@ -84,8 +84,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryGroupResCtrlConf(HttpServletRequest req,
-                                                    StringBuilder strBuff,
-                                                    ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         return innQueryGroupResCtrlInfo(req, strBuff, result, false);
     }
 
@@ -98,8 +98,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminAddGroupResCtrlConf(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdGroupResCtrlConf(req, sBuffer, result, true);
     }
 
@@ -112,8 +112,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchAddGroupResCtrlConf(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdGroupResCtrlConf(req, sBuffer, result, true);
     }
 
@@ -126,8 +126,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminModGroupResCtrlConf(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdGroupResCtrlConf(req, sBuffer, result, false);
     }
 
@@ -140,8 +140,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchUpdGroupResCtrlConf(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdGroupResCtrlConf(req, sBuffer, result, false);
     }
 
@@ -154,8 +154,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDelGroupResCtrlConf(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -188,9 +188,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     private StringBuilder innQueryGroupResCtrlInfo(HttpServletRequest req,
-                                                   StringBuilder strBuff,
-                                                   ProcessResult result,
-                                                   boolean onlyRetGroup) {
+            StringBuilder strBuff,
+            ProcessResult result,
+            boolean onlyRetGroup) {
         // build query entity
         GroupResCtrlEntity qryEntity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -262,9 +262,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdGroupResCtrlConf(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result,
-                                                      boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -332,9 +332,9 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innBatchAddOrUpdGroupResCtrlConf(HttpServletRequest req,
-                                                           StringBuilder sBuffer,
-                                                           ProcessResult result,
-                                                           boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -358,8 +358,8 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private boolean getGroupResCtrlJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                               BaseEntity defOpEntity, StringBuilder sBuffer,
-                                               ProcessResult result) {
+            BaseEntity defOpEntity, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.GROUPRESCTRLSET, true, null, result)) {
             return result.isSuccess();
@@ -444,7 +444,7 @@ public class WebGroupResCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (GroupProcessResult entry : retInfo) {

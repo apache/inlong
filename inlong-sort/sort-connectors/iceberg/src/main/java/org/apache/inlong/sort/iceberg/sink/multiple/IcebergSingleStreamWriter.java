@@ -44,7 +44,9 @@ import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
 
 public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, WriteResult>
-        implements CheckpointedFunction, SchemaEvolutionFunction<TaskWriterFactory<T>> {
+        implements
+            CheckpointedFunction,
+            SchemaEvolutionFunction<TaskWriterFactory<T>> {
 
     private static final long serialVersionUID = 1L;
 
@@ -121,7 +123,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,

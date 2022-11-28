@@ -39,8 +39,7 @@ public class CascadeFunctionWrapperTest extends FunctionBaseTest {
                                 new StringConstantParam("target_str")),
                         new RegexpReplaceFunction(new FieldInfo("replace_field", new StringFormatInfo()),
                                 new StringConstantParam("replace_str"),
-                                new StringConstantParam("target_str"))
-                ));
+                                new StringConstantParam("target_str"))));
     }
 
     @Override

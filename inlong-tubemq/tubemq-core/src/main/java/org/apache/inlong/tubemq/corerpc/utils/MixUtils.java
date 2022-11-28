@@ -40,8 +40,8 @@ public class MixUtils {
      * @return                 the translated class name
      */
     public static String replaceClassNamePrefix(String className,
-                                                boolean toOldVersion,
-                                                int toProtocolVer) {
+            boolean toOldVersion,
+            int toProtocolVer) {
 
         if (toProtocolVer == RpcProtocol.RPC_PROTOCOL_VERSION_OLD_1) {
             if (toOldVersion) {

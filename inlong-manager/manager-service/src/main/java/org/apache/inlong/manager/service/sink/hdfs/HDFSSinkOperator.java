@@ -89,4 +89,3 @@ public class HDFSSinkOperator extends AbstractSinkOperator {
     }
 
 }
-

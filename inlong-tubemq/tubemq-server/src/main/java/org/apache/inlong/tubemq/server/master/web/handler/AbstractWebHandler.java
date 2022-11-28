@@ -35,12 +35,12 @@ public abstract class AbstractWebHandler {
     public abstract void registerWebApiMethod();
 
     protected void registerQueryWebMethod(String webMethodName,
-                                          String clsMethodName) {
+            String clsMethodName) {
         innRegisterWebMethod(webMethodName, clsMethodName, false, false);
     }
 
     protected void registerModifyWebMethod(String webMethodName,
-                                           String clsMethodName) {
+            String clsMethodName) {
         innRegisterWebMethod(webMethodName, clsMethodName, true, true);
     }
 
@@ -49,9 +49,9 @@ public abstract class AbstractWebHandler {
     }
 
     private void innRegisterWebMethod(String webMethodName,
-                                      String clsMethodName,
-                                      boolean onlyMasterOp,
-                                      boolean needAuthToken) {
+            String clsMethodName,
+            boolean onlyMasterOp,
+            boolean needAuthToken) {
         registerWebMethod(webMethodName, clsMethodName,
                 onlyMasterOp, needAuthToken, this);
     }

@@ -37,8 +37,8 @@ public enum ManageStatus {
     private boolean isAcceptSubscribe;
 
     ManageStatus(int code, String description,
-                 boolean acceptPublish,
-                 boolean acceptSubscribe) {
+            boolean acceptPublish,
+            boolean acceptSubscribe) {
         this.code = code;
         this.description = description;
         this.isAcceptPublish = acceptPublish;
@@ -104,8 +104,8 @@ public enum ManageStatus {
      * @return   current broker's new manage status
      */
     public static ManageStatus getNewStatus(ManageStatus oldStatus,
-                                            Boolean acceptPublish,
-                                            Boolean acceptSubscribe) {
+            Boolean acceptPublish,
+            Boolean acceptSubscribe) {
         if (acceptPublish == null && acceptSubscribe == null) {
             return oldStatus;
         }

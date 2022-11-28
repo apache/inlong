@@ -34,6 +34,7 @@ import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
  * via the corresponding metric API.
  */
 public class BrokerSrvStatsHolder {
+
     // Consumer client online statistic
     private static final LongOnlineCounter csmOnlineCnt =
             new LongOnlineCounter("consume_online_cnt", null);
@@ -141,8 +142,7 @@ public class BrokerSrvStatsHolder {
     private static boolean switchWritingStatsUnit() {
         long curSnapshotTime = lstSnapshotTime.get();
         // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
+        if ((System.currentTimeMillis() - curSnapshotTime) >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
             if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
                 switchableSets[getIndex(writableIndex.incrementAndGet())].resetSinceTime();
                 return true;
@@ -152,8 +152,8 @@ public class BrokerSrvStatsHolder {
     }
 
     private static void getStatsValue(ServiceStatsSet statsSet,
-                                      boolean resetValue,
-                                      Map<String, Long> statsMap) {
+            boolean resetValue,
+            Map<String, Long> statsMap) {
         statsMap.put(statsSet.lstResetTime.getFullName(),
                 statsSet.lstResetTime.getSinceTime());
         statsMap.put("isDiskSyncClosed", (diskSyncClosed ? 1L : 0L));
@@ -191,8 +191,8 @@ public class BrokerSrvStatsHolder {
     }
 
     private static void getStatsValue(ServiceStatsSet statsSet,
-                                      boolean resetValue,
-                                      StringBuilder strBuff) {
+            boolean resetValue,
+            StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
                 .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
                 .append("\",\"isDiskSyncClosed\":").append(diskSyncClosed)
@@ -259,6 +259,7 @@ public class BrokerSrvStatsHolder {
      * In which the object is the metric item that can be counted in stages
      */
     private static class ServiceStatsSet {
+
         protected final SinceTime lstResetTime =
                 new SinceTime("reset_time", null);
         // Delay statistics for syncing data to files
@@ -291,4 +292,3 @@ public class BrokerSrvStatsHolder {
         }
     }
 }
-

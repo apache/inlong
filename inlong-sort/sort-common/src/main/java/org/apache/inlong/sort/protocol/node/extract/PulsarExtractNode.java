@@ -40,6 +40,7 @@ import java.util.Map;
 @JsonTypeName("pulsarExtract")
 @Data
 public class PulsarExtractNode extends ExtractNode implements InlongMetric {
+
     private static final long serialVersionUID = 1L;
 
     @Nonnull

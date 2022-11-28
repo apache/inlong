@@ -48,8 +48,7 @@ public class RowTypeInfo implements TypeInfo {
     @JsonCreator
     public RowTypeInfo(
             @JsonProperty(FIELD_FIELD_NAMES) @Nonnull String[] fieldNames,
-            @JsonProperty(FIELD_FIELD_TYPES) @Nonnull TypeInfo[] fieldTypeInfos
-    ) {
+            @JsonProperty(FIELD_FIELD_TYPES) @Nonnull TypeInfo[] fieldTypeInfos) {
         checkArity(fieldNames, fieldTypeInfos);
         checkDuplicates(fieldNames);
 
@@ -59,8 +58,7 @@ public class RowTypeInfo implements TypeInfo {
 
     private static void checkArity(
             String[] fieldNames,
-            TypeInfo[] fieldTypeInfos
-    ) {
+            TypeInfo[] fieldTypeInfos) {
         if (fieldNames.length != fieldTypeInfos.length) {
             throw new IllegalArgumentException("The number of names and " + "formats is not equal.");
         }

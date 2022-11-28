@@ -25,7 +25,7 @@ import org.apache.inlong.tubemq.corerpc.ResponseWrapper;
 public interface Client {
 
     ResponseWrapper call(RequestWrapper request, Callback callback,
-                         long timeout, TimeUnit timeUnit) throws Exception;
+            long timeout, TimeUnit timeUnit) throws Exception;
 
     NodeAddrInfo getServerAddressInfo();
 

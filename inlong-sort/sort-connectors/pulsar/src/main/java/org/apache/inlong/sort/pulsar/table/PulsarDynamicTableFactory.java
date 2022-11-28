@@ -87,9 +87,10 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
  * {@link org.apache.flink.streaming.connectors.pulsar.table.PulsarDynamicTableFactory}.
  * We modify PulsarDynamicTableFactory validate logic to support nested format.
  */
-public class PulsarDynamicTableFactory implements
-        DynamicTableSourceFactory,
-        DynamicTableSinkFactory {
+public class PulsarDynamicTableFactory
+        implements
+            DynamicTableSourceFactory,
+            DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "pulsar-inlong";
 
@@ -152,8 +153,7 @@ public class PulsarDynamicTableFactory implements
                     "The Pulsar table '%s' with '%s' format doesn't support defining PRIMARY KEY constraint"
                             + " on the table, because it can't guarantee the semantic of primary key.",
                     tableName.asSummaryString(),
-                    formatName
-            ));
+                    formatName));
         }
     }
 
@@ -198,14 +198,12 @@ public class PulsarDynamicTableFactory implements
     // --------------------------------------------------------------------------------------------
 
     private PulsarDynamicTableSink createPulsarTableSink(ReadableConfig tableOptions, List<String> topics,
-                                                         String adminUrl, String serverUrl,
-                                                         Optional<EncodingFormat<SerializationSchema<RowData>>>
-                                                                 keyEncodingFormat,
-                                                         EncodingFormat<SerializationSchema<RowData>>
-                                                                 valueEncodingFormat,
-                                                         Properties properties, DataType physicalDataType,
-                                                         int[] keyProjection, int[] valueProjection,
-                                                         String keyPrefix, Context context) {
+            String adminUrl, String serverUrl,
+            Optional<EncodingFormat<SerializationSchema<RowData>>> keyEncodingFormat,
+            EncodingFormat<SerializationSchema<RowData>> valueEncodingFormat,
+            Properties properties, DataType physicalDataType,
+            int[] keyProjection, int[] valueProjection,
+            String keyPrefix, Context context) {
 
         final String formatType = tableOptions.getOptional(FORMAT).orElseGet(() -> tableOptions.get(VALUE_FORMAT));
         final Integer parallelism = tableOptions.getOptional(SINK_PARALLELISM).orElse(null);

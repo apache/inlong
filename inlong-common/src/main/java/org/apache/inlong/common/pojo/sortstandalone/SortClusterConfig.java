@@ -29,6 +29,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SortClusterConfig {
+
     String clusterName;
     List<SortTaskConfig> sortTasks;
 }

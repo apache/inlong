@@ -90,6 +90,7 @@ public class PluginClassLoader extends URLClassLoader {
         checkClassLoader(parent);
         checkUrl(url);
         return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {
+
             @SneakyThrows
             @Override
             public PluginClassLoader run() {

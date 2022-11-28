@@ -69,17 +69,15 @@ public class MySqlExtractNodeToDorisLoadNodeTest extends AbstractTestBase {
         final List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("id", new IntFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo())
-        );
+                new FieldInfo("age", new IntFormatInfo()));
 
         final List<FieldRelation> fieldRelations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
-                                new FieldInfo("id", new IntFormatInfo())),
+                        new FieldInfo("id", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo()))
-                );
+                                new FieldInfo("age", new IntFormatInfo())));
 
         // Support delete event (sink.enable-delete='true'), requires Doris table to enable batch delete function
         Map<String, String> map = new HashMap<>();

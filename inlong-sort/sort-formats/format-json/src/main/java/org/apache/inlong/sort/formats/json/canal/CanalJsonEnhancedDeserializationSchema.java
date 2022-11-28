@@ -88,14 +88,12 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
     /**
      * Only read changelogs from the specific database.
      */
-    private final @Nullable
-    String database;
+    private final @Nullable String database;
 
     /**
      * Only read changelogs from the specific table.
      */
-    private final @Nullable
-    String table;
+    private final @Nullable String table;
 
     /**
      * Flag indicating whether to ignore invalid fields/rows (default: throw an exception).
@@ -202,6 +200,7 @@ public final class CanalJsonEnhancedDeserializationSchema implements Deserializa
     private static MetadataConverter convert(RowType jsonRowType, ReadableMetadata metadata) {
         final int pos = jsonRowType.getFieldNames().indexOf(metadata.requiredJsonField.getName());
         return new MetadataConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override

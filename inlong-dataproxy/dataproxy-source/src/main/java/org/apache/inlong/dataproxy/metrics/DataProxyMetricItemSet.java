@@ -33,6 +33,7 @@ import org.apache.inlong.dataproxy.consts.ConfigConstants;
  */
 @MetricDomain(name = "DataProxy")
 public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
+
     private String clusterId = null;
     private String sourceDataId = null;
 
@@ -89,7 +90,7 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
      * @param size       the message size
      */
     public void fillSinkSendMetricItemsByEvent(Event event, long sentTime,
-                                               boolean isSuccess, long size) {
+            boolean isSuccess, long size) {
         fillMetricItemsByEvent(event, false, false, isSuccess, size, sentTime);
     }
 
@@ -103,8 +104,8 @@ public class DataProxyMetricItemSet extends MetricItemSet<DataProxyMetricItem> {
      * @param size       the message size
      */
     private void fillMetricItemsByEvent(Event event, boolean isSource,
-                                        boolean isReadOp, boolean isSuccess,
-                                        long size, long sendTime) {
+            boolean isReadOp, boolean isSuccess,
+            long size, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, clusterId);
         dimensions.put(DataProxyMetricItem.KEY_INLONG_GROUP_ID,

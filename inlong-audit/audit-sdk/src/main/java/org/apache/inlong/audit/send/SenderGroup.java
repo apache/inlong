@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class SenderGroup {
+
     private static final Logger logger = LoggerFactory.getLogger(SenderGroup.class);
     // maximum number of sending
     public static final int MAX_SEND_TIMES = 3;
@@ -230,4 +231,3 @@ public class SenderGroup {
     }
 
 }
-

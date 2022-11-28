@@ -52,9 +52,8 @@ public class TaskController {
     private Gson gson = new Gson();
 
     @RequestMapping(value = "")
-    public @ResponseBody
-        TubeMQResult taskMethodProxy(@RequestParam String method,
-                                 @RequestBody String req) {
+    public @ResponseBody TubeMQResult taskMethodProxy(@RequestParam String method,
+            @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD_TOPIC_TASK:
                 return addTask(gson.fromJson(req, BatchAddTopicTaskReq.class));

@@ -168,7 +168,7 @@ public class SqlServerSource {
 
             return new DebeziumSourceFunction<>(
                     deserializer, props, null, new SqlServerValidator(props),
-                inlongMetric, auditHostAndPorts);
+                    inlongMetric, auditHostAndPorts);
         }
     }
 }

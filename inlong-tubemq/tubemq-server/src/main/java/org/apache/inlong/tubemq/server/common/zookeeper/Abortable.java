@@ -23,6 +23,7 @@ package org.apache.inlong.tubemq.server.common.zookeeper;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public interface Abortable {
+
     /**
      * Abort the server or client.
      *

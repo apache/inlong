@@ -35,30 +35,31 @@ import java.util.List;
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 class UnpartitionedDeltaWriter extends BaseDeltaTaskWriter {
-  private final RowDataDeltaWriter writer;
 
-  UnpartitionedDeltaWriter(PartitionSpec spec,
-                           FileFormat format,
-                           FileAppenderFactory<RowData> appenderFactory,
-                           OutputFileFactory fileFactory,
-                           FileIO io,
-                           long targetFileSize,
-                           Schema schema,
-                           RowType flinkSchema,
-                           List<Integer> equalityFieldIds,
-                           boolean upsert) {
-    super(spec, format, appenderFactory, fileFactory, io, targetFileSize, schema, flinkSchema, equalityFieldIds,
-        upsert);
-    this.writer = new RowDataDeltaWriter(null);
-  }
+    private final RowDataDeltaWriter writer;
 
-  @Override
-  RowDataDeltaWriter route(RowData row) {
-    return writer;
-  }
+    UnpartitionedDeltaWriter(PartitionSpec spec,
+            FileFormat format,
+            FileAppenderFactory<RowData> appenderFactory,
+            OutputFileFactory fileFactory,
+            FileIO io,
+            long targetFileSize,
+            Schema schema,
+            RowType flinkSchema,
+            List<Integer> equalityFieldIds,
+            boolean upsert) {
+        super(spec, format, appenderFactory, fileFactory, io, targetFileSize, schema, flinkSchema, equalityFieldIds,
+                upsert);
+        this.writer = new RowDataDeltaWriter(null);
+    }
 
-  @Override
-  public void close() throws IOException {
-    writer.close();
-  }
+    @Override
+    RowDataDeltaWriter route(RowData row) {
+        return writer;
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.close();
+    }
 }

@@ -84,6 +84,7 @@ public abstract class IcebergProcessFunction<IN, OUT> extends AbstractRichFuncti
     }
 
     public static class CallbackCollector<T> implements Collector<T> {
+
         final ThrowingConsumer<T, Exception> callback;
 
         CallbackCollector(ThrowingConsumer<T, Exception> callback) {

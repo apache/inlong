@@ -70,6 +70,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  *           the Flink data stream.
  */
 public class PulsarFetcher<T> {
+
     private static final Logger log = LoggerFactory.getLogger(PulsarFetcher.class);
     private static final int NO_TIMESTAMPS_WATERMARKS = 0;
     private static final int WITH_WATERMARK_GENERATOR = 1;
@@ -151,7 +152,7 @@ public class PulsarFetcher<T> {
     private PoisonState poisonState;
 
     // ------------------------------------------------------------------------
-    //  Metrics
+    // Metrics
     // ------------------------------------------------------------------------
 
     /**
@@ -197,8 +198,7 @@ public class PulsarFetcher<T> {
                 deserializer,
                 metadataReader,
                 consumerMetricGroup,
-                useMetrics
-        );
+                useMetrics);
     }
 
     public PulsarFetcher(
@@ -388,7 +388,7 @@ public class PulsarFetcher<T> {
     }
 
     // ------------------------------------------------------------------------
-    //  emitting records
+    // emitting records
     // ------------------------------------------------------------------------
 
     /**
@@ -462,7 +462,7 @@ public class PulsarFetcher<T> {
     }
 
     // ------------------------------------------------------------------------
-    //  snapshot and restore the state
+    // snapshot and restore the state
     // ------------------------------------------------------------------------
 
     /**
@@ -662,15 +662,14 @@ public class PulsarFetcher<T> {
 
         private final long interval;
 
-        //-------------------------------------------------
+        // -------------------------------------------------
 
         PeriodicWatermarkEmitter(
                 Object checkpointLock,
                 List<PulsarTopicState<T>> allPartitions,
                 WatermarkOutputMultiplexer watermarkOutputMultiplexer,
                 ProcessingTimeService timerService,
-                long autoWatermarkInterval
-        ) {
+                long autoWatermarkInterval) {
             this.checkpointLock = checkpointLock;
             this.allPartitions = checkNotNull(allPartitions);
             this.watermarkOutputMultiplexer = watermarkOutputMultiplexer;
@@ -678,7 +677,7 @@ public class PulsarFetcher<T> {
             this.interval = autoWatermarkInterval;
         }
 
-        //-------------------------------------------------
+        // -------------------------------------------------
 
         public void start() {
             timerService.registerTimer(timerService.getCurrentProcessingTime() + interval, this);
@@ -700,6 +699,7 @@ public class PulsarFetcher<T> {
     }
 
     private static class BreakingException extends Exception {
+
         static final BreakingException INSTANCE = new BreakingException();
 
         private BreakingException() {

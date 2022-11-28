@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.client.consumer;
 
 public enum ConsumePosition {
+
     CONSUMER_FROM_MAX_OFFSET_ALWAYS(1, "Always start from the max consume position."),
     CONSUMER_FROM_LATEST_OFFSET(0,
             "Start from the latest position for the first time. Otherwise start from last consume position."),

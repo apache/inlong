@@ -65,16 +65,14 @@ public class OracleLoadSqlParseTest extends AbstractTestBase {
     private Node buildOracleLoadNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("ID", new LongFormatInfo()),
                 new FieldInfo("NAME", new StringFormatInfo()),
-                new FieldInfo("AGE", new IntFormatInfo())
-        );
+                new FieldInfo("AGE", new IntFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("ID", new LongFormatInfo())),
+                        new FieldInfo("ID", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("NAME", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("AGE", new IntFormatInfo()))
-                );
+                                new FieldInfo("AGE", new IntFormatInfo())));
         return new OracleLoadNode("2", "oracle_output", fields, relations, null,
                 null, null, null, "jdbc:oracle:thin:@localhost:1521:xe",
                 "flinkuser", "flinkpw", "student", "ID");

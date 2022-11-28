@@ -32,6 +32,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class BatchDeleteGroupReq extends BaseReq {
+
     private List<GroupAuthItem> groupNameJsonSet;
     private String confModAuthToken;
     private String modifyUser;

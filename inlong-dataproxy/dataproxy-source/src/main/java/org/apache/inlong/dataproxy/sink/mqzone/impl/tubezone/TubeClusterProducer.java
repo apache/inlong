@@ -65,7 +65,7 @@ public class TubeClusterProducer extends AbstractZoneClusterProducer {
      * @param context
      */
     public TubeClusterProducer(String workerName, CacheClusterConfig config, TubeZoneSinkContext context) {
-            super(workerName, config, context);
+        super(workerName, config, context);
     }
 
     /**
@@ -142,12 +142,12 @@ public class TubeClusterProducer extends AbstractZoneClusterProducer {
         }
     }
 
-  /**
-   * send
-   *
-   * @param event
-   */
-  @Override
+    /**
+     * send
+     *
+     * @param event
+     */
+    @Override
     public boolean send(DispatchProfile event) {
         try {
             // topic

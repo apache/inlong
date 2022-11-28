@@ -23,6 +23,7 @@ import org.apache.inlong.tubemq.corebase.utils.AbstractSamplePrint;
 import org.slf4j.Logger;
 
 public class MetaConfigSamplePrint extends AbstractSamplePrint {
+
     /**
      * Log limit class
      */
@@ -34,8 +35,8 @@ public class MetaConfigSamplePrint extends AbstractSamplePrint {
     }
 
     public MetaConfigSamplePrint(final Logger logger,
-                                 long sampleDetailDur, long sampleResetDur,
-                                 long maxDetailCount, long maxTotalCount) {
+            long sampleDetailDur, long sampleResetDur,
+            long maxDetailCount, long maxTotalCount) {
         super(sampleDetailDur, sampleResetDur, maxDetailCount, maxTotalCount);
         this.logger = logger;
     }

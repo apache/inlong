@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFileConfig {
+
     protected static final String SECT_TOKEN_MASTER = "master";
     protected static final String SECT_TOKEN_BROKER = "broker";
     protected static final String SECT_TOKEN_BDB = "bdbStore";

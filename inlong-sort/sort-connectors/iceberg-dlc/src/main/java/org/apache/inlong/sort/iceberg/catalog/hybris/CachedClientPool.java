@@ -35,7 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CachedClientPool implements ClientPool<IMetaStoreClient, TException> {
-    private static final Logger LOG  = LoggerFactory.getLogger(CachedClientPool.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(CachedClientPool.class);
     private static Cache<String, DLCWrappedHybrisClientPool> clientPoolCache;
 
     private final Configuration conf;

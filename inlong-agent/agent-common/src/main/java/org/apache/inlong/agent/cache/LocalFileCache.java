@@ -31,6 +31,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * use local file as cache.
  */
 public class LocalFileCache {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalFileCache.class);
 
     private final File file;

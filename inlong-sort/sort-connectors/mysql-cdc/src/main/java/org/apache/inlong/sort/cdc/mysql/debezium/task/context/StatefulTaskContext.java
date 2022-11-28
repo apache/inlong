@@ -132,9 +132,8 @@ public class StatefulTaskContext {
                         .maxQueueSize(queueSize)
                         .maxQueueSizeInBytes(connectorConfig.getMaxQueueSizeInBytes())
                         .loggingContextSupplier(
-                                () ->
-                                        taskContext.configureLoggingContext(
-                                                "mysql-cdc-connector-task"))
+                                () -> taskContext.configureLoggingContext(
+                                        "mysql-cdc-connector-task"))
                         // do not buffer any element, we use signal event
                         // .buffering()
                         .build();
@@ -279,6 +278,7 @@ public class StatefulTaskContext {
      * Copied from debezium for accessing here.
      */
     public static class MySqlEventMetadataProvider implements EventMetadataProvider {
+
         public static final String SERVER_ID_KEY = "server_id";
 
         public static final String GTID_KEY = "gtid";

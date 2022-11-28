@@ -24,14 +24,10 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * Interface class for data format
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = JsonFormat.class, name = "jsonFormat"),
         @JsonSubTypes.Type(value = AvroFormat.class, name = "avroFormat"),

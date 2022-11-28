@@ -48,23 +48,20 @@ public class DefaultTableFormatSerializer implements TableFormatSerializer {
 
     public DefaultTableFormatSerializer(
             SerializationSchema<Row> serializationSchema,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         this.serializationSchema = serializationSchema;
         this.ignoreErrors = ignoreErrors;
     }
 
     public DefaultTableFormatSerializer(
-            SerializationSchema<Row> serializationSchema
-    ) {
+            SerializationSchema<Row> serializationSchema) {
         this(serializationSchema, DEFAULT_IGNORE_ERRORS);
     }
 
     @Override
     public void flatMap(
             Row row,
-            Collector<byte[]> collector
-    ) throws Exception {
+            Collector<byte[]> collector) throws Exception {
         byte[] bytes;
 
         try {
@@ -93,7 +90,7 @@ public class DefaultTableFormatSerializer implements TableFormatSerializer {
 
         DefaultTableFormatSerializer that = (DefaultTableFormatSerializer) o;
         return ignoreErrors == that.ignoreErrors
-                       && Objects.equals(serializationSchema, that.serializationSchema);
+                && Objects.equals(serializationSchema, that.serializationSchema);
     }
 
     @Override

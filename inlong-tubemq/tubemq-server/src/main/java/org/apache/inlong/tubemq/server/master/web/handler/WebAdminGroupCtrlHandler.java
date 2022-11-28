@@ -116,8 +116,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryBlackGroupInfo(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // build query entity
         GroupConsumeCtrlEntity entity = new GroupConsumeCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -174,8 +174,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryConsumerGroupInfo(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // build query entity
         GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -235,8 +235,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryGroupFilterCondInfo(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // build query entity
         GroupConsumeCtrlEntity qryEntity = new GroupConsumeCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -294,7 +294,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                 }
                 condStatusId = entry.getFilterEnable().isEnable() ? 2 : 0;
                 itemFilterStr = (entry.getFilterCondStr().length() <= 2)
-                        ? "" : entry.getFilterCondStr();
+                        ? ""
+                        : entry.getFilterCondStr();
                 sBuffer.append("{\"topicName\":\"").append(entry.getTopicName())
                         .append("\",\"groupName\":\"").append(entry.getGroupName())
                         .append("\",\"condStatus\":").append(condStatusId)
@@ -319,8 +320,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryConsumeGroupSetting(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // build query entity
         GroupResCtrlEntity entity = new GroupResCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
@@ -382,8 +383,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminAddBlackGroupInfo(HttpServletRequest req,
-                                                StringBuilder sBuffer,
-                                                ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -434,8 +435,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchAddBlackGroupInfo(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -477,8 +478,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDeleteBlackGroupInfo(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -504,8 +505,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         if (groupNameSet.isEmpty()) {
             Map<String, List<GroupConsumeCtrlEntity>> topicConsumeCtrlMap =
                     defMetaDataService.getConsumeCtrlByGroupName(topicNameSet);
-            for (Map.Entry<String, List<GroupConsumeCtrlEntity>> entry :
-                    topicConsumeCtrlMap.entrySet()) {
+            for (Map.Entry<String, List<GroupConsumeCtrlEntity>> entry : topicConsumeCtrlMap.entrySet()) {
                 if (!entry.getValue().isEmpty()) {
                     for (GroupConsumeCtrlEntity ctrlEntity : entry.getValue()) {
                         if (ctrlEntity != null
@@ -551,8 +551,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchDeleteBlackGroupInfo(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -597,8 +597,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminAddConsumerGroupInfo(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -649,8 +649,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchAddConsumerGroupInfo(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -692,8 +692,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDeleteConsumerGroupInfo(HttpServletRequest req,
-                                                      StringBuilder sBuffer,
-                                                      ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -718,8 +718,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         if (groupNameSet.isEmpty()) {
             Map<String, List<GroupConsumeCtrlEntity>> topicConsumeCtrlMap =
                     defMetaDataService.getConsumeCtrlByGroupName(topicNameSet);
-            for (Map.Entry<String, List<GroupConsumeCtrlEntity>> entry :
-                    topicConsumeCtrlMap.entrySet()) {
+            for (Map.Entry<String, List<GroupConsumeCtrlEntity>> entry : topicConsumeCtrlMap.entrySet()) {
                 if (!entry.getValue().isEmpty()) {
                     for (GroupConsumeCtrlEntity ctrlEntity : entry.getValue()) {
                         if (ctrlEntity != null
@@ -765,8 +764,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchDelConsumerGroupInfo(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -808,8 +807,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminAddGroupFilterCondInfo(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrModGroupFilterCondInfo(req, sBuffer, result, true);
     }
 
@@ -822,8 +821,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminModGroupFilterCondInfo(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrModGroupFilterCondInfo(req, sBuffer, result, false);
     }
 
@@ -836,8 +835,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchAddGroupFilterCondInfo(HttpServletRequest req,
-                                                          StringBuilder sBuffer,
-                                                          ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdGroupFilterCondInfo(req, sBuffer, result, true);
     }
 
@@ -850,8 +849,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchModGroupFilterCondInfo(HttpServletRequest req,
-                                                          StringBuilder sBuffer,
-                                                          ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdGroupFilterCondInfo(req, sBuffer, result, false);
     }
 
@@ -864,8 +863,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDeleteGroupFilterCondInfo(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -890,8 +889,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         if (groupNameSet.isEmpty()) {
             Map<String, List<GroupConsumeCtrlEntity>> topicConsumeCtrlMap =
                     defMetaDataService.getConsumeCtrlByGroupName(topicNameSet);
-            for (Map.Entry<String, List<GroupConsumeCtrlEntity>> entry :
-                    topicConsumeCtrlMap.entrySet()) {
+            for (Map.Entry<String, List<GroupConsumeCtrlEntity>> entry : topicConsumeCtrlMap.entrySet()) {
                 if (entry.getValue().isEmpty()) {
                     result.setFullInfo(true, DataOpErrCode.DERR_SUCCESS.getCode(), "Ok");
                     retInfoList.add(new GroupProcessResult("", entry.getKey(), result));
@@ -940,8 +938,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminRebalanceGroupAllocateInfo(HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -1011,8 +1009,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminAddConsumeGroupSettingInfo(HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdConsumeGroupSettingInfo(req, sBuffer, result, true);
     }
 
@@ -1025,8 +1023,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminUpdConsumeGroupSetting(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdConsumeGroupSettingInfo(req, sBuffer, result, false);
     }
 
@@ -1039,8 +1037,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchAddConsumeGroupSetting(HttpServletRequest req,
-                                                          StringBuilder sBuffer,
-                                                          ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -1072,8 +1070,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDeleteConsumeGroupSetting(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -1099,7 +1097,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<GroupProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (GroupProcessResult entry : retInfo) {
@@ -1125,9 +1123,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     private StringBuilder innAddOrUpdConsumeGroupSettingInfo(HttpServletRequest req,
-                                                             StringBuilder sBuffer,
-                                                             ProcessResult result,
-                                                             boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -1184,9 +1182,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     private StringBuilder innAddOrModGroupFilterCondInfo(HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result,
-                                                         boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -1257,9 +1255,9 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     private StringBuilder innBatchAddOrUpdGroupFilterCondInfo(HttpServletRequest req,
-                                                              StringBuilder sBuffer,
-                                                              ProcessResult result,
-                                                              boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -1296,8 +1294,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     }
 
     private boolean getFilterJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                         BaseEntity defOpEntity, StringBuilder sBuffer,
-                                         ProcessResult result) {
+            BaseEntity defOpEntity, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.FILTERJSONSET, true, null, result)) {
             return result.isSuccess();
@@ -1366,7 +1364,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     }
 
     private boolean getGroupCtrlJsonSetInfo(HttpServletRequest req, BaseEntity defOpEntity,
-                                            StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.GROUPJSONSET, true, null, result)) {
             return result.isSuccess();
@@ -1426,8 +1424,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     }
 
     private boolean getGroupCsmJsonSetInfo(HttpServletRequest req, BaseEntity defOpEntity,
-                                           EnableStatus enableCsm, String opReason,
-                                           StringBuilder sBuffer, ProcessResult result) {
+            EnableStatus enableCsm, String opReason,
+            StringBuilder sBuffer, ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.GROUPJSONSET, true, null, result)) {
             return result.isSuccess();
@@ -1484,8 +1482,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
     }
 
     private <T> boolean getCondStatusParamValue(T paramCntr, boolean required,
-                                                EnableStatus defValue, StringBuilder sBuffer,
-                                                ProcessResult result) {
+            EnableStatus defValue, StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get condStatus field
         if (!WebParameterUtils.getIntParamValue(paramCntr, WebFieldDef.CONDSTATUS,
                 required, TBaseConstants.META_VALUE_UNDEFINED, 0, 2, sBuffer, result)) {
@@ -1514,8 +1512,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return   process result
      */
     public StringBuilder adminQueryClientBalanceGroupSet(HttpServletRequest req,
-                                                         StringBuilder sBuffer,
-                                                         ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         try {
             ConsumerInfoHolder consumerHolder = master.getConsumerHolder();
             List<String> clientGroups = consumerHolder.getAllClientBalanceGroups();
@@ -1547,8 +1545,8 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
      * @return  the return result
      */
     public StringBuilder adminSetBalanceGroupConsumeFromMax(HttpServletRequest req,
-                                                            StringBuilder sBuffer,
-                                                            ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());

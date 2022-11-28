@@ -75,8 +75,7 @@ public class ByteUtil {
     public static List<Range> splitRanges(byte[] source, byte[] separator, int limit) {
         List<Range> segments = new ArrayList<Range>();
         int start = 0;
-        itersource:
-        for (int i = 0; i < source.length; i++) {
+        itersource: for (int i = 0; i < source.length; i++) {
             for (int j = 0; j < separator.length; j++) {
                 if (source[i + j] != separator[j]) {
                     continue itersource;
@@ -160,8 +159,7 @@ public class ByteUtil {
             return fromIndex;
         }
 
-        firstbyte:
-        for (int i = fromIndex; i < array.length - target.length + 1; i++) {
+        firstbyte: for (int i = fromIndex; i < array.length - target.length + 1; i++) {
             for (int j = 0; j < target.length; j++) {
                 if (array[i + j] != target[j]) {
                     continue firstbyte;

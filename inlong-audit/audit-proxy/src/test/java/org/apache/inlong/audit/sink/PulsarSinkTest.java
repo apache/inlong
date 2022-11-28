@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PulsarSinkTest {
+
     private static final Logger logger = LoggerFactory
             .getLogger(PulsarSinkTest.class);
     private static final String hostname = "127.0.0.1";

@@ -29,6 +29,7 @@ import org.apache.inlong.tubemq.server.master.bdbstore.bdbentitys.BdbGroupFlowCt
  *
  */
 public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
+
     // group name
     private String groupName = "";
     // resource check control
@@ -38,8 +39,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
     private int qryPriorityId = TBaseConstants.META_VALUE_UNDEFINED;
     // consume group flow control info
     private EnableStatus flowCtrlStatus = EnableStatus.STATUS_UNDEFINE;
-    private int ruleCnt = 0;           // flow control rule count
-    private String flowCtrlInfo = "";  // flow control info
+    private int ruleCnt = 0; // flow control rule count
+    private String flowCtrlInfo = ""; // flow control info
 
     // only for query
     public GroupResCtrlEntity() {
@@ -80,7 +81,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      * @return the BdbGroupFlowCtrlEntity object
      */
     public BdbGroupFlowCtrlEntity buildBdbGroupFlowCtrlEntity() {
-        //Constructor
+        // Constructor
         int statusId = (this.flowCtrlStatus == EnableStatus.STATUS_ENABLE) ? 1 : 0;
         BdbGroupFlowCtrlEntity bdbEntity =
                 new BdbGroupFlowCtrlEntity(getDataVerId(), this.groupName,
@@ -209,9 +210,9 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      * @return  whether changed
      */
     public boolean updModifyInfo(long dataVerId,
-                                 EnableStatus resChkEnable, int allowedB2CRate,
-                                 int qryPriorityId, EnableStatus flowCtrlEnable,
-                                 int flowRuleCnt, String flowCtrlRuleInfo) {
+            EnableStatus resChkEnable, int allowedB2CRate,
+            int qryPriorityId, EnableStatus flowCtrlEnable,
+            int flowRuleCnt, String flowCtrlRuleInfo) {
         boolean changed = false;
         // check and set dataVerId info
         if (dataVerId != TBaseConstants.META_VALUE_UNDEFINED
@@ -274,13 +275,13 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
         return (target.getQryPriorityId() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getQryPriorityId() == this.qryPriorityId)
                 && (TStringUtils.isBlank(target.getGroupName())
-                || target.getGroupName().equals(this.groupName))
+                        || target.getGroupName().equals(this.groupName))
                 && (target.getResCheckStatus() == EnableStatus.STATUS_UNDEFINE
-                || target.getResCheckStatus() == this.resCheckStatus)
+                        || target.getResCheckStatus() == this.resCheckStatus)
                 && (target.getFlowCtrlStatus() == EnableStatus.STATUS_UNDEFINE
-                || target.getFlowCtrlStatus() == this.flowCtrlStatus)
+                        || target.getFlowCtrlStatus() == this.flowCtrlStatus)
                 && (target.getAllowedBrokerClientRate() == TBaseConstants.META_VALUE_UNDEFINED
-                || target.getAllowedBrokerClientRate() == this.allowedBrokerClientRate);
+                        || target.getAllowedBrokerClientRate() == this.allowedBrokerClientRate);
     }
 
     /**
@@ -292,8 +293,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      * @return    process result
      */
     public StringBuilder toWebJsonStr(StringBuilder sBuffer,
-                                      boolean isLongName,
-                                      boolean fullFormat) {
+            boolean isLongName,
+            boolean fullFormat) {
         if (isLongName) {
             sBuffer.append("{\"groupName\":\"").append(groupName).append("\"")
                     .append(",\"resCheckEnable\":").append(resCheckStatus.isEnable())
@@ -326,7 +327,7 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      * @return   process result
      */
     public StringBuilder toOldVerFlowCtrlWebJsonStr(StringBuilder sBuffer,
-                                                    boolean isLongName) {
+            boolean isLongName) {
         int statusId = flowCtrlStatus.isEnable() ? 1 : 0;
         if (isLongName) {
             sBuffer.append("{\"groupName\":\"").append(groupName)

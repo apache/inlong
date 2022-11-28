@@ -110,7 +110,7 @@ public class HBaseResourceOperator implements SinkResourceOperator {
             } else {
                 // 4. or update table columns
                 List<HBaseColumnFamilyInfo> existColumnFamilies = HBaseApiUtils.getColumnFamilies(zkAddress, zkNode,
-                                namespace, tableName).stream()
+                        namespace, tableName).stream()
                         .sorted(Comparator.comparing(HBaseColumnFamilyInfo::getCfName)).collect(toList());
                 List<HBaseColumnFamilyInfo> requestColumnFamilies = tableInfo.getColumnFamilies().stream()
                         .sorted(Comparator.comparing(HBaseColumnFamilyInfo::getCfName)).collect(toList());

@@ -73,7 +73,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      */
     private final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat;
 
-    //-------------------------------------------------------------------
+    // -------------------------------------------------------------------
     /**
      * The address of TubeMQ master, format eg: 127.0.0.1:8715,127.0.0.2:8715.
      */
@@ -311,10 +311,12 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
+
         TOPIC(
                 "topic",
                 DataTypes.STRING().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

@@ -178,10 +178,8 @@ public class TestFileAgent {
         Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
         AtomicBoolean result = new AtomicBoolean(false);
         if (jobs.size() == 1) {
-            jobs.forEach((s, jobWrapper) ->
-                    result.set(jobWrapper.getJob().getJobConf().get(JOB_DIR_FILTER_PATTERN)
-                            .equals(testRootDir + FileSystems.getDefault().getSeparator() + "test0.dat"))
-            );
+            jobs.forEach((s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf().get(JOB_DIR_FILTER_PATTERN)
+                    .equals(testRootDir + FileSystems.getDefault().getSeparator() + "test0.dat")));
         }
         return result.get();
     }

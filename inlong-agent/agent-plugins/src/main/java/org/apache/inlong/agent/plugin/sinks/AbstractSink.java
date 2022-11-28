@@ -47,7 +47,7 @@ public abstract class AbstractSink implements Sink {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSink.class);
     protected String inlongGroupId;
     protected String inlongStreamId;
-    //metric
+    // metric
     protected AgentMetricItemSet metricItemSet;
     protected AgentMetricItem sinkMetric;
     protected Map<String, String> dimensions;

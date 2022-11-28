@@ -96,7 +96,7 @@ public abstract class AbstractSnapshot implements SnapshotBase {
     public void save(String snapshot, File destFile) {
         byte[] bytes = DECODER.decode(snapshot);
         if (bytes.length != 0) {
-            //offset = bytes;
+            // offset = bytes;
             try (OutputStream output = Files.newOutputStream(destFile.toPath())) {
                 output.write(bytes);
             } catch (Throwable e) {

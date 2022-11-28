@@ -99,8 +99,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder getGroupAddressStrInfo(HttpServletRequest req,
-                                                StringBuilder sBuffer,
-                                                ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         ClusterGroupVO clusterGroupVO = defMetaDataService.getGroupAddressStrInfo();
         if (clusterGroupVO == null) {
             WebParameterUtils.buildFailResultWithBlankData(
@@ -143,8 +143,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder transferCurrentMaster(HttpServletRequest req,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         try {
             defMetaDataService.transferMaster();
             WebParameterUtils.buildSuccessResult(sBuffer,
@@ -164,8 +164,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryClusterDefSetting(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return buildRetInfo(sBuffer, true);
     }
 
@@ -178,8 +178,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryDefFlowCtrlRule(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return buildRetInfo(sBuffer, false);
     }
 
@@ -192,8 +192,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminSetClusterDefSetting(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdDefFlowControlRule(req, sBuffer, result, true, true);
     }
 
@@ -206,8 +206,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminUpdClusterDefSetting(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdDefFlowControlRule(req, sBuffer, result, false, true);
     }
 
@@ -220,8 +220,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminSetDefFlowControlRule(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdDefFlowControlRule(req, sBuffer, result, true, false);
     }
 
@@ -234,8 +234,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminModDefFlowCtrlRule(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdDefFlowControlRule(req, sBuffer, result, false, false);
     }
 
@@ -248,8 +248,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryClusterTopicView(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get brokerId field
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.COMPSBROKERID, false, sBuffer, result)) {
@@ -347,8 +347,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminGetOnlineGroupSetByTopic(HttpServletRequest req,
-                                                       StringBuilder strBuff,
-                                                       ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         // check and get topicName field
         if (!WebParameterUtils.getStringParamValue(req,
                 WebFieldDef.COMPSTOPICNAME, false, null, strBuff, result)) {
@@ -403,8 +403,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDelDefFlowControlRule(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -434,10 +434,10 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
      * @return       process result
      */
     private StringBuilder innAddOrUpdDefFlowControlRule(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result,
-                                                        boolean isAddOp,
-                                                        boolean isNewVer) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp,
+            boolean isNewVer) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());

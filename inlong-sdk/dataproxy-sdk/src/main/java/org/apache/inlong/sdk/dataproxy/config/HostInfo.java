@@ -19,6 +19,7 @@
 package org.apache.inlong.sdk.dataproxy.config;
 
 public class HostInfo implements Comparable<HostInfo>, java.io.Serializable {
+
     private final String referenceName;
     private final String hostName;
     private final int portNumber;
@@ -61,7 +62,7 @@ public class HostInfo implements Comparable<HostInfo>, java.io.Serializable {
         HostInfo info = (HostInfo) other;
         return (this.referenceName.equals(info.getReferenceName()))
                 && (this.hostName.equals(info.getHostName()))
-                 && (this.portNumber == info.getPortNumber());
+                && (this.portNumber == info.getPortNumber());
     }
 
 }

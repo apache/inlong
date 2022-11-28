@@ -35,7 +35,7 @@ public enum StepStatus {
     private final long shortDelayDurIdnMs;
 
     StepStatus(int code, String description,
-               long normalDelayDurIdnMs, long shortDelayDurIdnMs) {
+            long normalDelayDurIdnMs, long shortDelayDurIdnMs) {
         this.code = code;
         this.description = description;
         this.normalDelayDurIdnMs = normalDelayDurIdnMs;

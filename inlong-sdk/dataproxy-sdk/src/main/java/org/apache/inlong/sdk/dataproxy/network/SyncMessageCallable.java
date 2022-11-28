@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SyncMessageCallable implements Callable<SendResult> {
+
     private static final Logger logger = LoggerFactory
             .getLogger(SyncMessageCallable.class);
 
@@ -41,7 +42,7 @@ public class SyncMessageCallable implements Callable<SendResult> {
     private SendResult message;
 
     public SyncMessageCallable(NettyClient client, EncodeObject encodeObject,
-                               long timeout, TimeUnit timeUnit) {
+            long timeout, TimeUnit timeUnit) {
         this.client = client;
         this.encodeObject = encodeObject;
         this.timeout = timeout;

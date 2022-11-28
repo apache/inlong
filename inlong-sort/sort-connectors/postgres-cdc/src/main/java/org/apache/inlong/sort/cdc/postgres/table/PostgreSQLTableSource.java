@@ -158,11 +158,10 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(PostgreSQLReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(PostgreSQLReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(PostgreSQLReadableMetadata::getConverter)
                 .toArray(MetadataConverter[]::new);
     }

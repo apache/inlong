@@ -45,10 +45,7 @@ import org.apache.inlong.sort.protocol.transformation.function.TumbleStartFuncti
 
 import java.util.List;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = WatermarkField.class, name = "watermark"),
         @JsonSubTypes.Type(value = HopStartFunction.class, name = "hopStart"),

@@ -38,16 +38,14 @@ public class BinaryFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() throws Exception {
         assertEquals(
                 "testString",
-                BinaryFormatInfo.INSTANCE.serialize("testString".getBytes(StandardCharsets.UTF_8))
-        );
+                BinaryFormatInfo.INSTANCE.serialize("testString".getBytes(StandardCharsets.UTF_8)));
     }
 
     @Test
     public void testDeserialize() throws Exception {
         assertArrayEquals(
                 "testString".getBytes(StandardCharsets.UTF_8),
-                BinaryFormatInfo.INSTANCE.deserialize("testString")
-        );
+                BinaryFormatInfo.INSTANCE.deserialize("testString"));
     }
 
 }

@@ -256,7 +256,7 @@ public class MongoDBReader extends AbstractReader {
      * @param error the error, or null if there was no exception
      */
     private void handle(boolean success, String message, Throwable error) {
-        //jobConf.getInstanceId()
+        // jobConf.getInstanceId()
         if (!success) {
             LOGGER.error("{}, {}", message, error);
         }

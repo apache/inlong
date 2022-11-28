@@ -48,13 +48,10 @@ public class TcpClientExample {
          * 1. if isLocalVisit is true, will get dataproxy server info from local file in
          * ${configBasePath}/${dataProxyGroup}.local file
          *
-         * for example:
-         *  /data/inlong/config/test_test.local
-         * and file context like this:
+         * for example: /data/inlong/config/test_test.local and file context like this:
          * {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0.1",
-         * "port":"46802"},{"host":"127.0.0.1","port":"46802"}]}
-         * 2. if isLocalVisit is false, will get dataproxy server info from manager
-         * so we must ensure that the manager server url is configured correctly!
+         * "port":"46802"},{"host":"127.0.0.1","port":"46802"}]} 2. if isLocalVisit is false, will get dataproxy server
+         * info from manager so we must ensure that the manager server url is configured correctly!
          */
         String configBasePath = "/data/inlong/config";
 

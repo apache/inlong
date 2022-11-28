@@ -204,8 +204,8 @@ public class ConfigOption<T> {
      */
     @Deprecated
     public Iterable<String> deprecatedKeys() {
-        return fallbackKeys == EMPTY ? Collections.<String>emptyList() :
-                Arrays.stream(fallbackKeys)
+        return fallbackKeys == EMPTY ? Collections.<String>emptyList()
+                : Arrays.stream(fallbackKeys)
                         .filter(FallbackKey::isDeprecated)
                         .map(FallbackKey::getKey)
                         .collect(Collectors.toList());
@@ -248,8 +248,8 @@ public class ConfigOption<T> {
             ConfigOption<?> that = (ConfigOption<?>) o;
             return this.key.equals(that.key)
                     && Arrays.equals(this.fallbackKeys, that.fallbackKeys)
-                    && (this.defaultValue == null ? that.defaultValue == null :
-                    (that.defaultValue != null && this.defaultValue.equals(that.defaultValue)));
+                    && (this.defaultValue == null ? that.defaultValue == null
+                            : (that.defaultValue != null && this.defaultValue.equals(that.defaultValue)));
         } else {
             return false;
         }

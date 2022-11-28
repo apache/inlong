@@ -28,10 +28,7 @@ import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOrEqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = EqualOperator.class, name = "equal"),
         @JsonSubTypes.Type(value = NotEqualOperator.class, name = "notEqual"),

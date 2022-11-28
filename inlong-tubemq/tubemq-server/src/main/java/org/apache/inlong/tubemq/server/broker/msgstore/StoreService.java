@@ -29,6 +29,7 @@ import org.apache.inlong.tubemq.server.broker.utils.TopicPubStoreInfo;
  * Store service interface.
  */
 public interface StoreService {
+
     void start();
 
     void close();
@@ -38,12 +39,12 @@ public interface StoreService {
     Collection<MessageStore> getMessageStoresByTopic(String topic);
 
     MessageStore getOrCreateMessageStore(String topic,
-                                         int partition) throws Throwable;
+            int partition) throws Throwable;
 
     Map<String, Map<Integer, TopicPubStoreInfo>> getTopicPublishInfos(Set<String> topicSet);
 
     // Add the current storage offset values to
-    //  the consumption partition records of the specified consumption group
-    //  include maximum and minimum, and consume lag
+    // the consumption partition records of the specified consumption group
+    // include maximum and minimum, and consume lag
     void getTopicPublishInfos(Map<String, OffsetHistoryInfo> groupOffsetMap);
 }

@@ -24,7 +24,8 @@ import javax.annotation.Nonnull;
  * The base for all inlongmsg mixed format deserializers.
  */
 public abstract class AbstractInLongMsgMixedFormatDeserializer
-        extends AbstractInLongMsgFormatDeserializer {
+        extends
+            AbstractInLongMsgFormatDeserializer {
 
     public AbstractInLongMsgMixedFormatDeserializer(@Nonnull Boolean ignoreErrors) {
         super(ignoreErrors);

@@ -36,6 +36,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * A MySql Source configuration which is used by {@link MySqlSource}.
  */
 public class MySqlSourceConfig implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private final String hostname;

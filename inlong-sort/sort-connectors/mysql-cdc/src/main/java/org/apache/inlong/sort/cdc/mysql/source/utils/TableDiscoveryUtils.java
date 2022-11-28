@@ -41,6 +41,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote
  * Utilities to discovery matched tables.
  */
 public class TableDiscoveryUtils {
+
     private static final Logger LOG = LoggerFactory.getLogger(TableDiscoveryUtils.class);
 
     /**

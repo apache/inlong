@@ -62,13 +62,13 @@ public class TestFlowCtrlRuleHandler {
             result = handler.getCurDataLimit(1000);
             assertNull("result should be null", result);
 
-            //  request frequency control
+            // request frequency control
             FlowCtrlItem item = handler.getFilterCtrlItem();
             assertEquals(item.getDataLtInSZ(), 0);
             assertEquals(item.getZeroCnt(), 400);
             assertEquals(item.getFreqLtInMs(), 100);
 
-            //check values
+            // check values
             assertEquals(handler.getNormFreqInMs(), 100);
             assertEquals(handler.getFlowCtrlId(), 10);
             assertEquals(handler.getMinDataFreqInMs(), 400);

@@ -81,8 +81,8 @@ public class RegexpReplaceFunctionTest extends AbstractTestBase {
         // step 3. Get function execution result and parse it
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
+                .hasNext();) {
             String next = it.next();
             result.add(next);
         }

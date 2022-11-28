@@ -74,15 +74,16 @@ public class EncryptFunctionTest extends AbstractTestBase {
         org.apache.inlong.sort.protocol.transformation.function.EncryptFunction encryptFunction =
                 new org.apache.inlong.sort.protocol.transformation.function.EncryptFunction(
                         new FieldInfo("f1",
-                                new StringFormatInfo()), new StringConstantParam("1"),
+                                new StringFormatInfo()),
+                        new StringConstantParam("1"),
                         new StringConstantParam("desede"));
         String sqlQuery = String.format("SELECT %s as f1 FROM temp_view", encryptFunction.format());
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
         // step 4. Get function execution result and parse it
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-             it.hasNext(); ) {
+        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
+                .hasNext();) {
             String next = it.next();
             result.add(next);
         }

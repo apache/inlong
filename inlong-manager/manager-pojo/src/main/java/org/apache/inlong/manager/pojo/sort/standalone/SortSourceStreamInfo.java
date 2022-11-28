@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class SortSourceStreamInfo {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceStreamInfo.class);
     private static final Gson GSON = new Gson();
 

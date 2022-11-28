@@ -27,6 +27,7 @@ import org.apache.inlong.sort.cdc.mysql.source.reader.MySqlSourceReader;
  * wake up source reader to consume split again.
  */
 public class WakeupReaderEvent implements SourceEvent {
+
     private static final long serialVersionUID = 1L;
     private WakeUpTarget target;
 

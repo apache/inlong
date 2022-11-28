@@ -23,7 +23,7 @@ public class HeartBeatResult {
 
     private int code;
     private String msg;
-    //method report interval
+    // method report interval
     private Map<Integer, Long> reportInterval;
 
     public int getCode() {

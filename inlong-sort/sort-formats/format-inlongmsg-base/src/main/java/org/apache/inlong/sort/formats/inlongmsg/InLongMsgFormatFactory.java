@@ -43,7 +43,9 @@ import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.validate
  * factory class for inLong msg format
  */
 public final class InLongMsgFormatFactory
-        implements DeserializationFormatFactory, SerializationFormatFactory {
+        implements
+            DeserializationFormatFactory,
+            SerializationFormatFactory {
 
     public static final String IDENTIFIER = "inlong-msg";
 

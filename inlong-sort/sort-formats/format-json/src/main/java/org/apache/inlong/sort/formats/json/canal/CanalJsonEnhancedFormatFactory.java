@@ -52,7 +52,9 @@ import static org.apache.flink.formats.json.canal.CanalJsonOptions.validateEncod
  * Different from flink:1.13.5.This can sink metadata.
  */
 public class CanalJsonEnhancedFormatFactory
-        implements DeserializationFormatFactory, SerializationFormatFactory {
+        implements
+            DeserializationFormatFactory,
+            SerializationFormatFactory {
 
     public static final String IDENTIFIER = "canal-json-inlong";
 

@@ -141,10 +141,10 @@ public class TestOracleReader {
                 specificOffsetPos);
         whenNew(OracleSnapshotBase.class).withAnyArguments().thenReturn(oracleSnapshot);
 
-        //mock oracleMessageQueue
+        // mock oracleMessageQueue
         whenNew(LinkedBlockingQueue.class).withAnyArguments().thenReturn(oracleMessageQueue);
 
-        //mock DebeziumEngine
+        // mock DebeziumEngine
         mockStatic(DebeziumEngine.class);
         when(DebeziumEngine.create(io.debezium.engine.format.Json.class)).thenReturn(builder);
         when(builder.using(any(Properties.class))).thenReturn(builder);
@@ -152,17 +152,17 @@ public class TestOracleReader {
         when(builder.using(any(DebeziumEngine.CompletionCallback.class))).thenReturn(builder);
         when(builder.build()).thenReturn(engine);
 
-        //mock executorService
+        // mock executorService
         mockStatic(Executors.class);
         when(Executors.newSingleThreadExecutor()).thenReturn(executorService);
 
-        //mock metrics
+        // mock metrics
         whenNew(AgentMetricItemSet.class).withArguments(anyString()).thenReturn(agentMetricItemSet);
         when(agentMetricItemSet.findMetricItem(any())).thenReturn(agentMetricItem);
         field(AgentMetricItem.class, "pluginReadCount").set(agentMetricItem, atomicLong);
         field(AgentMetricItem.class, "pluginReadSuccessCount").set(agentMetricItem, atomicCountLong);
 
-        //init method
+        // init method
         mockStatic(MetricRegister.class);
         (reader = new OracleReader()).init(jobProfile);
     }

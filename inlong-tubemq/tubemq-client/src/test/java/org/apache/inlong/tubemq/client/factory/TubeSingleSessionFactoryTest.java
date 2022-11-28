@@ -33,6 +33,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AddressUtils.class)
 public class TubeSingleSessionFactoryTest {
+
     @Test
     public void testTubeSingleSessionFactory() throws Exception {
         TubeClientConfig config = mock(TubeClientConfig.class);

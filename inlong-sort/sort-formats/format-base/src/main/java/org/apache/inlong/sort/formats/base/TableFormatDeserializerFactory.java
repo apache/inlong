@@ -36,6 +36,5 @@ public interface TableFormatDeserializerFactory extends TableFormatFactory<Row> 
      *         provide an instance of the class.
      */
     TableFormatDeserializer createFormatDeserializer(
-            final Map<String, String> properties
-    );
+            final Map<String, String> properties);
 }

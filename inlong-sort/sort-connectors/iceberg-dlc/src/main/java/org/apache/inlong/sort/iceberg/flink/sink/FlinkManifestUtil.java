@@ -42,6 +42,7 @@ import java.util.function.Supplier;
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 class FlinkManifestUtil {
+
     private static final int FORMAT_V2 = 2;
     private static final Long DUMMY_SNAPSHOT_ID = 0L;
 

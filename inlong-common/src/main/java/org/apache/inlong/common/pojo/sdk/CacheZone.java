@@ -30,6 +30,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CacheZone {
+
     String zoneName;
     String serviceUrl;
     String authentication;

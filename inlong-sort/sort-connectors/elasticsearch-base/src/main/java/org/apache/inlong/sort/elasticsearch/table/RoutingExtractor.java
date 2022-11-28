@@ -34,6 +34,7 @@ import java.util.function.Function;
  */
 @Internal
 public class RoutingExtractor {
+
     private RoutingExtractor() {
     }
 

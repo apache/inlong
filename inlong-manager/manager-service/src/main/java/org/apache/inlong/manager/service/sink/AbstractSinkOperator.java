@@ -226,9 +226,9 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
             return param;
         } catch (Exception e) {
             LOGGER.error(String.format(
-                            "cannot parse properties for groupId=%s, streamId=%s, sinkName=%s, the row properties: %s",
-                            streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
-                            streamSink.getSinkName(), streamSink.getExtParams()),
+                    "cannot parse properties for groupId=%s, streamId=%s, sinkName=%s, the row properties: %s",
+                    streamSink.getInlongGroupId(), streamSink.getInlongStreamId(),
+                    streamSink.getSinkName(), streamSink.getExtParams()),
                     e);
 
             return null;

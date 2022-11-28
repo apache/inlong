@@ -107,4 +107,3 @@ public class CounterGroupExt {
         this.counters = counters;
     }
 }
-

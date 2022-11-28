@@ -27,11 +27,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SortSourceConfigResponse {
+
     String msg;
     int code;
     String md5;
     CacheZoneConfig data;
 
 }
-
-

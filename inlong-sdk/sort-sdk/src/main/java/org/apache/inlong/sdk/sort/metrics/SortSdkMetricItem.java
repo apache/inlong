@@ -26,28 +26,28 @@ import org.apache.inlong.common.metric.MetricItem;
 @MetricDomain(name = "SortSdk")
 public class SortSdkMetricItem extends MetricItem {
 
-    //Dimension
+    // Dimension
     public static final String KEY_SORT_TASK_ID = "sortTaskId";
     public static final String KEY_CLUSTER_ID = "clusterId";
     public static final String KEY_TOPIC_ID = "topicId";
     public static final String KEY_PARTITION_ID = "partitionId";
 
-    //CountMetric
-    //consume
+    // CountMetric
+    // consume
     public static final String M_CONSUME_SIZE = "consumeSize";
     public static final String M_CONSUME_MSG_COUNT = "consumeMsgCount";
-    //callback
+    // callback
     public static final String M_CALL_BACK_COUNT = "callbackCount";
     public static final String M_CALL_BACK_DONE_COUNT = "callbackDoneCount";
     public static final String M_CALL_BACK_TIME_COST = "callbakTimeCost";
     public static final String M_CALL_BACK_FAIL_COUNT = "callbackFailCount";
-    //topic chanage
+    // topic chanage
     public static final String M_TOPIC_ONLINE_COUNT = "topicOnlineCount";
     public static final String M_TOPIC_OFFLINE_COUNT = "topicOfflineCount";
-    //ack
+    // ack
     public static final String M_ACK_FAIL_COUNT = "ackFailCount";
     public static final String M_ACK_SUCC_COUNT = "ackSUCCCount";
-    //request manager
+    // request manager
     public static final String M_REQUEST_MANAGER_COUNT = "requestManagerCount";
     public static final String M_REQUEST_MANAGER_TIME_COST = "requestManagerTimeCost";
     public static final String M_REQUEST_MANAGER_FAIL_COUNT = "requestManagerFailCount";

@@ -253,4 +253,3 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         return FACTORY_IDENTIFIER;
     }
 }
-

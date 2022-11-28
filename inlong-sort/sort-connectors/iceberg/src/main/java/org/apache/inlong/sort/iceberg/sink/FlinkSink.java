@@ -85,6 +85,7 @@ import static org.apache.iceberg.TableProperties.WRITE_TARGET_FILE_SIZE_BYTES_DE
  * Add option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect inlong metrics and audit.
  */
 public class FlinkSink {
+
     private static final Logger LOG = LoggerFactory.getLogger(FlinkSink.class);
 
     private static final String ICEBERG_STREAM_WRITER_NAME = IcebergSingleStreamWriter.class.getSimpleName();
@@ -145,6 +146,7 @@ public class FlinkSink {
     }
 
     public static class Builder {
+
         private Function<String, DataStream<RowData>> inputCreator = null;
         private TableLoader tableLoader;
         private Table table;
@@ -398,7 +400,6 @@ public class FlinkSink {
             // Add dummy discard sink
             return appendDummySink(committerStream);
         }
-
 
         /**
          * Append the iceberg sink operators to write records to iceberg table.

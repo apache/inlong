@@ -33,10 +33,7 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FieldInfo.class, name = "field"),
         @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField")

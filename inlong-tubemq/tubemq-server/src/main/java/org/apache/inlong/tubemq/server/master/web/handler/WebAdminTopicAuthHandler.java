@@ -64,8 +64,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryTopicAuthControl(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         TopicCtrlEntity qryEntity = new TopicCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -151,8 +151,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminEnableDisableTopicAuthControl(HttpServletRequest req,
-                                                            StringBuilder sBuffer,
-                                                            ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -191,8 +191,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchAddTopicAuthControl(HttpServletRequest req,
-                                                       StringBuilder sBuffer,
-                                                       ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -222,8 +222,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDeleteTopicAuthControl(HttpServletRequest req,
-                                                     StringBuilder sBuffer,
-                                                     ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -255,7 +255,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     }
 
     private boolean getTopicCtrlJsonSetInfo(HttpServletRequest req, BaseEntity defOpEntity,
-                                            StringBuilder sBuffer, ProcessResult result) {
+            StringBuilder sBuffer, ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.TOPICJSONSET, true, null, result)) {
             return result.isSuccess();
@@ -304,7 +304,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (TopicProcessResult entry : retInfo) {

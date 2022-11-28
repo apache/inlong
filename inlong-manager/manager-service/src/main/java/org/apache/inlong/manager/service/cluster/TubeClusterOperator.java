@@ -58,15 +58,15 @@ public class TubeClusterOperator extends AbstractClusterOperator {
 
     @Override
     protected void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity) {
-            TubeClusterRequest tubeRequest = (TubeClusterRequest) request;
-            CommonBeanUtils.copyProperties(tubeRequest, targetEntity, true);
-            try {
-                TubeClusterDTO dto = objectMapper.convertValue(tubeRequest, TubeClusterDTO.class);
-                targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
-                LOGGER.info("success to set entity for tubemq cluster");
-            } catch (Exception e) {
-                throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
-            }
+        TubeClusterRequest tubeRequest = (TubeClusterRequest) request;
+        CommonBeanUtils.copyProperties(tubeRequest, targetEntity, true);
+        try {
+            TubeClusterDTO dto = objectMapper.convertValue(tubeRequest, TubeClusterDTO.class);
+            targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
+            LOGGER.info("success to set entity for tubemq cluster");
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
+        }
     }
 
     @Override

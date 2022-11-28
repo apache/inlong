@@ -302,7 +302,7 @@ public class SimpleMessageHandler extends ChannelInboundHandlerAdapter {
             checkGroupIdInfo(message, commonAttrMap, attrMap, topicInfo);
             topic = topicInfo.get();
 
-//                if(groupId==null)groupId="b_test";//default groupId
+            // if(groupId==null)groupId="b_test";//default groupId
 
             message.setTopic(topic);
             commonAttrMap.put(AttributeConstants.NODE_IP, strRemoteIP);

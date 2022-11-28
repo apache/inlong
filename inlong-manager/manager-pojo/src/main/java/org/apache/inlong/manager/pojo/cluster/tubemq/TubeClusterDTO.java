@@ -42,8 +42,7 @@ import javax.validation.constraints.NotNull;
 public class TubeClusterDTO {
 
     @NotBlank(message = "masterWebUrl cannot be blank")
-    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080",
-            notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
+    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080", notes = "TubeMQ master RPC URL is the 'url' field of the cluster")
     private String masterWebUrl;
 
     /**

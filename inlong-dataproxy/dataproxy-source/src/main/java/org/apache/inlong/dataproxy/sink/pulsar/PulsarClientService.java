@@ -138,7 +138,7 @@ public class PulsarClientService {
      * send message
      */
     public boolean sendMessage(int poolIndex, String topic,
-                               EventStat es, PulsarSink pulsarSink) {
+            EventStat es, PulsarSink pulsarSink) {
         boolean result;
         TopicProducerInfo producerInfo = null;
         Event event = es.getEvent();
@@ -155,15 +155,13 @@ public class PulsarClientService {
             errMsg = "Get producer failed for topic=" + topic + ", reason is " + e.getMessage();
         }
         /*
-         * If the producer is a null value,\ it means that the topic is not yet
-         * ready, and it needs to be played back into the file channel
+         * If the producer is a null value,\ it means that the topic is not yet ready, and it needs to be played back
+         * into the file channel
          */
         if (producerInfo == null) {
             /*
-             * Data within 30s is placed in the exception channel to
-             * prevent frequent checks
-             * After 30s, reopen the topic check, if it is still a null value,
-             *  put it back into the illegal map
+             * Data within 30s is placed in the exception channel to prevent frequent checks After 30s, reopen the topic
+             * check, if it is still a null value, put it back into the illegal map
              */
             pulsarSink.handleRequestProcError(topic, es,
                     false, DataProxyErrCode.NO_AVAILABLE_PRODUCER, errMsg);
@@ -402,7 +400,7 @@ public class PulsarClientService {
                 pulsarClients.put(url, client);
                 callBack.handleCreateClientSuccess(url);
 
-                //create related topicProducers
+                // create related topicProducers
                 for (String topic : topicSet) {
                     TopicProducerInfo info = new TopicProducerInfo(client, sinkThreadPoolSize,
                             topic);

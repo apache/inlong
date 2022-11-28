@@ -35,8 +35,8 @@ public class BdbTopicAuthControlEntity implements Serializable {
     private String topicName;
     private int enableAuthControl = -1; // -1 : undefine; 0: disable, 1: enable
     // ** Based on the data compatibility consideration of the original version:
-    //     the creation information in this example is the last modified information,
-    //     and the modified information is the creation information
+    // the creation information in this example is the last modified information,
+    // and the modified information is the creation information
     private String createUser;
     private Date createDate;
     private String attributes;
@@ -46,7 +46,7 @@ public class BdbTopicAuthControlEntity implements Serializable {
     }
 
     public BdbTopicAuthControlEntity(String topicName, boolean enableAuthControl,
-                                     String modifyUser, Date modifyDate) {
+            String modifyUser, Date modifyDate) {
         this.topicName = topicName;
         if (enableAuthControl) {
             this.enableAuthControl = 1;
@@ -58,7 +58,7 @@ public class BdbTopicAuthControlEntity implements Serializable {
     }
 
     public BdbTopicAuthControlEntity(String topicName, boolean enableAuthControl,
-                                     String attributes,  String modifyUser, Date modifyDate) {
+            String attributes, String modifyUser, Date modifyDate) {
         this.topicName = topicName;
         if (enableAuthControl) {
             this.enableAuthControl = 1;

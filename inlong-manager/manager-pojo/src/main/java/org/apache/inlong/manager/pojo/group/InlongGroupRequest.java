@@ -46,8 +46,7 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @NotBlank(message = "cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
     @Length(min = 4, max = 100, message = "length must be between 4 and 100")
-    @Pattern(regexp = "^[a-z0-9_-]{4,100}$",
-            message = "only supports lowercase letters, numbers, '-', or '_'")
+    @Pattern(regexp = "^[a-z0-9_-]{4,100}$", message = "only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong group name", required = true)
@@ -64,8 +63,7 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "MQ type, high throughput: TUBEMQ, high consistency: PULSAR")
     private String mqType;
 
-    @ApiModelProperty(value = "MQ resource",
-            notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
+    @ApiModelProperty(value = "MQ resource", notes = "in inlong group, TubeMQ corresponds to Topic, Pulsar corresponds to Namespace")
     private String mqResource;
 
     @ApiModelProperty(value = "TubeMQ master URL")
@@ -85,8 +83,7 @@ public abstract class InlongGroupRequest extends BaseInlongGroup {
     @ApiModelProperty(value = "Data report type, default is 0.\n"
             + " 0: report to DataProxy and respond when the DataProxy received data.\n"
             + " 1: report to DataProxy and respond after DataProxy sends data.\n"
-            + " 2: report to MQ and respond when the MQ received data.",
-            notes = "Current constraint is that all InLong Agents under one InlongGroup use the same type")
+            + " 2: report to MQ and respond when the MQ received data.", notes = "Current constraint is that all InLong Agents under one InlongGroup use the same type")
     private Integer dataReportType = 0;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")

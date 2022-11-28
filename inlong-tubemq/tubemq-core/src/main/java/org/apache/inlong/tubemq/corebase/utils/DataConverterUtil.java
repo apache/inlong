@@ -145,12 +145,13 @@ public class DataConverterUtil {
      * @param enableTLS   Whether to enable TLS
      */
     public static Map<Integer, BrokerInfo> convertBrokerInfo(List<String> strBrokerInfos,
-                                                             boolean enableTLS) {
+            boolean enableTLS) {
         Map<Integer, BrokerInfo> brokerInfoMap =
                 new ConcurrentHashMap<>();
         if (strBrokerInfos != null) {
             int brokerPort = enableTLS
-                    ? TBaseConstants.META_DEFAULT_BROKER_TLS_PORT : TBaseConstants.META_DEFAULT_BROKER_PORT;
+                    ? TBaseConstants.META_DEFAULT_BROKER_TLS_PORT
+                    : TBaseConstants.META_DEFAULT_BROKER_PORT;
             for (String info : strBrokerInfos) {
                 if (info != null) {
                     BrokerInfo brokerInfo =
@@ -204,7 +205,7 @@ public class DataConverterUtil {
      * @param transferedMessageList return a list of @link Message
      */
     public static List<Message> convertMessage(final String topicName,
-                                               List<ClientBroker.TransferedMessage> transferedMessageList) {
+            List<ClientBroker.TransferedMessage> transferedMessageList) {
         if (transferedMessageList == null || transferedMessageList.isEmpty()) {
             return new ArrayList<>();
         }

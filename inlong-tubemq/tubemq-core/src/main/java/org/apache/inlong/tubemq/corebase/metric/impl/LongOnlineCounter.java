@@ -28,6 +28,7 @@ import org.apache.inlong.tubemq.corebase.metric.Counter;
  *    2. this type of metric cannot be reset.
  */
 public class LongOnlineCounter extends BaseMetric implements Counter {
+
     // value counter
     private final LongAdder value = new LongAdder();
 

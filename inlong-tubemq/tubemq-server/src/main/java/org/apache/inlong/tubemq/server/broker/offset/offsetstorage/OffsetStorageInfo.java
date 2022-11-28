@@ -43,7 +43,7 @@ public class OffsetStorageInfo implements Serializable {
      * @param messageId      the message id
      */
     public OffsetStorageInfo(String topic, int brokerId, int partitionId,
-                             long offset, long messageId) {
+            long offset, long messageId) {
         this(topic, brokerId, partitionId, offset, messageId, true);
     }
 
@@ -58,7 +58,7 @@ public class OffsetStorageInfo implements Serializable {
      * @param firstCreate    whether is the first record creation
      */
     public OffsetStorageInfo(String topic, int brokerId, int partitionId,
-                             long offset, long messageId, boolean firstCreate) {
+            long offset, long messageId, boolean firstCreate) {
         this.topic = topic;
         this.brokerId = brokerId;
         this.partitionId = partitionId;

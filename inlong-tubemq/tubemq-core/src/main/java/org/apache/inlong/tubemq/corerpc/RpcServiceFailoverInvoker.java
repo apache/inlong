@@ -39,7 +39,7 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
     private int masterNodeCnt;
 
     public RpcServiceFailoverInvoker(ClientFactory clientFactory, Class serviceClass,
-                                     RpcConfig conf, MasterInfo masterInfo) {
+            RpcConfig conf, MasterInfo masterInfo) {
         super(clientFactory, serviceClass, conf);
         this.masterInfo = masterInfo;
         this.masterNodeCnt = masterInfo.getNodeHostPortList().size();
@@ -48,7 +48,7 @@ public class RpcServiceFailoverInvoker extends AbstractServiceInvoker {
 
     @Override
     public Object callMethod(String targetInterface, String method,
-                             Object arg, Callback callback) throws Throwable {
+            Object arg, Callback callback) throws Throwable {
         if (currentClient == null
                 || !currentClient.isReady()) {
             getNextClient(false);

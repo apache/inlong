@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
  * The sdk interceptor that use to filter messages do not in the time interval.
  */
 public class MsgTimeInterceptor implements Interceptor {
+
     private static final Logger logger = LoggerFactory.getLogger(MsgTimeInterceptor.class);
     private long startTime;
     private long stopTime;

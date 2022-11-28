@@ -94,7 +94,8 @@ public class FlinkOperation {
     private String getConnectorJarPattern(String dataSourceType) {
         ConnectorJarType connectorJarType = ConnectorJarType.getInstance(dataSourceType);
         return connectorJarType == null
-                ? ALL_CONNECTOR_JAR_PATTERN : String.format(CONNECTOR_JAR_PATTERN, connectorJarType.getConnectorType());
+                ? ALL_CONNECTOR_JAR_PATTERN
+                : String.format(CONNECTOR_JAR_PATTERN, connectorJarType.getConnectorType());
 
     }
 
@@ -266,8 +267,8 @@ public class FlinkOperation {
         String connectorDir = getConnectorDir(startPath);
         Set<String> connectorPaths = nodeTypes.stream().filter(
                 s -> s.endsWith(InlongConstants.LOAD) || s.endsWith(InlongConstants.EXTRACT)).map(
-                s -> FlinkUtils.listFiles(connectorDir, getConnectorJarPattern(s), -1)
-        ).flatMap(Collection::stream).collect(Collectors.toSet());
+                        s -> FlinkUtils.listFiles(connectorDir, getConnectorJarPattern(s), -1))
+                .flatMap(Collection::stream).collect(Collectors.toSet());
 
         if (CollectionUtils.isEmpty(connectorPaths)) {
             String message = String.format("no sort connectors found in %s", connectorDir);

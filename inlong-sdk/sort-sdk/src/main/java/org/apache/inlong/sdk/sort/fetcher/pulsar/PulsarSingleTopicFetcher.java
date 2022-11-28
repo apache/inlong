@@ -52,6 +52,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Pulsar single topic fetcher.
  */
 public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PulsarSingleTopicFetcher.class);
     private final ReentrantReadWriteLock mainLock = new ReentrantReadWriteLock(true);
     private final ConcurrentHashMap<String, MessageId> offsetCache = new ConcurrentHashMap<>();
@@ -279,7 +280,7 @@ public class PulsarSingleTopicFetcher extends SingleTopicFetcher {
                             String offsetKey = getOffset(msg.getMessageId());
                             offsetCache.put(offsetKey, msg.getMessageId());
 
-                            //deserialize
+                            // deserialize
                             List<InLongMessage> inLongMessages = deserializer
                                     .deserialize(context, topic, msg.getProperties(), msg.getData());
                             // intercept

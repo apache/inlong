@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class IpPortTest {
+
     private IpPort test = new IpPort("127.0.0.1", 80);
 
     @Test

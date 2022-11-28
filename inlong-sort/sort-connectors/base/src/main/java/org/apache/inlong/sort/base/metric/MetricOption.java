@@ -35,6 +35,7 @@ import static org.apache.inlong.sort.base.Constants.GROUP_ID;
 import static org.apache.inlong.sort.base.Constants.STREAM_ID;
 
 public class MetricOption implements Serializable {
+
     private static final long serialVersionUID = 1L;
     private static final String IP_OR_HOST_PORT = "^(.*):([0-9]|[1-9]\\d|[1-9]\\d{"
             + "2}|[1-9]\\d{"
@@ -154,6 +155,7 @@ public class MetricOption implements Serializable {
     }
 
     public static class Builder {
+
         private String inlongLabels;
         private String inlongAudit;
         private RegisteredMetric registeredMetric = RegisteredMetric.ALL;

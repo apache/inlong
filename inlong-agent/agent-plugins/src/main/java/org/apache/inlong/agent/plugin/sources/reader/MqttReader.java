@@ -113,6 +113,7 @@ public class MqttReader extends AbstractReader {
             synchronized (MqttReader.class) {
                 client = new MqttClient(serverURI, clientId, new MemoryPersistence());
                 client.setCallback(new MqttCallback() {
+
                     @Override
                     public void connectionLost(Throwable cause) {
                         LOGGER.info("the mqtt connection is lost, try to reconnect. jobId:{},serverURI:{},clientId:{}",

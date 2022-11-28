@@ -23,6 +23,7 @@ import java.util.List;
 
 @Data
 public class TopicOffsetRes {
+
     private String topicName;
     private List<OffsetPartitionRes> offsets;
     private int partCount;

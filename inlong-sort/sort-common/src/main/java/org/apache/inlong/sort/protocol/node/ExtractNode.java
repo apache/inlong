@@ -47,10 +47,7 @@ import java.util.Map;
 /**
  * extract node extracts data from external system
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
         @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),

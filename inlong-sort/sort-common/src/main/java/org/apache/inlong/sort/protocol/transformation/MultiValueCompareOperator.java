@@ -22,10 +22,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.transformation.operator.InOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.NotInOperator;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = InOperator.class, name = "in"),
         @JsonSubTypes.Type(value = NotInOperator.class, name = "notIn")

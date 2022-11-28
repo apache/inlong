@@ -27,6 +27,7 @@ import org.apache.flume.Event;
  * Event with retry time
  */
 public class EventStat {
+
     private final Event event;
     private int retryCnt;
     private String topic;

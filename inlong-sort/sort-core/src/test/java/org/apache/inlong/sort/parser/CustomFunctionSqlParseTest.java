@@ -64,8 +64,7 @@ public class CustomFunctionSqlParseTest extends AbstractTestBase {
     private Node buildMysqlLoadNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo())
-        );
+                new FieldInfo("age", new IntFormatInfo()));
         List<FieldRelation> relations = buildFieldRelationByCustomFunction();
         return new MySqlLoadNode("2", "mysql_output", fields, relations, null,
                 null, null, null, "jdbc:mysql://localhost:3306/inlong",
@@ -79,12 +78,11 @@ public class CustomFunctionSqlParseTest extends AbstractTestBase {
     private List<FieldRelation> buildFieldRelationByCustomFunction() {
         return Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new CustomFunction("`name`"),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new CustomFunction("ABS(age)"),
-                                new FieldInfo("age", new IntFormatInfo()))
-                );
+                                new FieldInfo("age", new IntFormatInfo())));
     }
 
     /**

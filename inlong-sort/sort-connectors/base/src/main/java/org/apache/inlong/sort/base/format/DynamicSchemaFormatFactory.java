@@ -33,8 +33,7 @@ public class DynamicSchemaFormatFactory {
     public static Map<String, Function<Map<String, String>, AbstractDynamicSchemaFormat>> SUPPORT_FORMATS =
             ImmutableMap.of(
                     "canal-json", props -> new CanalJsonDynamicSchemaFormat(props),
-                    "debezium-json", props -> new DebeziumJsonDynamicSchemaFormat(props)
-            );
+                    "debezium-json", props -> new DebeziumJsonDynamicSchemaFormat(props));
 
     /**
      * Get format from the format name, it only supports [canal-json|debezium-json] for now
@@ -47,7 +46,6 @@ public class DynamicSchemaFormatFactory {
         return getFormat(identifier, new HashMap<>());
     }
 
-
     /**
      * Get format from the format name, it only supports [canal-json|debezium-json] for now
      *
@@ -58,8 +56,8 @@ public class DynamicSchemaFormatFactory {
     public static AbstractDynamicSchemaFormat getFormat(String identifier, Map<String, String> properties) {
         Preconditions.checkNotNull(identifier, "The identifier is null");
         return Optional.ofNullable(SUPPORT_FORMATS.get(identifier))
-                .orElseThrow(() ->
-                        new UnsupportedOperationException("Unsupport dynamic schema format for:" + identifier))
+                .orElseThrow(
+                        () -> new UnsupportedOperationException("Unsupport dynamic schema format for:" + identifier))
                 .apply(properties);
     }
 }

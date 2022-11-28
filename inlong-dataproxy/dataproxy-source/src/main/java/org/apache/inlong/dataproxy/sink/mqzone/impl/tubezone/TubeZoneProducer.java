@@ -24,6 +24,7 @@ import org.apache.inlong.dataproxy.sink.mqzone.AbstractZoneSinkContext;
 import org.apache.inlong.dataproxy.sink.mqzone.ZoneClusterProducerCalculator;
 
 public class TubeZoneProducer extends AbstractZoneProducer implements ZoneClusterProducerCalculator {
+
     /**
      * Constructor
      * 
@@ -44,7 +45,7 @@ public class TubeZoneProducer extends AbstractZoneProducer implements ZoneCluste
 
     @Override
     public AbstractZoneClusterProducer calculator(String workerName, CacheClusterConfig config,
-                                                  AbstractZoneSinkContext context) {
-        return  new TubeClusterProducer(workerName, config, (TubeZoneSinkContext) context);
+            AbstractZoneSinkContext context) {
+        return new TubeClusterProducer(workerName, config, (TubeZoneSinkContext) context);
     }
 }

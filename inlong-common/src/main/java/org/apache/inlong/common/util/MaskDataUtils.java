@@ -59,7 +59,7 @@ public class MaskDataUtils {
             if (!maskedThisCharacter) {
                 while (pos < length
                         && !(Character.isWhitespace(stringBuilder.charAt(pos))
-                        || STOP_CHARACTERS.contains(stringBuilder.charAt(pos)))) {
+                                || STOP_CHARACTERS.contains(stringBuilder.charAt(pos)))) {
                     pos++;
                 }
             }
@@ -101,7 +101,7 @@ public class MaskDataUtils {
             int keywordStart = 0;
             int keywordLength = 0;
             String keywordUsed = null;
-            for (String keyword: KEYWORDS) {
+            for (String keyword : KEYWORDS) {
                 keywordStart = StringUtils.indexOfIgnoreCase(builder, keyword, charPos);
                 if (keywordStartAtRightPosition(keywordStart, charPos)) {
                     keywordLength = keyword.length();
@@ -115,7 +115,7 @@ public class MaskDataUtils {
             }
 
             int idxSeparator;
-            for (String separator: SEPARATORS) {
+            for (String separator : SEPARATORS) {
                 idxSeparator = StringUtils.indexOf(builder, separator, keywordStart + keywordLength);
                 if (idxSeparator == keywordStart + keywordLength) {
                     charPos = maskStartPosition(keywordStart, keywordLength, separator, builder);

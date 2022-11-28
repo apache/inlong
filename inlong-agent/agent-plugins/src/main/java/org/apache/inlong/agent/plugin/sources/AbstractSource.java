@@ -39,7 +39,7 @@ public abstract class AbstractSource implements Source {
 
     protected String inlongGroupId;
     protected String inlongStreamId;
-    //metric
+    // metric
     protected AgentMetricItemSet metricItemSet;
     protected AgentMetricItem sourceMetric;
     protected String metricName;
@@ -49,7 +49,7 @@ public abstract class AbstractSource implements Source {
     protected void init(JobProfile conf) {
         inlongGroupId = conf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
         inlongStreamId = conf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
-        //register metric
+        // register metric
         this.dimensions = new HashMap<>();
         dimensions.put(KEY_PLUGIN_ID, this.getClass().getSimpleName());
         dimensions.put(KEY_INLONG_GROUP_ID, inlongGroupId);

@@ -64,7 +64,6 @@ public abstract class AbstractZoneSinkContext {
     protected final DataProxyMetricItemSet metricItemSet;
     protected Timer reloadTimer;
 
-
     public static final String KEY_NODE_ID = "nodeId";
     public static final String PREFIX_PRODUCER = "producer.";
     public static final String KEY_COMPRESS_TYPE = "compressType";
@@ -82,7 +81,7 @@ public abstract class AbstractZoneSinkContext {
      * Constructor
      */
     public AbstractZoneSinkContext(String sinkName, Context context, Channel channel,
-                                   ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
+            ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
         this.sinkName = sinkName;
         this.sinkContext = context;
         this.channel = channel;

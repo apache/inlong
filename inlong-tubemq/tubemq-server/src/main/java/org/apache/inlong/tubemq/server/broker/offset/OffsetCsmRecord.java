@@ -24,6 +24,7 @@ import java.util.Map;
  * The offset snapshot of the consumer group on the partition.
  */
 public class OffsetCsmRecord {
+
     protected int storeId;
     // store min index offset
     protected long offsetMin = 0L;
@@ -65,7 +66,7 @@ public class OffsetCsmRecord {
     }
 
     public void addStoreInfo(long offsetMin, long offsetMax,
-                             long dataMin, long dataMax) {
+            long dataMin, long dataMax) {
         this.offsetMin = offsetMin;
         this.offsetMax = offsetMax;
         this.dataMin = dataMin;
