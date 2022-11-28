@@ -182,7 +182,7 @@ public final class Constants {
                     .withDescription("Because spark do not support iceberg data type: `timestamp without time zone` and"
                             + "`time`, so type conversions must be mapped to types supported by spark.");
 
-    //========================================= dirty configuration =========================================
+    // ========================================= dirty configuration =========================================
     public static final String SINK_DIRTY_PREFIX = "sink.dirty.";
     public static final String DIRTY_PREFIX = "dirty.";
 

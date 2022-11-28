@@ -89,7 +89,7 @@ public class FormatUtilsTest {
     public void testJsonFormat() throws JsonProcessingException {
         RowDataToJsonConverter converter = new RowDataToJsonConverters(TimestampFormat.SQL,
                 MapNullKeyMode.DROP, null)
-                .createConverter(schema.toPhysicalRowDataType().getLogicalType());
+                        .createConverter(schema.toPhysicalRowDataType().getLogicalType());
         String expectedStr = "{\"database\":\"inlong\",\"table\":\"student\",\"id\":1,\"name\":\"leo\",\"age\":18}";
         JsonNode expected = mapper.readValue(expectedStr, JsonNode.class);
         String actual = FormatUtils.jsonFormat(jsonNode, labelMap);
