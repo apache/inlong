@@ -25,10 +25,10 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Gr
 public interface GroupResCtrlMapper extends AbstractMapper {
 
     boolean addGroupResCtrlConf(GroupResCtrlEntity entity,
-                                StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean updGroupResCtrlConf(GroupResCtrlEntity entity,
-                                StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     boolean delGroupResCtrlConf(String groupName, StringBuilder strBuff, ProcessResult result);
 
@@ -48,5 +48,5 @@ public interface GroupResCtrlMapper extends AbstractMapper {
      * @return  group resource control info by groupName's key
      */
     Map<String, GroupResCtrlEntity> getGroupResCtrlConf(Set<String> groupNameSet,
-                                                        GroupResCtrlEntity qryEntity);
+            GroupResCtrlEntity qryEntity);
 }

@@ -183,7 +183,8 @@ public class AuditServiceImpl implements AuditService {
 
     private List<String> getAuditIds(String groupId, String streamId) {
         List<String> auditIds = LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN)
-                ? auditIdListForAdmin : auditIdListForUser;
+                ? auditIdListForAdmin
+                : auditIdListForUser;
 
         // auto push source has no agent, return data-proxy audit data instead of agent
         List<StreamSourceEntity> sourceList = sourceEntityMapper.selectByRelatedId(groupId, streamId, null);

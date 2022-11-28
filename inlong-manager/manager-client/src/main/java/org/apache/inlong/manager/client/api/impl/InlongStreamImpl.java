@@ -102,16 +102,15 @@ public class InlongStreamImpl implements InlongStream {
         if (CollectionUtils.isNotEmpty(streamFields)) {
             this.streamFields = streamFields.stream()
                     .map(fieldInfo -> new StreamField(
-                                    fieldInfo.getId(),
-                                    fieldInfo.getFieldType(),
-                                    fieldInfo.getFieldName(),
-                                    fieldInfo.getFieldComment(),
-                                    fieldInfo.getFieldValue(),
-                                    fieldInfo.getIsMetaField(),
-                                    fieldInfo.getMetaFieldName(),
-                                    fieldInfo.getOriginNodeName()
-                            )
-                    ).collect(Collectors.toList());
+                            fieldInfo.getId(),
+                            fieldInfo.getFieldType(),
+                            fieldInfo.getFieldName(),
+                            fieldInfo.getFieldComment(),
+                            fieldInfo.getFieldValue(),
+                            fieldInfo.getIsMetaField(),
+                            fieldInfo.getMetaFieldName(),
+                            fieldInfo.getOriginNodeName()))
+                    .collect(Collectors.toList());
         }
 
         List<? extends StreamSink> sinkInfos = streamInfo.getSinkList();
@@ -130,8 +129,7 @@ public class InlongStreamImpl implements InlongStream {
                             (source1, source2) -> {
                                 throw new RuntimeException(String.format("duplicate sourceName: %s in streamId: %s",
                                         source1.getSourceName(), this.inlongStreamId));
-                            }
-                    ));
+                            }));
         }
     }
 

@@ -27,11 +27,11 @@ public interface CertificateMasterHandler {
     CertifiedResult identityValidBrokerInfo(ClientMaster.MasterCertificateInfo authenticInfo);
 
     CertifiedResult identityValidUserInfo(ClientMaster.MasterCertificateInfo authenticInfo,
-                                          boolean isProduce);
+            boolean isProduce);
 
     CertifiedResult validProducerAuthorizeInfo(String userName, Set<String> topics, String clientIp);
 
     CertifiedResult validConsumerAuthorizeInfo(String userName, String groupName, Set<String> topics,
-                                               Map<String, TreeSet<String>> topicConds, String clientIp);
+            Map<String, TreeSet<String>> topicConds, String clientIp);
 
 }

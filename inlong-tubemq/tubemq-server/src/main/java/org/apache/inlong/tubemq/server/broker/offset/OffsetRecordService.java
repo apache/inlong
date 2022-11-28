@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class OffsetRecordService extends AbstractDaemonService {
+
     private static final Logger logger =
             LoggerFactory.getLogger(OffsetRecordService.class);
     private final TubeBroker broker;

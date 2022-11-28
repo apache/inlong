@@ -301,8 +301,8 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
         // use a short-lived consumer to fetch the offsets;
         // this is ok because this is a one-time operation that happens only on startup
         try (KafkaConsumer<?, ?> consumer = new KafkaConsumer(properties)) {
-            for (Map.Entry<TopicPartition, OffsetAndTimestamp> partitionToOffset :
-                    consumer.offsetsForTimes(partitionOffsetsRequest).entrySet()) {
+            for (Map.Entry<TopicPartition, OffsetAndTimestamp> partitionToOffset : consumer
+                    .offsetsForTimes(partitionOffsetsRequest).entrySet()) {
 
                 result.put(
                         new KafkaTopicPartition(
@@ -320,8 +320,7 @@ public class FlinkKafkaConsumer<T> extends FlinkKafkaConsumerBase<T> {
     protected boolean getIsAutoCommitEnabled() {
         return getBoolean(properties, ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true)
                 && PropertiesUtil.getLong(
-                properties, ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 5000)
-                > 0;
+                        properties, ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, 5000) > 0;
     }
 
     /**

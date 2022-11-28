@@ -88,10 +88,10 @@ public class FileSourceOperator extends AbstractSourceOperator {
 
         List<StreamSourceEntity> subSourceList = sourceMapper.selectByTemplateId(entity.getId());
         source.setSubSourceList(subSourceList.stream().map(subEntity -> SubSourceDTO.builder()
-                        .id(subEntity.getId())
-                        .templateId(entity.getId())
-                        .agentIp(subEntity.getAgentIp())
-                        .status(subEntity.getStatus()).build())
+                .id(subEntity.getId())
+                .templateId(entity.getId())
+                .agentIp(subEntity.getAgentIp())
+                .status(subEntity.getStatus()).build())
                 .collect(Collectors.toList()));
         return source;
     }

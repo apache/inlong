@@ -41,7 +41,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FailoverChannelProcessor
-        extends ChannelProcessor {
+        extends
+            ChannelProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FailoverChannelProcessor.class);
 
@@ -134,7 +135,7 @@ public class FailoverChannelProcessor
 
             for (Channel ch : reqChannels) {
                 List<Event> eventQueue = reqChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//reqChannelQueue
+                        .computeIfAbsent(ch, k -> new ArrayList<Event>());// reqChannelQueue
                 eventQueue.add(event);
             }
 
@@ -142,7 +143,7 @@ public class FailoverChannelProcessor
 
             for (Channel ch : optChannels) {
                 List<Event> eventQueue = optChannelQueue
-                        .computeIfAbsent(ch, k -> new ArrayList<Event>());//optChannelQueue
+                        .computeIfAbsent(ch, k -> new ArrayList<Event>());// optChannelQueue
 
                 eventQueue.add(event);
             }
@@ -285,7 +286,8 @@ public class FailoverChannelProcessor
                     } else {
                         throw new ChannelException(
                                 "FailoverChannelProcessor Unable to put event on "
-                                        + "optionalChannels: " + optChannel, t);
+                                        + "optionalChannels: " + optChannel,
+                                t);
                     }
                 } finally {
                     if (tx != null) {

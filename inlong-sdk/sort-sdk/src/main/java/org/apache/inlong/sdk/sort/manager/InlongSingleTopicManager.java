@@ -269,16 +269,16 @@ public class InlongSingleTopicManager extends TopicManager {
 
         List<String> oldTopics = new ArrayList<>(fetchers.keySet());
         LOGGER.debug("oldTopics :{}", Arrays.toString(oldTopics.toArray()));
-        //get need be offline topics
+        // get need be offline topics
         oldTopics.removeAll(newTopics);
         LOGGER.debug("removed oldTopics: {}", Arrays.toString(oldTopics.toArray()));
 
-        //get new topics
+        // get new topics
         newTopics.removeAll(new ArrayList<>(fetchers.keySet()));
         LOGGER.debug("really new topics :{}", Arrays.toString(newTopics.toArray()));
-        //offline need be offlined topics
+        // offline need be offlined topics
         offlineRemovedTopic(oldTopics);
-        //online new topics
+        // online new topics
         onlineNewTopic(assignedTopics, newTopics);
         // update remain topics
         updateRemainTopics(assignedTopics);
@@ -386,7 +386,7 @@ public class InlongSingleTopicManager extends TopicManager {
         if (!tubeFactories.containsKey(inLongTopic.getInLongCluster().getClusterId())) {
             if (inLongTopic.getInLongCluster().getBootstraps() != null) {
                 try {
-                    //create MessageSessionFactory
+                    // create MessageSessionFactory
                     TubeClientConfig tubeConfig = new TubeClientConfig(inLongTopic.getInLongCluster().getBootstraps());
                     MessageSessionFactory messageSessionFactory = new TubeSingleSessionFactory(tubeConfig);
                     TubeConsumerCreator tubeConsumerCreator = new TubeConsumerCreator(messageSessionFactory,
@@ -451,7 +451,7 @@ public class InlongSingleTopicManager extends TopicManager {
                 logger.warn("assign is stoped");
                 return;
             }
-            //get sortTask conf from manager
+            // get sortTask conf from manager
             if (queryConsumeConfig != null) {
                 long start = System.currentTimeMillis();
                 context.getDefaultStateCounter().addRequestManagerTimes(1);

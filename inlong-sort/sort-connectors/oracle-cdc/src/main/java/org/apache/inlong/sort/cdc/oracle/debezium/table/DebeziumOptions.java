@@ -23,6 +23,7 @@ import java.util.Properties;
 
 /** Option utils for Debezium options. */
 public class DebeziumOptions {
+
     public static final String DEBEZIUM_OPTIONS_PREFIX = "debezium.";
 
     public static Properties getDebeziumProperties(Map<String, String> properties) {

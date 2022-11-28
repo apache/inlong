@@ -66,7 +66,7 @@ abstract class BaseDeltaTaskWriter extends BaseTaskWriter<RowData> {
         this.deleteSchema = TypeUtil.select(schema, Sets.newHashSet(equalityFieldIds));
         this.wrapper = new RowDataWrapper(flinkSchema, schema.asStruct());
         this.upsert = upsert;
-        this.keyWrapper =  new RowDataWrapper(FlinkSchemaUtil.convert(deleteSchema), deleteSchema.asStruct());
+        this.keyWrapper = new RowDataWrapper(FlinkSchemaUtil.convert(deleteSchema), deleteSchema.asStruct());
         this.keyProjection = RowDataProjection.create(schema, deleteSchema);
     }
 
@@ -91,7 +91,7 @@ abstract class BaseDeltaTaskWriter extends BaseTaskWriter<RowData> {
 
             case UPDATE_BEFORE:
                 if (upsert) {
-                    break;  // UPDATE_BEFORE is not necessary for UPDATE, we do nothing to prevent delete one row twice
+                    break; // UPDATE_BEFORE is not necessary for UPDATE, we do nothing to prevent delete one row twice
                 }
                 writer.delete(row);
                 break;
@@ -105,6 +105,7 @@ abstract class BaseDeltaTaskWriter extends BaseTaskWriter<RowData> {
     }
 
     protected class RowDataDeltaWriter extends BaseEqualityDeltaWriter {
+
         RowDataDeltaWriter(PartitionKey partition) {
             super(partition, schema, deleteSchema);
         }

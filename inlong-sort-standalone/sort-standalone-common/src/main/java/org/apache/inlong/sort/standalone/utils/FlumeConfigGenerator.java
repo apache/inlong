@@ -34,8 +34,8 @@ public class FlumeConfigGenerator {
     public static final String KEY_SORT_SINK_TYPE = "sortSink.type";
     public static final String KEY_SORT_SOURCE_TYPE = "sortSource.type";
     public static final String KEY_SORT_INTERCEPTOR_TYPE = "interceptor.type";
-    public static final String DEFAULT_SORT_INTERCEPTOR_TYPE 
-        = "org.apache.inlong.sort.standalone.rollback.TimeBasedFilterInterceptor$Builder";
+    public static final String DEFAULT_SORT_INTERCEPTOR_TYPE =
+            "org.apache.inlong.sort.standalone.rollback.TimeBasedFilterInterceptor$Builder";
     public static final String KEY_ROLLBACK_START_TIME = "rollback.startTime";
     public static final String KEY_ROLLBACK_STOP_TIME = "rollback.stopTime";
 

@@ -73,8 +73,7 @@ public class OperationLogPool {
     @PostConstruct
     public void init() {
         IntStream.range(0, THREAD_NUM).forEach(
-                i -> EXECUTOR_SERVICE.submit(this::saveOperationLog)
-        );
+                i -> EXECUTOR_SERVICE.submit(this::saveOperationLog));
     }
 
     private void saveOperationLog() {

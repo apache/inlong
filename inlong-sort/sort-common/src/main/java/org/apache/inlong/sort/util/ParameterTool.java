@@ -175,7 +175,7 @@ public class ParameterTool implements Serializable, Cloneable {
         return fromMap((Map) System.getProperties());
     }
 
-    // ------------------ ParameterUtil  ------------------------
+    // ------------------ ParameterUtil ------------------------
     protected final Map<String, String> data;
 
     // data which is only used on the client and does not need to be transmitted

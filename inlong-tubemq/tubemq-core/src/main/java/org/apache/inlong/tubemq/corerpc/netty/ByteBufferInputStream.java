@@ -28,6 +28,7 @@ import java.util.List;
  * Copied from <a href="http://avro.apache.org">Apache Avro Project</a>
  */
 public class ByteBufferInputStream extends InputStream {
+
     private final List<ByteBuffer> buffers;
     private int current;
 

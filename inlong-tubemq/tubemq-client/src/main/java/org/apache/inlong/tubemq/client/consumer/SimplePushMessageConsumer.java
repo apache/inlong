@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * An implementation of PushMessageConsumer.
  */
 public class SimplePushMessageConsumer implements PushMessageConsumer {
+
     private static final Logger logger = LoggerFactory.getLogger(SimplePushMessageConsumer.class);
     private static final int MAX_FAILURE_LOG_TIMES = 10;
     private final MessageFetchManager fetchManager;
@@ -44,7 +45,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
     private CountDownLatch consumeSync = new CountDownLatch(0);
 
     public SimplePushMessageConsumer(final InnerSessionFactory messageSessionFactory,
-                                     final ConsumerConfig consumerConfig) throws TubeClientException {
+            final ConsumerConfig consumerConfig) throws TubeClientException {
         baseConsumer =
                 new BaseMessageConsumer(messageSessionFactory, consumerConfig, false);
         this.fetchManager =
@@ -63,8 +64,8 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
 
     @Override
     public PushMessageConsumer subscribe(String topic,
-                                         TreeSet<String> filterConds,
-                                         MessageListener messageListener) throws TubeClientException {
+            TreeSet<String> filterConds,
+            MessageListener messageListener) throws TubeClientException {
         baseConsumer.subscribe(topic, filterConds, messageListener);
         return this;
     }
@@ -76,9 +77,9 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
 
     @Override
     public void completeSubscribe(final String sessionKey,
-                                  final int sourceCount,
-                                  final boolean isSelectBig,
-                                  final Map<String, Long> partOffsetMap) throws TubeClientException {
+            final int sourceCount,
+            final boolean isSelectBig,
+            final Map<String, Long> partOffsetMap) throws TubeClientException {
         baseConsumer.completeSubscribe(sessionKey, sourceCount, isSelectBig, partOffsetMap);
     }
 
@@ -228,12 +229,13 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
     }
 
     private boolean notifyListener(final FetchContext request,
-                                   final TopicProcessor topicProcessor,
-                                   final StringBuilder sBuilder) throws Exception {
+            final TopicProcessor topicProcessor,
+            final StringBuilder sBuilder) throws Exception {
         final MessageListener listener = topicProcessor.getMessageListener();
         if (listener.getExecutor() != null) {
             try {
                 listener.getExecutor().execute(new Runnable() {
+
                     @Override
                     public void run() {
                         receiveMessages(request, topicProcessor);
@@ -255,7 +257,7 @@ public class SimplePushMessageConsumer implements PushMessageConsumer {
     }
 
     private void receiveMessages(final FetchContext request,
-                                 final TopicProcessor topicProcessor) {
+            final TopicProcessor topicProcessor) {
         if (request != null && request.getMessageList() != null) {
             MessageListener msgListener = topicProcessor.getMessageListener();
             try {

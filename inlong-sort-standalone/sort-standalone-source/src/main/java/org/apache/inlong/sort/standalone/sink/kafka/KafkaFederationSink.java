@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KafkaFederationSink extends AbstractSink implements Configurable {
+
     private static final Logger LOG = InlongLoggerFactory.getLogger(KafkaFederationSink.class);
     private Context parentContext;
     private KafkaFederationSinkContext context;

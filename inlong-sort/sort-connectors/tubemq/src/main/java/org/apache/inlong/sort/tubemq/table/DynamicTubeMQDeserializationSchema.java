@@ -95,7 +95,7 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
         DynamicTubeMQDeserializationSchema that = (DynamicTubeMQDeserializationSchema) o;
         return ignoreErrors == that.ignoreErrors
                 && Objects.equal(Arrays.stream(metadataConverters).collect(Collectors.toList()),
-                Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
+                        Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
                 && Objects.equal(deserializationSchema, that.deserializationSchema)
                 && Objects.equal(producedTypeInfo, that.producedTypeInfo);
     }
@@ -104,7 +104,7 @@ public class DynamicTubeMQDeserializationSchema implements DeserializationSchema
     public int hashCode() {
         return Objects.hashCode(deserializationSchema, metadataConverters, producedTypeInfo, ignoreErrors);
     }
-    
+
     /**
      * add metadata column
      */

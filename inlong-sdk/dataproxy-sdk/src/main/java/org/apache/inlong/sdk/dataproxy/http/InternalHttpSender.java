@@ -54,6 +54,7 @@ import org.slf4j.LoggerFactory;
  * internal http sender
  */
 public class InternalHttpSender {
+
     private static final Logger logger = LoggerFactory.getLogger(InternalHttpSender.class);
 
     private final ProxyClientConfig proxyClientConfig;
@@ -67,8 +68,8 @@ public class InternalHttpSender {
     private boolean bShutDown = false;
 
     public InternalHttpSender(ProxyClientConfig proxyClientConfig,
-                              ConcurrentHashSet<HostInfo> hostList,
-                              LinkedBlockingQueue<HttpMessage> messageCache) {
+            ConcurrentHashSet<HostInfo> hostList,
+            LinkedBlockingQueue<HttpMessage> messageCache) {
         this.proxyClientConfig = proxyClientConfig;
         this.hostList = hostList;
         this.messageCache = messageCache;
@@ -91,7 +92,7 @@ public class InternalHttpSender {
      * @return
      */
     private ArrayList<BasicNameValuePair> getHeaders(List<String> bodies,
-                                                     String groupId, String streamId, long dt) {
+            String groupId, String streamId, long dt) {
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
         params.add(new BasicNameValuePair("groupId", groupId));
         params.add(new BasicNameValuePair("streamId", streamId));
@@ -126,6 +127,7 @@ public class InternalHttpSender {
      * check cache runner
      */
     private class WorkerRunner implements Runnable {
+
         @Override
         public void run() {
             // if not shutdown or queue is not empty
@@ -177,7 +179,7 @@ public class InternalHttpSender {
      * @throws Exception
      */
     private SendResult sendByHttp(List<String> bodies, String groupId, String streamId, long dt,
-                                  long timeout, TimeUnit timeUnit, HostInfo hostInfo) throws Exception {
+            long timeout, TimeUnit timeUnit, HostInfo hostInfo) throws Exception {
         HttpPost httpPost = null;
         CloseableHttpResponse response = null;
         try {
@@ -241,7 +243,7 @@ public class InternalHttpSender {
      * @return
      */
     public SendResult sendMessageWithHostInfo(List<String> bodies, String groupId, String streamId, long dt,
-                                              long timeout, TimeUnit timeUnit) {
+            long timeout, TimeUnit timeUnit) {
 
         List<HostInfo> randomHostList = getRandomHostInfo();
         Exception tmpException = null;

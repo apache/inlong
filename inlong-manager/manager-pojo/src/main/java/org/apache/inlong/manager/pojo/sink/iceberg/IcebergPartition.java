@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
  * Iceberg partition type
  */
 public enum IcebergPartition {
+
     IDENTITY,
     BUCKET,
     TRUNCATE,

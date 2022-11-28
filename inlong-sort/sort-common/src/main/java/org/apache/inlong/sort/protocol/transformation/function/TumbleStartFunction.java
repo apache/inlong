@@ -32,7 +32,6 @@ import org.apache.inlong.sort.protocol.transformation.TimeWindowFunction;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
  * identifies start position for a tumble function
  */

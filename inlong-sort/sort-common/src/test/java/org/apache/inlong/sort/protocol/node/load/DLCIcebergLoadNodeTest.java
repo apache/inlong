@@ -32,6 +32,7 @@ import java.util.Map;
  * test for dlc load node
  */
 public class DLCIcebergLoadNodeTest extends SerializeBaseTest<DLCIcebergLoadNode> {
+
     @Override
     public DLCIcebergLoadNode getTestObject() {
         Map<String, String> properties = new HashMap<>();

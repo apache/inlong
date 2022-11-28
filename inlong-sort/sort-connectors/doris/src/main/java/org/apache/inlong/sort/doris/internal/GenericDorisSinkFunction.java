@@ -38,7 +38,8 @@ import java.io.IOException;
  */
 @Internal
 public class GenericDorisSinkFunction<T> extends RichSinkFunction<T>
-        implements CheckpointedFunction {
+        implements
+            CheckpointedFunction {
 
     private final DorisDynamicSchemaOutputFormat<T> outputFormat;
 

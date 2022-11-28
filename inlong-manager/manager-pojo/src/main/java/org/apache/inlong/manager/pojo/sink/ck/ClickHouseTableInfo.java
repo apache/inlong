@@ -26,6 +26,7 @@ import java.util.List;
  */
 @Data
 public class ClickHouseTableInfo {
+
     // Basic attributes
     private String dbName;
     private String tableName;

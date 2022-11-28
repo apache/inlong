@@ -40,7 +40,6 @@ import java.util.List;
 
 public class OracleResourceOperator implements SinkResourceOperator {
 
-
     private static final Logger LOG = LoggerFactory.getLogger(OracleResourceOperator.class);
 
     @Autowired

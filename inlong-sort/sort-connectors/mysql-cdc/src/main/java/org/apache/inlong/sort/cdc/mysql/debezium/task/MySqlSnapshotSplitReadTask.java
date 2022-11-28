@@ -174,7 +174,8 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     }
 
     private static class MySqlSnapshotContext
-            extends RelationalSnapshotChangeEventSource.RelationalSnapshotContext {
+            extends
+                RelationalSnapshotChangeEventSource.RelationalSnapshotContext {
 
         public MySqlSnapshotContext() throws SQLException {
             super("");
@@ -216,15 +217,15 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
                 selectSql);
 
         try (PreparedStatement selectStatement =
-                        StatementUtils.readTableSplitDataStatement(
-                                jdbcConnection,
-                                selectSql,
-                                snapshotSplit.getSplitStart() == null,
-                                snapshotSplit.getSplitEnd() == null,
-                                snapshotSplit.getSplitStart(),
-                                snapshotSplit.getSplitEnd(),
-                                snapshotSplit.getSplitKeyType().getFieldCount(),
-                                connectorConfig.getQueryFetchSize());
+                StatementUtils.readTableSplitDataStatement(
+                        jdbcConnection,
+                        selectSql,
+                        snapshotSplit.getSplitStart() == null,
+                        snapshotSplit.getSplitEnd() == null,
+                        snapshotSplit.getSplitStart(),
+                        snapshotSplit.getSplitEnd(),
+                        snapshotSplit.getSplitKeyType().getFieldCount(),
+                        connectorConfig.getQueryFetchSize());
                 ResultSet rs = selectStatement.executeQuery()) {
 
             ColumnUtils.ColumnArray columnArray = ColumnUtils.toArray(rs, table);
@@ -352,9 +353,9 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
 
         try {
             return MySqlValueConverters.containsZeroValuesInDatePart(
-                            (new String(b.getBytes(1, (int) (b.length())), "UTF-8")), column, table)
-                    ? null
-                    : rs.getTimestamp(fieldNo, Calendar.getInstance());
+                    (new String(b.getBytes(1, (int) (b.length())), "UTF-8")), column, table)
+                            ? null
+                            : rs.getTimestamp(fieldNo, Calendar.getInstance());
         } catch (UnsupportedEncodingException e) {
             LOG.error("Could not read MySQL TIME value as UTF-8");
             throw new RuntimeException(e);

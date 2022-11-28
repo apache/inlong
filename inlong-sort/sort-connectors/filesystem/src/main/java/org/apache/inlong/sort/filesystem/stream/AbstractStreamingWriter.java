@@ -51,7 +51,9 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
  * file and bucket information to downstream.
  */
 public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOperator<OUT>
-        implements OneInputStreamOperator<IN, OUT>, BoundedOneInput {
+        implements
+            OneInputStreamOperator<IN, OUT>,
+            BoundedOneInput {
 
     private static final long serialVersionUID = 1L;
 
@@ -59,9 +61,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
 
     private final long bucketCheckInterval;
 
-    private final StreamingFileSink.BucketsBuilder<
-            IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
-            bucketsBuilder;
+    private final StreamingFileSink.BucketsBuilder<IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>> bucketsBuilder;
 
     private final String inlongMetric;
     private final String inlongAudit;
@@ -82,9 +82,8 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
 
     public AbstractStreamingWriter(
             long bucketCheckInterval,
-            StreamingFileSink.BucketsBuilder<
-                    IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
-                    bucketsBuilder, String inlongMetric, String inlongAudit) {
+            StreamingFileSink.BucketsBuilder<IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>> bucketsBuilder,
+            String inlongMetric, String inlongAudit) {
         this.bucketCheckInterval = bucketCheckInterval;
         this.bucketsBuilder = bucketsBuilder;
         this.inlongMetric = inlongMetric;
@@ -168,7 +167,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,

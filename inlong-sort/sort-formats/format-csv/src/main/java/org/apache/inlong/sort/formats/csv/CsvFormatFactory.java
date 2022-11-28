@@ -48,14 +48,15 @@ import org.apache.inlong.sort.formats.common.RowFormatInfo;
  * serializer and deserializer.
  */
 public final class CsvFormatFactory
-        extends TableFormatFactoryBase<Row>
+        extends
+            TableFormatFactoryBase<Row>
         implements
-        DeserializationSchemaFactory<Row>,
-                SerializationSchemaFactory<Row>,
-                ProjectedDeserializationSchemaFactory,
-                ProjectedSerializationSchemaFactory,
-                TableFormatDeserializerFactory,
-                TableFormatSerializerFactory {
+            DeserializationSchemaFactory<Row>,
+            SerializationSchemaFactory<Row>,
+            ProjectedDeserializationSchemaFactory,
+            ProjectedSerializationSchemaFactory,
+            TableFormatDeserializerFactory,
+            TableFormatSerializerFactory {
 
     public CsvFormatFactory() {
         super(Csv.FORMAT_TYPE_VALUE, 1, true);
@@ -76,8 +77,7 @@ public final class CsvFormatFactory
 
     @Override
     public CsvDeserializationSchema createDeserializationSchema(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -89,8 +89,7 @@ public final class CsvFormatFactory
 
     @Override
     public CsvSerializationSchema createSerializationSchema(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -103,8 +102,7 @@ public final class CsvFormatFactory
     @Override
     public DeserializationSchema<Row> createProjectedDeserializationSchema(
             Map<String, String> properties,
-            int[] fields
-    ) {
+            int[] fields) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -119,8 +117,7 @@ public final class CsvFormatFactory
     @Override
     public SerializationSchema<Row> createProjectedSerializationSchema(
             Map<String, String> properties,
-            int[] fields
-    ) {
+            int[] fields) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -134,8 +131,7 @@ public final class CsvFormatFactory
 
     @Override
     public TableFormatDeserializer createFormatDeserializer(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -155,8 +151,7 @@ public final class CsvFormatFactory
 
     @Override
     public TableFormatSerializer createFormatSerializer(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         final DescriptorProperties descriptorProperties =
                 getValidatedProperties(properties);
 
@@ -175,8 +170,7 @@ public final class CsvFormatFactory
     }
 
     public static DescriptorProperties getValidatedProperties(
-            Map<String, String> properties
-    ) {
+            Map<String, String> properties) {
         DescriptorProperties descriptorProperties = new DescriptorProperties(true);
         descriptorProperties.putProperties(properties);
 
@@ -188,8 +182,7 @@ public final class CsvFormatFactory
 
     private static CsvDeserializationSchema buildDeserializationSchema(
             DescriptorProperties descriptorProperties,
-            RowFormatInfo rowFormatInfo
-    ) {
+            RowFormatInfo rowFormatInfo) {
         for (FormatInfo formatInfo : rowFormatInfo.getFieldFormatInfos()) {
             if (!(formatInfo instanceof BasicFormatInfo)) {
                 throw new ValidationException("Currently only basic formats " + "are supported in csv formats.");
@@ -219,8 +212,7 @@ public final class CsvFormatFactory
 
     private static CsvSerializationSchema buildSerializationSchema(
             DescriptorProperties descriptorProperties,
-            RowFormatInfo rowFormatInfo
-    ) {
+            RowFormatInfo rowFormatInfo) {
         for (FormatInfo formatInfo : rowFormatInfo.getFieldFormatInfos()) {
             if (!(formatInfo instanceof BasicFormatInfo)) {
                 throw new ValidationException("Currently only basic formats " + "are supported in csv formats.");

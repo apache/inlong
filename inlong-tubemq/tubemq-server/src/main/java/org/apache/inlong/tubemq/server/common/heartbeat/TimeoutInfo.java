@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.common.heartbeat;
 
 public class TimeoutInfo {
+
     private long timeoutTime = 0L;
     private String secondKey = "";
     private String thirdKey = "";

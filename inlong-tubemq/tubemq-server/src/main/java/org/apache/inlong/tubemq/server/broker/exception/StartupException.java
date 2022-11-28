@@ -21,6 +21,7 @@ package org.apache.inlong.tubemq.server.broker.exception;
  * Service startup occur error throw this Exception. eg: startup config parameters illegal error.
  */
 public class StartupException extends RuntimeException {
+
     static final long serialVersionUID = -1L;
 
     public StartupException() {

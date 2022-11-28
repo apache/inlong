@@ -86,7 +86,7 @@ public class GroupResCtrlEntityTest {
         EnableStatus resChkEnable = EnableStatus.STATUS_ENABLE;
         int newAllowedB2CRate = 5;
         int newQryPriorityId = 2;
-        EnableStatus newFlowCtrlEnable =  EnableStatus.STATUS_DISABLE;
+        EnableStatus newFlowCtrlEnable = EnableStatus.STATUS_DISABLE;
         int newFlowRuleCnt = 2;
         String newFlowCtrlRuleInfo = "[{},{}]";
         GroupResCtrlEntity resEntry4 = resEntry3.clone();

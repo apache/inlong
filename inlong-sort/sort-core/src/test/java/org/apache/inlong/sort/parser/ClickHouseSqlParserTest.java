@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
  * Test for  {@link ClickHouseLoadNode} and {@link ClickHouseDialect}
  */
 public class ClickHouseSqlParserTest {
+
     public MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()));
@@ -65,7 +66,7 @@ public class ClickHouseSqlParserTest {
                 new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())));
 

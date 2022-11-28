@@ -67,8 +67,7 @@ public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new StringFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
-                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME)
-        );
+                new MetaFieldInfo("proc_time", MetaField.PROCESS_TIME));
         Map<String, String> map = new HashMap<>();
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, map, "id",
@@ -97,11 +96,10 @@ public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("nickname", new StringFormatInfo()),
                 new FieldInfo("rank", new LongFormatInfo()),
-                new FieldInfo("score", new DoubleFormatInfo())
-        );
+                new FieldInfo("score", new DoubleFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", "1", new StringFormatInfo()),
-                                new FieldInfo("id", new StringFormatInfo())),
+                        new FieldInfo("id", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("name", "1", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", "1", new IntFormatInfo()),
@@ -113,8 +111,7 @@ public class RedisTemporalJoinRelationSqlParseTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("v", "4", new DoubleFormatInfo()),
                                 new FieldInfo("score", new DoubleFormatInfo())),
                         new FieldRelation(new FieldInfo("v", "5", new StringFormatInfo()),
-                                new FieldInfo("address", new StringFormatInfo()))
-                );
+                                new FieldInfo("address", new StringFormatInfo())));
         return new MySqlLoadNode("6", "mysql_output", fields, relations, null,
                 null, null, null, "jdbc:mysql://localhost:3306/inlong",
                 "inlong", "inlong", "mysql_output", "id");

@@ -18,6 +18,7 @@
 package org.apache.inlong.dataproxy.utils;
 
 public enum InLongMsgVer {
+
     INLONG_V0(0, "V0", "The inlong-msg V0 format"),
     INLONG_V1(1, "V1", "The inlong-msg V1 format");
 

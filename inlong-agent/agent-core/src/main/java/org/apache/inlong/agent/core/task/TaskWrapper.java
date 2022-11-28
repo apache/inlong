@@ -155,7 +155,6 @@ public class TaskWrapper extends AbstractStateWrapper {
         task.getReader().setReadTimeout(TimeUnit.MINUTES.toMillis(WAIT_FINISH_TIME_OUT));
     }
 
-
     /**
      * destroy task
      */

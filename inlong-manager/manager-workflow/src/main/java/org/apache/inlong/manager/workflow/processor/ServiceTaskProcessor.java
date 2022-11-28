@@ -60,8 +60,7 @@ import java.util.Set;
 public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
 
     private static final Set<TaskStatus> ALLOW_COMPLETE_STATE = ImmutableSet.of(
-            TaskStatus.PENDING, TaskStatus.FAILED
-    );
+            TaskStatus.PENDING, TaskStatus.FAILED);
 
     @Autowired
     private ObjectMapper objectMapper;

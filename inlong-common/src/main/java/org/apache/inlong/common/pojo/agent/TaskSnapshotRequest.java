@@ -37,7 +37,7 @@ public class TaskSnapshotRequest {
     /**
      * The mac UUID of agent
      */
-    private  String uuid;
+    private String uuid;
 
     /**
      * Report Time
@@ -49,6 +49,5 @@ public class TaskSnapshotRequest {
      * The snapshot message list
      */
     private List<TaskSnapshotMessage> snapshotList;
-
 
 }

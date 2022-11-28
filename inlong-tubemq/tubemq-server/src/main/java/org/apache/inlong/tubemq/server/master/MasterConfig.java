@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * Basic config for master service
  */
 public class MasterConfig extends AbstractFileConfig {
+
     private static final Logger logger = LoggerFactory.getLogger(MasterConfig.class);
 
     private String hostName;
@@ -299,7 +300,7 @@ public class MasterConfig extends AbstractFileConfig {
             int promHttpPort = this.promConfig.getPromHttpPort();
             if ((promHttpPort == this.port || promHttpPort == this.webPort
                     || (tlsConfig.isTlsEnable()
-                    && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
+                            && (this.tlsConfig.getTlsPort() == promHttpPort)))) {
                 throw new IllegalArgumentException(new StringBuilder(512)
                         .append("Illegal port value configuration, the value of ")
                         .append("port or webPort or tlsPort cannot be the same as the value of promHttpPort!")
@@ -362,8 +363,8 @@ public class MasterConfig extends AbstractFileConfig {
                 this.hostName = AddressUtils.getIPV4LocalAddress();
             } catch (Throwable e) {
                 throw new IllegalArgumentException(new StringBuilder(256)
-                    .append("Get default master hostName failure : ")
-                    .append(e.getMessage()).toString());
+                        .append("Get default master hostName failure : ")
+                        .append(e.getMessage()).toString());
             }
         }
         // web port

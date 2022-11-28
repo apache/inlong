@@ -111,8 +111,7 @@ public class TaskPositionManager extends AbstractDaemon {
 
     private void flushJobProfile(String jobId, JobProfile jobProfile) {
         jobTaskPositionMap.get(jobId).forEach(
-                (fileName, position) -> jobProfile.setLong(fileName + POSITION_SUFFIX, position)
-        );
+                (fileName, position) -> jobProfile.setLong(fileName + POSITION_SUFFIX, position));
         if (jobConfDb.checkJobfinished(jobProfile)) {
             LOGGER.info("Cannot update job profile {}, delete memory job in jobTaskPosition", jobId);
             deleteJobPosition(jobId);

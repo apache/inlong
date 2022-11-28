@@ -23,6 +23,7 @@ package org.apache.inlong.tubemq.corerpc.client;
  * {@link #handleError(Throwable)} will be invoked.
  */
 public interface Callback<T> {
+
     /**
      * Receives a callback result.
      *

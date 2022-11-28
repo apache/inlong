@@ -38,10 +38,9 @@ public class SqlServerLoadNodeTest extends SerializeBaseTest<SqlServerLoadNode> 
                 new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo()))
-                );
+                                new FieldInfo("name", new StringFormatInfo())));
         return new SqlServerLoadNode("1", "sqlserver_out", fields, relations, null, null, 1,
                 null, "jdbc:sqlserver://localhost:1433;databaseName=column_type_test", "SA",
                 "INLONG*123", "dbo", "work1", "id");

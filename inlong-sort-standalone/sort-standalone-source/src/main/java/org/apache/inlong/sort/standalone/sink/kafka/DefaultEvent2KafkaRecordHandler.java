@@ -63,7 +63,7 @@ public class DefaultEvent2KafkaRecordHandler implements IEvent2KafkaRecordHandle
         byte separator = (byte) delimiter.charAt(0);
         outMsg.reset();
         switch (idConfig.getDataType()) {
-            case TEXT :
+            case TEXT:
                 currentDate.setTime(event.getRawLogTime());
                 String ftime = dateFormat.format(currentDate);
                 outMsg.write(ftime.getBytes());
@@ -72,11 +72,11 @@ public class DefaultEvent2KafkaRecordHandler implements IEvent2KafkaRecordHandle
                 outMsg.write(extinfo.getBytes());
                 outMsg.write(separator);
                 break;
-            case PB :
-            case JCE :
-            case UNKNOWN :
+            case PB:
+            case JCE:
+            case UNKNOWN:
                 break;
-            default :
+            default:
                 break;
         }
         outMsg.write(event.getBody());

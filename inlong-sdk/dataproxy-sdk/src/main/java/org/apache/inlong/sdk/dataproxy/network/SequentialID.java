@@ -21,6 +21,7 @@ package org.apache.inlong.sdk.dataproxy.network;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class SequentialID {
+
     private static final long maxId = 2000000000;
     private String ip = null;
     private AtomicLong id = new AtomicLong(0);

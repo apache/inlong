@@ -22,6 +22,7 @@ package org.apache.inlong.sdk.commons.protocol;
  * EventConstants
  */
 public interface EventConstants {
+
     String HEADER_KEY_VERSION = "version";
     String HEADER_SDK_VERSION_1 = "1";
     String HEADER_CACHE_VERSION_1 = "1";

@@ -25,6 +25,7 @@ import org.apache.inlong.agent.plugin.validator.PrefixValidator;
 import org.junit.Test;
 
 public class TestValidators {
+
     @Test
     public void testPatternValidator() {
         PatternValidator validator = new PatternValidator("test");

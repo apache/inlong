@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsumerSamplePrint extends AbstractSamplePrint {
+
     private static final Logger logger =
             LoggerFactory.getLogger(ConsumerSamplePrint.class);
 
@@ -30,7 +31,7 @@ public class ConsumerSamplePrint extends AbstractSamplePrint {
     }
 
     public ConsumerSamplePrint(long sampleDetailDur, long sampleResetDur,
-                               long maxDetailCount, long maxTotalCount) {
+            long maxDetailCount, long maxTotalCount) {
         super(sampleDetailDur, sampleResetDur, maxDetailCount, maxTotalCount);
     }
 

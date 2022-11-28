@@ -70,23 +70,23 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
             Stream.of(HOSTS_OPTION, INDEX_OPTION, DOCUMENT_TYPE_OPTION).collect(Collectors.toSet());
     private static final Set<ConfigOption<?>> optionalOptions =
             Stream.of(
-                            KEY_DELIMITER_OPTION,
-                            ROUTING_FIELD_NAME,
-                            FAILURE_HANDLER_OPTION,
-                            FLUSH_ON_CHECKPOINT_OPTION,
-                            BULK_FLASH_MAX_SIZE_OPTION,
-                            BULK_FLUSH_MAX_ACTIONS_OPTION,
-                            BULK_FLUSH_INTERVAL_OPTION,
-                            BULK_FLUSH_BACKOFF_TYPE_OPTION,
-                            BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION,
-                            BULK_FLUSH_BACKOFF_DELAY_OPTION,
-                            CONNECTION_MAX_RETRY_TIMEOUT_OPTION,
-                            CONNECTION_PATH_PREFIX,
-                            FORMAT_OPTION,
-                            PASSWORD_OPTION,
-                            USERNAME_OPTION,
-                            INLONG_METRIC,
-                            INLONG_AUDIT)
+                    KEY_DELIMITER_OPTION,
+                    ROUTING_FIELD_NAME,
+                    FAILURE_HANDLER_OPTION,
+                    FLUSH_ON_CHECKPOINT_OPTION,
+                    BULK_FLASH_MAX_SIZE_OPTION,
+                    BULK_FLUSH_MAX_ACTIONS_OPTION,
+                    BULK_FLUSH_INTERVAL_OPTION,
+                    BULK_FLUSH_BACKOFF_TYPE_OPTION,
+                    BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION,
+                    BULK_FLUSH_BACKOFF_DELAY_OPTION,
+                    CONNECTION_MAX_RETRY_TIMEOUT_OPTION,
+                    CONNECTION_PATH_PREFIX,
+                    FORMAT_OPTION,
+                    PASSWORD_OPTION,
+                    USERNAME_OPTION,
+                    INLONG_METRIC,
+                    INLONG_AUDIT)
                     .collect(Collectors.toSet());
 
     @Override
@@ -124,40 +124,36 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
         int maxActions = config.getBulkFlushMaxActions();
         validate(
                 maxActions == -1 || maxActions >= 1,
-                () ->
-                        String.format(
-                                "'%s' must be at least 1. Got: %s",
-                                BULK_FLUSH_MAX_ACTIONS_OPTION.key(), maxActions));
+                () -> String.format(
+                        "'%s' must be at least 1. Got: %s",
+                        BULK_FLUSH_MAX_ACTIONS_OPTION.key(), maxActions));
         long maxSize = config.getBulkFlushMaxByteSize();
         long mb1 = 1024 * 1024;
         validate(
                 maxSize == -1 || (maxSize >= mb1 && maxSize % mb1 == 0),
-                () ->
-                        String.format(
-                                "'%s' must be in MB granularity. Got: %s",
-                                BULK_FLASH_MAX_SIZE_OPTION.key(),
-                                originalConfiguration
-                                        .get(BULK_FLASH_MAX_SIZE_OPTION)
-                                        .toHumanReadableString()));
+                () -> String.format(
+                        "'%s' must be in MB granularity. Got: %s",
+                        BULK_FLASH_MAX_SIZE_OPTION.key(),
+                        originalConfiguration
+                                .get(BULK_FLASH_MAX_SIZE_OPTION)
+                                .toHumanReadableString()));
         validate(
                 config.getBulkFlushBackoffRetries().map(retries -> retries >= 1).orElse(true),
-                () ->
-                        String.format(
-                                "'%s' must be at least 1. Got: %s",
-                                BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION.key(),
-                                config.getBulkFlushBackoffRetries().get()));
+                () -> String.format(
+                        "'%s' must be at least 1. Got: %s",
+                        BULK_FLUSH_BACKOFF_MAX_RETRIES_OPTION.key(),
+                        config.getBulkFlushBackoffRetries().get()));
         if (config.getUsername().isPresent()
                 && !StringUtils.isNullOrWhitespaceOnly(config.getUsername().get())) {
             validate(
                     config.getPassword().isPresent()
                             && !StringUtils.isNullOrWhitespaceOnly(config.getPassword().get()),
-                    () ->
-                            String.format(
-                                    "'%s' and '%s' must be set at the same time. Got: username '%s' and password '%s'",
-                                    USERNAME_OPTION.key(),
-                                    PASSWORD_OPTION.key(),
-                                    config.getUsername().get(),
-                                    config.getPassword().orElse("")));
+                    () -> String.format(
+                            "'%s' and '%s' must be set at the same time. Got: username '%s' and password '%s'",
+                            USERNAME_OPTION.key(),
+                            PASSWORD_OPTION.key(),
+                            config.getUsername().get(),
+                            config.getPassword().orElse("")));
         }
     }
 

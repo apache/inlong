@@ -43,10 +43,7 @@ public class NoAuthClientTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/anno/register.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(1))
-                                )
-                        )
-        );
+                                        Response.success(1)))));
 
         UserRequest request = UserRequest.builder()
                 .name("username")

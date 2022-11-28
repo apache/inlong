@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.common.fileconfig;
 
 public class PrometheusConfig {
+
     // Whether to enable metric collection through Prometheus
     private boolean promEnable = false;
     // Prometheus http port

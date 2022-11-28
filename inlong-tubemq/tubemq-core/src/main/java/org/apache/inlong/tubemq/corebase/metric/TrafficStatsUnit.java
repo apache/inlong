@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
  * according to the statistics dimension, which can be expanded later as needed
  */
 public class TrafficStatsUnit {
+
     // the traffic name
     private String trafficName;
     // the message count

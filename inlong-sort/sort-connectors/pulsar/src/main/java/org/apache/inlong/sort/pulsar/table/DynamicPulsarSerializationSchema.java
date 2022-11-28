@@ -51,12 +51,13 @@ import static org.apache.flink.shaded.guava18.com.google.common.base.Preconditio
  * A specific Serializer for {@link PulsarDynamicTableSink}.
  */
 class DynamicPulsarSerializationSchema
-        implements PulsarSerializationSchema<RowData>, PulsarContextAware<RowData> {
+        implements
+            PulsarSerializationSchema<RowData>,
+            PulsarContextAware<RowData> {
 
     private static final long serialVersionUID = 1L;
 
-    private final @Nullable
-    SerializationSchema<RowData> keySerialization;
+    private final @Nullable SerializationSchema<RowData> keySerialization;
 
     private final SerializationSchema<RowData> valueSerialization;
 
@@ -179,7 +180,7 @@ class DynamicPulsarSerializationSchema
     }
 
     public Optional<String> getTargetTopic(RowData element) {
-        //TODO need get topic from row.
+        // TODO need get topic from row.
         return Optional.empty();
     }
 
@@ -246,6 +247,7 @@ class DynamicPulsarSerializationSchema
     // --------------------------------------------------------------------------------------------
 
     interface MetadataConverter extends Serializable {
+
         Object read(RowData consumedRow, int pos);
     }
 }

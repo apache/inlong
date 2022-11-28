@@ -38,9 +38,9 @@ public class SdkEvent extends SimpleEvent {
     /**
      * Constructor
      */
-    public SdkEvent(){
+    public SdkEvent() {
     }
-    
+
     /**
      * Constructor
      * 

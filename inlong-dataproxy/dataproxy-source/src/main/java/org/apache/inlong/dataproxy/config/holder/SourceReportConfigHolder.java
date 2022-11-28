@@ -38,9 +38,9 @@ public class SourceReportConfigHolder {
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Map<String, SourceReportInfo> sourceConfMap = new HashMap<>();
     // Begin: this part can be optimized later
-    //        after optimizing the implementation of the heartbeat reporting interface
-    //        between Manager and DataProxy, the report is directly configured according to
-    //        the SourceReportInfo of each source, instead of splicing report items separately.
+    // after optimizing the implementation of the heartbeat reporting interface
+    // between Manager and DataProxy, the report is directly configured according to
+    // the SourceReportInfo of each source, instead of splicing report items separately.
     private String ipSet = "";
     private String portSet = "";
     private String protocolTypeSet = "";

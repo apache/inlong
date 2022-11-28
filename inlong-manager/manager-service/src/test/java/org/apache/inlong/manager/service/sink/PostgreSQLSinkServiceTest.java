@@ -137,8 +137,7 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
         List<PostgreSQLColumnInfo> addColums = Lists.newArrayList(
                 new PostgreSQLColumnInfo("test1", "int", "test1"),
                 new PostgreSQLColumnInfo("test2", "varchar(30)", "test2"),
-                new PostgreSQLColumnInfo("Test1", "varchar(50)", "Test1")
-        );
+                new PostgreSQLColumnInfo("Test1", "varchar(50)", "Test1"));
         return addColums;
     }
 
@@ -154,8 +153,7 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
         List<PostgreSQLColumnInfo> columns = Lists.newArrayList(
                 new PostgreSQLColumnInfo("id", "int", "id"),
                 new PostgreSQLColumnInfo("cell", "varchar(25)", "cell"),
-                new PostgreSQLColumnInfo("name", "varchar(50)", "name")
-        );
+                new PostgreSQLColumnInfo("name", "varchar(50)", "name"));
         final PostgreSQLTableInfo tableInfo = new PostgreSQLTableInfo();
         tableInfo.setColumns(columns);
         tableInfo.setTableName(tableName);

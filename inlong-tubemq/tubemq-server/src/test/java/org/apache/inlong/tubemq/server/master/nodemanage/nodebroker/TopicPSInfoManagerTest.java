@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TopicPSInfoManagerTest {
+
     private TopicPSInfoManager topicPSInfoManager;
 
     @Before

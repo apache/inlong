@@ -45,7 +45,9 @@ import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.vali
  * factory class for inLong msg pb format
  */
 public final class InLongMsgPbFormatFactory
-        implements DeserializationFormatFactory, SerializationFormatFactory {
+        implements
+            DeserializationFormatFactory,
+            SerializationFormatFactory {
 
     public static final String IDENTIFIER = "inlong-msg-pb";
 

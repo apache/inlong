@@ -63,51 +63,37 @@ class Kafka2HiveTest extends BaseTest {
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/group/exist/test_group009.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(false)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(false)))));
 
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/group/save.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success("test_group009")))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success("test_group009")))));
 
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/stream/exist/test_group009/test_stream009.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(false)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(false)))));
 
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/stream/exist/test_group009/test_stream009.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(false)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(false)))));
 
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/stream/save.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(6)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(6)))));
 
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/source/save.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(6)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(6)))));
 
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/sink/save.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(6)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(6)))));
 
         WorkflowResult initWorkflowResult = new WorkflowResult();
         initWorkflowResult.setProcessInfo(
@@ -139,10 +125,8 @@ class Kafka2HiveTest extends BaseTest {
                                         + "\"name\":\"test_stream009\",\"sinkList\":[{\"id\":6,"
                                         + "\"inlongGroupId\":\"test_group009\",\"inlongStreamId\":\"test_stream009\","
                                         + "\"sinkType\":\"HIVE\",\"sinkName\":\"{hive.sink.name}\",\"clusterId\":null,"
-                                        + "\"clusterUrl\":null}],\"modifyTime\":\"2022-06-06 02:11:03\"}]}"
-                        ))
-                        .build()
-        );
+                                        + "\"clusterUrl\":null}],\"modifyTime\":\"2022-06-06 02:11:03\"}]}"))
+                        .build());
         initWorkflowResult.setNewTasks(
                 Lists.newArrayList(
                         TaskResponse.builder()
@@ -157,15 +141,11 @@ class Kafka2HiveTest extends BaseTest {
                                 .approvers(Lists.newArrayList("admin"))
                                 .status(TaskStatus.PENDING)
                                 .startTime(new Date())
-                                .build()
-                )
-        );
+                                .build()));
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/group/startProcess/test_group009.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(initWorkflowResult)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(initWorkflowResult)))));
 
         WorkflowResult startWorkflowResult = new WorkflowResult();
         startWorkflowResult.setProcessInfo(
@@ -196,15 +176,12 @@ class Kafka2HiveTest extends BaseTest {
                                 + "\"inlongStreamId\":\"test_stream011\",\"sinkType\":\"HIVE\","
                                 + "\"sinkName\":\"{hive.sink.name}\",\"clusterId\":null,\"clusterUrl\":null}],"
                                 + "\"modifyTime\":\"2022-06-06 08:36:38\"}]}")
-                        .build()
-        );
+                        .build());
         startWorkflowResult.setNewTasks(new ArrayList<>());
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/workflow/approve/12.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(startWorkflowResult)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(startWorkflowResult)))));
 
         InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
         pulsarInfo.setId(8);
@@ -229,9 +206,7 @@ class Kafka2HiveTest extends BaseTest {
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/group/get/test_group009.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(pulsarInfo)))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(pulsarInfo)))));
 
         InlongStreamInfo streamInfo = new InlongStreamInfo();
         streamInfo.setId(8);
@@ -260,8 +235,7 @@ class Kafka2HiveTest extends BaseTest {
                         .modifier("admin")
                         .createTime(new Date())
                         .modifyTime(new Date())
-                        .build()
-        );
+                        .build());
 
         ArrayList<StreamSink> hiveSinks = Lists.newArrayList(
                 HiveSink.builder()
@@ -298,21 +272,17 @@ class Kafka2HiveTest extends BaseTest {
                                         .fieldComment("name")
                                         .sourceFieldName("name")
                                         .sourceFieldType("STRING")
-                                        .build()
-                        ))
+                                        .build()))
                         .build());
         streamInfo.setSourceList(kafkaSources);
         streamInfo.setSinkList(hiveSinks);
 
         Response<PageResult<InlongStreamInfo>> fullStreamResponsePage = Response.success(
-                new PageResult<>(Lists.newArrayList(streamInfo))
-        );
+                new PageResult<>(Lists.newArrayList(streamInfo)));
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/stream/listAll.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(fullStreamResponsePage))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(fullStreamResponsePage))));
 
         EventLogResponse eventLogView1 = EventLogResponse.builder()
                 .id(38)
@@ -347,17 +317,12 @@ class Kafka2HiveTest extends BaseTest {
                 get(urlMatching(MANAGER_URL_PREFIX + "/workflow/event/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(new PageResult<>(
-                                        Lists.newArrayList(eventLogView1, eventLogView2)
-                                ))))
-                        )
-        );
+                                        Lists.newArrayList(eventLogView1, eventLogView2)))))));
 
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/stream/config/log/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>())))
-                        )
-        );
+                                okJson(JsonUtils.toJsonString(Response.success(new PageResult<>())))));
     }
 
     private static KafkaSource createKafkaSource() {
@@ -372,8 +337,7 @@ class Kafka2HiveTest extends BaseTest {
     private static List<StreamField> createStreamFields() {
         return Lists.newArrayList(
                 new StreamField(0, FieldType.STRING.toString(), "name", null, null),
-                new StreamField(1, FieldType.INT.toString(), "age", null, null)
-        );
+                new StreamField(1, FieldType.INT.toString(), "age", null, null));
     }
 
     @Test

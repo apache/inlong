@@ -148,6 +148,7 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
     }
 
     interface MetadataConverter extends Serializable {
+
         Object read(InLongMsgHead head);
     }
 

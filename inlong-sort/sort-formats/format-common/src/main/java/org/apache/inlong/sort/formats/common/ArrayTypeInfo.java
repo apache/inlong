@@ -41,8 +41,7 @@ public class ArrayTypeInfo implements TypeInfo {
 
     @JsonCreator
     public ArrayTypeInfo(
-            @JsonProperty(FIELD_ELEMENT_TYPE) @Nonnull TypeInfo elementTypeInfo
-    ) {
+            @JsonProperty(FIELD_ELEMENT_TYPE) @Nonnull TypeInfo elementTypeInfo) {
         this.elementTypeInfo = elementTypeInfo;
     }
 

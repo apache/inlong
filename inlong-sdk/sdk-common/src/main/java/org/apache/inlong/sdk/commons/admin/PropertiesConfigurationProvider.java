@@ -28,8 +28,9 @@ import org.slf4j.LoggerFactory;
 /**
  * PropertiesConfigurationProvider
  */
-public class PropertiesConfigurationProvider extends
-        AbstractConfigurationProvider {
+public class PropertiesConfigurationProvider
+        extends
+            AbstractConfigurationProvider {
 
     public static final Logger LOG = LoggerFactory.getLogger(PropertiesConfigurationProvider.class);
 

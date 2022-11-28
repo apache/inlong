@@ -68,14 +68,13 @@ public class StreamInfoTest extends SerializeBaseTest<StreamInfo> {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
                 "topic", "localhost:9092", new JsonFormat(),
                 1, null, "id");
@@ -89,14 +88,13 @@ public class StreamInfoTest extends SerializeBaseTest<StreamInfo> {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
         return new HiveLoadNode("2", "hive_output", fields, relations, null, null,
                 1, null, "myHive", "default", "test", "/opt/hive-conf", "3.1.3",
                 null, Arrays.asList(new FieldInfo("day", new LongFormatInfo())));

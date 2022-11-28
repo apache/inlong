@@ -46,6 +46,7 @@ import java.util.Map;
  * Add option `inlong.metric` and `metrics.audit.proxy.hosts` to support collect inlong metrics and audit
  */
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
+
     private static final Logger LOG = LoggerFactory.getLogger(IcebergTableSink.class);
     private final TableLoader tableLoader;
     private final TableSchema tableSchema;

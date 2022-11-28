@@ -28,26 +28,26 @@ import java.util.concurrent.atomic.AtomicLong;
 @MetricDomain(name = "Agent")
 public class AgentMetricItem extends MetricItem {
 
-    //key
+    // key
     public static final String KEY_PLUGIN_ID = "pluginId"; // for source, reader, channel, sink
     public static final String KEY_INLONG_GROUP_ID = "inlongGroupId";
     public static final String KEY_INLONG_STREAM_ID = "inlongStreamId";
     public static final String KEY_COMPONENT_NAME = "componentName"; // for TaskManager, JobManager
 
-    //job
+    // job
     public static final String M_JOB_RUNNING_COUNT = "jobRunningCount";
     public static final String M_JOB_FATAL_COUNT = "jobFatalCount";
-    //task
+    // task
     public static final String M_TASK_RUNNING_COUNT = "taskRunningCount";
     public static final String M_TASK_RETRYING_COUNT = "taskRetryingCount";
     public static final String M_TASK_FATAL_COUNT = "taskFatalCount";
-    //sink
+    // sink
     public static final String M_SINK_SUCCESS_COUNT = "sinkSuccessCount";
     public static final String M_SINK_FAIL_COUNT = "sinkFailCount";
-    //source
+    // source
     public static final String M_SOURCE_SUCCESS_COUNT = "sourceSuccessCount";
     public static final String M_SOURCE_FAIL_COUNT = "sourceFailCount";
-    //plugin
+    // plugin
     public static final String M_PLUGIN_READ_COUNT = "pluginReadCount";
     public static final String M_PLUGIN_SEND_COUNT = "pluginSendCount";
     public static final String M_PLUGIN_READ_FAIL_COUNT = "pluginReadFailCount";

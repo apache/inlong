@@ -78,7 +78,9 @@ import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_C
  * Add an option `inlong.metric` to support metrics.
  */
 public class UpsertKafkaDynamicTableFactory
-        implements DynamicTableSourceFactory, DynamicTableSinkFactory {
+        implements
+            DynamicTableSourceFactory,
+            DynamicTableSinkFactory {
 
     public static final String IDENTIFIER = "upsert-kafka-inlong";
 
@@ -306,7 +308,8 @@ public class UpsertKafkaDynamicTableFactory
      * for insert-only format.
      */
     protected static class DecodingFormatWrapper
-            implements DecodingFormat<DeserializationSchema<RowData>> {
+            implements
+                DecodingFormat<DeserializationSchema<RowData>> {
 
         private static final ChangelogMode SOURCE_CHANGELOG_MODE =
                 ChangelogMode.newBuilder()
@@ -356,7 +359,8 @@ public class UpsertKafkaDynamicTableFactory
      * for insert-only format.
      */
     protected static class EncodingFormatWrapper
-            implements EncodingFormat<SerializationSchema<RowData>> {
+            implements
+                EncodingFormat<SerializationSchema<RowData>> {
 
         public static final ChangelogMode SINK_CHANGELOG_MODE =
                 ChangelogMode.newBuilder()

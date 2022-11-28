@@ -83,8 +83,7 @@ public abstract class StreamSink extends StreamNode {
     private String sortConsumerGroup;
 
     @Builder.Default
-    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1",
-            notes = "Such as enable or disable to create Hive table")
+    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1", notes = "Such as enable or disable to create Hive table")
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty("Backend operation log")

@@ -33,7 +33,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class IcebergMultipleFilesCommiter extends IcebergProcessFunction<MultipleWriteResult, Void>
-        implements CheckpointedFunction, CheckpointListener, BoundedOneInput {
+        implements
+            CheckpointedFunction,
+            CheckpointListener,
+            BoundedOneInput {
 
     private Map<TableIdentifier, IcebergSingleFileCommiter> multipleCommiters;
     private final CatalogLoader catalogLoader;

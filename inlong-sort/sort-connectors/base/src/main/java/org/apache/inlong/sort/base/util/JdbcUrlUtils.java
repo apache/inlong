@@ -40,9 +40,9 @@ public class JdbcUrlUtils {
     public static String replaceInvalidUrlProperty(String url) {
         if (StringUtils.containsIgnoreCase(url, AUTO_DESERIALIZE_TRUE)) {
             LOG.warn("url {} contains invalid property {}, replace it to {}", url,
-                AUTO_DESERIALIZE_TRUE, AUTO_DESERIALIZE_FALSE);
+                    AUTO_DESERIALIZE_TRUE, AUTO_DESERIALIZE_FALSE);
             return StringUtils.replaceIgnoreCase(url, AUTO_DESERIALIZE_TRUE,
-                AUTO_DESERIALIZE_FALSE);
+                    AUTO_DESERIALIZE_FALSE);
         }
         return url;
     }

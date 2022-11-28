@@ -60,7 +60,9 @@ import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 
 /** HBase connector factory. */
 public class HBase2DynamicTableFactory
-        implements DynamicTableSourceFactory, DynamicTableSinkFactory {
+        implements
+            DynamicTableSourceFactory,
+            DynamicTableSinkFactory {
 
     private static final String IDENTIFIER = "hbase-2.2-inlong";
 

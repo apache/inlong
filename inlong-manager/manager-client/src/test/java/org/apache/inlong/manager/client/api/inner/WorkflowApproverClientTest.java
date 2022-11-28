@@ -49,10 +49,7 @@ class WorkflowApproverClientTest extends ClientFactoryTest {
                 post(urlMatching("/inlong/manager/api/workflow/approver/save.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(11))
-                                )
-                        )
-        );
+                                        Response.success(11)))));
         ApproverRequest approverRequest = ApproverRequest.builder()
                 .processName("test")
                 .approvers("user1,user2")
@@ -82,11 +79,7 @@ class WorkflowApproverClientTest extends ClientFactoryTest {
                                                                         .taskName("task2")
                                                                         .approvers("user1,user2")
                                                                         .id(2)
-                                                                        .build()
-                                                        ))))
-                                )
-                        )
-        );
+                                                                        .build())))))));
 
         ApproverPageRequest request = ApproverPageRequest.builder()
                 .processName("process1")

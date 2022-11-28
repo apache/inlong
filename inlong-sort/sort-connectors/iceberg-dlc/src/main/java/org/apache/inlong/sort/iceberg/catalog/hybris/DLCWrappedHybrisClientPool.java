@@ -52,7 +52,7 @@ public class DLCWrappedHybrisClientPool extends ClientPoolImpl<IMetaStoreClient,
     }
 
     @Override
-    protected IMetaStoreClient newClient()  {
+    protected IMetaStoreClient newClient() {
         try {
             try {
                 return CLIENT_CTOR.newInstance(hiveConf);

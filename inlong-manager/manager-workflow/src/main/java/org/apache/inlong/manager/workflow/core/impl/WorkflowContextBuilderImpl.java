@@ -135,8 +135,7 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
                         .setForm(taskForm)
                         .setTransferToUsers(transferToUsers)
                         .setOperator(operator)
-                        .setRemark(remark)
-                );
+                        .setRemark(remark));
     }
 
     @SuppressWarnings("unchecked")

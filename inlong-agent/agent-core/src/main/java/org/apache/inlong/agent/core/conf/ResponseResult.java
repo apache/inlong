@@ -21,6 +21,7 @@ package org.apache.inlong.agent.core.conf;
  * response json for http requests.
  */
 public class ResponseResult {
+
     private int code;
     private String message;
 

@@ -26,6 +26,7 @@ import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ModifyTopicReq extends BaseReq {
+
     private String modifyUser;
     private String deleteWhen;
     private Integer unflushThreshold;

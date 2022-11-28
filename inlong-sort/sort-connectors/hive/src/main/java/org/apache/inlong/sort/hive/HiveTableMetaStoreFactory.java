@@ -84,9 +84,9 @@ public class HiveTableMetaStoreFactory implements TableMetaStoreFactory {
                 return Optional.of(
                         new Path(
                                 client.getPartition(
-                                                database,
-                                                tableName,
-                                                new ArrayList<>(partSpec.values()))
+                                        database,
+                                        tableName,
+                                        new ArrayList<>(partSpec.values()))
                                         .getSd()
                                         .getLocation()));
             } catch (NoSuchObjectException ignore) {

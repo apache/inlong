@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corebase.balance;
 
 public enum EventType {
+
     /**
      * Connect to broker.
      * */
@@ -59,7 +60,7 @@ public enum EventType {
         this.description = description;
     }
 
-    public  int getValue() {
+    public int getValue() {
         return value;
     }
 

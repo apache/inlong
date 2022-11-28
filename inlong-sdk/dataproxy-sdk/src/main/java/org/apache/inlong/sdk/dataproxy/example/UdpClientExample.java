@@ -69,10 +69,8 @@ public class UdpClientExample {
         UdpClientExample demo = new UdpClientExample();
         Channel channel = demo.initUdpChannel();
         /*
-         * It is recommended to use msg type 7. For others, please refer to the official related
-         * documents
-         * Therefore, use type 7 to assemble the message.
-         * For other types, please refer to the sdk source code
+         * It is recommended to use msg type 7. For others, please refer to the official related documents Therefore,
+         * use type 7 to assemble the message. For other types, please refer to the sdk source code
          */
         try {
             int count = 0;
@@ -280,6 +278,7 @@ public class UdpClientExample {
                 .channel(NioDatagramChannel.class)
                 .option(ChannelOption.SO_BROADCAST, true)
                 .handler(new SimpleChannelInboundHandler<DatagramPacket>() {
+
                     protected void channelRead0(ChannelHandlerContext var1,
                             DatagramPacket dmsg) throws Exception {
                         String msg = dmsg.content().toString(StandardCharsets.UTF_8);

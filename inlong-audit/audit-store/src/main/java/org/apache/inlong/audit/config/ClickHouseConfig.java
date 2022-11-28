@@ -42,7 +42,7 @@ public class ClickHouseConfig {
 
     @Value("${clickhouse.batchIntervalMs:1000}")
     private int batchIntervalMs;
-    
+
     @Value("${clickhouse.batchThreshold:500}")
     private int batchThreshold;
 

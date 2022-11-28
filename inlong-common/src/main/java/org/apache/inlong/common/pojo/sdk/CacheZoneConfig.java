@@ -29,6 +29,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CacheZoneConfig {
+
     String sortClusterName;
     String sortTaskId;
     Map<String, CacheZone> cacheZones;

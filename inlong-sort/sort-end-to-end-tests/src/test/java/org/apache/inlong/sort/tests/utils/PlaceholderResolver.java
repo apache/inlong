@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
  * A file placeholder replacement tool.
  */
 public class PlaceholderResolver {
+
     /**
      * Default placeholder prefix
      */

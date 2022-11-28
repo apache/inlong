@@ -76,8 +76,7 @@ public class TestTaskWrapper {
             LOGGER.info("waiting for success");
             TimeUnit.MILLISECONDS.sleep(100);
         }
-        await().atMost(80, TimeUnit.SECONDS).until(()
-                -> writer.getWriterCount() > 0);
+        await().atMost(80, TimeUnit.SECONDS).until(() -> writer.getWriterCount() > 0);
         Assert.assertEquals("reader and writer are running",
                 reader.getCount() > 0, writer.getWriterCount() > 0);
     }

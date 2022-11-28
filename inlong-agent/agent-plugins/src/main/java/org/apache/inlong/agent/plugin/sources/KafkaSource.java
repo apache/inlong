@@ -112,7 +112,7 @@ public class KafkaSource extends AbstractSource {
                     for (String partitionOffset : partitionOffsets) {
                         if (partitionOffset.contains(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)
                                 && partitionOffset.split(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)[0]
-                                .equals(String.valueOf(partitionInfo.partition()))) {
+                                        .equals(String.valueOf(partitionInfo.partition()))) {
                             offset = Long.valueOf(partitionOffset.split(JOB_KAFKA_PARTITION_OFFSET_DELIMITER)[1]);
                         }
                     }

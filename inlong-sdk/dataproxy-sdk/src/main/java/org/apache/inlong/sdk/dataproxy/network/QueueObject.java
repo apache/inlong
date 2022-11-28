@@ -23,15 +23,16 @@ import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
 
 public class QueueObject {
+
     private final long sendTimeInMillis;
     private final SendMessageCallback callback;
     private final long timeoutInMillis;
     private final int size;
 
     public QueueObject(long sendTimeInMillis,
-                       SendMessageCallback callback,
-                       long timeout,
-                       TimeUnit timeUnit) {
+            SendMessageCallback callback,
+            long timeout,
+            TimeUnit timeUnit) {
         this.sendTimeInMillis = sendTimeInMillis;
         this.callback = callback;
         this.timeoutInMillis = TimeUnit.MILLISECONDS.convert(timeout, timeUnit);
@@ -39,9 +40,9 @@ public class QueueObject {
     }
 
     public QueueObject(long sendTimeInMillis,
-                       SendMessageCallback callback, int size,
-                       long timeout,
-                       TimeUnit timeUnit) {
+            SendMessageCallback callback, int size,
+            long timeout,
+            TimeUnit timeUnit) {
         this.sendTimeInMillis = sendTimeInMillis;
         this.callback = callback;
         this.timeoutInMillis = TimeUnit.MILLISECONDS.convert(timeout, timeUnit);

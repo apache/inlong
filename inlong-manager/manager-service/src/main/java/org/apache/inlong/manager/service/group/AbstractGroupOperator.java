@@ -91,7 +91,6 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public void updateOpt(InlongGroupRequest request, String operator) {
         InlongGroupEntity entity = CommonBeanUtils.copyProperties(request, InlongGroupEntity::new);
-
         // set the ext params
         setTargetEntity(request, entity);
 

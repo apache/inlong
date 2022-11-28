@@ -135,7 +135,7 @@ public class BaseEntityTest {
         Assert.assertEquals(baseEntity8.getCreateDateStr(), "");
         Assert.assertEquals(baseEntity8.getModifyDateStr(), "");
         // case 9
-        BaseEntity baseEntity9 =  baseEntity6.clone();
+        BaseEntity baseEntity9 = baseEntity6.clone();
         Assert.assertEquals(baseEntity9, baseEntity6);
         baseEntity9.updSerialId();
         baseEntity9.setDataVersionId(222223333);

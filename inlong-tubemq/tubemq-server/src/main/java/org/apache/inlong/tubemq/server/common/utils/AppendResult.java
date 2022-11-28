@@ -21,6 +21,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 
 // append result return
 public class AppendResult {
+
     private boolean isSuccess = false;
     private long appendTime = TBaseConstants.META_VALUE_UNDEFINED;
     private long msgId;

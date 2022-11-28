@@ -15,10 +15,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.apache.inlong</groupId>
@@ -69,44 +67,44 @@
             <artifactId>knife4j-spring-boot-starter</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>guava</artifactId>
                     <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>byte-buddy</artifactId>
                     <groupId>net.bytebuddy</groupId>
+                    <artifactId>byte-buddy</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>classmate</artifactId>
                     <groupId>com.fasterxml</groupId>
+                    <artifactId>classmate</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>jackson-annotations</artifactId>
                     <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.springframework</groupId>
                     <artifactId>spring-aop</artifactId>
-                    <groupId>org.springframework</groupId>
                 </exclusion>
                 <exclusion>
+                    <groupId>org.springframework</groupId>
                     <artifactId>spring-beans</artifactId>
-                    <groupId>org.springframework</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>spring-context</artifactId>
                     <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>javax.validation</groupId>
                     <artifactId>validation-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>javassist</artifactId>
                     <groupId>org.javassist</groupId>
+                    <artifactId>javassist</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>swagger-annotations</artifactId>
                     <groupId>io.swagger.core.v3</groupId>
+                    <artifactId>swagger-annotations</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -129,8 +127,8 @@
             <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
-            <artifactId>guava</artifactId>
             <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -159,15 +157,15 @@
             </resource>
             <!-- Filter script files to bin directory -->
             <resource>
-                <directory>bin</directory>
-                <filtering>true</filtering>
                 <targetPath>bin</targetPath>
+                <filtering>true</filtering>
+                <directory>bin</directory>
             </resource>
             <!-- Filter sql files to sql directory -->
             <resource>
-                <directory>sql</directory>
-                <filtering>true</filtering>
                 <targetPath>sql</targetPath>
+                <filtering>true</filtering>
+                <directory>sql</directory>
                 <includes>
                     <include>*.sql</include>
                 </includes>
@@ -205,21 +203,17 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>prepare-package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <outputDirectory>target/lib</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
-                            <excludeGroupIds>
-                                junit,org.powermock,org.junit.jupiter,org.opentest4j,org.junit.platform,org.xmlunit,org.hamcrest,org.mockito,org.apiguardian,com.h2database
-                            </excludeGroupIds>
-                            <excludeArtifactIds>
-                                manager-test,spring-test,spring-boot-test,spring-boot-starter-test,spring-boot-test-autoconfigure,assertj-core,jsonassert,h2-functions-4-mysql
-                            </excludeArtifactIds>
+                            <excludeGroupIds>junit,org.powermock,org.junit.jupiter,org.opentest4j,org.junit.platform,org.xmlunit,org.hamcrest,org.mockito,org.apiguardian,com.h2database</excludeGroupIds>
+                            <excludeArtifactIds>manager-test,spring-test,spring-boot-test,spring-boot-starter-test,spring-boot-test-autoconfigure,assertj-core,jsonassert,h2-functions-4-mysql</excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -230,10 +224,10 @@
                 <executions>
                     <execution>
                         <id>copy-resources</id>
-                        <phase>prepare-package</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
+                        <phase>prepare-package</phase>
                         <configuration>
                             <!-- Resource file output directory -->
                             <outputDirectory>target/conf</outputDirectory>
@@ -252,10 +246,10 @@
                 <executions>
                     <execution>
                         <id>dist</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <finalName>apache-inlong-${project.artifactId}-${project.version}</finalName>
                             <descriptors>

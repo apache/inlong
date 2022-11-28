@@ -76,7 +76,7 @@ public class JsonDebeziumDeserializationSchema implements DebeziumDeserializatio
 
     @Override
     public void deserialize(SourceRecord record, Collector<String> out, TableChange tableChange)
-        throws Exception {
+            throws Exception {
 
     }
 

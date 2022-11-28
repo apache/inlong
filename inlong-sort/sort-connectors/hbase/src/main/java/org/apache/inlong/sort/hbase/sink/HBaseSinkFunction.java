@@ -74,7 +74,9 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
  */
 @Internal
 public class HBaseSinkFunction<T> extends RichSinkFunction<T>
-        implements CheckpointedFunction, BufferedMutator.ExceptionListener {
+        implements
+            CheckpointedFunction,
+            BufferedMutator.ExceptionListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(HBaseSinkFunction.class);
@@ -320,7 +322,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,

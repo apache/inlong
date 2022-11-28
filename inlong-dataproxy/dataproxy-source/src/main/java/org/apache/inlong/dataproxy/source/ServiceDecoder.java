@@ -36,5 +36,5 @@ public interface ServiceDecoder {
      * @throws Exception
      */
     Map<String, Object> extractData(ByteBuf cb, String strRemoteIP,
-                                    long msgRcvTime, Channel channel) throws Exception;
+            long msgRcvTime, Channel channel) throws Exception;
 }

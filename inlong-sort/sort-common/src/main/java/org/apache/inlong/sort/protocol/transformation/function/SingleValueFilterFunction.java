@@ -32,7 +32,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
  * filter function for a single value
  */

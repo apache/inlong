@@ -34,12 +34,13 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsConsu
 import org.apache.zookeeper.KeeperException;
 
 public class ZKConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
+
     private final ZooKeeperWatcher zkWatcher;
     private final String csmCtrlRootDir;
 
     public ZKConsumeCtrlMapperImpl(String metaNodePrefix,
-                                   ZooKeeperWatcher zkWatcher,
-                                   StringBuilder strBuff) {
+            ZooKeeperWatcher zkWatcher,
+            StringBuilder strBuff) {
         super();
         this.zkWatcher = zkWatcher;
         this.csmCtrlRootDir = strBuff.append(metaNodePrefix)
@@ -64,7 +65,8 @@ public class ZKConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
         }
         String recordStr;
         Gson gson = new Gson();
-        Type type = new TypeToken<GroupConsumeCtrlEntity>() {}.getType();
+        Type type = new TypeToken<GroupConsumeCtrlEntity>() {
+        }.getType();
         for (String itemKey : childNodes) {
             if (TStringUtils.isEmpty(itemKey)) {
                 continue;
@@ -90,7 +92,7 @@ public class ZKConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
     }
 
     protected boolean putConfig2Persistent(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         String entityStr = entity.toString();
         String confNode = strBuff.append(csmCtrlRootDir)
                 .append(TokenConstants.SLASH).append(entity.getRecordKey()).toString();

@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class QueryRegionReq {
+
     private Long clusterId;
     private Long regionId;
 }

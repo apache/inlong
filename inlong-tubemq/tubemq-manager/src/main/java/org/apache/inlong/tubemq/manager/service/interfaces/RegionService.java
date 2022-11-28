@@ -32,7 +32,7 @@ public interface RegionService {
      * @return
      */
     TubeMQResult createNewRegion(RegionEntry regionEntry,
-                                 List<Long> brokerIdList);
+            List<Long> brokerIdList);
 
     /**
      * delete region and set the brokers in the region to be default region

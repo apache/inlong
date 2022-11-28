@@ -39,17 +39,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
+
     protected static final Logger logger =
             LoggerFactory.getLogger(AbsTopicDeployMapperImpl.class);
     // data cache
-    private final ConcurrentHashMap<String/* recordKey */, TopicDeployEntity>
-            topicDeployCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
-            brokerId2RecordCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>>
-            topicName2RecordCache = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>>
-            brokerId2TopicNameCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* recordKey */, TopicDeployEntity> topicDeployCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>> brokerId2RecordCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String/* topicName */, ConcurrentHashSet<String>> topicName2RecordCache =
+            new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer/* brokerId */, ConcurrentHashSet<String>> brokerId2TopicNameCache =
+            new ConcurrentHashMap<>();
 
     public AbsTopicDeployMapperImpl() {
         // Initial instant
@@ -57,7 +58,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public boolean addTopicDeployConf(TopicDeployEntity entity,
-                                      StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         TopicDeployEntity curEntity =
                 topicDeployCache.get(entity.getRecordKey());
@@ -98,7 +99,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public boolean updTopicDeployConf(TopicDeployEntity entity,
-                                      StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         TopicDeployEntity curEntity =
                 topicDeployCache.get(entity.getRecordKey());
@@ -138,8 +139,8 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public boolean updTopicDeployStatus(BaseEntity opEntity, int brokerId,
-                                        String topicName, TopicStatus topicStatus,
-                                        StringBuilder strBuff, ProcessResult result) {
+            String topicName, TopicStatus topicStatus,
+            StringBuilder strBuff, ProcessResult result) {
         // Checks whether the record already exists
         TopicDeployEntity curEntity = getTopicConf(brokerId, topicName);
         if (curEntity == null) {
@@ -270,15 +271,15 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Map<String, List<TopicDeployEntity>> getTopicConfMap(Set<String> topicNameSet,
-                                                                Set<Integer> brokerIdSet,
-                                                                TopicDeployEntity qryEntity) {
+            Set<Integer> brokerIdSet,
+            TopicDeployEntity qryEntity) {
         List<TopicDeployEntity> items;
         Map<String, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
         // get matched keys by topicNameSet and brokerIdSet
         Set<String> matchedKeySet = getMatchedRecords(topicNameSet, brokerIdSet);
         // filter record by qryEntity
         if (matchedKeySet == null) {
-            for (TopicDeployEntity entry :  topicDeployCache.values()) {
+            for (TopicDeployEntity entry : topicDeployCache.values()) {
                 if (entry == null || (qryEntity != null && !entry.isMatched(qryEntity, true))) {
                     continue;
                 }
@@ -303,7 +304,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                                       Set<Integer> brokerIdSet) {
+            Set<Integer> brokerIdSet) {
         List<TopicDeployEntity> items;
         Map<Integer, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
         if (brokerIdSet != null) {
@@ -317,7 +318,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
         if (matchedKeySet == null) {
             matchedKeySet = new HashSet<>(topicDeployCache.keySet());
         }
-        for (String recordKey: matchedKeySet) {
+        for (String recordKey : matchedKeySet) {
             TopicDeployEntity entity = topicDeployCache.get(recordKey);
             if (entity == null) {
                 continue;
@@ -331,7 +332,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
 
     @Override
     public Map<String, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(Set<String> topicSet,
-                                                                                   Set<Integer> brokerIdSet) {
+            Set<Integer> brokerIdSet) {
         TopicDeployEntity tmpEntity;
         List<TopicDeployEntity> itemLst;
         Map<String, List<TopicDeployEntity>> retEntityMap = new HashMap<>();
@@ -385,8 +386,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
         ConcurrentHashSet<String> deploySet;
         Map<Integer, Set<String>> retEntityMap = new HashMap<>();
         if (brokerIdSet == null || brokerIdSet.isEmpty()) {
-            for (Map.Entry<Integer, ConcurrentHashSet<String>> entry
-                    : brokerId2TopicNameCache.entrySet()) {
+            for (Map.Entry<Integer, ConcurrentHashSet<String>> entry : brokerId2TopicNameCache.entrySet()) {
                 if (entry.getKey() == null) {
                     continue;
                 }
@@ -534,7 +534,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
      * @return the process result
      */
     protected abstract boolean putConfig2Persistent(TopicDeployEntity entity,
-                                                    StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Delete topic deploy configure information from persistent storage
@@ -579,7 +579,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     }
 
     private Set<String> getMatchedRecords(Set<String> topicNameSet,
-                                          Set<Integer> brokerIdSet) {
+            Set<Integer> brokerIdSet) {
         ConcurrentHashSet<String> keySet;
         Set<String> topicKeySet = null;
         Set<String> brokerKeySet = null;
@@ -641,9 +641,9 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
      * @return  true for valid, false for invalid
      */
     private boolean isValidValuesChange(TopicDeployEntity newEntity,
-                                        TopicDeployEntity curEntity,
-                                        StringBuilder strBuff,
-                                        ProcessResult result) {
+            TopicDeployEntity curEntity,
+            StringBuilder strBuff,
+            ProcessResult result) {
         // check if shrink data store block
         if (newEntity.getNumPartitions() != TBaseConstants.META_VALUE_UNDEFINED
                 && newEntity.getNumPartitions() < curEntity.getNumPartitions()) {
@@ -690,8 +690,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
                 strBuff.delete(0, strBuff.length());
                 return result.isSuccess();
             }
-            if (newEntity.getTopicStatus().getCode()
-                    > TopicStatus.STATUS_TOPIC_SOFT_DELETE.getCode()) {
+            if (newEntity.getTopicStatus().getCode() > TopicStatus.STATUS_TOPIC_SOFT_DELETE.getCode()) {
                 result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
                         strBuff.append("Please softly deleted the brokerId-topicName(")
                                 .append(newEntity.getRecordKey()).append(") record first!").toString());
@@ -705,7 +704,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
             if (!((curEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_DELETE
                     && newEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_REMOVE)
                     || (curEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_SOFT_REMOVE
-                    && newEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_HARD_REMOVE))) {
+                            && newEntity.getTopicStatus() == TopicStatus.STATUS_TOPIC_HARD_REMOVE))) {
                 result.setFailResult(DataOpErrCode.DERR_ILLEGAL_STATUS.getCode(),
                         strBuff.append("Illegal transfer status from ")
                                 .append(curEntity.getTopicStatus().getDescription())
@@ -761,12 +760,11 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
      * @return true if valid otherwise false
      */
     private boolean isValidSysTopicConf(TopicDeployEntity deployEntity,
-                                        StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         if (!TServerConstants.OFFSET_HISTORY_NAME.equals(deployEntity.getTopicName())) {
             return true;
         }
-        if (deployEntity.getNumTopicStores()
-                != TServerConstants.OFFSET_HISTORY_NUMSTORES) {
+        if (deployEntity.getNumTopicStores() != TServerConstants.OFFSET_HISTORY_NUMSTORES) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
                     strBuff.append("For system topic")
                             .append(TServerConstants.OFFSET_HISTORY_NAME)
@@ -776,8 +774,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
         }
-        if (deployEntity.getNumPartitions()
-                != TServerConstants.OFFSET_HISTORY_NUMPARTS) {
+        if (deployEntity.getNumPartitions() != TServerConstants.OFFSET_HISTORY_NUMPARTS) {
             result.setFailResult(DataOpErrCode.DERR_ILLEGAL_VALUE.getCode(),
                     strBuff.append("For system topic")
                             .append(TServerConstants.OFFSET_HISTORY_NAME)

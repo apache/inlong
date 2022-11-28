@@ -31,11 +31,9 @@ import org.apache.inlong.tubemq.server.master.nodemanage.nodeconsumer.ConsumerIn
 public class TopicPSInfoManager {
 
     private final TMaster master;
-    private final ConcurrentHashMap<String/* topic */,
-            ConcurrentHashSet<String/* producerId */>> topicPubInfoMap =
+    private final ConcurrentHashMap<String/* topic */, ConcurrentHashSet<String/* producerId */>> topicPubInfoMap =
             new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String/* topic */,
-            ConcurrentHashSet<String/* group */>> topicSubInfoMap =
+    private final ConcurrentHashMap<String/* topic */, ConcurrentHashSet<String/* group */>> topicSubInfoMap =
             new ConcurrentHashMap<>();
 
     public TopicPSInfoManager(TMaster master) {
@@ -165,7 +163,7 @@ public class TopicPSInfoManager {
      * @return online groups
      */
     public Set<String> getGroupSetWithSubTopic(Set<String> qryGroupSet,
-                                               Set<String> subTopicSet) {
+            Set<String> subTopicSet) {
         Set<String> resultSet = new HashSet<>();
         if (subTopicSet.isEmpty()) {
             // get all online group

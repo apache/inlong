@@ -97,7 +97,7 @@ public class RequestDispatcher {
      * @throws Exception the exception
      */
     public void executeTarget(RequestContext context,
-                              String target, String type) throws Exception {
+            String target, String type) throws Exception {
         String targetKey = getActionKey(type, target);
         if (actions.containsKey(targetKey)) {
             actions.get(targetKey).execute(context);

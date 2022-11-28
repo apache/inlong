@@ -22,6 +22,7 @@ import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.io.WriteResult;
 
 public class MultipleWriteResult {
+
     private TableIdentifier tableId;
 
     private WriteResult writeResult;

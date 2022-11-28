@@ -183,9 +183,7 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class,
-            isolation = Isolation.REPEATABLE_READ,
-            propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public Integer update(InlongConsumeRequest request, String operator) {
         LOGGER.debug("begin to update inlong consume={} by user={}", request, operator);
         Preconditions.checkNotNull(request, "inlong consume request cannot be null");
@@ -215,9 +213,7 @@ public class InlongConsumeServiceImpl implements InlongConsumeService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class,
-            isolation = Isolation.REPEATABLE_READ,
-            propagation = Propagation.REQUIRES_NEW)
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public Boolean updateStatus(Integer id, Integer status, String operator) {
         LOGGER.info("begin to update consume status to [{}] for id={} by user={}", status, id, operator);
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());

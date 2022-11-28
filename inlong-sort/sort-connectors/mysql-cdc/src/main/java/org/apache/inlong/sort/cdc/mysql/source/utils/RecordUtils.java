@@ -414,7 +414,7 @@ public class RecordUtils {
             }
             return Arrays.stream(lowerBoundRes).anyMatch(value -> value >= 0)
                     && (Arrays.stream(upperBoundRes).anyMatch(value -> value < 0)
-                    && Arrays.stream(upperBoundRes).allMatch(value -> value <= 0));
+                            && Arrays.stream(upperBoundRes).allMatch(value -> value <= 0));
         }
     }
 

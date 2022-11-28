@@ -71,6 +71,7 @@ import static org.apache.flink.util.Preconditions.checkState;
  * Every link : MySQL -> Xxx (Test connector) -> MySQL
  */
 public abstract class FlinkContainerTestEnv extends TestLogger {
+
     private static final Logger JM_LOG = LoggerFactory.getLogger(JobMaster.class);
     private static final Logger TM_LOG = LoggerFactory.getLogger(TaskExecutor.class);
     private static final Logger MYSQL_LOG = LoggerFactory.getLogger(MySqlContainer.class);
@@ -106,7 +107,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
 
     private static GenericContainer<?> jobManager;
     private static GenericContainer<?> taskManager;
-
 
     // ----------------------------------------------------------------------------------------
     // MYSQL Variables
@@ -278,8 +278,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         File newJar = temporaryFolder.newFile("sort-dist.jar");
         try (
                 JarFile jarFile = new JarFile(SORT_DIST_JAR.toFile());
-                JarOutputStream jos = new JarOutputStream(new FileOutputStream(newJar))
-            ) {
+                JarOutputStream jos = new JarOutputStream(new FileOutputStream(newJar))) {
             jarFile.stream().forEach(entry -> {
                 try (InputStream is = jarFile.getInputStream(entry)) {
                     jos.putNextEntry(entry);
@@ -308,7 +307,7 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     private String copyToContainerTmpPath(GenericContainer<?> container, String filePath) throws IOException {
         Path path = Paths.get(filePath);
         byte[] fileData = Files.readAllBytes(path);
-            String containerPath = "/tmp/" + path.getFileName();
+        String containerPath = "/tmp/" + path.getFileName();
         container.copyFileToContainer(Transferable.of(fileData), containerPath);
         return containerPath;
     }

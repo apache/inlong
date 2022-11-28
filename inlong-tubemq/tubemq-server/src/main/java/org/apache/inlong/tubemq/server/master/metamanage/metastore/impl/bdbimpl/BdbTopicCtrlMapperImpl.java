@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.To
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsTopicCtrlMapperImpl;
 
 public class BdbTopicCtrlMapperImpl extends AbsTopicCtrlMapperImpl {
+
     // Topic control store
     private EntityStore topicCtrlStore;
     private final PrimaryIndex<String/* topicName */, BdbTopicAuthControlEntity> topicCtrlIndex;
@@ -88,7 +89,7 @@ public class BdbTopicCtrlMapperImpl extends AbsTopicCtrlMapperImpl {
     }
 
     protected boolean putConfig2Persistent(TopicCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         BdbTopicAuthControlEntity bdbEntity =
                 entity.buildBdbTopicAuthControlEntity();
         try {

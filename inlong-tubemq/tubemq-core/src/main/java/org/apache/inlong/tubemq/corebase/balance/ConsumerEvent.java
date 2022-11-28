@@ -30,9 +30,9 @@ public class ConsumerEvent {
             new ArrayList<>();
 
     public ConsumerEvent(long rebalanceId,
-                         EventType type,
-                         List<SubscribeInfo> subscribeInfoList,
-                         EventStatus status) {
+            EventType type,
+            List<SubscribeInfo> subscribeInfoList,
+            EventStatus status) {
         this.rebalanceId = rebalanceId;
         this.type = type;
         if (subscribeInfoList != null) {

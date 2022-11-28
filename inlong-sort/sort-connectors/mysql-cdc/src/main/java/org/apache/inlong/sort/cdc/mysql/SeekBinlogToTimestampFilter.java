@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * to seek binlog to the specific timestamp.
  */
 public class SeekBinlogToTimestampFilter<T> implements DebeziumDeserializationSchema<T> {
+
     protected static final Logger LOG = LoggerFactory.getLogger(SeekBinlogToTimestampFilter.class);
     private static final long serialVersionUID = -4450118969976653497L;
     private final long startupTimestampMillis;

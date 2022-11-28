@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.corerpc.exception;
 import java.io.IOException;
 
 public class StandbyException extends IOException {
+
     private static final long serialVersionUID = 56383976549825834L;
 
     public StandbyException() {

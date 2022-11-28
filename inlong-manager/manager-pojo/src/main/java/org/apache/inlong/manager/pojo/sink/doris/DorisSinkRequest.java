@@ -35,6 +35,7 @@ import org.apache.inlong.manager.pojo.sink.SinkRequest;
 @ApiModel(value = "Doris sink request")
 @JsonTypeDefine(value = SinkType.DORIS)
 public class DorisSinkRequest extends SinkRequest {
+
     @ApiModelProperty("Doris FE http address")
     private String feNodes;
 

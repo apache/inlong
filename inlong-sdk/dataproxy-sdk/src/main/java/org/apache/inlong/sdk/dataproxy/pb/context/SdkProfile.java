@@ -26,7 +26,7 @@ import org.apache.inlong.sdk.dataproxy.pb.network.IpPort;
 public class SdkProfile {
 
     public static final String KEY_SDK_PACKID = "sdkPackId";
-    
+
     private final DispatchProfile dispatchProfile;
     private final long sdkPackId;
     private final long sendTime;

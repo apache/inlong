@@ -28,6 +28,7 @@ import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
 public class MixedUtils {
+
     // java version cache
     private static String javaVersion = "";
 
@@ -86,7 +87,7 @@ public class MixedUtils {
         // initial send target
         List<Tuple2<String, String>> topicFilterTuples = new ArrayList<>();
         // initial topic send round
-        for (Map.Entry<String, TreeSet<String>> entry: topicAndFiltersMap.entrySet()) {
+        for (Map.Entry<String, TreeSet<String>> entry : topicAndFiltersMap.entrySet()) {
             if (entry.getValue().isEmpty()) {
                 topicFilterTuples.add(new Tuple2<>(entry.getKey()));
             } else {
@@ -115,7 +116,7 @@ public class MixedUtils {
     // build message to be sent
     // only for demo
     public static Message buildMessage(String topicName, String filterItem,
-                                       byte[] bodyData, long serialId) {
+            byte[] bodyData, long serialId) {
         // build message to be sent
         Message message = new Message(topicName, bodyData);
         long currTimeMillis = System.currentTimeMillis();

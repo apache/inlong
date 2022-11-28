@@ -61,6 +61,7 @@ import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDecodingFormat.R
  */
 @Internal
 public final class DebeziumJsonDeserializationSchema implements DeserializationSchema<RowData> {
+
     private static final long serialVersionUID = 1L;
 
     private static final String OP_READ = "r"; // snapshot read
@@ -235,15 +236,13 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         for (int metadataPos = 0; metadataPos < metadataArity; metadataPos++) {
             metadataMap.put(
                     StringData.fromString(getMysqlMetadataKey(requestedMetadata.get(metadataPos))),
-                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString())
-            );
+                    StringData.fromString(metadataConverters[metadataPos].convert(rootRow).toString()));
         }
 
         if (isMigrateAll) {
             metadataMap.put(
                     StringData.fromString(MysqlBinLogData.MYSQL_METADATA_DATA),
-                    (StringData) physicalRow.getField(0)
-            );
+                    (StringData) physicalRow.getField(0));
         }
 
         producedRow.setField(0, new GenericMapData(metadataMap));
@@ -347,6 +346,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     private static MetadataConverter convertInRoot(RowType jsonRowType, ReadableMetadata metadata) {
         final int pos = findFieldPos(metadata, jsonRowType);
         return new MetadataConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -361,6 +361,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
         if (schemaInclude) {
             final int pos = findFieldPos(metadata, (RowType) jsonRowType.getChildren().get(0));
             return new MetadataConverter() {
+
                 private static final long serialVersionUID = 1L;
 
                 @Override

@@ -62,8 +62,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
             .of(WorkflowAction.APPROVE, WorkflowAction.REJECT, WorkflowAction.TRANSFER);
     private static final Set<WorkflowAction> SUPPORT_ACTIONS = ImmutableSet.of(
             WorkflowAction.APPROVE, WorkflowAction.REJECT, WorkflowAction.TRANSFER, WorkflowAction.CANCEL,
-            WorkflowAction.TERMINATE
-    );
+            WorkflowAction.TERMINATE);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -169,8 +168,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
 
         boolean operatorIsApprover = ArrayUtils.contains(
                 workflowTaskEntity.getApprovers().split(WorkflowTaskEntity.APPROVERS_DELIMITER),
-                actionContext.getOperator()
-        );
+                actionContext.getOperator());
 
         if (!operatorIsApprover) {
             throw new WorkflowException(

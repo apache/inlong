@@ -22,19 +22,19 @@ import lombok.Data;
 @Data
 public class BinlogJob {
 
-    private  String user;
-    private  String password;
-    private  String hostname;
-    private  String tableWhiteList;
-    private  String databaseWhiteList;
-    private  String ddl;
-    private  String port;
-    private  String schema;
-    private  String serverTimezone;
-    private  String offsets;
+    private String user;
+    private String password;
+    private String hostname;
+    private String tableWhiteList;
+    private String databaseWhiteList;
+    private String ddl;
+    private String port;
+    private String schema;
+    private String serverTimezone;
+    private String offsets;
 
-    private  Snapshot snapshot;
-    private  Offset offset;
+    private Snapshot snapshot;
+    private Offset offset;
     private History history;
 
     @Data
@@ -48,22 +48,24 @@ public class BinlogJob {
 
     @Data
     public static class Snapshot {
-        private  String mode;
+
+        private String mode;
     }
 
     @Data
     public static class History {
-        private  String filename;
+
+        private String filename;
 
     }
 
     @Data
     public static class BinlogJobTaskConfig {
 
-        private  String user;
-        private  String password;
-        private  String hostname;
-        private  String port;
+        private String user;
+        private String password;
+        private String hostname;
+        private String port;
         private String includeSchema;
 
         private String databaseWhiteList;

@@ -78,7 +78,7 @@ public class TestMetricListenerRunnable {
         itemSink.inlongStreamId = INLONG_STREAM_ID;
         dimSink = itemSink.getDimensions();
     }
-    
+
     /**
      * setdown
      */

@@ -20,13 +20,14 @@
 -->
 
 
-# Apache InLong
+# [A one-stop integration framework for massive data](https://inlong.apache.org/)
 [![Build Status](https://travis-ci.org/apache/inlong.svg?branch=master)](https://github.com/apache/inlong/actions)
 [![CodeCov](https://codecov.io/gh/apache/inlong/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/inlong)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.inlong/inlong/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.inlong)
-[![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://inlong.apache.org/download/main)
+[![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://inlong.apache.org/download/)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-
+[![Twitter](https://img.shields.io/twitter/url?label=Follow%20ApacheInlong&style=social&url=https%3A%2F%2Ftwitter.com%2FApacheInlong)](https://twitter.com/ApacheInlong)
+[![Slack](https://img.shields.io/badge/%20Slack-InLong%20Channel-blueviolet)](https://the-asf.slack.com/archives/C01QAG6U00L)
 
 - [What is Apache InLong?](#what-is-apache-inlong)
 - [Features](#features)
@@ -39,6 +40,10 @@
 - [License](#license)
 
 # What is Apache InLong?
+|                                       **Stargazers Over Time**                                        |                                                                                                **Contributors Over Time**                                                                                                |
+|:-----------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| [![Stargazers over time](https://starchart.cc/apache/inlong.svg)](https://starchart.cc/apache/inlong) | [![Contributor Over Time](https://contributor-overtime-api.git-contributor.com/contributors-svg?chart=contributorOverTime&repo=apache/inlong)](https://git-contributor.com?chart=contributorOverTime&repo=apache/inlong) |
+
 [Apache InLong](https://inlong.apache.org) is a one-stop integration framework for massive data that provides automatic, secure and reliable data transmission capabilities. InLong supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
 
 InLong (应龙) is a divine beast in Chinese mythology who guides the river into the sea, and it is regarded as a metaphor of the InLong system for reporting data streams.

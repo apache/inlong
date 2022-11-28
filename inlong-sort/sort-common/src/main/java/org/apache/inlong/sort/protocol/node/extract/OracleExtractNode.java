@@ -91,8 +91,7 @@ public class OracleExtractNode extends ExtractNode implements InlongMetric, Meta
             @JsonProperty("schemaName") String schemaName,
             @JsonProperty("tableName") String tableName,
             @JsonProperty(value = "port", defaultValue = "1521") Integer port,
-            @Nullable @JsonProperty("scanStartupMode")
-            OracleConstant.ScanStartUpMode scanStartupMode) {
+            @Nullable @JsonProperty("scanStartupMode") OracleConstant.ScanStartUpMode scanStartupMode) {
         super(id, name, fields, watermarkField, properties);
         this.primaryKey = primaryKey;
         this.hostname = Preconditions.checkNotNull(hostname, "hostname is null");

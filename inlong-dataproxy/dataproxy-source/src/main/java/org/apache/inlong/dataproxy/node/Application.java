@@ -216,6 +216,7 @@ public class Application {
 
             final Application appReference = application;
             Runtime.getRuntime().addShutdownHook(new Thread("data-proxy-shutdown-hook") {
+
                 @Override
                 public void run() {
                     AuditUtils.send();
@@ -243,6 +244,7 @@ public class Application {
 
         final Application appReference = application;
         Runtime.getRuntime().addShutdownHook(new Thread("data-proxy-shutdown-hook") {
+
             @Override
             public void run() {
                 appReference.stop();

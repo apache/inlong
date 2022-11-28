@@ -51,19 +51,19 @@ public class SqlServerLoadNode extends LoadNode implements InlongMetric, Seriali
      */
     @JsonProperty("url")
     private String url;
-    
+
     @JsonProperty("username")
     private String username;
-    
+
     @JsonProperty("password")
     private String password;
-    
+
     @JsonProperty(value = "schemaName", defaultValue = "dbo")
     private String schemaName;
-    
+
     @JsonProperty("tableName")
     private String tableName;
-    
+
     @JsonProperty("primaryKey")
     private String primaryKey;
 

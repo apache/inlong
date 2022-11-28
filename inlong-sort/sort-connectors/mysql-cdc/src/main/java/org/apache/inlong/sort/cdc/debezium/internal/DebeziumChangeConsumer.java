@@ -34,7 +34,9 @@ import java.util.Map;
 /** Consume debezium change events. */
 @Internal
 public class DebeziumChangeConsumer
-        implements DebeziumEngine.ChangeConsumer<ChangeEvent<SourceRecord, SourceRecord>> {
+        implements
+            DebeziumEngine.ChangeConsumer<ChangeEvent<SourceRecord, SourceRecord>> {
+
     public static final String LAST_COMPLETELY_PROCESSED_LSN_KEY = "lsn_proc";
     public static final String LAST_COMMIT_LSN_KEY = "lsn_commit";
     private static final Logger LOG = LoggerFactory.getLogger(DebeziumChangeConsumer.class);

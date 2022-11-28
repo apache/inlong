@@ -101,7 +101,7 @@ public class ProxyClientConfig {
 
     private int maxRetry;
 
-    /*pay attention to the last url parameter ip*/
+    /* pay attention to the last url parameter ip */
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
             int managerPort, String groupId, String netTag, String authSecretId, String authSecretKey,
             LoadBalance loadBalance, int virtualNode, int maxRetry) throws ProxysdkException {

@@ -29,7 +29,9 @@ import java.util.Objects;
  * TableChange represent requested changes to a table.
  */
 public interface TableChange {
+
     final class First implements ColumnPosition {
+
         private static final First INSTANCE = new First();
 
         private First() {
@@ -43,6 +45,7 @@ public interface TableChange {
     }
 
     final class After implements ColumnPosition {
+
         private final String column;
 
         private After(String column) {
@@ -89,10 +92,12 @@ public interface TableChange {
     }
 
     interface ColumnChange extends TableChange {
+
         String[] fieldNames();
     }
 
     final class AddColumn implements ColumnChange {
+
         private final String[] fieldNames;
         private final LogicalType dataType;
         private final boolean isNullable;
@@ -172,6 +177,7 @@ public interface TableChange {
     }
 
     final class DeleteColumn implements ColumnChange {
+
         @Override
         public String[] fieldNames() {
             return new String[0];
@@ -182,6 +188,7 @@ public interface TableChange {
      * Represents a column change that is not recognized by the connector.
      */
     final class UnknownColumnChange implements ColumnChange {
+
         private String description;
 
         public UnknownColumnChange(String description) {

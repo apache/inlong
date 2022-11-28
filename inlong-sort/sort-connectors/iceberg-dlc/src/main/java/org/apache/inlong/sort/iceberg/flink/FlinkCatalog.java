@@ -115,7 +115,8 @@ public class FlinkCatalog extends AbstractCatalog {
         Catalog originalCatalog = catalogLoader.loadCatalog();
         icebergCatalog = cacheEnabled ? CachingCatalog.wrap(originalCatalog) : originalCatalog;
         asNamespaceCatalog = originalCatalog instanceof SupportsNamespaces
-                ? (SupportsNamespaces) originalCatalog : null;
+                ? (SupportsNamespaces) originalCatalog
+                : null;
         closeable = originalCatalog instanceof Closeable ? (Closeable) originalCatalog : null;
     }
 
@@ -729,4 +730,3 @@ public class FlinkCatalog extends AbstractCatalog {
         return CatalogColumnStatistics.UNKNOWN;
     }
 }
-

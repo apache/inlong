@@ -22,15 +22,15 @@ import org.apache.inlong.tubemq.corebase.protobuf.generated.ClientBroker;
 public interface BrokerReadService {
 
     ClientBroker.RegisterResponseB2C consumerRegisterC2B(ClientBroker.RegisterRequestC2B request,
-                                                         String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientBroker.HeartBeatResponseB2C consumerHeartbeatC2B(ClientBroker.HeartBeatRequestC2B request,
-                                                           String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientBroker.GetMessageResponseB2C getMessagesC2B(ClientBroker.GetMessageRequestC2B request,
-                                                      String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
     ClientBroker.CommitOffsetResponseB2C consumerCommitC2B(ClientBroker.CommitOffsetRequestC2B request,
-                                                           String rmtAddress, boolean overtls) throws Throwable;
+            String rmtAddress, boolean overtls) throws Throwable;
 
 }

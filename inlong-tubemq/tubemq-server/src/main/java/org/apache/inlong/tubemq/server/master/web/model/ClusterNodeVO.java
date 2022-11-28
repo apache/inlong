@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.master.web.model;
 
 public class ClusterNodeVO {
+
     private String nodeName;
     private String hostName;
     private int port;
@@ -29,7 +30,7 @@ public class ClusterNodeVO {
     }
 
     public ClusterNodeVO(String nodeName, String hostName,
-                         int port, String nodeStatus, long joinTime) {
+            int port, String nodeStatus, long joinTime) {
         this.nodeName = nodeName;
         this.hostName = hostName;
         this.port = port;

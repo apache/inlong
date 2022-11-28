@@ -46,12 +46,11 @@ import static org.apache.flink.util.Preconditions.checkArgument;
  * Add an option `inlong.metric` to support metrics.
  */
 class TableJdbcUpsertOutputFormat
-        extends JdbcBatchingOutputFormat<
-        Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>> {
+        extends
+            JdbcBatchingOutputFormat<Tuple2<Boolean, Row>, Row, JdbcBatchStatementExecutor<Row>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TableJdbcUpsertOutputFormat.class);
-    private final StatementExecutorFactory<JdbcBatchStatementExecutor<Row>>
-            deleteStatementExecutorFactory;
+    private final StatementExecutorFactory<JdbcBatchStatementExecutor<Row>> deleteStatementExecutorFactory;
     private JdbcBatchStatementExecutor<Row> deleteExecutor;
 
     TableJdbcUpsertOutputFormat(
@@ -74,11 +73,9 @@ class TableJdbcUpsertOutputFormat
             JdbcConnectionProvider connectionProvider,
             JdbcExecutionOptions batchOptions,
             StatementExecutorFactory<JdbcBatchStatementExecutor<Row>> statementExecutorFactory,
-            StatementExecutorFactory<JdbcBatchStatementExecutor<Row>>
-                    deleteStatementExecutorFactory,
+            StatementExecutorFactory<JdbcBatchStatementExecutor<Row>> deleteStatementExecutorFactory,
             String inlongMetric,
-            String auditHostAndPorts
-    ) {
+            String auditHostAndPorts) {
         super(connectionProvider, batchOptions, statementExecutorFactory, tuple2 -> tuple2.f1,
                 inlongMetric, auditHostAndPorts);
         this.deleteStatementExecutorFactory = deleteStatementExecutorFactory;
@@ -109,9 +106,8 @@ class TableJdbcUpsertOutputFormat
         return JdbcBatchStatementExecutor.keyed(
                 sql,
                 createRowKeyExtractor(pkFields),
-                (st, record) ->
-                        setRecordToStatement(
-                                st, pkTypes, createRowKeyExtractor(pkFields).apply(record)));
+                (st, record) -> setRecordToStatement(
+                        st, pkTypes, createRowKeyExtractor(pkFields).apply(record)));
     }
 
     private static JdbcBatchStatementExecutor<Row> createUpsertRowExecutor(
@@ -131,37 +127,35 @@ class TableJdbcUpsertOutputFormat
                 .getUpsertStatement(
                         opt.getTableName(), opt.getFieldNames(), opt.getKeyFields().get())
                 .map(
-                        sql ->
-                                createSimpleRowExecutor(
-                                        parseNamedStatement(sql),
-                                        opt.getFieldTypes(),
-                                        ctx.getExecutionConfig().isObjectReuseEnabled()))
+                        sql -> createSimpleRowExecutor(
+                                parseNamedStatement(sql),
+                                opt.getFieldTypes(),
+                                ctx.getExecutionConfig().isObjectReuseEnabled()))
                 .orElseGet(
-                        () ->
-                                new InsertOrUpdateJdbcExecutor<>(
-                                        parseNamedStatement(
-                                                opt.getDialect()
-                                                        .getRowExistsStatement(
-                                                                opt.getTableName(),
-                                                                opt.getKeyFields().get())),
-                                        parseNamedStatement(
-                                                opt.getDialect()
-                                                        .getInsertIntoStatement(
-                                                                opt.getTableName(),
-                                                                opt.getFieldNames())),
-                                        parseNamedStatement(
-                                                opt.getDialect()
-                                                        .getUpdateStatement(
-                                                                opt.getTableName(),
-                                                                opt.getFieldNames(),
-                                                                opt.getKeyFields().get())),
-                                        createRowJdbcStatementBuilder(pkTypes),
-                                        createRowJdbcStatementBuilder(opt.getFieldTypes()),
-                                        createRowJdbcStatementBuilder(opt.getFieldTypes()),
-                                        createRowKeyExtractor(pkFields),
-                                        ctx.getExecutionConfig().isObjectReuseEnabled()
-                                                ? Row::copy
-                                                : Function.identity()));
+                        () -> new InsertOrUpdateJdbcExecutor<>(
+                                parseNamedStatement(
+                                        opt.getDialect()
+                                                .getRowExistsStatement(
+                                                        opt.getTableName(),
+                                                        opt.getKeyFields().get())),
+                                parseNamedStatement(
+                                        opt.getDialect()
+                                                .getInsertIntoStatement(
+                                                        opt.getTableName(),
+                                                        opt.getFieldNames())),
+                                parseNamedStatement(
+                                        opt.getDialect()
+                                                .getUpdateStatement(
+                                                        opt.getTableName(),
+                                                        opt.getFieldNames(),
+                                                        opt.getKeyFields().get())),
+                                createRowJdbcStatementBuilder(pkTypes),
+                                createRowJdbcStatementBuilder(opt.getFieldTypes()),
+                                createRowJdbcStatementBuilder(opt.getFieldTypes()),
+                                createRowKeyExtractor(pkFields),
+                                ctx.getExecutionConfig().isObjectReuseEnabled()
+                                        ? Row::copy
+                                        : Function.identity()));
     }
 
     private static String parseNamedStatement(String statement) {

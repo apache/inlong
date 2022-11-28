@@ -25,6 +25,7 @@ import lombok.Data;
 
 @Data
 public class RebalanceGroupResult {
+
     private List<String> failConsumers = Lists.newArrayList();
 
     private List<String> successConsumers = Lists.newArrayList();

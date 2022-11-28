@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.corebase.balance;
 
 public enum EventStatus {
+
     /**
      * To be processed state.
      * */
@@ -66,4 +67,3 @@ public enum EventStatus {
     }
 
 }
-

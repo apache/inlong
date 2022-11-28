@@ -38,8 +38,8 @@ public class PulsarZoneProducer extends AbstractZoneProducer implements ZoneClus
 
     @Override
     public AbstractZoneClusterProducer calculator(String workerName, CacheClusterConfig config,
-                                                  AbstractZoneSinkContext context) {
-        return  new PulsarClusterProducer(workerName, config, (PulsarZoneSinkContext) context);
+            AbstractZoneSinkContext context) {
+        return new PulsarClusterProducer(workerName, config, (PulsarZoneSinkContext) context);
     }
 
 }

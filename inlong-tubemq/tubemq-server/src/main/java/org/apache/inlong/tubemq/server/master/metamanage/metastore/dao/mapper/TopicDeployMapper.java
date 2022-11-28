@@ -36,7 +36,7 @@ public interface TopicDeployMapper extends AbstractMapper {
      * @return         whether success
      */
     boolean addTopicDeployConf(TopicDeployEntity entity,
-                               StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update the topic deploy configure info from store
@@ -47,7 +47,7 @@ public interface TopicDeployMapper extends AbstractMapper {
      * @return         whether success
      */
     boolean updTopicDeployConf(TopicDeployEntity entity,
-                               StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update topic deploy status info from store
@@ -61,8 +61,8 @@ public interface TopicDeployMapper extends AbstractMapper {
      * @return            whether success
      */
     boolean updTopicDeployStatus(BaseEntity opEntity, int brokerId,
-                                 String topicName, TopicStatus topicStatus,
-                                 StringBuilder strBuff, ProcessResult result);
+            String topicName, TopicStatus topicStatus,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete topic deploy configure info from store
@@ -103,11 +103,11 @@ public interface TopicDeployMapper extends AbstractMapper {
      * @return  topic deploy info by topicName's key
      */
     Map<String, List<TopicDeployEntity>> getTopicConfMap(Set<String> topicNameSet,
-                                                         Set<Integer> brokerIdSet,
-                                                         TopicDeployEntity qryEntity);
+            Set<Integer> brokerIdSet,
+            TopicDeployEntity qryEntity);
 
     Map<Integer, List<TopicDeployEntity>> getTopicDeployInfoMap(Set<String> topicNameSet,
-                                                                Set<Integer> brokerIdSet);
+            Set<Integer> brokerIdSet);
 
     Map<String/* topicName */, List<TopicDeployEntity>> getTopicConfMapByTopicAndBrokerIds(
             Set<String> topicSet, Set<Integer> brokerIdSet);

@@ -25,9 +25,11 @@ import javax.annotation.Nullable;
  * assigned.
  */
 public abstract class PendingSplitsState {
+
     /**
      * The splits are frequently serialized into checkpoints. Caching the byte representation makes
      * repeated serialization cheap. This field is used by {@link PendingSplitsStateSerializer}.
      */
-    @Nullable transient byte[] serializedFormCache;
+    @Nullable
+    transient byte[] serializedFormCache;
 }

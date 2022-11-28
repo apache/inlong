@@ -46,7 +46,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @Internal
 public class Elasticsearch7ApiCallBridge
-        implements ElasticsearchApiCallBridge<RestHighLevelClient> {
+        implements
+            ElasticsearchApiCallBridge<RestHighLevelClient> {
 
     private static final long serialVersionUID = -5222683870097809633L;
 
@@ -83,8 +84,7 @@ public class Elasticsearch7ApiCallBridge
     public BulkProcessor.Builder createBulkProcessorBuilder(
             RestHighLevelClient client, BulkProcessor.Listener listener) {
         return BulkProcessor.builder(
-                (request, bulkListener) ->
-                        client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
+                (request, bulkListener) -> client.bulkAsync(request, RequestOptions.DEFAULT, bulkListener),
                 listener);
     }
 

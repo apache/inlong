@@ -45,6 +45,7 @@ import static org.apache.flink.table.factories.utils.FactoryMocks.createTableSou
 import static org.junit.Assert.assertEquals;
 
 public class CanalJsonEnhancedFormatFactoryTest {
+
     private static final InternalTypeInfo<RowData> ROW_TYPE_INFO =
             InternalTypeInfo.of(PHYSICAL_TYPE);
 
@@ -66,7 +67,7 @@ public class CanalJsonEnhancedFormatFactoryTest {
         // test Deser
         CanalJsonEnhancedDeserializationSchema expectedDeser =
                 CanalJsonEnhancedDeserializationSchema.builder(
-                                PHYSICAL_DATA_TYPE, Collections.emptyList(), ROW_TYPE_INFO)
+                        PHYSICAL_DATA_TYPE, Collections.emptyList(), ROW_TYPE_INFO)
                         .setIgnoreParseErrors(true)
                         .setTimestampFormat(TimestampFormat.ISO_8601)
                         .setDatabase("mydb")
@@ -89,7 +90,7 @@ public class CanalJsonEnhancedFormatFactoryTest {
     }
 
     // ------------------------------------------------------------------------
-    //  Public Tools
+    // Public Tools
     // ------------------------------------------------------------------------
 
     public static DeserializationSchema<RowData> createDeserializationSchema(

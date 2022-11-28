@@ -24,6 +24,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public abstract class HasThread implements Runnable {
+
     private final Thread thread;
 
     public HasThread() {

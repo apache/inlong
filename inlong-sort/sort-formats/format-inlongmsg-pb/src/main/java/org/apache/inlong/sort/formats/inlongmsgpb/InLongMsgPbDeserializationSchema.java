@@ -120,10 +120,12 @@ public class InLongMsgPbDeserializationSchema implements DeserializationSchema<R
     }
 
     interface MetadataConverter extends Serializable {
+
         Object read(MessageObj body);
     }
 
     interface InLongPbMsgDecompressor extends Serializable {
+
         byte[] decompress(byte[] message) throws IOException;
     }
 

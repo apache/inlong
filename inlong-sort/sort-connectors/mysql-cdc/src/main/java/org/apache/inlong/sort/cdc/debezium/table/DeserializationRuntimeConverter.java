@@ -28,5 +28,6 @@ import java.io.Serializable;
  */
 @FunctionalInterface
 public interface DeserializationRuntimeConverter extends Serializable {
+
     Object convert(Object dbzObj, Schema schema) throws Exception;
 }

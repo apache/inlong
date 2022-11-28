@@ -117,14 +117,13 @@ public class TableFormatUtils {
      */
     public static <T> DeserializationSchema<T> getDeserializationSchema(
             final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
-        @SuppressWarnings("unchecked") final DeserializationSchemaFactory<T> deserializationSchemaFactory =
+            final ClassLoader classLoader) {
+        @SuppressWarnings("unchecked")
+        final DeserializationSchemaFactory<T> deserializationSchemaFactory =
                 TableFactoryService.find(
                         DeserializationSchemaFactory.class,
                         properties,
-                        classLoader
-                );
+                        classLoader);
 
         return deserializationSchemaFactory.createDeserializationSchema(properties);
     }
@@ -140,14 +139,13 @@ public class TableFormatUtils {
      */
     public static <T> SerializationSchema<T> getSerializationSchema(
             final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
-        @SuppressWarnings("unchecked") final SerializationSchemaFactory<T> serializationSchemaFactory =
+            final ClassLoader classLoader) {
+        @SuppressWarnings("unchecked")
+        final SerializationSchemaFactory<T> serializationSchemaFactory =
                 TableFactoryService.find(
                         SerializationSchemaFactory.class,
                         properties,
-                        classLoader
-                );
+                        classLoader);
 
         return serializationSchemaFactory.createSerializationSchema(properties);
     }
@@ -165,14 +163,12 @@ public class TableFormatUtils {
     public static <T> DeserializationSchema<Row> getProjectedDeserializationSchema(
             final Map<String, String> properties,
             final int[] fields,
-            final ClassLoader classLoader
-    ) {
+            final ClassLoader classLoader) {
         final ProjectedDeserializationSchemaFactory deserializationSchemaFactory =
                 TableFactoryService.find(
                         ProjectedDeserializationSchemaFactory.class,
                         properties,
-                        classLoader
-                );
+                        classLoader);
 
         return deserializationSchemaFactory
                 .createProjectedDeserializationSchema(properties, fields);
@@ -190,14 +186,12 @@ public class TableFormatUtils {
     public static SerializationSchema<Row> getProjectedSerializationSchema(
             final Map<String, String> properties,
             final int[] fields,
-            final ClassLoader classLoader
-    ) {
+            final ClassLoader classLoader) {
         final ProjectedSerializationSchemaFactory serializationSchemaFactory =
                 TableFactoryService.find(
                         ProjectedSerializationSchemaFactory.class,
                         properties,
-                        classLoader
-                );
+                        classLoader);
 
         return serializationSchemaFactory
                 .createProjectedSerializationSchema(properties, fields);
@@ -213,14 +207,12 @@ public class TableFormatUtils {
      */
     public static TableFormatSerializer getTableFormatSerializer(
             final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
+            final ClassLoader classLoader) {
         final TableFormatSerializerFactory tableFormatSerializerFactory =
                 TableFactoryService.find(
                         TableFormatSerializerFactory.class,
                         properties,
-                        classLoader
-                );
+                        classLoader);
 
         return tableFormatSerializerFactory
                 .createFormatSerializer(properties);
@@ -236,14 +228,12 @@ public class TableFormatUtils {
      */
     public static TableFormatDeserializer getTableFormatDeserializer(
             final Map<String, String> properties,
-            final ClassLoader classLoader
-    ) {
+            final ClassLoader classLoader) {
         final TableFormatDeserializerFactory tableFormatDeserializerFactory =
                 TableFactoryService.find(
                         TableFormatDeserializerFactory.class,
                         properties,
-                        classLoader
-                );
+                        classLoader);
 
         return tableFormatDeserializerFactory
                 .createFormatDeserializer(properties);
@@ -464,8 +454,7 @@ public class TableFormatUtils {
      * @return The basic row format defined in the descriptor.
      */
     public static RowFormatInfo deserializeRowFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
+            DescriptorProperties descriptorProperties) {
         try {
             String schema = descriptorProperties.getString(FORMAT_SCHEMA);
 
@@ -487,8 +476,7 @@ public class TableFormatUtils {
      * @return The format derived from the schema in the descriptor.
      */
     public static RowFormatInfo deriveRowFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
+            DescriptorProperties descriptorProperties) {
         TableSchema tableSchema =
                 deriveSchema(descriptorProperties.asMap());
 
@@ -512,8 +500,7 @@ public class TableFormatUtils {
      * @return The schema in the properties.
      */
     public static RowFormatInfo getRowFormatInfo(
-            DescriptorProperties descriptorProperties
-    ) {
+            DescriptorProperties descriptorProperties) {
         if (descriptorProperties.containsKey(FORMAT_SCHEMA)) {
             return deserializeRowFormatInfo(descriptorProperties);
         } else {
@@ -529,8 +516,7 @@ public class TableFormatUtils {
      */
     public static RowFormatInfo projectRowFormatInfo(
             RowFormatInfo rowFormatInfo,
-            int[] fields
-    ) {
+            int[] fields) {
         String[] fieldNames = rowFormatInfo.getFieldNames();
         FormatInfo[] fieldFormatInfos = rowFormatInfo.getFieldFormatInfos();
 
@@ -574,8 +560,7 @@ public class TableFormatUtils {
             String fieldName,
             FormatInfo fieldFormatInfo,
             String fieldText,
-            String nullLiteral
-    ) {
+            String nullLiteral) {
         checkState(fieldFormatInfo instanceof BasicFormatInfo);
 
         if (fieldText == null) {
@@ -612,8 +597,7 @@ public class TableFormatUtils {
             String fieldName,
             FormatInfo fieldFormatInfo,
             Object field,
-            String nullLiteral
-    ) {
+            String nullLiteral) {
         checkState(fieldFormatInfo instanceof BasicFormatInfo);
 
         if (field == null) {

@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ClientStatsInfo {
+
     private static final Logger logger =
             LoggerFactory.getLogger(ClientStatsInfo.class);
     private final boolean isProducer;
@@ -145,7 +146,7 @@ public class ClientStatsInfo {
     }
 
     public void bookSuccSendMsg(long dltTime, String topicName,
-                                String partitionKey, int msgSize) {
+            String partitionKey, int msgSize) {
         if (this.statsConfig.getStatsLevel() == StatsLevel.ZERO) {
             return;
         }
@@ -158,7 +159,7 @@ public class ClientStatsInfo {
     }
 
     public void bookSuccGetMsg(long dltTime, String topicName,
-                               String partitionKey, int msgCnt, int msgSize) {
+            String partitionKey, int msgCnt, int msgSize) {
         if (this.statsConfig.getStatsLevel() == StatsLevel.ZERO) {
             return;
         }
@@ -178,8 +179,8 @@ public class ClientStatsInfo {
      * @param strBuff       string buffer
      */
     public void selfPrintStatsInfo(boolean forcePrint,
-                                   boolean needReset,
-                                   StringBuilder strBuff) {
+            boolean needReset,
+            StringBuilder strBuff) {
         if ((this.statsConfig.getStatsLevel() == StatsLevel.ZERO)
                 || !this.statsConfig.isEnableSelfPrint()) {
             return;
@@ -223,7 +224,7 @@ public class ClientStatsInfo {
      * @param strBuff      string buffer
      */
     private void getStatsInfo(ClientStatsItemSet statsSet,
-                              boolean resetValue, StringBuilder strBuff) {
+            boolean resetValue, StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.resetTime.getFullName())
                 .append("\":\"").append(statsSet.resetTime.getStrSinceTime())
                 .append("\",\"probe_time\":\"")
@@ -287,6 +288,7 @@ public class ClientStatsInfo {
      *
      */
     private static class ClientStatsItemSet {
+
         // The reset time of statistics set
         protected final SinceTime resetTime =
                 new SinceTime("reset_time", null);
@@ -347,7 +349,7 @@ public class ClientStatsInfo {
          * @param msgSize   the message size
          */
         public void sendOrRecvMsg(String topic, long dltTime,
-                                  int msgCnt, int msgSize) {
+                int msgCnt, int msgSize) {
             msgCallDltStats.update(dltTime);
             totalTrafficStats.addMsgCntAndSize(msgCnt, msgSize);
             // accumulate traffic information by topic
@@ -389,7 +391,7 @@ public class ClientStatsInfo {
          * @param msgSize   the message size
          */
         public void addTrafficInfoByPartKey(String partitionKey,
-                                            long dltTime, int msgCnt, int msgSize) {
+                long dltTime, int msgCnt, int msgSize) {
             PartitionStatsItemSet partStatsUnit =
                     partDltStatsMap.get(partitionKey);
             if (partStatsUnit == null) {
@@ -541,8 +543,8 @@ public class ClientStatsInfo {
          * @param resetValue   whether to reset the current data
          */
         public void getPartDetailsInfo(StringBuilder strBuff,
-                                       boolean isProducer,
-                                       boolean resetValue) {
+                boolean isProducer,
+                boolean resetValue) {
             int totalCnt = 0;
             strBuff.append("\"part_details\":{");
             for (PartitionStatsItemSet partStatsSet : partDltStatsMap.values()) {
@@ -566,8 +568,9 @@ public class ClientStatsInfo {
      *
      */
     private static class PartitionStatsItemSet {
+
         private final String partKey;
-        protected  final TrafficStatsUnit trafficStatsUnit =
+        protected final TrafficStatsUnit trafficStatsUnit =
                 new TrafficStatsUnit("msg_cnt", "msg_size", "traffic");
         // time consumption statistics for sending or receiving messages
         protected final ESTHistogram msgCallDltStats =
@@ -615,4 +618,3 @@ public class ClientStatsInfo {
         }
     }
 }
-

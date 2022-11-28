@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Br
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsBrokerConfigMapperImpl;
 
 public class BdbBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
+
     // broker config store
     private EntityStore brokerConfStore;
     private final PrimaryIndex<Integer/* brokerId */, BdbBrokerConfEntity> brokerConfIndex;
@@ -88,8 +89,8 @@ public class BdbBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
     }
 
     protected boolean putConfig2Persistent(BrokerConfEntity entity,
-                                           StringBuilder strBuff,
-                                           ProcessResult result) {
+            StringBuilder strBuff,
+            ProcessResult result) {
         BdbBrokerConfEntity bdbEntity =
                 entity.buildBdbBrokerConfEntity();
         try {

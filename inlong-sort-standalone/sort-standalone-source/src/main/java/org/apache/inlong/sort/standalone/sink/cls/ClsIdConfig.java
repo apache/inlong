@@ -28,6 +28,7 @@ import java.util.List;
  */
 @Data
 public class ClsIdConfig {
+
     private String inlongGroupId;
     private String inlongStreamId;
     private String separator = "|";

@@ -158,11 +158,10 @@ public class OracleTableSource implements ScanTableSource, SupportsReadingMetada
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(OracleReadableMetaData.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(OracleReadableMetaData.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(OracleReadableMetaData::getConverter)
                 .toArray(MetadataConverter[]::new);
     }

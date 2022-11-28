@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.manager.enums;
 
 public enum TaskTypeEnum {
+
     CREATE_TOPIC(1, "createTopicTask");
 
     private Integer taskType;

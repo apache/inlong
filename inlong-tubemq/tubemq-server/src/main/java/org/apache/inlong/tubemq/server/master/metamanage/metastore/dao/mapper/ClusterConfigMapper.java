@@ -31,7 +31,7 @@ public interface ClusterConfigMapper extends AbstractMapper {
      * @return  the process result
      */
     boolean addUpdClusterConfig(ClusterSettingEntity entity,
-                                StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete current cluster setting from store

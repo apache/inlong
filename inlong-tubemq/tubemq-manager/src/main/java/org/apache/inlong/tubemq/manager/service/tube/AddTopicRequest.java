@@ -24,6 +24,7 @@ import lombok.Data;
  */
 @Data
 public class AddTopicRequest {
+
     private Integer brokerId;
     private String topicName;
     private String deleteWhen;

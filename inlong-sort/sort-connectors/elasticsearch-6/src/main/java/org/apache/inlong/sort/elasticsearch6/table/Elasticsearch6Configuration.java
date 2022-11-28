@@ -33,6 +33,7 @@ import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HO
 /** Elasticsearch 6 specific configuration. */
 @Internal
 final class Elasticsearch6Configuration extends ElasticsearchConfiguration {
+
     Elasticsearch6Configuration(ReadableConfig config, ClassLoader classLoader) {
         super(config, classLoader);
     }

@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class StatsConfigTest {
+
     @Test
     public void testStatsConfig() {
         StatsConfig statsConfig = new StatsConfig();

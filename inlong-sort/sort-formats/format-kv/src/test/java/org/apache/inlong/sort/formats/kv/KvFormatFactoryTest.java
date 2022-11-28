@@ -54,14 +54,12 @@ public class KvFormatFactoryTest {
     private static final TypeInformation<Row> SCHEMA =
             Types.ROW(
                     new String[]{"student_name", "score", "date"},
-                    new TypeInformation[]{Types.STRING(), Types.INT(), Types.SQL_DATE()}
-            );
+                    new TypeInformation[]{Types.STRING(), Types.INT(), Types.SQL_DATE()});
 
     private static final TypeInformation<Row> KEYED_SCHEMA =
             Types.ROW(
                     new String[]{"key", "student_name", "score", "date"},
-                    new TypeInformation[]{Types.LONG(), Types.STRING(), Types.INT(), Types.SQL_DATE()}
-            );
+                    new TypeInformation[]{Types.LONG(), Types.STRING(), Types.INT(), Types.SQL_DATE()});
 
     private static final RowFormatInfo TEST_FORMAT_SCHEMA =
             new RowFormatInfo(
@@ -70,8 +68,7 @@ public class KvFormatFactoryTest {
                             StringFormatInfo.INSTANCE,
                             IntFormatInfo.INSTANCE,
                             new DateFormatInfo("yyyy-MM-dd")
-                    }
-            );
+                    });
 
     private static final RowFormatInfo TEST_KEYED_FORMAT_SCHEMA =
             new RowFormatInfo(
@@ -81,8 +78,7 @@ public class KvFormatFactoryTest {
                             StringFormatInfo.INSTANCE,
                             IntFormatInfo.INSTANCE,
                             new DateFormatInfo("yyyy-MM-dd")
-                    }
-            );
+                    });
 
     @Test
     public void testCreateTableFormatDeserializer() throws Exception {
@@ -114,8 +110,7 @@ public class KvFormatFactoryTest {
         final TableFormatDeserializer actualDeser =
                 TableFormatUtils.getTableFormatDeserializer(
                         properties,
-                        getClass().getClassLoader()
-                );
+                        getClass().getClassLoader());
 
         assertEquals(expectedDeser, actualDeser);
     }
@@ -126,8 +121,7 @@ public class KvFormatFactoryTest {
         properties.putAll(
                 new Schema()
                         .schema(TableSchema.fromTypeInfo(SCHEMA))
-                        .toProperties()
-        );
+                        .toProperties());
         properties.putAll(new Kv().deriveSchema().toProperties());
 
         final KvDeserializationSchema deserializationSchema =
@@ -139,8 +133,7 @@ public class KvFormatFactoryTest {
         final TableFormatDeserializer actualDeser =
                 TableFormatUtils.getTableFormatDeserializer(
                         properties,
-                        getClass().getClassLoader()
-                );
+                        getClass().getClassLoader());
 
         assertEquals(expectedDeser, actualDeser);
     }
@@ -175,8 +168,7 @@ public class KvFormatFactoryTest {
         final TableFormatSerializer actualSer =
                 TableFormatUtils.getTableFormatSerializer(
                         properties,
-                        getClass().getClassLoader()
-                );
+                        getClass().getClassLoader());
 
         assertEquals(expectedSer, actualSer);
     }
@@ -187,8 +179,7 @@ public class KvFormatFactoryTest {
         properties.putAll(
                 new Schema()
                         .schema(TableSchema.fromTypeInfo(SCHEMA))
-                        .toProperties()
-        );
+                        .toProperties());
         properties.putAll(new Kv().deriveSchema().toProperties());
 
         final KvSerializationSchema serializationSchema =
@@ -200,8 +191,7 @@ public class KvFormatFactoryTest {
         final TableFormatSerializer actualSer =
                 TableFormatUtils.getTableFormatSerializer(
                         properties,
-                        getClass().getClassLoader()
-                );
+                        getClass().getClassLoader());
 
         assertEquals(expectedSer, actualSer);
     }
@@ -228,15 +218,13 @@ public class KvFormatFactoryTest {
                         '=',
                         '\\',
                         '\"',
-                        "null"
-                );
+                        "null");
 
         final DeserializationSchema<Row> actualDeser =
                 TableFormatUtils.getProjectedDeserializationSchema(
                         properties,
                         new int[]{1, 2, 3},
-                        getClass().getClassLoader()
-                );
+                        getClass().getClassLoader());
 
         assertEquals(expectdDeser, actualDeser);
     }
@@ -247,8 +235,7 @@ public class KvFormatFactoryTest {
         properties.putAll(
                 new Schema()
                         .schema(TableSchema.fromTypeInfo(KEYED_SCHEMA))
-                        .toProperties()
-        );
+                        .toProperties());
         properties.putAll(new Kv().deriveSchema().toProperties());
 
         final KvDeserializationSchema expectedDeser =
@@ -258,8 +245,7 @@ public class KvFormatFactoryTest {
                 TableFormatUtils.getProjectedDeserializationSchema(
                         properties,
                         new int[]{1, 2, 3},
-                        getClass().getClassLoader()
-                );
+                        getClass().getClassLoader());
 
         assertEquals(expectedDeser, actualDeser);
     }
@@ -292,8 +278,7 @@ public class KvFormatFactoryTest {
                 TableFormatUtils.getProjectedSerializationSchema(
                         properties,
                         new int[]{1, 2, 3},
-                        getClass().getClassLoader()
-                );
+                        getClass().getClassLoader());
 
         assertEquals(expectdSer, actualSer);
     }
@@ -304,8 +289,7 @@ public class KvFormatFactoryTest {
         properties.putAll(
                 new Schema()
                         .schema(TableSchema.fromTypeInfo(KEYED_SCHEMA))
-                        .toProperties()
-        );
+                        .toProperties());
         properties.putAll(new Kv().deriveSchema().toProperties());
 
         final KvSerializationSchema expectedSer =
@@ -315,8 +299,7 @@ public class KvFormatFactoryTest {
                 TableFormatUtils.getProjectedSerializationSchema(
                         properties,
                         new int[]{1, 2, 3},
-                        getClass().getClassLoader()
-                );
+                        getClass().getClassLoader());
 
         assertEquals(expectedSer, actualSer);
     }

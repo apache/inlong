@@ -81,7 +81,7 @@ public interface BrokerService {
      * @return
      */
     TubeMQResult deleteOffset(String brokerIp, int brokerWebPort,
-                              DeleteOffsetReq req);
+            DeleteOffsetReq req);
 
     OffsetQueryRes queryOffset(String brokerIp, int brokerWebPort, QueryOffsetReq req);
 }

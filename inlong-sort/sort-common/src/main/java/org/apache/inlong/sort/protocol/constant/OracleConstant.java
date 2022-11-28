@@ -95,6 +95,7 @@ public class OracleConstant {
      */
     @Getter
     public enum ScanStartUpMode {
+
         /**
          * Performs an initial snapshot on the monitored database tables upon first startup,
          * and continue to read the latest binlog.

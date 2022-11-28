@@ -25,6 +25,7 @@ import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 
 public class ClusterConfigHolder {
+
     private static AtomicLong configId =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private static AtomicInteger maxMsgSize =

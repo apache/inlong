@@ -37,7 +37,7 @@ public class PulsarZoneSinkContext extends AbstractZoneSinkContext {
      * @param context
      */
     public PulsarZoneSinkContext(String sinkName, Context context, Channel channel,
-                                 ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
+            ArrayList<LinkedBlockingQueue<DispatchProfile>> dispatchQueues) {
         super(sinkName, context, channel, dispatchQueues);
     }
 

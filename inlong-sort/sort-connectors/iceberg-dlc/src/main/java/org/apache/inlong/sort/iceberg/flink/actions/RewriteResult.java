@@ -20,6 +20,7 @@
 package org.apache.inlong.sort.iceberg.flink.actions;
 
 public class RewriteResult {
+
     private String result;
 
     public RewriteResult(String result) {

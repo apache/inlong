@@ -377,24 +377,21 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     protected FlinkKafkaProducer<RowData> createKafkaProducer(
             SerializationSchema<RowData> keySerialization,
             SerializationSchema<RowData> valueSerialization,
-            String sinkMultipleFormat
-    ) {
+            String sinkMultipleFormat) {
         final List<LogicalType> physicalChildren = physicalDataType.getLogicalType().getChildren();
 
         final RowData.FieldGetter[] keyFieldGetters =
                 Arrays.stream(keyProjection)
                         .mapToObj(
-                                targetField ->
-                                        RowData.createFieldGetter(
-                                                physicalChildren.get(targetField), targetField))
+                                targetField -> RowData.createFieldGetter(
+                                        physicalChildren.get(targetField), targetField))
                         .toArray(RowData.FieldGetter[]::new);
 
         final RowData.FieldGetter[] valueFieldGetters =
                 Arrays.stream(valueProjection)
                         .mapToObj(
-                                targetField ->
-                                        RowData.createFieldGetter(
-                                                physicalChildren.get(targetField), targetField))
+                                targetField -> RowData.createFieldGetter(
+                                        physicalChildren.get(targetField), targetField))
                         .toArray(RowData.FieldGetter[]::new);
 
         // determine the positions of metadata in the consumed row
@@ -437,8 +434,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 auditHostAndPorts);
     }
 
-    private @Nullable
-    SerializationSchema<RowData> createSerialization(
+    private @Nullable SerializationSchema<RowData> createSerialization(
             Context context,
             @Nullable EncodingFormat<SerializationSchema<RowData>> format,
             int[] projection,
@@ -459,12 +455,14 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
     // --------------------------------------------------------------------------------------------
 
     enum WritableMetadata {
+
         HEADERS(
                 "headers",
                 // key and value of the map are nullable to make handling easier in queries
                 DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.BYTES().nullable())
                         .nullable(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -491,6 +489,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 "timestamp",
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).nullable(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

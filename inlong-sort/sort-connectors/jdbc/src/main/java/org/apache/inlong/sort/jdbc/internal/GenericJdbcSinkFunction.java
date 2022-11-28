@@ -37,7 +37,8 @@ import java.io.IOException;
  */
 @Internal
 public class GenericJdbcSinkFunction<T> extends RichSinkFunction<T>
-        implements CheckpointedFunction {
+        implements
+            CheckpointedFunction {
 
     private final AbstractJdbcOutputFormat<T> outputFormat;
 

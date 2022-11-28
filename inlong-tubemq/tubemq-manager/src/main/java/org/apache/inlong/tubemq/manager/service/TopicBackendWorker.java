@@ -44,7 +44,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Component
 @Slf4j
-public class TopicBackendWorker implements DisposableBean, Runnable  {
+public class TopicBackendWorker implements DisposableBean, Runnable {
+
     // old code, stop first
     private final AtomicBoolean runFlag = new AtomicBoolean(false);
     private final ConcurrentHashMap<Integer, BlockingQueue<TopicFuture>> pendingTopics =

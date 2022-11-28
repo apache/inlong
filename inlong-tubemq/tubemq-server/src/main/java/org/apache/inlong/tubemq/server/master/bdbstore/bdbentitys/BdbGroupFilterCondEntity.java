@@ -31,17 +31,18 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.TStoreConstan
 
 @Entity
 public class BdbGroupFilterCondEntity implements Serializable {
+
     private static final long serialVersionUID = 5305233169489425210L;
 
     @PrimaryKey
     private String recordKey;
     private String topicName;
     private String consumerGroupName;
-    private int controlStatus = -2;   // -2: undefine; 0: not started; 1:started, not limited; 2: started, limited
+    private int controlStatus = -2; // -2: undefine; 0: not started; 1:started, not limited; 2: started, limited
     private String attributes;
     // ** Based on the data compatibility consideration of the original version:
-    //     the creation information in this example is the last modified information,
-    //     and the modified information is the creation information
+    // the creation information in this example is the last modified information,
+    // and the modified information is the creation information
     private String createUser;
     private Date createDate;
 
@@ -50,8 +51,8 @@ public class BdbGroupFilterCondEntity implements Serializable {
     }
 
     public BdbGroupFilterCondEntity(String topicName, String consumerGroupName,
-                                    int controlStatus, String filterCondStr,
-                                    String modifyUser, Date modifyDate) {
+            int controlStatus, String filterCondStr,
+            String modifyUser, Date modifyDate) {
         this.recordKey =
                 new StringBuilder(512)
                         .append(topicName)
@@ -66,8 +67,8 @@ public class BdbGroupFilterCondEntity implements Serializable {
     }
 
     public BdbGroupFilterCondEntity(String topicName, String consumerGroupName,
-                                    int controlStatus, String filterCondStr,
-                                    String attributes, String modifyUser, Date modifyDate) {
+            int controlStatus, String filterCondStr,
+            String attributes, String modifyUser, Date modifyDate) {
         this.recordKey =
                 new StringBuilder(512)
                         .append(topicName)

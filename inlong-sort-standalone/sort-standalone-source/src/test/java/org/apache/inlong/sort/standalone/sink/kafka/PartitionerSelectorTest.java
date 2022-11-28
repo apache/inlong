@@ -57,7 +57,7 @@ public class PartitionerSelectorTest {
             obj.configure(configs);
             Cluster cluster = new Cluster("clusterId", nodes, partitionInfos,
                     new HashSet<String>(), new HashSet<String>());
-            obj.partition(V_INLONG_ID_TOPIC, null, null, null,null, cluster);
+            obj.partition(V_INLONG_ID_TOPIC, null, null, null, null, cluster);
             obj.partition(V_INLONG_ID_TOPIC, "", V_INLONG_ID.getBytes(),
                     V_INLONG_ID.getBytes(), V_INLONG_ID.getBytes(), cluster);
             obj.onNewBatch(V_INLONG_ID_TOPIC, cluster, 0);

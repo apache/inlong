@@ -19,6 +19,7 @@
 package org.apache.inlong.sdk.dataproxy;
 
 public interface SendMessageCallback {
+
     /* Invoked when a message is confirmed by TDBus. */
     public void onMessageAck(SendResult result);
 

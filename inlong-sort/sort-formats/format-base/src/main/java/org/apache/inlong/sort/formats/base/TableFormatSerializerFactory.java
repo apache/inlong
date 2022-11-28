@@ -36,6 +36,5 @@ public interface TableFormatSerializerFactory extends TableFormatFactory<Row> {
      *         provide an instance of the class.
      */
     TableFormatSerializer createFormatSerializer(
-            final Map<String, String> properties
-    );
+            final Map<String, String> properties);
 }

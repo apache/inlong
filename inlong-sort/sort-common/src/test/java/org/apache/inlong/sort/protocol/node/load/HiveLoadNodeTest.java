@@ -36,7 +36,8 @@ public class HiveLoadNodeTest extends SerializeBaseTest<HiveLoadNode> {
         return new HiveLoadNode("1", "test_hive_node",
                 Arrays.asList(new FieldInfo("field", new StringFormatInfo())),
                 Arrays.asList(new FieldRelation(new FieldInfo("field", new StringFormatInfo()),
-                        new FieldInfo("field", new StringFormatInfo()))), null, null,
+                        new FieldInfo("field", new StringFormatInfo()))),
+                null, null,
                 1, new HashMap<>(), "myHive", "default",
                 "test", "/opt/hive-conf", "3.1.3",
                 null, Arrays.asList(new FieldInfo("day", new LongFormatInfo())));

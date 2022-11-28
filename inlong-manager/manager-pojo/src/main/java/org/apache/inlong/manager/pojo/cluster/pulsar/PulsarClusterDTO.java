@@ -39,8 +39,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Pulsar cluster info")
 public class PulsarClusterDTO {
 
-    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080",
-            notes = "Pulsar service URL is the 'url' field of the cluster")
+    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080", notes = "Pulsar service URL is the 'url' field of the cluster")
     private String adminUrl;
 
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")

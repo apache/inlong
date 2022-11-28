@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 public interface ServiceRpcServer extends RpcServer {
 
     void publishService(String serviceName, Object serviceInstance,
-                        ExecutorService threadPool) throws Exception;
+            ExecutorService threadPool) throws Exception;
 
     void removeService(int protocolType, String serviceName) throws Exception;
 

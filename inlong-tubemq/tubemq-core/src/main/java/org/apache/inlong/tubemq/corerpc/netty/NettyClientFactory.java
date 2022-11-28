@@ -206,7 +206,7 @@ public class NettyClientFactory implements ClientFactory {
      * @throws Exception         the exception while creating object.
      */
     private Client createClient(final NodeAddrInfo addressInfo,
-                                int connectTimeout, final RpcConfig conf) throws Exception {
+            int connectTimeout, final RpcConfig conf) throws Exception {
         final NettyClient client =
                 new NettyClient(this, connectTimeout);
         Bootstrap clientBootstrap = new Bootstrap();
@@ -221,8 +221,9 @@ public class NettyClientFactory implements ClientFactory {
         int nettyWriteLowMark =
                 conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, 32 * 1024);
         clientBootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
-                    new WriteBufferWaterMark(nettyWriteLowMark, nettyWriteHighMark));
+                new WriteBufferWaterMark(nettyWriteLowMark, nettyWriteHighMark));
         clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
+
             @Override
             public void initChannel(SocketChannel socketChannel) throws Exception {
                 ChannelPipeline pipeline = socketChannel.pipeline();
@@ -247,7 +248,8 @@ public class NettyClientFactory implements ClientFactory {
                 // handle the time out requests
                 pipeline.addLast("readTimeoutHandler", new ReadTimeoutHandler(
                         conf.getLong(RpcConstants.CONNECT_READ_IDLE_DURATION,
-                                RpcConstants.CFG_CONNECT_READ_IDLE_TIME), TimeUnit.MILLISECONDS));
+                                RpcConstants.CFG_CONNECT_READ_IDLE_TIME),
+                        TimeUnit.MILLISECONDS));
                 // tube netty client handler
                 pipeline.addLast("clientHandler", client.new NettyClientHandler());
             }

@@ -40,6 +40,5 @@ public interface ProjectedSerializationSchemaFactory extends TableFormatFactory<
      */
     SerializationSchema<Row> createProjectedSerializationSchema(
             Map<String, String> properties,
-            int[] fields
-    );
+            int[] fields);
 }

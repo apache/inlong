@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WebApiServlet extends HttpServlet {
+
     public static final int MAX_MULTIPART_POST_DATA_SIZE = 67108864; // 64M, could be bigger if needed
     private static final Logger logger = LoggerFactory.getLogger(WebFilter.class);
     private static final String DEFAULT_CONFIG_PATH = "/WEB-INF/simple-mvc.xml";
@@ -59,7 +60,8 @@ public class WebApiServlet extends HttpServlet {
         }
 
         String charset = (req.getCharacterEncoding() == null)
-                ? TBaseConstants.META_DEFAULT_CHARSET_NAME : req.getCharacterEncoding();
+                ? TBaseConstants.META_DEFAULT_CHARSET_NAME
+                : req.getCharacterEncoding();
         resp.setCharacterEncoding(charset);
         RequestContext context = new RequestContext(this.config, req, resp);
         if (this.config.containsType(context.requestType())) {

@@ -88,8 +88,7 @@ public class PostgreSQLResourceOperator implements SinkResourceOperator {
         final List<PostgreSQLColumnInfo> columnList = Lists.newArrayList();
         fieldList.forEach(field -> {
             columnList.add(
-                    new PostgreSQLColumnInfo(field.getFieldName(), field.getFieldType(), field.getFieldComment())
-            );
+                    new PostgreSQLColumnInfo(field.getFieldName(), field.getFieldType(), field.getFieldComment()));
         });
 
         PostgreSQLSinkDTO postgreSQLSink = PostgreSQLSinkDTO.getFromJson(sinkInfo.getExtParams());

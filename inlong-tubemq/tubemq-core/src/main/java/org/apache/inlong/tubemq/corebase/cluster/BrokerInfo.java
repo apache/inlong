@@ -43,7 +43,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
     private String fullInfo;
     private String fullTLSInfo;
 
-    //create with strBrokerInfo (brokerId:host:port)
+    // create with strBrokerInfo (brokerId:host:port)
     public BrokerInfo(String strBrokerInfo) {
         String[] strBrokers =
                 strBrokerInfo.split(TokenConstants.ATTR_SEP);
@@ -54,7 +54,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with strBrokerInfo (brokerId:host)  brokerPort
+    // create with strBrokerInfo (brokerId:host) brokerPort
     public BrokerInfo(String strBrokerInfo, int brokerPort) {
         String[] strBrokers =
                 strBrokerInfo.split(TokenConstants.ATTR_SEP);
@@ -67,7 +67,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with brokerId host port
+    // create with brokerId host port
     public BrokerInfo(final int brokerId, final String host, final int port) {
         this.brokerId = brokerId;
         this.host = host;
@@ -75,7 +75,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with brokerId uri data
+    // create with brokerId uri data
     public BrokerInfo(final int brokerId, final String data) {
         this.brokerId = brokerId;
         try {
@@ -88,7 +88,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         }
     }
 
-    //create with strBrokerInfo (brokerId:host:port) and enableTls tlsPort
+    // create with strBrokerInfo (brokerId:host:port) and enableTls tlsPort
     public BrokerInfo(String strBrokerInfo, boolean enableTls, int tlsPort) {
         String[] strBrokers = strBrokerInfo.split(TokenConstants.ATTR_SEP);
         this.brokerId = Integer.parseInt(strBrokers[0]);
@@ -99,7 +99,7 @@ public class BrokerInfo implements Comparable<BrokerInfo>, Serializable {
         this.buildStrInfo();
     }
 
-    //create with brokerId host enableTls  tlsPort (port = tlsPort)
+    // create with brokerId host enableTls tlsPort (port = tlsPort)
     public BrokerInfo(int brokerId, String host, boolean enableTls, int tlsPort) {
         this.brokerId = brokerId;
         this.host = host;

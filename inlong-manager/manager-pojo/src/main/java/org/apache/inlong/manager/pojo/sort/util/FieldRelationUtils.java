@@ -293,8 +293,8 @@ public class FieldRelationUtils {
             SplitIndexFunction splitIndexFunction = new SplitIndexFunction(
                     fieldInfo, new StringConstantParam(separator), new ConstantParam(index));
             FieldInfo targetFieldInfo = new FieldInfo(
-                    targetSources.get(index), transformName, FieldInfoUtils.convertFieldFormat(FieldType.STRING.name())
-            );
+                    targetSources.get(index), transformName,
+                    FieldInfoUtils.convertFieldFormat(FieldType.STRING.name()));
             splitFields.add(targetSources.get(index));
             splitRelations.add(new FieldRelation(splitIndexFunction, targetFieldInfo));
         }

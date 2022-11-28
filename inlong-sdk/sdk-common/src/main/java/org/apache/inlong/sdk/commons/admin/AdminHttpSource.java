@@ -60,8 +60,10 @@ import com.google.common.base.Throwables;
 /**
  * AdminHttpSource
  */
-public class AdminHttpSource extends SslContextAwareAbstractSource implements
-        EventDrivenSource, Configurable {
+public class AdminHttpSource extends SslContextAwareAbstractSource
+        implements
+            EventDrivenSource,
+            Configurable {
     /*
      * There are 2 ways of doing this: a. Have a static server instance and use connectors in each source which binds to
      * the port defined for that source. b. Each source starts its own server instance, which binds to the source's
@@ -143,7 +145,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
         }
         srv = new Server(threadPool);
 
-//Register with JMX for advanced monitoring
+        // Register with JMX for advanced monitoring
         MBeanContainer mbContainer = new MBeanContainer(ManagementFactory.getPlatformMBeanServer());
         srv.addEventListener(mbContainer);
         srv.addBean(mbContainer);

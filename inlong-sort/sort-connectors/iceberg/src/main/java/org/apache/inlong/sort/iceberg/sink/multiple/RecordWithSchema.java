@@ -97,9 +97,9 @@ public class RecordWithSchema {
     }
 
     // todo: here RecordWithSchema is deserialized from network, it's `Schema` is the new object, the `Type` is the
-    //       same.However `Type` do not implement equals method, so some method will return unexpected result when
-    //       compare this schema with Table#schema loaded from catalog, For example, Schema#sameSchema will return false
-    //       even thought schema is the same, can't get the comparators of Type even thought type is the same.
+    // same.However `Type` do not implement equals method, so some method will return unexpected result when
+    // compare this schema with Table#schema loaded from catalog, For example, Schema#sameSchema will return false
+    // even thought schema is the same, can't get the comparators of Type even thought type is the same.
     public void replaceSchema() {
         List<NestedField> columns = schema.columns();
         List<NestedField> newColumns = new ArrayList<>();
@@ -136,7 +136,8 @@ public class RecordWithSchema {
                 return TimeType.get();
             case TIMESTAMP:
                 return ((TimestampType) type).shouldAdjustToUTC()
-                        ? TimestampType.withZone() : TimestampType.withoutZone();
+                        ? TimestampType.withZone()
+                        : TimestampType.withoutZone();
             case STRING:
                 return StringType.get();
             case UUID:

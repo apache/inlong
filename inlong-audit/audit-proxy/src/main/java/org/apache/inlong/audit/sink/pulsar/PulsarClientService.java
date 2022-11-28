@@ -138,7 +138,7 @@ public class PulsarClientService {
      * @return
      */
     public boolean sendMessage(String topic, Event event,
-                               SendMessageCallBack sendMessageCallBack, EventStat es) {
+            SendMessageCallBack sendMessageCallBack, EventStat es) {
         Producer producer = null;
         try {
             producer = getProducer(topic);
@@ -194,14 +194,14 @@ public class PulsarClientService {
         } catch (PulsarClientException e) {
             callBack.handleCreateClientException(pulsarServerUrl);
             logger.error("create connnection error in metasink, "
-                            + "maybe pulsar master set error, please re-check.url{}, ex1 {}",
+                    + "maybe pulsar master set error, please re-check.url{}, ex1 {}",
                     pulsarServerUrl,
                     e.getMessage());
         } catch (Throwable e) {
             callBack.handleCreateClientException(pulsarServerUrl);
             logger.error("create connnection error in metasink, "
-                            + "maybe pulsar master set error/shutdown in progress, please "
-                            + "re-check. url{}, ex2 {}",
+                    + "maybe pulsar master set error/shutdown in progress, please "
+                    + "re-check. url{}, ex2 {}",
                     pulsarServerUrl,
                     e.getMessage());
         }
@@ -224,7 +224,7 @@ public class PulsarClientService {
         Producer producer = null;
         try {
             producer = pulsarClient.newProducer().sendTimeout(sendTimeout,
-                            TimeUnit.MILLISECONDS)
+                    TimeUnit.MILLISECONDS)
                     .topic(topic)
                     .enableBatching(enableBatch)
                     .blockIfQueueFull(blockIfQueueFull)

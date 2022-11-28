@@ -49,10 +49,10 @@ public class JsonGetterFunctionTest extends AbstractTestBase {
     @Test
     public void testJsonGetterFunction() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
-            .newInstance()
-            .useBlinkPlanner()
-            .inStreamingMode()
-            .build();
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
         env.enableCheckpointing(10000);
@@ -63,7 +63,7 @@ public class JsonGetterFunctionTest extends AbstractTestBase {
         List<Row> data = new ArrayList<>();
         data.add(Row.of("{\"name\":\"abc\"}"));
         TypeInformation<?>[] types = {
-            BasicTypeInfo.STRING_TYPE_INFO};
+                BasicTypeInfo.STRING_TYPE_INFO};
         String[] names = {"content"};
         RowTypeInfo typeInfo = new RowTypeInfo(types, names);
         DataStream<Row> dataStream = env.fromCollection(data).returns(typeInfo);
@@ -73,9 +73,10 @@ public class JsonGetterFunctionTest extends AbstractTestBase {
         tableEnv.createTemporaryView("temp_view", tempView);
 
         org.apache.inlong.sort.protocol.transformation.function.JsonGetterFunction jsonGetterFunction =
-            new org.apache.inlong.sort.protocol.transformation.function.JsonGetterFunction(
-                new FieldInfo("content",
-                    new StringFormatInfo()), new StringConstantParam("name"));
+                new org.apache.inlong.sort.protocol.transformation.function.JsonGetterFunction(
+                        new FieldInfo("content",
+                                new StringFormatInfo()),
+                        new StringConstantParam("name"));
 
         String sqlQuery = String.format("SELECT %s as content FROM temp_view", jsonGetterFunction.format());
         Table outputTable = tableEnv.sqlQuery(sqlQuery);
@@ -83,8 +84,8 @@ public class JsonGetterFunctionTest extends AbstractTestBase {
         DataStream<Row> resultSet = tableEnv.toAppendStream(outputTable, Row.class);
         List<String> result = new ArrayList<>();
 
-        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect();
-            it.hasNext(); ) {
+        for (CloseableIterator<String> it = resultSet.map(s -> s.getField(0).toString()).executeAndCollect(); it
+                .hasNext();) {
             String next = it.next();
             result.add(next);
         }

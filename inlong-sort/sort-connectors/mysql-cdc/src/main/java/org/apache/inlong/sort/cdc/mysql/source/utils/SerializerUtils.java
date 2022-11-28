@@ -77,7 +77,7 @@ public class SerializerUtils {
 
     public static String rowToSerializedString(Object[] splitBoundary) {
         try (final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+                ObjectOutputStream oos = new ObjectOutputStream(bos)) {
             oos.writeObject(splitBoundary);
             return HexConverter.convertToHexString(bos.toByteArray());
         } catch (IOException e) {
@@ -88,8 +88,8 @@ public class SerializerUtils {
 
     public static Object[] serializedStringToRow(String serialized) {
         try (final ByteArrayInputStream bis =
-                     new ByteArrayInputStream(HexConverter.convertFromHex(serialized));
-             ObjectInputStream ois = new ObjectInputStream(bis)) {
+                new ByteArrayInputStream(HexConverter.convertFromHex(serialized));
+                ObjectInputStream ois = new ObjectInputStream(bis)) {
             return (Object[]) ois.readObject();
         } catch (Exception e) {
             throw new DebeziumException(

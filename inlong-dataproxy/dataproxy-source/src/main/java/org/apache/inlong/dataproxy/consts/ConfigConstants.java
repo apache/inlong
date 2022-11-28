@@ -137,7 +137,7 @@ public class ConfigConstants {
 
     public static final String MANAGER_AUTH_SECRET_ID = "manager.auth.secretId";
     public static final String MANAGER_AUTH_SECRET_KEY = "manager.auth.secretKey";
-    //Pulsar config
+    // Pulsar config
     public static final String KEY_TENANT = "tenant";
     public static final String KEY_NAMESPACE = "namespace";
 

@@ -89,11 +89,10 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
         final List<ReadableMetadata> readableMetadata =
                 metadataKeys.stream()
                         .map(
-                                k ->
-                                        Stream.of(ReadableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .<IllegalStateException>orElseThrow(IllegalStateException::new))
+                                k -> Stream.of(ReadableMetadata.values())
+                                        .filter(rm -> rm.key.equals(k))
+                                        .findFirst()
+                                        .<IllegalStateException>orElseThrow(IllegalStateException::new))
                         .collect(Collectors.toList());
 
         final List<DataTypes.Field> metadataFields =
@@ -115,8 +114,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 updateBeforeInclude,
                 ignoreParseErrors,
                 timestampFormat,
-                isMigrateAll
-        );
+                isMigrateAll);
     }
 
     @Override
@@ -150,12 +148,14 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
      * List of metadata that can be read with this format.
      */
     public enum ReadableMetadata {
+
         SCHEMA(
                 "schema",
                 DataTypes.STRING().nullable(),
                 false,
                 DataTypes.FIELD("schema", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -170,6 +170,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("ts_ms", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -184,6 +185,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -203,6 +205,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -217,6 +220,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -231,6 +235,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -247,6 +252,7 @@ public class DebeziumJsonDecodingFormat implements DecodingFormat<Deserializatio
                 true,
                 DataTypes.FIELD("source", DataTypes.MAP(DataTypes.STRING(), DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

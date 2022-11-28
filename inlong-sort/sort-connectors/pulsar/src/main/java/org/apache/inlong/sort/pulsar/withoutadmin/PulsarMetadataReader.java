@@ -56,6 +56,7 @@ import static org.apache.flink.streaming.connectors.pulsar.internal.PulsarOption
  * - guarantee message existence using subscription by setup, move and remove
  */
 public class PulsarMetadataReader implements AutoCloseable {
+
     private static final Logger log = LoggerFactory.getLogger(PulsarMetadataReader.class);
 
     public static final ConfigOption<String> AUTHENTICATION_TOKEN =
@@ -181,9 +182,8 @@ public class PulsarMetadataReader implements AutoCloseable {
         Set<String> topics = getTopicPartitions();
         return topics.stream()
                 .filter(
-                        t ->
-                                SourceSinkUtils.belongsTo(
-                                        t, range, numParallelSubtasks, indexOfThisSubtask))
+                        t -> SourceSinkUtils.belongsTo(
+                                t, range, numParallelSubtasks, indexOfThisSubtask))
                 .map(t -> new TopicRange(t, range.getPulsarRange()))
                 .collect(Collectors.toSet());
     }

@@ -49,6 +49,7 @@ public class DynamicPulsarDeserializationSchema implements PulsarDeserialization
     private static final long serialVersionUID = 1L;
     private static final ThreadLocal<SimpleCollector<RowData>> tlsCollector =
             new ThreadLocal<SimpleCollector<RowData>>() {
+
                 @Override
                 public SimpleCollector initialValue() {
                     return new SimpleCollector();

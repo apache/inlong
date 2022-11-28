@@ -92,16 +92,14 @@ public class KafkaSqlParseTest extends AbstractTestBase {
     private Node buildMysqlLoadNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo())
-        );
+                new FieldInfo("age", new IntFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo()))
-                );
+                                new FieldInfo("age", new IntFormatInfo())));
         return new MySqlLoadNode("2", "mysql_output", fields, relations, null,
                 null, null, null, "jdbc:mysql://localhost:3306/inlong",
                 "inlong", "inlong", "table_output", "id");
@@ -133,8 +131,7 @@ public class KafkaSqlParseTest extends AbstractTestBase {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("log", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("log", new StringFormatInfo()),
-                                new FieldInfo("log", new StringFormatInfo()))
-                );
+                        new FieldInfo("log", new StringFormatInfo())));
         return new MySqlLoadNode("2", "mysql_output", fields, relations, null,
                 null, null, null, "jdbc:mysql://localhost:3306/inlong",
                 "inlong", "inlong", "table_output", null);

@@ -32,7 +32,6 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
  * A tumbling windows assigner assigns each element to a window of a
  * specified window size. Tumbling windows have a fixed size and

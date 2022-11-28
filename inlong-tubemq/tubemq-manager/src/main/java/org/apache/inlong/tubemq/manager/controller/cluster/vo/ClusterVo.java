@@ -26,6 +26,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class ClusterVo {
+
     private Long clusterId;
     private String clusterName;
     private List<MasterEntry> masterEntries;

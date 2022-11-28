@@ -217,7 +217,7 @@ public class SQLServerReader extends AbstractReader {
         Properties props = getEngineProps();
 
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
-                        io.debezium.engine.format.Json.class)
+                io.debezium.engine.format.Json.class)
                 .using(props)
                 .notifying((records, committer) -> {
                     try {

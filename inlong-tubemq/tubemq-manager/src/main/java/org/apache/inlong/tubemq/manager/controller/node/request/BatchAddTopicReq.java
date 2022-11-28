@@ -28,6 +28,7 @@ import org.apache.inlong.tubemq.manager.service.tube.AddTopicRequest;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class BatchAddTopicReq extends BaseReq {
+
     private String confModAuthToken;
 
     private String createUser;

@@ -32,4 +32,3 @@ public interface TopicRepository extends JpaRepository<TopicEntry, Long> {
      */
     TopicEntry findByBusinessName(String businessName);
 }
-

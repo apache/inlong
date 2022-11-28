@@ -26,7 +26,7 @@ package org.apache.inlong.sort.configuration;
 public class FallbackKey {
 
     // -------------------------
-    //  Factory methods
+    // Factory methods
     // -------------------------
     static FallbackKey createFallbackKey(String key) {
         return new FallbackKey(key, false);

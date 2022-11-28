@@ -48,13 +48,15 @@ public class BrokerList implements Action {
         HttpServletRequest req = context.getReq();
         String strPageNum = req.getParameter("page_num");
         String strPageSize = req.getParameter("page_size");
-        //String strTopicName = req.getParameter("topicName");
-        //String strConsumeGroup = req.getParameter("consumeGroup");
+        // String strTopicName = req.getParameter("topicName");
+        // String strConsumeGroup = req.getParameter("consumeGroup");
         int pageNum = TStringUtils.isNotEmpty(strPageNum)
-                ? Integer.parseInt(strPageNum) : 1;
+                ? Integer.parseInt(strPageNum)
+                : 1;
         pageNum = pageNum <= 0 ? 1 : pageNum;
         int pageSize = TStringUtils.isNotEmpty(strPageSize)
-                ? Integer.parseInt(strPageSize) : 10;
+                ? Integer.parseInt(strPageSize)
+                : 10;
         pageSize = Math.max(pageSize, 10);
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         List<BrokerInfo> brokerInfoList =
@@ -67,8 +69,9 @@ public class BrokerList implements Action {
         // *************************************************************************************
 
         int totalPage =
-                brokerInfoList.size() % pageSize == 0 ? brokerInfoList.size() / pageSize : brokerInfoList
-                        .size() / pageSize + 1;
+                brokerInfoList.size() % pageSize == 0 ? brokerInfoList.size() / pageSize
+                        : brokerInfoList
+                                .size() / pageSize + 1;
         if (pageNum > totalPage) {
             pageNum = totalPage;
         }
@@ -115,6 +118,7 @@ public class BrokerList implements Action {
     }
 
     public class BrokerComparator implements Comparator<BrokerInfo> {
+
         @Override
         public int compare(BrokerInfo o1, BrokerInfo o2) {
             return o1.getBrokerId() - o2.getBrokerId();

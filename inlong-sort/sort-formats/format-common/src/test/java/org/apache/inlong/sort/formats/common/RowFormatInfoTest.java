@@ -36,8 +36,7 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                                 StringFormatInfo.INSTANCE,
                                 IntFormatInfo.INSTANCE,
                                 StringFormatInfo.INSTANCE
-                        }
-                );
+                        });
 
         RowFormatInfo formatInfo2 =
                 new RowFormatInfo(
@@ -45,10 +44,8 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                         new FormatInfo[]{
                                 new MapFormatInfo(
                                         StringFormatInfo.INSTANCE,
-                                        IntFormatInfo.INSTANCE
-                                )
-                        }
-                );
+                                        IntFormatInfo.INSTANCE)
+                        });
 
         RowFormatInfo formatInfo3 =
                 new RowFormatInfo(
@@ -56,14 +53,11 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                         new FormatInfo[]{
                                 new RowFormatInfo(
                                         new String[]{"f1"},
-                                        new FormatInfo[]{IntFormatInfo.INSTANCE}
-                                ),
+                                        new FormatInfo[]{IntFormatInfo.INSTANCE}),
                                 new MapFormatInfo(
                                         StringFormatInfo.INSTANCE,
-                                        new TimeFormatInfo("hh:mm:ss.SSS")
-                                )
-                        }
-                );
+                                        new TimeFormatInfo("hh:mm:ss.SSS"))
+                        });
 
         return Arrays.asList(formatInfo1, formatInfo2, formatInfo3);
     }
@@ -75,8 +69,7 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                 new FormatInfo[]{
                         StringFormatInfo.INSTANCE,
                         IntFormatInfo.INSTANCE
-                }
-        );
+                });
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -86,7 +79,6 @@ public class RowFormatInfoTest extends FormatInfoTestBase {
                 new FormatInfo[]{
                         StringFormatInfo.INSTANCE,
                         IntFormatInfo.INSTANCE
-                }
-        );
+                });
     }
 }

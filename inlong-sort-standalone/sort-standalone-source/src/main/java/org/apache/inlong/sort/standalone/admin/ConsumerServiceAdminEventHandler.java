@@ -61,8 +61,8 @@ public class ConsumerServiceAdminEventHandler extends AbstractAdminEventHandler 
         LOG.info("start to process admin task:{}", cmd);
         String sortTaskId = event.getHeaders().get(ConsumerServiceMBean.KEY_TASKNAME);
         switch (cmd) {
-            case METHOD_STOPCONSUMER :
-            case METHOD_RECOVERCONSUMER :
+            case METHOD_STOPCONSUMER:
+            case METHOD_RECOVERCONSUMER:
                 if (sortTaskId == null) {
                     break;
                 }
@@ -72,7 +72,7 @@ public class ConsumerServiceAdminEventHandler extends AbstractAdminEventHandler 
                     this.processOne(cmd, sortTaskId, response);
                 }
                 break;
-            default :
+            default:
                 break;
         }
         LOG.info("end to process admin task:{}", cmd);

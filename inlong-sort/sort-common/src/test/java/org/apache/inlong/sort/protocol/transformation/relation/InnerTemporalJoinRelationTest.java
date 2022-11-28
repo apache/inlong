@@ -46,7 +46,7 @@ public class InnerTemporalJoinRelationTest extends SerializeBaseTest<InnerTempor
                 new SingleValueFilterFunction(EmptyOperator.getInstance(),
                         new FieldInfo("name", "1", new StringFormatInfo()),
                         EqualOperator.getInstance(), new FieldInfo("name", "2",
-                        new StringFormatInfo())),
+                                new StringFormatInfo())),
                 new SingleValueFilterFunction(AndOperator.getInstance(),
                         new FieldInfo("name", "1", new StringFormatInfo()),
                         NotEqualOperator.getInstance(), new ConstantParam("test"))));

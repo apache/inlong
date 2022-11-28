@@ -201,11 +201,10 @@ public class MongoDBTableSource implements ScanTableSource, SupportsReadingMetad
 
         return metadataKeys.stream()
                 .map(
-                        key ->
-                                Stream.of(MongoDBReadableMetadata.values())
-                                        .filter(m -> m.getKey().equals(key))
-                                        .findFirst()
-                                        .orElseThrow(IllegalStateException::new))
+                        key -> Stream.of(MongoDBReadableMetadata.values())
+                                .filter(m -> m.getKey().equals(key))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                 .map(MongoDBReadableMetadata::getConverter)
                 .toArray(MetadataConverter[]::new);
     }

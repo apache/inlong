@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.server.master.web.model;
 import java.util.List;
 
 public class ClusterGroupVO {
+
     private String groupName = "";
     private boolean isPrimaryNodeActive = true;
     private List<ClusterNodeVO> nodeData;
@@ -30,7 +31,7 @@ public class ClusterGroupVO {
     }
 
     public ClusterGroupVO(String groupName, boolean isPrimaryNodeActive,
-                          List<ClusterNodeVO> nodeData, String groupStatus) {
+            List<ClusterNodeVO> nodeData, String groupStatus) {
         this.groupName = groupName;
         this.isPrimaryNodeActive = isPrimaryNodeActive;
         this.nodeData = nodeData;

@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
  * use this class instead of {@link io.debezium.connector.mysql.MySqlErrorHandler}.
  */
 public class MySqlErrorHandler extends ErrorHandler {
+
     private static final Logger LOG = LoggerFactory.getLogger(MySqlErrorHandler.class);
     private static final Pattern NOT_FOUND_TABLE_MSG_PATTERN =
             Pattern.compile(

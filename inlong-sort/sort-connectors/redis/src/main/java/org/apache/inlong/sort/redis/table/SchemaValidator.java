@@ -62,7 +62,7 @@ public class SchemaValidator {
             Preconditions.checkState(requiredLogicalTypes[i] == logicalTypes[i].getTypeRoot(),
                     "Table schema " + Arrays.deepToString(logicalTypes) + " is invalid. Table schema "
                             + Arrays.deepToString(requiredLogicalTypes) + " is required for command " + redisCommand
-                            .name());
+                                    .name());
         }
     }
 }

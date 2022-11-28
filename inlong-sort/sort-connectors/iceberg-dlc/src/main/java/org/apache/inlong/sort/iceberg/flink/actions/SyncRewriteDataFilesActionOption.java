@@ -44,6 +44,7 @@ import static org.apache.inlong.sort.iceberg.flink.FlinkDynamicTableFactory.CATA
 import static org.apache.inlong.sort.iceberg.flink.FlinkDynamicTableFactory.CATALOG_TABLE;
 
 public class SyncRewriteDataFilesActionOption implements Serializable {
+
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(SyncRewriteDataFilesAction.class);
 
@@ -147,9 +148,9 @@ public class SyncRewriteDataFilesActionOption implements Serializable {
         String wholeTableName = String.format("%s.%s", dbName, tableName);
         String rewriteOptions = String.join(",",
                 ACTION_AUTO_COMPACT_OPTIONS.stream()
-                    .filter(properties::containsKey)
-                    .map(k -> String.format("'%s', '%s'", k.substring(COMPACT_PREFIX.length()), properties.get(k)))
-                    .collect(Collectors.toList()));
+                        .filter(properties::containsKey)
+                        .map(k -> String.format("'%s', '%s'", k.substring(COMPACT_PREFIX.length()), properties.get(k)))
+                        .collect(Collectors.toList()));
         String rewriteTableSql;
         if (rewriteOptions.isEmpty()) {
             rewriteTableSql = String.format(

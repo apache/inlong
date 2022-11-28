@@ -78,8 +78,7 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("database_name", new StringFormatInfo()),
                 new FieldInfo("table_name", new StringFormatInfo()),
                 new FieldInfo("op_ts", new TimestampFormatInfo()),
-                new FieldInfo("schema_name", new StringFormatInfo())
-        );
+                new FieldInfo("schema_name", new StringFormatInfo()));
         return new SqlServerExtractNode(id, "sqlserver_out", fields, null, null,
                 null, "localhost", 1433, "SA", "INLONG*123",
                 "column_type_test", "dbo", "full_types", null);
@@ -96,8 +95,7 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("database_name", new StringFormatInfo()),
                 new FieldInfo("table_name", new StringFormatInfo()),
                 new FieldInfo("op_ts", new TimestampFormatInfo()),
-                new FieldInfo("schema_name", new StringFormatInfo())
-        );
+                new FieldInfo("schema_name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
                         new FieldInfo("id", new LongFormatInfo())),
@@ -129,10 +127,9 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo()))
-                );
+                                new FieldInfo("name", new StringFormatInfo())));
         return new SqlServerLoadNode(id, "sqlserver_out", fields, relations, null, null, 1,
                 null, "jdbc:sqlserver://localhost:1433;databaseName=column_type_test", "SA",
                 "INLONG*123", "dbo", "work1", "id");
