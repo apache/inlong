@@ -127,7 +127,9 @@ public class DynamicPulsarDeserializationSchema implements PulsarDeserialization
         // also not for a cartesian product with the keys
         if (keyDeserialization == null && !hasMetadata) {
             valueDeserialization.deserialize(message.getData(), new CallbackCollector<>(inputRow -> {
-                sourceMetricData.outputMetricsWithEstimate(inputRow);
+                if (sourceMetricData != null) {
+                    sourceMetricData.outputMetricsWithEstimate(inputRow);
+                }
                 collector.collect(inputRow);
             }));
             return;
