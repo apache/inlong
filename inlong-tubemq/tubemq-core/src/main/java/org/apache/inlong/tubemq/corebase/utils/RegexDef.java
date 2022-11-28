@@ -19,8 +19,8 @@ package org.apache.inlong.tubemq.corebase.utils;
 
 public enum RegexDef {
 
-    TMP_FILTER(0, "^[_A-Za-z0-9]+$",
-            "must only contain characters,numbers,and underscores"),
+    TMP_FILTER(0, "^[_A-Za-z0-9\\-]+$",
+            "must only contain characters,numbers,hyphen,and underscores"),
     TMP_STRING(1, "^[a-zA-Z]\\w+$",
             "must begin with a letter,can only contain characters,numbers,and underscores"),
     TMP_NUMBER(2, "^-?[0-9]\\d*$", "must only contain numbers"),
