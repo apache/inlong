@@ -95,6 +95,7 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
@@ -1004,7 +1005,8 @@ public class FlinkKafkaProducer<IN>
     }
 
     private void send(ProducerRecord<byte[], byte[]> record, FlinkKafkaProducer.KafkaTransactionState transaction) {
-        sendOutMetrics(1L, (long) record.value().length);
+        long dataSize = record.value() == null ? 0L : record.value().length;
+        sendOutMetrics(1L, dataSize);
         pendingRecords.incrementAndGet();
         transaction.producer.send(record, callback);
     }
