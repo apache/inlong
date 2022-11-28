@@ -574,6 +574,7 @@ public class KafkaDynamicSource
                 "headers_to_json_str",
                 DataTypes.STRING().nullable(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -596,6 +597,7 @@ public class KafkaDynamicSource
                 "key",
                 DataTypes.STRING().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -608,6 +610,7 @@ public class KafkaDynamicSource
                 "value",
                 DataTypes.STRING().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
