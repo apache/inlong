@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DLCConstant {
+
     /**
      * DLC internet access domain name.
      */
@@ -54,23 +55,24 @@ public class DLCConstant {
     public static final String DLC_JDBC_URL = "qcloud.dlc.jdbc.url";
 
     // ============================== FS CREDENTIALS AUTH PARAMS =====================================
-    public static final String FS_LAKEFS_IMPL  = "fs.lakefs.impl";
-    public static final String FS_COS_IMPL  = "fs.cosn.impl";
-    public static final String FS_COS_AUTH_PROVIDER  = "fs.cosn.credentials.provider";
-    public static final String FS_COS_REGION  = "fs.cosn.userinfo.region";
-    public static final String FS_COS_SECRET_ID  = "fs.cosn.userinfo.secretId";
-    public static final String FS_COS_SECRET_KEY  = "fs.cosn.userinfo.secretKey";
+    public static final String FS_LAKEFS_IMPL = "fs.lakefs.impl";
+    public static final String FS_COS_IMPL = "fs.cosn.impl";
+    public static final String FS_COS_AUTH_PROVIDER = "fs.cosn.credentials.provider";
+    public static final String FS_COS_REGION = "fs.cosn.userinfo.region";
+    public static final String FS_COS_SECRET_ID = "fs.cosn.userinfo.secretId";
+    public static final String FS_COS_SECRET_KEY = "fs.cosn.userinfo.secretKey";
 
     public static final String FS_AUTH_DLC_SECRET_ID = "service.secret.id";
     public static final String FS_AUTH_DLC_SECRET_KEY = "service.secret.key";
-    public static final String FS_AUTH_DLC_REGION  = "service.region";
-    public static final String FS_AUTH_DLC_ACCOUNT_APPID  = "user.appid";
-    public static final String FS_AUTH_DLC_MANAGED_ACCOUNT_UID  = "request.identity.token";
+    public static final String FS_AUTH_DLC_REGION = "service.region";
+    public static final String FS_AUTH_DLC_ACCOUNT_APPID = "user.appid";
+    public static final String FS_AUTH_DLC_MANAGED_ACCOUNT_UID = "request.identity.token";
 
     public static final String DLC_CATALOG_IMPL_CLASS =
             "org.apache.inlong.sort.iceberg.catalog.hybris.DlcWrappedHybrisCatalog";
     public static final Map<String, String> DLC_DEFAULT_IMPL =
             Collections.unmodifiableMap(new HashMap<String, String>() {
+
                 {
                     put(FS_LAKEFS_IMPL, "org.apache.hadoop.fs.CosFileSystem");
                     put(FS_COS_IMPL, "org.apache.hadoop.fs.CosFileSystem");

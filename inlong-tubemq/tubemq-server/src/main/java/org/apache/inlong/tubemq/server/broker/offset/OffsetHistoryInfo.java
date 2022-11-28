@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.server.common.TServerConstants;
  * The offset snapshot of the consumer group on the broker.
  */
 public class OffsetHistoryInfo {
+
     private final int brokerId;
     private final String groupName;
     private final Map<String, Map<Integer, OffsetCsmRecord>> histOffsetMap = new HashMap<>();
@@ -45,7 +46,8 @@ public class OffsetHistoryInfo {
      */
     public void addCfmOffsetInfo(String topicName, int partitionId, long cfmOffset) {
         final int storeId = partitionId < TBaseConstants.META_STORE_INS_BASE
-                ? 0 : partitionId / TBaseConstants.META_STORE_INS_BASE;
+                ? 0
+                : partitionId / TBaseConstants.META_STORE_INS_BASE;
         Map<Integer, OffsetCsmRecord> storeOffsetMap = histOffsetMap.get(topicName);
         if (storeOffsetMap == null) {
             Map<Integer, OffsetCsmRecord> tmpMap = new HashMap<>();
@@ -74,7 +76,8 @@ public class OffsetHistoryInfo {
      */
     public void addInflightOffsetInfo(String topicName, int partitionId, long tmpOffset) {
         final int storeId = partitionId < TBaseConstants.META_STORE_INS_BASE
-                ? 0 : partitionId / TBaseConstants.META_STORE_INS_BASE;
+                ? 0
+                : partitionId / TBaseConstants.META_STORE_INS_BASE;
         Map<Integer, OffsetCsmRecord> storeOffsetMap = histOffsetMap.get(topicName);
         if (storeOffsetMap == null) {
             Map<Integer, OffsetCsmRecord> tmpMap = new HashMap<>();

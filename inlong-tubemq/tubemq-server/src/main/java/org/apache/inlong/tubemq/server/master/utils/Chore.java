@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public abstract class Chore extends HasThread {
+
     protected final Stoppable stopper;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final Sleeper sleeper;

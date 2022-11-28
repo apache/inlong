@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Gr
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsGroupResCtrlMapperImpl;
 
 public class BdbGroupResCtrlMapperImpl extends AbsGroupResCtrlMapperImpl {
+
     // consumer group configure store
     private EntityStore groupConfStore;
     private final PrimaryIndex<String/* groupName */, BdbGroupFlowCtrlEntity> groupBaseCtrlIndex;
@@ -86,7 +87,7 @@ public class BdbGroupResCtrlMapperImpl extends AbsGroupResCtrlMapperImpl {
     }
 
     protected boolean putConfig2Persistent(GroupResCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         BdbGroupFlowCtrlEntity bdbEntity =
                 entity.buildBdbGroupFlowCtrlEntity();
         try {

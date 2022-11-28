@@ -27,7 +27,6 @@ import java.util.List;
  */
 public interface AuditService {
 
-
     /**
      * Query audit data for list by condition
      *

@@ -66,8 +66,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
                 new MetaFieldInfo("table_name", MetaField.TABLE_NAME),
                 new MetaFieldInfo("op_ts", MetaField.OP_TS),
-                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME)
-        );
+                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME));
         return new OracleExtractNode("1", "oracle_input", fields,
                 null, null, "ID", "localhost",
                 "flinkuser", "flinkpw", "xE",
@@ -82,8 +81,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new FieldInfo("database_name", new StringFormatInfo()),
                 new FieldInfo("table_name", new StringFormatInfo()),
                 new FieldInfo("op_ts", new TimestampFormatInfo()),
-                new FieldInfo("schema_name", new StringFormatInfo())
-        );
+                new FieldInfo("schema_name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("ID", new LongFormatInfo()),
                         new FieldInfo("id", new LongFormatInfo())),
@@ -100,8 +98,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
                         new FieldInfo("op_ts", new TimestampFormatInfo())),
                 new FieldRelation(new FieldInfo("schema_name", new StringFormatInfo()),
-                        new FieldInfo("schema_name", new StringFormatInfo()))
-        );
+                        new FieldInfo("schema_name", new StringFormatInfo())));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
                 null, "topic", "localhost:9092",
                 new CanalJsonFormat(), null,

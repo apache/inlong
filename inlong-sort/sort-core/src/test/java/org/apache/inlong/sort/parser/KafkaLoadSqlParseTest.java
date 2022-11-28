@@ -71,7 +71,7 @@ public class KafkaLoadSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("age", new StringFormatInfo()),
-                                new FieldInfo("age", new StringFormatInfo())),
+                        new FieldInfo("age", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,

@@ -73,6 +73,7 @@ public class SourceSnapshotOperator implements AutoCloseable {
     private Cache<String, ConcurrentHashMap<Integer, Integer>> agentTaskCache = CacheBuilder.newBuilder()
             .maximumSize(1000).expireAfterWrite(30, TimeUnit.SECONDS).build(
                     new CacheLoader<String, ConcurrentHashMap<Integer, Integer>>() {
+
                         @Override
                         public ConcurrentHashMap<Integer, Integer> load(String agentIp) {
                             List<StreamSourceEntity> sourceEntities = sourceMapper.selectByAgentIp(agentIp);

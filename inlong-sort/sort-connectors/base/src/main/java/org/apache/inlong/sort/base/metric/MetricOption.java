@@ -162,6 +162,7 @@ public class MetricOption implements Serializable {
     }
 
     public static class Builder {
+
         private String inlongLabels;
         private String inlongAudit;
         private RegisteredMetric registeredMetric = RegisteredMetric.ALL;

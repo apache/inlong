@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @Data
 public class ClusterDto {
+
     private Long clusterId;
     private String clusterName;
     private int reloadBrokerSize;

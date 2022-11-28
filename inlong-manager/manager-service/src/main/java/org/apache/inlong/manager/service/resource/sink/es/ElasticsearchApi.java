@@ -210,7 +210,7 @@ public class ElasticsearchApi {
             List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
         List<ElasticsearchFieldInfo> notExistFieldInfos = new ArrayList<>(fieldInfos);
         Map<String, MappingMetaData> mapping = getFields(indexName);
-        Map<String, Object> filedMap = (Map<String, Object>)mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
+        Map<String, Object> filedMap = (Map<String, Object>) mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
         for (String key : filedMap.keySet()) {
             for (ElasticsearchFieldInfo field : notExistFieldInfos) {
                 if (field.getName().equals(key)) {

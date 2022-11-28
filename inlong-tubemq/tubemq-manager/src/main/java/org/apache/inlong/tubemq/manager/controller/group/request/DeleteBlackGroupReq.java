@@ -26,6 +26,7 @@ import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class DeleteBlackGroupReq extends BaseReq {
+
     private String topicName;
     private String confModAuthToken;
     private String groupName;

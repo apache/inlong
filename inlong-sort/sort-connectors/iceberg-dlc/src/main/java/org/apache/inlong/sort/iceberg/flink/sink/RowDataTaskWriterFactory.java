@@ -47,6 +47,7 @@ import java.util.List;
  * Add an option `sink.ignore.changelog` to support insert-only mode without equalityFieldIds.
  */
 public class RowDataTaskWriterFactory implements TaskWriterFactory<RowData> {
+
     private final Table table;
     private final Schema schema;
     private final RowType flinkSchema;

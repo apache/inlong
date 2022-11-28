@@ -21,6 +21,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.Partition;
 
 public class PeerInfo {
+
     private int partitionId = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerHost = "";
     private String partitionKey = "";

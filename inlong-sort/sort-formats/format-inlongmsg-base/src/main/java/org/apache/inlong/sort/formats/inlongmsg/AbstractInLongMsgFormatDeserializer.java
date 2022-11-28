@@ -66,8 +66,7 @@ public abstract class AbstractInLongMsgFormatDeserializer implements TableFormat
     @Override
     public void flatMap(
             byte[] bytes,
-            Collector<Row> collector
-    ) throws Exception {
+            Collector<Row> collector) throws Exception {
         InLongMsg inLongMsg = InLongMsg.parseFrom(bytes);
 
         for (String attr : inLongMsg.getAttrs()) {

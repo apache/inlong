@@ -25,9 +25,9 @@ public interface SendMessageCallBack {
     void handleMessageSendSuccess(String topic, Object msgId, EventStat es, long startTime);
 
     void handleRequestProcError(String topic, EventStat es,
-                                boolean needRetry, DataProxyErrCode errCode, String errMsg);
+            boolean needRetry, DataProxyErrCode errCode, String errMsg);
 
     void handleMessageSendException(String topic, EventStat es, Object exception,
-                                    DataProxyErrCode errCode, String errMsg);
+            DataProxyErrCode errCode, String errMsg);
 
 }

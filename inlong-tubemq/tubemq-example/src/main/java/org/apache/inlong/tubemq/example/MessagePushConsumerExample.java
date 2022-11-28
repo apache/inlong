@@ -120,7 +120,7 @@ public final class MessagePushConsumerExample {
         //
         // 5.1 shutdown consumers
         // for (PushMessageConsumer consumer : consumerMap.values()) {
-        //     consumer.shutdown();
+        // consumer.shutdown();
         // }
         // 5.2 shutdown session factory
         // sessionFactory.shutdown();

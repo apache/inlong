@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CompactTableProperties {
+
     public static final String COMPACT_PREFIX = "write.compact.";
 
     public static final String COMPACT_ENABLED = "write.compact.enable";
@@ -36,8 +37,8 @@ public class CompactTableProperties {
     public static final String COMPACT_RESOUCE_POOL_DEFAULT = "default";
 
     // Supported by spark rewrite action option
-    public static final String COMPACT_MAX_CONCURRENT_FILE_GROUP_REWRITES
-            = "write.compact.max-concurrent-file-group-rewrites";
+    public static final String COMPACT_MAX_CONCURRENT_FILE_GROUP_REWRITES =
+            "write.compact.max-concurrent-file-group-rewrites";
     public static final int COMPACT_MAX_CONCURRENT_FILE_GROUP_REWRITES_DEFAULT = 1;
 
     public static final String COMPACT_MAX_FILE_GROUP_SIZE_BYTES = "write.compact.max-file-group-size-bytes";
@@ -68,20 +69,19 @@ public class CompactTableProperties {
     public static final double COMPACT_MAX_FILE_SIZE_BYTES_DEFAULT = 1.80d * COMPACT_TARGET_FILE_SIZE_BYTES_DEFAULT;
 
     public static final Set<String> TABLE_AUTO_COMPACT_PROPERTIES = Stream.of(
-                COMPACT_ENABLED,
-                COMPACT_INTERVAL,
-                COMPACT_RESOUCE_POOL,
-                COMPACT_MAX_CONCURRENT_FILE_GROUP_REWRITES,
-                COMPACT_MAX_FILE_GROUP_SIZE_BYTES,
-                COMPACT_PARTIAL_PROGRESS_ENABLED,
-                COMPACT_PARTIAL_PROGRESS_MAX_COMMITS,
-                COMPACT_TARGET_FILE_SIZE_BYTES,
-                COMPACT_USE_STARTING_SEQUENCE_NUMBER,
-                COMPACT_MIN_INPUT_FILES,
-                COMPACT_DELETE_FILE_THRESHOLD,
-                COMPACT_MIN_FILE_SIZE_BYTES,
-                COMPACT_MAX_FILE_SIZE_BYTES
-        ).collect(Collectors.toSet());
+            COMPACT_ENABLED,
+            COMPACT_INTERVAL,
+            COMPACT_RESOUCE_POOL,
+            COMPACT_MAX_CONCURRENT_FILE_GROUP_REWRITES,
+            COMPACT_MAX_FILE_GROUP_SIZE_BYTES,
+            COMPACT_PARTIAL_PROGRESS_ENABLED,
+            COMPACT_PARTIAL_PROGRESS_MAX_COMMITS,
+            COMPACT_TARGET_FILE_SIZE_BYTES,
+            COMPACT_USE_STARTING_SEQUENCE_NUMBER,
+            COMPACT_MIN_INPUT_FILES,
+            COMPACT_DELETE_FILE_THRESHOLD,
+            COMPACT_MIN_FILE_SIZE_BYTES,
+            COMPACT_MAX_FILE_SIZE_BYTES).collect(Collectors.toSet());
 
     public static final Set<String> ACTION_AUTO_COMPACT_OPTIONS = Stream.of(
             COMPACT_MAX_CONCURRENT_FILE_GROUP_REWRITES,
@@ -93,6 +93,5 @@ public class CompactTableProperties {
             COMPACT_MIN_INPUT_FILES,
             COMPACT_DELETE_FILE_THRESHOLD,
             COMPACT_MIN_FILE_SIZE_BYTES,
-            COMPACT_MAX_FILE_SIZE_BYTES
-    ).collect(Collectors.toSet());
+            COMPACT_MAX_FILE_SIZE_BYTES).collect(Collectors.toSet());
 }

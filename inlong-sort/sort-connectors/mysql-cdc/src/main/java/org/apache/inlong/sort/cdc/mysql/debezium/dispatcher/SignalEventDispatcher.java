@@ -109,6 +109,7 @@ public class SignalEventDispatcher {
      * The watermark kind.
      */
     public enum WatermarkKind {
+
         LOW,
         HIGH,
         BINLOG_END;

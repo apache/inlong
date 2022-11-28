@@ -543,7 +543,8 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             if (!ignoreSingleTableErrors) {
                 throw new RuntimeException(
                         String.format("Writing records to streamload of tableIdentifier:%s failed, the value: %s.",
-                                tableIdentifier, loadValue), e);
+                                tableIdentifier, loadValue),
+                        e);
             }
             errorTables.add(tableIdentifier);
             LOG.warn("The tableIdentifier: {} load failed and the data will be throw away in the future"
@@ -598,7 +599,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
 
     private String getBackend() throws IOException {
         try {
-            //get be url from fe
+            // get be url from fe
             return RestService.randomBackend(options, readOptions, LOG);
         } catch (IOException | DorisException e) {
             LOG.error("get backends info fail");
@@ -618,7 +619,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,

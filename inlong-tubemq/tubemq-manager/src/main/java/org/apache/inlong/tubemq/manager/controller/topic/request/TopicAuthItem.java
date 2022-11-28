@@ -21,5 +21,6 @@ import lombok.Data;
 
 @Data
 public class TopicAuthItem {
+
     private String topicName;
 }

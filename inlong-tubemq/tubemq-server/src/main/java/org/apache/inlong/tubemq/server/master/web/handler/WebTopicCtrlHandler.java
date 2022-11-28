@@ -73,8 +73,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminQueryTopicCtrlInfo(HttpServletRequest req,
-                                                 StringBuilder sBuffer,
-                                                 ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         TopicCtrlEntity qryEntity = new TopicCtrlEntity();
         // get queried operation info, for createUser, modifyUser, dataVersionId
         if (!WebParameterUtils.getQueriedOperateInfo(req, qryEntity, sBuffer, result)) {
@@ -116,8 +116,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminAddTopicCtrlInfo(HttpServletRequest req,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdTopicCtrlInfo(req, sBuffer, result, true);
 
     }
@@ -131,8 +131,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchAddTopicCtrlInfo(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdTopicCtrlInfo(req, sBuffer, result, true);
     }
 
@@ -145,8 +145,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminModTopicCtrlInfo(HttpServletRequest req,
-                                               StringBuilder sBuffer,
-                                               ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innAddOrUpdTopicCtrlInfo(req, sBuffer, result, false);
     }
 
@@ -159,8 +159,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminBatchModTopicCtrlInfo(HttpServletRequest req,
-                                                    StringBuilder sBuffer,
-                                                    ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         return innBatchAddOrUpdTopicCtrlInfo(req, sBuffer, result, false);
     }
 
@@ -173,8 +173,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
      * @return    process result
      */
     public StringBuilder adminDeleteTopicCtrlInfo(HttpServletRequest req,
-                                                  StringBuilder sBuffer,
-                                                  ProcessResult result) {
+            StringBuilder sBuffer,
+            ProcessResult result) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -199,9 +199,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innAddOrUpdTopicCtrlInfo(HttpServletRequest req,
-                                                   StringBuilder sBuffer,
-                                                   ProcessResult result,
-                                                   boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -256,9 +256,9 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder innBatchAddOrUpdTopicCtrlInfo(HttpServletRequest req,
-                                                        StringBuilder sBuffer,
-                                                        ProcessResult result,
-                                                        boolean isAddOp) {
+            StringBuilder sBuffer,
+            ProcessResult result,
+            boolean isAddOp) {
         // check and get operation info
         if (!WebParameterUtils.getAUDBaseInfo(req, isAddOp, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -278,8 +278,8 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private boolean getTopicCtrlJsonSetInfo(HttpServletRequest req, boolean isAddOp,
-                                            BaseEntity defOpEntity, StringBuilder sBuffer,
-                                            ProcessResult result) {
+            BaseEntity defOpEntity, StringBuilder sBuffer,
+            ProcessResult result) {
         if (!WebParameterUtils.getJsonArrayParamValue(req,
                 WebFieldDef.TOPICCTRLSET, true, null, result)) {
             return result.isSuccess();
@@ -348,7 +348,7 @@ public class WebTopicCtrlHandler extends AbstractWebHandler {
     }
 
     private StringBuilder buildRetInfo(List<TopicProcessResult> retInfo,
-                                       StringBuilder sBuffer) {
+            StringBuilder sBuffer) {
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         for (TopicProcessResult entry : retInfo) {

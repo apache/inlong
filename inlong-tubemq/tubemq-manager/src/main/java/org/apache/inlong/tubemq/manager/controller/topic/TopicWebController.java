@@ -65,8 +65,8 @@ public class TopicWebController {
      * divides the operation on broker to different method
      */
     @RequestMapping(value = "")
-    public @ResponseBody
-        TubeMQResult topicMethodProxy(@RequestParam String method, @RequestBody String req) throws Exception {
+    public @ResponseBody TubeMQResult topicMethodProxy(@RequestParam String method, @RequestBody String req)
+            throws Exception {
         switch (method) {
             case TubeConst.ADD:
                 return masterService.baseRequestMaster(gson.fromJson(req, BatchAddTopicReq.class));
@@ -113,8 +113,7 @@ public class TopicWebController {
      * @throws Exception the exception
      */
     @GetMapping("/consumerAuth")
-    public @ResponseBody
-        String queryConsumerAuth(
+    public @ResponseBody String queryConsumerAuth(
             @RequestParam Map<String, String> req) throws Exception {
         String url = masterService.getQueryUrl(req);
         return masterService.queryMaster(url);
@@ -129,8 +128,7 @@ public class TopicWebController {
      * @throws Exception the exception
      */
     @GetMapping("/topicConfig")
-    public @ResponseBody
-        String queryTopicConfig(
+    public @ResponseBody String queryTopicConfig(
             @RequestParam Map<String, String> req) throws Exception {
         String url = masterService.getQueryUrl(req);
         return masterService.queryMaster(url);

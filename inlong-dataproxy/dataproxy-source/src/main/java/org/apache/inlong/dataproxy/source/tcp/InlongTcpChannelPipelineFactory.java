@@ -39,7 +39,8 @@ import com.google.common.base.Preconditions;
  * InlongTcpChannelPipelineFactory
  */
 public class InlongTcpChannelPipelineFactory extends ChannelInitializer<SocketChannel>
-        implements Configurable {
+        implements
+            Configurable {
 
     public static final Logger LOG = LoggerFactory.getLogger(InlongTcpChannelPipelineFactory.class);
     public static final int DEFAULT_LENGTH_FIELD_OFFSET = 0;
@@ -79,7 +80,7 @@ public class InlongTcpChannelPipelineFactory extends ChannelInitializer<SocketCh
             try {
                 Class<? extends ChannelInboundHandlerAdapter> clazz =
                         (Class<? extends ChannelInboundHandlerAdapter>) Class
-                        .forName(messageHandlerName);
+                                .forName(messageHandlerName);
 
                 Constructor<?> ctor = clazz.getConstructor(SourceContext.class);
 

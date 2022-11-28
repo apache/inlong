@@ -62,7 +62,10 @@ import java.util.NavigableMap;
 import java.util.SortedMap;
 
 public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResult, Void>
-        implements CheckpointedFunction, CheckpointListener {
+        implements
+            CheckpointedFunction,
+            CheckpointListener {
+
     private static final long serialVersionUID = 1L;
     private static final long INITIAL_CHECKPOINT_ID = -1L;
     private static final byte[] EMPTY_MANIFEST_DATA = new byte[0];
@@ -182,10 +185,10 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
     @Override
     public void notifyCheckpointComplete(long checkpointId) throws Exception {
         // It's possible that we have the following events:
-        //   1. snapshotState(ckpId);
-        //   2. snapshotState(ckpId+1);
-        //   3. notifyCheckpointComplete(ckpId+1);
-        //   4. notifyCheckpointComplete(ckpId);
+        // 1. snapshotState(ckpId);
+        // 2. snapshotState(ckpId+1);
+        // 3. notifyCheckpointComplete(ckpId+1);
+        // 4. notifyCheckpointComplete(ckpId);
         // For step#4, we don't need to commit iceberg table again because in step#3 we've committed all the files,
         // Besides, we need to maintain the max-committed-checkpoint-id to be increasing.
         if (checkpointId > maxCommittedCheckpointId) {
@@ -364,8 +367,7 @@ public class IcebergSingleFileCommiter extends IcebergProcessFunction<WriteResul
         Comparator<Long> longComparator = Comparators.forType(Types.LongType.get());
         // Construct a SortedMapTypeInfo.
         SortedMapTypeInfo<Long, byte[]> sortedMapTypeInfo = new SortedMapTypeInfo<>(
-                BasicTypeInfo.LONG_TYPE_INFO, PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO, longComparator
-        );
+                BasicTypeInfo.LONG_TYPE_INFO, PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO, longComparator);
         return new ListStateDescriptor<>(
                 String.format("iceberg(%s)-files-committer-state", tableId.toString()), sortedMapTypeInfo);
     }

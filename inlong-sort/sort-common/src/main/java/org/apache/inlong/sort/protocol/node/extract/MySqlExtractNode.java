@@ -233,7 +233,7 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
             options.put("database-name", database);
             if (rowKindsFiltered != null) {
                 List<String> rowKinds = rowKindsFiltered.stream().map(RowKindEnum::shortString)
-                    .collect(Collectors.toList());
+                        .collect(Collectors.toList());
                 options.put("row-kinds-filtered", StringUtils.join(rowKinds, "&"));
             }
             if (port != null) {
@@ -256,8 +256,8 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
         }
         options.put("username", username);
         options.put("password", password);
-        String formatTable = tableNames.size() == 1 ? tableNames.get(0) :
-                String.format("(%s)", StringUtils.join(tableNames, "|"));
+        String formatTable =
+                tableNames.size() == 1 ? tableNames.get(0) : String.format("(%s)", StringUtils.join(tableNames, "|"));
         options.put("table-name", String.format("%s", formatTable));
         return options;
     }
@@ -324,9 +324,9 @@ public class MySqlExtractNode extends ExtractNode implements Metadata, InlongMet
     @Override
     public Set<MetaField> supportedMetaFields() {
         return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATA_CANAL,
-            MetaField.DATABASE_NAME, MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL,
-            MetaField.TS, MetaField.SQL_TYPE, MetaField.MYSQL_TYPE, MetaField.PK_NAMES,
-            MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA_BYTES_DEBEZIUM,
-            MetaField.DATA_DEBEZIUM, MetaField.DATA_BYTES_CANAL, MetaField.DATA, MetaField.DATA_BYTES);
+                MetaField.DATABASE_NAME, MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL,
+                MetaField.TS, MetaField.SQL_TYPE, MetaField.MYSQL_TYPE, MetaField.PK_NAMES,
+                MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA_BYTES_DEBEZIUM,
+                MetaField.DATA_DEBEZIUM, MetaField.DATA_BYTES_CANAL, MetaField.DATA, MetaField.DATA_BYTES);
     }
 }

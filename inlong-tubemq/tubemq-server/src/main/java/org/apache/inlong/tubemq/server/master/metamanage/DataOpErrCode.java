@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.server.master.metamanage;
 
 public enum DataOpErrCode {
+
     DERR_SUCCESS(200, "Success"),
     DERR_SUCCESS_UNCHANGED(201, "Success, but unchanged"),
     DERR_NOT_EXIST(401, "Record not exist"),

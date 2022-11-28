@@ -330,7 +330,7 @@ public class Application {
                 application.handleConfigurationEvent(configurationProvider.getConfiguration());
             }
 
-            //start application
+            // start application
             application.start();
 
             final Application appReference = application;

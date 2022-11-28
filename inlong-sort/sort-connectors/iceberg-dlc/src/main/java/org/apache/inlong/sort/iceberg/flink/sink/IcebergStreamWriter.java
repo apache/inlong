@@ -50,7 +50,9 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
-        implements OneInputStreamOperator<T, WriteResult>, BoundedOneInput {
+        implements
+            OneInputStreamOperator<T, WriteResult>,
+            BoundedOneInput {
 
     private static final long serialVersionUID = 1L;
 
@@ -119,7 +121,7 @@ class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                    })));
+                            })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,

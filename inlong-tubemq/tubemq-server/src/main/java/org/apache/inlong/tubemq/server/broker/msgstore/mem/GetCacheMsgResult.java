@@ -24,6 +24,7 @@ import java.util.List;
  * Result set of read operation from memory.
  */
 public class GetCacheMsgResult {
+
     public boolean isSuccess = false;
     public int retCode = -1;
     public String errInfo;
@@ -42,8 +43,8 @@ public class GetCacheMsgResult {
     }
 
     public GetCacheMsgResult(boolean isSuccess, int retCode, String errInfo,
-                             long readOffset, int dltOffset, long lastRdDataOff,
-                             int totalMsgSize, List<ByteBuffer> cacheMsgList) {
+            long readOffset, int dltOffset, long lastRdDataOff,
+            int totalMsgSize, List<ByteBuffer> cacheMsgList) {
         this.isSuccess = isSuccess;
         this.retCode = retCode;
         this.errInfo = errInfo;

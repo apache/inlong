@@ -24,6 +24,7 @@ import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
 
 public class InLongMsgOptions {
+
     private InLongMsgOptions() {
     }
 
@@ -39,13 +40,13 @@ public class InLongMsgOptions {
                     .booleanType()
                     .defaultValue(false)
                     .withDescription("Optional flag to skip fields and rows with parse errors instead of failing;\n"
-                                        + "fields are set to null in case of errors");
+                            + "fields are set to null in case of errors");
 
     public static void validateDecodingFormatOptions(ReadableConfig config) {
         String innerFormat = config.get(INNER_FORMAT);
         if (innerFormat == null) {
             throw new ValidationException(
-                    INNER_FORMAT.key()  + " shouldn't be null.");
+                    INNER_FORMAT.key() + " shouldn't be null.");
         }
     }
 }

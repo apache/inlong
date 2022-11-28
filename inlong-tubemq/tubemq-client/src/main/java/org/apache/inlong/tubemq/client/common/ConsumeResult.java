@@ -24,6 +24,7 @@ import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.rv.RetValue;
 
 public class ConsumeResult extends RetValue {
+
     private String topicName = "";
     private PeerInfo peerInfo = new PeerInfo();
     private String confirmContext = "";

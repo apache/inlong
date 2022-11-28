@@ -52,6 +52,7 @@ import java.util.Map;
  * End-to-end tests for sort-connector-kafka uber jar.
  */
 public class KafkaE2ECase extends FlinkContainerTestEnv {
+
     private static final Logger LOG = LoggerFactory.getLogger(KafkaE2ECase.class);
 
     private static final Path kafkaJar = TestUtils.getResource("sort-connector-kafka.jar");
@@ -139,12 +140,14 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
         final String mysqlInputTable = "test_input";
         final String mysqlOutputTable = "test_output";
         initializeMysqlTable("kafka_test_mysql_init.txt", new HashMap() {
+
             {
                 put("MYSQL_INPUT_TABLE", mysqlInputTable);
                 put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);
             }
         });
         initializeKafkaTable("kafka_test_kafka_init.txt", new HashMap() {
+
             {
                 put("TOPIC", topic);
                 put("ZOOKEEPER_PORT", KafkaContainer.ZOOKEEPER_PORT);
@@ -188,18 +191,21 @@ public class KafkaE2ECase extends FlinkContainerTestEnv {
         final String mysqlInputTable = "test_input_for_group_file";
         final String mysqlOutputTable = "test_output_for_group_file";
         initializeMysqlTable("kafka_test_mysql_init.txt", new HashMap() {
+
             {
                 put("MYSQL_INPUT_TABLE", mysqlInputTable);
                 put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);
             }
         });
         initializeKafkaTable("kafka_test_kafka_init.txt", new HashMap() {
+
             {
                 put("TOPIC", topic);
                 put("ZOOKEEPER_PORT", KafkaContainer.ZOOKEEPER_PORT);
             }
         });
         String groupFile = getGroupFile("kafka_test.json", new HashMap() {
+
             {
                 put("MYSQL_INPUT_TABLE", mysqlInputTable);
                 put("MYSQL_OUTPUT_TABLE", mysqlOutputTable);

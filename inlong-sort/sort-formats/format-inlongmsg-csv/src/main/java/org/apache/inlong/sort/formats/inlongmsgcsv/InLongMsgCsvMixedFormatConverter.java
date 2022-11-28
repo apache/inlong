@@ -74,8 +74,7 @@ public class InLongMsgCsvMixedFormatConverter implements InLongMsgMixedFormatCon
             @Nonnull String timeFieldName,
             @Nonnull String attributesFieldName,
             String nullLiteral,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         this.rowFormatInfo = rowFormatInfo;
         this.timeFieldName = timeFieldName;
         this.attributesFieldName = attributesFieldName;
@@ -126,10 +125,10 @@ public class InLongMsgCsvMixedFormatConverter implements InLongMsgMixedFormatCon
 
         InLongMsgCsvMixedFormatConverter that = (InLongMsgCsvMixedFormatConverter) o;
         return ignoreErrors == that.ignoreErrors
-                       && rowFormatInfo.equals(that.rowFormatInfo)
-                       && timeFieldName.equals(that.timeFieldName)
-                       && attributesFieldName.equals(that.attributesFieldName)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && rowFormatInfo.equals(that.rowFormatInfo)
+                && timeFieldName.equals(that.timeFieldName)
+                && attributesFieldName.equals(that.attributesFieldName)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override

@@ -71,6 +71,3 @@ public abstract class InlongStreamBuilder {
      */
     public abstract InlongStream initOrUpdate();
 }
-
-
-

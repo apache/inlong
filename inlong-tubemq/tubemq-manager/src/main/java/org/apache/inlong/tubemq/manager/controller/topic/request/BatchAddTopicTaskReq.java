@@ -24,6 +24,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 @Data
 public class BatchAddTopicTaskReq {
+
     private Long clusterId;
     private List<AddTopicTask> addTopicTasks;
 

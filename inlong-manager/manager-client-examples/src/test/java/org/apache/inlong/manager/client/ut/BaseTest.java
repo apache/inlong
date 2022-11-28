@@ -143,8 +143,7 @@ public class BaseTest {
         hiveSink.setDataPath("hdfs://{ip:port}/usr/hive/warehouse/{db.name}");
         hiveSink.setSinkFieldList(Lists.newArrayList(
                 new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age"),
-                new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(), "name")
-        ));
+                new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(), "name")));
 
         hiveSink.setTableName("{table.name}");
         hiveSink.setSinkName("{hive.sink.name}");

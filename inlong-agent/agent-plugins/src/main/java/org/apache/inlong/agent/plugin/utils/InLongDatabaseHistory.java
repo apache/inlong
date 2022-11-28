@@ -164,8 +164,7 @@ public class InLongDatabaseHistory extends AbstractDatabaseHistory {
                             BufferedWriter historyWriter = Files
                                     .newBufferedWriter(this.path, StandardOpenOption.APPEND);
 
-                            label58:
-                            {
+                            label58: {
                                 try {
                                     try {
                                         historyWriter.append(line);

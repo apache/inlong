@@ -64,8 +64,8 @@ public class SimpleMessageHandler implements MessageHandler {
     private long channelTrace = 0L;
 
     public SimpleMessageHandler(ChannelProcessor processor, MonitorIndex monitorIndex,
-                                MonitorIndexExt monitorIndexExt, DataProxyMetricItemSet metricItemSet,
-                                ServiceDecoder decoder) {
+            MonitorIndexExt monitorIndexExt, DataProxyMetricItemSet metricItemSet,
+            ServiceDecoder decoder) {
         this.processor = processor;
         this.monitorIndex = monitorIndex;
         this.monitorIndexExt = monitorIndexExt;

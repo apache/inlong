@@ -24,6 +24,7 @@ import org.apache.inlong.tubemq.manager.entry.RegionEntry;
 
 @Data
 public class ModifyRegionReq {
+
     private RegionEntry regionEntry;
     private Set<Long> brokerIdSet;
     private long clusterId;

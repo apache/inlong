@@ -55,7 +55,7 @@ public class SubscribeFetchResult {
         this.headers.put(Constants.HEADER_KEY_MESSAGE_KEY, message.getMsgKey());
         this.headers.put(Constants.HEADER_KEY_MSG_OFFSET, message.getOffset());
         this.headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(message.getRecTime()));
-        //TODO to fix here
+        // TODO to fix here
         this.headers.putAll(null);
         this.body = null;
     }

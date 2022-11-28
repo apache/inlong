@@ -181,6 +181,7 @@ public class MySqlContainer extends JdbcDatabaseContainer {
 
     /** MySql version enum. */
     public enum MySqlVersion {
+
         V5_5("5.5"),
         V5_6("5.6"),
         V5_7("5.7"),

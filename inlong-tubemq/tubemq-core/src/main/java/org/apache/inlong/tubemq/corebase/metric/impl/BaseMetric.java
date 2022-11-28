@@ -28,6 +28,7 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
  *   for output according to the metric output requirements.
  */
 public class BaseMetric implements Metric {
+
     // metric short name
     private final String shortName;
     // metric full name

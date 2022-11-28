@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * and web API call status metric data output
  */
 public class BrokerJMXHolder {
+
     private static final Logger logger =
             LoggerFactory.getLogger(BrokerJMXHolder.class);
     // Registration status indicator
@@ -114,4 +115,3 @@ public class BrokerJMXHolder {
         }
     }
 }
-

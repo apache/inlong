@@ -97,7 +97,9 @@ import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.openJdbcCo
  */
 @Internal
 public class MySqlSource<T>
-        implements Source<T, MySqlSplit, PendingSplitsState>, ResultTypeQueryable<T> {
+        implements
+            Source<T, MySqlSplit, PendingSplitsState>,
+            ResultTypeQueryable<T> {
 
     private static final long serialVersionUID = 1L;
 
@@ -153,11 +155,10 @@ public class MySqlSource<T>
         FutureCompletingBlockingQueue<RecordsWithSplitIds<SourceRecord>> elementsQueue =
                 new FutureCompletingBlockingQueue<>();
         Supplier<MySqlSplitReader> splitReaderSupplier =
-                () ->
-                        new MySqlSplitReader(
-                                sourceConfig,
-                                readerContext.getIndexOfSubtask(),
-                                mySqlSourceReaderContext);
+                () -> new MySqlSplitReader(
+                        sourceConfig,
+                        readerContext.getIndexOfSubtask(),
+                        mySqlSourceReaderContext);
         return new MySqlSourceReader<>(
                 elementsQueue,
                 splitReaderSupplier,

@@ -66,7 +66,10 @@ import java.util.stream.Stream;
  */
 @Internal
 public class KafkaDynamicSource
-        implements ScanTableSource, SupportsReadingMetadata, SupportsWatermarkPushDown {
+        implements
+            ScanTableSource,
+            SupportsReadingMetadata,
+            SupportsWatermarkPushDown {
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -85,8 +88,7 @@ public class KafkaDynamicSource
     /**
      * Watermark strategy that is used to generate per-partition watermark.
      */
-    protected @Nullable
-    WatermarkStrategy<RowData> watermarkStrategy;
+    protected @Nullable WatermarkStrategy<RowData> watermarkStrategy;
 
     // --------------------------------------------------------------------------------------------
     // Format attributes
@@ -102,8 +104,7 @@ public class KafkaDynamicSource
     /**
      * Optional format for decoding keys from Kafka.
      */
-    protected final @Nullable
-    DecodingFormat<DeserializationSchema<RowData>> keyDecodingFormat;
+    protected final @Nullable DecodingFormat<DeserializationSchema<RowData>> keyDecodingFormat;
 
     /**
      * Format for decoding values from Kafka.
@@ -123,8 +124,7 @@ public class KafkaDynamicSource
     /**
      * Prefix that needs to be removed from fields when constructing the physical data type.
      */
-    protected final @Nullable
-    String keyPrefix;
+    protected final @Nullable String keyPrefix;
 
     // --------------------------------------------------------------------------------------------
     // Kafka-specific attributes
@@ -383,11 +383,10 @@ public class KafkaDynamicSource
         final MetadataConverter[] metadataConverters =
                 metadataKeys.stream()
                         .map(
-                                k ->
-                                        Stream.of(ReadableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .orElseThrow(IllegalStateException::new))
+                                k -> Stream.of(ReadableMetadata.values())
+                                        .filter(rm -> rm.key.equals(k))
+                                        .findFirst()
+                                        .orElseThrow(IllegalStateException::new))
                         .map(m -> m.converter)
                         .toArray(MetadataConverter[]::new);
 
@@ -401,10 +400,10 @@ public class KafkaDynamicSource
         // adjust value format projection to include value format's metadata columns at the end
         final int[] adjustedValueProjection =
                 IntStream.concat(
-                                IntStream.of(valueProjection),
-                                IntStream.range(
-                                        keyProjection.length + valueProjection.length,
-                                        adjustedPhysicalArity))
+                        IntStream.of(valueProjection),
+                        IntStream.range(
+                                keyProjection.length + valueProjection.length,
+                                adjustedPhysicalArity))
                         .toArray();
 
         final KafkaDeserializationSchema<RowData> kafkaDeserializer =
@@ -454,8 +453,7 @@ public class KafkaDynamicSource
         return kafkaConsumer;
     }
 
-    private @Nullable
-    DeserializationSchema<RowData> createDeserialization(
+    private @Nullable DeserializationSchema<RowData> createDeserialization(
             DynamicTableSource.Context context,
             @Nullable DecodingFormat<DeserializationSchema<RowData>> format,
             int[] projection,
@@ -476,10 +474,12 @@ public class KafkaDynamicSource
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
+
         TOPIC(
                 "topic",
                 DataTypes.STRING().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -492,6 +492,7 @@ public class KafkaDynamicSource
                 "partition",
                 DataTypes.INT().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -506,6 +507,7 @@ public class KafkaDynamicSource
                 DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.BYTES().nullable())
                         .notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -522,6 +524,7 @@ public class KafkaDynamicSource
                 "leader-epoch",
                 DataTypes.INT().nullable(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -534,6 +537,7 @@ public class KafkaDynamicSource
                 "offset",
                 DataTypes.BIGINT().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -546,6 +550,7 @@ public class KafkaDynamicSource
                 "timestamp",
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -558,6 +563,7 @@ public class KafkaDynamicSource
                 "timestamp-type",
                 DataTypes.STRING().notNull(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

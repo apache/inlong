@@ -32,7 +32,6 @@ public class FieldInfoTest extends SerializeBaseTest<FieldInfo> {
         return new FieldInfo("field_name", StringFormatInfo.INSTANCE);
     }
 
-
     /**
      * Test deserialize with nodeId
      *

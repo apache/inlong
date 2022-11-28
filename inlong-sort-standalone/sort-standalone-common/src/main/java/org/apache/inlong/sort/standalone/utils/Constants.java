@@ -31,6 +31,6 @@ public interface Constants {
     String HEADER_KEY_SOURCE_TIME = "sourceTime";
     String HEADER_KEY_MESSAGE_KEY = "messageKey";
     String HEADER_KEY_MSG_OFFSET = "msgOffset";
-    
+
     String RELOAD_INTERVAL = "reloadInterval";
 }

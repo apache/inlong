@@ -28,6 +28,7 @@ import java.util.function.Function;
  * ApplicationEnv info
  */
 public enum ApplicationEnv {
+
     /**
      * Development env
      */
@@ -46,8 +47,7 @@ public enum ApplicationEnv {
     private static final Map<String, ApplicationEnv> NAME_MAP = InlongCollectionUtils.transformToImmutableMap(
             Lists.newArrayList(ApplicationEnv.values()),
             ApplicationEnv::name,
-            Function.identity()
-    );
+            Function.identity());
 
     /**
      * Get application environment by name.

@@ -166,6 +166,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
         switch (type.getTypeRoot()) {
             case NULL:
                 return new StringConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -260,6 +261,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
 
     private StringConverter createTimestampConverter() {
         return new StringConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -294,6 +296,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
 
     private StringConverter createLocalTimeZoneTimestampConverter() {
         return new StringConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -321,6 +324,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
 
     private StringConverter createBinaryConverter() {
         return new StringConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -350,6 +354,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
         final int scale = decimalType.getScale();
 
         return new StringConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -383,6 +388,7 @@ public class OldFieldMetadataConverter implements MetadataConverter {
 
     private StringConverter wrapIntoNullableConverter(StringConverter converter) {
         return new StringConverter() {
+
             private static final long serialVersionUID = 1L;
 
             @Override

@@ -45,7 +45,7 @@ public abstract class AbstractZoneProducer {
     protected AtomicInteger clusterIndex = new AtomicInteger(0);
 
     public AbstractZoneProducer(String workerName,
-                                AbstractZoneSinkContext context) {
+            AbstractZoneSinkContext context) {
         this.workerName = workerName;
         this.context = context;
     }
@@ -125,14 +125,14 @@ public abstract class AbstractZoneProducer {
                 }
             }
             // remove
-            for (AbstractZoneClusterProducer cluster :  this.clusterList) {
+            for (AbstractZoneClusterProducer cluster : this.clusterList) {
                 if (newClusterNames.contains(cluster.getCacheClusterName())) {
                     newClusterList.add(cluster);
                 } else {
                     deletingClusterList.add(cluster);
                 }
             }
-            this.clusterList =  newClusterList;
+            this.clusterList = newClusterList;
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }

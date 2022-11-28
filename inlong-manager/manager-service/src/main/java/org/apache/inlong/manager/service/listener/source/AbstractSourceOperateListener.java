@@ -67,8 +67,8 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
         final String groupId = groupInfo.getInlongGroupId();
         List<InlongStreamBriefInfo> streamResponses = streamService.listBriefWithSink(groupId);
         List<StreamSource> unOperatedSources = Lists.newArrayList();
-        streamResponses.forEach(stream ->
-                operateStreamSources(groupId, stream.getInlongStreamId(), context.getOperator(), unOperatedSources));
+        streamResponses.forEach(stream -> operateStreamSources(groupId, stream.getInlongStreamId(),
+                context.getOperator(), unOperatedSources));
 
         if (CollectionUtils.isNotEmpty(unOperatedSources)) {
             GroupOperateType operateType = getOperateType(context.getProcessForm());
@@ -104,7 +104,7 @@ public abstract class AbstractSourceOperateListener implements SourceOperateList
             SourceStatus sourceStatus = SourceStatus.forCode(status);
             // template sources are filtered and processed in corresponding subclass listeners
             if (sourceStatus == SourceStatus.SOURCE_NORMAL || sourceStatus == SourceStatus.SOURCE_FROZEN
-                || CollectionUtils.isNotEmpty(streamSource.getSubSourceList())) {
+                    || CollectionUtils.isNotEmpty(streamSource.getSubSourceList())) {
                 return true;
             } else if (sourceStatus == SourceStatus.SOURCE_FAILED || sourceStatus == SourceStatus.SOURCE_DISABLE) {
                 return false;

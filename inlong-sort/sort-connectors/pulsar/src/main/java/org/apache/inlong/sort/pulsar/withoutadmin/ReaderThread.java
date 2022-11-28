@@ -50,6 +50,7 @@ import java.util.concurrent.TimeUnit;
  * @param <T> the record type that read from each Pulsar message.
  */
 public class ReaderThread<T> extends Thread {
+
     private static final Logger log = LoggerFactory.getLogger(ReaderThread.class);
     protected final PulsarFetcher<T> owner;
     protected final PulsarTopicState<T> state;
@@ -227,6 +228,7 @@ public class ReaderThread<T> extends Thread {
     }
 
     private class PulsarCollector implements Collector<T> {
+
         private final Queue<T> records = new ArrayDeque<>();
 
         private boolean endOfStreamSignalled = false;

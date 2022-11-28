@@ -88,8 +88,7 @@ public class ConfigManager {
     private boolean updatePropertiesHolder(Map<String, String> result,
             String holderName, boolean addElseRemove) {
         if (StringUtils.isNotEmpty(holderName)) {
-            PropertiesConfigHolder holder = (PropertiesConfigHolder)
-                    holderMap.get(holderName + ".properties");
+            PropertiesConfigHolder holder = (PropertiesConfigHolder) holderMap.get(holderName + ".properties");
             return updatePropertiesHolder(result, holder, true);
         }
         return true;
@@ -109,7 +108,8 @@ public class ConfigManager {
         boolean changed = false;
         for (Entry<String, String> entry : result.entrySet()) {
             String oldValue = addElseRemove
-                    ? tmpHolder.put(entry.getKey(), entry.getValue()) : tmpHolder.remove(entry.getKey());
+                    ? tmpHolder.put(entry.getKey(), entry.getValue())
+                    : tmpHolder.remove(entry.getKey());
             // if addElseRemove is false, that means removing item, changed is true.
             if (oldValue == null || !oldValue.equals(entry.getValue()) || !addElseRemove) {
                 changed = true;

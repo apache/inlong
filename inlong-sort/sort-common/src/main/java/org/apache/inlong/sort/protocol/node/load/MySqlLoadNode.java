@@ -43,6 +43,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 public class MySqlLoadNode extends LoadNode implements InlongMetric, Serializable {
+
     /**
      * jdbc:mysql://host:port/database
      */

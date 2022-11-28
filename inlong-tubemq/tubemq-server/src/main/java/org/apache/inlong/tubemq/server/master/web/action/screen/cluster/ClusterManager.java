@@ -54,6 +54,7 @@ public class ClusterManager implements Action {
     }
 
     public class BrokerComparator implements Comparator<BrokerInfo> {
+
         @Override
         public int compare(BrokerInfo o1, BrokerInfo o2) {
             return o1.getBrokerId() - o2.getBrokerId();

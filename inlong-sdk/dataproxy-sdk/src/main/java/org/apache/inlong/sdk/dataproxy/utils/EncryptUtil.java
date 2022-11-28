@@ -111,7 +111,7 @@ public class EncryptUtil {
     public static RSAPublicKey loadPublicKeyByText(String publicKeyStr) {
         try {
             byte[] buffer = Base64.decodeBase64(publicKeyStr);
-//            byte[] buffer = publicKeyStr.getBytes();
+            // byte[] buffer = publicKeyStr.getBytes();
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(buffer);
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
@@ -127,7 +127,7 @@ public class EncryptUtil {
 
     public static RSAPublicKey loadPublicKeyByBinary(byte[] publicKeyByte) {
         try {
-            //byte[] buffer = Base64.decodeBase64(publicKeyStr);
+            // byte[] buffer = Base64.decodeBase64(publicKeyStr);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyByte);
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
@@ -202,7 +202,7 @@ public class EncryptUtil {
     public static RSAPrivateKey loadPrivateKeyByText(String privateKeyStr)
             throws Exception {
         try {
-            //byte[] buffer = Base64.decodeBase64(privateKeyStr);
+            // byte[] buffer = Base64.decodeBase64(privateKeyStr);
             byte[] buffer = privateKeyStr.getBytes();
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(buffer);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
@@ -219,7 +219,7 @@ public class EncryptUtil {
     public static RSAPrivateKey loadPrivateKeyByBinary(byte[] privateKeyByte)
             throws Exception {
         try {
-            //byte[] buffer = Base64.decodeBase64(privateKeyStr);
+            // byte[] buffer = Base64.decodeBase64(privateKeyStr);
             PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyByte);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);

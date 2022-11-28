@@ -28,6 +28,7 @@ import java.io.Serializable;
 @Data
 @Builder
 public class SortSourceConfigEntity implements Serializable {
+
     private Integer id;
     private String clusterName;
     private String taskName;

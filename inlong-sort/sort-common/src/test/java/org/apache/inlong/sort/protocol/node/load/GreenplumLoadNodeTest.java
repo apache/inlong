@@ -41,8 +41,7 @@ public class GreenplumLoadNodeTest extends SerializeBaseTest<GreenplumLoadNode> 
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 Collections.singletonList(
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo()))
-                ),
+                                new FieldInfo("name", new StringFormatInfo()))),
                 null, null, 1, null,
                 "jdbc:postgresql://localhost:5432/inlong", "inlong",
                 "inlong", "student", "name");

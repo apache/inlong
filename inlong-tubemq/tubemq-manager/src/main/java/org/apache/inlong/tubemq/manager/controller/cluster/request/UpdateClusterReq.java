@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class UpdateClusterReq {
+
     private Long clusterId;
     private String clusterName;
 }

@@ -26,6 +26,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.StatementUtils.quote
  * used to generate field definition in ddl with "desc table".
  */
 class MySqlFieldDefinition {
+
     private String columnName;
     private String columnType;
     private boolean nullable;

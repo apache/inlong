@@ -28,6 +28,7 @@ import java.util.List;
  * Abstract Builder of topic fetcher
  */
 public abstract class AbstractTopicFetcherBuilder implements TopicFetcherBuilder {
+
     protected Interceptor interceptor;
     protected Deserializer deserializer;
     protected ClientContext context;

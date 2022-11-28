@@ -228,8 +228,7 @@ public class ExtractNodeUtils {
                 primaryKey,
                 groupId,
                 partitionOffset,
-                scanTimestampMillis
-        );
+                scanTimestampMillis);
     }
 
     /**
@@ -321,7 +320,8 @@ public class ExtractNodeUtils {
     public static OracleExtractNode createExtractNode(OracleSource source) {
         List<FieldInfo> fieldInfos = parseFieldInfos(source.getFieldList(), source.getSourceName());
         ScanStartUpMode scanStartupMode = StringUtils.isBlank(source.getScanStartupMode())
-                ? null : ScanStartUpMode.forName(source.getScanStartupMode());
+                ? null
+                : ScanStartUpMode.forName(source.getScanStartupMode());
         Map<String, String> properties = parseProperties(source.getProperties());
         return new OracleExtractNode(
                 source.getSourceName(),
@@ -337,8 +337,7 @@ public class ExtractNodeUtils {
                 source.getSchemaName(),
                 source.getTableName(),
                 source.getPort(),
-                scanStartupMode
-        );
+                scanStartupMode);
     }
 
     /**
@@ -364,8 +363,7 @@ public class ExtractNodeUtils {
                 source.getDatabase(),
                 source.getSchemaName(),
                 source.getTableName(),
-                source.getServerTimezone()
-        );
+                source.getServerTimezone());
     }
 
     /**
@@ -387,8 +385,7 @@ public class ExtractNodeUtils {
                 source.getHosts(),
                 source.getUsername(),
                 source.getPassword(),
-                source.getDatabase()
-        );
+                source.getDatabase());
     }
 
     /**
@@ -411,8 +408,7 @@ public class ExtractNodeUtils {
                 source.getSerializationType(),
                 source.getGroupId(),
                 source.getSessionKey(),
-                source.getTid()
-        );
+                source.getTid());
     }
 
     /**
@@ -450,8 +446,7 @@ public class ExtractNodeUtils {
                 source.getMaxTotal(),
                 source.getMaxIdle(),
                 source.getMinIdle(),
-                lookupOptions
-        );
+                lookupOptions);
     }
 
     /**

@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class DeleteRegionReq {
+
     private long regionId;
     private long clusterId;
 }

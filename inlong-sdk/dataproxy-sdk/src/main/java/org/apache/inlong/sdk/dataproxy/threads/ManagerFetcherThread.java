@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * manager fetch thread
  */
 public class ManagerFetcherThread extends Thread {
+
     private final Logger logger = LoggerFactory.getLogger(ManagerFetcherThread.class);
     private volatile boolean isShutdown;
     private final ProxyClientConfig proxyClientConfig;
@@ -56,7 +57,7 @@ public class ManagerFetcherThread extends Thread {
                     logger.error("ManagerFetcher get managerIpList is blank.");
                 } else {
                     ServiceDiscoveryUtils.updateManagerInfo2Local(managerIpList,
-                        proxyClientConfig.getManagerIpLocalPath());
+                            proxyClientConfig.getManagerIpLocalPath());
                 }
                 TimeUnit.MILLISECONDS.sleep((long) proxyClientConfig.getProxyUpdateIntervalMinutes() * 60 * 1000);
             } catch (Throwable e) {

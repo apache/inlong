@@ -58,6 +58,7 @@ public class MsgDedupHandler {
                         .expireAfterAccess(maxSurviveTime, TimeUnit.MILLISECONDS)
                         .maximumSize(maxSurviveSize)
                         .build(new CacheLoader<String, Long>() {
+
                             @Override
                             public Long load(String key) {
                                 return System.currentTimeMillis();

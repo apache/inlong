@@ -29,6 +29,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Topic {
+
     String topic;
     int partitionCnt;
     Map<String, String> topicProperties;

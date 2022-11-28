@@ -30,6 +30,7 @@ import java.util.Arrays;
  * Test for {@link ClickHouseLoadNode} Serialization/Deserialization.
  */
 public class ClickHouseLoadNodeTest extends SerializeBaseTest<Node> {
+
     @Override
     public Node getTestObject() {
 
@@ -45,7 +46,6 @@ public class ClickHouseLoadNodeTest extends SerializeBaseTest<Node> {
                 "jdbc:clickhouse://localhost:8023/default",
                 "root",
                 "root",
-                ""
-        );
+                "");
     }
 }

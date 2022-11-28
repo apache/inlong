@@ -43,6 +43,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 public class OracleLoadNode extends LoadNode implements InlongMetric, Serializable {
+
     /**
      * jdbc:oracle://host:port/database
      */

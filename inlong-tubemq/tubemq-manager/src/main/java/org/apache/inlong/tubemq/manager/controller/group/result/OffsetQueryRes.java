@@ -23,6 +23,7 @@ import lombok.Data;
 
 @Data
 public class OffsetQueryRes {
+
     private boolean result;
     private int errCode;
     private String errMsg;

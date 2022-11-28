@@ -65,7 +65,7 @@ public class WebServer implements Server {
         registerTools(webConfig);
         srv = new org.eclipse.jetty.server.Server(masterConfig.getWebPort());
         ServletContextHandler servletContext = new ServletContextHandler(srv,
-                        "/", ServletContextHandler.SESSIONS);
+                "/", ServletContextHandler.SESSIONS);
         servletContext.addFilter(new FilterHolder(
                 new MasterStatusCheckFilter(master)), "/*", EnumSet.of(REQUEST, ASYNC));
         servletContext.addFilter(new FilterHolder(
@@ -110,4 +110,3 @@ public class WebServer implements Server {
         config.registerTool("numericTool", new NumberTool());
     }
 }
-

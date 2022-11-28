@@ -25,6 +25,7 @@ import org.apache.inlong.tubemq.corebase.utils.MixedUtils;
  *
  */
 public class StatsConfig {
+
     // client statistics information print period
     private static final long STATS_SELF_PRINT_DEFAULT_PERIOD_MS = 6 * 1000 * 60L;
     private static final long STATS_SELF_PRINT_MIN_PERIOD_MS = 1000 * 60L;
@@ -74,7 +75,7 @@ public class StatsConfig {
      * @param forcedResetPeriodMs the resets interval for collecting data
      */
     public void updateStatsConfig(StatsLevel statsLevel, boolean enableSelfPrint,
-                                  long selfPrintPeriodMs, long forcedResetPeriodMs) {
+            long selfPrintPeriodMs, long forcedResetPeriodMs) {
         updateStatsControl(statsLevel, enableSelfPrint);
         setStatsPeriodInfo(selfPrintPeriodMs, forcedResetPeriodMs);
     }
@@ -99,7 +100,7 @@ public class StatsConfig {
      * @param forcedResetPeriodMs the resets interval for collecting data
      */
     public void setStatsPeriodInfo(long selfPrintPeriodMs,
-                                   long forcedResetPeriodMs) {
+            long forcedResetPeriodMs) {
         this.selfPrintPeriodMs =
                 MixedUtils.mid(selfPrintPeriodMs,
                         STATS_SELF_PRINT_MIN_PERIOD_MS, STATS_SELF_PRINT_MAX_PERIOD_MS);

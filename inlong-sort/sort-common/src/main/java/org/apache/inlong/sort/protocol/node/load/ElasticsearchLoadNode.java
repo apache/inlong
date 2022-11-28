@@ -75,20 +75,20 @@ public class ElasticsearchLoadNode extends LoadNode implements InlongMetric, Ser
 
     @JsonCreator
     public ElasticsearchLoadNode(@JsonProperty("id") String id,
-        @JsonProperty("name") String name,
-        @JsonProperty("fields") List<FieldInfo> fields,
-        @JsonProperty("fieldRelations") List<FieldRelation> fieldRelationShips,
-        @JsonProperty("filters") List<FilterFunction> filters,
-        @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
-        @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
-        @JsonProperty("properties") Map<String, String> properties,
-        @Nonnull @JsonProperty("index") String index,
-        @Nonnull @JsonProperty("hosts") String hosts,
-        @Nonnull @JsonProperty("username") String username,
-        @Nonnull @JsonProperty("password") String password,
-        @Nonnull @JsonProperty("documentType") String documentType,
-        @Nonnull @JsonProperty("primaryKey") String primaryKey,
-        @JsonProperty("version") int version) {
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelationShips,
+            @JsonProperty("filters") List<FilterFunction> filters,
+            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
+            @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
+            @JsonProperty("properties") Map<String, String> properties,
+            @Nonnull @JsonProperty("index") String index,
+            @Nonnull @JsonProperty("hosts") String hosts,
+            @Nonnull @JsonProperty("username") String username,
+            @Nonnull @JsonProperty("password") String password,
+            @Nonnull @JsonProperty("documentType") String documentType,
+            @Nonnull @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("version") int version) {
         super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
         this.password = Preconditions.checkNotNull(password, "password is null");
         this.username = Preconditions.checkNotNull(username, "username is null");

@@ -68,16 +68,16 @@ public class ManagerReporter extends PeriodicTask {
     }
 
     private void reportManager() {
-        //1.report heartbeat to manager
+        // 1.report heartbeat to manager
         heartBeat();
-        //2.report consume status to manager
+        // 2.report consume status to manager
         updateConsumeStatus();
     }
 
     private long getReportInterval(int methodId) {
         Long reportIntervalMs = reportApiInterval.get(methodId);
         if (reportIntervalMs == null) {
-            //default report interval 5s
+            // default report interval 5s
             reportIntervalMs = 5000L;
         }
         return reportIntervalMs;

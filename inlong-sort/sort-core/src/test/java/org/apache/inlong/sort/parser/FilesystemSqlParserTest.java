@@ -76,10 +76,9 @@ public class FilesystemSqlParserTest {
                 new FieldInfo("age", new LongFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())),
+                        new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new LongFormatInfo()))
-                );
+                                new FieldInfo("age", new LongFormatInfo())));
         Map<String, String> map = new HashMap<>();
         map.put("sink.ignore.changelog", "true");
         return new FileSystemLoadNode("2", "filesystem_node", fields, relations, null, "hdfs://127.0.0.1:8020/", "csv",

@@ -59,10 +59,7 @@ import java.util.TreeMap;
 /**
  * Base class for extract node \ load node \ transform node
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
         @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),

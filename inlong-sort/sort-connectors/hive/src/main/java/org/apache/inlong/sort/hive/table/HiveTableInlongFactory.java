@@ -98,10 +98,10 @@ public class HiveTableInlongFactory implements DynamicTableSourceFactory, Dynami
         // temporary table doesn't have the IS_GENERIC flag but we still consider it generic
         if (isHiveTable) {
             updateHiveConf(options);
-            //  new HiveValidator().validate(properties);
-                        Integer configuredParallelism =
-                                Configuration.fromMap(context.getCatalogTable().getOptions())
-                                        .get(FileSystemOptions.SINK_PARALLELISM);
+            // new HiveValidator().validate(properties);
+            Integer configuredParallelism =
+                    Configuration.fromMap(context.getCatalogTable().getOptions())
+                            .get(FileSystemOptions.SINK_PARALLELISM);
             final String inlongMetric = context.getCatalogTable().getOptions()
                     .getOrDefault(INLONG_METRIC.key(), INLONG_METRIC.defaultValue());
             final String auditHostAndPorts = context.getCatalogTable().getOptions()

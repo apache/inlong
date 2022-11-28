@@ -66,8 +66,7 @@ public class UpdateCommand extends AbstractCommand {
         @Parameter(names = {"--group", "-g"}, required = true, description = "inlong group id")
         private String inlongGroupId;
 
-        @Parameter(names = {"-c", "--config"},
-                required = true, description = "json file")
+        @Parameter(names = {"-c", "--config"}, required = true, description = "json file")
         private File file;
 
         @Override

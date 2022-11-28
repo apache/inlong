@@ -79,8 +79,7 @@ public class CsvTest extends DescriptorTestBase {
         addPropertyAndVerify(
                 MINIMAL_DESCRIPTOR_WITH_DERIVED_SCHEMA,
                 "format.schema",
-                TEST_SCHEMA
-        );
+                TEST_SCHEMA);
     }
 
     // --------------------------------------------------------------------------------------------

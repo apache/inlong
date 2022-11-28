@@ -45,12 +45,11 @@ public class DorisLoadNodeTest extends SerializeBaseTest<DorisLoadNode> {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("price", new DecimalFormatInfo()),
-                new FieldInfo("sale", new DoubleFormatInfo())
-        );
+                new FieldInfo("sale", new DoubleFormatInfo()));
 
         List<FieldRelation> fieldRelations = Arrays
                 .asList(new FieldRelation(new FieldInfo("dt", new StringFormatInfo()),
-                                new FieldInfo("dt", new StringFormatInfo())),
+                        new FieldInfo("dt", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
                                 new FieldInfo("id", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
@@ -60,8 +59,7 @@ public class DorisLoadNodeTest extends SerializeBaseTest<DorisLoadNode> {
                         new FieldRelation(new FieldInfo("price", new DecimalFormatInfo()),
                                 new FieldInfo("price", new DecimalFormatInfo())),
                         new FieldRelation(new FieldInfo("sale", new DoubleFormatInfo()),
-                                new FieldInfo("sale", new DoubleFormatInfo()))
-                );
+                                new FieldInfo("sale", new DoubleFormatInfo())));
 
         List<FilterFunction> filters = new ArrayList<>();
         Map<String, String> map = new HashMap<>();

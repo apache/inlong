@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDaemonService implements Service, Runnable {
+
     private static final Logger logger =
             LoggerFactory.getLogger(AbstractDaemonService.class);
     private final String name;

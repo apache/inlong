@@ -21,6 +21,7 @@ import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 
 public class BrokerProcessResult extends ProcessResult {
+
     private int brokerId = TBaseConstants.META_VALUE_UNDEFINED;
     private String brokerIp = "";
 
@@ -29,8 +30,8 @@ public class BrokerProcessResult extends ProcessResult {
     }
 
     public BrokerProcessResult(int brokerId,
-                               String brokerIp,
-                               ProcessResult result) {
+            String brokerIp,
+            ProcessResult result) {
         super(result);
         this.brokerId = brokerId;
         this.brokerIp = brokerIp;

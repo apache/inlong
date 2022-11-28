@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SchemaChangeUtils {
+
     private static final Joiner DOT = Joiner.on(".");
 
     /**

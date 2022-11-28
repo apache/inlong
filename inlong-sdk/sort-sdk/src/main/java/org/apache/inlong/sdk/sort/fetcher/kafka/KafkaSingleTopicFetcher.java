@@ -55,6 +55,7 @@ import java.util.concurrent.TimeUnit;
  * Kafka single topic fetcher.
  */
 public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSingleTopicFetcher.class);
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap = new ConcurrentHashMap<>();
     private String bootstrapServers;
@@ -90,7 +91,7 @@ public class KafkaSingleTopicFetcher extends SingleTopicFetcher {
             fetchThread.start();
             LOGGER.info("start to start thread:{}", threadName);
         } catch (Exception e) {
-            LOGGER.error("fail to init kafka single topic fetcher: {}",e.getMessage(), e);
+            LOGGER.error("fail to init kafka single topic fetcher: {}", e.getMessage(), e);
             return false;
         }
         return true;

@@ -88,15 +88,14 @@ public class AddTopicExecutor {
 
         for (List<TopicTaskEntry> taskPart : taskParts) {
             Map<String, TopicTaskEntry> topicEntryMap = taskPart.stream().collect(
-                    Collectors.toMap(TopicTaskEntry::getTopicName, topicTaskEntry
-                            -> topicTaskEntry, (v1, v2) -> v2));
+                    Collectors.toMap(TopicTaskEntry::getTopicName, topicTaskEntry -> topicTaskEntry, (v1, v2) -> v2));
             doConfigTopics(topicEntryMap, masterNode, brokerInfoList);
         }
 
     }
 
     private void doConfigTopics(Map<String, TopicTaskEntry> topicEntryMap,
-                                MasterEntry masterNode, TubeHttpBrokerInfoList brokerInfoList) {
+            MasterEntry masterNode, TubeHttpBrokerInfoList brokerInfoList) {
         handleAddingTopic(masterNode, brokerInfoList, topicEntryMap);
         updateConfigResult(masterNode, topicEntryMap);
     }
@@ -123,7 +122,7 @@ public class AddTopicExecutor {
     }
 
     private void updateTopicRepo(Set<Integer> topicBrokerSet, List<Integer> allBrokerIdList,
-                                 TopicTaskEntry topicTask) {
+            TopicTaskEntry topicTask) {
         if (!topicBrokerSet.containsAll(allBrokerIdList)) {
             Integer retryTimes = topicTask.getConfigRetryTimes() + 1;
             topicTask.setConfigRetryTimes(retryTimes);
@@ -132,8 +131,8 @@ public class AddTopicExecutor {
     }
 
     private void handleAddingTopic(MasterEntry masterEntry,
-                                   TubeHttpBrokerInfoList brokerInfoList,
-                                   Map<String, TopicTaskEntry> pendingTopic) {
+            TubeHttpBrokerInfoList brokerInfoList,
+            Map<String, TopicTaskEntry> pendingTopic) {
         // check tubemq cluster by topic name, remove pending topic if has added.
         Set<String> brandNewTopics = new HashSet<>();
         for (String topic : pendingTopic.keySet()) {
@@ -153,7 +152,7 @@ public class AddTopicExecutor {
     }
 
     private void handleAddingExistTopics(MasterEntry masterEntry, TubeHttpBrokerInfoList brokerInfoList,
-                                         String topic, List<Integer> topicBrokerList) {
+            String topic, List<Integer> topicBrokerList) {
         // remove brokers which have been added.
         List<Integer> configurableBrokerIdList =
                 brokerInfoList.getConfigurableBrokerIdList();
@@ -167,7 +166,7 @@ public class AddTopicExecutor {
     }
 
     private void handleAddingNewTopics(MasterEntry masterEntry, TubeHttpBrokerInfoList brokerInfoList,
-                                       Set<String> brandNewTopics) {
+            Set<String> brandNewTopics) {
         if (CollectionUtils.isEmpty(brandNewTopics)) {
             return;
         }

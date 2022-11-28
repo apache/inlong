@@ -73,8 +73,7 @@ public class ClusterController {
     private MasterService masterService;
 
     @PostMapping("")
-    public @ResponseBody
-    TubeMQResult clusterMethodProxy(@RequestParam String method, @RequestBody String req) {
+    public @ResponseBody TubeMQResult clusterMethodProxy(@RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD:
                 return addNewCluster(gson.fromJson(req, AddClusterReq.class));
@@ -130,8 +129,7 @@ public class ClusterController {
      * @param clusterId
      * @return
      */
-    @RequestMapping(value = "", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public TubeMQResult queryCluster(@RequestParam(required = false) Integer clusterId,
             @RequestParam(required = false) String clusterName, @RequestParam(required = false) String masterIp) {
         TubeMQResult result = new TubeMQResult();
@@ -146,7 +144,7 @@ public class ClusterController {
             List<MasterEntry> masterNodes = masterService.getMasterNodes(clusterEntry.getClusterId());
             ClusterVo allCount = getCountInCluster(clusterId);
             result.setData(Lists.newArrayList(ConvertUtils.convertToClusterVo(clusterEntry, masterNodes, allCount)));
-            return  result;
+            return result;
         }
         if (clusterName != null) {
             result = queryClusterByClusterName(clusterName);
@@ -198,10 +196,8 @@ public class ClusterController {
     /**
      * query cluster info
      */
-    @RequestMapping(value = "/query", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody
-    String queryInfo(
+    @RequestMapping(value = "/query", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody String queryInfo(
             @RequestParam Map<String, String> queryBody) throws Exception {
         String url = masterService.getQueryUrl(queryBody);
         return masterService.queryMaster(url);

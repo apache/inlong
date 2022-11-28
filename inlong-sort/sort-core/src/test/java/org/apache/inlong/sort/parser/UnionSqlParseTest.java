@@ -57,8 +57,7 @@ public class UnionSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
-                new FieldInfo("ts", new TimestampFormatInfo())
-        );
+                new FieldInfo("ts", new TimestampFormatInfo()));
         return new MySqlExtractNode(nodeId, "mysql_input_" + nodeId, fields, null, null,
                 "id", Collections.singletonList("mysql_table"),
                 "localhost", "inlong", "inlong",
@@ -75,8 +74,8 @@ public class UnionSqlParseTest extends AbstractTestBase {
                         new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo()),
                         new FieldInfo("salary", new FloatFormatInfo()),
-                        new FieldInfo("ts", new TimestampFormatInfo())
-                ), relations, null, null);
+                        new FieldInfo("ts", new TimestampFormatInfo())),
+                relations, null, null);
     }
 
     private Node buildHbaseNode() {
@@ -84,8 +83,7 @@ public class UnionSqlParseTest extends AbstractTestBase {
                 new FieldInfo("cf1:name", new StringFormatInfo()),
                 new FieldInfo("cf1:age", new IntFormatInfo()),
                 new FieldInfo("cf2:salary", new FloatFormatInfo()),
-                new FieldInfo("cf2:ts", new TimestampFormatInfo())
-        );
+                new FieldInfo("cf2:ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays.asList(
                 new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
                         new FieldInfo("cf1:id", new LongFormatInfo())),
@@ -94,8 +92,7 @@ public class UnionSqlParseTest extends AbstractTestBase {
                 new FieldRelation(new FieldInfo("age", "2", new IntFormatInfo()),
                         new FieldInfo("cf2:age", new IntFormatInfo())),
                 new FieldRelation(new FieldInfo("ts", "3", new TimestampFormatInfo()),
-                        new FieldInfo("cf2:ts", new TimestampFormatInfo()))
-        );
+                        new FieldInfo("cf2:ts", new TimestampFormatInfo())));
         return new HbaseLoadNode("5", "test_hbase",
                 fields, relations, null, null, 1, null, "mytable",
                 "default", "localhost:2181", "MD5(`name`)", null,
@@ -111,8 +108,7 @@ public class UnionSqlParseTest extends AbstractTestBase {
                 new FieldInfo("cf1:name", new StringFormatInfo()),
                 new FieldInfo("cf1:age", new IntFormatInfo()),
                 new FieldInfo("cf2:salary", new FloatFormatInfo()),
-                new FieldInfo("cf2:ts", new TimestampFormatInfo())
-        );
+                new FieldInfo("cf2:ts", new TimestampFormatInfo()));
         return new HbaseLoadNode("4", "test_hbase",
                 fields, relations, null, null, 1, null, "mytable",
                 "default", "localhost:2181", "MD5(`name`)", null,
@@ -169,9 +165,7 @@ public class UnionSqlParseTest extends AbstractTestBase {
                         buildUnionNodeRelation(Arrays.asList(inputNode1, inputNode2, inputNode3),
                                 Collections.singletonList(transformNode)),
                         buildNodeRelation(Collections.singletonList(transformNode),
-                                Collections.singletonList(outputNode))
-                )
-        );
+                                Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -202,9 +196,7 @@ public class UnionSqlParseTest extends AbstractTestBase {
                 Arrays.asList(inputNode1, inputNode2, inputNode3, outputNode),
                 Collections.singletonList(
                         buildUnionNodeRelation(Arrays.asList(inputNode1, inputNode2, inputNode3),
-                                Collections.singletonList(outputNode))
-                )
-        );
+                                Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

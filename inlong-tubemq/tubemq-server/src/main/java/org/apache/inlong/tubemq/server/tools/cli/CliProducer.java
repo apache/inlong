@@ -97,8 +97,8 @@ public class CliProducer extends CliAbstractBase {
         addCommandOption(CliArgDef.MASTERSERVER);
         addCommandOption(CliArgDef.MESSAGES);
         addCommandOption(CliArgDef.MSGDATASIZE);
-        //addCommandOption(CliArgDef.PAYLOADFILE);
-        //addCommandOption(CliArgDef.PAYLOADDELIM);
+        // addCommandOption(CliArgDef.PAYLOADFILE);
+        // addCommandOption(CliArgDef.PAYLOADDELIM);
         addCommandOption(CliArgDef.PRDTOPIC);
         addCommandOption(CliArgDef.RPCTIMEOUT);
         addCommandOption(CliArgDef.CONNREUSE);
@@ -193,6 +193,7 @@ public class CliProducer extends CliAbstractBase {
         // initial send thread service
         sendExecutorService =
                 Executors.newFixedThreadPool(sendThreadCnt, new ThreadFactory() {
+
                     @Override
                     public Thread newThread(Runnable runnable) {
                         return new Thread(runnable, "sender_" + producerMap.size());
@@ -295,6 +296,7 @@ public class CliProducer extends CliAbstractBase {
     }
 
     private class DefaultSendCallback implements MessageSentCallback {
+
         @Override
         public void onMessageSent(MessageSentResult result) {
             TOTAL_COUNTER.incrementAndGet();

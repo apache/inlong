@@ -25,6 +25,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /** Debezium startup options. */
 public final class StartupOptions implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     public final StartupMode startupMode;

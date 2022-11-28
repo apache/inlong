@@ -171,7 +171,7 @@ public class LoadNodeUtils {
                 break;
             case DEBEZIUM_JSON:
                 format = new DebeziumJsonFormat();
-                break; 
+                break;
             case RAW:
                 format = new RawFormat();
                 break;
@@ -191,8 +191,7 @@ public class LoadNodeUtils {
                 format,
                 sinkParallelism,
                 properties,
-                kafkaSink.getPrimaryKey()
-        );
+                kafkaSink.getPrimaryKey());
     }
 
     /**
@@ -205,7 +204,8 @@ public class LoadNodeUtils {
             partitionFields = hiveSink.getPartitionFieldList().stream()
                     .map(partitionField -> new FieldInfo(partitionField.getFieldName(), hiveSink.getSinkName(),
                             FieldInfoUtils.convertFieldFormat(partitionField.getFieldType(),
-                                    partitionField.getFieldFormat()))).collect(Collectors.toList());
+                                    partitionField.getFieldFormat())))
+                    .collect(Collectors.toList());
         }
         return new HiveLoadNode(
                 hiveSink.getSinkName(),
@@ -222,8 +222,7 @@ public class LoadNodeUtils {
                 hiveSink.getHiveConfDir(),
                 hiveSink.getHiveVersion(),
                 null,
-                partitionFields
-        );
+                partitionFields);
     }
 
     /**
@@ -247,8 +246,7 @@ public class LoadNodeUtils {
                 hbaseSink.getBufferFlushMaxSize(),
                 hbaseSink.getZkNodeParent(),
                 hbaseSink.getBufferFlushMaxRows(),
-                hbaseSink.getBufferFlushInterval()
-        );
+                hbaseSink.getBufferFlushInterval());
     }
 
     /**
@@ -269,8 +267,7 @@ public class LoadNodeUtils {
                 postgreSQLSink.getUsername(),
                 postgreSQLSink.getPassword(),
                 postgreSQLSink.getDbName() + "." + postgreSQLSink.getTableName(),
-                postgreSQLSink.getPrimaryKey()
-        );
+                postgreSQLSink.getPrimaryKey());
     }
 
     /**
@@ -291,8 +288,7 @@ public class LoadNodeUtils {
                 ckSink.getJdbcUrl() + "/" + ckSink.getDbName(),
                 ckSink.getUsername(),
                 ckSink.getPassword(),
-                ckSink.getPrimaryKey()
-        );
+                ckSink.getPrimaryKey());
     }
 
     /**
@@ -332,8 +328,7 @@ public class LoadNodeUtils {
                 dorisSink.getSinkMultipleEnable(),
                 format,
                 dorisSink.getDatabasePattern(),
-                dorisSink.getTablePattern()
-        );
+                dorisSink.getTablePattern());
     }
 
     /**
@@ -356,8 +351,7 @@ public class LoadNodeUtils {
                 icebergSink.getPrimaryKey(),
                 catalogType,
                 icebergSink.getCatalogUri(),
-                icebergSink.getWarehouse()
-        );
+                icebergSink.getWarehouse());
     }
 
     /**
@@ -379,8 +373,7 @@ public class LoadNodeUtils {
                 sqlServerSink.getPassword(),
                 sqlServerSink.getSchemaName(),
                 sqlServerSink.getTableName(),
-                sqlServerSink.getPrimaryKey()
-        );
+                sqlServerSink.getPrimaryKey());
     }
 
     /**
@@ -403,8 +396,7 @@ public class LoadNodeUtils {
                 elasticsearchSink.getPassword(),
                 elasticsearchSink.getDocumentType(),
                 elasticsearchSink.getPrimaryKey(),
-                elasticsearchSink.getEsVersion()
-        );
+                elasticsearchSink.getEsVersion());
     }
 
     /**
@@ -432,8 +424,7 @@ public class LoadNodeUtils {
                 null,
                 properties,
                 partitionFields,
-                hdfsSink.getServerTimeZone()
-        );
+                hdfsSink.getServerTimeZone());
     }
 
     /**
@@ -538,8 +529,7 @@ public class LoadNodeUtils {
                 dlcIcebergSink.getTableName(),
                 dlcIcebergSink.getPrimaryKey(),
                 dlcIcebergSink.getCatalogUri(),
-                dlcIcebergSink.getWarehouse()
-        );
+                dlcIcebergSink.getWarehouse());
     }
 
     /**

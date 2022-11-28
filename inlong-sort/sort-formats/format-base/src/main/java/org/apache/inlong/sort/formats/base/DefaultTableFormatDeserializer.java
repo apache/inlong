@@ -48,15 +48,13 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
 
     public DefaultTableFormatDeserializer(
             DeserializationSchema<Row> deserializationSchema,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         this.deserializationSchema = deserializationSchema;
         this.ignoreErrors = ignoreErrors;
     }
 
     public DefaultTableFormatDeserializer(
-            DeserializationSchema<Row> deserializationSchema
-    ) {
+            DeserializationSchema<Row> deserializationSchema) {
         this(deserializationSchema, TableFormatConstants.DEFAULT_IGNORE_ERRORS);
     }
 
@@ -68,8 +66,7 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
     @Override
     public void flatMap(
             byte[] bytes,
-            Collector<Row> collector
-    ) throws Exception {
+            Collector<Row> collector) throws Exception {
         Row row;
 
         try {
@@ -101,7 +98,7 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
 
         DefaultTableFormatDeserializer that = (DefaultTableFormatDeserializer) o;
         return ignoreErrors == that.ignoreErrors
-               && Objects.equals(deserializationSchema, that.deserializationSchema);
+                && Objects.equals(deserializationSchema, that.deserializationSchema);
     }
 
     @Override
@@ -112,8 +109,8 @@ public class DefaultTableFormatDeserializer implements TableFormatDeserializer {
     @Override
     public String toString() {
         return "DefaultTableFormatDeserializer{"
-               + "deserializationSchema=" + deserializationSchema
-               + ", ignoreErrors=" + ignoreErrors
-               + '}';
+                + "deserializationSchema=" + deserializationSchema
+                + ", ignoreErrors=" + ignoreErrors
+                + '}';
     }
 }

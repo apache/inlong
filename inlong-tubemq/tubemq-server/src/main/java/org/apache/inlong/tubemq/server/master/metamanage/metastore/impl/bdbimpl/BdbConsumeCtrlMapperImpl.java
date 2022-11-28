@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Gr
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsConsumeCtrlMapperImpl;
 
 public class BdbConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
+
     // consume control store
     private EntityStore groupConsumeStore;
     private final PrimaryIndex<String/* recordKey */, BdbGroupFilterCondEntity> groupConsumeIndex;
@@ -86,7 +87,7 @@ public class BdbConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
     }
 
     protected boolean putConfig2Persistent(GroupConsumeCtrlEntity entity,
-                                           StringBuilder strBuff, ProcessResult result) {
+            StringBuilder strBuff, ProcessResult result) {
         BdbGroupFilterCondEntity bdbEntity =
                 entity.buildBdbGroupFilterCondEntity();
         try {

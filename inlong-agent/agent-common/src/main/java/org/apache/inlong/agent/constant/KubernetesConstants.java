@@ -41,5 +41,5 @@ public class KubernetesConstants {
     public static final String METADATA_POD_LABEL = "__pod_label__";
     public static final String DATA_CONTENT = "__content__";
     public static final String DATA_CONTENT_TIME = "__LogTime__";
-    
+
 }

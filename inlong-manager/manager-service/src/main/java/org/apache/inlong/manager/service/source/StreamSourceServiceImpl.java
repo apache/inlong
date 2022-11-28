@@ -196,8 +196,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean update(SourceRequest request, String operator) {
         LOGGER.info("begin to update source info: {}", request);
         this.checkParams(request);
@@ -220,8 +219,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator) {
         sourceMapper.updateStatusByRelatedId(groupId, streamId, targetStatus);
         LOGGER.info("success to update source status={} for groupId={}, streamId={} by {}",
@@ -230,8 +228,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete source for id={} by user={}", id, operator);
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
@@ -277,13 +274,12 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         int sourceCount = sourceMapper.updateByRelatedId(groupId, streamId, SourceStatus.SOURCE_DISABLE.getCode());
         int fieldCount = sourceFieldMapper.updateByRelatedId(groupId, streamId);
         LOGGER.info("success to force delete source for groupId={} and streamId={} by user={},"
-                        + " update {} sources and {} fields", groupId, streamId, operator, sourceCount, fieldCount);
+                + " update {} sources and {} fields", groupId, streamId, operator, sourceCount, fieldCount);
         return true;
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean restart(Integer id, String operator) {
         LOGGER.info("begin to restart source by id={}", id);
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
@@ -299,8 +295,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean stop(Integer id, String operator) {
         LOGGER.info("begin to stop source by id={}", id);
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
@@ -316,8 +311,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean logicDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to logic delete all source info by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
@@ -353,8 +347,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
-            isolation = Isolation.READ_COMMITTED)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     public Boolean deleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to delete all source by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());

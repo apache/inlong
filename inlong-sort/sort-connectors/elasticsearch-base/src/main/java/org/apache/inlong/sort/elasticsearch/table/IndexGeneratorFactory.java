@@ -74,6 +74,7 @@ public final class IndexGeneratorFactory {
     }
 
     interface DynamicFormatter extends Serializable {
+
         String format(@Nonnull Object fieldValue, DateTimeFormatter formatter);
     }
 
@@ -104,6 +105,7 @@ public final class IndexGeneratorFactory {
                     createFormatFunction(indexFieldType, indexFieldLogicalTypeRoot);
 
             return new AbstractTimeIndexGenerator(index, dateTimeFormat) {
+
                 @Override
                 public String generate(RowData row) {
                     Object fieldOrNull = fieldGetter.getFieldOrNull(row);
@@ -120,6 +122,7 @@ public final class IndexGeneratorFactory {
         }
         // general dynamic index pattern
         return new IndexGeneratorBase(index) {
+
             @Override
             public String generate(RowData row) {
                 Object indexField = fieldGetter.getFieldOrNull(row);
@@ -170,6 +173,7 @@ public final class IndexGeneratorFactory {
      * type ans parse index format from pattern.
      */
     private static class IndexHelper {
+
         private static final Pattern dynamicIndexPattern = Pattern.compile("\\{[^\\{\\}]+\\}?");
         private static final Pattern dynamicIndexTimeExtractPattern =
                 Pattern.compile(".*\\{.+\\|.*\\}.*");

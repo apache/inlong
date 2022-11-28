@@ -66,9 +66,9 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
     @ClassRule
     public static final ClickHouseContainer CLICK_HOUSE_CONTAINER = (ClickHouseContainer) new ClickHouseContainer(
             "yandex/clickhouse-server:20.1.8.41")
-            .withNetwork(NETWORK)
-            .withNetworkAliases("clickhouse")
-            .withLogConsumer(new Slf4jLogConsumer(LOG));
+                    .withNetwork(NETWORK)
+                    .withNetworkAliases("clickhouse")
+                    .withLogConsumer(new Slf4jLogConsumer(LOG));
 
     @Before
     public void setup() {
@@ -117,7 +117,6 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
             throw new RuntimeException(e);
         }
     }
-
 
     /**
      * Test flink sql mysql cdc to clickHouse

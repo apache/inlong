@@ -76,8 +76,8 @@ import static org.apache.inlong.sort.cdc.mysql.source.utils.ChunkUtils.getNextMe
  * The source reader for MySQL source splits.
  */
 public class MySqlSourceReader<T>
-        extends SingleThreadMultiplexSourceReaderBase<
-        SourceRecord, T, MySqlSplit, MySqlSplitState> {
+        extends
+            SingleThreadMultiplexSourceReaderBase<SourceRecord, T, MySqlSplit, MySqlSplitState> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlSourceReader.class);
 

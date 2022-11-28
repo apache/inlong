@@ -790,7 +790,7 @@ public class Configuration implements java.io.Serializable, Cloneable {
     }
 
     // --------------------------------------------------------------------------------------------
-    //  Type conversion
+    // Type conversion
     // --------------------------------------------------------------------------------------------
 
     private int convertToInt(Object o, int defaultValue) {

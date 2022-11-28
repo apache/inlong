@@ -27,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class MasterConfigTest {
+
     @Test
     public void loadFileSectAttributes() {
 

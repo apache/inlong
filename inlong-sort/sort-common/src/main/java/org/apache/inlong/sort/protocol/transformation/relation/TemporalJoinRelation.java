@@ -35,10 +35,7 @@ import java.util.Map;
 /**
  * Temporal join relation base class
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = InnerTemporalJoinRelation.class, name = "innerTemporalJoin"),
         @JsonSubTypes.Type(value = LeftOuterTemporalJoinRelation.class, name = "leftOuterTemporalJoin")

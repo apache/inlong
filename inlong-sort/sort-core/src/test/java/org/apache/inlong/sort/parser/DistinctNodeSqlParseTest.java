@@ -107,14 +107,13 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
         return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
                 null, "topic_output", "localhost:9092",
                 new JsonFormat(), null,
@@ -129,14 +128,13 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
         return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
                 null, "topic_output", "localhost:9092",
                 new JsonFormat(), null,
@@ -151,14 +149,13 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                );
+                                new FieldInfo("ts", new TimestampFormatInfo())));
         return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
                 null, "topic_output", "localhost:9092",
                 new JsonFormat(), null,
@@ -171,8 +168,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo()),
                         new FieldInfo("salary", new FloatFormatInfo()),
-                        new FieldInfo("ts", new TimestampFormatInfo())
-                ),
+                        new FieldInfo("ts", new TimestampFormatInfo())),
                 Arrays.asList(
                         new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
@@ -181,8 +177,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                ),
+                                new FieldInfo("ts", new TimestampFormatInfo()))),
                 null, null,
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 new FieldInfo("proctime", new TimestampFormatInfo()),
@@ -195,8 +190,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo()),
                         new FieldInfo("salary", new FloatFormatInfo()),
-                        new FieldInfo("ts", new TimestampFormatInfo())
-                ),
+                        new FieldInfo("ts", new TimestampFormatInfo())),
                 Arrays.asList(
                         new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
@@ -205,8 +199,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                ),
+                                new FieldInfo("ts", new TimestampFormatInfo()))),
                 null, null,
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 new FieldInfo("ts", new TimestampFormatInfo()),
@@ -219,8 +212,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo()),
                         new FieldInfo("salary", new FloatFormatInfo()),
-                        new FieldInfo("ts", new TimestampFormatInfo())
-                ),
+                        new FieldInfo("ts", new TimestampFormatInfo())),
                 Arrays.asList(
                         new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
@@ -229,8 +221,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
                         new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
-                                new FieldInfo("ts", new TimestampFormatInfo()))
-                ),
+                                new FieldInfo("ts", new TimestampFormatInfo()))),
                 null, null,
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 new FieldInfo("ts", new TimestampFormatInfo()),
@@ -267,8 +258,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         buildNodeRelation(Collections.singletonList(inputNode),
                                 Collections.singletonList(tansformNode)),
                         buildNodeRelation(Collections.singletonList(tansformNode),
-                                Collections.singletonList(outputNode))
-                ));
+                                Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("group_id", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -299,8 +289,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         buildNodeRelation(Collections.singletonList(inputNode),
                                 Collections.singletonList(tansformNode)),
                         buildNodeRelation(Collections.singletonList(tansformNode),
-                                Collections.singletonList(outputNode))
-                ));
+                                Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("group_id", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
@@ -331,8 +320,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         buildNodeRelation(Collections.singletonList(inputNode),
                                 Collections.singletonList(tansformNode)),
                         buildNodeRelation(Collections.singletonList(tansformNode),
-                                Collections.singletonList(outputNode))
-                ));
+                                Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("group_id", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

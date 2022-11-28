@@ -69,8 +69,7 @@ public class ElasticsearchConfiguration {
                 try {
                     Class<?> failureHandlerClass = Class.forName(value, false, classLoader);
                     failureHandler =
-                            (ActionRequestFailureHandler)
-                                    InstantiationUtil.instantiate(failureHandlerClass);
+                            (ActionRequestFailureHandler) InstantiationUtil.instantiate(failureHandlerClass);
                 } catch (ClassNotFoundException e) {
                     throw new ValidationException(
                             "Could not instantiate the failure handler class: " + value, e);
@@ -111,8 +110,7 @@ public class ElasticsearchConfiguration {
     }
 
     public boolean isBulkFlushBackoffEnabled() {
-        return config.get(BULK_FLUSH_BACKOFF_TYPE_OPTION)
-                != ElasticsearchOptions.BackOffType.DISABLED;
+        return config.get(BULK_FLUSH_BACKOFF_TYPE_OPTION) != ElasticsearchOptions.BackOffType.DISABLED;
     }
 
     public Optional<ElasticsearchSinkBase.FlushBackoffType> getBulkFlushBackoffType() {

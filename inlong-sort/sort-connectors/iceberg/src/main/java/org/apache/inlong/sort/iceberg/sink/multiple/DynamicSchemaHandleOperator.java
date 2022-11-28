@@ -59,7 +59,9 @@ import java.util.Queue;
 import java.util.Set;
 
 public class DynamicSchemaHandleOperator extends AbstractStreamOperator<RecordWithSchema>
-        implements OneInputStreamOperator<RowData, RecordWithSchema>, ProcessingTimeCallback {
+        implements
+            OneInputStreamOperator<RowData, RecordWithSchema>,
+            ProcessingTimeCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(DynamicSchemaHandleOperator.class);
     private static final long HELPER_DEBUG_INTERVEL = 10 * 60 * 1000;

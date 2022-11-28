@@ -61,7 +61,7 @@ public class EndEventProcessor implements ElementProcessor<EndEvent> {
 
     @Override
     public boolean create(EndEvent element, WorkflowContext context) {
-        //do nothing
+        // do nothing
         return true;
     }
 
@@ -74,7 +74,7 @@ public class EndEventProcessor implements ElementProcessor<EndEvent> {
     public boolean complete(WorkflowContext context) {
         WorkflowProcessEntity processEntity = context.getProcessEntity();
         List<WorkflowTaskEntity> tasks = taskEntityMapper.selectByProcess(processEntity.getId(), TaskStatus.PENDING);
-        //If there are unfinished tasks, the process cannot be ended
+        // If there are unfinished tasks, the process cannot be ended
         if (!CollectionUtils.isEmpty(tasks)) {
             log.warn("have pending task, end event not execute");
             return true;

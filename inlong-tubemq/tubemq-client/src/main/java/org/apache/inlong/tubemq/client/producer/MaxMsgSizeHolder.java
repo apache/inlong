@@ -30,6 +30,7 @@ import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
  *  returned from the server.
  */
 public class MaxMsgSizeHolder {
+
     private final AtomicLong configId =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
     private final AtomicInteger defMaxMsgSize =

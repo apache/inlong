@@ -199,7 +199,7 @@ public class EncodeObject {
             if (StringUtils.isBlank(errMsg)) {
                 this.errMsg = DataProxyErrCode.valueOf(Integer.parseInt(errCode)).getErrMsg();
             }
-            //sendResult
+            // sendResult
             this.sendResult = convertToSendResult(Integer.parseInt(errCode));
         }
     }

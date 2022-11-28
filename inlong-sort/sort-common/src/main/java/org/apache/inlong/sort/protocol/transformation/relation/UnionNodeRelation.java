@@ -41,7 +41,7 @@ public class UnionNodeRelation extends NodeRelation {
      * @param outputs The outputs is a list of output node id
      */
     public UnionNodeRelation(@JsonProperty("inputs") List<String> inputs,
-                             @JsonProperty("outputs") List<String> outputs) {
+            @JsonProperty("outputs") List<String> outputs) {
         super(inputs, outputs);
     }
 

@@ -61,6 +61,7 @@ public class AuditOperator {
     private SenderManager manager;
 
     private final TimerTask timerTask = new TimerTask() {
+
         @Override
         public void run() {
             try {

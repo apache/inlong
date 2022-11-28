@@ -35,7 +35,7 @@ public interface BrokerConfigMapper extends AbstractMapper {
      * @return  the process result
      */
     boolean addBrokerConf(BrokerConfEntity entity,
-                          StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update a broker configure info into store
@@ -46,7 +46,7 @@ public interface BrokerConfigMapper extends AbstractMapper {
      * @return  the process result
      */
     boolean updBrokerConf(BrokerConfEntity entity,
-                          StringBuilder strBuff, ProcessResult result);
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update a broker manage status
@@ -59,8 +59,8 @@ public interface BrokerConfigMapper extends AbstractMapper {
      * @return  the process result
      */
     boolean updBrokerMngStatus(BaseEntity opEntity,
-                               int brokerId, ManageStatus newMngStatus,
-                               StringBuilder strBuff, ProcessResult result);
+            int brokerId, ManageStatus newMngStatus,
+            StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete broker configure info from store
@@ -89,8 +89,8 @@ public interface BrokerConfigMapper extends AbstractMapper {
      * @return result, only read
      */
     Map<Integer, BrokerConfEntity> getBrokerConfInfo(Set<Integer> brokerIdSet,
-                                                     Set<String> brokerIpSet,
-                                                     BrokerConfEntity qryEntity);
+            Set<String> brokerIpSet,
+            BrokerConfEntity qryEntity);
 
     /**
      * get broker configure info from store

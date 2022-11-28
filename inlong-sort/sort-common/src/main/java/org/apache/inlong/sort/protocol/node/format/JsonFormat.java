@@ -62,8 +62,7 @@ public class JsonFormat implements Format {
             @JsonProperty(value = "timestampFormatStandard", defaultValue = "SQL") String timestampFormatStandard,
             @JsonProperty(value = "mapNullKeyMode", defaultValue = "DROP") String mapNullKeyMode,
             @JsonProperty(value = "mapNullKeyLiteral", defaultValue = "null") String mapNullKeyLiteral,
-            @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true")
-                    Boolean encodeDecimalAsPlainNumber) {
+            @JsonProperty(value = "encodeDecimalAsPlainNumber", defaultValue = "true") Boolean encodeDecimalAsPlainNumber) {
         this.failOnMissingField = failOnMissingField;
         this.ignoreParseErrors = ignoreParseErrors;
         this.timestampFormatStandard = timestampFormatStandard;

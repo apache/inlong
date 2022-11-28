@@ -23,6 +23,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import java.net.InetSocketAddress;
 
 public class IpPort {
+
     public static final String SEPARATOR = ":";
     public final String ip;
     public final int port;
@@ -145,4 +146,3 @@ public class IpPort {
         return key;
     }
 }
-

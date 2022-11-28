@@ -23,6 +23,7 @@ import lombok.Data;
 
 @Data
 public class AddBrokerResult {
+
     private int code;
     private String errMsg;
     private int errCode;

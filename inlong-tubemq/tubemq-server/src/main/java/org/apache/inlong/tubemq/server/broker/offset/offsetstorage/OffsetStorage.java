@@ -29,15 +29,15 @@ public interface OffsetStorage {
     OffsetStorageInfo loadOffset(String group, String topic, int partitionId);
 
     void commitOffset(String group,
-                      Collection<OffsetStorageInfo> offsetInfoList,
-                      boolean isFailRetry);
+            Collection<OffsetStorageInfo> offsetInfoList,
+            boolean isFailRetry);
 
     Map<String, Set<String>> queryZkAllGroupTopicInfos();
 
     Map<String, Set<String>> queryZKGroupTopicInfo(List<String> groupSet);
 
     Map<Integer, Long> queryGroupOffsetInfo(String group, String topic,
-                                            Set<Integer> partitionIds);
+            Set<Integer> partitionIds);
 
     void deleteGroupOffsetInfo(Map<String, Map<String, Set<Integer>>> groupTopicPartMap);
 }

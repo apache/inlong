@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /** Worker of */
 public class KafkaFederationWorker extends Thread {
+
     public static final Logger LOG = InlongLoggerFactory.getLogger(KafkaFederationWorker.class);
 
     private final String workerName;

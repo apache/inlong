@@ -30,7 +30,7 @@ public class TopicPubStoreInfo {
     public long dataMax = 0L;
 
     public TopicPubStoreInfo(String topicName, int storeId, int partitionId,
-                             long offsetMin, long offsetMax, long dataMin, long dataMax) {
+            long offsetMin, long offsetMax, long dataMin, long dataMax) {
         this.topicName = topicName;
         this.storeId = storeId;
         this.partitionId = partitionId;

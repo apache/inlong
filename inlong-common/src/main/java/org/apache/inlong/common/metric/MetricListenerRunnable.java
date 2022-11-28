@@ -118,9 +118,9 @@ public class MetricListenerRunnable implements Runnable {
                 ObjectName metricObjectName = mbean.getObjectName();
                 List<MetricItem> items =
                         (List<MetricItem>) mbs.invoke(metricObjectName,
-                        MetricItemMBean.METHOD_SNAPSHOT, null, null);
+                                MetricItemMBean.METHOD_SNAPSHOT, null, null);
                 /*
-                  * ut will throw classCaseException if use MetricItem without Object
+                 * ut will throw classCaseException if use MetricItem without Object
                  */
                 for (Object itemT : items) {
                     if (itemT instanceof MetricItem) {

@@ -36,8 +36,8 @@ public class PbEnDecoderTest {
         byte[] data = PbEnDecoder.pbEncode(object);
 
         // decode bytes
-        ClientMaster.RegisterRequestP2M decodeObject = (ClientMaster.RegisterRequestP2M)
-                PbEnDecoder.pbDecode(true, RpcConstants.RPC_MSG_MASTER_PRODUCER_REGISTER, data);
+        ClientMaster.RegisterRequestP2M decodeObject = (ClientMaster.RegisterRequestP2M) PbEnDecoder.pbDecode(true,
+                RpcConstants.RPC_MSG_MASTER_PRODUCER_REGISTER, data);
 
         assertEquals(decodeObject.getClientId(), object.getClientId());
         assertEquals(decodeObject.getBrokerCheckSum(), object.getBrokerCheckSum());

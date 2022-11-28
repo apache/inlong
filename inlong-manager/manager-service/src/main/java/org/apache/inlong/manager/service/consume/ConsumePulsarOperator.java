@@ -119,7 +119,7 @@ public class ConsumePulsarOperator extends AbstractConsumeOperator {
         }
 
         // TODO when saving, save the enabled DLQ / RLQ into inlong_stream, then create Pulsar topic for them
-        //  when updating, delete the related DLQ / RLQ info if they were disabled.
+        // when updating, delete the related DLQ / RLQ info if they were disabled.
         String groupId = targetEntity.getInlongGroupId();
         if (dlqEnable) {
             String dlqTopic = PREFIX_DLQ + "_" + pulsarRequest.getDeadLetterTopic();

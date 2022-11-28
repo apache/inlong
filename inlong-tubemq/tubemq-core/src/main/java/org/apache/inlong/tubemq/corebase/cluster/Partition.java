@@ -42,8 +42,8 @@ public class Partition implements Comparable<Partition>, Serializable {
      * @param partitionId
      */
     public Partition(final BrokerInfo broker,
-                     final String topic,
-                     final int partitionId) {
+            final String topic,
+            final int partitionId) {
         super();
         this.broker = broker;
         this.topic = topic;
@@ -72,7 +72,7 @@ public class Partition implements Comparable<Partition>, Serializable {
      * @param partStr
      */
     public Partition(BrokerInfo broker,
-                     String partStr) {
+            String partStr) {
         this.broker = broker;
         this.topic = partStr.split(TokenConstants.ATTR_SEP)[0];
         this.partitionId = Integer.parseInt(partStr.split(TokenConstants.ATTR_SEP)[1]);

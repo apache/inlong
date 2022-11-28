@@ -80,7 +80,7 @@ public class ConfigMessageServlet extends HttpServlet {
     }
 
     private void responseToJson(HttpServletResponse response,
-                                ResponseResult result) throws IOException {
+            ResponseResult result) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String jsonStr = gson.toJson(result);

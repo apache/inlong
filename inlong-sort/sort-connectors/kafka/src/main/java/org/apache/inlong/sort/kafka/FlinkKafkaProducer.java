@@ -112,10 +112,8 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
  */
 @PublicEvolving
 public class FlinkKafkaProducer<IN>
-        extends TwoPhaseCommitSinkFunction<
-        IN,
-        FlinkKafkaProducer.KafkaTransactionState,
-        FlinkKafkaProducer.KafkaTransactionContext> {
+        extends
+            TwoPhaseCommitSinkFunction<IN, FlinkKafkaProducer.KafkaTransactionState, FlinkKafkaProducer.KafkaTransactionContext> {
 
     /**
      * This coefficient determines what is the safe scale down factor.
@@ -160,13 +158,11 @@ public class FlinkKafkaProducer<IN>
      * NEXT_TRANSACTIONAL_ID_HINT_DESCRIPTOR_V2.
      */
     @Deprecated
-    private static final ListStateDescriptor<FlinkKafkaProducer.NextTransactionalIdHint>
-            NEXT_TRANSACTIONAL_ID_HINT_DESCRIPTOR =
+    private static final ListStateDescriptor<FlinkKafkaProducer.NextTransactionalIdHint> NEXT_TRANSACTIONAL_ID_HINT_DESCRIPTOR =
             new ListStateDescriptor<>(
                     "next-transactional-id-hint",
                     TypeInformation.of(NextTransactionalIdHint.class));
-    private static final ListStateDescriptor<FlinkKafkaProducer.NextTransactionalIdHint>
-            NEXT_TRANSACTIONAL_ID_HINT_DESCRIPTOR_V2 =
+    private static final ListStateDescriptor<FlinkKafkaProducer.NextTransactionalIdHint> NEXT_TRANSACTIONAL_ID_HINT_DESCRIPTOR_V2 =
             new ListStateDescriptor<>(
                     "next-transactional-id-hint-v2",
                     new NextTransactionalIdHintSerializer());
@@ -255,8 +251,7 @@ public class FlinkKafkaProducer<IN>
     /**
      * State for nextTransactionalIdHint.
      */
-    private transient ListState<FlinkKafkaProducer.NextTransactionalIdHint>
-            nextTransactionalIdHintState;
+    private transient ListState<FlinkKafkaProducer.NextTransactionalIdHint> nextTransactionalIdHintState;
 
     // -------------------------------- Runtime fields ------------------------------------------
     /**
@@ -792,6 +787,7 @@ public class FlinkKafkaProducer<IN>
         Collections.sort(
                 partitionsList,
                 new Comparator<PartitionInfo>() {
+
                     @Override
                     public int compare(PartitionInfo o1, PartitionInfo o2) {
                         return Integer.compare(o1.partition(), o2.partition());
@@ -858,6 +854,7 @@ public class FlinkKafkaProducer<IN>
         if (logFailuresOnly) {
             callback =
                     new Callback() {
+
                         @Override
                         public void onCompletion(RecordMetadata metadata, Exception e) {
                             if (e != null) {
@@ -872,6 +869,7 @@ public class FlinkKafkaProducer<IN>
         } else {
             callback =
                     new Callback() {
+
                         @Override
                         public void onCompletion(RecordMetadata metadata, Exception exception) {
                             if (exception != null && asyncException == null) {
@@ -1209,8 +1207,7 @@ public class FlinkKafkaProducer<IN>
             // case we adjust nextFreeTransactionalId by the range of transactionalIds that could be
             // used for this
             // scaling up.
-            if (getRuntimeContext().getNumberOfParallelSubtasks()
-                    > nextTransactionalIdHint.lastParallelism) {
+            if (getRuntimeContext().getNumberOfParallelSubtasks() > nextTransactionalIdHint.lastParallelism) {
                 nextFreeTransactionalId +=
                         getRuntimeContext().getNumberOfParallelSubtasks() * kafkaProducersPoolSize;
             }
@@ -1242,7 +1239,7 @@ public class FlinkKafkaProducer<IN>
                     context.getOperatorStateStore().getUnionListState(
                             new ListStateDescriptor<>(
                                     INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                            })));
+                                    })));
         }
 
         nextTransactionalIdHintState =
@@ -1270,7 +1267,7 @@ public class FlinkKafkaProducer<IN>
                         taskName
                                 + "-"
                                 + ((StreamingRuntimeContext) getRuntimeContext())
-                                .getOperatorUniqueID(),
+                                        .getOperatorUniqueID(),
                         getRuntimeContext().getIndexOfThisSubtask(),
                         getRuntimeContext().getNumberOfParallelSubtasks(),
                         kafkaProducersPoolSize,
@@ -1357,8 +1354,7 @@ public class FlinkKafkaProducer<IN>
         }
         HashSet<String> abortTransactions = new HashSet<>(getUserContext().get().transactionalIds);
         handledTransactions.forEach(
-                kafkaTransactionState ->
-                        abortTransactions.remove(kafkaTransactionState.transactionalId));
+                kafkaTransactionState -> abortTransactions.remove(kafkaTransactionState.transactionalId));
         abortTransactions(abortTransactions);
     }
 
@@ -1384,7 +1380,7 @@ public class FlinkKafkaProducer<IN>
                                 // original object
                                 // -> create an internal kafka producer on our own and do not rely
                                 // on
-                                //    initTransactionalProducer().
+                                // initTransactionalProducer().
                                 final Properties myConfig = new Properties();
                                 myConfig.putAll(producerConfig);
                                 initTransactionalProducerConfig(myConfig, transactionalId);
@@ -1461,7 +1457,7 @@ public class FlinkKafkaProducer<IN>
         // register Kafka metrics to Flink accumulators
         if (registerMetrics
                 && !Boolean.parseBoolean(
-                producerConfig.getProperty(KEY_DISABLE_METRICS, "false"))) {
+                        producerConfig.getProperty(KEY_DISABLE_METRICS, "false"))) {
             Map<MetricName, ? extends Metric> metrics = producer.metrics();
 
             if (metrics == null) {
@@ -1692,7 +1688,8 @@ public class FlinkKafkaProducer<IN>
     @VisibleForTesting
     @Internal
     public static class TransactionStateSerializer
-            extends TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionState> {
+            extends
+                TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionState> {
 
         private static final long serialVersionUID = 1L;
 
@@ -1772,8 +1769,7 @@ public class FlinkKafkaProducer<IN>
         // -----------------------------------------------------------------------------------
 
         @Override
-        public TypeSerializerSnapshot<FlinkKafkaProducer.KafkaTransactionState>
-        snapshotConfiguration() {
+        public TypeSerializerSnapshot<FlinkKafkaProducer.KafkaTransactionState> snapshotConfiguration() {
             return new TransactionStateSerializerSnapshot();
         }
 
@@ -1782,7 +1778,8 @@ public class FlinkKafkaProducer<IN>
          */
         @SuppressWarnings("WeakerAccess")
         public static final class TransactionStateSerializerSnapshot
-                extends SimpleTypeSerializerSnapshot<FlinkKafkaProducer.KafkaTransactionState> {
+                extends
+                    SimpleTypeSerializerSnapshot<FlinkKafkaProducer.KafkaTransactionState> {
 
             public TransactionStateSerializerSnapshot() {
                 super(TransactionStateSerializer::new);
@@ -1797,7 +1794,8 @@ public class FlinkKafkaProducer<IN>
     @VisibleForTesting
     @Internal
     public static class ContextStateSerializer
-            extends TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionContext> {
+            extends
+                TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionContext> {
 
         private static final long serialVersionUID = 1L;
 
@@ -1879,7 +1877,8 @@ public class FlinkKafkaProducer<IN>
          */
         @SuppressWarnings("WeakerAccess")
         public static final class ContextStateSerializerSnapshot
-                extends SimpleTypeSerializerSnapshot<KafkaTransactionContext> {
+                extends
+                    SimpleTypeSerializerSnapshot<KafkaTransactionContext> {
 
             public ContextStateSerializerSnapshot() {
                 super(ContextStateSerializer::new);
@@ -1948,7 +1947,8 @@ public class FlinkKafkaProducer<IN>
     @VisibleForTesting
     @Internal
     public static class NextTransactionalIdHintSerializer
-            extends TypeSerializerSingleton<NextTransactionalIdHint> {
+            extends
+                TypeSerializerSingleton<NextTransactionalIdHint> {
 
         private static final long serialVersionUID = 1L;
 
@@ -2014,7 +2014,8 @@ public class FlinkKafkaProducer<IN>
          */
         @SuppressWarnings("WeakerAccess")
         public static final class NextTransactionalIdHintSerializerSnapshot
-                extends SimpleTypeSerializerSnapshot<NextTransactionalIdHint> {
+                extends
+                    SimpleTypeSerializerSnapshot<NextTransactionalIdHint> {
 
             public NextTransactionalIdHintSerializerSnapshot() {
                 super(NextTransactionalIdHintSerializer::new);

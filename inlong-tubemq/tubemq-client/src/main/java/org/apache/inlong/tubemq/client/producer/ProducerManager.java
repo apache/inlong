@@ -66,6 +66,7 @@ import org.slf4j.LoggerFactory;
  * Produce messages through rpc.
  */
 public class ProducerManager {
+
     private static final Logger logger =
             LoggerFactory.getLogger(ProducerManager.class);
     private static final int BROKER_UPDATED_TIME_AFTER_RETRY_FAIL = 2 * 60 * 60 * 1000;
@@ -113,7 +114,7 @@ public class ProducerManager {
      * @throws TubeClientException   the exception while creating object
      */
     public ProducerManager(final InnerSessionFactory sessionFactory,
-                           final TubeClientConfig tubeClientConfig) throws TubeClientException {
+            final TubeClientConfig tubeClientConfig) throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
         java.security.Security.setProperty("networkaddress.cache.negative.ttl", "1");
         if (sessionFactory == null
@@ -151,6 +152,7 @@ public class ProducerManager {
                         tubeClientConfig.getMasterInfo(), rpcConfig);
         this.heartbeatService =
                 Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
                     @Override
                     public Thread newThread(Runnable r) {
                         Thread t = new Thread(r, new StringBuilder(256)
@@ -492,8 +494,7 @@ public class ProducerManager {
         builder.setClientId(producerId);
         builder.addAllTopicList(publishTopics.keySet());
         builder.setBrokerCheckSum(this.brokerInfoCheckSum);
-        if ((System.currentTimeMillis() - this.lastBrokerUpdatedTime)
-                > BROKER_UPDATED_TIME_AFTER_RETRY_FAIL) {
+        if ((System.currentTimeMillis() - this.lastBrokerUpdatedTime) > BROKER_UPDATED_TIME_AFTER_RETRY_FAIL) {
             builder.setBrokerCheckSum(-1L);
             this.lastBrokerUpdatedTime = System.currentTimeMillis();
         }
@@ -564,7 +565,7 @@ public class ProducerManager {
     }
 
     private void updateBrokerInfoList(boolean isRegister, List<String> pkgBrokerInfos,
-                                      long pkgCheckSum, StringBuilder sBuilder) {
+            long pkgCheckSum, StringBuilder sBuilder) {
         if (pkgCheckSum != brokerInfoCheckSum) {
             if (pkgBrokerInfos != null) {
                 brokersMap = DataConverterUtil.convertBrokerInfo(
@@ -607,7 +608,7 @@ public class ProducerManager {
     }
 
     private void processHeartBeatSyncInfo(ClientMaster.HeartResponseM2P response,
-                                          StringBuilder strBuff) {
+            StringBuilder strBuff) {
         if (response.hasRequireAuth()) {
             nextWithAuthInfo2M.set(response.getRequireAuth());
         }
@@ -664,8 +665,8 @@ public class ProducerManager {
             }
             if (needAdd) {
                 authInfoBuilder.setAuthInfo(authenticateHandler
-                    .genMasterAuthenticateToken(tubeClientConfig.getUsrName(),
-                        tubeClientConfig.getUsrPassWord()));
+                        .genMasterAuthenticateToken(tubeClientConfig.getUsrName(),
+                                tubeClientConfig.getUsrPassWord()));
             } else {
                 authInfoBuilder.setAuthorizedToken(authAuthorizedTokenRef.get());
             }
@@ -683,6 +684,7 @@ public class ProducerManager {
 
     // #lizard forgives
     private class ProducerHeartbeatTask implements Runnable {
+
         @Override
         public void run() {
             StringBuilder strBuff = new StringBuilder(512);
@@ -714,8 +716,8 @@ public class ProducerManager {
                                 register2Master();
                             } catch (Throwable ee) {
                                 logger.error(strBuff
-                                    .append("[Heartbeat Failed] re-register failure, error is ")
-                                    .append(ee.getMessage()).toString());
+                                        .append("[Heartbeat Failed] re-register failure, error is ")
+                                        .append(ee.getMessage()).toString());
                                 strBuff.delete(0, strBuff.length());
                             }
                         } else {
@@ -730,8 +732,7 @@ public class ProducerManager {
                 processHeartBeatSyncInfo(response, strBuff);
                 heartbeatRetryTimes = 0;
                 long currentTime = System.currentTimeMillis();
-                if ((currentTime - lastHeartbeatTime)
-                        > (tubeClientConfig.getHeartbeatPeriodMs() * 4)) {
+                if ((currentTime - lastHeartbeatTime) > (tubeClientConfig.getHeartbeatPeriodMs() * 4)) {
                     logger.warn(strBuff.append(producerId)
                             .append(" heartbeat interval is too long, please check! Total time : ")
                             .append(currentTime - lastHeartbeatTime).toString());
@@ -757,10 +758,10 @@ public class ProducerManager {
             lastHeartbeatTime = System.currentTimeMillis();
             heartbeatRetryTimes++;
             if ((nodeStatus.get() != 1)
-                && heartbeatRetryTimes > tubeClientConfig.getMaxHeartBeatRetryTimes()) {
+                    && heartbeatRetryTimes > tubeClientConfig.getMaxHeartBeatRetryTimes()) {
                 logger.warn(sBuilder.append("Adjust HeartbeatPeriod for ").append(reason)
-                    .append(", sleep ").append(tubeClientConfig.getHeartbeatPeriodAfterFail())
-                    .append(" Ms").toString());
+                        .append(", sleep ").append(tubeClientConfig.getHeartbeatPeriodAfterFail())
+                        .append(" Ms").toString());
                 sBuilder.delete(0, sBuilder.length());
                 try {
                     Thread.sleep(tubeClientConfig.getHeartbeatPeriodAfterFail());

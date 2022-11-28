@@ -51,303 +51,308 @@ import org.slf4j.LoggerFactory;
  *
  */
 public abstract class BaseSource
-        extends AbstractSource
-        implements EventDrivenSource, Configurable {
-  private static final Logger logger = LoggerFactory.getLogger(BaseSource.class);
+        extends
+            AbstractSource
+        implements
+            EventDrivenSource,
+            Configurable {
 
-  protected Context context;
+    private static final Logger logger = LoggerFactory.getLogger(BaseSource.class);
 
-  protected int port;
+    protected Context context;
 
-  protected String host = null;
+    protected int port;
 
-  protected String msgFactoryName;
+    protected String host = null;
 
-  protected String serviceDecoderName;
+    protected String msgFactoryName;
 
-  protected String messageHandlerName;
+    protected String serviceDecoderName;
 
-  protected int maxMsgLength;
+    protected String messageHandlerName;
 
-  protected boolean isCompressed;
+    protected int maxMsgLength;
 
-  protected String topic;
+    protected boolean isCompressed;
 
-  protected String attr;
+    protected String topic;
 
-  protected boolean filterEmptyMsg;
+    protected String attr;
 
-  private int statIntervalSec;
+    protected boolean filterEmptyMsg;
 
-  protected int pkgTimeoutSec;
+    private int statIntervalSec;
 
-  protected int maxConnections = Integer.MAX_VALUE;
+    protected int pkgTimeoutSec;
 
-  private static final String CONNECTIONS = "connections";
+    protected int maxConnections = Integer.MAX_VALUE;
 
-  protected boolean customProcessor = false;
+    private static final String CONNECTIONS = "connections";
 
-  private DataProxyMetricItemSet metricItemSet;
+    protected boolean customProcessor = false;
 
-  /*
-   * monitor
-   */
-  private MonitorIndex monitorIndex;
+    private DataProxyMetricItemSet metricItemSet;
 
-  private MonitorIndexExt monitorIndexExt;
-
-  /*
-   * netty server
-   */
-
-  protected EventLoopGroup acceptorGroup;
-
-  protected EventLoopGroup workerGroup;
-
-  protected DefaultThreadFactory acceptorThreadFactory;
-
-  protected boolean enableBusyWait = false;
-
-  protected ChannelGroup allChannels;
-
-  protected ChannelFuture channelFuture;
-
-  private static String HOST_DEFAULT_VALUE = "0.0.0.0";
-
-  private static int maxMonitorCnt = 300000;
-
-  private static int DEFAULT_MAX_CONNECTIONS = 5000;
-
-  private static int STAT_INTERVAL_MUST_THAN = 0;
-
-  private static int PKG_TIMEOUT_DEFAULT_SEC = 3;
-
-  private static int MSG_MIN_LENGTH = 4;
-
-  private static int MAX_MSG_DEFAULT_LENGTH = 1024 * 64;
-
-  private static int INTERVAL_SEC = 60;
-
-  protected static int BUFFER_SIZE_MUST_THAN = 0;
-
-  protected static int DEFAULT_MAX_THREADS = 32;
-
-  protected static int RECEIVE_BUFFER_DEFAULT_SIZE = 64 * 1024;
-
-  protected static int SEND_BUFFER_DEFAULT_SIZE = 64 * 1024;
-
-  protected static int RECEIVE_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
-
-  protected static int SEND_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
-
-  protected int receiveBufferSize;
-
-  protected int sendBufferSize;
-
-  protected int maxThreads = 32;
-
-  protected int acceptorThreads = 1;
-
-  public BaseSource() {
-    super();
-    allChannels = new DefaultChannelGroup("DefaultChannelGroup", GlobalEventExecutor.INSTANCE);
-  }
-
-  @Override
-  public synchronized void start() {
-    if (customProcessor) {
-      ChannelSelector selector = getChannelProcessor().getSelector();
-      FailoverChannelProcessor newProcessor = new FailoverChannelProcessor(selector);
-      newProcessor.configure(this.context);
-      setChannelProcessor(newProcessor);
-      FailoverChannelProcessorHolder.setChannelProcessor(newProcessor);
-    }
-    super.start();
-    // initial metric item set
-    ConfigManager configManager = ConfigManager.getInstance();
-    String clusterId =
-            configManager.getCommonProperties().getOrDefault(
-                    ConfigConstants.PROXY_CLUSTER_NAME,
-                    ConfigConstants.DEFAULT_PROXY_CLUSTER_NAME);
-    this.metricItemSet =
-            new DataProxyMetricItemSet(clusterId, this.getName(), String.valueOf(port));
-    MetricRegister.register(metricItemSet);
     /*
-     * init monitor logic
+     * monitor
      */
-    monitorIndex = new MonitorIndex("Source",INTERVAL_SEC, maxMonitorCnt);
-    monitorIndexExt = new MonitorIndexExt("DataProxy_monitors#"
-            + this.getProtocolName(),INTERVAL_SEC, maxMonitorCnt);
-    startSource();
-  }
+    private MonitorIndex monitorIndex;
 
-  @Override
-  public synchronized void stop() {
-    logger.info("[STOP {} SOURCE]{} stopping...", this.getProtocolName(), this.getName());
-    if (!allChannels.isEmpty()) {
-      try {
-        allChannels.close().awaitUninterruptibly();
-      } catch (Exception e) {
-        logger.warn("Simple Source netty server stop ex, {}", e);
-      } finally {
-        allChannels.clear();
-      }
+    private MonitorIndexExt monitorIndexExt;
+
+    /*
+     * netty server
+     */
+
+    protected EventLoopGroup acceptorGroup;
+
+    protected EventLoopGroup workerGroup;
+
+    protected DefaultThreadFactory acceptorThreadFactory;
+
+    protected boolean enableBusyWait = false;
+
+    protected ChannelGroup allChannels;
+
+    protected ChannelFuture channelFuture;
+
+    private static String HOST_DEFAULT_VALUE = "0.0.0.0";
+
+    private static int maxMonitorCnt = 300000;
+
+    private static int DEFAULT_MAX_CONNECTIONS = 5000;
+
+    private static int STAT_INTERVAL_MUST_THAN = 0;
+
+    private static int PKG_TIMEOUT_DEFAULT_SEC = 3;
+
+    private static int MSG_MIN_LENGTH = 4;
+
+    private static int MAX_MSG_DEFAULT_LENGTH = 1024 * 64;
+
+    private static int INTERVAL_SEC = 60;
+
+    protected static int BUFFER_SIZE_MUST_THAN = 0;
+
+    protected static int DEFAULT_MAX_THREADS = 32;
+
+    protected static int RECEIVE_BUFFER_DEFAULT_SIZE = 64 * 1024;
+
+    protected static int SEND_BUFFER_DEFAULT_SIZE = 64 * 1024;
+
+    protected static int RECEIVE_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
+
+    protected static int SEND_BUFFER_MAX_SIZE = 16 * 1024 * 1024;
+
+    protected int receiveBufferSize;
+
+    protected int sendBufferSize;
+
+    protected int maxThreads = 32;
+
+    protected int acceptorThreads = 1;
+
+    public BaseSource() {
+        super();
+        allChannels = new DefaultChannelGroup("DefaultChannelGroup", GlobalEventExecutor.INSTANCE);
     }
 
-    super.stop();
-    if (monitorIndex != null) {
-      monitorIndex.shutDown();
-    }
-    if (monitorIndexExt != null) {
-      monitorIndexExt.shutDown();
-    }
-
-    if (channelFuture != null) {
-      try {
-        channelFuture.channel().closeFuture().sync();
-      } catch (InterruptedException e) {
-        logger.warn("Simple Source netty server stop ex, {}", e);
-      }
-    }
-    logger.info("[STOP {} SOURCE]{} stopped", this.getProtocolName(), this.getName());
-  }
-
-  @Override
-  public void configure(Context context) {
-
-    this.context = context;
-
-    port = context.getInteger(ConfigConstants.CONFIG_PORT);
-
-    host = context.getString(ConfigConstants.CONFIG_HOST, HOST_DEFAULT_VALUE);
-
-    Configurables.ensureRequiredNonNull(context, ConfigConstants.CONFIG_PORT);
-
-    Preconditions.checkArgument(ConfStringUtils.isValidIp(host), "ip config not valid");
-    Preconditions.checkArgument(ConfStringUtils.isValidPort(port), "port config not valid");
-
-    msgFactoryName =
-            context.getString(ConfigConstants.MSG_FACTORY_NAME,
-                    "org.apache.inlong.dataproxy.source.ServerMessageFactory");
-    msgFactoryName = msgFactoryName.trim();
-    Preconditions.checkArgument(StringUtils.isNotBlank(msgFactoryName),
-            "msgFactoryName is empty");
-
-    serviceDecoderName =
-            context.getString(ConfigConstants.SERVICE_PROCESSOR_NAME,
-                    "org.apache.inlong.dataproxy.source.DefaultServiceDecoder");
-    serviceDecoderName = serviceDecoderName.trim();
-    Preconditions.checkArgument(StringUtils.isNotBlank(serviceDecoderName),
-            "serviceProcessorName is empty");
-
-    messageHandlerName =
-            context.getString(ConfigConstants.MESSAGE_HANDLER_NAME,
-                    "org.apache.inlong.dataproxy.source.ServerMessageHandler");
-    messageHandlerName = messageHandlerName.trim();
-    Preconditions.checkArgument(StringUtils.isNotBlank(messageHandlerName),
-            "messageHandlerName is empty");
-
-    maxMsgLength = context.getInteger(ConfigConstants.MAX_MSG_LENGTH, MAX_MSG_DEFAULT_LENGTH);
-    Preconditions.checkArgument(
-            (maxMsgLength >= MSG_MIN_LENGTH && maxMsgLength <= ConfigConstants.MSG_MAX_LENGTH_BYTES),
-            "maxMsgLength must be >= 4 and <= " + ConfigConstants.MSG_MAX_LENGTH_BYTES);
-    isCompressed = context.getBoolean(ConfigConstants.MSG_COMPRESSED, true);
-
-    filterEmptyMsg = context.getBoolean(ConfigConstants.FILTER_EMPTY_MSG, false);
-
-    topic = context.getString(ConfigConstants.TOPIC, "");
-    attr = context.getString(ConfigConstants.ATTR);
-    Configurables.ensureRequiredNonNull(context, ConfigConstants.ATTR);
-
-    topic = topic.trim();
-    attr = attr.trim();
-    Preconditions.checkArgument(!attr.isEmpty(), "attr is empty");
-
-    statIntervalSec = context.getInteger(ConfigConstants.STAT_INTERVAL_SEC, INTERVAL_SEC);
-    Preconditions.checkArgument((statIntervalSec >= STAT_INTERVAL_MUST_THAN), "statIntervalSec must be >= 0");
-
-    pkgTimeoutSec = context.getInteger(ConfigConstants.PACKAGE_TIMEOUT_SEC, PKG_TIMEOUT_DEFAULT_SEC);
-
-    try {
-      maxConnections = context.getInteger(CONNECTIONS, DEFAULT_MAX_CONNECTIONS);
-    } catch (NumberFormatException e) {
-      logger.warn("BaseSource\'s \"connections\" property must specify an integer value.",
-              context.getString(CONNECTIONS));
+    @Override
+    public synchronized void start() {
+        if (customProcessor) {
+            ChannelSelector selector = getChannelProcessor().getSelector();
+            FailoverChannelProcessor newProcessor = new FailoverChannelProcessor(selector);
+            newProcessor.configure(this.context);
+            setChannelProcessor(newProcessor);
+            FailoverChannelProcessorHolder.setChannelProcessor(newProcessor);
+        }
+        super.start();
+        // initial metric item set
+        ConfigManager configManager = ConfigManager.getInstance();
+        String clusterId =
+                configManager.getCommonProperties().getOrDefault(
+                        ConfigConstants.PROXY_CLUSTER_NAME,
+                        ConfigConstants.DEFAULT_PROXY_CLUSTER_NAME);
+        this.metricItemSet =
+                new DataProxyMetricItemSet(clusterId, this.getName(), String.valueOf(port));
+        MetricRegister.register(metricItemSet);
+        /*
+         * init monitor logic
+         */
+        monitorIndex = new MonitorIndex("Source", INTERVAL_SEC, maxMonitorCnt);
+        monitorIndexExt = new MonitorIndexExt("DataProxy_monitors#"
+                + this.getProtocolName(), INTERVAL_SEC, maxMonitorCnt);
+        startSource();
     }
 
-    try {
-      maxThreads = context.getInteger(ConfigConstants.MAX_THREADS, DEFAULT_MAX_THREADS);
-    } catch (NumberFormatException e) {
-      logger.warn("Simple TCP Source max-threads property must specify an integer value. {}",
-              context.getString(ConfigConstants.MAX_THREADS));
+    @Override
+    public synchronized void stop() {
+        logger.info("[STOP {} SOURCE]{} stopping...", this.getProtocolName(), this.getName());
+        if (!allChannels.isEmpty()) {
+            try {
+                allChannels.close().awaitUninterruptibly();
+            } catch (Exception e) {
+                logger.warn("Simple Source netty server stop ex, {}", e);
+            } finally {
+                allChannels.clear();
+            }
+        }
+
+        super.stop();
+        if (monitorIndex != null) {
+            monitorIndex.shutDown();
+        }
+        if (monitorIndexExt != null) {
+            monitorIndexExt.shutDown();
+        }
+
+        if (channelFuture != null) {
+            try {
+                channelFuture.channel().closeFuture().sync();
+            } catch (InterruptedException e) {
+                logger.warn("Simple Source netty server stop ex, {}", e);
+            }
+        }
+        logger.info("[STOP {} SOURCE]{} stopped", this.getProtocolName(), this.getName());
     }
 
-    receiveBufferSize = context.getInteger(ConfigConstants.RECEIVE_BUFFER_SIZE, RECEIVE_BUFFER_DEFAULT_SIZE);
-    if (receiveBufferSize > RECEIVE_BUFFER_MAX_SIZE) {
-      receiveBufferSize = RECEIVE_BUFFER_MAX_SIZE;
+    @Override
+    public void configure(Context context) {
+
+        this.context = context;
+
+        port = context.getInteger(ConfigConstants.CONFIG_PORT);
+
+        host = context.getString(ConfigConstants.CONFIG_HOST, HOST_DEFAULT_VALUE);
+
+        Configurables.ensureRequiredNonNull(context, ConfigConstants.CONFIG_PORT);
+
+        Preconditions.checkArgument(ConfStringUtils.isValidIp(host), "ip config not valid");
+        Preconditions.checkArgument(ConfStringUtils.isValidPort(port), "port config not valid");
+
+        msgFactoryName =
+                context.getString(ConfigConstants.MSG_FACTORY_NAME,
+                        "org.apache.inlong.dataproxy.source.ServerMessageFactory");
+        msgFactoryName = msgFactoryName.trim();
+        Preconditions.checkArgument(StringUtils.isNotBlank(msgFactoryName),
+                "msgFactoryName is empty");
+
+        serviceDecoderName =
+                context.getString(ConfigConstants.SERVICE_PROCESSOR_NAME,
+                        "org.apache.inlong.dataproxy.source.DefaultServiceDecoder");
+        serviceDecoderName = serviceDecoderName.trim();
+        Preconditions.checkArgument(StringUtils.isNotBlank(serviceDecoderName),
+                "serviceProcessorName is empty");
+
+        messageHandlerName =
+                context.getString(ConfigConstants.MESSAGE_HANDLER_NAME,
+                        "org.apache.inlong.dataproxy.source.ServerMessageHandler");
+        messageHandlerName = messageHandlerName.trim();
+        Preconditions.checkArgument(StringUtils.isNotBlank(messageHandlerName),
+                "messageHandlerName is empty");
+
+        maxMsgLength = context.getInteger(ConfigConstants.MAX_MSG_LENGTH, MAX_MSG_DEFAULT_LENGTH);
+        Preconditions.checkArgument(
+                (maxMsgLength >= MSG_MIN_LENGTH && maxMsgLength <= ConfigConstants.MSG_MAX_LENGTH_BYTES),
+                "maxMsgLength must be >= 4 and <= " + ConfigConstants.MSG_MAX_LENGTH_BYTES);
+        isCompressed = context.getBoolean(ConfigConstants.MSG_COMPRESSED, true);
+
+        filterEmptyMsg = context.getBoolean(ConfigConstants.FILTER_EMPTY_MSG, false);
+
+        topic = context.getString(ConfigConstants.TOPIC, "");
+        attr = context.getString(ConfigConstants.ATTR);
+        Configurables.ensureRequiredNonNull(context, ConfigConstants.ATTR);
+
+        topic = topic.trim();
+        attr = attr.trim();
+        Preconditions.checkArgument(!attr.isEmpty(), "attr is empty");
+
+        statIntervalSec = context.getInteger(ConfigConstants.STAT_INTERVAL_SEC, INTERVAL_SEC);
+        Preconditions.checkArgument((statIntervalSec >= STAT_INTERVAL_MUST_THAN), "statIntervalSec must be >= 0");
+
+        pkgTimeoutSec = context.getInteger(ConfigConstants.PACKAGE_TIMEOUT_SEC, PKG_TIMEOUT_DEFAULT_SEC);
+
+        try {
+            maxConnections = context.getInteger(CONNECTIONS, DEFAULT_MAX_CONNECTIONS);
+        } catch (NumberFormatException e) {
+            logger.warn("BaseSource\'s \"connections\" property must specify an integer value.",
+                    context.getString(CONNECTIONS));
+        }
+
+        try {
+            maxThreads = context.getInteger(ConfigConstants.MAX_THREADS, DEFAULT_MAX_THREADS);
+        } catch (NumberFormatException e) {
+            logger.warn("Simple TCP Source max-threads property must specify an integer value. {}",
+                    context.getString(ConfigConstants.MAX_THREADS));
+        }
+
+        receiveBufferSize = context.getInteger(ConfigConstants.RECEIVE_BUFFER_SIZE, RECEIVE_BUFFER_DEFAULT_SIZE);
+        if (receiveBufferSize > RECEIVE_BUFFER_MAX_SIZE) {
+            receiveBufferSize = RECEIVE_BUFFER_MAX_SIZE;
+        }
+        Preconditions.checkArgument(receiveBufferSize > BUFFER_SIZE_MUST_THAN,
+                "receiveBufferSize must be > 0");
+
+        sendBufferSize = context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, SEND_BUFFER_DEFAULT_SIZE);
+        if (sendBufferSize > SEND_BUFFER_MAX_SIZE) {
+            sendBufferSize = SEND_BUFFER_MAX_SIZE;
+        }
+        Preconditions.checkArgument(sendBufferSize > BUFFER_SIZE_MUST_THAN,
+                "sendBufferSize must be > 0");
+
+        enableBusyWait = context.getBoolean(ConfigConstants.ENABLE_BUSY_WAIT, false);
+
+        this.customProcessor = context.getBoolean(ConfigConstants.CUSTOM_CHANNEL_PROCESSOR, false);
     }
-    Preconditions.checkArgument(receiveBufferSize > BUFFER_SIZE_MUST_THAN,
-            "receiveBufferSize must be > 0");
 
-    sendBufferSize = context.getInteger(ConfigConstants.SEND_BUFFER_SIZE, SEND_BUFFER_DEFAULT_SIZE);
-    if (sendBufferSize > SEND_BUFFER_MAX_SIZE) {
-      sendBufferSize = SEND_BUFFER_MAX_SIZE;
+    /**
+     * channel factory
+     * @return
+     */
+    public ChannelInitializer getChannelInitializerFactory() {
+        logger.info(new StringBuffer("load msgFactory=").append(msgFactoryName)
+                .append(" and serviceDecoderName=").append(serviceDecoderName).toString());
+        ChannelInitializer fac = null;
+        try {
+            ServiceDecoder serviceDecoder = (ServiceDecoder) Class.forName(serviceDecoderName).newInstance();
+            Class<? extends ChannelInitializer> clazz =
+                    (Class<? extends ChannelInitializer>) Class.forName(msgFactoryName);
+            Constructor ctor = clazz.getConstructor(BaseSource.class, ChannelGroup.class,
+                    String.class, ServiceDecoder.class, String.class, Integer.class,
+                    String.class, String.class, Boolean.class,
+                    Integer.class, Boolean.class, MonitorIndex.class,
+                    MonitorIndexExt.class, String.class);
+            logger.info("Using channel processor:{}", getChannelProcessor().getClass().getName());
+            fac = (ChannelInitializer) ctor.newInstance(this, allChannels,
+                    this.getProtocolName(), serviceDecoder, messageHandlerName, maxMsgLength,
+                    topic, attr, filterEmptyMsg,
+                    maxConnections, isCompressed, monitorIndex,
+                    monitorIndexExt, this.getProtocolName());
+        } catch (Exception e) {
+            logger.error(
+                    "Simple {} Source start error, fail to construct ChannelPipelineFactory with name "
+                            + "{}, ex {}",
+                    this.getProtocolName(), msgFactoryName, e);
+            stop();
+            throw new FlumeException(e.getMessage());
+        }
+        return fac;
     }
-    Preconditions.checkArgument(sendBufferSize > BUFFER_SIZE_MUST_THAN,
-            "sendBufferSize must be > 0");
 
-    enableBusyWait = context.getBoolean(ConfigConstants.ENABLE_BUSY_WAIT, false);
-
-    this.customProcessor = context.getBoolean(ConfigConstants.CUSTOM_CHANNEL_PROCESSOR, false);
-  }
-
-  /**
-   * channel factory
-   * @return
-   */
-  public ChannelInitializer getChannelInitializerFactory() {
-    logger.info(new StringBuffer("load msgFactory=").append(msgFactoryName)
-            .append(" and serviceDecoderName=").append(serviceDecoderName).toString());
-    ChannelInitializer fac = null;
-    try {
-      ServiceDecoder serviceDecoder = (ServiceDecoder)Class.forName(serviceDecoderName).newInstance();
-      Class<? extends ChannelInitializer> clazz =
-              (Class<? extends ChannelInitializer>) Class.forName(msgFactoryName);
-      Constructor ctor = clazz.getConstructor(BaseSource.class, ChannelGroup.class,
-              String.class, ServiceDecoder.class, String.class, Integer.class,
-              String.class, String.class, Boolean.class,
-              Integer.class, Boolean.class, MonitorIndex.class,
-              MonitorIndexExt.class, String.class);
-      logger.info("Using channel processor:{}", getChannelProcessor().getClass().getName());
-      fac = (ChannelInitializer) ctor.newInstance(this, allChannels,
-              this.getProtocolName(), serviceDecoder, messageHandlerName, maxMsgLength,
-              topic, attr, filterEmptyMsg,
-              maxConnections, isCompressed, monitorIndex,
-              monitorIndexExt, this.getProtocolName());
-    } catch (Exception e) {
-      logger.error(
-              "Simple {} Source start error, fail to construct ChannelPipelineFactory with name "
-                      + "{}, ex {}",this.getProtocolName(), msgFactoryName, e);
-      stop();
-      throw new FlumeException(e.getMessage());
+    /**
+     * get metricItemSet
+     * @return the metricItemSet
+     */
+    public DataProxyMetricItemSet getMetricItemSet() {
+        return metricItemSet;
     }
-    return fac;
-  }
 
-  /**
-   * get metricItemSet
-   * @return the metricItemSet
-   */
-  public DataProxyMetricItemSet getMetricItemSet() {
-    return metricItemSet;
-  }
+    public Context getContext() {
+        return context;
+    }
 
-  public Context getContext() {
-    return context;
-  }
+    public abstract String getProtocolName();
 
-  public abstract String getProtocolName();
-
-  public abstract void startSource();
+    public abstract void startSource();
 
 }

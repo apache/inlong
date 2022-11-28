@@ -17,11 +17,8 @@
     specific language governing permissions and limitations
     under the License.
 -->
-
-<project
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,21 +30,8 @@
     </parent>
 
     <artifactId>sort-formats</artifactId>
-    <name>Apache InLong - Sort Formats</name>
     <packaging>pom</packaging>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <url>https://git.code.oa.com/flink/flink-formats</url>
-        <connection>git@git.code.oa.com:flink/flink-formats.git</connection>
-    </scm>
+    <name>Apache InLong - Sort Formats</name>
 
     <modules>
         <module>format-common</module>
@@ -159,7 +143,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version><!--$NO-MVN-MAN-VER$-->
+                <version>2.4</version>
+                <!--$NO-MVN-MAN-VER$-->
                 <configuration>
                     <archive>
                         <manifest>
@@ -186,10 +171,10 @@
                     <!--execute all the unit tests-->
                     <execution>
                         <id>default-test</id>
-                        <phase>test</phase>
                         <goals>
                             <goal>test</goal>
                         </goals>
+                        <phase>test</phase>
                         <configuration>
                             <includes>
                                 <include>**/*Test.*</include>
@@ -199,10 +184,10 @@
                     <!--execute all the integration tests-->
                     <execution>
                         <id>integration-tests</id>
-                        <phase>integration-test</phase>
                         <goals>
                             <goal>test</goal>
                         </goals>
+                        <phase>integration-test</phase>
                         <configuration>
                             <includes>
                                 <include>**/*ITCase.*</include>
@@ -214,5 +199,18 @@
             </plugin>
         </plugins>
     </build>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>git@git.code.oa.com:flink/flink-formats.git</connection>
+        <url>https://git.code.oa.com/flink/flink-formats</url>
+    </scm>
 
 </project>

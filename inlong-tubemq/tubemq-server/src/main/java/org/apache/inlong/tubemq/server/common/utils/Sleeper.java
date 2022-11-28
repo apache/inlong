@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */
 public class Sleeper {
+
     private static final long MINIMAL_DELTA_FOR_LOGGING = 10000;
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private final int period;

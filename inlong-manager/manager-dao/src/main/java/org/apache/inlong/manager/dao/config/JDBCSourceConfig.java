@@ -35,9 +35,7 @@ import java.util.Objects;
  * Main data source config
  */
 @Configuration
-@MapperScan(
-        basePackages = "org.apache.inlong.manager.dao.mapper",
-        sqlSessionTemplateRef = "sqlSessionTemplate")
+@MapperScan(basePackages = "org.apache.inlong.manager.dao.mapper", sqlSessionTemplateRef = "sqlSessionTemplate")
 public class JDBCSourceConfig {
 
     @Bean(name = "dataSource")

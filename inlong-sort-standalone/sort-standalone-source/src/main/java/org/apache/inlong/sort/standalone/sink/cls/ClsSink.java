@@ -35,6 +35,7 @@ import java.util.List;
  * </p>
  */
 public class ClsSink extends AbstractSink implements Configurable {
+
     private static final Logger LOG = LoggerFactory.getLogger(ClsSink.class);
 
     private Context parentContext;

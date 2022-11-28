@@ -143,17 +143,17 @@ public class PulsarProducerCluster implements LifecycleAware {
     private CompressionType getPulsarCompressionType() {
         String type = this.context.getString(KEY_COMPRESSIONTYPE);
         switch (type) {
-            case "LZ4" :
+            case "LZ4":
                 return CompressionType.LZ4;
-            case "NONE" :
+            case "NONE":
                 return CompressionType.NONE;
-            case "ZLIB" :
+            case "ZLIB":
                 return CompressionType.ZLIB;
-            case "ZSTD" :
+            case "ZSTD":
                 return CompressionType.ZSTD;
-            case "SNAPPY" :
+            case "SNAPPY":
                 return CompressionType.SNAPPY;
-            default :
+            default:
                 return CompressionType.NONE;
         }
     }

@@ -42,6 +42,7 @@ import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
  * the subclass overrides the getParameters method and returns valid parameters.
  */
 public class BaseResult implements Serializable {
+
     private static final long serialVersionUID = 8807356835558347735L;
     private static final Integer defaultPageSize = 20;
     private static final Integer defaultFirstPage = 1;

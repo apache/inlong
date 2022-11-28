@@ -32,7 +32,7 @@ import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 /**
  * Json getter function, used to get a field value from a json string
  */
-public class JsonGetterFunction implements CascadeFunction, Serializable  {
+public class JsonGetterFunction implements CascadeFunction, Serializable {
 
     private static final long serialVersionUID = -2701547146694616429L;
 
@@ -49,7 +49,7 @@ public class JsonGetterFunction implements CascadeFunction, Serializable  {
      */
     @JsonCreator
     public JsonGetterFunction(@JsonProperty("field") FieldInfo field,
-        @JsonProperty("key") StringConstantParam key) {
+            @JsonProperty("key") StringConstantParam key) {
         this.field = Preconditions.checkNotNull(field, "field is null");
         this.key = Preconditions.checkNotNull(key, "key is null");
     }
@@ -67,13 +67,13 @@ public class JsonGetterFunction implements CascadeFunction, Serializable  {
     @Override
     public String format() {
         return String.format("%s(CAST(%s AS STRING), %s)",
-            getName(), field.format(), key.format());
+                getName(), field.format(), key.format());
     }
 
     @Override
     public ConstantParam apply(ConstantParam constantParam) {
         return new ConstantParam(String.format("%s(%s, %s)", getName(),
-            constantParam.format(), key.format()));
+                constantParam.format(), key.format()));
     }
 
 }

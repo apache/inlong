@@ -37,6 +37,7 @@ import org.apache.inlong.tubemq.manager.service.tube.TubeHttpTopicInfoList.Topic
  */
 @Data
 public class TubeHttpTopicInfoList {
+
     private boolean result;
 
     private String errMsg;
@@ -53,6 +54,7 @@ public class TubeHttpTopicInfoList {
 
             @Data
             public static class RunInfo {
+
                 private String acceptPublish;
                 private String acceptSubscribe;
                 private String numPartitions;
@@ -139,7 +141,7 @@ public class TubeHttpTopicInfoList {
     }
 
     private void setAttributes(String token, AddTopicReq req, TopicInfo topicInfo, String brokerStr,
-                               String topic) {
+            String topic) {
         req.setBrokerId(brokerStr);
         req.setTopicName(topic);
         req.setMethod(BATCH_ADD_TOPIC);

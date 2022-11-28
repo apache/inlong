@@ -153,7 +153,7 @@ public class Sender {
         return exceptStr;
     }
 
-    /*Used for asynchronously message sending.*/
+    /* Used for asynchronously message sending. */
     public void notifyCallback(Channel channel, String messageId, SendResult result) {
         LOGGER.debug("Channel = {} , ack messageId = {}", channel, messageId);
         if (channel == null) {
@@ -194,7 +194,8 @@ public class Sender {
             if (encodeObject.getGroupId().equals(clientMgr.getGroupId())) {
                 groupIdnum = clientMgr.getGroupIdNum();
                 streamIdnum = clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null
-                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) : 0;
+                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId())
+                        : 0;
             }
             encodeObject.setGroupIdNum(groupIdnum);
             encodeObject.setStreamIdNum(streamIdnum);
@@ -245,7 +246,7 @@ public class Sender {
         } catch (TimeoutException e) {
             // TODO Auto-generated catch block
             LOGGER.error("TimeoutException {} ", getExceptionStack(e));
-            //e.printStackTrace();
+            // e.printStackTrace();
             SyncMessageCallable syncMessageCallable = syncCallables.remove(encodeObject.getMessageId());
             if (syncMessageCallable != null) {
                 NettyClient tmpClient = syncMessageCallable.getClient();
@@ -293,7 +294,8 @@ public class Sender {
             if (encodeObject.getGroupId().equals(clientMgr.getGroupId())) {
                 groupIdnum = clientMgr.getGroupIdNum();
                 streamIdnum = clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null
-                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) : 0;
+                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId())
+                        : 0;
             }
             encodeObject.setGroupIdNum(groupIdnum);
             encodeObject.setStreamIdNum(streamIdnum);
@@ -352,7 +354,7 @@ public class Sender {
             } catch (TimeoutException e) {
                 // TODO Auto-generated catch block
                 LOGGER.error("TimeoutException {}", getExceptionStack(e));
-                //e.printStackTrace();
+                // e.printStackTrace();
                 SyncMessageCallable syncMessageCallable = syncCallables.remove(encodeObject.getMessageId());
                 if (syncMessageCallable != null) {
                     NettyClient tmpClient = syncMessageCallable.getClient();
@@ -441,7 +443,8 @@ public class Sender {
             if ((clientMgr.getGroupId().length() != 0) && (encodeObject.getGroupId().equals(clientMgr.getGroupId()))) {
                 groupIdnum = clientMgr.getGroupIdNum();
                 streamIdnum = (clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) != null)
-                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId()) : 0;
+                        ? clientMgr.getStreamIdMap().get(encodeObject.getStreamId())
+                        : 0;
             }
             encodeObject.setGroupIdNum(groupIdnum);
             encodeObject.setStreamIdNum(streamIdnum);
@@ -593,8 +596,7 @@ public class Sender {
     }
 
     /*
-     * deal with connection disconnection, should we restore it and
-     * re-send on a new channel?
+     * deal with connection disconnection, should we restore it and re-send on a new channel?
      */
     public void notifyConnectionDisconnected(Channel channel) {
         if (channel == null) {
@@ -652,7 +654,7 @@ public class Sender {
         }
     }
 
-    /* Deal with unexpected exception. only used for asyc send*/
+    /* Deal with unexpected exception. only used for asyc send */
     public void waitForAckForChannel(Channel channel) {
         if (channel == null) {
             return;

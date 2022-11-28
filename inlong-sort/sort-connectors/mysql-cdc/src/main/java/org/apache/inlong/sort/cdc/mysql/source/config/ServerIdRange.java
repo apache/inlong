@@ -29,6 +29,7 @@ import static org.apache.flink.util.Preconditions.checkArgument;
  * @see MySqlSourceOptions#SERVER_ID
  */
 public class ServerIdRange implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     /** Start of the range (inclusive). */

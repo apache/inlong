@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
  * topic business with future.
  */
 public class TopicFuture {
+
     @Getter
     private int retryTime = 0;
     @Getter

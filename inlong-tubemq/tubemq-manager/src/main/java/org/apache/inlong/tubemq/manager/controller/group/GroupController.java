@@ -128,16 +128,14 @@ public class GroupController {
      * @throws Exception the exception
      */
     @GetMapping("/")
-    public @ResponseBody
-        String queryConsumer(
+    public @ResponseBody String queryConsumer(
             @RequestParam Map<String, String> req) throws Exception {
         String url = masterService.getQueryUrl(req);
         return masterService.queryMaster(url);
     }
 
     @PostMapping("/offset")
-    public @ResponseBody
-        TubeMQResult offsetProxy(
+    public @ResponseBody TubeMQResult offsetProxy(
             @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.CLONE:
@@ -152,8 +150,7 @@ public class GroupController {
     }
 
     @PostMapping("/blackGroup")
-    public @ResponseBody
-        TubeMQResult blackGroupProxy(
+    public @ResponseBody TubeMQResult blackGroupProxy(
             @RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD:
@@ -176,8 +173,7 @@ public class GroupController {
      * @throws Exception the exception
      */
     @GetMapping("/blackGroup")
-    public @ResponseBody
-        String queryBlackGroup(
+    public @ResponseBody String queryBlackGroup(
             @RequestParam Map<String, String> req) throws Exception {
         String url = masterService.getQueryUrl(req);
         return masterService.queryMaster(url);

@@ -23,6 +23,7 @@ import java.util.List;
 
 @Data
 public class ConsumerGroupInfoRes {
+
     private String topicName;
     private boolean isEnable;
     private String createUser;
@@ -34,6 +35,7 @@ public class ConsumerGroupInfoRes {
 
     @Data
     private static class AuthConsumeGroup {
+
         private String topicName;
         private String groupName;
         private String createUser;
@@ -42,6 +44,7 @@ public class ConsumerGroupInfoRes {
 
     @Data
     private static class AuthFilterCondSet {
+
         private String topicName;
         private String groupName;
         private double condStatus;

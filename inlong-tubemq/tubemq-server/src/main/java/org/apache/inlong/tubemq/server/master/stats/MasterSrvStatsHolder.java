@@ -36,6 +36,7 @@ import org.apache.inlong.tubemq.corebase.metric.impl.SinceTime;
  * and Broker registration and timeouts, etc.
  */
 public class MasterSrvStatsHolder {
+
     // online consume group count statistic
     private static final LongOnlineCounter csmOnlineGroupCnt =
             new LongOnlineCounter("csm_online_group_cnt", null);
@@ -117,8 +118,8 @@ public class MasterSrvStatsHolder {
     }
 
     public static void decConsumerCnt(boolean isTimeout,
-                                      boolean isGroupEmpty,
-                                      boolean isCltBal) {
+            boolean isGroupEmpty,
+            boolean isCltBal) {
         consumerOnlineCnt.decValue();
         if (isTimeout) {
             switchableSets[getIndex()].consumerTmoTotCnt.incValue();
@@ -216,8 +217,7 @@ public class MasterSrvStatsHolder {
     private static boolean switchWritingStatsUnit() {
         long curSnapshotTime = lstSnapshotTime.get();
         // Avoid frequent snapshots
-        if ((System.currentTimeMillis() - curSnapshotTime)
-                >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
+        if ((System.currentTimeMillis() - curSnapshotTime) >= TBaseConstants.CFG_STATS_MIN_SNAPSHOT_PERIOD_MS) {
             if (lstSnapshotTime.compareAndSet(curSnapshotTime, System.currentTimeMillis())) {
                 switchableSets[getIndex(writableIndex.incrementAndGet())].resetSinceTime();
                 return true;
@@ -227,8 +227,8 @@ public class MasterSrvStatsHolder {
     }
 
     private static void getStatsValue(ServiceStatsSet statsSet,
-                                      boolean resetValue,
-                                      Map<String, Long> statsMap) {
+            boolean resetValue,
+            Map<String, Long> statsMap) {
         statsMap.put(statsSet.lstResetTime.getFullName(),
                 statsSet.lstResetTime.getSinceTime());
         if (resetValue) {
@@ -309,8 +309,8 @@ public class MasterSrvStatsHolder {
     }
 
     private static void getStatsValue(ServiceStatsSet statsSet,
-                                      boolean resetValue,
-                                      StringBuilder strBuff) {
+            boolean resetValue,
+            StringBuilder strBuff) {
         strBuff.append("{\"").append(statsSet.lstResetTime.getFullName())
                 .append("\":\"").append(statsSet.lstResetTime.getStrSinceTime())
                 .append("\"");
@@ -422,6 +422,7 @@ public class MasterSrvStatsHolder {
      * In which the object is the metric item that can be counted in stages
      */
     private static class ServiceStatsSet {
+
         protected final SinceTime lstResetTime =
                 new SinceTime("reset_time", null);
         // consume group timeout statistics
@@ -455,4 +456,3 @@ public class MasterSrvStatsHolder {
         }
     }
 }
-

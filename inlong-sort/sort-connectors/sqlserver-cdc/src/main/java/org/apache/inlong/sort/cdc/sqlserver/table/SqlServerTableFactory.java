@@ -134,7 +134,7 @@ public class SqlServerTableFactory implements DynamicTableSourceFactory {
                 password,
                 getDebeziumProperties(context.getCatalogTable().getOptions()),
                 startupOptions,
-            inlongMetric, auditHostAndPorts);
+                inlongMetric, auditHostAndPorts);
     }
 
     @Override

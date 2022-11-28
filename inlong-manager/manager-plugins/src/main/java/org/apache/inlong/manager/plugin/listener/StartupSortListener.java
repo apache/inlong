@@ -98,8 +98,8 @@ public class StartupSortListener implements SortOperateListener {
 
         Map<String, String> kvConf = extList.stream().filter(v -> StringUtils.isNotEmpty(v.getKeyName())
                 && StringUtils.isNotEmpty(v.getKeyValue())).collect(Collectors.toMap(
-                InlongGroupExtInfo::getKeyName,
-                InlongGroupExtInfo::getKeyValue));
+                        InlongGroupExtInfo::getKeyName,
+                        InlongGroupExtInfo::getKeyValue));
         String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isNotEmpty(sortExt)) {
             Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(

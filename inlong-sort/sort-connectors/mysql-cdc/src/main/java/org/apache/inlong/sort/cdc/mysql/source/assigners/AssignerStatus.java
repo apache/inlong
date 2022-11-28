@@ -47,7 +47,9 @@ import static java.lang.String.format;
  * </pre>
  */
 public enum AssignerStatus {
+
     INITIAL_ASSIGNING(0) {
+
         @Override
         public AssignerStatus getNextStatus() {
             return INITIAL_ASSIGNING_FINISHED;
@@ -61,6 +63,7 @@ public enum AssignerStatus {
         }
     },
     INITIAL_ASSIGNING_FINISHED(1) {
+
         @Override
         public AssignerStatus getNextStatus() {
             return SUSPENDED;
@@ -73,6 +76,7 @@ public enum AssignerStatus {
         }
     },
     SUSPENDED(2) {
+
         @Override
         public AssignerStatus getNextStatus() {
             return NEWLY_ADDED_ASSIGNING;
@@ -85,6 +89,7 @@ public enum AssignerStatus {
         }
     },
     NEWLY_ADDED_ASSIGNING(3) {
+
         @Override
         public AssignerStatus getNextStatus() {
             return NEWLY_ADDED_ASSIGNING_FINISHED;
@@ -98,6 +103,7 @@ public enum AssignerStatus {
         }
     },
     NEWLY_ADDED_ASSIGNING_FINISHED(4) {
+
         @Override
         public AssignerStatus getNextStatus() {
             return SUSPENDED;

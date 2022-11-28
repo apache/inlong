@@ -30,7 +30,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
 
     @Override
     public BaseCommand extractData(ByteBuf cb, Channel channel) throws Exception {
-        /*[cmd size] | [cmd]*/
+        /* [cmd size] | [cmd] */
         if (null == cb) {
             LOG.error("cb == null");
             return null;

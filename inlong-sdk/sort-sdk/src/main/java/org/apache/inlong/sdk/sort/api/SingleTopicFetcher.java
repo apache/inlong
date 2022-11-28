@@ -32,6 +32,7 @@ import java.util.Optional;
  * components such as {@link Deserializer} and {@link Interceptor} for this very topic.
  */
 public abstract class SingleTopicFetcher implements TopicFetcher {
+
     protected InLongTopic topic;
     protected ClientContext context;
     protected Deserializer deserializer;

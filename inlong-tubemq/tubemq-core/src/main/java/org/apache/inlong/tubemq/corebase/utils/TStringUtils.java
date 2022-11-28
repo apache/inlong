@@ -96,7 +96,7 @@ public class TStringUtils {
         int curWritePos = 0;
         boolean upperCaseNext = false;
         char[] tgtStr = new char[length];
-        for (int index = 0; index < length; ) {
+        for (int index = 0; index < length;) {
             curChar = origStr.charAt(index);
             index += Character.charCount(curChar);
             // ignore white space chars
@@ -145,8 +145,8 @@ public class TStringUtils {
      * @param randomValue   the random value
      */
     public static String getAuthSignature(final String usrName,
-                                          final String usrPassWord,
-                                          long timestamp, int randomValue) {
+            final String usrPassWord,
+            long timestamp, int randomValue) {
         Base64 base64 = new Base64();
         StringBuilder sbuf = new StringBuilder(512);
         byte[] baseStr =
@@ -159,7 +159,7 @@ public class TStringUtils {
         String signature = "";
         try {
             signature = URLEncoder.encode(new String(baseStr,
-                            TBaseConstants.META_DEFAULT_CHARSET_NAME),
+                    TBaseConstants.META_DEFAULT_CHARSET_NAME),
                     TBaseConstants.META_DEFAULT_CHARSET_NAME);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -176,7 +176,7 @@ public class TStringUtils {
      * @return           the new attribute information
      */
     public static String setAttrValToAttributes(String srcAttrs,
-                                                String attrKey, String attrVal) {
+            String attrKey, String attrVal) {
         StringBuilder sbuf = new StringBuilder(512);
         if (isBlank(srcAttrs)) {
             return sbuf.append(attrKey).append(TokenConstants.EQ).append(attrVal).toString();

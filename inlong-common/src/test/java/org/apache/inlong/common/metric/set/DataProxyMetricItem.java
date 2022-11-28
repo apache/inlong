@@ -30,6 +30,7 @@ import org.apache.inlong.common.metric.MetricItem;
  */
 @MetricDomain(name = "DataProxy")
 public class DataProxyMetricItem extends MetricItem {
+
     @Dimension
     public String setId;
     @Dimension

@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 public class ConsistencyHashUtil {
+
     public static String hashMurMurHash(String key, int seed) {
         HashFunction hashFunction = Hashing.murmur3_128(seed);
         return hashFunction.hashString(key, StandardCharsets.UTF_8).toString();

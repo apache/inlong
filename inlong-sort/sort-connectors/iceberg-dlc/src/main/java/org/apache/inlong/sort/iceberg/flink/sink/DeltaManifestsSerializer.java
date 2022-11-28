@@ -34,6 +34,7 @@ import java.io.IOException;
  * Copy from iceberg-flink:iceberg-flink-1.13:0.13.2
  */
 class DeltaManifestsSerializer implements SimpleVersionedSerializer<DeltaManifests> {
+
     private static final int VERSION_1 = 1;
     private static final int VERSION_2 = 2;
     private static final byte[] EMPTY_BINARY = new byte[0];

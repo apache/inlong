@@ -132,6 +132,7 @@ public class MySqlDeserializationConverterFactory {
             // only map MySQL SET type to Flink ARRAY<STRING> type
             return Optional.of(
                     new DeserializationRuntimeConverter() {
+
                         private static final long serialVersionUID = 1L;
 
                         @Override

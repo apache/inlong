@@ -159,13 +159,13 @@ public class SdkSinkContext extends SinkContext {
                 metricItem.nodeDuration.addAndGet(nodeDuration * count);
                 metricItem.wholeDuration.addAndGet(wholeDuration * count);
             }
-//            LOG.info("addSendTrueMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
-//                    bid, result, sendTime, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+            // LOG.info("addSendTrueMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
+            // bid, result, sendTime, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
         } else {
             metricItem.sendFailCount.addAndGet(count);
             metricItem.sendFailSize.addAndGet(size);
-//            LOG.info("addSendFalseMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
-//                    bid, result, sendTime, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+            // LOG.info("addSendFalseMetric,bid:{},result:{},sendTime:{},count:{},metric:{}",
+            // bid, result, sendTime, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
         }
     }
 
@@ -190,8 +190,8 @@ public class SdkSinkContext extends SinkContext {
         long size = currentRecord.getSize();
         metricItem.sendCount.addAndGet(count);
         metricItem.sendSize.addAndGet(size);
-//        LOG.info("addSendMetric,bid:{},count:{},metric:{}",
-//                bid, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
+        // LOG.info("addSendMetric,bid:{},count:{},metric:{}",
+        // bid, currentRecord.getCount(), JSON.toJSONString(metricItemSet.getItemMap()));
     }
 
     /**

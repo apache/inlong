@@ -171,8 +171,8 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
             if (!taskApprovers.contains(operator)) {
                 ApproverPageRequest query = ApproverPageRequest.builder().processName(processEntity.getName()).build();
                 List<WorkflowApproverEntity> approverList = approverMapper.selectByCondition(query);
-                boolean match = approverList.stream().anyMatch(entity ->
-                        Preconditions.inSeparatedString(operator, entity.getApprovers(), InlongConstants.COMMA));
+                boolean match = approverList.stream().anyMatch(entity -> Preconditions.inSeparatedString(operator,
+                        entity.getApprovers(), InlongConstants.COMMA));
                 if (!match) {
                     throw new WorkflowException("current user is not the approver of the process");
                 }

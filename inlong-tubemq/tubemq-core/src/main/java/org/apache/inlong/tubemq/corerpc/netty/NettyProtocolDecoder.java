@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
+
     private static final Logger logger = LoggerFactory.getLogger(NettyProtocolDecoder.class);
 
     private static final ConcurrentHashMap<String, AtomicLong> errProtolAddrMap =
@@ -139,8 +140,8 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
                 if (curTime - befTime > 180000) {
                     if (lastProtolTime.compareAndSet(befTime, System.currentTimeMillis())) {
                         logger.warn("[Abnormal Visit] OSS Tube  [inParamValue = {} vs "
-                                        + "allowTokenVal = {}] visit "
-                                        + "list is : {}",
+                                + "allowTokenVal = {}] visit "
+                                + "list is : {}",
                                 inParamValue, allowTokenVal,
                                 errProtolAddrMap.toString());
                         errProtolAddrMap.clear();
@@ -154,7 +155,7 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
     }
 
     private void filterIllegalPackageSize(boolean isFrameSize, int inParamValue,
-                                          int allowSize, Channel channel) throws UnknownProtocolException {
+            int allowSize, Channel channel) throws UnknownProtocolException {
         if (inParamValue < 0 || inParamValue > allowSize) {
             String rmtaddrIp = getRemoteAddressIP(channel);
             if (rmtaddrIp != null) {

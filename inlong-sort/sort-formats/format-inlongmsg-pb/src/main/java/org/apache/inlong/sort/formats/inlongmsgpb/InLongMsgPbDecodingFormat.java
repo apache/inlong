@@ -80,7 +80,7 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
             boolean ignoreTrailingUnmappable,
             String decompressType) {
         this.innerDecodingFormat = innerDecodingFormat;
-        this.innerFormatMetaPrefix =  innerFormatMetaPrefix;
+        this.innerFormatMetaPrefix = innerFormatMetaPrefix;
         this.metadataKeys = Collections.emptyList();
         this.ignoreErrors = ignoreErrors;
         this.ignoreTrailingUnmappable = ignoreTrailingUnmappable;
@@ -96,11 +96,10 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
         final List<ReadableMetadata> readableMetadata =
                 metadataKeys.stream()
                         .map(
-                                k ->
-                                        Stream.of(ReadableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .orElseThrow(IllegalStateException::new))
+                                k -> Stream.of(ReadableMetadata.values())
+                                        .filter(rm -> rm.key.equals(k))
+                                        .findFirst()
+                                        .orElseThrow(IllegalStateException::new))
                         .collect(Collectors.toList());
         final List<DataTypes.Field> metadataFields =
                 readableMetadata.stream()
@@ -209,10 +208,12 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
+
         CREATE_TIME(
                 "create-time",
                 DataTypes.STRING(),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

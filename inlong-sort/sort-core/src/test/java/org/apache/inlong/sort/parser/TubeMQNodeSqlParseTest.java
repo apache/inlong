@@ -72,12 +72,11 @@ public class TubeMQNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("salary", new FloatFormatInfo()));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo()))
-                );
+                                new FieldInfo("age", new IntFormatInfo())));
         return new KafkaLoadNode(id, "kafka_output", fields, relations, null, null,
                 "workerJson", "localhost:9092",
                 new JsonFormat(), null,

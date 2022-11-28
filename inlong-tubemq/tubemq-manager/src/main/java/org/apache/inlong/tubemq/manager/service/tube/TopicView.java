@@ -32,6 +32,7 @@ public class TopicView {
 
     @Data
     public static class TopicViewInfo {
+
         private String topicName;
         private int totalCfgBrokerCnt;
         private int totalCfgNumPart;

@@ -110,6 +110,7 @@ public class TestPrometheusListener {
         metricItem.pluginReadSuccessCount.incrementAndGet();
         // report
         MetricListener listener = new MetricListener() {
+
             @Override
             public void snapshot(String domain, List<MetricItemValue> itemValues) {
                 for (MetricItemValue itemValue : itemValues) {

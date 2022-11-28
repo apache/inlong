@@ -50,9 +50,9 @@ public class FetchContext {
     }
 
     public void setSuccessProcessResult(long currOffset,
-                                        String confirmContext,
-                                        List<Message> messageList,
-                                        long maxOffset) {
+            String confirmContext,
+            List<Message> messageList,
+            long maxOffset) {
         this.success = true;
         this.errCode = TErrCodeConstants.SUCCESS;
         this.errMsg = "Ok!";

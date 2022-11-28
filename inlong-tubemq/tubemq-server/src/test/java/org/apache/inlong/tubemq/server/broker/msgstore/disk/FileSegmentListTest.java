@@ -36,7 +36,7 @@ public class FileSegmentListTest {
         File file = null;
         try {
             file = File.createTempFile("data",
-                DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
+                    DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
             // create FileSegmentList.
             fileSegmentList = new FileSegmentList();
             fileSegmentList.append(new FileSegment(0, file, SegmentType.DATA));
@@ -64,7 +64,7 @@ public class FileSegmentListTest {
         File file = null;
         try {
             file = File.createTempFile("data",
-                DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
+                    DataStoreUtils.nameFromOffset(0L, DataStoreUtils.DATA_FILE_SUFFIX));
             file.createNewFile();
             // create FileSegmentList.
             fileSegmentList = new FileSegmentList();

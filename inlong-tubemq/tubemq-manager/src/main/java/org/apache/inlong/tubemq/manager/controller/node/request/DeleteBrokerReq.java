@@ -25,6 +25,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class DeleteBrokerReq extends BaseReq {
+
     private Boolean isReservedData;
     private String modifyUser;
     private String brokerId;

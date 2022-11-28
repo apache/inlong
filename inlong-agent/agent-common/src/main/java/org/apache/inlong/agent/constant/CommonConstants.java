@@ -61,7 +61,7 @@ public class CommonConstants {
     // determine if the send method is sync or async
     public static final String PROXY_SEND_SYNC = "proxy.sync";
 
-    // the same task must have the same Partition Key if choose sync 
+    // the same task must have the same Partition Key if choose sync
     public static final String PROXY_SEND_PARTITION_KEY = "proxy.partitionKey";
 
     // max size of single batch in bytes, default is 200KB.
@@ -166,6 +166,5 @@ public class CommonConstants {
     public static final String COMMA = ",";
     public static final String DELIMITER_UNDERLINE = "_";
     public static final String DELIMITER_HYPHEN = "-";
-
 
 }

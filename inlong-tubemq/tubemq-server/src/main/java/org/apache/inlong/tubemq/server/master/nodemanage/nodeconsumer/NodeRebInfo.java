@@ -28,7 +28,7 @@ public class NodeRebInfo {
     private AtomicInteger waitDuration = new AtomicInteger(0);
 
     public NodeRebInfo(String clientId,
-                       int waitDuration) {
+            int waitDuration) {
         this.status = 0;
         this.clientId = clientId;
         this.waitDuration.set(waitDuration);
@@ -41,10 +41,10 @@ public class NodeRebInfo {
     }
 
     public NodeRebInfo(String clientId,
-                       int status,
-                       long createTime,
-                       int reqType,
-                       int waitDuration) {
+            int status,
+            long createTime,
+            int reqType,
+            int waitDuration) {
         this.clientId = clientId;
         this.status = status;
         this.createTime = createTime;

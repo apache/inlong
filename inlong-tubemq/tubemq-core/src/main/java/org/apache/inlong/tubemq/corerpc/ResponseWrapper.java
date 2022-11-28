@@ -49,8 +49,8 @@ public class ResponseWrapper implements Serializable {
      * @param responseData   the response data
      */
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int locVersion,
-                           int methodId, Object responseData) {
+            int serviceType, int locVersion,
+            int methodId, Object responseData) {
         this.serialNo = serialNo;
         this.serviceType = serviceType;
         this.protocolVersion = locVersion;
@@ -71,8 +71,8 @@ public class ResponseWrapper implements Serializable {
      * @param exception      the exception
      */
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int rmtVersion,
-                           int locVersion, Throwable exception) {
+            int serviceType, int rmtVersion,
+            int locVersion, Throwable exception) {
         this.serialNo = serialNo;
         this.flagId = flagId;
         this.serviceType = serviceType;
@@ -109,8 +109,8 @@ public class ResponseWrapper implements Serializable {
      * @param stackTrace     the stack trace information
      */
     public ResponseWrapper(int flagId, int serialNo,
-                           int serviceType, int locVersion,
-                           String errorMsg, String stackTrace) {
+            int serviceType, int locVersion,
+            String errorMsg, String stackTrace) {
         this.serialNo = serialNo;
         this.flagId = flagId;
         this.serviceType = serviceType;

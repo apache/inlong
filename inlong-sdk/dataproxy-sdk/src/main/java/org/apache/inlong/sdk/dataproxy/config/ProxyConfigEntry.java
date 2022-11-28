@@ -21,6 +21,7 @@ package org.apache.inlong.sdk.dataproxy.config;
 import java.util.Map;
 
 public class ProxyConfigEntry implements java.io.Serializable {
+
     private int clusterId;
     private String groupId;
     private int size;

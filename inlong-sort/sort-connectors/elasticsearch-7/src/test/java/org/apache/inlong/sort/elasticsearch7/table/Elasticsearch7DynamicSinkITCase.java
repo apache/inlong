@@ -113,24 +113,22 @@ public class Elasticsearch7DynamicSinkITCase {
         Elasticsearch7DynamicSinkFactory sinkFactory = new Elasticsearch7DynamicSinkFactory();
 
         SinkFunctionProvider sinkRuntimeProvider =
-                (SinkFunctionProvider)
-                        sinkFactory
-                                .createDynamicTableSink(
-                                        context()
-                                                .withSchema(schema)
-                                                .withOption(
-                                                        ElasticsearchOptions.INDEX_OPTION.key(),
-                                                        index)
-                                                .withOption(
-                                                        ElasticsearchOptions.HOSTS_OPTION.key(),
-                                                        elasticsearchContainer.getHttpHostAddress())
-                                                .withOption(
-                                                        ElasticsearchOptions
-                                                                .FLUSH_ON_CHECKPOINT_OPTION
-                                                                .key(),
-                                                        "false")
-                                                .build())
-                                .getSinkRuntimeProvider(new MockContext());
+                (SinkFunctionProvider) sinkFactory
+                        .createDynamicTableSink(
+                                context()
+                                        .withSchema(schema)
+                                        .withOption(
+                                                ElasticsearchOptions.INDEX_OPTION.key(),
+                                                index)
+                                        .withOption(
+                                                ElasticsearchOptions.HOSTS_OPTION.key(),
+                                                elasticsearchContainer.getHttpHostAddress())
+                                        .withOption(
+                                                ElasticsearchOptions.FLUSH_ON_CHECKPOINT_OPTION
+                                                        .key(),
+                                                "false")
+                                        .build())
+                        .getSinkRuntimeProvider(new MockContext());
 
         SinkFunction<RowData> sinkFunction = sinkRuntimeProvider.createSinkFunction();
         StreamExecutionEnvironment environment =
@@ -386,28 +384,26 @@ public class Elasticsearch7DynamicSinkITCase {
         Elasticsearch7DynamicSinkFactory sinkFactory = new Elasticsearch7DynamicSinkFactory();
 
         SinkFunctionProvider sinkRuntimeProvider =
-                (SinkFunctionProvider)
-                        sinkFactory
-                                .createDynamicTableSink(
-                                        context()
-                                                .withSchema(schema)
-                                                .withOption(
-                                                        ElasticsearchOptions.INDEX_OPTION.key(),
-                                                        index)
-                                                .withOption(
-                                                        ElasticsearchOptions.ROUTING_FIELD_NAME
-                                                                .key(),
-                                                        "c")
-                                                .withOption(
-                                                        ElasticsearchOptions.HOSTS_OPTION.key(),
-                                                        elasticsearchContainer.getHttpHostAddress())
-                                                .withOption(
-                                                        ElasticsearchOptions
-                                                                .FLUSH_ON_CHECKPOINT_OPTION
-                                                                .key(),
-                                                        "false")
-                                                .build())
-                                .getSinkRuntimeProvider(new MockContext());
+                (SinkFunctionProvider) sinkFactory
+                        .createDynamicTableSink(
+                                context()
+                                        .withSchema(schema)
+                                        .withOption(
+                                                ElasticsearchOptions.INDEX_OPTION.key(),
+                                                index)
+                                        .withOption(
+                                                ElasticsearchOptions.ROUTING_FIELD_NAME
+                                                        .key(),
+                                                "c")
+                                        .withOption(
+                                                ElasticsearchOptions.HOSTS_OPTION.key(),
+                                                elasticsearchContainer.getHttpHostAddress())
+                                        .withOption(
+                                                ElasticsearchOptions.FLUSH_ON_CHECKPOINT_OPTION
+                                                        .key(),
+                                                "false")
+                                        .build())
+                        .getSinkRuntimeProvider(new MockContext());
 
         SinkFunction<RowData> sinkFunction = sinkRuntimeProvider.createSinkFunction();
         StreamExecutionEnvironment environment =
@@ -432,6 +428,7 @@ public class Elasticsearch7DynamicSinkITCase {
     }
 
     private static class MockContext implements DynamicTableSink.Context {
+
         @Override
         public boolean isBounded() {
             return false;

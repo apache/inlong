@@ -40,6 +40,5 @@ public interface ProjectedDeserializationSchemaFactory extends TableFormatFactor
      */
     DeserializationSchema<Row> createProjectedDeserializationSchema(
             Map<String, String> properties,
-            int[] fields
-    );
+            int[] fields);
 }

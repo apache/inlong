@@ -62,10 +62,9 @@ public class DecimalFormatSqlParseTest extends AbstractTestBase {
                 new FieldInfo("salary", new DecimalFormatInfo(13, 9)));
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldInfo("id", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("salary", new DecimalFormatInfo(13, 9)),
-                                new FieldInfo("salary", new DecimalFormatInfo(13, 9)))
-                );
+                                new FieldInfo("salary", new DecimalFormatInfo(13, 9))));
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
                 null, "kafka_output", "localhost:9092",
                 new CanalJsonFormat(), null,
@@ -98,8 +97,8 @@ public class DecimalFormatSqlParseTest extends AbstractTestBase {
         Node outputNode = buildKafkaLoadNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(
-                        buildNodeRelation(Collections.singletonList(inputNode), Collections.singletonList(outputNode))
-                ));
+                        buildNodeRelation(Collections.singletonList(inputNode),
+                                Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();

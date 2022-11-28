@@ -21,6 +21,7 @@ import lombok.Data;
 
 @Data
 public class ModifyMasterReq {
+
     private Long clusterId;
     private String masterName;
 }

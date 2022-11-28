@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MasterPromMetricService extends Collector {
+
     private static final Logger logger =
             LoggerFactory.getLogger(MasterPromMetricService.class);
     private PrometheusConfig promConfig = new PrometheusConfig();

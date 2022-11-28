@@ -20,6 +20,9 @@ package org.apache.inlong.sdk.sort.api;
 import org.apache.inlong.sdk.sort.impl.SortClientImpl;
 import org.apache.inlong.sdk.sort.impl.SortClientImplV2;
 
+/**
+ * Factory of {@link SortClient}
+ */
 public class SortClientFactory {
 
     /**

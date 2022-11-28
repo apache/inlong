@@ -103,8 +103,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
             @Nullable Character quoteChar,
             @Nullable String nullLiteral,
             boolean deleteHeadDelimiter,
-            boolean ignoreErrors
-    ) {
+            boolean ignoreErrors) {
         super(ignoreErrors);
 
         this.rowFormatInfo = rowFormatInfo;
@@ -119,8 +118,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
     }
 
     public InLongMsgCsvFormatDeserializer(
-            @Nonnull RowFormatInfo rowFormatInfo
-    ) {
+            @Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
                 DEFAULT_TIME_FIELD_NAME,
@@ -131,8 +129,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 null,
                 null,
                 InLongMsgCsvUtils.DEFAULT_DELETE_HEAD_DELIMITER,
-                TableFormatConstants.DEFAULT_IGNORE_ERRORS
-        );
+                TableFormatConstants.DEFAULT_IGNORE_ERRORS);
     }
 
     @Override
@@ -153,8 +150,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 delimiter,
                 escapeChar,
                 quoteChar,
-                deleteHeadDelimiter
-        );
+                deleteHeadDelimiter);
     }
 
     @Override
@@ -165,8 +161,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
                 head.getTime(),
                 head.getAttributes(),
                 head.getPredefinedFields(),
-                body.getFields()
-        );
+                body.getFields());
     }
 
     @Override
@@ -185,14 +180,14 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
 
         InLongMsgCsvFormatDeserializer that = (InLongMsgCsvFormatDeserializer) o;
         return deleteHeadDelimiter == that.deleteHeadDelimiter
-                       && rowFormatInfo.equals(that.rowFormatInfo)
-                       && timeFieldName.equals(that.timeFieldName)
-                       && attributesFieldName.equals(that.attributesFieldName)
-                       && charset.equals(that.charset)
-                       && delimiter.equals(that.delimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && rowFormatInfo.equals(that.rowFormatInfo)
+                && timeFieldName.equals(that.timeFieldName)
+                && attributesFieldName.equals(that.attributesFieldName)
+                && charset.equals(that.charset)
+                && delimiter.equals(that.delimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override

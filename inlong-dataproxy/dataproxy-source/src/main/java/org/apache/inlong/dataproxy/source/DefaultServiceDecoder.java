@@ -88,8 +88,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
                 + attrLen + BIN_HB_FORMAT_SIZE)) || (msgMagic != BIN_MSG_MAGIC)) {
 
             LOG.error("err msg, bodyLen + attrLen > totalDataLen, "
-                            + "and bodyLen={},attrLen={},totalDataLen={},magic={};Connection "
-                            + "info:{}",
+                    + "and bodyLen={},attrLen={},totalDataLen={},magic={};Connection "
+                    + "info:{}",
                     bodyLen, attrLen, totalDataLen, Integer.toHexString(msgMagic), channel.toString());
 
             return resultMap;
@@ -110,8 +110,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
     }
 
     private void handleDateTime(Map<String, String> commonAttrMap, long uniq,
-                                long dataTime, int msgCount, String strRemoteIP,
-                                long msgRcvTime) {
+            long dataTime, int msgCount, String strRemoteIP,
+            long msgRcvTime) {
         commonAttrMap.put(AttributeConstants.UNIQ_ID, String.valueOf(uniq));
         String time = String.valueOf(dataTime);
         commonAttrMap.put(AttributeConstants.SEQUENCE_ID,
@@ -151,8 +151,8 @@ public class DefaultServiceDecoder implements ServiceDecoder {
     }
 
     private ByteBuffer handleTrace(Channel channel, ByteBuf cb, int extendField,
-                                   int msgHeadPos, int totalDataLen, int attrLen,
-                                   String strAttr, int bodyLen, long msgRcvTime) {
+            int msgHeadPos, int totalDataLen, int attrLen,
+            String strAttr, int bodyLen, long msgRcvTime) {
         // whether enable trace
         ByteBuffer dataBuf;
         boolean enableTrace = (((extendField & 0x2) >> 1) == 0x1);
@@ -205,10 +205,10 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * extract bin data, message type is 7
      */
     private Map<String, Object> extractNewBinData(Map<String, Object> resultMap,
-                                                  ByteBuf cb, Channel channel,
-                                                  int totalDataLen, MsgType msgType,
-                                                  String strRemoteIP,
-                                                  long msgRcvTime) throws Exception {
+            ByteBuf cb, Channel channel,
+            int totalDataLen, MsgType msgType,
+            String strRemoteIP,
+            long msgRcvTime) throws Exception {
         int msgHeadPos = cb.readerIndex() - 5;
         // get body length
         int bodyLen = cb.getInt(msgHeadPos + BIN_MSG_BODYLEN_OFFSET);
@@ -309,9 +309,9 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      * extract bin data, message type less than 7
      */
     private Map<String, Object> extractDefaultData(Map<String, Object> resultMap,
-                                                   ByteBuf cb, int totalDataLen,
-                                                   MsgType msgType, String strRemoteIP,
-                                                   long msgRcvTime) throws Exception {
+            ByteBuf cb, int totalDataLen,
+            MsgType msgType, String strRemoteIP,
+            long msgRcvTime) throws Exception {
         int bodyLen = cb.readInt();
         if (bodyLen == 0) {
             throw new Exception("Error msg: bodyLen is empty, connection info:" + strRemoteIP);
@@ -426,7 +426,7 @@ public class DefaultServiceDecoder implements ServiceDecoder {
      */
     @Override
     public Map<String, Object> extractData(ByteBuf cb, String strRemoteIP,
-                                           long msgRcvTime, Channel channel) throws Exception {
+            long msgRcvTime, Channel channel) throws Exception {
         Map<String, Object> resultMap = new HashMap<>();
         if (null == cb) {
             LOG.error("cb == null");

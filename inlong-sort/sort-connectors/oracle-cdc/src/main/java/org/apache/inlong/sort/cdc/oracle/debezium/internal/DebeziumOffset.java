@@ -39,6 +39,7 @@ import org.apache.flink.annotation.Internal;
  */
 @Internal
 public class DebeziumOffset implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     public Map<String, ?> sourcePartition;

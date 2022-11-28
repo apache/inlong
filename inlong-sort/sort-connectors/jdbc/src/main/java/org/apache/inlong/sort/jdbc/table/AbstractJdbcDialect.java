@@ -41,13 +41,12 @@ public abstract class AbstractJdbcDialect implements JdbcDialect {
             String fieldName = schema.getFieldName(i).get();
 
             // TODO: We can't convert VARBINARY(n) data type to
-            //  PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO in
+            // PrimitiveArrayTypeInfo.BYTE_PRIMITIVE_ARRAY_TYPE_INFO in
             // LegacyTypeInfoDataTypeConverter
-            //  when n is smaller than Integer.MAX_VALUE
+            // when n is smaller than Integer.MAX_VALUE
             if (unsupportedTypes().contains(dt.getLogicalType().getTypeRoot())
                     || (dt.getLogicalType() instanceof VarBinaryType
-                    && Integer.MAX_VALUE
-                    != ((VarBinaryType) dt.getLogicalType()).getLength())) {
+                            && Integer.MAX_VALUE != ((VarBinaryType) dt.getLogicalType()).getLength())) {
                 throw new ValidationException(
                         String.format(
                                 "The %s dialect doesn't support type: %s.",

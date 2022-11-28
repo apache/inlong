@@ -31,8 +31,8 @@ public abstract class AbstractServiceInvoker implements InvocationHandler {
     protected int requestTimeout;
 
     protected AbstractServiceInvoker(ClientFactory clientFactory,
-                                     Class serviceClass,
-                                     RpcConfig conf) {
+            Class serviceClass,
+            RpcConfig conf) {
         this.clientFactory = clientFactory;
         this.serviceClass = serviceClass;
         this.conf = conf;
@@ -57,7 +57,7 @@ public abstract class AbstractServiceInvoker implements InvocationHandler {
     }
 
     public abstract Object callMethod(String targetInterface, String method,
-                                      Object arg, Callback callback) throws Throwable;
+            Object arg, Callback callback) throws Throwable;
 
     public void destroy() {
         // client.close();

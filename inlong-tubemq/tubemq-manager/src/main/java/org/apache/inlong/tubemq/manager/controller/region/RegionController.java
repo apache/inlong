@@ -61,8 +61,7 @@ public class RegionController {
      * divides the operation on broker to different method
      */
     @RequestMapping(value = "")
-    public @ResponseBody
-        TubeMQResult brokerMethodProxy(@RequestParam String method, @RequestBody String req) {
+    public @ResponseBody TubeMQResult brokerMethodProxy(@RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD:
                 return createNewRegion(gson.fromJson(req, CreateRegionReq.class));

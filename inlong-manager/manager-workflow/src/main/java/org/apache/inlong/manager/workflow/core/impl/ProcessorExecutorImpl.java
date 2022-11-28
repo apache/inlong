@@ -61,8 +61,8 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
         processors.add(userTaskProcessor);
         processors.add(serviceTaskProcessor);
 
-        ImmutableMap.Builder<Class<? extends Element>, ElementProcessor<? extends Element>> builder
-                = ImmutableMap.builder();
+        ImmutableMap.Builder<Class<? extends Element>, ElementProcessor<? extends Element>> builder =
+                ImmutableMap.builder();
         processors.forEach(processor -> builder.put(processor.watch(), processor));
         elementProcessor = builder.build();
     }

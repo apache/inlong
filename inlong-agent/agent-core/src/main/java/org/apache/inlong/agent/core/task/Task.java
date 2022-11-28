@@ -34,7 +34,7 @@ public class Task {
     private final JobProfile jobConf;
 
     public Task(String taskId, Reader reader, Sink sink, Channel channel,
-        JobProfile jobConf) {
+            JobProfile jobConf) {
         this.reader = reader;
         this.sink = sink;
         this.taskId = taskId;

@@ -40,36 +40,36 @@ public class BdbClusterSettingEntity implements Serializable {
     @PrimaryKey
     private String recordKey = "";
     private long configId = TBaseConstants.META_VALUE_UNDEFINED;
-    //broker tcp port
+    // broker tcp port
     private int brokerPort = TBaseConstants.META_VALUE_UNDEFINED;
-    //broker tls port
+    // broker tls port
     private int brokerTLSPort = TBaseConstants.META_VALUE_UNDEFINED;
-    //broker web port
+    // broker web port
     private int brokerWebPort = TBaseConstants.META_VALUE_UNDEFINED;
-    //store num
+    // store num
     private int numTopicStores = TBaseConstants.META_VALUE_UNDEFINED;
-    //partition num
+    // partition num
     private int numPartitions = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush disk threshold
+    // flush disk threshold
     private int unflushThreshold = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush disk interval
+    // flush disk interval
     private int unflushInterval = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush disk data count
+    // flush disk data count
     private int unflushDataHold = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush memory cache count
+    // flush memory cache count
     private int memCacheMsgCntInK = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush memory cache interval
+    // flush memory cache interval
     private int memCacheFlushIntvl = TBaseConstants.META_VALUE_UNDEFINED;
-    //flush memory cache size
+    // flush memory cache size
     private int memCacheMsgSizeInMB = TBaseConstants.META_VALUE_UNDEFINED;
-    private boolean acceptPublish = true;   //enable publish
-    private boolean acceptSubscribe = true; //enable subscribe
-    private String deletePolicy = "";              //delete policy execute time
+    private boolean acceptPublish = true; // enable publish
+    private boolean acceptSubscribe = true; // enable subscribe
+    private String deletePolicy = ""; // delete policy execute time
     private int qryPriorityId = TBaseConstants.META_VALUE_UNDEFINED;
     private int maxMsgSizeInB = TBaseConstants.META_VALUE_UNDEFINED;
-    private String attributes = "";             //extra attribute
-    private String modifyUser;               //modify user
-    private Date modifyDate;                 //modify date
+    private String attributes = ""; // extra attribute
+    private String modifyUser; // modify user
+    private Date modifyDate; // modify date
 
     public BdbClusterSettingEntity() {
     }
@@ -100,15 +100,15 @@ public class BdbClusterSettingEntity implements Serializable {
      * @param modifyDate          the modify date
      */
     public BdbClusterSettingEntity(String recordKey, long configId, int brokerPort,
-                                   int brokerTLSPort, int brokerWebPort,
-                                   int numTopicStores, int numPartitions,
-                                   int unflushThreshold, int unflushInterval,
-                                   int unflushDataHold, int memCacheMsgCntInK,
-                                   int memCacheFlushIntvl, int memCacheMsgSizeInMB,
-                                   boolean acceptPublish, boolean acceptSubscribe,
-                                   String deletePolicy, int qryPriorityId,
-                                   int maxMsgSizeInB, String attributes,
-                                   String modifyUser, Date modifyDate) {
+            int brokerTLSPort, int brokerWebPort,
+            int numTopicStores, int numPartitions,
+            int unflushThreshold, int unflushInterval,
+            int unflushDataHold, int memCacheMsgCntInK,
+            int memCacheFlushIntvl, int memCacheMsgSizeInMB,
+            boolean acceptPublish, boolean acceptSubscribe,
+            String deletePolicy, int qryPriorityId,
+            int maxMsgSizeInB, String attributes,
+            String modifyUser, Date modifyDate) {
         this.recordKey = recordKey;
         this.configId = configId;
         this.brokerPort = brokerPort;
@@ -334,7 +334,8 @@ public class BdbClusterSettingEntity implements Serializable {
                         TStoreConstants.TOKEN_ENABLE_FLOW_CTRL);
         if (atrVal != null) {
             return Boolean.parseBoolean(atrVal)
-                    ? EnableStatus.STATUS_ENABLE : EnableStatus.STATUS_DISABLE;
+                    ? EnableStatus.STATUS_ENABLE
+                    : EnableStatus.STATUS_DISABLE;
         }
         return EnableStatus.STATUS_UNDEFINE;
     }

@@ -27,10 +27,7 @@ import org.apache.inlong.sort.protocol.transformation.function.TumbleFunction;
  * top-level interface for window function in flink
  * such as hop\session\tumble functions
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = HopFunction.class, name = "hop"),
         @JsonSubTypes.Type(value = SessionFunction.class, name = "session"),

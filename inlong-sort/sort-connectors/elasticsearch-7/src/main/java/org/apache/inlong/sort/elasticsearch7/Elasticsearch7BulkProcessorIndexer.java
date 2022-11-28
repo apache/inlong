@@ -83,4 +83,3 @@ class Elasticsearch7BulkProcessorIndexer implements RequestIndexer {
         }
     }
 }
-

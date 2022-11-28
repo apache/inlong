@@ -46,7 +46,7 @@ public class RcpService4BenchmarkClient {
      * @param invokeTimes   the invoke count
      */
     public RcpService4BenchmarkClient(String targetHost, int targetPort, int threadNum,
-                                      int invokeTimes) {
+            int invokeTimes) {
         this.targetHost = targetHost;
         this.targetPort = targetPort;
         this.threadNum = threadNum;
@@ -75,6 +75,7 @@ public class RcpService4BenchmarkClient {
     public void start() throws Exception {
         for (int i = 0; i < threadNum; i++) {
             executorService.submit(new Runnable() {
+
                 @Override
                 public void run() {
                     long startTime = System.currentTimeMillis();

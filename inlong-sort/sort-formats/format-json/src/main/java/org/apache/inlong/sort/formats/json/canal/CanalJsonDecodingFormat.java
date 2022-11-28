@@ -82,11 +82,10 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
         final List<ReadableMetadata> readableMetadata =
                 metadataKeys.stream()
                         .map(
-                                k ->
-                                        Stream.of(ReadableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .<IllegalStateException>orElseThrow(IllegalStateException::new))
+                                k -> Stream.of(ReadableMetadata.values())
+                                        .filter(rm -> rm.key.equals(k))
+                                        .findFirst()
+                                        .<IllegalStateException>orElseThrow(IllegalStateException::new))
                         .collect(Collectors.toList());
         final List<DataTypes.Field> metadataFields =
                 readableMetadata.stream()
@@ -97,7 +96,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
         final TypeInformation<RowData> producedTypeInfo =
                 context.createTypeInformation(producedDataType);
         return CanalJsonDeserializationSchema.builder(
-                        physicalDataType, readableMetadata, producedTypeInfo)
+                physicalDataType, readableMetadata, producedTypeInfo)
                 .setDatabase(database)
                 .setTable(table)
                 .setIgnoreParseErrors(ignoreParseErrors)
@@ -134,11 +133,13 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
 
     /** List of metadata that can be read with this format. */
     public enum ReadableMetadata {
+
         DATABASE(
                 "database",
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("database", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -157,6 +158,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                 DataTypes.STRING().nullable(),
                 DataTypes.FIELD("table", DataTypes.STRING()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -177,6 +179,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                         "sqlType",
                         DataTypes.MAP(DataTypes.STRING().nullable(), DataTypes.INT().nullable())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -195,6 +198,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                 DataTypes.ARRAY(DataTypes.STRING()).nullable(),
                 DataTypes.FIELD("pkNames", DataTypes.ARRAY(DataTypes.STRING())),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -213,6 +217,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                 DataTypes.TIMESTAMP_WITH_LOCAL_TIME_ZONE(3).nullable(),
                 DataTypes.FIELD("ts", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -234,6 +239,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                 DataTypes.BIGINT().nullable(),
                 DataTypes.FIELD("es", DataTypes.BIGINT()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override
@@ -255,6 +261,7 @@ public class CanalJsonDecodingFormat implements DecodingFormat<DeserializationSc
                 DataTypes.BOOLEAN().nullable(),
                 DataTypes.FIELD("isDdl", DataTypes.BOOLEAN()),
                 new MetadataConverter() {
+
                     private static final long serialVersionUID = 1L;
 
                     @Override

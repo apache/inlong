@@ -21,6 +21,7 @@ package org.apache.inlong.tubemq.server.broker.offset;
  * The offset snapshot of the consumer group on the partition.
  */
 public class OffsetCsmItem {
+
     protected int partitionId;
     // consume group confirmed offset
     protected long offsetCfm = 0L;

@@ -64,8 +64,7 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
                 new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
                 new MetaFieldInfo("table_name", MetaField.TABLE_NAME),
                 new MetaFieldInfo("op_ts", MetaField.OP_TS),
-                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME)
-        );
+                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME));
         return new PostgresExtractNode("1", "postgres_input", fields, null, null, null, Arrays.asList("user"),
                 "localhost", "postgres", "inlong", "postgres", "public", 5432, null);
     }
@@ -84,8 +83,7 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
                         new FieldInfo("cf:database_name", new StringFormatInfo()),
                         new FieldInfo("cf:table_name", new StringFormatInfo()),
                         new FieldInfo("cf:op_ts", new TimestampFormatInfo()),
-                        new FieldInfo("cf:schema_name", new StringFormatInfo())
-                ),
+                        new FieldInfo("cf:schema_name", new StringFormatInfo())),
                 Arrays.asList(
                         new FieldRelation(new FieldInfo("age", new LongFormatInfo()),
                                 new FieldInfo("cf:age", new LongFormatInfo())),
@@ -100,8 +98,7 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
                         new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
                                 new FieldInfo("cf:op_ts", new TimestampFormatInfo())),
                         new FieldRelation(new FieldInfo("schema_name", new StringFormatInfo()),
-                                new FieldInfo("cf:schema_name", new StringFormatInfo()))
-                ),
+                                new FieldInfo("cf:schema_name", new StringFormatInfo()))),
                 null, null, 1, null, "user",
                 "default",
                 "localhost:2181", "MD5(`name`)", null, "/hbase", null, null);

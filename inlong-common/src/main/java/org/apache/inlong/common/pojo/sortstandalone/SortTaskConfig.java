@@ -30,6 +30,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SortTaskConfig {
+
     String name;
     String type;
     List<Map<String, String>> idParams;

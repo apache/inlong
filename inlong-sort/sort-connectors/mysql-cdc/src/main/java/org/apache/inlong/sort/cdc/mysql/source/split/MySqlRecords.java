@@ -31,9 +31,12 @@ import java.util.Set;
  */
 public final class MySqlRecords implements RecordsWithSplitIds<SourceRecord> {
 
-    @Nullable private String splitId;
-    @Nullable private Iterator<SourceRecord> recordsForCurrentSplit;
-    @Nullable private final Iterator<SourceRecord> recordsForSplit;
+    @Nullable
+    private String splitId;
+    @Nullable
+    private Iterator<SourceRecord> recordsForCurrentSplit;
+    @Nullable
+    private final Iterator<SourceRecord> recordsForSplit;
     private final Set<String> finishedSnapshotSplits;
 
     public MySqlRecords(

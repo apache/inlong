@@ -38,15 +38,13 @@ public class ShortFormatInfoTest extends FormatInfoTestBase {
     public void testSerialize() {
         assertEquals(
                 "32767",
-                ShortFormatInfo.INSTANCE.serialize((short) 32767)
-        );
+                ShortFormatInfo.INSTANCE.serialize((short) 32767));
     }
 
     @Test
     public void testDeserialize() {
         assertEquals(
                 Short.valueOf((short) 32767),
-                ShortFormatInfo.INSTANCE.deserialize("32767")
-        );
+                ShortFormatInfo.INSTANCE.deserialize("32767"));
     }
 }

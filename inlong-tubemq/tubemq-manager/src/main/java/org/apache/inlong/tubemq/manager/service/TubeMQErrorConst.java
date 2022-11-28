@@ -18,6 +18,7 @@
 package org.apache.inlong.tubemq.manager.service;
 
 public class TubeMQErrorConst {
+
     public static final String PARAM_ILLEGAL = "param illegal";
     public static final String BROKER_IN_OTHER_REGION = "resource already used";
     public static final String RESOURCE_NOT_EXIST = "resource not exist";

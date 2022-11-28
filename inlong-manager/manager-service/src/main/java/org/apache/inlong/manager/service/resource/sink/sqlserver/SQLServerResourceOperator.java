@@ -88,8 +88,7 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
             SQLServerColumnInfo columnInfo = new SQLServerColumnInfo(
                     field.getFieldName(),
                     field.getFieldType(),
-                    field.getFieldComment()
-            );
+                    field.getFieldComment());
             columnList.add(columnInfo);
         });
 

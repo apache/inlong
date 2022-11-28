@@ -84,8 +84,7 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
             @Nonnull Character delimiter,
             @Nullable Character escapeChar,
             @Nullable Character quoteChar,
-            @Nullable String nullLiteral
-    ) {
+            @Nullable String nullLiteral) {
         this.rowFormatInfo = rowFormatInfo;
         this.charset = charset;
         this.delimiter = delimiter;
@@ -95,16 +94,14 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
     }
 
     public CsvDeserializationSchema(
-            @Nonnull RowFormatInfo rowFormatInfo
-    ) {
+            @Nonnull RowFormatInfo rowFormatInfo) {
         this(
                 rowFormatInfo,
                 TableFormatConstants.DEFAULT_CHARSET,
                 TableFormatConstants.DEFAULT_DELIMITER,
                 null,
                 null,
-                null
-        );
+                null);
     }
 
     @SuppressWarnings("unchecked")
@@ -130,7 +127,7 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
 
         if (fieldTexts.length != fieldNames.length) {
             LOG.warn("The number of fields mismatches: " + fieldNames.length
-                     + " expected, but was " + fieldTexts.length + ".");
+                    + " expected, but was " + fieldTexts.length + ".");
         }
 
         Row row = new Row(fieldNames.length);
@@ -144,8 +141,7 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
                                 fieldNames[i],
                                 fieldFormatInfos[i],
                                 fieldTexts[i],
-                                nullLiteral
-                        );
+                                nullLiteral);
 
                 row.setField(i, field);
             }
@@ -208,8 +204,7 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
                     delimiter,
                     escapeChar,
                     quoteChar,
-                    nullLiteral
-            );
+                    nullLiteral);
         }
     }
 
@@ -225,11 +220,11 @@ public final class CsvDeserializationSchema implements DeserializationSchema<Row
 
         CsvDeserializationSchema that = (CsvDeserializationSchema) o;
         return rowFormatInfo.equals(that.rowFormatInfo)
-                       && Objects.equals(charset, that.charset)
-                       && Objects.equals(delimiter, that.delimiter)
-                       && Objects.equals(escapeChar, that.escapeChar)
-                       && Objects.equals(quoteChar, that.quoteChar)
-                       && Objects.equals(nullLiteral, that.nullLiteral);
+                && Objects.equals(charset, that.charset)
+                && Objects.equals(delimiter, that.delimiter)
+                && Objects.equals(escapeChar, that.escapeChar)
+                && Objects.equals(quoteChar, that.quoteChar)
+                && Objects.equals(nullLiteral, that.nullLiteral);
     }
 
     @Override

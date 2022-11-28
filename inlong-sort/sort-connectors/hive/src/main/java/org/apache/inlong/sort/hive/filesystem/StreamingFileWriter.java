@@ -42,9 +42,7 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
 
     public StreamingFileWriter(
             long bucketCheckInterval,
-            StreamingFileSink.BucketsBuilder<
-                    IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>>
-                    bucketsBuilder,
+            StreamingFileSink.BucketsBuilder<IN, String, ? extends StreamingFileSink.BucketsBuilder<IN, String, ?>> bucketsBuilder,
             String inlongMetric,
             String auditHostAndPorts) {
         super(bucketCheckInterval, bucketsBuilder, inlongMetric, auditHostAndPorts);
@@ -100,4 +98,3 @@ public class StreamingFileWriter<IN> extends AbstractStreamingWriter<IN, Partiti
                                 new ArrayList<>(partitions))));
     }
 }
-

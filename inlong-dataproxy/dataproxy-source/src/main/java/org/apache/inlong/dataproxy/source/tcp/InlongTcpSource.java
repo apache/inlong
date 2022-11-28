@@ -40,7 +40,10 @@ import io.netty.channel.ChannelInitializer;
  * Inlong tcp source
  */
 public class InlongTcpSource extends SimpleTcpSource
-        implements Configurable, EventDrivenSource, ProxyServiceMBean {
+        implements
+            Configurable,
+            EventDrivenSource,
+            ProxyServiceMBean {
 
     public static final Logger LOG = LoggerFactory.getLogger(InlongTcpSource.class);
 

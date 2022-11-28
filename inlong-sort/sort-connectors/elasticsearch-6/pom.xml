@@ -15,20 +15,18 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>sort-connectors</artifactId>
         <groupId>org.apache.inlong</groupId>
+        <artifactId>sort-connectors</artifactId>
         <version>1.5.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sort-connector-elasticsearch6</artifactId>
-    <name>Apache InLong - Sort-connector-elasticsearch6</name>
     <packaging>jar</packaging>
+    <name>Apache InLong - Sort-connector-elasticsearch6</name>
 
     <dependencies>
         <dependency>
@@ -88,22 +86,22 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java_2.12</artifactId>
             <version>${flink.version}</version>
-            <scope>test</scope>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-elasticsearch-base</artifactId>
             <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.elasticsearch</groupId>
                     <artifactId>elasticsearch</artifactId>
                 </exclusion>
             </exclusions>
-            <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
 
         <!-- Including elasticsearch transport dependency for tests. Netty3 is not here anymore in 6.x -->
@@ -162,10 +160,10 @@
                 <executions>
                     <execution>
                         <id>shade-flink</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <shadeTestJar>false</shadeTestJar>
                             <artifactSet>
@@ -235,33 +233,23 @@
                                 <!-- Force relocation of all Elasticsearch dependencies. -->
                                 <relocation>
                                     <pattern>org.apache.commons</pattern>
-                                    <shadedPattern>
-                                        org.apache.flink.elasticsearch6.shaded.org.apache.commons
-                                    </shadedPattern>
+                                    <shadedPattern>org.apache.flink.elasticsearch6.shaded.org.apache.commons</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.http</pattern>
-                                    <shadedPattern>
-                                        org.apache.flink.elasticsearch6.shaded.org.apache.http
-                                    </shadedPattern>
+                                    <shadedPattern>org.apache.flink.elasticsearch6.shaded.org.apache.http</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.lucene</pattern>
-                                    <shadedPattern>
-                                        org.apache.flink.elasticsearch6.shaded.org.apache.lucene
-                                    </shadedPattern>
+                                    <shadedPattern>org.apache.flink.elasticsearch6.shaded.org.apache.lucene</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.elasticsearch</pattern>
-                                    <shadedPattern>
-                                        org.apache.flink.elasticsearch6.shaded.org.elasticsearch
-                                    </shadedPattern>
+                                    <shadedPattern>org.apache.flink.elasticsearch6.shaded.org.elasticsearch</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.fasterxml.jackson</pattern>
-                                    <shadedPattern>
-                                        org.apache.flink.elasticsearch6.shaded.com.fasterxml.jackson
-                                    </shadedPattern>
+                                    <shadedPattern>org.apache.flink.elasticsearch6.shaded.com.fasterxml.jackson</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

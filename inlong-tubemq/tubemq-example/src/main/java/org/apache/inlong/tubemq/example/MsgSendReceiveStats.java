@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * This demo shows how to collect and report message received statistics.
  */
 public class MsgSendReceiveStats implements Runnable {
+
     private final boolean isProducer;
     private static final Logger logger = LoggerFactory.getLogger(MsgSendReceiveStats.class);
     private static final ConcurrentHashMap<String, AtomicLong> counterMap = new ConcurrentHashMap<>();

@@ -26,10 +26,7 @@ import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilter
 /**
  * interface for filter functions
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = SingleValueFilterFunction.class, name = "singleValueFilter"),
         @JsonSubTypes.Type(value = MultiValueFilterFunction.class, name = "multiValueFilter"),

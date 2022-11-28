@@ -76,12 +76,10 @@ public class InlongStreamImplTest {
                         JoinMode.INNER_JOIN),
                 "A", "B");
         StreamTransform singleDependencyTransform1 = new SingleDependencyTransform(
-                "D", new FilterDefinition(FilterStrategy.REMOVE, Lists.newArrayList()), "C", "E", "F"
-        );
+                "D", new FilterDefinition(FilterStrategy.REMOVE, Lists.newArrayList()), "C", "E", "F");
 
         StreamTransform singleDependencyTransform2 = new SingleDependencyTransform(
-                "G", new SplitterDefinition(Lists.newArrayList()), "C", "I"
-        );
+                "G", new SplitterDefinition(Lists.newArrayList()), "C", "I");
         inlongStream.addTransform(multiDependencyTransform);
         inlongStream.addTransform(singleDependencyTransform1);
         inlongStream.addTransform(singleDependencyTransform2);

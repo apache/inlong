@@ -16,21 +16,18 @@
   ~  See the License for the specific language governing permissions and
   ~  limitations under the License.
   -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>inlong-sort</artifactId>
         <groupId>org.apache.inlong</groupId>
+        <artifactId>inlong-sort</artifactId>
         <version>1.5.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>sort-end-to-end-tests</artifactId>
     <name>Apache InLong - Sort End to End Tests</name>
-
 
     <dependencies>
         <dependency>
@@ -130,15 +127,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-jars</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                    </execution>
-                </executions>
                 <configuration>
                     <artifactItems>
                         <artifactItem>
@@ -147,8 +135,7 @@
                             <version>${project.version}</version>
                             <destFileName>sort-dist.jar</destFileName>
                             <type>jar</type>
-                            <outputDirectory>${project.build.directory}/dependencies
-                            </outputDirectory>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>
                         <dependency>
                             <groupId>mysql</groupId>
@@ -164,8 +151,7 @@
                             <version>${project.version}</version>
                             <destFileName>sort-connector-kafka.jar</destFileName>
                             <type>jar</type>
-                            <outputDirectory>${project.build.directory}/dependencies
-                            </outputDirectory>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.apache.inlong</groupId>
@@ -173,8 +159,7 @@
                             <version>${project.version}</version>
                             <destFileName>sort-connector-mysql-cdc.jar</destFileName>
                             <type>jar</type>
-                            <outputDirectory>${project.build.directory}/dependencies
-                            </outputDirectory>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.apache.inlong</groupId>
@@ -182,11 +167,19 @@
                             <version>${project.version}</version>
                             <destFileName>sort-connector-jdbc.jar</destFileName>
                             <type>jar</type>
-                            <outputDirectory>${project.build.directory}/dependencies
-                            </outputDirectory>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
                         </artifactItem>
                     </artifactItems>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>copy-jars</id>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <phase>pre-integration-test</phase>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -195,10 +188,10 @@
                 <executions>
                     <execution>
                         <id>end-to-end-tests</id>
-                        <phase>integration-test</phase>
                         <goals>
                             <goal>test</goal>
                         </goals>
+                        <phase>integration-test</phase>
                         <configuration>
                             <includes>
                                 <include>**/*.*</include>

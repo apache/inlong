@@ -45,7 +45,7 @@ public class BdbBlackGroupEntity implements Serializable {
     }
 
     public BdbBlackGroupEntity(String topicName, String consumerGroupName,
-                               String createUser, Date createDate) {
+            String createUser, Date createDate) {
         this.recordKey = new StringBuilder(512).append(topicName)
                 .append(TokenConstants.ATTR_SEP).append(consumerGroupName).toString();
         this.topicName = topicName;
@@ -55,8 +55,8 @@ public class BdbBlackGroupEntity implements Serializable {
     }
 
     public BdbBlackGroupEntity(String topicName, String groupName,
-                               String attributes, String createUser,
-                               Date createDate) {
+            String attributes, String createUser,
+            Date createDate) {
         this.recordKey = new StringBuilder(512).append(topicName)
                 .append(TokenConstants.ATTR_SEP).append(consumerGroupName).toString();
         this.topicName = topicName;

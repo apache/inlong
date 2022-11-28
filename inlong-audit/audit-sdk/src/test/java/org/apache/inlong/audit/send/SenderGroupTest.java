@@ -24,6 +24,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class SenderGroupTest {
+
     AuditConfig testConfig = new AuditConfig();
     SenderManager testManager = new SenderManager(testConfig);
     SenderHandler clientHandler = new org.apache.inlong.audit.send.SenderHandler(testManager);

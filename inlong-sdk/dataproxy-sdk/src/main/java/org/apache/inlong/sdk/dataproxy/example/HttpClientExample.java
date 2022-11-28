@@ -30,20 +30,13 @@ public class HttpClientExample {
 
     public static void main(String[] args) {
         /*
-         * 1. if 'isLocalVisit' is true use local config from file in ${configBasePath}
-         * directory/${dataProxyGroupId}
-         * .local
-         * such as :
-         *  configBasePath = /data/inlong/dataproxy/conf
-         *  dataProxyGroupId = test
-         * so config file is :
-         *  /data/inlong/dataproxy/conf/test.local
-         * and config context like this:
-         *  {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0
+         * 1. if 'isLocalVisit' is true use local config from file in ${configBasePath} directory/${dataProxyGroupId}
+         * .local such as : configBasePath = /data/inlong/dataproxy/conf dataProxyGroupId = test so config file is :
+         * /data/inlong/dataproxy/conf/test.local and config context like this:
+         * {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0
          * .1","port":"46802"},{"host":"127.0.0.1","port":"46802"}]}
          *
-         * 2. if 'isLocalVisit' is false
-         *  sdk will get config from manager auto.
+         * 2. if 'isLocalVisit' is false sdk will get config from manager auto.
          */
         String dataProxyGroup = "test";
         String inlongGroupId = "test_group_id";
