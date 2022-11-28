@@ -83,10 +83,14 @@ public interface Metadata {
             case DATA_DEBEZIUM:
             case COLLECTION_NAME:
             case SCHEMA_NAME:
+            case KEY:
+            case VALUE:
+            case HEADERS_TO_JSON_STR:
                 metadataType = "STRING";
                 break;
             case OP_TS:
             case TS:
+            case TIMESTAMP:
                 metadataType = "TIMESTAMP_LTZ(3)";
                 break;
             case IS_DDL:
@@ -104,7 +108,12 @@ public interface Metadata {
             case PK_NAMES:
                 metadataType = "ARRAY<STRING>";
                 break;
+            case HEADERS:
+                metadataType = "MAP<STRING, BINARY>";
+                break;
             case BATCH_ID:
+            case PARTITION:
+            case OFFSET:
                 metadataType = "BIGINT";
                 break;
             case UPDATE_BEFORE:

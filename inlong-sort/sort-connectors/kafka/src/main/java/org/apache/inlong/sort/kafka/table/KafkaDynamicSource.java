@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.kafka.table;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -44,8 +47,12 @@ import org.apache.inlong.sort.kafka.FlinkKafkaConsumer;
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema.MetadataConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -170,6 +177,10 @@ public class KafkaDynamicSource
     protected final String inlongMetric;
 
     protected final String auditHostAndPorts;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaDynamicSource.class);
 
     public KafkaDynamicSource(
             DataType physicalDataType,
@@ -556,6 +567,55 @@ public class KafkaDynamicSource
                     @Override
                     public Object read(ConsumerRecord<?, ?> record) {
                         return TimestampData.fromEpochMillis(record.timestamp());
+                    }
+                }),
+
+        HEADERS_TO_JSON_STR(
+                "headers_to_json_str",
+                DataTypes.STRING().nullable(),
+                new MetadataConverter() {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Object read(ConsumerRecord<?, ?> record) {
+                        Map<String, String> headerMap = new HashMap<>();
+                        for (Header header : record.headers()) {
+                            headerMap.put(header.key(),
+                                    new String(header.value(), StandardCharsets.UTF_8));
+                        }
+                        try {
+                            return StringData.fromString(MAPPER.writeValueAsString(headerMap));
+                        } catch (JsonProcessingException e) {
+                            LOG.warn("Failed to parse headers to json string", e);
+                            return null;
+                        }
+                    }
+                }),
+
+        KEY(
+                "key",
+                DataTypes.STRING().notNull(),
+                new MetadataConverter() {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Object read(ConsumerRecord<?, ?> record) {
+                        return StringData.fromBytes((byte[]) record.key());
+                    }
+                }),
+
+        VALUE(
+                "value",
+                DataTypes.STRING().notNull(),
+                new MetadataConverter() {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Object read(ConsumerRecord<?, ?> record) {
+                        return StringData.fromBytes((byte[]) record.value());
                     }
                 }),
 

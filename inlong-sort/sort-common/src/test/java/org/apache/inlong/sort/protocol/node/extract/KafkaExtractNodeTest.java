@@ -94,6 +94,14 @@ public class KafkaExtractNodeTest extends SerializeBaseTest<KafkaExtractNode> {
         formatMap.put(MetaField.PK_NAMES, "ARRAY<STRING> METADATA FROM 'value.pk-names'");
         formatMap.put(MetaField.BATCH_ID, "BIGINT METADATA FROM 'value.batch-id'");
         formatMap.put(MetaField.UPDATE_BEFORE, "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'");
+        formatMap.put(MetaField.KEY, "STRING METADATA FROM 'key' VIRTUAL");
+        formatMap.put(MetaField.VALUE, "STRING METADATA FROM 'value' VIRTUAL");
+        formatMap.put(MetaField.HEADERS, "MAP<STRING, BINARY> METADATA FROM 'headers' VIRTUAL");
+        formatMap.put(MetaField.HEADERS_TO_JSON_STR, "STRING METADATA FROM 'headers_to_json_str' VIRTUAL");
+        formatMap.put(MetaField.OFFSET, "BIGINT METADATA FROM 'offset' VIRTUAL");
+        formatMap.put(MetaField.PARTITION, "BIGINT METADATA FROM 'partition' VIRTUAL");
+        formatMap.put(MetaField.TIMESTAMP, "TIMESTAMP_LTZ(3) METADATA FROM 'timestamp' VIRTUAL");
+
         KafkaExtractNode node = getTestObject();
         boolean formatEquals = true;
         for (MetaField metaField : node.supportedMetaFields()) {

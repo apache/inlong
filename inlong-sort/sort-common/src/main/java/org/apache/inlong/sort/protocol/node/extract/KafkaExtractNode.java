@@ -229,6 +229,27 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
             case UPDATE_BEFORE:
                 metadataKey = "value.update-before";
                 break;
+            case KEY:
+                metadataKey = "key";
+                break;
+            case VALUE:
+                metadataKey = "value";
+                break;
+            case HEADERS:
+                metadataKey = "headers";
+                break;
+            case HEADERS_TO_JSON_STR:
+                metadataKey = "headers_to_json_str";
+                break;
+            case PARTITION:
+                metadataKey = "partition";
+                break;
+            case OFFSET:
+                metadataKey = "offset";
+                break;
+            case TIMESTAMP:
+                metadataKey = "timestamp";
+                break;
             default:
                 throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
                         this.getClass().getSimpleName(), metaField));
@@ -238,13 +259,26 @@ public class KafkaExtractNode extends ExtractNode implements InlongMetric, Metad
 
     @Override
     public boolean isVirtual(MetaField metaField) {
-        return false;
+        switch (metaField) {
+            case KEY:
+            case VALUE:
+            case HEADERS:
+            case HEADERS_TO_JSON_STR:
+            case PARTITION:
+            case OFFSET:
+            case TIMESTAMP:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
     public Set<MetaField> supportedMetaFields() {
         return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.OP_TYPE, MetaField.DATABASE_NAME,
                 MetaField.SQL_TYPE, MetaField.PK_NAMES, MetaField.TS, MetaField.OP_TS, MetaField.IS_DDL,
-                MetaField.MYSQL_TYPE, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE);
+                MetaField.MYSQL_TYPE, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE,
+                MetaField.KEY, MetaField.VALUE, MetaField.PARTITION, MetaField.HEADERS,
+                MetaField.HEADERS_TO_JSON_STR, MetaField.OFFSET, MetaField.TIMESTAMP);
     }
 }
