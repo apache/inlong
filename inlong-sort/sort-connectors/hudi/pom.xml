@@ -37,7 +37,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hudi</groupId>
-            <artifactId>hudi-flink1.13-bundle_${scala.binary.version}</artifactId>
+            <artifactId>hudi-flink1.13-bundle</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
