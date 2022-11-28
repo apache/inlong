@@ -18,9 +18,7 @@
 package org.apache.inlong.sort.base.dirty.sink.log;
 
 import org.apache.flink.configuration.ConfigOption;
-import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.factories.FactoryUtil;
-import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.sink.DirtySinkFactory;
 
@@ -40,11 +38,10 @@ public class LogDirtySinkFactory implements DirtySinkFactory {
     public <T> DirtySink<T> createDirtySink(Context context) {
         final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         FactoryUtil.validateFactoryOptions(this, helper.getOptions());
-        TableSchema physicalSchema = TableSchemaUtils.getPhysicalSchema(context.getCatalogTable().getSchema());
         String format = helper.getOptions().get(SINK_DIRTY_FORMAT);
         String fieldDelimiter = helper.getOptions().get(SINK_DIRTY_FIELD_DELIMITER);
-        return new LogDirtySink<>(format, fieldDelimiter, physicalSchema.getFieldDataTypes(),
-                physicalSchema.getFieldNames());
+        return new LogDirtySink<>(format, fieldDelimiter,
+                context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType());
     }
 
     @Override

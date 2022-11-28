@@ -38,6 +38,14 @@ public class DirtyData<T> {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
+     * The identifier of dirty data, it will be used for filename generation of file dirty sink,
+     * topic generation of mq dirty sink, tablename generation of database, etc,
+     * and it supports variable replace like '${variable}'.
+     * There are two system variables[SYSTEM_TIME|DIRTY_TYPE] are currently supported,
+     * and the support of other variables is determined by the connector.
+     */
+    private final String identifier;
+    /**
      * The labels of the dirty data, it will be written to store system of dirty
      */
     private final String labels;
@@ -55,12 +63,13 @@ public class DirtyData<T> {
      */
     private final T data;
 
-    public DirtyData(T data, String labels, String logTag, DirtyType dirtyType) {
+    public DirtyData(T data, String identifier, String labels, String logTag, DirtyType dirtyType) {
         this.data = data;
         this.dirtyType = dirtyType;
         Map<String, String> paramMap = genParamMap();
         this.labels = PatternReplaceUtils.replace(labels, paramMap);
         this.logTag = PatternReplaceUtils.replace(logTag, paramMap);
+        this.identifier = PatternReplaceUtils.replace(identifier, paramMap);
     }
 
     public static <T> Builder<T> builder() {
@@ -90,8 +99,13 @@ public class DirtyData<T> {
         return dirtyType;
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
     public static class Builder<T> {
 
+        private String identifier;
         private String labels;
         private String logTag;
         private DirtyType dirtyType = DirtyType.UNDEFINED;
@@ -117,8 +131,13 @@ public class DirtyData<T> {
             return this;
         }
 
+        public Builder<T> setIdentifier(String identifier) {
+            this.identifier = identifier;
+            return this;
+        }
+
         public DirtyData<T> build() {
-            return new DirtyData<>(data, labels, logTag, dirtyType);
+            return new DirtyData<>(data, identifier, labels, logTag, dirtyType);
         }
     }
 }

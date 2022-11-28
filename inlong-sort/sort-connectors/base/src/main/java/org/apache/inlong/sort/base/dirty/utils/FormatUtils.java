@@ -17,9 +17,11 @@
 
 package org.apache.inlong.sort.base.dirty.utils;
 
+import org.apache.flink.formats.json.RowDataToJsonConverters.RowDataToJsonConverter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.table.data.RowData;
 
 import java.util.Iterator;
@@ -42,6 +44,7 @@ public final class FormatUtils {
      */
     private static final String DEFAULT_FIELD_DELIMITER = ",";
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectNode reuse = MAPPER.createObjectNode();
 
     private FormatUtils() {
     }
@@ -77,8 +80,8 @@ public final class FormatUtils {
         StringJoiner result = csvFormatForLabels(labels, fieldDelimiter);
         Iterator<Entry<String, JsonNode>> iterator = data.fields();
         while (iterator.hasNext()) {
-            Object value = iterator.next();
-            result.add(value != null ? value.toString() : NULL_VALUE);
+            Entry<String, JsonNode> kv = iterator.next();
+            result.add(kv.getValue() != null ? kv.getValue().asText() : NULL_VALUE);
         }
         return result.toString();
     }
@@ -130,19 +133,14 @@ public final class FormatUtils {
      * Json format for 'RowData'
      *
      * @param data The data wrapper with 'RowData'
-     * @param fieldGetters The field getters of 'RowData'
-     * @param fieldNames The field names of data
+     * @param converter The converter of 'RowData'
      * @param labels The labels of dirty sink
      * @return The value after format
      * @throws JsonProcessingException The exception may be thrown when executing
      */
-    public static String jsonFormat(RowData data, RowData.FieldGetter[] fieldGetters,
-            String[] fieldNames, Map<String, String> labels) throws JsonProcessingException {
-        Map<String, Object> result = new LinkedHashMap<>(labels);
-        for (int i = 0; i < data.getArity(); i++) {
-            result.put(fieldNames[i], fieldGetters[i].getFieldOrNull(data));
-        }
-        return MAPPER.writeValueAsString(result);
+    public static String jsonFormat(RowData data, RowDataToJsonConverter converter,
+            Map<String, String> labels) throws JsonProcessingException {
+        return jsonFormat(converter.convert(MAPPER, reuse, data), labels);
     }
 
     /**

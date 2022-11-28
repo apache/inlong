@@ -183,10 +183,8 @@ public final class Constants {
                             + "`time`, so type conversions must be mapped to types supported by spark.");
 
     //========================================= dirty configuration =========================================
-    public static final String DEFAULT_LABEL_IDENTIFER = "dirty-data";
     public static final String SINK_DIRTY_PREFIX = "sink.dirty.";
     public static final String DIRTY_PREFIX = "dirty.";
-    public static final String DIRTY_LABEL_DELIMITER = "-";
 
     public static final ConfigOption<Boolean> DIRTY_IGNORE =
             ConfigOptions.key("dirty.ignore")
@@ -225,7 +223,7 @@ public final class Constants {
                     .noDefaultValue()
                     .withDescription(
                             "The labels of dirty sink, format is 'key1=value1&key2=value2', "
-                                    + "it supports variable extraction like '${variable}',"
+                                    + "it supports variable replace like '${variable}',"
                                     + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE] are currently supported,"
                                     + " and the support of other variables is determined by the connector.");
     public static final ConfigOption<String> SINK_DIRTY_LOG_TAG =
@@ -233,9 +231,20 @@ public final class Constants {
                     .stringType()
                     .defaultValue("DirtyData")
                     .withDescription(
-                            "The log tag of dirty sink, it supports variable extraction like '${variable}'."
+                            "The log tag of dirty sink, it supports variable replace like '${variable}'."
                                     + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE] are currently supported,"
                                     + " and the support of other variables is determined by the connector.");
+    public static final ConfigOption<String> SINK_DIRTY_IDENTIFIER =
+            ConfigOptions.key("sink.dirty.identifier")
+                    .stringType()
+                    .noDefaultValue()
+                    .withDescription(
+                            "The identifier of dirty data, "
+                                    + "it will be used for filename generation of file dirty sink, "
+                                    + "topic generation of mq dirty sink, tablename generation of database, etc."
+                                    + "and it supports variable replace like '${variable}'."
+                                    + "There are two system variables[SYSTEM_TIME|DIRTY_TYPE] are currently supported,"
+                                    + "and the support of other variables is determined by the connector.");
     public static final ConfigOption<String> SINK_DIRTY_FIELD_DELIMITER =
             ConfigOptions.key("sink.dirty.field-delimiter")
                     .stringType()

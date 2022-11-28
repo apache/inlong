@@ -17,6 +17,11 @@
 
 package org.apache.inlong.sort.base.dirty.sink.log;
 
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.formats.common.TimestampFormat;
+import org.apache.flink.formats.json.JsonOptions.MapNullKeyMode;
+import org.apache.flink.formats.json.RowDataToJsonConverters;
+import org.apache.flink.formats.json.RowDataToJsonConverters.RowDataToJsonConverter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.table.data.RowData;
@@ -29,7 +34,6 @@ import org.apache.inlong.sort.base.util.LabelUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Map;
 import static org.apache.flink.table.data.RowData.createFieldGetter;
 
@@ -45,22 +49,27 @@ public class LogDirtySink<T> implements DirtySink<T> {
     private static final Logger LOG = LoggerFactory.getLogger(LogDirtySink.class);
 
     private final RowData.FieldGetter[] fieldGetters;
-    private final String[] fieldNames;
     private final String format;
     private final String fieldDelimiter;
+    private final DataType physicalRowDataType;
+    private RowDataToJsonConverter converter;
 
-    public LogDirtySink(String format, String fieldDelimiter,
-            DataType[] fieldDataTypes, String[] fieldNames) {
+    public LogDirtySink(String format, String fieldDelimiter, DataType physicalRowDataType) {
         this.format = format;
         this.fieldDelimiter = fieldDelimiter;
-        this.fieldNames = fieldNames;
-        final LogicalType[] logicalTypes = Arrays.stream(fieldDataTypes)
-                .map(DataType::getLogicalType)
-                .toArray(LogicalType[]::new);
+        this.physicalRowDataType = physicalRowDataType;
+        final LogicalType[] logicalTypes = physicalRowDataType.getChildren()
+                .stream().map(DataType::getLogicalType).toArray(LogicalType[]::new);
         this.fieldGetters = new RowData.FieldGetter[logicalTypes.length];
         for (int i = 0; i < logicalTypes.length; i++) {
             fieldGetters[i] = createFieldGetter(logicalTypes[i], i);
         }
+    }
+
+    @Override
+    public void open(Configuration configuration) throws Exception {
+        converter = new RowDataToJsonConverters(TimestampFormat.SQL, MapNullKeyMode.DROP, null)
+                .createConverter(physicalRowDataType.getLogicalType());
     }
 
     @Override
@@ -86,7 +95,7 @@ public class LogDirtySink<T> implements DirtySink<T> {
                 value = FormatUtils.csvFormat(data, fieldGetters, labels, fieldDelimiter);
                 break;
             case "json":
-                value = FormatUtils.jsonFormat(data, fieldGetters, fieldNames, labels);
+                value = FormatUtils.jsonFormat(data, converter, labels);
                 break;
             default:
                 throw new UnsupportedOperationException(

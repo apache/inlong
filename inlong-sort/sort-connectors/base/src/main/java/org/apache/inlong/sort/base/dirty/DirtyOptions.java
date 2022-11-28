@@ -24,6 +24,7 @@ import java.io.Serializable;
 import static org.apache.inlong.sort.base.Constants.DIRTY_IGNORE;
 import static org.apache.inlong.sort.base.Constants.DIRTY_SINK_ENABLE;
 import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_CONNECTOR;
+import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_IDENTIFIER;
 import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_IGNORE_SINK_ERRORS;
 import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_LABELS;
 import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_LOG_TAG;
@@ -41,15 +42,17 @@ public class DirtyOptions implements Serializable {
     private final String dirtyConnector;
     private final String labels;
     private final String logTag;
+    private final String identifier;
 
     private DirtyOptions(boolean ignoreDirty, boolean enableDirtySink, boolean ignoreSinkErrors,
-            String dirtyConnector, String labels, String logTag) {
+            String dirtyConnector, String labels, String logTag, String identifier) {
         this.ignoreDirty = ignoreDirty;
         this.enableDirtySink = enableDirtySink;
         this.ignoreSinkErrors = ignoreSinkErrors;
         this.dirtyConnector = dirtyConnector;
         this.labels = labels;
         this.logTag = logTag;
+        this.identifier = identifier;
     }
 
     /**
@@ -65,14 +68,16 @@ public class DirtyOptions implements Serializable {
         String dirtyConnector = config.getOptional(SINK_DIRTY_CONNECTOR).orElse(null);
         String labels = config.getOptional(SINK_DIRTY_LABELS).orElse(null);
         String logTag = config.get(SINK_DIRTY_LOG_TAG);
-        return new DirtyOptions(ignoreDirty, enableDirtySink, ignoreSinkError, dirtyConnector, labels, logTag);
+        String identifier = config.get(SINK_DIRTY_IDENTIFIER);
+        return new DirtyOptions(ignoreDirty, enableDirtySink, ignoreSinkError,
+                dirtyConnector, labels, logTag, identifier);
     }
 
     public void validate() {
         if (!ignoreDirty || !enableDirtySink) {
             return;
         }
-        if (dirtyConnector == null || dirtyConnector.length() == 0) {
+        if (dirtyConnector == null || dirtyConnector.trim().length() == 0) {
             throw new ValidationException(
                     "The option 'sink.dirty.connector' is not allowed to be empty "
                             + "when the option 'dirty.ignore' is 'true' and the option 'dirty.sink.enable' is 'true'");
@@ -101,5 +106,9 @@ public class DirtyOptions implements Serializable {
 
     public boolean ignoreSinkErrors() {
         return ignoreSinkErrors;
+    }
+
+    public String getIdentifier() {
+        return identifier;
     }
 }
