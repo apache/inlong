@@ -394,7 +394,7 @@ string BaseProducer::buildUUID() {
   return ss.str();
 }
 
-bool BaseProducer::isClientRunning() { return (status_.Get() == 2); }
+bool BaseProducer::isClientRunning() { return (status_.Get() == tb_config::kMasterRegistered); }
 
 bool BaseProducer::initMasterAddress(string& err_info, const string& master_info) {
   // Set master ip info
@@ -406,17 +406,17 @@ bool BaseProducer::initMasterAddress(string& err_info, const string& master_info
   }
 
   // whether translate hostname to ip
-  bool needXfs = false;
+  bool need_xfs = false;
   map<string, int32_t>::iterator it;
   for (it = masters_map_.begin(); it != masters_map_.end(); it++) {
     if (Utils::NeedDnsXfs(it->first)) {
-      needXfs = true;
+      need_xfs = true;
       break;
     }
   }
   it = masters_map_.begin();
   curr_master_addr_ = it->first;
-  if (needXfs) {
+  if (need_xfs) {
     TubeMQService::Instance()->AddMasterAddress(err_info, master_info);
   }
 
@@ -454,18 +454,18 @@ void BaseProducer::getCurrentMasterAddr(string& ipaddr, int32_t& port) {
 }
 
 bool BaseProducer::needGenMasterCertificateInfo(bool force) {
-  bool needAdd = false;
+  bool need_add = false;
   if (config_.IsAuthenticEnabled()) {
     if (force) {
-      needAdd = true;
+      need_add = true;
       nextauth_2_master.Set(false);
     } else if (nextauth_2_master.Get()) {
       if (nextauth_2_master.CompareAndSet(true, false)) {
-        needAdd = true;
+        need_add = true;
       }
     }
   }
-  return needAdd;
+  return need_add;
 }
 
 void BaseProducer::processAuthorizedToken(const MasterAuthorizedInfo& authorized_token_info) {
@@ -480,18 +480,18 @@ void BaseProducer::processAuthorizedToken(const MasterAuthorizedInfo& authorized
 }
 
 void BaseProducer::genBrokerAuthenticInfo(AuthorizedInfo* p_authInfo, bool force) {
-  bool needAdd = false;
+  bool need_add = false;
   p_authInfo->set_visitauthorizedtoken(visit_token_.Get());
   if (config_.IsAuthenticEnabled()) {
     if (force) {
-      needAdd = true;
+      need_add = true;
       nextauth_2_broker.Set(false);
     } else if (nextauth_2_broker.Get()) {
       if (nextauth_2_broker.CompareAndSet(true, false)) {
-        needAdd = true;
+        need_add = true;
       }
     }
-    if (needAdd) {
+    if (need_add) {
       string auth_token =
           Utils::GenBrokerAuthenticateToken(config_.GetUsrName(), config_.GetUsrPassWord());
       p_authInfo->set_authauthorizedtoken(auth_token);
@@ -605,9 +605,8 @@ void BaseProducer::buildSendMessageRequestP2B(const Partition& partition, const 
   p2b_request.set_partitionid(partition.GetPartitionId());
   BufferPtr buffer = std::make_shared<Buffer>(rpc_config::kRpcConnectInitBufferSize);
   const char* data = encodePayload(buffer, message);
-  // p2b_request.set_data(data, buffer->length()); // this approach has problem when msg_data_size
-  // is large
-  p2b_request.set_data(std::move(std::string(data)));
+  size_t data_size = buffer->length() == 0 ? message.GetDataLength() : buffer->length();
+  p2b_request.set_data(data, data_size);
   p2b_request.set_checksum(-1);
   string ipv4_local_address;
   string tmp_err_msg;

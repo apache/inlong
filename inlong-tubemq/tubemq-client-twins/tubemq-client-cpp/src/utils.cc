@@ -539,4 +539,12 @@ void Utils::BuildTestData(string& data, uint32_t body_size) {
   data = ss.str();
 }
 
+void Utils::GetTopicSet(set<string>& topic_set, const string& topics) {
+  vector<string> topic_vec;
+  Utils::Split(topics, topic_vec, delimiter::kDelimiterComma);
+  for (size_t i = 0; i < topic_vec.size(); i++) {
+    topic_set.insert(topic_vec[i]);
+  }
+}
+
 }  // namespace tubemq

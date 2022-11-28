@@ -205,7 +205,7 @@ class ProducerConfig : public BaseConfig {
   ~ProducerConfig();
 
  private:
-  set<string> pub_topics;
+  set<string> pub_topics_;
 };
 
 }  // namespace tubemq

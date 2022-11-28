@@ -187,7 +187,7 @@ bool TubeMQProducer::Start(string& err_info, const ProducerConfig& config) {
     return false;
   }
 
-  if (!status_.CompareAndSet(0, 1)) {
+  if (!status_.CompareAndSet(tb_config::kMasterUnRegistered, tb_config::kMasterRegistering)) {
     err_info = "Duplicated call on TubeMQProducer!";
     return false;
   }
@@ -201,12 +201,12 @@ bool TubeMQProducer::Start(string& err_info, const ProducerConfig& config) {
 
   if (!rmt_client->Start(err_info, config)) {
     // rmt_client->ShutDown();
-    status_.CompareAndSet(1, 0);
+    status_.CompareAndSet(tb_config::kMasterRegistering, tb_config::kMasterUnRegistered);
     return false;
   }
 
   client_id_ = rmt_client->GetClientIndex();
-  status_.Set(2);
+  status_.Set(tb_config::kMasterRegistered);
   err_info = "Ok!";
   return true;
 }

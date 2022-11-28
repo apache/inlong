@@ -23,12 +23,14 @@
 #include <stdint.h>
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
 namespace tubemq {
 
 using std::map;
+using std::set;
 using std::string;
 using std::vector;
 
@@ -65,6 +67,7 @@ class Utils {
   static string GenBrokerAuthenticateToken(const string& username, const string& usrpassword);
   static int64_t CurrentTimeMillis();
   static void BuildTestData(string& data, uint32_t body_size);
+  static void GetTopicSet(set<string>& topic_set, const string& topics);
 };
 
 }  // namespace tubemq
