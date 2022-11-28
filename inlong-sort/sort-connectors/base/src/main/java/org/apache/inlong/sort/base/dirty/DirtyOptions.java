@@ -21,13 +21,13 @@ import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
 
 import java.io.Serializable;
+import static org.apache.inlong.sort.base.Constants.DIRTY_IDENTIFIER;
 import static org.apache.inlong.sort.base.Constants.DIRTY_IGNORE;
-import static org.apache.inlong.sort.base.Constants.DIRTY_SINK_ENABLE;
-import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_CONNECTOR;
-import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_IDENTIFIER;
-import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_IGNORE_SINK_ERRORS;
-import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_LABELS;
-import static org.apache.inlong.sort.base.Constants.SINK_DIRTY_LOG_TAG;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_CONNECTOR;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_ENABLE;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_IGNORE_ERRORS;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_LABELS;
+import static org.apache.inlong.sort.base.Constants.DIRTY_SIDE_OUTPUT_LOG_TAG;
 
 /**
  * Dirty common options
@@ -37,18 +37,18 @@ public class DirtyOptions implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final boolean ignoreDirty;
-    private final boolean enableDirtySink;
-    private final boolean ignoreSinkErrors;
+    private final boolean enableDirtySideOutput;
+    private final boolean ignoreSideOutputErrors;
     private final String dirtyConnector;
     private final String labels;
     private final String logTag;
     private final String identifier;
 
-    private DirtyOptions(boolean ignoreDirty, boolean enableDirtySink, boolean ignoreSinkErrors,
+    private DirtyOptions(boolean ignoreDirty, boolean enableDirtySideOutput, boolean ignoreSideOutputErrors,
             String dirtyConnector, String labels, String logTag, String identifier) {
         this.ignoreDirty = ignoreDirty;
-        this.enableDirtySink = enableDirtySink;
-        this.ignoreSinkErrors = ignoreSinkErrors;
+        this.enableDirtySideOutput = enableDirtySideOutput;
+        this.ignoreSideOutputErrors = ignoreSideOutputErrors;
         this.dirtyConnector = dirtyConnector;
         this.labels = labels;
         this.logTag = logTag;
@@ -63,33 +63,30 @@ public class DirtyOptions implements Serializable {
      */
     public static DirtyOptions fromConfig(ReadableConfig config) {
         boolean ignoreDirty = config.get(DIRTY_IGNORE);
-        boolean enableDirtySink = config.get(DIRTY_SINK_ENABLE);
-        boolean ignoreSinkError = config.get(SINK_DIRTY_IGNORE_SINK_ERRORS);
-        String dirtyConnector = config.getOptional(SINK_DIRTY_CONNECTOR).orElse(null);
-        String labels = config.getOptional(SINK_DIRTY_LABELS).orElse(null);
-        String logTag = config.get(SINK_DIRTY_LOG_TAG);
-        String identifier = config.get(SINK_DIRTY_IDENTIFIER);
+        boolean enableDirtySink = config.get(DIRTY_SIDE_OUTPUT_ENABLE);
+        boolean ignoreSinkError = config.get(DIRTY_SIDE_OUTPUT_IGNORE_ERRORS);
+        String dirtyConnector = config.getOptional(DIRTY_SIDE_OUTPUT_CONNECTOR).orElse(null);
+        String labels = config.getOptional(DIRTY_SIDE_OUTPUT_LABELS).orElse(null);
+        String logTag = config.get(DIRTY_SIDE_OUTPUT_LOG_TAG);
+        String identifier = config.get(DIRTY_IDENTIFIER);
         return new DirtyOptions(ignoreDirty, enableDirtySink, ignoreSinkError,
                 dirtyConnector, labels, logTag, identifier);
     }
 
     public void validate() {
-        if (!ignoreDirty || !enableDirtySink) {
+        if (!ignoreDirty || !enableDirtySideOutput) {
             return;
         }
         if (dirtyConnector == null || dirtyConnector.trim().length() == 0) {
             throw new ValidationException(
-                    "The option 'sink.dirty.connector' is not allowed to be empty "
-                            + "when the option 'dirty.ignore' is 'true' and the option 'dirty.sink.enable' is 'true'");
+                    "The option 'dirty.side-output.connector' is not allowed to be empty "
+                            + "when the option 'dirty.ignore' is 'true' "
+                            + "and the option 'dirty.side-output.enable' is 'true'");
         }
     }
 
     public boolean ignoreDirty() {
         return ignoreDirty;
-    }
-
-    public boolean enableDirtySink() {
-        return enableDirtySink;
     }
 
     public String getDirtyConnector() {
@@ -104,11 +101,15 @@ public class DirtyOptions implements Serializable {
         return logTag;
     }
 
-    public boolean ignoreSinkErrors() {
-        return ignoreSinkErrors;
-    }
-
     public String getIdentifier() {
         return identifier;
+    }
+
+    public boolean ignoreSideOutputErrors() {
+        return ignoreSideOutputErrors;
+    }
+
+    public boolean enableDirtySideOutput() {
+        return enableDirtySideOutput;
     }
 }
