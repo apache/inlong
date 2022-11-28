@@ -67,6 +67,7 @@ import org.apache.inlong.sort.cdc.debezium.internal.FlinkOffsetBackingStore;
 import org.apache.inlong.sort.cdc.debezium.internal.Handover;
 import org.apache.inlong.sort.cdc.debezium.internal.SchemaRecord;
 import org.apache.kafka.connect.data.Struct;
+import org.apache.inlong.sort.cdc.debezium.utils.CallbackCollector;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,9 +123,9 @@ import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retr
 @PublicEvolving
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         implements
-            CheckpointedFunction,
-            CheckpointListener,
-            ResultTypeQueryable<T> {
+        CheckpointedFunction,
+        CheckpointListener,
+        ResultTypeQueryable<T> {
 
     /**
      * State name of the consumer's partition offset states.
@@ -166,7 +167,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /**
      * The specific binlog offset to read from when the first startup.
      */
-    private final @Nullable DebeziumOffset specificOffset;
+    private final @Nullable
+    DebeziumOffset specificOffset;
 
     /**
      * Data for pending but uncommitted offsets.
@@ -293,7 +295,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                     stateStore.getUnionListState(
                             new ListStateDescriptor<>(
                                     INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                                    })));
+                            })));
         }
 
         if (context.isRestored()) {
@@ -496,28 +498,31 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                if (sourceMetricData != null) {
-                                    sourceMetricData.outputMetricsWithEstimate(record.value());
-                                }
-                                deserializer.deserialize(record, out);
+                                deserializer.deserialize(record, new CallbackCollector<>(inputRow -> {
+                                    if (sourceMetricData != null) {
+                                        sourceMetricData.outputMetricsWithEstimate(record.value());
+                                    }
+                                    out.collect(inputRow);
+                                }));
                             }
 
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out,
                                     TableChange tableSchema) throws Exception {
-
-                                if (sourceMetricData != null && record != null) {
-                                    Struct value = (Struct) record.value();
-                                    Struct source = value.getStruct(Envelope.FieldName.SOURCE);
-                                    String dbName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
-                                    String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
-                                    SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(source);
-                                    boolean isSnapshotRecord = (SnapshotRecord.TRUE == snapshotRecord);
-                                    sourceMetricData.outputMetricsWithEstimate(
-                                            new SourceRecordSchemaInfo(dbName, tableName, isSnapshotRecord),
-                                            record.value());
-                                }
-                                deserializer.deserialize(record, out, tableSchema);
+                                deserializer.deserialize(record, new CallbackCollector<>(inputRow -> {
+                                    if (sourceMetricData != null && record != null) {
+                                        Struct value = (Struct) record.value();
+                                        Struct source = value.getStruct(Envelope.FieldName.SOURCE);
+                                        String dbName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
+                                        String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
+                                        SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(source);
+                                        boolean isSnapshotRecord = (SnapshotRecord.TRUE == snapshotRecord);
+                                        sourceMetricData.outputMetricsWithEstimate(
+                                                new SourceRecordSchemaInfo(dbName, tableName, isSnapshotRecord),
+                                                record.value());
+                                    }
+                                    out.collect(inputRow);
+                                }), tableSchema);
                             }
 
                             @Override
