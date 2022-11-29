@@ -110,7 +110,7 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
     @Override
     public void saveFieldOpt(SinkRequest request) {
         List<SinkField> fieldList = request.getSinkFieldList();
-        LOGGER.info("begin to save sink fields={}", fieldList);
+        LOGGER.info("begin to save es sink fields={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
         }
@@ -143,7 +143,7 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
         }
 
         sinkFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save sink fields");
+        LOGGER.info("success to save es sink fields");
     }
 
     @Override
@@ -153,7 +153,7 @@ public class ElasticsearchSinkOperator extends AbstractSinkOperator {
         if (CollectionUtils.isEmpty(sinkFieldEntities)) {
             return fieldList;
         }
-        sinkFieldEntities.stream().forEach(field -> {
+        sinkFieldEntities.forEach(field -> {
             SinkField sinkField = new SinkField();
             if (StringUtils.isNotBlank(field.getExtParams())) {
                 ElasticsearchFieldInfo elasticsearchFieldInfo = ElasticsearchFieldInfo.getFromJson(
