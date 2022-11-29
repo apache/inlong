@@ -106,25 +106,25 @@ const int32_t TubeMQServiceConfig::GetSignalThreads() const {
 }
 
 const string TubeMQServiceConfig::ToString() const {
-    stringstream ss;
-    ss << "TubeMQServiceConfig={log_num_=";
-    ss << log_num_;
-    ss << ", log_size_=";
-    ss << log_size_;
-    ss << ", log_level_=";
-    ss << log_level_;
-    ss << ", log_path_='";
-    ss << log_path_;
-    ss << "', dns_xfs_period_ms_=";
-    ss << dns_xfs_period_ms_;
-    ss << ", timer_threads_=";
-    ss << timer_threads_;
-    ss << ", network_threads_=";
-    ss << network_threads_;
-    ss << ", signal_threads_=";
-    ss << signal_threads_;
-    ss << "}";
-    return ss.str();
+  stringstream ss;
+  ss << "TubeMQServiceConfig={log_num_=";
+  ss << log_num_;
+  ss << ", log_size_=";
+  ss << log_size_;
+  ss << ", log_level_=";
+  ss << log_level_;
+  ss << ", log_path_='";
+  ss << log_path_;
+  ss << "', dns_xfs_period_ms_=";
+  ss << dns_xfs_period_ms_;
+  ss << ", timer_threads_=";
+  ss << timer_threads_;
+  ss << ", network_threads_=";
+  ss << network_threads_;
+  ss << ", signal_threads_=";
+  ss << signal_threads_;
+  ss << "}";
+  return ss.str();
 }
 
 BaseConfig::BaseConfig() {
@@ -705,5 +705,9 @@ const string ConsumerConfig::ToString() const {
   ss << "}";
   return ss.str();
 }
+
+ProducerConfig::ProducerConfig() {}
+
+ProducerConfig::~ProducerConfig() {}
 
 }  // namespace tubemq

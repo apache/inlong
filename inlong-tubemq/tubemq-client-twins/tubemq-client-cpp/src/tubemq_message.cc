@@ -21,6 +21,7 @@
 
 #include <string.h>
 #include <sstream>
+#include <iostream>
 
 #include "const_config.h"
 #include "utils.h"
@@ -117,8 +118,8 @@ int32_t Message::GetPropertie(string& attribute) {
   return attribute.length();
 }
 
-bool Message::HasProperty(const string& key) {
-  map<string, string>::iterator it_map;
+bool Message::HasProperty(const string& key) const {
+  map<string, string>::const_iterator it_map;
   string trimed_key = Utils::Trim(key);
   if (!trimed_key.empty()) {
     it_map = properties_.find(trimed_key);
@@ -129,8 +130,8 @@ bool Message::HasProperty(const string& key) {
   return false;
 }
 
-bool Message::GetProperty(const string& key, string& value) {
-  map<string, string>::iterator it_map;
+bool Message::GetProperty(const string& key, string& value) const {
+  map<string, string>::const_iterator it_map;
   string trimed_key = Utils::Trim(key);
   if (!trimed_key.empty()) {
     it_map = properties_.find(trimed_key);
@@ -193,6 +194,18 @@ bool Message::AddProperty(string& err_info, const string& key, const string& val
   }
   err_info = "Ok";
   return true;
+}
+
+void Message::PutSystemHeader(const string& msg_type, const string& msg_time) {
+  if (!msg_type.empty()) {
+    properties_[tb_config::kRsvPropKeyFilterItem] = msg_type;
+  }
+  if (!msg_time.empty()) {
+    properties_[tb_config::kRsvPropKeyMsgTime] = msg_time;
+  }
+  if (!properties_.empty()) {
+    flag_ |= tb_config::kMsgFlagIncProperties;
+  }
 }
 
 void Message::clearData() {

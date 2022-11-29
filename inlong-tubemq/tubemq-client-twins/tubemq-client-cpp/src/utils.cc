@@ -34,15 +34,13 @@
 #include <unistd.h>
 #include <sstream>
 #include <vector>
+#include <chrono>
 #include "const_config.h"
 #include "const_rpc.h"
-
-
 
 namespace tubemq {
 
 using std::stringstream;
-
 
 static const char kWhitespaceCharSet[] = " \n\r\t\f\v";
 
@@ -518,6 +516,35 @@ string Utils::GenBrokerAuthenticateToken(const string& username,
   return "";
 }
 
+int64_t Utils::CurrentTimeMillis() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+// Reference: java producer: MixedUtils.buildTestData, only for demo
+void Utils::BuildTestData(string& data, uint32_t body_size) {
+  std::string transmit_data = "This is a test data!";
+  stringstream ss;
+  size_t data_len = 0;
+  size_t transmit_data_size = transmit_data.size();
+  while ((data_len + transmit_data_size) <= body_size) {
+    ss << transmit_data;
+    data_len += transmit_data_size;
+  }
+
+  if (data_len < body_size) {
+    ss << transmit_data.substr(0, body_size - data_len);
+  }
+
+  data = ss.str();
+}
+
+void Utils::GetTopicSet(set<string>& topic_set, const string& topics) {
+  vector<string> topic_vec;
+  Utils::Split(topics, topic_vec, delimiter::kDelimiterComma);
+  for (size_t i = 0; i < topic_vec.size(); i++) {
+    topic_set.insert(topic_vec[i]);
+  }
+}
 
 }  // namespace tubemq
-
