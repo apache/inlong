@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.sort;
 
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessName;

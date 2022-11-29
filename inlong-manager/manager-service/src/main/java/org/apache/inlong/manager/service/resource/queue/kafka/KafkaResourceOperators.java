@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.resource.queue.kafka;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.util.Preconditions;

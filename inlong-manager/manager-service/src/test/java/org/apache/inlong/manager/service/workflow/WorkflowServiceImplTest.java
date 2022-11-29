@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.workflow;
 
 import com.google.common.collect.Lists;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskEvent;

@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.consume;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
