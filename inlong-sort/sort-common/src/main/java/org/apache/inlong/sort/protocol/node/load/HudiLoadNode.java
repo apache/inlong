@@ -101,28 +101,28 @@ public class HudiLoadNode extends LoadNode implements InlongMetric, Serializable
         Map<String, String> options = super.tableOptions();
         options.put("connector", "hudi-inlong");
 
-//        options.put("catalog-type", catalogType.name());
-//        options.put("catalog-name", catalogType.name());
+        // options.put("catalog-type", catalogType.name());
+        // options.put("catalog-name", catalogType.name());
 
-        options.put("path" , path);
-        options.put("hoodie.database.name",dbName);
+        options.put("path", path);
+        options.put("hoodie.database.name", dbName);
         options.put("hoodie.table.name", tableName);
-        options.put("hoodie.datasource.write.recordkey.field" , primaryKey); 
+        options.put("hoodie.datasource.write.recordkey.field", primaryKey);
 
-        options.put("hive_sync.enable" , "true");
-        options.put("hive_sync.mode" , "hms");
-        options.put("hive_sync.db" , dbName);
-        options.put("hive_sync.table" ,tableName);
-        options.put("hive_sync.metastore.uris" , uri);
+        options.put("hive_sync.enable", "true");
+        options.put("hive_sync.mode", "hms");
+        options.put("hive_sync.db", dbName);
+        options.put("hive_sync.table", tableName);
+        options.put("hive_sync.metastore.uris", uri);
 
-       String partitionPathField=primaryKey;
+        String partitionPathField = primaryKey;
         List<FieldInfo> partitionFields = getPartitionFields();
-        if (partitionFields!=null&& !partitionFields.isEmpty()){
+        if (partitionFields != null && !partitionFields.isEmpty()) {
             partitionPathField = partitionFields.stream()
-                .map(FieldInfo::getName)
-                .collect(Collectors.joining(","));
+                    .map(FieldInfo::getName)
+                    .collect(Collectors.joining(","));
         }
-        options.put("hoodie.datasource.write.partitionpath.field" , partitionPathField);
+        options.put("hoodie.datasource.write.partitionpath.field", partitionPathField);
 
         return options;
     }

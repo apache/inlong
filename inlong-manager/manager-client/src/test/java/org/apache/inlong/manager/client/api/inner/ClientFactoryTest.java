@@ -597,10 +597,10 @@ class ClientFactoryTest {
                         .dataPath("hdfs://aabb")
                         .build(),
                 HudiSink.builder()
-                    .sinkType(SinkType.HUDI)
-                    .id(5)
-                    .dataPath("hdfs://aabb")
-                    .build(),
+                        .sinkType(SinkType.HUDI)
+                        .id(5)
+                        .dataPath("hdfs://aabb")
+                        .build(),
                 KafkaSink.builder()
                         .sinkType(SinkType.KAFKA)
                         .id(4)
@@ -653,11 +653,11 @@ class ClientFactoryTest {
                         .sinkType(SinkType.ICEBERG)
                         .partitionType("H-hour")
                         .build(),
-            HudiSink.builder()
-                .id(8)
-                .sinkType(SinkType.HUDI)
-                .partitionType("H-hour")
-                .build(),
+                HudiSink.builder()
+                        .id(8)
+                        .sinkType(SinkType.HUDI)
+                        .partitionType("H-hour")
+                        .build(),
                 KafkaSink.builder()
                         .id(6)
                         .sinkType(SinkType.KAFKA)

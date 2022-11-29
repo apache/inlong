@@ -62,6 +62,11 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
     LoadEntity: () => import('./Iceberg'),
   },
   {
+    label: 'Hudi',
+    value: 'HUDI',
+    LoadEntity: () => import('./Hudi'),
+  },
+  {
     label: 'Kafka',
     value: 'KAFKA',
     LoadEntity: () => import('./Kafka'),
