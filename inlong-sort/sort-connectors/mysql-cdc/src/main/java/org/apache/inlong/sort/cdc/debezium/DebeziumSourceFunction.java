@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.cdc.debezium;
 
+import io.debezium.connector.AbstractSourceInfo;
+import io.debezium.connector.SnapshotRecord;
+import io.debezium.data.Envelope;
 import io.debezium.document.DocumentReader;
 import io.debezium.document.DocumentWriter;
 import io.debezium.embedded.Connect;
@@ -52,6 +55,7 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
 import org.apache.inlong.sort.base.metric.SourceMetricData;
+import org.apache.inlong.sort.base.metric.sub.SourceTableMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.inlong.sort.cdc.debezium.internal.DebeziumChangeConsumer;
 import org.apache.inlong.sort.cdc.debezium.internal.DebeziumChangeFetcher;
@@ -63,6 +67,7 @@ import org.apache.inlong.sort.cdc.debezium.internal.FlinkOffsetBackingStore;
 import org.apache.inlong.sort.cdc.debezium.internal.Handover;
 import org.apache.inlong.sort.cdc.debezium.internal.SchemaRecord;
 import org.apache.inlong.sort.cdc.debezium.utils.CallbackCollector;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,9 +122,9 @@ import static org.apache.inlong.sort.cdc.debezium.utils.DatabaseHistoryUtil.retr
 @PublicEvolving
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         implements
-            CheckpointedFunction,
-            CheckpointListener,
-            ResultTypeQueryable<T> {
+        CheckpointedFunction,
+        CheckpointListener,
+        ResultTypeQueryable<T> {
 
     /**
      * State name of the consumer's partition offset states.
@@ -161,7 +166,8 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
     /**
      * The specific binlog offset to read from when the first startup.
      */
-    private final @Nullable DebeziumOffset specificOffset;
+    private final @Nullable
+    DebeziumOffset specificOffset;
 
     /**
      * Data for pending but uncommitted offsets.
@@ -233,7 +239,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private String inlongAudit;
 
-    private SourceMetricData sourceMetricData;
+    private boolean migrateAll;
+
+    private SourceTableMetricData sourceMetricData;
 
     private transient ListState<MetricState> metricStateListState;
 
@@ -247,13 +255,15 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             @Nullable DebeziumOffset specificOffset,
             Validator validator,
             String inlongMetric,
-            String inlongAudit) {
+            String inlongAudit,
+            boolean migrateAll) {
         this.deserializer = deserializer;
         this.properties = properties;
         this.specificOffset = specificOffset;
         this.validator = validator;
         this.inlongMetric = inlongMetric;
         this.inlongAudit = inlongAudit;
+        this.migrateAll = migrateAll;
     }
 
     @Override
@@ -288,7 +298,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                     stateStore.getUnionListState(
                             new ListStateDescriptor<>(
                                     INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                                    })));
+                            })));
         }
 
         if (context.isRestored()) {
@@ -447,7 +457,11 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
-            sourceMetricData = new SourceMetricData(metricOption, metricGroup);
+            sourceMetricData = new SourceTableMetricData(metricOption, metricGroup);
+            if (migrateAll) {
+                // register sub source metric data from metric state
+                sourceMetricData.registerSubMetricsGroup(metricState);
+            }
         }
 
         properties.setProperty("name", "engine");
@@ -500,7 +514,16 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                             public void deserialize(SourceRecord record, Collector<T> out,
                                     TableChange tableSchema) throws Exception {
                                 deserializer.deserialize(record, new CallbackCollector<>(inputRow -> {
-                                    if (sourceMetricData != null) {
+                                    if (sourceMetricData != null && record != null && migrateAll) {
+                                        Struct value = (Struct) record.value();
+                                        Struct source = value.getStruct(Envelope.FieldName.SOURCE);
+                                        String dbName = source.getString(AbstractSourceInfo.DATABASE_NAME_KEY);
+                                        String tableName = source.getString(AbstractSourceInfo.TABLE_NAME_KEY);
+                                        SnapshotRecord snapshotRecord = SnapshotRecord.fromSource(source);
+                                        boolean isSnapshotRecord = (SnapshotRecord.TRUE == snapshotRecord);
+                                        sourceMetricData
+                                                .outputMetricsWithEstimate(dbName, tableName, isSnapshotRecord, value);
+                                    } else if (sourceMetricData != null && record != null) {
                                         sourceMetricData.outputMetricsWithEstimate(record.value());
                                     }
                                     out.collect(inputRow);

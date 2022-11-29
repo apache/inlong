@@ -36,8 +36,8 @@ import static org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction.LEGACY_
  * A builder to build a SourceFunction which can read snapshot and continue to consume binlog.
  *
  * @deprecated please use {@link org.apache.inlong.sort.cdc.mysql.source.MySqlSource} instead
- *     which supports more rich features, e.g. parallel reading from historical data. The {@link
- * MySqlSource} will be dropped in the future version.
+ *         which supports more rich features, e.g. parallel reading from historical data. The {@link
+ *         MySqlSource} will be dropped in the future version.
  */
 @Deprecated
 public class MySqlSource {
@@ -52,9 +52,9 @@ public class MySqlSource {
      * Builder class of {@link MySqlSource}.
      *
      * @deprecated please use {@link
-     * org.apache.inlong.sort.cdc.mysql.source.MySqlSource#builder()} instead which supports
-     *     more rich features, e.g. parallel reading from historical data. The {@link
-     * Builder} will be dropped in the future version.
+     *         org.apache.inlong.sort.cdc.mysql.source.MySqlSource#builder()} instead which supports
+     *         more rich features, e.g. parallel reading from historical data. The {@link
+     *         Builder} will be dropped in the future version.
      */
     @Deprecated
     public static class Builder<T> {
@@ -72,6 +72,7 @@ public class MySqlSource {
         private DebeziumDeserializationSchema<T> deserializer;
         private String inlongMetric;
         private String inlongAudit;
+        private boolean migrateAll;
 
         public Builder<T> hostname(String hostname) {
             this.hostname = hostname;
@@ -179,6 +180,11 @@ public class MySqlSource {
             return this;
         }
 
+        public Builder<T> migrateAll(boolean migrateAll) {
+            this.migrateAll = migrateAll;
+            return this;
+        }
+
         /**
          * builder
          */
@@ -273,7 +279,8 @@ public class MySqlSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, specificOffset, new MySqlValidator(props), inlongMetric, inlongAudit);
+                    deserializer, props, specificOffset, new MySqlValidator(props), inlongMetric, inlongAudit,
+                    migrateAll);
         }
     }
 }
