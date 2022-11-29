@@ -116,10 +116,10 @@ public class ElasticsearchApi {
     private List<String> getMappingInfo(List<ElasticsearchFieldInfo> fieldsInfo) {
         List<String> fieldList = new ArrayList<>();
         for (ElasticsearchFieldInfo field : fieldsInfo) {
-            StringBuilder fieldStr = new StringBuilder().append("        \"").append(field.getName())
+            StringBuilder fieldStr = new StringBuilder().append("        \"").append(field.getFieldName())
                     .append("\" : {\n          \"type\" : \"")
-                    .append(field.getType()).append("\"");
-            if (field.getType().equals("text")) {
+                    .append(field.getFieldType()).append("\"");
+            if (field.getFieldType().equals("text")) {
                 if (StringUtils.isNotEmpty(field.getAnalyzer())) {
                     fieldStr.append(",\n          \"analyzer\" : \"")
                             .append(field.getAnalyzer()).append("\"");
@@ -128,12 +128,12 @@ public class ElasticsearchApi {
                     fieldStr.append(",\n          \"search_analyzer\" : \"")
                             .append(field.getSearchAnalyzer()).append("\"");
                 }
-            } else if (field.getType().equals("date")) {
-                if (StringUtils.isNotEmpty(field.getFormat())) {
+            } else if (field.getFieldType().equals("date")) {
+                if (StringUtils.isNotEmpty(field.getFieldFormat())) {
                     fieldStr.append(",\n          \"format\" : \"")
-                            .append(field.getFormat()).append("\"");
+                            .append(field.getFieldFormat()).append("\"");
                 }
-            } else if (field.getType().equals("scaled_float")) {
+            } else if (field.getFieldType().equals("scaled_float")) {
                 if (StringUtils.isNotEmpty(field.getScalingFactor())) {
                     fieldStr.append(",\n          \"scaling_factor\" : \"")
                             .append(field.getScalingFactor()).append("\"");
@@ -213,7 +213,7 @@ public class ElasticsearchApi {
         Map<String, Object> filedMap = (Map<String, Object>) mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
         for (String key : filedMap.keySet()) {
             for (ElasticsearchFieldInfo field : notExistFieldInfos) {
-                if (field.getName().equals(key)) {
+                if (field.getFieldName().equals(key)) {
                     notExistFieldInfos.remove(field);
                     break;
                 }
