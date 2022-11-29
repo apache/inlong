@@ -23,12 +23,14 @@
 #include <stdint.h>
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
 namespace tubemq {
 
 using std::map;
+using std::set;
 using std::string;
 using std::vector;
 
@@ -63,9 +65,11 @@ class Utils {
     map<string, string>& target_addr_map);
   static bool NeedDnsXfs(const string& masteraddr);
   static string GenBrokerAuthenticateToken(const string& username, const string& usrpassword);
+  static int64_t CurrentTimeMillis();
+  static void BuildTestData(string& data, uint32_t body_size);
+  static void GetTopicSet(set<string>& topic_set, const string& topics);
 };
 
 }  // namespace tubemq
 
 #endif  // TUBEMQ_CLIENT_UTILS_H_
-
