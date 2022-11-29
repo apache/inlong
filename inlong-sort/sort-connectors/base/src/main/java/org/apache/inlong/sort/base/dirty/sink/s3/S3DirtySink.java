@@ -124,7 +124,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
     public synchronized void invoke(DirtyData<T> dirtyData) throws Exception {
         try {
             addBatch(dirtyData);
-        }catch (Exception e){
+        } catch (Exception e) {
             if (!s3Options.ignoreSideOutputErrors()) {
                 throw new RuntimeException(String.format("Add batch to identifier:%s failed, the dirty data: %s.",
                         dirtyData.getIdentifier(), dirtyData.toString()), e);
