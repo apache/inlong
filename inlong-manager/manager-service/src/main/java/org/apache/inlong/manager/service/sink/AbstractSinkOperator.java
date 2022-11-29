@@ -168,7 +168,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         LOGGER.info("success to update sink field");
     }
 
-    protected void saveFieldOpt(SinkRequest request) {
+    @Override
+    public void saveFieldOpt(SinkRequest request) {
         List<SinkField> fieldList = request.getSinkFieldList();
         LOGGER.info("begin to save sink fields={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {

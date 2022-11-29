@@ -93,6 +93,13 @@ public interface StreamSinkOperator {
     void updateFieldOpt(Boolean onlyAdd, SinkRequest request);
 
     /**
+     * Save the sink fields.
+     *
+     * @param request sink request info needs to save
+     */
+    void saveFieldOpt(SinkRequest request);
+
+    /**
      * Delete the sink info.
      *
      * @param entity sink info needs to delete
