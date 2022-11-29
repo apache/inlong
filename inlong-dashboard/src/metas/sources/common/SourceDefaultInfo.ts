@@ -89,6 +89,7 @@ export class SourceDefaultInfo implements DataWithBackend, RenderRow, RenderList
     initialValue: defaultValue,
     props: values => ({
       disabled: Boolean(values.id),
+      dropdownMatchSelectWidth: false,
       options: sources
         .filter(item => item.value)
         .map(item => ({
