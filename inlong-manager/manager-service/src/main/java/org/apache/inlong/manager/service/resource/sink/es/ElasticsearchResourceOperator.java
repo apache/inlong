@@ -24,12 +24,10 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
-import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeInfo;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkDTO;
@@ -147,15 +145,20 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
         config.setPort(esInfo.getPort());
         // read from data node if not supplied by user
         if (StringUtils.isBlank(esInfo.getHost())) {
-            ElasticsearchDataNodeInfo esDataNode = (ElasticsearchDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+            ElasticsearchDataNodeInfo dataNode = (ElasticsearchDataNodeInfo) dataNodeHelper.getDataNodeInfo(
                     sinkInfo.getDataNodeName(), DataNodeType.ELASTICSEARCH);
-            String[] esUrl = esDataNode.getUrl().split(InlongConstants.COLON);
-            String esHost = esUrl[0];
-            int esPort = Integer.parseInt(esUrl[1]);
-            config.setHost(esHost);
-            config.setPort(esPort);
-            config.setUsername(esDataNode.getUsername());
-            config.setPassword(esDataNode.getToken());
+            try {
+                String[] esUrl = dataNode.getUrl().split(InlongConstants.COLON);
+                String esHost = esUrl[0];
+                int esPort = Integer.parseInt(esUrl[1]);
+                config.setHost(esHost);
+                config.setPort(esPort);
+            } catch (Exception e) {
+                LOGGER.error("The url of Elasticsearch data node should like host:port, such as '127.0.0.1:9200'", e);
+                throw e;
+            }
+            config.setUsername(dataNode.getUsername());
+            config.setPassword(dataNode.getToken());
         }
         return config;
     }
