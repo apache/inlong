@@ -152,4 +152,11 @@ public interface InlongGroupService {
      */
     void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> infoList);
 
+    /**
+     * List All topic infos under the given cluster tag.
+     * @param clusterTag Cluster tag of groups
+     * @return List of InlongGroupTopicInfo
+     */
+    List<InlongGroupTopicInfo> listTopicsByTag(String clusterTag);
+
 }

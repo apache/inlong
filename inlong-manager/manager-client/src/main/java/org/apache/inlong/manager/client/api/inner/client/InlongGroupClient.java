@@ -261,4 +261,16 @@ public class InlongGroupClient {
             throw new RuntimeException(response.getErrMsg());
         }
     }
+
+    public List<InlongGroupTopicInfo> listTopicsByTag(String clusterTag) {
+        Response<List<InlongGroupTopicInfo>> response =
+                ClientUtils.executeHttpCall(inlongGroupApi.listTopicsByTag(clusterTag));
+        if (response.isSuccess()) {
+            return response.getData();
+        } else if (response.getErrMsg().contains("not exist")) {
+            return null;
+        } else {
+            throw new RuntimeException(response.getErrMsg());
+        }
+    }
 }

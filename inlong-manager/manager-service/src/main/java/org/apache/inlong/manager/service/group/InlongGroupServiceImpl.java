@@ -416,6 +416,18 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
+    public List<InlongGroupTopicInfo> listTopicsByTag(String clusterTag) {
+        LOGGER.info("start to list group topic infos under clusterTag={}", clusterTag);
+        List<InlongGroupEntity> groupEntities = groupMapper.selectByClusterTag(clusterTag);
+        List<InlongGroupTopicInfo> topicInfos = new ArrayList<>();
+        for (InlongGroupEntity entity : groupEntities) {
+            topicInfos.add(this.getTopic(entity.getInlongGroupId()));
+        }
+        LOGGER.info("success list group topic infos under clusterTag={}, size={}", clusterTag, topicInfos.size());
+        return topicInfos;
+    }
+
+    @Override
     public InlongGroupInfo doDeleteCheck(String groupId, String operator) {
         InlongGroupInfo groupInfo = this.get(groupId);
         // only the person in charges can update
