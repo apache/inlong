@@ -94,12 +94,12 @@ const Comp: React.FC = () => {
         name: 'keyword',
       },
       {
-        type: 'radiobutton',
+        type: 'select',
         name: 'type',
         label: i18n.t('meta.Nodes.Type'),
         initialValue: defaultValues.type,
         props: {
-          buttonStyle: 'solid',
+          dropdownMatchSelectWidth: false,
           options: nodes,
         },
       },
