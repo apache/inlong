@@ -39,7 +39,7 @@ export const allDefaultSinks: MetaExportWithBackendList<SinkMetaType> = [
   {
     label: 'Elasticsearch',
     value: 'ELASTICSEARCH',
-    LoadEntity: () => import('./ES'),
+    LoadEntity: () => import('./Elasticsearch'),
   },
   {
     label: 'Greenplum',
