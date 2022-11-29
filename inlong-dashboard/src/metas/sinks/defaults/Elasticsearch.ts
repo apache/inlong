@@ -47,7 +47,39 @@ const esTypes = [
   value: item,
 }));
 
-export default class EsSink extends SinkInfo implements DataWithBackend, RenderRow, RenderList {
+export default class ElasticsearchSink
+  extends SinkInfo
+  implements DataWithBackend, RenderRow, RenderList
+{
+  @FieldDecorator({
+    type: 'select',
+    rules: [{ required: true }],
+    props: values => ({
+      showSearch: true,
+      disabled: [110, 130].includes(values?.status),
+      options: {
+        requestService: {
+          url: '/node/list',
+          method: 'POST',
+          data: {
+            type: 'ELASTICSEARCH',
+            pageNum: 1,
+            pageSize: 20,
+          },
+        },
+        requestParams: {
+          formatResult: result =>
+            result?.list?.map(item => ({
+              label: item.name,
+              value: item.name,
+            })),
+        },
+      },
+    }),
+  })
+  @I18n('meta.Sinks.ES.DataNodeName')
+  dataNodeName: string;
+
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
@@ -80,67 +112,6 @@ export default class EsSink extends SinkInfo implements DataWithBackend, RenderR
   })
   @I18n('meta.Sinks.EnableCreateResource')
   enableCreateResource: number;
-
-  @FieldDecorator({
-    type: 'input',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Username')
-  username: string;
-
-  @FieldDecorator({
-    type: 'password',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.Password')
-  password: string;
-
-  @FieldDecorator({
-    type: 'password',
-    rules: [{ required: true }],
-    props: values => ({
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.ES.Host')
-  host: string;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    initialValue: 9200,
-    rules: [{ required: true }],
-    props: values => ({
-      min: 1,
-      max: 65535,
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.ES.Port')
-  port: number;
-
-  @FieldDecorator({
-    type: 'inputnumber',
-    initialValue: 1,
-    rules: [{ required: true }],
-    suffix: i18n.t('meta.Sinks.ES.FlushIntervalUnit'),
-    props: values => ({
-      min: 1,
-      disabled: [110, 130].includes(values?.status),
-    }),
-  })
-  @ColumnDecorator()
-  @I18n('meta.Sinks.ES.FlushInterval')
-  flushInterval: number;
 
   @FieldDecorator({
     type: 'inputnumber',

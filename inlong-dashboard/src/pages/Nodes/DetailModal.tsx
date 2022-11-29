@@ -81,7 +81,12 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   }, [Entity]);
 
   return (
-    <Modal {...modalProps} title={id ? i18n.t('basic.Detail') : i18n.t('basic.Create')} onOk={onOk}>
+    <Modal
+      {...modalProps}
+      width={720}
+      title={id ? i18n.t('basic.Detail') : i18n.t('basic.Create')}
+      onOk={onOk}
+    >
       <FormGenerator
         content={content}
         form={form}
