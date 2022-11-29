@@ -44,6 +44,8 @@ import org.apache.inlong.sort.base.util.MetricStateUtils;
 
 import javax.annotation.Nullable;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -126,6 +128,8 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
@@ -195,14 +199,21 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     }
 
     @Override
-    public void processElement(StreamRecord<IN> element) throws Exception {
-        helper.onElement(
-                element.getValue(),
-                getProcessingTimeService().getCurrentProcessingTime(),
-                element.hasTimestamp() ? element.getTimestamp() : null,
-                currentWatermark);
-        if (metricData != null) {
-            metricData.invokeWithEstimate(element.getValue());
+    public void processElement(StreamRecord<IN> element) {
+        try {
+            helper.onElement(
+                    element.getValue(),
+                    getProcessingTimeService().getCurrentProcessingTime(),
+                    element.hasTimestamp() ? element.getTimestamp() : null,
+                    currentWatermark);
+            if (metricData != null) {
+                metricData.invokeWithEstimate(element.getValue());
+            }
+        } catch (Exception e) {
+            if (metricData != null) {
+                metricData.invokeDirtyWithEstimate(element.getValue());
+            }
+            throw new RuntimeException(e);
         }
     }
 
