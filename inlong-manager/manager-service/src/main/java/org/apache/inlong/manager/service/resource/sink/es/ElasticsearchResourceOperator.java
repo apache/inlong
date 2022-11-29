@@ -19,16 +19,21 @@ package org.apache.inlong.manager.service.resource.sink.es;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.DataNodeType;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SinkType;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.node.es.ElasticsearchDataNodeInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchFieldInfo;
 import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkDTO;
+import org.apache.inlong.manager.service.node.DataNodeOperateHelper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -50,6 +55,8 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
     private StreamSinkService sinkService;
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired
+    private DataNodeOperateHelper dataNodeHelper;
 
     @Override
     public Boolean accept(String sinkType) {
@@ -86,19 +93,9 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
         List<ElasticsearchFieldInfo> fieldList = getElasticsearchFieldFromSink(sinkList);
 
         try {
-            ElasticsearchConfig config = new ElasticsearchConfig();
-            ElasticsearchSinkDTO esInfo = ElasticsearchSinkDTO.getFromJson(sinkInfo.getExtParams());
-            if (StringUtils.isNotEmpty(esInfo.getUsername())) {
-                config.setAuthEnable(true);
-                config.setUsername(esInfo.getUsername());
-                config.setPassword(esInfo.getPassword());
-            }
-            config.setHost(esInfo.getHost());
-            config.setPort(esInfo.getPort());
-
             ElasticsearchApi client = new ElasticsearchApi();
-            client.setEsConfig(config);
-
+            ElasticsearchSinkDTO esInfo = ElasticsearchSinkDTO.getFromJson(sinkInfo.getExtParams());
+            client.setEsConfig(getElasticsearchConfig(sinkInfo, esInfo));
             String indexName = esInfo.getIndexName();
             boolean indexExists = client.indexExists(indexName);
 
@@ -137,6 +134,30 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
             }
         }
         return esFieldList;
+    }
+
+    private ElasticsearchConfig getElasticsearchConfig(SinkInfo sinkInfo, ElasticsearchSinkDTO esInfo) {
+        ElasticsearchConfig config = new ElasticsearchConfig();
+        if (StringUtils.isNotEmpty(esInfo.getUsername())) {
+            config.setAuthEnable(true);
+            config.setUsername(esInfo.getUsername());
+            config.setPassword(esInfo.getPassword());
+        }
+        config.setHost(esInfo.getHost());
+        config.setPort(esInfo.getPort());
+        // read from data node if not supplied by user
+        if (StringUtils.isBlank(esInfo.getHost())) {
+            ElasticsearchDataNodeInfo esDataNode = (ElasticsearchDataNodeInfo) dataNodeHelper.getDataNodeInfo(
+                    sinkInfo.getDataNodeName(), DataNodeType.ELASTICSEARCH);
+            String[] esUrl = esDataNode.getUrl().split(InlongConstants.COLON);
+            String esHost = esUrl[0];
+            int esPort = Integer.parseInt(esUrl[1]);
+            config.setHost(esHost);
+            config.setPort(esPort);
+            config.setUsername(esDataNode.getUsername());
+            config.setPassword(esDataNode.getToken());
+        }
+        return config;
     }
 
 }
