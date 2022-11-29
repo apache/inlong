@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.resource.queue.tubemq;
 
 import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
