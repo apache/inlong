@@ -19,10 +19,10 @@
 
 import React, { useState } from 'react';
 import { Dropdown, Menu } from 'antd';
-import { useSelector, useRequest } from '@/hooks';
+import { useSelector } from '@/hooks';
 import { State } from '@/models';
 import { useTranslation } from 'react-i18next';
-// import { FileTextOutlined } from '@/components/Icons';
+import request from '@/utils/request';
 import LocaleSelect from './LocaleSelect';
 import styles from './index.module.less';
 import PasswordModal from './PasswordModal';
@@ -40,34 +40,35 @@ const Comp: React.FC = () => {
     visible: false,
   });
 
-  const { run: runLogout } = useRequest('/anno/logout', {
-    manual: true,
-    onSuccess: () => (window.location.href = '/'),
-  });
+  const runLogout = async () => {
+    await request('/anno/logout');
+    window.location.href = '/';
+  };
 
-  const menu = (
-    <Menu>
-      <Menu.Item onClick={() => setKeyModal({ visible: true })}>
-        {t('components.Layout.NavWidget.PersonalKey')}
-      </Menu.Item>
-      <Menu.Item onClick={() => setCreateModal({ visible: true })}>
-        {t('components.Layout.NavWidget.EditPassword')}
-      </Menu.Item>
-      <Menu.Item onClick={runLogout}>{t('components.Layout.NavWidget.Logout')}</Menu.Item>
-    </Menu>
-  );
+  const menuItems = [
+    {
+      label: t('components.Layout.NavWidget.PersonalKey'),
+      key: 'mykey',
+      onClick: () => setKeyModal({ visible: true }),
+    },
+    {
+      label: t('components.Layout.NavWidget.EditPassword'),
+      key: 'password',
+      onClick: () => setCreateModal({ visible: true }),
+    },
+    {
+      label: t('components.Layout.NavWidget.Logout'),
+      key: 'logout',
+      onClick: runLogout,
+    },
+  ];
 
   return (
     <div style={{ marginRight: '20px' }}>
       <span className={styles.iconToolBar}>
-        {/* <Tooltip placement="bottom">
-          <a href="http://localhost" target="_blank" rel="noopener noreferrer">
-            <FileTextOutlined />
-          </a>
-        </Tooltip> */}
         <LocaleSelect />
       </span>
-      <Dropdown overlay={menu} placement="bottomLeft">
+      <Dropdown overlay={<Menu items={menuItems} />} placement="bottomLeft">
         <span>{userName}</span>
       </Dropdown>
       <PasswordModal

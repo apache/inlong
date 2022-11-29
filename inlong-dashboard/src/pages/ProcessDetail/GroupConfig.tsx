@@ -33,6 +33,7 @@ export const useGroupFormContent = ({ mqType = '', isFinished, isViwer }) => {
     const obj = { ...item };
 
     const canEditSet = new Set([
+      'dataReportType',
       'ensemble',
       'writeQuorum',
       'ackQuorum',

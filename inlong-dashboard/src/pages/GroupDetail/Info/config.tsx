@@ -44,18 +44,22 @@ export const useFormContent = ({ mqType, editing, isCreate, isUpdate }) => {
         }
         return item;
       })
-    : fields.map(item => ({
-        ...item,
-        type: transType(editing, item),
-        suffix:
-          typeof item.suffix === 'object' && !editing
-            ? {
-                ...item.suffix,
-                type: 'text',
-              }
-            : item.suffix,
-        extra: null,
-      }));
+    : fields.map(item => {
+        const t = transType(editing, item);
+        return {
+          ...item,
+          type: t,
+          suffix:
+            typeof item.suffix === 'object' && !editing
+              ? {
+                  ...item.suffix,
+                  type: 'text',
+                }
+              : item.suffix,
+          extra: null,
+          rules: t === 'text' ? undefined : item.rules,
+        };
+      });
 };
 
 function transType(editing: boolean, conf) {
@@ -65,6 +69,7 @@ function transType(editing: boolean, conf) {
         'name',
         'description',
         'inCharges',
+        'dataReportType',
         'ensemble',
         'writeQuorum',
         'ackQuorum',
