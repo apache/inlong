@@ -17,12 +17,13 @@
 
 package org.apache.inlong.sort.base.dirty.sink;
 
-import org.apache.flink.table.factories.DynamicTableFactory;
+import org.apache.flink.table.factories.DynamicTableFactory.Context;
+import org.apache.flink.table.factories.Factory;
 
 /**
  * Dirty sink factory class, it is used to create dirty sink
  */
-public interface DirtySinkFactory extends DynamicTableFactory {
+public interface DirtySinkFactory extends Factory {
 
     /**
      * Create dirty sink
@@ -31,6 +32,6 @@ public interface DirtySinkFactory extends DynamicTableFactory {
      * @param <T> The data mode that is handled by the dirty sink
      * @return A dirty sink
      */
-    <T> DirtySink<T> createDirtySink(DynamicTableFactory.Context context);
+    <T> DirtySink<T> createDirtySink(Context context);
 
 }
