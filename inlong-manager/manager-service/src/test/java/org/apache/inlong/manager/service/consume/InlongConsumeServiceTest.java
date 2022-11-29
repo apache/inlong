@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.consume;
 
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.pojo.common.OrderFieldEnum;

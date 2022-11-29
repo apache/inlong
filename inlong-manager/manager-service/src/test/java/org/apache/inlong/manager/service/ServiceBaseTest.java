@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service;
 
-import org.apache.inlong.manager.common.consts.MQType;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
