@@ -65,7 +65,7 @@ AtomicLong MessageSentCallback::kFailCounter;
 AtomicLong MessageSentCallback::kExceptCounter;
 
 const uint64_t kMsgCount = 100;
-bool kSyncProduction = false;
+const bool kSyncProduction = false;
 const uint32_t kMsgDataSize = 2048;
 
 int main(int argc, char* argv[]) {

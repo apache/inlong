@@ -200,7 +200,7 @@ void Message::PutSystemHeader(const string& msg_type, const string& msg_time) {
   if (!msg_type.empty()) {
     properties_[tb_config::kRsvPropKeyFilterItem] = msg_type;
   }
-  if (!msg_type.empty()) {
+  if (!msg_time.empty()) {
     properties_[tb_config::kRsvPropKeyMsgTime] = msg_time;
   }
   if (!properties_.empty()) {
