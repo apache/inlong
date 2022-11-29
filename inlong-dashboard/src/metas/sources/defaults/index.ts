@@ -57,6 +57,11 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     LoadEntity: () => import('./PostgreSQL'),
   },
   {
+    label: 'Redis',
+    value: 'REDIS',
+    LoadEntity: () => import('./Redis'),
+  },
+  {
     label: 'SQLServer',
     value: 'SQLSERVER',
     LoadEntity: () => import('./SQLServer'),
