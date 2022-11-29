@@ -59,7 +59,7 @@ public class S3Helper implements Serializable {
      */
     public void upload(String identifier, String content) throws IOException {
         String path = genFileName(identifier);
-        for (int i = 0; i <= s3Options.getMaxRetries(); i++) {
+        for (int i = 0; i < s3Options.getMaxRetries(); i++) {
             try {
                 s3Client.putObject(s3Options.getBucket(), path, content);
                 break;

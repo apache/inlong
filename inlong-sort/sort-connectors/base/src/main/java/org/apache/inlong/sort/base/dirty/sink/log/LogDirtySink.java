@@ -46,7 +46,7 @@ public class LogDirtySink<T> implements DirtySink<T> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(LogDirtySink.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogDirtySink.class);
 
     private final RowData.FieldGetter[] fieldGetters;
     private final String format;
@@ -85,7 +85,7 @@ public class LogDirtySink<T> implements DirtySink<T> {
             // Only support csv format when the row is not a 'RowData' and 'JsonNode'
             value = FormatUtils.csvFormat(data, labelMap, fieldDelimiter);
         }
-        LOG.info("[{}] {}", dirtyData.getLogTag(), value);
+        LOGGER.info("[{}] {}", dirtyData.getLogTag(), value);
     }
 
     private String format(RowData data, Map<String, String> labels) throws JsonProcessingException {

@@ -21,6 +21,7 @@ import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
+import org.apache.flink.table.factories.DynamicTableFactory.Context;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.base.dirty.sink.DirtySinkFactory;
@@ -78,10 +79,9 @@ public class S3DirtySinkFactory implements DirtySinkFactory {
 
     @Override
     public <T> DirtySink<T> createDirtySink(Context context) {
-        final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
-        FactoryUtil.validateFactoryOptions(this, helper.getOptions());
-        validate(helper.getOptions());
-        return new S3DirtySink<>(getS3Options(helper.getOptions()),
+        FactoryUtil.validateFactoryOptions(this, context.getConfiguration());
+        validate(context.getConfiguration());
+        return new S3DirtySink<>(getS3Options(context.getConfiguration()),
                 context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType());
     }
 

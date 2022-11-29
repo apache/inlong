@@ -64,7 +64,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(S3DirtySink.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(S3DirtySink.class);
 
     private final Map<String, List<String>> batchMap = new HashMap<>();
     private final S3Options s3Options;
@@ -122,7 +122,17 @@ public class S3DirtySink<T> implements DirtySink<T> {
 
     @Override
     public synchronized void invoke(DirtyData<T> dirtyData) throws Exception {
-        addBatch(dirtyData);
+        try {
+            addBatch(dirtyData);
+        }catch (Exception e){
+            if (!s3Options.ignoreSideOutputErrors()) {
+                throw new RuntimeException(String.format("Add batch to identifier:%s failed, the dirty data: %s.",
+                        dirtyData.getIdentifier(), dirtyData.toString()), e);
+            }
+            LOGGER.warn("Add batch to identifier:{} failed "
+                    + "and the dirty data will be throw away in the future"
+                    + " because the option 'dirty.side-output.ignore-errors' is 'true'", dirtyData.getIdentifier());
+        }
         if (valid() && !flushing) {
             flush();
         }
@@ -147,7 +157,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
             value = FormatUtils.csvFormat(data, labelMap, s3Options.getFieldDelimiter());
         }
         if (s3Options.enableDirtyLog()) {
-            LOG.info("[{}] {}", dirtyData.getLogTag(), value);
+            LOGGER.info("[{}] {}", dirtyData.getLogTag(), value);
         }
         batchBytes += value.getBytes(UTF_8).length;
         size++;
@@ -197,7 +207,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
             try {
                 flush();
             } catch (Exception e) {
-                LOG.warn("Writing records to s3 failed.", e);
+                LOGGER.warn("Writing records to s3 failed.", e);
                 throw new RuntimeException("Writing records to s3 failed.", e);
             }
         }
@@ -219,7 +229,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
         batchBytes = 0;
         size = 0;
         flushing = false;
-        LOG.info("S3 dirty sink statistics: readInNum: {}, writeOutNum: {}, errorNum: {}",
+        LOGGER.info("S3 dirty sink statistics: readInNum: {}, writeOutNum: {}, errorNum: {}",
                 readInNum.get(), writeOutNum.get(), errorNum.get());
     }
 
@@ -237,7 +247,7 @@ public class S3DirtySink<T> implements DirtySink<T> {
         try {
             content = StringUtils.join(values, s3Options.getLineDelimiter());
             s3Helper.upload(identifier, content);
-            LOG.info("Write {} records to s3 of identifier: {}", values.size(), identifier);
+            LOGGER.info("Write {} records to s3 of identifier: {}", values.size(), identifier);
             writeOutNum.addAndGet(values.size());
             // Clean the data that has been loaded.
             values.clear();
@@ -249,8 +259,9 @@ public class S3DirtySink<T> implements DirtySink<T> {
                                 identifier, content),
                         e);
             }
-            LOG.warn("Writing records to s3 of identifier:{} failed and the dirty data will be throw away in the future"
-                    + " because the option 'sink.dirty.ignore-errors' is 'true'", identifier);
+            LOGGER.warn("Writing records to s3 of identifier:{} failed "
+                    + "and the dirty data will be throw away in the future"
+                    + " because the option 'dirty.side-output.ignore-errors' is 'true'", identifier);
         }
     }
 
@@ -258,13 +269,11 @@ public class S3DirtySink<T> implements DirtySink<T> {
         if (batchMap.isEmpty()) {
             return false;
         }
-        boolean hasRecords = false;
         for (List<String> value : batchMap.values()) {
             if (!value.isEmpty()) {
-                hasRecords = true;
-                break;
+                return true;
             }
         }
-        return hasRecords;
+        return false;
     }
 }
