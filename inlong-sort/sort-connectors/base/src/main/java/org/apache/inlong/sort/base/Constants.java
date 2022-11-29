@@ -58,7 +58,7 @@ public final class Constants {
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";
     /**
-     * Timestamp when phase change was read
+     * Timestamp when the read phase changed
      */
     public static final String READ_PHASE_TIMESTAMP = "readPhaseTimestamp";
     /**

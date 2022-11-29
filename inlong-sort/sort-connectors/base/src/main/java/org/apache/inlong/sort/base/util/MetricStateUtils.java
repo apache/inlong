@@ -89,7 +89,7 @@ public class MetricStateUtils {
                         metrics.put(entry.getKey(), entry.getValue());
                     }
                 }
-                // restore sub source metric state
+                // restore sub source metric data state
                 Map<String, MetricState> subIndexMetricStateMap = metricState.getSubMetricStateMap();
                 if (subIndexMetricStateMap != null && !subIndexMetricStateMap.isEmpty()) {
                     for (Entry<String, MetricState> entry : subIndexMetricStateMap.entrySet()) {
@@ -162,7 +162,7 @@ public class MetricStateUtils {
         metricDataMap.put(NUM_BYTES_IN, sourceMetricData.getNumBytesIn().getCount());
         MetricState metricState = new MetricState(subtaskIndex, metricDataMap);
 
-        // snapshot metric state data for SourceSubMetricData
+        // snapshot sub metric data state
         snapshotMetricStateForSourceSubMetricData(sourceMetricData, subtaskIndex, metricState);
         metricStateListState.add(metricState);
     }

@@ -62,7 +62,7 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
     }
 
     /**
-     * register sub metrics group from sub metric state
+     * register sub source metrics group from metric state
      *
      * @param metricState MetricState
      */
@@ -70,7 +70,7 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
         if (metricState == null) {
             return;
         }
-        // register source read phase metric from metric state
+        // register source read phase metric
         Stream.of(ReadPhase.values()).forEach(readPhase -> {
             Long readPhaseMetricValue = metricState.getMetricValue(readPhase.getPhase());
             if (readPhaseMetricValue > 0) {
@@ -78,7 +78,7 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
             }
         });
 
-        // register sub source metric data from sub metric state
+        // register sub source metric data
         if (metricState.getSubMetricStateMap() == null) {
             return;
         }
@@ -117,7 +117,7 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
         if (sourceMetricData == null || schemaInfoArray == null) {
             return null;
         }
-        // build sub metric data
+        // build sub source metric data
         Map<String, String> labels = sourceMetricData.getLabels();
         String metricGroupLabels = labels.entrySet().stream().map(entry -> entry.getKey() + "=" + entry.getValue())
                 .collect(Collectors.joining(DELIMITER));
@@ -135,7 +135,7 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
     }
 
     /**
-     * build record schema identify
+     * build record schema identify,in the form of database.table
      *
      * @param database the database name of record
      * @param table the table name of record
@@ -149,7 +149,7 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
      * parse record schema identify
      *
      * @param schemaIdentify the schema identify of record
-     * @return the record schema identify array
+     * @return the record schema identify array,String[]{database,table}
      */
     public String[] parseSchemaIdentify(String schemaIdentify) {
         return schemaIdentify.split(Constants.SPILT_SEMICOLON);
@@ -176,7 +176,7 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
             subSourceMetricData = buildSubSourceMetricData(new String[]{database, table}, this);
             subSourceMetricMap.put(identify, subSourceMetricData);
         }
-        // sourceMetric and subSourceMetric output metrics
+        // source metric and sub source metric output metrics
         long rowCountSize = 1L;
         long rowDataSize = data.toString().getBytes(StandardCharsets.UTF_8).length;
         this.outputMetrics(rowCountSize, rowDataSize);

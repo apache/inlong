@@ -28,7 +28,7 @@ import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 
 /**
- * A collection class for handling read phase metric
+ * A collection class for handling read phase metric data
  */
 public class ReadPhaseMetricData implements MetricData {
 
