@@ -68,15 +68,6 @@ public class ElasticsearchDataNodeDTO {
     @ApiModelProperty("Max threads, default is 2")
     private Integer maxThreads;
 
-    @ApiModelProperty("ES username")
-    private String username;
-
-    @ApiModelProperty("ES password")
-    private String password;
-
-    @ApiModelProperty("Host of ES server, ip:port format")
-    private String httpHosts;
-
     @ApiModelProperty("audit set name")
     private String auditSetName;
 
