@@ -66,10 +66,14 @@ export const useLoadMeta = <T>(metaType: MetaTypeKeys, subType: string): UseLoad
   const [loading, setLoading] = useState<boolean>(false);
   const [Entity, setEntity] = useState<{ default: T }>();
 
+  const { defaultValue } = useDefaultMeta(metaType);
+
   const load = useCallback(
     async subType => {
       const subList = metasMap[metaType]?.[0];
-      const LoadEntity = subList?.find(item => item.value === subType)?.LoadEntity;
+      const LoadEntity =
+        subList?.find(item => item.value === subType)?.LoadEntity ||
+        subList?.find(item => item.value === defaultValue)?.LoadEntity;
       if (LoadEntity) {
         setLoading(true);
         try {
@@ -80,7 +84,7 @@ export const useLoadMeta = <T>(metaType: MetaTypeKeys, subType: string): UseLoad
         }
       }
     },
-    [metaType],
+    [metaType, defaultValue],
   );
 
   useEffect(() => {
