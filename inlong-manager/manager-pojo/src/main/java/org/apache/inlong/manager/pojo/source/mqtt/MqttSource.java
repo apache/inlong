@@ -35,7 +35,7 @@ import org.apache.inlong.manager.pojo.source.StreamSource;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Oracle source info")
+@ApiModel(value = "Mqtt source info")
 @JsonTypeDefine(value = SourceType.MQTT)
 public class MqttSource extends StreamSource {
 
@@ -60,13 +60,11 @@ public class MqttSource extends StreamSource {
     @ApiModelProperty("Mqtt version")
     private String mqttVersion;
 
-
     public MqttSource() { this.setSourceType(SourceType.MQTT); }
 
     @Override
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, MqttSourceRequest::new);
     }
-
 
 }

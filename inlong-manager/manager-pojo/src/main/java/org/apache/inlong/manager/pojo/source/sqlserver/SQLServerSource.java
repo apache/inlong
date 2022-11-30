@@ -31,7 +31,7 @@ import org.apache.inlong.manager.pojo.source.SourceRequest;
 import org.apache.inlong.manager.pojo.source.StreamSource;
 
 /**
- * Mqtt source info
+ * SQLServer source info
  */
 @Data
 @SuperBuilder

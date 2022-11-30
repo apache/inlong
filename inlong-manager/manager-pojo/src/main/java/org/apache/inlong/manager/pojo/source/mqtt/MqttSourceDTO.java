@@ -54,7 +54,6 @@ public class MqttSourceDTO {
     @ApiModelProperty("Mqtt version")
     private String mqttVersion;
 
-
     public static MqttSourceDTO getFromRequest(MqttSourceRequest request) {
         return MqttSourceDTO.builder()
                 .serverURI(request.getServerURI())

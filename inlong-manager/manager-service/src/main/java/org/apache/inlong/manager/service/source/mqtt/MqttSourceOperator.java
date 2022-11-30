@@ -63,7 +63,6 @@ public class MqttSourceOperator extends AbstractSourceOperator {
         }
     }
 
-
     @Override
     public StreamSource getFromEntity(StreamSourceEntity entity) {
         MqttSource source = new MqttSource();

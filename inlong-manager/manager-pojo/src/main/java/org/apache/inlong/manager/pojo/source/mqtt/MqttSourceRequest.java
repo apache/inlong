@@ -55,4 +55,5 @@ public class MqttSourceRequest extends SourceRequest {
     private String mqttVersion;
 
     public MqttSourceRequest() { this.setSourceType(SourceType.MQTT); }
+
 }
