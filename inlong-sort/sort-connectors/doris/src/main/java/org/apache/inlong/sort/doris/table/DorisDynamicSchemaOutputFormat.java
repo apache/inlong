@@ -234,7 +234,7 @@ public class DorisDynamicSchemaOutputFormat<T> extends RichOutputFormat<T> {
             Schema schema = RestService.getSchema(options, readOptions, LOG);
             return executionOptions.getEnableDelete() || UNIQUE_KEYS_TYPE.equals(schema.getKeysType());
         } catch (DorisException e) {
-            throw new RuntimeException("Failed fetch doris table schema: " + options.getTableIdentifier(), e);
+            return executionOptions.getEnableDelete();
         }
     }
 
