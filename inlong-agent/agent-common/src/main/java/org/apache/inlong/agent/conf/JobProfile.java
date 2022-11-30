@@ -18,14 +18,23 @@
 package org.apache.inlong.agent.conf;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.constant.JobConstants;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
+import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+
+import java.util.List;
+
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MQ_ClUSTERS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_MQ_TOPIC;
 
 /**
  * job profile which contains details describing properties of one job.
  */
 public class JobProfile extends AbstractConfiguration {
 
-    private final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     /**
      * parse json string to configuration instance.
@@ -75,10 +84,35 @@ public class JobProfile extends AbstractConfiguration {
     }
 
     public String toJsonStr() {
-        return gson.toJson(getConfigStorage());
+        return GSON.toJson(getConfigStorage());
     }
 
     public String getInstanceId() {
         return get(JobConstants.JOB_INSTANCE_ID);
+    }
+
+    /**
+     * get MQClusterInfo list from config
+     */
+    public List<MQClusterInfo> getMqClusters() {
+        List<MQClusterInfo> result = null;
+        String mqClusterStr = get(JOB_MQ_ClUSTERS);
+        if (StringUtils.isNotBlank(mqClusterStr)) {
+            result = GSON.fromJson(mqClusterStr, new TypeToken<List<MQClusterInfo>>() {
+            }.getType());
+        }
+        return result;
+    }
+
+    /**
+     * get mqTopic from config
+     */
+    public DataProxyTopicInfo getMqTopic() {
+        DataProxyTopicInfo result = null;
+        String topicStr = get(JOB_MQ_TOPIC);
+        if (StringUtils.isNotBlank(topicStr)) {
+            result = GSON.fromJson(topicStr, DataProxyTopicInfo.class);
+        }
+        return result;
     }
 }

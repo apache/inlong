@@ -18,6 +18,7 @@
 package org.apache.inlong.common.pojo.agent;
 
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 
@@ -74,6 +75,13 @@ public class DataConfig {
     private DataProxyTopicInfo topicInfo;
 
     public boolean isValid() {
-        return true;
+        if (dataReportType == 0 || dataReportType == 1) {
+            return true;
+        }
+        if (dataReportType == 2 && CollectionUtils.isNotEmpty(mqClusters) && mqClusters.stream()
+                .allMatch(MQClusterInfo::isValid) && topicInfo.isValid()) {
+            return true;
+        }
+        return false;
     }
 }

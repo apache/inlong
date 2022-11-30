@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +29,9 @@ public class MQClusterInfo {
 
     private String url;
     private String token;
+    /**
+     * MQType.PULSAR, MQType.TUBEMQ  or MQType.PULSAR
+     */
     private String mqType;
     private Map<String, String> params = new HashMap<>();
 
@@ -60,5 +65,12 @@ public class MQClusterInfo {
 
     public void setParams(Map<String, String> params) {
         this.params = params;
+    }
+
+    public boolean isValid() {
+        if (StringUtils.isBlank(mqType) || StringUtils.isBlank(url)) {
+            return false;
+        }
+        return true;
     }
 }

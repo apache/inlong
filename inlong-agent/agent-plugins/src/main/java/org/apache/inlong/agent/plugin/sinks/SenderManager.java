@@ -52,6 +52,8 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AU
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_PROXY_SEND;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_PROXY_SEND;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.metrics.AgentMetricItem.KEY_PLUGIN_ID;
@@ -89,6 +91,7 @@ public class SenderManager {
     private final String inlongGroupId;
     private final int maxSenderPerGroup;
     private final String sourcePath;
+    private final boolean proxySend;
 
     // metric
     private AgentMetricItemSet metricItemSet;
@@ -104,6 +107,7 @@ public class SenderManager {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         managerHost = conf.get(AGENT_MANAGER_VIP_HTTP_HOST);
         managerPort = conf.getInt(AGENT_MANAGER_VIP_HTTP_PORT);
+        proxySend = jobConf.getBoolean(JOB_PROXY_SEND, DEFAULT_JOB_PROXY_SEND);
         localhost = jobConf.get(CommonConstants.PROXY_LOCAL_HOST, CommonConstants.DEFAULT_PROXY_LOCALHOST);
         netTag = jobConf.get(CommonConstants.PROXY_NET_TAG, CommonConstants.DEFAULT_PROXY_NET_TAG);
         isLocalVisit = jobConf.getBoolean(
@@ -240,10 +244,10 @@ public class SenderManager {
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
         try {
-            selectSender(batchMessage.getGroupId()).asyncSendMessage(
-                    new AgentSenderCallback(batchMessage, retry), batchMessage.getDataList(),
-                    batchMessage.getGroupId(), batchMessage.getStreamId(), batchMessage.getDataTime(),
-                    SEQUENTIAL_ID.getNextUuid(), maxSenderTimeout, TimeUnit.SECONDS, batchMessage.getExtraMap());
+            selectSender(batchMessage.getGroupId()).asyncSendMessage(new AgentSenderCallback(batchMessage, retry),
+                    batchMessage.getDataList(), batchMessage.getGroupId(), batchMessage.getStreamId(),
+                    batchMessage.getDataTime(), SEQUENTIAL_ID.getNextUuid(), maxSenderTimeout, TimeUnit.SECONDS,
+                    batchMessage.getExtraMap(), proxySend);
             int msgCnt = batchMessage.getDataList().size();
             getMetricItem(batchMessage.getGroupId(), batchMessage.getStreamId()).pluginSendCount.addAndGet(msgCnt);
 
@@ -275,7 +279,7 @@ public class SenderManager {
 
         try {
             SendResult result = selectSender(groupId).sendMessage(batchMessage.getDataList(), groupId, streamId,
-                    dataTime, "", maxSenderTimeout, TimeUnit.SECONDS, batchMessage.getExtraMap());
+                    dataTime, "", maxSenderTimeout, TimeUnit.SECONDS, batchMessage.getExtraMap(), proxySend);
             metricItem.pluginSendCount.addAndGet(msgCnt);
 
             if (result == SendResult.OK) {
