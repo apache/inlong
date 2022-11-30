@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.base.dirty.sink.log;
 
 import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.factories.DynamicTableFactory.Context;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.inlong.sort.base.dirty.sink.DirtySink;
@@ -38,9 +40,10 @@ public class LogDirtySinkFactory implements DirtySinkFactory {
 
     @Override
     public <T> DirtySink<T> createDirtySink(Context context) {
-        FactoryUtil.validateFactoryOptions(this, context.getConfiguration());
-        String format = context.getConfiguration().get(DIRTY_SIDE_OUTPUT_FORMAT);
-        String fieldDelimiter = context.getConfiguration().get(DIRTY_SIDE_OUTPUT_FIELD_DELIMITER);
+        ReadableConfig config = Configuration.fromMap(context.getCatalogTable().getOptions());
+        FactoryUtil.validateFactoryOptions(this, config);
+        String format = config.get(DIRTY_SIDE_OUTPUT_FORMAT);
+        String fieldDelimiter = config.get(DIRTY_SIDE_OUTPUT_FIELD_DELIMITER);
         return new LogDirtySink<>(format, fieldDelimiter,
                 context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType());
     }
