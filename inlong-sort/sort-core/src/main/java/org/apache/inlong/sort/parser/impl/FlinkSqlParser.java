@@ -18,6 +18,8 @@
 package org.apache.inlong.sort.parser.impl;
 
 import com.google.common.base.Preconditions;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.inlong.sort.configuration.Constants;
@@ -83,6 +85,10 @@ public class FlinkSqlParser implements Parser {
     private final List<String> loadTableSqls = new ArrayList<>();
     private final List<String> insertSqls = new ArrayList<>();
 
+    @Getter
+    @Setter
+    private String auditProxyHosts;
+
     /**
      * Flink sql parse constructor
      *
@@ -104,6 +110,20 @@ public class FlinkSqlParser implements Parser {
      */
     public static FlinkSqlParser getInstance(TableEnvironment tableEnv, GroupInfo groupInfo) {
         return new FlinkSqlParser(tableEnv, groupInfo);
+    }
+
+    /**
+     * Get an instance of FlinkSqlParser
+     *
+     * @param tableEnv The tableEnv, it is the execution environment of flink sql
+     * @param groupInfo The groupInfo, it is the data model abstraction of task execution
+     * @param auditProxyHosts The auditProxyHosts, it is used to report audit metrics
+     * @return FlinkSqlParser The flink sql parse handler
+     */
+    public static FlinkSqlParser getInstance(TableEnvironment tableEnv, GroupInfo groupInfo, String auditProxyHosts) {
+        FlinkSqlParser flinkSqlParser = new FlinkSqlParser(tableEnv, groupInfo);
+        flinkSqlParser.setAuditProxyHosts(auditProxyHosts);
+        return flinkSqlParser;
     }
 
     /**
@@ -194,10 +214,10 @@ public class FlinkSqlParser implements Parser {
                             Constants.STREAM_ID + "=" + streamInfo.getStreamId(),
                             Constants.NODE_ID + "=" + node.getId())
                             .collect(Collectors.joining("&")));
-            // METRICS_AUDIT_PROXY_HOSTS depends on INLONG_GROUP_STREAM_NODE
-            if (StringUtils.isNotEmpty(groupInfo.getProperties().get(Constants.METRICS_AUDIT_PROXY_HOSTS.key()))) {
+
+            if (StringUtils.isNotEmpty(auditProxyHosts)) {
                 properties.put(Constants.METRICS_AUDIT_PROXY_HOSTS.key(),
-                        groupInfo.getProperties().get(Constants.METRICS_AUDIT_PROXY_HOSTS.key()));
+                        auditProxyHosts);
             }
         });
     }

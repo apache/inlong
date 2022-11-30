@@ -58,7 +58,8 @@ public class Entrance {
         Parser parser;
         if (StringUtils.isEmpty(sqlFile)) {
             final GroupInfo groupInfo = getGroupInfoFromFile(config.getString(Constants.GROUP_INFO_FILE));
-            parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
+            String auditProxyHosts = config.getString(Constants.METRICS_AUDIT_PROXY_HOSTS);
+            parser = FlinkSqlParser.getInstance(tableEnv, groupInfo, auditProxyHosts);
         } else {
             String statements = getStatementSetFromFile(sqlFile);
             parser = NativeFlinkSqlParser.getInstance(tableEnv, statements);
