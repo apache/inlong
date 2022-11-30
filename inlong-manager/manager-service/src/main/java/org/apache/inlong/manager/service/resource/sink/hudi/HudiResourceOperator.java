@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.resource.sink.hudi;
 
 import static java.util.stream.Collectors.toList;
 
+import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
@@ -83,7 +84,7 @@ public class HudiResourceOperator implements SinkResourceOperator {
             return;
         }
 
-        this.createTable(sinkInfo);
+        this.createTableIfAbsent(sinkInfo);
     }
 
     private HudiSinkDTO getHudiInfo(SinkInfo sinkInfo) {
@@ -102,14 +103,14 @@ public class HudiResourceOperator implements SinkResourceOperator {
         return hudiInfo;
     }
 
-    private void createTable(SinkInfo sinkInfo) {
-        LOGGER.info("begin to create Hudi table for sinkInfo={}", sinkInfo);
+    private void createTableIfAbsent(SinkInfo sinkInfo) {
+        LOGGER.info("begin to create hudi table for sinkInfo={}", sinkInfo);
 
         // Get all info from config
         HudiSinkDTO hudiInfo = getHudiInfo(sinkInfo);
         List<HudiColumnInfo> columnInfoList = getColumnList(sinkInfo);
         if (CollectionUtils.isEmpty(columnInfoList)) {
-            throw new IllegalArgumentException("no Hudi columns specified");
+            throw new IllegalArgumentException("no hudi columns specified");
         }
         HudiTableInfo tableInfo = HudiSinkDTO.getHudiTableInfo(hudiInfo, columnInfoList);
 
@@ -119,22 +120,24 @@ public class HudiResourceOperator implements SinkResourceOperator {
         String tableName = hudiInfo.getTableName();
 
         try {
+            HiveCatalogClient client = new HiveCatalogClient(metastoreUri, dbName);
             // 1. create database if not exists
-            HudiCatalogUtils.createDb(metastoreUri, warehouse, dbName);
+            client.createDatabase(warehouse);
 
             // 2. check if the table exists
-            boolean tableExists = HudiCatalogUtils.tableExists(metastoreUri, dbName, tableName);
+            boolean tableExists = client.tableExist(tableName);
 
             if (!tableExists) {
                 // 3. create table
-                HudiCatalogUtils.createTable(metastoreUri, warehouse, tableInfo);
+                // TODO: hudi rt table need config
+                client.createTable(tableName, tableInfo, true, Maps.newHashMap());
             } else {
                 // 4. or update table columns
-                List<HudiColumnInfo> existColumns = HudiCatalogUtils.getColumns(metastoreUri, dbName, tableName);
+                List<HudiColumnInfo> existColumns = client.getColumns(dbName, tableName);
                 List<HudiColumnInfo> needAddColumns = tableInfo.getColumns().stream().skip(existColumns.size())
                         .collect(toList());
                 if (CollectionUtils.isNotEmpty(needAddColumns)) {
-                    HudiCatalogUtils.addColumns(metastoreUri, dbName, tableName, needAddColumns);
+                    client.addColumns(tableName, needAddColumns);
                     LOGGER.info("{} columns added for table {}", needAddColumns.size(), tableName);
                 }
             }

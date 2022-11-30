@@ -561,5 +561,9 @@
             <groupId>org.apache.hudi</groupId>
             <artifactId>hudi-flink1.13-bundle</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-common</artifactId>
+        </dependency>
     </dependencies>
 </project>
