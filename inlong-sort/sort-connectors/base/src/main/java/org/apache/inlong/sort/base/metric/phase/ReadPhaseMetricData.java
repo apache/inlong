@@ -33,7 +33,7 @@ import org.apache.inlong.sort.base.metric.ThreadSafeCounter;
 public class ReadPhaseMetricData implements MetricData {
 
     private final MetricGroup metricGroup;
-    private Counter readPhase;
+    private Counter readPhaseTimestamp;
     private final Map<String, String> labels;
 
     public ReadPhaseMetricData(MetricOption option, MetricGroup metricGroup) {
@@ -45,12 +45,13 @@ public class ReadPhaseMetricData implements MetricData {
     }
 
     /**
-     * User can use custom counter that extends from {@link Counter}
-     * groupId and streamId and nodeId are label value, user can use it filter metric data when use metric reporter
+     * Register read phase time metrics and user can use custom counter that extends from {@link Counter}, and note that
+     * we just keep the time to change that moment
+     * groupId and streamId and nodeId and readPhase are label value, user can use it filter metric data when use metric reporter
      * prometheus
      */
     private void registerMetricsForReadPhase(Counter counter) {
-        readPhase = registerCounter(READ_PHASE_TIMESTAMP, counter);
+        readPhaseTimestamp = registerCounter(READ_PHASE_TIMESTAMP, counter);
     }
 
     /**
@@ -79,17 +80,17 @@ public class ReadPhaseMetricData implements MetricData {
      * @return the read phase counter
      */
     public Counter getReadPhase() {
-        return readPhase;
+        return readPhaseTimestamp;
     }
 
     /**
      * output read phase metric,just keep the time to change that moment
      */
     public void outputMetrics() {
-        if (readPhase != null) {
-            long count = readPhase.getCount();
+        if (readPhaseTimestamp != null) {
+            long count = readPhaseTimestamp.getCount();
             if (count == 0) {
-                readPhase.inc(System.currentTimeMillis());
+                readPhaseTimestamp.inc(System.currentTimeMillis());
             }
         }
     }
@@ -99,7 +100,7 @@ public class ReadPhaseMetricData implements MetricData {
         return "ReadPhaseMetricData{"
                 + "metricGroup=" + metricGroup
                 + ", labels=" + labels
-                + ", readPhase=" + readPhase.getCount()
+                + ", readPhaseTimestamp=" + readPhaseTimestamp.getCount()
                 + '}';
     }
 }

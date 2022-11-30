@@ -107,7 +107,7 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
     /**
      * build sub source metric data
      *
-     * @param schemaInfoArray source record schema info array
+     * @param schemaInfoArray the schema info array of record
      * @param subMetricState sub metric state
      * @param sourceMetricData source metric data
      * @return sub source metric data
@@ -160,8 +160,8 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
      *
      * @param database the database name of record
      * @param table the table name of record
-     * @param isSnapshotRecord is it snapshotRecord record
-     * @param data the record data
+     * @param isSnapshotRecord is it snapshot record
+     * @param data the data of record
      */
     public void outputMetricsWithEstimate(String database, String table, boolean isSnapshotRecord, Object data) {
         if (StringUtils.isBlank(database) || StringUtils.isBlank(table)) {
@@ -211,7 +211,7 @@ public class SourceTableMetricData extends SourceMetricData implements SourceSub
 
             MetricOption metricOption = MetricOption.builder()
                     .withInitReadPhase(metricState != null ? metricState.getMetricValue(readPhase.getPhase()) : 0L)
-                    .withInlongLabels(metricGroupLabels + DELIMITER + READ_PHASE + "=" + readPhase.getValue())
+                    .withInlongLabels(metricGroupLabels + DELIMITER + READ_PHASE + "=" + readPhase.getCode())
                     .withRegisterMetric(RegisteredMetric.ALL)
                     .build();
             readPhaseMetricData = new ReadPhaseMetricData(metricOption, getMetricGroup());

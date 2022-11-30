@@ -26,25 +26,20 @@ import java.util.stream.Stream;
 public enum ReadPhase {
 
     /**
-     * This indicator represents the prepare phase during the read phase
+     * This indicator type represents the snapshot phase when the entire database is migrated reading the snapshot data.
      */
-    PREPARE_PHASE("prepare_phase", 0L),
-
+    SNAPSHOT_PHASE("snapshot_phase", 1),
     /**
-     * This indicator represents the snapshot phase during the read phase
+     * This indicator type represents the incremental phase when the entire database is migrated reading the incremental data.
      */
-    SNAPSHOT_PHASE("snapshot_phase", 1L),
-    /**
-     * This indicator represents the incremental phase during the read phase
-     */
-    INCREASE_PHASE("incremental_phase", 2L);
+    INCREASE_PHASE("incremental_phase", 2);
 
     private String phase;
-    private Long value;
+    private int code;
 
-    ReadPhase(String phase, Long value) {
+    ReadPhase(String phase, int code) {
         this.phase = phase;
-        this.value = value;
+        this.code = code;
     }
 
     public String getPhase() {
@@ -55,22 +50,22 @@ public enum ReadPhase {
         this.phase = phase;
     }
 
-    public Long getValue() {
-        return value;
+    public int getCode() {
+        return code;
     }
 
-    public void setValue(Long value) {
-        this.value = value;
+    public void setCode(int code) {
+        this.code = code;
     }
 
     /**
-     * get the read phase enum by value
+     * get the read phase enum by code
      *
-     * @param value the value
+     * @param code the code
      * @return the read phase enum
      */
-    public static ReadPhase getReadPhaseByValue(long value) {
-        return Stream.of(ReadPhase.values()).filter(v -> v.getValue() == value).findFirst().orElse(null);
+    public static ReadPhase getReadPhaseByCode(int code) {
+        return Stream.of(ReadPhase.values()).filter(v -> v.getCode() == code).findFirst().orElse(null);
     }
 
     /**
