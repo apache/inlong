@@ -140,6 +140,15 @@ export class SinkDefaultInfo implements DataWithBackend, RenderRow, RenderList {
   }
 
   stringify(data) {
+    const { sinkType } = data;
+
+    if (Array.isArray(data.sinkFieldList)) {
+      data.sinkFieldList = data.sinkFieldList.map(item => ({
+        ...item,
+        sinkType,
+      }));
+    }
+
     return data;
   }
 
