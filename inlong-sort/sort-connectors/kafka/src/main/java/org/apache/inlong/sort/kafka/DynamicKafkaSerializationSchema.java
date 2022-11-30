@@ -220,7 +220,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
         try {
             value = serialization.serialize(consumedRow);
         } catch (Exception e) {
-            LOG.warn("serialize error", e);
+            LOG.error(String.format("serialize error, raw data: %s", consumedRow.toString()), e);
             if (dirtySink != null) {
                 DirtyData.Builder<Object> builder = DirtyData.builder();
                 try {
@@ -249,6 +249,7 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                     jsonDynamicSchemaFormat.parse(rootNode, topicPattern),
                     extractPartition(null, null, data), null, data));
         } catch (Exception e) {
+            LOG.error(String.format("serialize error, raw data: %s", baseMap), e);
             if (!dirtyOptions.ignoreDirty()) {
                 throw new RuntimeException(e);
             }
@@ -309,10 +310,10 @@ class DynamicKafkaSerializationSchema implements KafkaSerializationSchema<RowDat
                 split2JsonArray(rootNode, updateBeforeNode, updateAfterNode, values);
             }
         } catch (Exception e) {
+            LOG.error(String.format("serialize error, raw data: %s", new String(consumedRow.getBinary(0))), e);
             if (!dirtyOptions.ignoreDirty()) {
                 throw new RuntimeException(e);
             }
-            LOG.warn("deserialize error", e);
             if (dirtySink != null) {
                 DirtyData.Builder<Object> builder = DirtyData.builder();
                 try {

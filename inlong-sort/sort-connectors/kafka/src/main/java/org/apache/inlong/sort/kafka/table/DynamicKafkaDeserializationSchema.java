@@ -179,7 +179,7 @@ public class DynamicKafkaDeserializationSchema implements KafkaDeserializationSc
             try {
                 deserialization.deserialize(value, collector);
             } catch (IOException e) {
-                LOG.warn("deserialize error", e);
+                LOG.error(String.format("deserialize error, raw data: %s", new String(value)), e);
                 if (dirtySink != null) {
                     DirtyData.Builder<String> builder = DirtyData.builder();
                     try {
