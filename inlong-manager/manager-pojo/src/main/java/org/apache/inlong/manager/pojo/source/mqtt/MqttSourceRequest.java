@@ -54,6 +54,8 @@ public class MqttSourceRequest extends SourceRequest {
     @ApiModelProperty("Mqtt version")
     private String mqttVersion;
 
-    public MqttSourceRequest() { this.setSourceType(SourceType.MQTT); }
+    public MqttSourceRequest() {
+        this.setSourceType(SourceType.MQTT);
+    }
 
 }

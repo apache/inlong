@@ -60,7 +60,9 @@ public class MqttSource extends StreamSource {
     @ApiModelProperty("Mqtt version")
     private String mqttVersion;
 
-    public MqttSource() { this.setSourceType(SourceType.MQTT); }
+    public MqttSource() {
+        this.setSourceType(SourceType.MQTT);
+    }
 
     @Override
     public SourceRequest genSourceRequest() {
