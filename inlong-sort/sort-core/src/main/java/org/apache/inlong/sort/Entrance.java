@@ -58,12 +58,9 @@ public class Entrance {
         Parser parser;
         if (StringUtils.isEmpty(sqlFile)) {
             final GroupInfo groupInfo = getGroupInfoFromFile(config.getString(Constants.GROUP_INFO_FILE));
-            boolean hasAuditProxyHosts =
-                    StringUtils.isNotEmpty(groupInfo.getProperties().get(Constants.METRICS_AUDIT_PROXY_HOSTS.key()));
-            if (!hasAuditProxyHosts) {
-                groupInfo.getProperties().put(Constants.METRICS_AUDIT_PROXY_HOSTS.key(),
-                        config.getString(Constants.METRICS_AUDIT_PROXY_HOSTS));
-            }
+            groupInfo.getProperties().putIfAbsent(Constants.METRICS_AUDIT_PROXY_HOSTS.key(),
+                    config.getString(Constants.METRICS_AUDIT_PROXY_HOSTS));
+
             parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         } else {
             String statements = getStatementSetFromFile(sqlFile);
