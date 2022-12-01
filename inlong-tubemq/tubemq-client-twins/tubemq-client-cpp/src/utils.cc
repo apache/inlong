@@ -287,8 +287,7 @@ bool Utils::ValidGroupName(string& err_info, const string& group_name, string& t
   int cflags = REG_EXTENDED;
   regex_t reg;
   regmatch_t pmatch[1];
-  // const char* patRule = "^[a-zA-Z]\\w+$";
-  const char* patRule = "^[a-zA-Z][\\w-]+$";
+  const char* patRule = "^[a-zA-Z](\\w|-)+$";
   regcomp(&reg, patRule, cflags);
   int status = regexec(&reg, tgt_group_name.c_str(), 1, pmatch, 0);
   regfree(&reg);
@@ -297,8 +296,6 @@ bool Utils::ValidGroupName(string& err_info, const string& group_name, string& t
     ss << "Illegal parameter: ";
     ss << group_name;
     ss << " must begin with a letter,can only contain characters,numbers,hyphen,and underscores";
-    //  ss << " must begin with a letter,can only contain ";
-    //  ss << "characters,numbers,hyphen,and underscores";
     err_info = ss.str();
     return false;
   }
