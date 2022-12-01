@@ -162,6 +162,7 @@ const Comp: React.FC = () => {
 
       <DetailModal
         {...detailModal}
+        defaultType={options.type}
         visible={detailModal.visible as boolean}
         onOk={async () => {
           await getList();

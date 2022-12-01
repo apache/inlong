@@ -190,6 +190,7 @@ const Comp: React.FC = () => {
 
       <CreateModal
         {...createModal}
+        defaultType={options.type}
         visible={createModal.visible as boolean}
         onOk={async () => {
           await getList();

@@ -23,23 +23,22 @@ import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
-import { useDefaultMeta, useLoadMeta, SinkMetaType } from '@/metas';
+import { useLoadMeta, SinkMetaType } from '@/metas';
 import request from '@/utils/request';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
+  defaultType?: string;
   // (True operation, save and adjust interface) Need to upload when editing
   id?: string;
   // others
   onOk?: (values) => void;
 }
 
-const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) => {
+const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, defaultType, id, ...modalProps }) => {
   const [form] = useForm();
 
   const { t } = useTranslation();
-
-  const { defaultValue } = useDefaultMeta('sink');
 
   // Q: Why sinkType default = '' ?
   // A: Avoid the table of the fields triggering the monitoring of the column change.
@@ -78,8 +77,8 @@ const Comp: React.FC<DetailModalProps> = ({ inlongGroupId, id, ...modalProps }) 
       if (id) {
         getData(id);
       } else {
-        form.setFieldsValue({ inlongGroupId });
-        setSinkType(defaultValue);
+        form.setFieldsValue({ inlongGroupId, sinkType: defaultType });
+        setSinkType(defaultType);
       }
     } else {
       form.resetFields();
