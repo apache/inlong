@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.base.dirty.utils;
 
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.table.factories.DynamicTableFactory.Context;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.inlong.sort.base.dirty.DirtyOptions;
@@ -33,7 +34,7 @@ public final class DirtySinkFactoryUtils {
 
     public static <T> DirtySink<T> createDirtySink(Context context, DirtyOptions dirtyOptions) {
         if (dirtyOptions == null) {
-            dirtyOptions = DirtyOptions.fromConfig(context.getConfiguration());
+            dirtyOptions = DirtyOptions.fromConfig(Configuration.fromMap(context.getCatalogTable().getOptions()));
         }
         dirtyOptions.validate();
         DirtySink<T> dirtySink = null;
