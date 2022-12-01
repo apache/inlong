@@ -43,6 +43,8 @@ import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.util.Preconditions;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.kafka.FlinkKafkaConsumer;
 import org.apache.inlong.sort.kafka.table.DynamicKafkaDeserializationSchema.MetadataConverter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -51,7 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -178,6 +179,9 @@ public class KafkaDynamicSource
 
     protected final String auditHostAndPorts;
 
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<String> dirtySink;
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaDynamicSource.class);
@@ -197,7 +201,9 @@ public class KafkaDynamicSource
             long startupTimestampMillis,
             boolean upsertMode,
             final String inlongMetric,
-            final String auditHostAndPorts) {
+            final String auditHostAndPorts,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<String> dirtySink) {
         // Format attributes
         this.physicalDataType =
                 Preconditions.checkNotNull(
@@ -232,6 +238,8 @@ public class KafkaDynamicSource
         this.upsertMode = upsertMode;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -322,7 +330,11 @@ public class KafkaDynamicSource
                         startupMode,
                         specificStartupOffsets,
                         startupTimestampMillis,
-                        upsertMode, inlongMetric, auditHostAndPorts);
+                        upsertMode,
+                        inlongMetric,
+                        auditHostAndPorts,
+                        dirtyOptions,
+                        dirtySink);
         copy.producedDataType = producedDataType;
         copy.metadataKeys = metadataKeys;
         copy.watermarkStrategy = watermarkStrategy;
@@ -427,7 +439,9 @@ public class KafkaDynamicSource
                         hasMetadata,
                         metadataConverters,
                         producedTypeInfo,
-                        upsertMode);
+                        upsertMode,
+                        dirtyOptions,
+                        dirtySink);
 
         final FlinkKafkaConsumer<RowData> kafkaConsumer;
         if (topics != null) {

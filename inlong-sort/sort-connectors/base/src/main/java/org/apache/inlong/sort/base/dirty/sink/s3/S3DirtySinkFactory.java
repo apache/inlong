@@ -19,6 +19,7 @@ package org.apache.inlong.sort.base.dirty.sink.s3;
 
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.factories.DynamicTableFactory.Context;
@@ -79,9 +80,10 @@ public class S3DirtySinkFactory implements DirtySinkFactory {
 
     @Override
     public <T> DirtySink<T> createDirtySink(Context context) {
-        FactoryUtil.validateFactoryOptions(this, context.getConfiguration());
-        validate(context.getConfiguration());
-        return new S3DirtySink<>(getS3Options(context.getConfiguration()),
+        ReadableConfig config = Configuration.fromMap(context.getCatalogTable().getOptions());
+        FactoryUtil.validateFactoryOptions(this, config);
+        validate(config);
+        return new S3DirtySink<>(getS3Options(config),
                 context.getCatalogTable().getResolvedSchema().toPhysicalRowDataType());
     }
 

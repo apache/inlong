@@ -37,6 +37,8 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.kafka.DynamicKafkaSerializationSchema.MetadataConverter;
 import org.apache.kafka.common.header.Header;
 import org.slf4j.Logger;
@@ -145,6 +147,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      */
     private final String auditHostAndPorts;
     private @Nullable final String sinkMultipleFormat;
+    private final DirtyOptions dirtyOptions;
+    private @Nullable final DirtySink<Object> dirtySink;
     /**
      * Metadata that is appended at the end of a physical sink row.
      */
@@ -176,7 +180,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             String inlongMetric,
             String auditHostAndPorts,
             @Nullable String sinkMultipleFormat,
-            @Nullable String topicPattern) {
+            @Nullable String topicPattern,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         // Format attributes
         this.consumedDataType =
                 checkNotNull(consumedDataType, "Consumed data type must not be null.");
@@ -207,6 +213,8 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
         this.auditHostAndPorts = auditHostAndPorts;
         this.sinkMultipleFormat = sinkMultipleFormat;
         this.topicPattern = topicPattern;
+        this.dirtyOptions = dirtyOptions;
+        this.dirtySink = dirtySink;
     }
 
     @Override
@@ -310,7 +318,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         inlongMetric,
                         auditHostAndPorts,
                         sinkMultipleFormat,
-                        topicPattern);
+                        topicPattern,
+                        dirtyOptions,
+                        dirtySink);
         copy.metadataKeys = metadataKeys;
         return copy;
     }
@@ -422,7 +432,9 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         metadataPositions,
                         upsertMode,
                         sinkMultipleFormat,
-                        topicPattern);
+                        topicPattern,
+                        dirtyOptions,
+                        dirtySink);
 
         return new FlinkKafkaProducer<>(
                 topic,

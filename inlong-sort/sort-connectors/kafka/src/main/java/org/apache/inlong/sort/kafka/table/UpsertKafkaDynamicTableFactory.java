@@ -45,6 +45,9 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.kafka.KafkaDynamicSink;
 
 import java.time.Duration;
@@ -67,6 +70,7 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.aut
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createKeyFormatProjection;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createValueFormatProjection;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.getKafkaProperties;
+import static org.apache.inlong.sort.base.Constants.DIRTY_PREFIX;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC;
 import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
@@ -200,7 +204,7 @@ public class UpsertKafkaDynamicTableFactory
                 helper.discoverDecodingFormat(DeserializationFormatFactory.class, VALUE_FORMAT);
 
         // Validate the option data type.
-        helper.validateExcept(KafkaOptions.PROPERTIES_PREFIX);
+        helper.validateExcept(KafkaOptions.PROPERTIES_PREFIX, DIRTY_PREFIX);
         TableSchema schema = context.getCatalogTable().getSchema();
         validateSource(tableOptions, keyDecodingFormat, valueDecodingFormat, schema);
 
@@ -210,7 +214,9 @@ public class UpsertKafkaDynamicTableFactory
         Properties properties = getKafkaProperties(context.getCatalogTable().getOptions());
         // always use earliest to keep data integrity
         StartupMode earliest = StartupMode.EARLIEST;
-
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
+        final DirtySink<String> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
         return new KafkaDynamicSource(
                 schema.toPhysicalRowDataType(),
                 keyDecodingFormat,
@@ -224,7 +230,11 @@ public class UpsertKafkaDynamicTableFactory
                 earliest,
                 Collections.emptyMap(),
                 0,
-                true, null, null);
+                true,
+                null,
+                null,
+                dirtyOptions,
+                dirtySink);
     }
 
     @Override
@@ -241,7 +251,7 @@ public class UpsertKafkaDynamicTableFactory
                 helper.discoverEncodingFormat(SerializationFormatFactory.class, VALUE_FORMAT);
 
         // Validate the option data type.
-        helper.validateExcept(KafkaOptions.PROPERTIES_PREFIX);
+        helper.validateExcept(KafkaOptions.PROPERTIES_PREFIX, DIRTY_PREFIX);
         TableSchema schema = context.getCatalogTable().getSchema();
         validateSink(tableOptions, keyEncodingFormat, valueEncodingFormat, schema);
 
@@ -258,6 +268,9 @@ public class UpsertKafkaDynamicTableFactory
                 new SinkBufferFlushMode(batchSize, batchInterval.toMillis());
         String inlongMetric = tableOptions.getOptional(INLONG_METRIC).orElse(null);
         final String auditHostAndPorts = tableOptions.getOptional(INLONG_AUDIT).orElse(null);
+        // Build the dirty data side-output
+        final DirtyOptions dirtyOptions = DirtyOptions.fromConfig(tableOptions);
+        final DirtySink<Object> dirtySink = DirtySinkFactoryUtils.createDirtySink(context, dirtyOptions);
 
         // use {@link org.apache.kafka.clients.producer.internals.DefaultPartitioner}.
         // it will use hash partition if key is set else in round-robin behaviour.
@@ -280,7 +293,9 @@ public class UpsertKafkaDynamicTableFactory
                 inlongMetric,
                 auditHostAndPorts,
                 null,
-                null);
+                null,
+                dirtyOptions,
+                dirtySink);
     }
 
     private Tuple2<int[], int[]> createKeyValueProjections(CatalogTable catalogTable) {
