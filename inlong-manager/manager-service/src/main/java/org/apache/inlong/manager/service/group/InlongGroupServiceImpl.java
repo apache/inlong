@@ -382,6 +382,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             entity.setInlongGroupId(groupId);
             entity.setInlongClusterTag(approveRequest.getInlongClusterTag());
             entity.setStatus(GroupStatus.APPROVE_PASSED.getCode());
+            entity.setDataReportType(approveRequest.getDataReportType());
             entity.setModifier(operator);
             int rowCount = groupMapper.updateByIdentifierSelective(entity);
             if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
