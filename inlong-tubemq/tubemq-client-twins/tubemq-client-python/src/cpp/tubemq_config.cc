@@ -29,6 +29,11 @@ using std::set;
 using std::string;
 
 PYBIND11_MODULE(tubemq_config, m) {
+    py::class_<ProducerConfig>(m, "ProducerConfig")
+        .def(py::init<>())
+        .def("setRpcReadTimeoutMs", &ProducerConfig::SetRpcReadTimeoutMs)
+        .def("setMasterAddrInfo", &ProducerConfig::SetMasterAddrInfo);
+
     py::enum_<ConsumePosition>(m, "ConsumePosition")
         .value("kConsumeFromFirstOffset", ConsumePosition::kConsumeFromFirstOffset)
         .value("kConsumeFromLatestOffset", ConsumePosition::kConsumeFromLatestOffset)
