@@ -20,9 +20,8 @@ package org.apache.inlong.manager.service.source;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.mqtt.MqttSource;
 import org.apache.inlong.manager.pojo.source.mqtt.MqttSourceRequest;
-import org.apache.inlong.manager.pojo.source.oracle.OracleSource;
-import org.apache.inlong.manager.pojo.source.oracle.OracleSourceRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.junit.jupiter.api.Assertions;
@@ -89,8 +88,8 @@ public class MqttSourceServiceTest extends ServiceBaseTest {
         StreamSource response = sourceService.get(id);
         Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
-        OracleSource oracleSource = (OracleSource) response;
-        OracleSourceRequest request = CommonBeanUtils.copyProperties(oracleSource, OracleSourceRequest::new);
+        MqttSource mqttSource = (MqttSource) response;
+        MqttSourceRequest request = CommonBeanUtils.copyProperties(mqttSource, MqttSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assertions.assertTrue(result);
 
