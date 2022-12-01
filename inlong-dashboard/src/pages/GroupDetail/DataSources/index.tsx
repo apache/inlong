@@ -187,6 +187,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
 
       <DetailModal
         {...createModal}
+        defaultType={options.sourceType}
         inlongGroupId={inlongGroupId}
         visible={createModal.visible as boolean}
         onOk={async () => {

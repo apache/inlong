@@ -30,9 +30,10 @@ export interface Props extends ModalProps {
   // When editing, use the ID to call the interface for obtaining details
   id?: string;
   inlongGroupId?: string;
+  defaultType?: string;
 }
 
-const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ id, inlongGroupId, defaultType, ...modalProps }) => {
   const [form] = useForm();
   const { t } = useTranslation();
 
@@ -82,11 +83,11 @@ const Comp: React.FC<Props> = ({ id, inlongGroupId, ...modalProps }) => {
       if (id) {
         getData(id);
       } else {
-        form.setFieldsValue({ inlongGroupId });
+        setType(defaultType);
+        form.setFieldsValue({ inlongGroupId, sourceType: defaultType });
       }
     } else {
       form.resetFields();
-      setType(defaultValue);
     }
   }, [modalProps.visible]);
 
