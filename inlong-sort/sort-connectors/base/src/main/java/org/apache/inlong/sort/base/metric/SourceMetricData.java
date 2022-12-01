@@ -189,8 +189,8 @@ public class SourceMetricData implements MetricData {
         return labels;
     }
 
-    public void outputMetricsWithEstimate(Object o) {
-        long size = o.toString().getBytes(StandardCharsets.UTF_8).length;
+    public void outputMetricsWithEstimate(Object data) {
+        long size = data.toString().getBytes(StandardCharsets.UTF_8).length;
         outputMetrics(1, size);
     }
 
