@@ -205,7 +205,6 @@ export default class IcebergSink
 
   @FieldDecorator({
     type: EditableTable,
-    rules: [{ required: true }],
     initialValue: [],
     props: values => ({
       size: 'small',
