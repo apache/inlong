@@ -58,6 +58,10 @@ public final class Constants {
 
     public static final String NUM_RECORDS_IN_PER_SECOND = "numRecordsInPerSecond";
     /**
+     * Timestamp when the read phase changed
+     */
+    public static final String READ_PHASE_TIMESTAMP = "readPhaseTimestamp";
+    /**
      * Time span in seconds
      */
     public static final Integer TIME_SPAN_IN_SECONDS = 60;
@@ -74,9 +78,37 @@ public final class Constants {
      */
     public static final String NODE_ID = "nodeId";
     /**
+     * Database Name used in inlong metric
+     */
+    public static final String DATABASE_NAME = "database";
+    /**
+     * Table Name used in inlong metric
+     */
+    public static final String TABLE_NAME = "table";
+    /**
+     * Read Phase used in inlong metric
+     */
+    public static final String READ_PHASE = "readPhase";
+    /**
+     * Schema Name used in inlong metric
+     */
+    public static final String SCHEMA_NAME = "schema";
+    /**
+     * Topic Name used in inlong metric
+     */
+    public static final String TOPIC_NAME = "topic";
+    /**
      * It is used for 'inlong.metric.labels' or 'sink.dirty.labels'
      */
     public static final String DELIMITER = "&";
+    /**
+     * It is used for metric data to build schema identify
+     */
+    public static final String SEMICOLON = ".";
+    /**
+     * It is used for metric data to spilt schema identify
+     */
+    public static final String SPILT_SEMICOLON = "\\.";
     /**
      * The delimiter of key and value, it is used for 'inlong.metric.labels' or 'sink.dirty.labels'
      */

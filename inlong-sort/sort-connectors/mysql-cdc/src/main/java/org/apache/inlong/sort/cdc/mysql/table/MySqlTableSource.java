@@ -300,6 +300,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
                             .startupOptions(startupOptions)
                             .inlongMetric(inlongMetric)
                             .inlongAudit(inlongAudit)
+                            .migrateAll(migrateAll)
                             .deserializer(deserializer);
             Optional.ofNullable(serverId)
                     .ifPresent(serverId -> builder.serverId(Integer.parseInt(serverId)));
