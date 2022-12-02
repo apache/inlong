@@ -164,6 +164,18 @@
         </where>
         order by modify_time desc
     </select>
+    <select id="selectByClusterTag" resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster
+        <where>
+            is_deleted = 0
+            <if test="clusterTag != null and clusterTag != ''">
+                and find_in_set(#{clusterTag, jdbcType=VARCHAR}, cluster_tags)
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
     <select id="selectAllClusters" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo" >
         select name,
                type,
