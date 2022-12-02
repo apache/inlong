@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * ClassResourceQueryConsumeConfig
  */
 public class ClassResourceQueryConsumeConfig implements QueryConsumeConfig {
