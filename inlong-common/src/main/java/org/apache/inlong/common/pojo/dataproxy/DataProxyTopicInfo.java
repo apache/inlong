@@ -17,6 +17,8 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Topic info for DataProxy, includes the topic name and the inlongGroupId to which it belongs.
  */
@@ -81,6 +83,10 @@ public class DataProxyTopicInfo {
 
     public void setM(String m) {
         this.m = m;
+    }
+
+    public boolean isValid() {
+        return StringUtils.isNoneBlank(inlongGroupId) && StringUtils.isNotBlank(topic);
     }
 
 }

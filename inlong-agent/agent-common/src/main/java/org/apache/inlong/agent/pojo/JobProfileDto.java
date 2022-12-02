@@ -22,6 +22,7 @@ import lombok.Data;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.pojo.FileJob.Line;
+import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 
@@ -37,6 +38,7 @@ public class JobProfileDto {
     public static final String DEFAULT_CHANNEL = "org.apache.inlong.agent.plugin.channel.MemoryChannel";
     public static final String MANAGER_JOB = "MANAGER_JOB";
     public static final String DEFAULT_DATAPROXY_SINK = "org.apache.inlong.agent.plugin.sinks.ProxySink";
+    public static final String PULSAR_SINK = "org.apache.inlong.agent.plugin.sinks.PulsarSink";
 
     /**
      * file source
@@ -350,8 +352,24 @@ public class JobProfileDto {
         job.setOp(dataConfig.getOp());
         job.setDeliveryTime(dataConfig.getDeliveryTime());
         job.setUuid(dataConfig.getUuid());
-        job.setSink(DEFAULT_DATAPROXY_SINK);
         job.setVersion(dataConfig.getVersion());
+        // set sink type
+        if (dataConfig.getDataReportType() == 0) {
+            job.setSink(DEFAULT_DATAPROXY_SINK);
+            job.setProxySend(false);
+        } else if (dataConfig.getDataReportType() == 1) {
+            job.setSink(DEFAULT_DATAPROXY_SINK);
+            job.setProxySend(true);
+        } else {
+            String mqType = dataConfig.getMqClusters().get(0).getMqType();
+            job.setMqClusters(GSON.toJson(dataConfig.getMqClusters()));
+            job.setTopicInfo(GSON.toJson(dataConfig.getTopicInfo()));
+            if (mqType.equals(MQType.PULSAR)) {
+                job.setSink(PULSAR_SINK);
+            } else {
+                throw new IllegalArgumentException("input dataConfig" + dataConfig + "is invalid please check");
+            }
+        }
         TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfig.getTaskType());
         switch (requireNonNull(taskType)) {
             case SQL:
@@ -397,6 +415,9 @@ public class JobProfileDto {
                 job.setSource(MQTT_SOURCE);
                 profileDto.setJob(job);
                 break;
+            case MOCK:
+                profileDto.setJob(job);
+
             default:
         }
         return TriggerProfile.parseJsonStr(GSON.toJson(profileDto));
@@ -419,6 +440,9 @@ public class JobProfileDto {
         private String deliveryTime;
         private String uuid;
         private Integer version;
+        private boolean proxySend;
+        private String mqClusters;
+        private String topicInfo;
 
         private FileJob fileJob;
         private BinlogJob binlogJob;

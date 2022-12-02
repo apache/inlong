@@ -38,14 +38,15 @@ import java.util.List;
 public class Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Job.class);
-    private static int COUNTER = 1;
-    private final JobProfile jobConf;
+    protected static int COUNTER = 1;
+    protected final JobProfile jobConf;
     // job name
     private String name;
     // job description
     private String description;
-    private String jobInstanceId;
-    private ThreadLocal<Integer> threadNum = new ThreadLocal<Integer>() {
+    protected String jobInstanceId;
+    protected List<Task> taskList = new ArrayList<>();
+    protected ThreadLocal<Integer> threadNum = new ThreadLocal<Integer>() {
 
         protected Integer initialValue() {
             return 0;

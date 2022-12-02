@@ -34,7 +34,6 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_SOURCE_CLASS = "job.source";
     public static final String JOB_SOURCE_TYPE = "job.sourceType";
 
-    public static final String JOB_SINK = "job.sink";
     public static final String JOB_CHANNEL = "job.channel";
     public static final String JOB_NAME = "job.name";
     public static final String JOB_LINE_FILTER_PATTERN = "job.pattern";
@@ -43,6 +42,13 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_DESCRIPTION = "job.description";
     public static final String DEFAULT_JOB_DESCRIPTION = "default job description";
     public static final String DEFAULT_JOB_LINE_FILTER = "";
+
+    // sink config
+    public static final String JOB_SINK = "job.sink";
+    public static final String JOB_PROXY_SEND = "job.proxySend";
+    public static final boolean DEFAULT_JOB_PROXY_SEND = false;
+    public static final String JOB_MQ_ClUSTERS = "job.mqClusters";
+    public static final String JOB_MQ_TOPIC = "job.topicInfo";
 
     // File job
     public static final String JOB_TRIGGER = "job.fileJob.trigger";

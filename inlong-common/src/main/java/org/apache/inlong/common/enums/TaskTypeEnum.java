@@ -36,6 +36,9 @@ public enum TaskTypeEnum {
     REDIS(11),
     MQTT(12),
 
+    // only used for unit test
+    MOCK(101)
+
     ;
 
     private final int type;
@@ -70,6 +73,8 @@ public enum TaskTypeEnum {
                 return TUBEMQ;
             case 12:
                 return MQTT;
+            case 101:
+                return MOCK;
             default:
                 throw new RuntimeException("Unsupported task type " + taskType);
         }

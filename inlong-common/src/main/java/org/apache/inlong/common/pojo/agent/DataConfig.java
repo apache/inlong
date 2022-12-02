@@ -18,10 +18,16 @@
 package org.apache.inlong.common.pojo.agent;
 
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.common.enums.DataReportTypeEnum;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 
 import java.util.List;
+
+import static org.apache.inlong.common.enums.DataReportTypeEnum.DIRECT_SEND_TO_MQ;
+import static org.apache.inlong.common.enums.DataReportTypeEnum.NORMAL_SEND_TO_DATAPROXY;
+import static org.apache.inlong.common.enums.DataReportTypeEnum.PROXY_SEND_TO_DATAPROXY;
 
 /**
  * The task config for agent.
@@ -74,6 +80,14 @@ public class DataConfig {
     private DataProxyTopicInfo topicInfo;
 
     public boolean isValid() {
-        return true;
+        DataReportTypeEnum reportType = DataReportTypeEnum.getReportType(dataReportType);
+        if (reportType == NORMAL_SEND_TO_DATAPROXY || reportType == PROXY_SEND_TO_DATAPROXY) {
+            return true;
+        }
+        if (reportType == DIRECT_SEND_TO_MQ && CollectionUtils.isNotEmpty(mqClusters) && mqClusters.stream()
+                .allMatch(MQClusterInfo::isValid) && topicInfo.isValid()) {
+            return true;
+        }
+        return false;
     }
 }
