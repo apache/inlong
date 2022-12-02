@@ -1,0 +1,11 @@
+{
+  "job": {
+    "id": 1,
+    "instance.id": "job_1",
+    "source": "org.apache.inlong.agent.plugin.sources.TextFileSource",
+    "sink": "org.apache.inlong.agent.plugin.sinks.PulsarSink",
+    "channel": "org.apache.inlong.agent.plugin.channel.MemoryChannel",
+    "groupId": "test_20220913_221",
+    "streamId": "test_20220913_221"
+  }
+}

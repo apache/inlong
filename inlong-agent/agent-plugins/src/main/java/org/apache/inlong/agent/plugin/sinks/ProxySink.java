@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -40,9 +39,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FIELD_SPLITTER;
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_PROXY_BATCH_FLUSH_INTERVAL;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
-import static org.apache.inlong.agent.constant.JobConstants.PROXY_BATCH_FLUSH_INTERVAL;
 
 /**
  * sink message data to inlong-dataproxy
@@ -57,12 +53,7 @@ public class ProxySink extends AbstractSink {
     private MessageFilter messageFilter;
     private SenderManager senderManager;
     private byte[] fieldSplitter;
-    private String sourceName;
-    private String jobInstanceId;
-    private int batchFlushInterval;
     private volatile boolean shutdown = false;
-    // key is stream id, value is a batch of messages belong to the same stream id
-    private ConcurrentHashMap<String, PackProxyMessage> cache;
 
     public ProxySink() {
     }
@@ -115,11 +106,6 @@ public class ProxySink extends AbstractSink {
         }
     }
 
-    @Override
-    public void setSourceName(String sourceFileName) {
-        this.sourceName = sourceFileName;
-    }
-
     /**
      * flush cache by batch
      *
@@ -154,10 +140,6 @@ public class ProxySink extends AbstractSink {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        jobInstanceId = jobConf.get(JOB_INSTANCE_ID);
-        batchFlushInterval = jobConf.getInt(PROXY_BATCH_FLUSH_INTERVAL,
-                DEFAULT_PROXY_BATCH_FLUSH_INTERVAL);
-        cache = new ConcurrentHashMap<>(10);
         messageFilter = initMessageFilter(jobConf);
         fieldSplitter = jobConf.get(CommonConstants.FIELD_SPLITTER, DEFAULT_FIELD_SPLITTER).getBytes(
                 StandardCharsets.UTF_8);
