@@ -54,11 +54,10 @@ public class SortClientImplV2 extends SortClient {
         try {
             this.sortClientConfig = sortClientConfig;
             this.context = new ClientContextImpl(this.sortClientConfig, new MetricReporterImpl(sortClientConfig));
-            QueryConsumeConfigImpl impl = new QueryConsumeConfigImpl();
-            impl.configure(context);
+
             this.inLongTopicManager = InlongTopicManagerFactory
                     .createInLongTopicManager(sortClientConfig.getTopicType(),
-                            context, impl);
+                            context, new QueryConsumeConfigImpl(context));
         } catch (Exception e) {
             this.close();
             throw e;
