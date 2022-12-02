@@ -27,7 +27,7 @@ EXPOSE 46801 46802
 ENV MANAGER_OPENAPI_IP=127.0.0.1
 ENV MANAGER_OPENAPI_PORT=8083
 # specify the name of the network card in the container to obtain the local IP
-ENV ETH_NAME=eth1
+ENV ETH_NAME=eth0
 # enable audit, true or false
 ENV AUDIT_ENABLE=true
 ENV AUDIT_PROXY_URL=127.0.0.1:10081
