@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 
 /**
- * 
+ *
  * SortCluster
  */
 public class SortCluster {
@@ -123,6 +123,7 @@ public class SortCluster {
                 this.taskMap.put(newTaskName, newTask);
             }
             // remove task
+            deletingTasks.clear();
             for (Entry<String, SortTask> entry : taskMap.entrySet()) {
                 String taskName = entry.getKey();
                 boolean isFound = false;
@@ -141,7 +142,6 @@ public class SortCluster {
                 task.stop();
                 taskMap.remove(task.getTaskName());
             }
-            deletingTasks.clear();
         } catch (Throwable e) {
             LOG.error(e.getMessage(), e);
         }
