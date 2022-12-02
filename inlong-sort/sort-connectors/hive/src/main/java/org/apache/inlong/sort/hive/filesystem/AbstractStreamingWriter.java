@@ -199,7 +199,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     }
 
     @Override
-    public void processElement(StreamRecord<IN> element) {
+    public void processElement(StreamRecord<IN> element) throws Exception{
         try {
             helper.onElement(
                     element.getValue(),
