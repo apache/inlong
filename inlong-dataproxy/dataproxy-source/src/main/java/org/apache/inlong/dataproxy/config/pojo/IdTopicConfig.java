@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * IdTopicConfig
  */
 public class IdTopicConfig {

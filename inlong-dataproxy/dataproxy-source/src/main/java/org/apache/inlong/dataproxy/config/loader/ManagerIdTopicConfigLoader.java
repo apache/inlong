@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * ManagerIdTopicConfigLoader
  */
 public class ManagerIdTopicConfigLoader implements IdTopicConfigLoader {
