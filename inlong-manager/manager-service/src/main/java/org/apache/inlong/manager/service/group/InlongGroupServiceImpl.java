@@ -383,7 +383,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             entity.setInlongClusterTag(approveRequest.getInlongClusterTag());
             entity.setStatus(GroupStatus.APPROVE_PASSED.getCode());
             if (approveRequest.getDataReportType() != null
-                    && approveRequest.getDataReportType() != entity.getDataReportType()) {
+                    && !Objects.equals(approveRequest.getDataReportType(), entity.getDataReportType())) {
                 entity.setDataReportType(approveRequest.getDataReportType());
             }
             entity.setModifier(operator);
