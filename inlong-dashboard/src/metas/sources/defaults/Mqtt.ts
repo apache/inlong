@@ -51,7 +51,7 @@ export default class MqttSource
   username: string;
 
   @FieldDecorator({
-    type: 'input',
+    type: 'password',
     rules: [{ required: true }],
     props: values => ({
       disabled: values?.status === 101,
