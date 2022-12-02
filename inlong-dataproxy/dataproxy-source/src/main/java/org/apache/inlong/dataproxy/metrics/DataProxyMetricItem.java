@@ -31,7 +31,7 @@ import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 
 /**
- * 
+ *
  * DataProxyMetricItem
  */
 @MetricDomain(name = "DataProxy")
@@ -60,6 +60,11 @@ public class DataProxyMetricItem extends MetricItem {
     public static final String M_SINK_DURATION = "sinkDuration";
     public static final String M_NODE_DURATION = "nodeDuration";
     public static final String M_WHOLE_DURATION = "wholeDuration";
+    //
+    public static final String M_READ_PACK_COUNT = "readPackCount";
+    public static final String M_READ_PACK_SIZE = "readPackSize";
+    public static final String M_SEND_PACK_COUNT = "sendPackCount";
+    public static final String M_SEND_PACK_SIZE = "sendPackSize";
 
     @Dimension
     public String clusterId;
@@ -106,6 +111,14 @@ public class DataProxyMetricItem extends MetricItem {
     @CountMetric
     // sinkCallbackTime - eventCreateTime(milliseconds)
     public AtomicLong wholeDuration = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong readPackCount = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong readPackSize = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong sendPackCount = new AtomicLong(0);
+    @CountMetric
+    public AtomicLong sendPackSize = new AtomicLong(0);
 
     /**
      * fillInlongId
@@ -126,7 +139,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * fillAuditFormatTime
-     * 
+     *
      * @param event
      * @param dimensions
      */
@@ -138,7 +151,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * getInlongGroupId
-     * 
+     *
      * @param  headers
      * @return
      */
@@ -152,7 +165,7 @@ public class DataProxyMetricItem extends MetricItem {
 
     /**
      * getInlongStreamId
-     * 
+     *
      * @param  headers
      * @return
      */
