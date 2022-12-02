@@ -88,7 +88,7 @@ public class BufferQueueChannel extends AbstractChannel {
     /**
      * take
      *
-     * @return                  Event
+     * @return Event
      * @throws ChannelException
      */
     @Override
@@ -106,7 +106,7 @@ public class BufferQueueChannel extends AbstractChannel {
     /**
      * getTransaction
      *
-     * @return
+     * @return new transaction
      */
     @Override
     public Transaction getTransaction() {
