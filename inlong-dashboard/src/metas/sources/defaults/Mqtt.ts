@@ -71,6 +71,19 @@ export default class MqttSource
   topic: string;
 
   @FieldDecorator({
+    type: 'inputnumber',
+    rules: [{ required: true }],
+    initialValue: 1,
+    props: values => ({
+      disabled: values?.status === 101,
+      min: 0,
+      max: 2,
+    }),
+  })
+  @I18n('QoS')
+  qos: number;
+
+  @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
     props: values => ({
