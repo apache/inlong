@@ -31,7 +31,6 @@ import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.utils.Constants;
 
 /**
- *
  * DataProxyMetricItem
  */
 @MetricDomain(name = "DataProxy")
