@@ -35,7 +35,6 @@ public class ManagerIdTopicConfigLoader implements IdTopicConfigLoader {
 
     /**
      * load
-     *
      * @return
      */
     @Override
@@ -68,7 +67,6 @@ public class ManagerIdTopicConfigLoader implements IdTopicConfigLoader {
 
     /**
      * configure
-     *
      * @param context
      */
     @Override
