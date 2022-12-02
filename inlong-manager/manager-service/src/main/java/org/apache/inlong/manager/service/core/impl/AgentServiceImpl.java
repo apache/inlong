@@ -35,6 +35,7 @@ import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.common.constant.MQType;
 import org.apache.inlong.manager.common.consts.SourceType;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -49,6 +50,7 @@ import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.service.core.AgentService;
@@ -374,8 +376,13 @@ public class AgentServiceImpl implements AgentService {
         if (InlongConstants.REPORT_TO_MQ_RECEIVED == dataReportType) {
             // add mq cluster setting
             List<MQClusterInfo> mqSet = new ArrayList<>();
-            List<InlongClusterEntity> mqClusterList =
-                    clusterMapper.selectByClusterTag(groupEntity.getInlongClusterTag());
+            List<String> clusterTagList = Arrays.asList(groupEntity.getInlongClusterTag());
+            List<String> typeList = Arrays.asList(ClusterType.TUBEMQ, ClusterType.PULSAR);
+            ClusterPageRequest pageRequest = ClusterPageRequest.builder()
+                    .typeList(typeList)
+                    .clusterTagList(clusterTagList)
+                    .build();
+            List<InlongClusterEntity> mqClusterList = clusterMapper.selectByCondition(pageRequest);
             for (InlongClusterEntity cluster : mqClusterList) {
                 MQClusterInfo clusterInfo = new MQClusterInfo();
                 clusterInfo.setUrl(cluster.getUrl());
