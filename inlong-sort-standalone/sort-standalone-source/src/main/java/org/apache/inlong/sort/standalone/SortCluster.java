@@ -38,7 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 
 /**
- *
  * SortCluster
  */
 public class SortCluster {
