@@ -53,13 +53,17 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     private final Logger logger = LoggerFactory.getLogger(QueryConsumeConfigImpl.class);
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
-    private final ClientContext clientContext;
+    private ClientContext clientContext;
     private String md5 = "";
 
     private Map<String, List<InLongTopic>> subscribedTopic = new HashMap<>();
 
     public QueryConsumeConfigImpl(ClientContext clientContext) {
         this.clientContext = clientContext;
+    }
+
+    public QueryConsumeConfigImpl() {
+
     }
 
     private String getRequestUrlWithParam() {
@@ -140,22 +144,22 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     private boolean handleSortTaskConfResult(String getUrl, SortSourceConfigResponse response, int respCodeValue)
             throws Exception {
         switch (respCodeValue) {
-            case NOUPDATE_VALUE:
+            case NOUPDATE_VALUE :
                 logger.debug("manager conf noupdate");
                 return true;
-            case UPDATE_VALUE:
+            case UPDATE_VALUE :
                 logger.info("manager conf update");
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addManagerConfChangedTimes(1);
                 this.md5 = response.getMd5();
                 updateSortTaskConf(response);
                 break;
-            case REQ_PARAMS_ERROR:
+            case REQ_PARAMS_ERROR :
                 logger.error("return code error:{}", respCodeValue);
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addRequestManagerParamErrorTimes(1);
                 break;
-            default:
+            default :
                 logger.error("return code error:{},request:{},response:{}",
                         respCodeValue, getUrl, new ObjectMapper().writeValueAsString(response));
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
@@ -198,5 +202,10 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {
         reload();
         return new ConsumeConfig(subscribedTopic.get(sortTaskId));
+    }
+
+    @Override
+    public void configure(ClientContext context) {
+        this.clientContext = context;
     }
 }
