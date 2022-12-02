@@ -47,6 +47,11 @@ export const allDefaultSources: MetaExportWithBackendList<SourceMetaType> = [
     LoadEntity: () => import('./Mongodb'),
   },
   {
+    label: 'Mqtt',
+    value: 'MQTT',
+    LoadEntity: () => import('./Mqtt'),
+  },
+  {
     label: 'Oracle',
     value: 'ORACLE',
     LoadEntity: () => import('./Oracle'),
