@@ -32,7 +32,7 @@ export default class MqttSource
   @FieldDecorator({
     type: 'input',
     rules: [{ required: true }],
-    initialValue: 'mqtt://broker.emqx.io:1883',
+    initialValue: 'tcp://broker.hivemq.com:1883',
     props: values => ({
       disabled: values?.status === 101,
     }),
