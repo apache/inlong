@@ -213,6 +213,8 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             if (metricData != null) {
                 metricData.invokeDirtyWithEstimate(element.getValue());
             }
+            // TODO: to support dirty data side-output
+            throw new RuntimeException(e);
         }
     }
 
