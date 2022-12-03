@@ -53,13 +53,17 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     private final Logger logger = LoggerFactory.getLogger(QueryConsumeConfigImpl.class);
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
 
-    private final ClientContext clientContext;
+    private ClientContext clientContext;
     private String md5 = "";
 
     private Map<String, List<InLongTopic>> subscribedTopic = new HashMap<>();
 
     public QueryConsumeConfigImpl(ClientContext clientContext) {
         this.clientContext = clientContext;
+    }
+
+    public QueryConsumeConfigImpl() {
+
     }
 
     private String getRequestUrlWithParam() {
@@ -198,5 +202,10 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {
         reload();
         return new ConsumeConfig(subscribedTopic.get(sortTaskId));
+    }
+
+    @Override
+    public void configure(ClientContext context) {
+        this.clientContext = context;
     }
 }

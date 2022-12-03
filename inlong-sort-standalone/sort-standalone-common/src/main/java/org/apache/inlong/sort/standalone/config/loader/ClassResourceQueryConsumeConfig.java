@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sdk.Topic;
+import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
 import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
@@ -38,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
  * ClassResourceQueryConsumeConfig
  */
 public class ClassResourceQueryConsumeConfig implements QueryConsumeConfig {
@@ -47,7 +47,7 @@ public class ClassResourceQueryConsumeConfig implements QueryConsumeConfig {
 
     /**
      * queryCurrentConsumeConfig
-     * 
+     *
      * @param  sortTaskId
      * @return
      */
@@ -83,6 +83,11 @@ public class ClassResourceQueryConsumeConfig implements QueryConsumeConfig {
             LOG.error("fail to load properties, file ={}, and e= {}", fileName, e);
         }
         return null;
+    }
+
+    @Override
+    public void configure(ClientContext context) {
+        // do nothing
     }
 
 }

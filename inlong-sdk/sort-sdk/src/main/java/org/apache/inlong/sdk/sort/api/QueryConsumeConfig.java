@@ -23,4 +23,6 @@ public interface QueryConsumeConfig {
 
     ConsumeConfig queryCurrentConsumeConfig(String sortTaskId);
 
+    void configure(ClientContext context);
+
 }
