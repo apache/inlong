@@ -78,8 +78,8 @@ You can use InLong in the following ways：
 |              | File              | None                         | Standard              |
 |              | Kafka             | 2.x                          | Lightweight, Standard |
 |              | MongoDB           | >= 3.6                       | Lightweight, Standard |
-|              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
 |              | MQTT              | >= 3.1                       | Standard              |
+|              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
 |              | Oracle            | 11,12,19                     | Lightweight           |
 |              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight, Standard |
 |              | Pulsar            | 2.8.x                        | Lightweight           |
