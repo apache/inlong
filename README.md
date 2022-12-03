@@ -77,26 +77,28 @@ You can use InLong in the following ways：
 | Extract Node | Auto Push         | None                         | Standard              |
 |              | File              | None                         | Standard              |
 |              | Kafka             | 2.x                          | Lightweight, Standard |
-|              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
 |              | MongoDB           | >= 3.6                       | Lightweight, Standard |
+|              | MQTT              | >= 3.1                       | Standard              |
+|              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
 |              | Oracle            | 11,12,19                     | Lightweight           |
 |              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight, Standard |
 |              | Pulsar            | 2.8.x                        | Lightweight           |
+|              | Redis             | 2.6.x                        | Standard              |
 |              | SQLServer         | 2012, 2014, 2016, 2017, 2019 | Lightweight, Standard |
 | Load Node    | Auto Consumption  | None                         | Standard              |
+|              | ClickHouse        | 20.7+                        | Lightweight, Standard |
+|              | Elasticsearch     | 6.x, 7.x                     | Lightweight, Standard |
+|              | Greenplum         | 4.x, 5.x, 6.x                | Lightweight, Standard |
+|              | HBase             | 2.2.x                        | Lightweight, Standard |
+|              | HDFS              | 2.x, 3.x                     | Lightweight, Standard |
 |              | Hive              | 1.x, 2.x, 3.x                | Lightweight, Standard |
 |              | Iceberg           | 0.12.x                       | Lightweight, Standard |
-|              | ClickHouse        | 20.7+                        | Lightweight, Standard |
 |              | Kafka             | 2.x                          | Lightweight, Standard |
-|              | HBase             | 2.2.x                        | Lightweight, Standard |
-|              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight, Standard |
-|              | Oracle            | 11, 12, 19                   | Lightweight, Standard |
 |              | MySQL             | 5.6, 5.7, 8.0.x              | Lightweight, Standard |
-|              | TDSQL-PostgreSQL  | 10.17                        | Lightweight, Standard |
-|              | Greenplum         | 4.x, 5.x, 6.x                | Lightweight, Standard |
-|              | Elasticsearch     | 6.x, 7.x                     | Lightweight, Standard |
+|              | Oracle            | 11, 12, 19                   | Lightweight, Standard |
+|              | PostgreSQL        | 9.6, 10, 11, 12              | Lightweight, Standard |
 |              | SQLServer         | 2012, 2014, 2016, 2017, 2019 | Lightweight, Standard |
-|              | HDFS              | 2.x, 3.x                     | Lightweight, Standard |
+|              | TDSQL-PostgreSQL  | 10.17                        | Lightweight, Standard |
 
 ## Build InLong
 More detailed instructions can be found at [Quick Start](https://inlong.apache.org/docs/next/quick_start/how_to_build) section in the documentation.
