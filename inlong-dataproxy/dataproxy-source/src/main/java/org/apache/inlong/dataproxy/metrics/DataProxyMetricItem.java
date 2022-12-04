@@ -44,7 +44,7 @@ public class DataProxyMetricItem extends MetricItem {
     public static final String KEY_SINK_ID = "sinkId";
     public static final String KEY_SINK_DATA_ID = "sinkDataId";
     public static final String KEY_MESSAGE_TIME = "msgTime";
-    //
+
     public static final String M_READ_SUCCESS_COUNT = "readSuccessCount";
     public static final String M_READ_SUCCESS_SIZE = "readSuccessSize";
     public static final String M_READ_FAIL_COUNT = "readFailCount";
@@ -55,11 +55,11 @@ public class DataProxyMetricItem extends MetricItem {
     public static final String M_SEND_SUCCESS_SIZE = "sendSuccessSize";
     public static final String M_SEND_FAIL_COUNT = "sendFailCount";
     public static final String M_SEND_FAIL_SIZE = "sendFailSize";
-    //
+
     public static final String M_SINK_DURATION = "sinkDuration";
     public static final String M_NODE_DURATION = "nodeDuration";
     public static final String M_WHOLE_DURATION = "wholeDuration";
-    //
+
     public static final String M_READ_PACK_COUNT = "readPackCount";
     public static final String M_READ_PACK_SIZE = "readPackSize";
     public static final String M_SEND_PACK_COUNT = "sendPackCount";
