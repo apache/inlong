@@ -69,8 +69,8 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
     private DataType[] fieldDataTypes;
     private String inlongMetric;
     private String auditHostAndPorts;
-    private String dirtyOptions;
-    private String dirtySink;
+    private DirtyOptions dirtyOptions;
+    private DirtySink<Object> dirtySink;
 
     public JdbcDynamicOutputFormatBuilder() {
 
@@ -244,6 +244,17 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
         this.auditHostAndPorts = auditHostAndPorts;
         return this;
     }
+
+    public JdbcDynamicOutputFormatBuilder setDirtyOptions(DirtyOptions dirtyOptions) {
+        this.dirtyOptions = dirtyOptions;
+        return this;
+    }
+
+    public JdbcDynamicOutputFormatBuilder setDirtySink(DirtySink<Object> dirtySink) {
+        this.dirtySink = dirtySink;
+        return this;
+    }
+
 
     public JdbcBatchingOutputFormat<RowData, ?, ?> build() {
         checkNotNull(jdbcOptions, "jdbc options can not be null");

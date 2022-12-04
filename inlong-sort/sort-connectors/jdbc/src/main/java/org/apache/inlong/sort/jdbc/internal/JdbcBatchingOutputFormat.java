@@ -121,6 +121,7 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         this.dirtySink = dirtySink;
     }
 
+
     public static Builder builder() {
         return new Builder();
     }
@@ -428,6 +429,8 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
         private String auditHostAndPorts;
         private JdbcExecutionOptions.Builder executionOptionsBuilder =
                 JdbcExecutionOptions.builder();
+        private DirtyOptions dirtyOptions;
+        private DirtySink<Object> dirtySink;
 
         /**
          * required, jdbc options.
@@ -545,7 +548,9 @@ public class JdbcBatchingOutputFormat<In, JdbcIn, JdbcExec extends JdbcBatchStat
                             return tuple2.f1;
                         },
                         inlongMetric,
-                        auditHostAndPorts);
+                        auditHostAndPorts,
+                        dirtyOptions,
+                        dirtySink);
             }
         }
     }
