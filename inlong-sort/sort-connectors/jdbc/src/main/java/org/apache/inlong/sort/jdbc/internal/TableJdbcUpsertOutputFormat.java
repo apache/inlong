@@ -27,6 +27,7 @@ import org.apache.flink.connector.jdbc.internal.executor.JdbcBatchStatementExecu
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.statement.FieldNamedPreparedStatementImpl;
 import org.apache.flink.types.Row;
+import org.apache.inlong.sort.base.dirty.DirtyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,8 @@ class TableJdbcUpsertOutputFormat
             JdbcDmlOptions dmlOptions,
             JdbcExecutionOptions batchOptions,
             String inlongMetric,
-            String auditHostAndPorts) {
+            String auditHostAndPorts
+    ) {
         this(
                 connectionProvider,
                 batchOptions,
@@ -178,11 +180,16 @@ class TableJdbcUpsertOutputFormat
     }
 
     @Override
-    protected void addToBatch(Tuple2<Boolean, Row> original, Row extracted) throws SQLException {
+    protected void addToBatch(Tuple2<Boolean, Row> original, Row extracted) {
         if (original.f0) {
             super.addToBatch(original, extracted);
         } else {
-            deleteExecutor.addToBatch(extracted);
+            try {
+                deleteExecutor.addToBatch(extracted);
+            } catch (Exception e){
+                LOG.error(String.format("DataTypeMappingError, data: %s", extracted), e);
+                handleDirtyData(extracted, DirtyType.DATA_TYPE_MAPPING_ERROR, e);
+            }
         }
     }
 

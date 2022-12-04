@@ -38,6 +38,9 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
+import org.apache.inlong.sort.base.dirty.utils.DirtySinkFactoryUtils;
 import org.apache.inlong.sort.jdbc.internal.JdbcBatchingOutputFormat;
 
 import java.io.Serializable;
@@ -66,6 +69,8 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
     private DataType[] fieldDataTypes;
     private String inlongMetric;
     private String auditHostAndPorts;
+    private String dirtyOptions;
+    private String dirtySink;
 
     public JdbcDynamicOutputFormatBuilder() {
 
@@ -92,7 +97,6 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                 ctx.getExecutionConfig().isObjectReuseEnabled()
                         ? typeSerializer::copy
                         : Function.identity();
-
         return new TableBufferReducedStatementExecutor(
                 createUpsertRowExecutor(
                         dialect,
@@ -259,7 +263,9 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                             dmlOptions, ctx, rowDataTypeInformation, logicalTypes),
                     JdbcBatchingOutputFormat.RecordExtractor.identity(),
                     inlongMetric,
-                    auditHostAndPorts);
+                    auditHostAndPorts,
+                    dirtyOptions,
+                    dirtySink);
         } else {
             // append only query
             final String sql =
@@ -279,7 +285,9 @@ public class JdbcDynamicOutputFormatBuilder implements Serializable {
                             rowDataTypeInformation),
                     JdbcBatchingOutputFormat.RecordExtractor.identity(),
                     inlongMetric,
-                    auditHostAndPorts);
+                    auditHostAndPorts,
+                    dirtyOptions,
+                    dirtySink);
         }
     }
 }
