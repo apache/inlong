@@ -1250,7 +1250,7 @@ public class FlinkKafkaProducer<IN>
                     context.getOperatorStateStore().getUnionListState(
                             new ListStateDescriptor<>(
                                     INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                            })));
+                                    })));
         }
 
         nextTransactionalIdHintState =
@@ -1468,7 +1468,7 @@ public class FlinkKafkaProducer<IN>
         // register Kafka metrics to Flink accumulators
         if (registerMetrics
                 && !Boolean.parseBoolean(
-                producerConfig.getProperty(KEY_DISABLE_METRICS, "false"))) {
+                        producerConfig.getProperty(KEY_DISABLE_METRICS, "false"))) {
             Map<MetricName, ? extends Metric> metrics = producer.metrics();
 
             if (metrics == null) {
@@ -1700,7 +1700,7 @@ public class FlinkKafkaProducer<IN>
     @Internal
     public static class TransactionStateSerializer
             extends
-            TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionState> {
+                TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionState> {
 
         private static final long serialVersionUID = 1L;
 
@@ -1790,7 +1790,7 @@ public class FlinkKafkaProducer<IN>
         @SuppressWarnings("WeakerAccess")
         public static final class TransactionStateSerializerSnapshot
                 extends
-                SimpleTypeSerializerSnapshot<FlinkKafkaProducer.KafkaTransactionState> {
+                    SimpleTypeSerializerSnapshot<FlinkKafkaProducer.KafkaTransactionState> {
 
             public TransactionStateSerializerSnapshot() {
                 super(TransactionStateSerializer::new);
@@ -1806,7 +1806,7 @@ public class FlinkKafkaProducer<IN>
     @Internal
     public static class ContextStateSerializer
             extends
-            TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionContext> {
+                TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionContext> {
 
         private static final long serialVersionUID = 1L;
 
@@ -1959,7 +1959,7 @@ public class FlinkKafkaProducer<IN>
     @Internal
     public static class NextTransactionalIdHintSerializer
             extends
-            TypeSerializerSingleton<NextTransactionalIdHint> {
+                TypeSerializerSingleton<NextTransactionalIdHint> {
 
         private static final long serialVersionUID = 1L;
 
@@ -2026,7 +2026,7 @@ public class FlinkKafkaProducer<IN>
         @SuppressWarnings("WeakerAccess")
         public static final class NextTransactionalIdHintSerializerSnapshot
                 extends
-                SimpleTypeSerializerSnapshot<NextTransactionalIdHint> {
+                    SimpleTypeSerializerSnapshot<NextTransactionalIdHint> {
 
             public NextTransactionalIdHintSerializerSnapshot() {
                 super(NextTransactionalIdHintSerializer::new);
