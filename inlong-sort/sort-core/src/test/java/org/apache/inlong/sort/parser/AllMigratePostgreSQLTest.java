@@ -54,12 +54,11 @@ public class AllMigratePostgreSQLTest {
         Map<String, String> option = new HashMap<>();
         option.put("source.multiple.enable", "true");
         List<String> tableNames = Arrays.asList("table");
-        //List<String> tableNames = Arrays.asList("*");
+        // List<String> tableNames = Arrays.asList("*");
         PostgresExtractNode node = new PostgresExtractNode("1", "pg_input", fields,
                 null, option, null, tableNames, "localhost", "user",
                 "password", "db", "schema", 1234,
-                null, "Asia/Shanghai", "initial"
-        );
+                null, "Asia/Shanghai", "initial");
         return node;
     }
 
@@ -110,7 +109,7 @@ public class AllMigratePostgreSQLTest {
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildAllMigrateExtractNode();
         Node outputNode = buildAllMigrateKafkaNode();
-//        Node outputNode = buildAllMigrateDorisNode();
+        // Node outputNode = buildAllMigrateDorisNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));
