@@ -25,7 +25,7 @@ import { SourceInfo } from '../common/SourceInfo';
 const { I18n } = DataWithBackend;
 const { FieldDecorator } = RenderRow;
 
-export default class MqttSource
+export default class MQTTSource
   extends SourceInfo
   implements DataWithBackend, RenderRow, RenderList
 {
@@ -47,7 +47,7 @@ export default class MqttSource
       disabled: values?.status === 101,
     }),
   })
-  @I18n('meta.Sources.Mqtt.Username')
+  @I18n('meta.Sources.MQTT.Username')
   username: string;
 
   @FieldDecorator({
@@ -57,7 +57,7 @@ export default class MqttSource
       disabled: values?.status === 101,
     }),
   })
-  @I18n('meta.Sources.Mqtt.Password')
+  @I18n('meta.Sources.MQTT.Password')
   password: string;
 
   @FieldDecorator({
@@ -100,6 +100,6 @@ export default class MqttSource
       disabled: values?.status === 101,
     }),
   })
-  @I18n('meta.Sources.Mqtt.MqttVersion')
+  @I18n('meta.Sources.MQTT.MqttVersion')
   mqttVersion: string;
 }
