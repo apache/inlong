@@ -55,6 +55,7 @@ public class OracleSource {
         private DebeziumDeserializationSchema<T> deserializer;
         private String inlongMetric;
         private String inlongAudit;
+        private boolean sourceMultipleEnable;
 
         public Builder<T> hostname(String hostname) {
             this.hostname = hostname;
@@ -141,6 +142,11 @@ public class OracleSource {
             return this;
         }
 
+        public Builder<T> sourceMultipleEnable(boolean sourceMultipleEnable) {
+            this.sourceMultipleEnable = sourceMultipleEnable;
+            return this;
+        }
+
         public DebeziumSourceFunction<T> build() {
             Properties props = new Properties();
             props.setProperty("connector.class", OracleConnector.class.getCanonicalName());
@@ -184,7 +190,8 @@ public class OracleSource {
             }
 
             return new DebeziumSourceFunction<>(
-                    deserializer, props, specificOffset, new OracleValidator(props), inlongMetric, inlongAudit);
+                    deserializer, props, specificOffset, new OracleValidator(props),
+                    inlongMetric, inlongAudit, sourceMultipleEnable);
         }
     }
 }
