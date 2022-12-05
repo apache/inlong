@@ -36,7 +36,6 @@ public enum TaskTypeEnum {
     REDIS(11),
     MQTT(12),
 
-    HA_BINLOG(101),
     // only used for unit test
     MOCK(201)
 
