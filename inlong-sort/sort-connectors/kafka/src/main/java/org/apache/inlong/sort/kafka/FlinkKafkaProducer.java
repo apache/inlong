@@ -61,7 +61,7 @@ import org.apache.flink.util.TemporaryClassLoaderContext;
 import org.apache.inlong.sort.base.metric.MetricOption;
 import org.apache.inlong.sort.base.metric.MetricOption.RegisteredMetric;
 import org.apache.inlong.sort.base.metric.MetricState;
-import org.apache.inlong.sort.base.metric.SinkMetricData;
+import org.apache.inlong.sort.base.metric.sub.SinkTopicMetricData;
 import org.apache.inlong.sort.base.util.MetricStateUtils;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
@@ -98,6 +98,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS_OUT;
 import static org.apache.inlong.sort.base.Constants.INLONG_METRIC_STATE_NAME;
 import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
 import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
@@ -242,7 +244,7 @@ public class FlinkKafkaProducer<IN>
     /**
      * sink metric data
      */
-    private SinkMetricData metricData;
+    private SinkTopicMetricData sinkMetricData;
     private Long dataSize = 0L;
     private Long rowSize = 0L;
 
@@ -863,6 +865,9 @@ public class FlinkKafkaProducer<IN>
                                 LOG.error(
                                         "Error while sending record to Kafka: " + e.getMessage(),
                                         e);
+                            } else {
+                                sendOutMetrics(1L, dataSize);
+                                pendingRecords.incrementAndGet();
                             }
                             acknowledgeMessage();
                         }
@@ -875,7 +880,11 @@ public class FlinkKafkaProducer<IN>
                         public void onCompletion(RecordMetadata metadata, Exception exception) {
                             if (exception != null && asyncException == null) {
                                 asyncException = exception;
-                                sendDirtyMetrics(rowSize, dataSize);
+                                sinkMetricData.sendDirtyMetrics(metadata.topic(), 1L, dataSize);
+                            } else {
+                                sinkMetricData.sendOutMetrics(metadata.topic(), 1L, dataSize);
+                                sendOutMetrics(1L, dataSize);
+                                pendingRecords.incrementAndGet();
                             }
                             acknowledgeMessage();
                         }
@@ -905,23 +914,25 @@ public class FlinkKafkaProducer<IN>
                 .withInlongAudit(auditHostAndPorts)
                 .withInitRecords(metricState != null ? metricState.getMetricValue(NUM_RECORDS_OUT) : 0L)
                 .withInitBytes(metricState != null ? metricState.getMetricValue(NUM_BYTES_OUT) : 0L)
+                .withInitDirtyRecords(metricState != null ? metricState.getMetricValue(DIRTY_RECORDS_OUT) : 0L)
+                .withInitDirtyBytes(metricState != null ? metricState.getMetricValue(DIRTY_BYTES_OUT) : 0L)
                 .withRegisterMetric(RegisteredMetric.ALL)
                 .build();
         if (metricOption != null) {
-            metricData = new SinkMetricData(metricOption, ctx.getMetricGroup());
+            sinkMetricData = new SinkTopicMetricData(metricOption, ctx.getMetricGroup());
         }
         super.open(configuration);
     }
 
     private void sendOutMetrics(Long rowSize, Long dataSize) {
-        if (metricData != null) {
-            metricData.invoke(rowSize, dataSize);
+        if (sinkMetricData != null) {
+            sinkMetricData.invoke(rowSize, dataSize);
         }
     }
 
     private void sendDirtyMetrics(Long rowSize, Long dataSize) {
-        if (metricData != null) {
-            metricData.invokeDirty(rowSize, dataSize);
+        if (sinkMetricData != null) {
+            sinkMetricData.invokeDirty(rowSize, dataSize);
         }
     }
 
@@ -1005,9 +1016,7 @@ public class FlinkKafkaProducer<IN>
     }
 
     private void send(ProducerRecord<byte[], byte[]> record, FlinkKafkaProducer.KafkaTransactionState transaction) {
-        long dataSize = record.value() == null ? 0L : record.value().length;
-        sendOutMetrics(1L, dataSize);
-        pendingRecords.incrementAndGet();
+        dataSize = record.value() == null ? 0L : record.value().length;
         transaction.producer.send(record, callback);
     }
 
@@ -1219,8 +1228,8 @@ public class FlinkKafkaProducer<IN>
                             getRuntimeContext().getNumberOfParallelSubtasks(),
                             nextFreeTransactionalId));
         }
-        if (metricData != null && metricStateListState != null) {
-            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, metricData,
+        if (sinkMetricData != null && metricStateListState != null) {
+            MetricStateUtils.snapshotMetricStateForSinkMetricData(metricStateListState, sinkMetricData,
                     getRuntimeContext().getIndexOfThisSubtask());
         }
     }
@@ -1241,7 +1250,7 @@ public class FlinkKafkaProducer<IN>
                     context.getOperatorStateStore().getUnionListState(
                             new ListStateDescriptor<>(
                                     INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                                    })));
+                            })));
         }
 
         nextTransactionalIdHintState =
@@ -1269,7 +1278,7 @@ public class FlinkKafkaProducer<IN>
                         taskName
                                 + "-"
                                 + ((StreamingRuntimeContext) getRuntimeContext())
-                                        .getOperatorUniqueID(),
+                                .getOperatorUniqueID(),
                         getRuntimeContext().getIndexOfThisSubtask(),
                         getRuntimeContext().getNumberOfParallelSubtasks(),
                         kafkaProducersPoolSize,
@@ -1459,7 +1468,7 @@ public class FlinkKafkaProducer<IN>
         // register Kafka metrics to Flink accumulators
         if (registerMetrics
                 && !Boolean.parseBoolean(
-                        producerConfig.getProperty(KEY_DISABLE_METRICS, "false"))) {
+                producerConfig.getProperty(KEY_DISABLE_METRICS, "false"))) {
             Map<MetricName, ? extends Metric> metrics = producer.metrics();
 
             if (metrics == null) {
@@ -1691,7 +1700,7 @@ public class FlinkKafkaProducer<IN>
     @Internal
     public static class TransactionStateSerializer
             extends
-                TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionState> {
+            TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionState> {
 
         private static final long serialVersionUID = 1L;
 
@@ -1781,7 +1790,7 @@ public class FlinkKafkaProducer<IN>
         @SuppressWarnings("WeakerAccess")
         public static final class TransactionStateSerializerSnapshot
                 extends
-                    SimpleTypeSerializerSnapshot<FlinkKafkaProducer.KafkaTransactionState> {
+                SimpleTypeSerializerSnapshot<FlinkKafkaProducer.KafkaTransactionState> {
 
             public TransactionStateSerializerSnapshot() {
                 super(TransactionStateSerializer::new);
@@ -1797,7 +1806,7 @@ public class FlinkKafkaProducer<IN>
     @Internal
     public static class ContextStateSerializer
             extends
-                TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionContext> {
+            TypeSerializerSingleton<FlinkKafkaProducer.KafkaTransactionContext> {
 
         private static final long serialVersionUID = 1L;
 
@@ -1880,7 +1889,7 @@ public class FlinkKafkaProducer<IN>
         @SuppressWarnings("WeakerAccess")
         public static final class ContextStateSerializerSnapshot
                 extends
-                    SimpleTypeSerializerSnapshot<KafkaTransactionContext> {
+                SimpleTypeSerializerSnapshot<KafkaTransactionContext> {
 
             public ContextStateSerializerSnapshot() {
                 super(ContextStateSerializer::new);
@@ -1950,7 +1959,7 @@ public class FlinkKafkaProducer<IN>
     @Internal
     public static class NextTransactionalIdHintSerializer
             extends
-                TypeSerializerSingleton<NextTransactionalIdHint> {
+            TypeSerializerSingleton<NextTransactionalIdHint> {
 
         private static final long serialVersionUID = 1L;
 
@@ -2017,7 +2026,7 @@ public class FlinkKafkaProducer<IN>
         @SuppressWarnings("WeakerAccess")
         public static final class NextTransactionalIdHintSerializerSnapshot
                 extends
-                    SimpleTypeSerializerSnapshot<NextTransactionalIdHint> {
+                SimpleTypeSerializerSnapshot<NextTransactionalIdHint> {
 
             public NextTransactionalIdHintSerializerSnapshot() {
                 super(NextTransactionalIdHintSerializer::new);
