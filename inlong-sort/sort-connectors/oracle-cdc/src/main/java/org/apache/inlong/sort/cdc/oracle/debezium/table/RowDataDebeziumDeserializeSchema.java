@@ -56,6 +56,10 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Collector;
+import org.apache.inlong.sort.base.dirty.DirtyData;
+import org.apache.inlong.sort.base.dirty.DirtyOptions;
+import org.apache.inlong.sort.base.dirty.DirtyType;
+import org.apache.inlong.sort.base.dirty.sink.DirtySink;
 import org.apache.inlong.sort.cdc.oracle.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.oracle.debezium.utils.RecordUtils;
 import org.apache.inlong.sort.cdc.oracle.debezium.utils.TemporalConversions;
@@ -67,6 +71,8 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 
 /**
  * Deserialization schema from Debezium object to Flink Table/SQL internal data structure {@link
@@ -116,6 +122,11 @@ public final class RowDataDebeziumDeserializeSchema
 
     private ZoneId serverTimeZone;
 
+    private final DirtyOptions dirtyOptions;
+
+    private @Nullable final DirtySink<Object> dirtySink;
+
+
     RowDataDebeziumDeserializeSchema(
             RowType physicalDataType,
             MetadataConverter[] metadataConverters,
@@ -124,7 +135,9 @@ public final class RowDataDebeziumDeserializeSchema
             ZoneId serverTimeZone,
             boolean appendSource,
             DeserializationRuntimeConverterFactory userDefinedConverterFactory,
-            boolean sourceMultipleEnable) {
+            boolean sourceMultipleEnable,
+            DirtyOptions dirtyOptions,
+            @Nullable DirtySink<Object> dirtySink) {
         this.hasMetadata = checkNotNull(metadataConverters).length > 0;
         this.appendMetadataCollector = new AppendMetadataCollector(metadataConverters, sourceMultipleEnable);
         this.sourceMultipleEnable = sourceMultipleEnable;
@@ -137,6 +150,8 @@ public final class RowDataDebeziumDeserializeSchema
         this.resultTypeInfo = checkNotNull(resultTypeInfo);
         this.validator = checkNotNull(validator);
         this.appendSource = checkNotNull(appendSource);
+        this.dirtySink = dirtySink;
+        this.dirtyOptions = dirtyOptions;
     }
 
     /**
@@ -782,7 +797,41 @@ public final class RowDataDebeziumDeserializeSchema
 
     @Override
     public void deserialize(SourceRecord record, Collector<RowData> out) throws Exception {
-        deserialize(record, out, null);
+        try{
+            deserialize(record, out, null);
+        } catch (Exception e){
+            LOG.error(String.format("deserialize error, raw data: %s", record), e);
+            handleDirtyData(record, DirtyType.DESERIALIZE_ERROR, e);
+        }
+    }
+
+
+    void handleDirtyData(Object dirtyData, DirtyType dirtyType, Exception e) {
+        if (!dirtyOptions.ignoreDirty()) {
+            RuntimeException ex;
+            if (e instanceof RuntimeException) {
+                ex = (RuntimeException) e;
+            } else {
+                ex = new RuntimeException(e);
+            }
+            throw ex;
+        }
+        if (dirtySink != null) {
+            DirtyData.Builder<Object> builder = DirtyData.builder();
+            try {
+                builder.setData(dirtyData)
+                        .setDirtyType(dirtyType)
+                        .setLabels(dirtyOptions.getLabels())
+                        .setLogTag(dirtyOptions.getLogTag())
+                        .setIdentifier(dirtyOptions.getIdentifier());
+                dirtySink.invoke(builder.build());
+            } catch (Exception ex) {
+                if (!dirtyOptions.ignoreSideOutputErrors()) {
+                    throw new RuntimeException(ex);
+                }
+                LOG.warn("Dirty sink failed", ex);
+            }
+        }
     }
 
     @Override
@@ -875,6 +924,10 @@ public final class RowDataDebeziumDeserializeSchema
         private DeserializationRuntimeConverterFactory userDefinedConverterFactory =
                 DeserializationRuntimeConverterFactory.DEFAULT;
 
+        private DirtyOptions dirtyOptions;
+        private DirtySink<Object> dirtySink;
+
+
         public Builder setPhysicalRowType(RowType physicalRowType) {
             this.physicalRowType = physicalRowType;
             return this;
@@ -916,6 +969,16 @@ public final class RowDataDebeziumDeserializeSchema
             return this;
         }
 
+        public Builder setDirtyOptions(DirtyOptions dirtyOptions) {
+            this.dirtyOptions = dirtyOptions;
+            return this;
+        }
+
+        public Builder setDirtySink(DirtySink<Object> dirtySink) {
+            this.dirtySink = dirtySink;
+            return this;
+        }
+
         public RowDataDebeziumDeserializeSchema build() {
             return new RowDataDebeziumDeserializeSchema(
                     physicalRowType,
@@ -925,7 +988,9 @@ public final class RowDataDebeziumDeserializeSchema
                     serverTimeZone,
                     appendSource,
                     userDefinedConverterFactory,
-                    sourceMultipleEnable);
+                    sourceMultipleEnable,
+                    dirtyOptions,
+                    dirtySink);
         }
     }
 }
