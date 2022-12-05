@@ -42,7 +42,7 @@ public class PostgresExtractNodeTest extends SerializeBaseTest<PostgresExtractNo
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()));
         return new PostgresExtractNode("1", "postgres_input", fields, null, null, null, Arrays.asList("mytable"),
-                "localhost", "username", "password", "database", "public", 5432, null);
+                "localhost", "username", "password", "database", "public", 5432, null, null, "initial");
     }
 
     @Test

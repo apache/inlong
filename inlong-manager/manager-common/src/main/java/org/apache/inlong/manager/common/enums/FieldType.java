@@ -31,6 +31,7 @@ public enum FieldType {
     FLOAT,
     DECIMAL,
     STRING,
+    TEXT,
     FIXED,
     BYTE,
     BINARY,
