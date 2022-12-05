@@ -91,7 +91,7 @@
   "meta.Sources.Redis.LookupMaxRetries": "查找最大重试字段",
   "meta.Sources.MQTT.Username": "用户",
   "meta.Sources.MQTT.Password": "密码",
-  "meta.Sources.MQTT.MqttVersion": "Mqtt 版本",
+  "meta.Sources.MQTT.MqttVersion": "MQTT 版本",
   "meta.Sinks.SinkName": "名称",
   "meta.Sinks.SinkNameRule": "以英文字母开头，只能包含英文字母、数字、中划线、下划线",
   "meta.Sinks.SinkType": "类型",
