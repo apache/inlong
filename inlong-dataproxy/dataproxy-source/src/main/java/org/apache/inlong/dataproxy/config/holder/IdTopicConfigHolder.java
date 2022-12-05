@@ -38,7 +38,6 @@ import static org.apache.inlong.dataproxy.config.loader.ConfigLoader.RELOAD_INTE
 import static org.apache.inlong.dataproxy.config.loader.IdTopicConfigLoader.IDTOPIC_CONFIG_TYPE;
 
 /**
- * 
  * IdTopicConfigHolder
  */
 public class IdTopicConfigHolder implements Configurable {
@@ -55,7 +54,6 @@ public class IdTopicConfigHolder implements Configurable {
 
     /**
      * configure
-     * 
      * @param context
      */
     @Override
@@ -140,7 +138,6 @@ public class IdTopicConfigHolder implements Configurable {
 
     /**
      * get configList
-     * 
      * @return the configList
      */
     public List<IdTopicConfig> getConfigList() {
@@ -149,7 +146,6 @@ public class IdTopicConfigHolder implements Configurable {
 
     /**
      * getTopic
-     * 
      * @param  uid
      * @return
      */
