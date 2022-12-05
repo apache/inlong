@@ -861,11 +861,12 @@ public class FlinkKafkaProducer<IN>
                         @Override
                         public void onCompletion(RecordMetadata metadata, Exception e) {
                             if (e != null) {
-                                sendDirtyMetrics(rowSize, dataSize);
+                                sinkMetricData.sendDirtyMetrics(metadata.topic(), 1L, dataSize);
                                 LOG.error(
                                         "Error while sending record to Kafka: " + e.getMessage(),
                                         e);
                             } else {
+                                sinkMetricData.sendOutMetrics(metadata.topic(), 1L, dataSize);
                                 sendOutMetrics(1L, dataSize);
                                 pendingRecords.incrementAndGet();
                             }
