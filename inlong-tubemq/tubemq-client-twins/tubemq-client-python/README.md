@@ -29,7 +29,7 @@ pip install ./
 #### Examples
 ##### Producer example
 
-This is a simple example for how to use python tubemq producer,  like java/c++ producer, the `master_addr`, `topic_list` should be provided. A more detailed example is [`src/python/example/test_producer.py`](src/python/example/test_producer.py)
+This is a simple example for how to use Python TubeMQ producer,  like Java/C++ producer, the `master_addr`, `topic_list` should be provided. A more detailed example is [`src/python/example/test_producer.py`](src/python/example/test_producer.py)
 
 ```python
 import time
