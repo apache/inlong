@@ -37,7 +37,7 @@ public enum TaskTypeEnum {
     MQTT(12),
 
     // only used for unit test
-    MOCK(101)
+    MOCK(201)
 
     ;
 
