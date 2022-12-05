@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
 import static org.junit.Assert.assertEquals;
 
 public class PulsarSinkTest {
@@ -56,8 +57,9 @@ public class PulsarSinkTest {
         String body = "testMesage";
         Map<String, String> attr = new HashMap<>();
         attr.put(PROXY_KEY_GROUP_ID, "groupId");
-        long count = 100;
-        for (long i = 0; i < 100; i++) {
+        attr.put(PROXY_KEY_STREAM_ID, "streamId");
+        long count = 5;
+        for (long i = 0; i < 5; i++) {
             pulsarSink.write(new ProxyMessage(body.getBytes(StandardCharsets.UTF_8), attr));
         }
         assertEquals(pulsarSink.sinkMetric.sinkSuccessCount.get(), count);

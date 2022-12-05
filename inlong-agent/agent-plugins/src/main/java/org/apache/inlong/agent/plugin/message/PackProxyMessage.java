@@ -41,6 +41,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_PACKAGE_MAX
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_SEND_SYNC;
 import static org.apache.inlong.common.msg.AttributeConstants.DATA_TIME;
 import static org.apache.inlong.common.msg.AttributeConstants.MESSAGE_TOPIC;
+import static org.apache.inlong.common.msg.AttributeConstants.STREAM_ID;
 
 /**
  * Handle List of BusMessage, which belong to the same stream id.
@@ -90,6 +91,7 @@ public class PackProxyMessage {
     }
 
     public void addTopicAndDataTime(String topic, long dataTime) {
+        this.extraMap.put(STREAM_ID, streamId);
         this.extraMap.put(MESSAGE_TOPIC, topic);
         this.extraMap.put(DATA_TIME, String.valueOf(dataTime));
     }

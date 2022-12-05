@@ -164,8 +164,8 @@ public class PulsarSink extends AbstractSink {
                     cache.compute(proxyMessage.getBatchKey(),
                             (s, packProxyMessage) -> {
                                 if (packProxyMessage == null) {
-                                    packProxyMessage = new PackProxyMessage(jobInstanceId, jobConf, inlongGroupId,
-                                            proxyMessage.getInlongStreamId());
+                                    packProxyMessage =
+                                            new PackProxyMessage(jobInstanceId, jobConf, inlongGroupId, inlongStreamId);
                                     packProxyMessage.generateExtraMap(proxyMessage.getDataKey());
                                     packProxyMessage.addTopicAndDataTime(topic, System.currentTimeMillis());
                                 }
@@ -345,7 +345,7 @@ public class PulsarSink extends AbstractSink {
                             .ioThreads(clientIoThreads)
                             .connectionsPerBroker(connectionsPreBroker).build();
                     pulsarSenders.add(new PulsarTopicSender(client, producerNum));
-                    LOGGER.info("job[{}] pulsar client url={}", jobInstanceId, clusterInfo.getUrl());
+                    LOGGER.info("job[{}] init pulsar client url={}", jobInstanceId, clusterInfo.getUrl());
                 } catch (PulsarClientException e) {
                     LOGGER.error("init job[{}] pulsar client fail", jobInstanceId, e);
                 }
@@ -404,7 +404,7 @@ public class PulsarSink extends AbstractSink {
         private Producer<byte[]> createProducer() {
             try {
                 return pulsarClient.newProducer().topic(topic)
-                        .sendTimeout(sendTimeoutSecond, TimeUnit.MILLISECONDS)
+                        .sendTimeout(sendTimeoutSecond, TimeUnit.SECONDS)
                         .topic(topic)
                         .enableBatching(enableBatch)
                         .blockIfQueueFull(blockIfQueueFull)

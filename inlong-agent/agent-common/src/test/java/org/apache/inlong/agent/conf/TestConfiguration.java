@@ -87,7 +87,7 @@ public class TestConfiguration {
     @Test
     public void testJobSinkConf() {
         DataConfig dataConfig = new DataConfig();
-        dataConfig.setTaskType(101);
+        dataConfig.setTaskType(201);
         dataConfig.setDataReportType(1);
         JobProfile profile = JobProfileDto.convertToTriggerProfile(dataConfig);
         assertEquals(profile.get(JOB_SINK), DEFAULT_DATAPROXY_SINK);
