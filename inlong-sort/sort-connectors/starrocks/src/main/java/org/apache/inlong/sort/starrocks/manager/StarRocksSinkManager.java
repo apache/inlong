@@ -82,7 +82,6 @@ public class StarRocksSinkManager implements Serializable {
     private transient Histogram writeDataTimeMs;
     private transient Histogram loadTimeMs;
 
-
     private static final String COUNTER_TOTAL_FLUSH_BYTES = "totalFlushBytes";
     private static final String COUNTER_TOTAL_FLUSH_ROWS = "totalFlushRows";
     private static final String COUNTER_TOTAL_FLUSH_COST_TIME_WITHOUT_RETRIES = "totalFlushTimeNsWithoutRetries";
@@ -163,8 +162,7 @@ public class StarRocksSinkManager implements Serializable {
         this.starrocksStreamLoadVisitor = new StarRocksStreamLoadVisitor(
                 sinkOptions,
                 null == schema ? new String[]{} : schema.getFieldNames(),
-                version.length() > 0 && !version.trim().startsWith("1.")
-        );
+                version.length() > 0 && !version.trim().startsWith("1."));
     }
 
     public void setRuntimeContext(RuntimeContext runtimeCtx) {
@@ -293,7 +291,7 @@ public class StarRocksSinkManager implements Serializable {
     }
 
     private synchronized void flushInternal(String bufferKey, boolean waitUtilDone) throws Exception {
-        //checkFlushException();
+        // checkFlushException();
         if (null == bufferKey || bufferMap.isEmpty() || !bufferMap.containsKey(bufferKey)) {
             if (waitUtilDone) {
                 waitAsyncFlushingDone();
@@ -325,7 +323,7 @@ public class StarRocksSinkManager implements Serializable {
 
             offerEOF();
         }
-        //checkFlushException();
+        // checkFlushException();
     }
 
     public Map<String, StarRocksSinkBufferEntity> getBufferedBatchMap() {
@@ -414,7 +412,7 @@ public class StarRocksSinkManager implements Serializable {
         // wait for previous flushings
         offer(new StarRocksSinkBufferEntity(null, null, null));
         offer(new StarRocksSinkBufferEntity(null, null, null));
-        //checkFlushException();
+        // checkFlushException();
     }
 
     void offer(StarRocksSinkBufferEntity bufferEntity) throws InterruptedException {
@@ -495,15 +493,15 @@ public class StarRocksSinkManager implements Serializable {
                             + Arrays.asList(flinkSchema.getFieldNames()).stream().collect(Collectors.joining(","))
                             + "\n realTab[" + rows.size() + "]:"
                             + rows.stream().map((r) -> String.valueOf(r.get("COLUMN_NAME")))
-                            .collect(Collectors.joining(",")));
+                                    .collect(Collectors.joining(",")));
         }
         List<TableColumn> flinkCols = flinkSchema.getTableColumns();
         for (int i = 0; i < rows.size(); i++) {
             String starrocksField = rows.get(i).get("COLUMN_NAME").toString().toLowerCase();
             String starrocksType = rows.get(i).get("DATA_TYPE").toString().toLowerCase();
             List<TableColumn> matchedFlinkCols = flinkCols.stream()
-                    .filter(col -> col.getName().toLowerCase().equals(starrocksField) && (
-                            !typesMap.containsKey(starrocksType) || typesMap.get(starrocksType)
+                    .filter(col -> col.getName().toLowerCase().equals(starrocksField)
+                            && (!typesMap.containsKey(starrocksType) || typesMap.get(starrocksType)
                                     .contains(col.getType().getLogicalType().getTypeRoot())))
                     .collect(Collectors.toList());
             if (matchedFlinkCols.isEmpty()) {
