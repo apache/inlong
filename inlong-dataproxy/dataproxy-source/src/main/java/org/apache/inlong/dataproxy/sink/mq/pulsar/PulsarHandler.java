@@ -254,7 +254,7 @@ public class PulsarHandler implements MessageQueueHandler {
             builder.append(tenant).append("/");
         }
         String namespace = this.namespace;
-        if (config.getParams().get(PulsarHandler.KEY_NAMESPACE) != null) {
+        if (namespace == null) {
             namespace = config.getParams().get(PulsarHandler.KEY_NAMESPACE);
         }
         if (namespace != null) {
