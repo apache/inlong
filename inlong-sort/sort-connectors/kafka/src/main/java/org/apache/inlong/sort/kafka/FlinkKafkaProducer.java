@@ -1278,7 +1278,7 @@ public class FlinkKafkaProducer<IN>
                         taskName
                                 + "-"
                                 + ((StreamingRuntimeContext) getRuntimeContext())
-                                    .getOperatorUniqueID(),
+                                        .getOperatorUniqueID(),
                         getRuntimeContext().getIndexOfThisSubtask(),
                         getRuntimeContext().getNumberOfParallelSubtasks(),
                         kafkaProducersPoolSize,
