@@ -17,4 +17,5 @@
 # under the License.
 
 from .client import Consumer
+from .client import Producer
 from .tube_msg import TubeMsg
