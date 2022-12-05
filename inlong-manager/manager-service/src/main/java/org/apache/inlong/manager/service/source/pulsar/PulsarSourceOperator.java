@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.source.pulsar;
 
+import static org.apache.inlong.manager.common.consts.InlongConstants.DATA_TYPE_RAW_PREFIX;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -127,6 +129,11 @@ public class PulsarSourceOperator extends AbstractSourceOperator {
             pulsarSource.setAdminUrl(adminUrl);
             pulsarSource.setServiceUrl(serviceUrl);
             pulsarSource.setInlongComponent(true);
+
+            // CSV: InLong message type whose message body is raw CSV
+            // Raw-CSV: messages are separated by a specific separator
+            boolean wrapWithInlongMessage = streamInfo.getDataType().startsWith(DATA_TYPE_RAW_PREFIX);
+            pulsarSource.setWrapWithInlongMsg(wrapWithInlongMessage);
 
             // set the token info
             if (StringUtils.isNotBlank(pulsarCluster.getToken())) {
