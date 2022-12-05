@@ -1278,7 +1278,7 @@ public class FlinkKafkaProducer<IN>
                         taskName
                                 + "-"
                                 + ((StreamingRuntimeContext) getRuntimeContext())
-                                .getOperatorUniqueID(),
+                                    .getOperatorUniqueID(),
                         getRuntimeContext().getIndexOfThisSubtask(),
                         getRuntimeContext().getNumberOfParallelSubtasks(),
                         kafkaProducersPoolSize,
@@ -1889,7 +1889,7 @@ public class FlinkKafkaProducer<IN>
         @SuppressWarnings("WeakerAccess")
         public static final class ContextStateSerializerSnapshot
                 extends
-                SimpleTypeSerializerSnapshot<KafkaTransactionContext> {
+                    SimpleTypeSerializerSnapshot<KafkaTransactionContext> {
 
             public ContextStateSerializerSnapshot() {
                 super(ContextStateSerializer::new);
