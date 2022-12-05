@@ -56,8 +56,8 @@ import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
  */
 public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOperator<OUT>
         implements
-            OneInputStreamOperator<IN, OUT>,
-            BoundedOneInput {
+        OneInputStreamOperator<IN, OUT>,
+        BoundedOneInput {
 
     private static final long serialVersionUID = 1L;
 
@@ -98,7 +98,9 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
         setChainingStrategy(ChainingStrategy.ALWAYS);
     }
 
-    /** Notifies a partition created. */
+    /**
+     * Notifies a partition created.
+     */
     protected abstract void partitionCreated(String partition);
 
     /**
@@ -115,7 +117,9 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
      */
     protected abstract void onPartFileOpened(String partition, Path newPath);
 
-    /** Commit up to this checkpoint id. */
+    /**
+     * Commit up to this checkpoint id.
+     */
     protected void commitUpToCheckpoint(long checkpointId) throws Exception {
         helper.commitUpToCheckpoint(checkpointId);
     }
@@ -174,7 +178,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
             this.metricStateListState = context.getOperatorStateStore().getUnionListState(
                     new ListStateDescriptor<>(
                             INLONG_METRIC_STATE_NAME, TypeInformation.of(new TypeHint<MetricState>() {
-                            })));
+                    })));
         }
         if (context.isRestored()) {
             metricState = MetricStateUtils.restoreMetricState(metricStateListState,
@@ -199,7 +203,7 @@ public abstract class AbstractStreamingWriter<IN, OUT> extends AbstractStreamOpe
     }
 
     @Override
-    public void processElement(StreamRecord<IN> element) throws Exception{
+    public void processElement(StreamRecord<IN> element) throws Exception {
         try {
             helper.onElement(
                     element.getValue(),
