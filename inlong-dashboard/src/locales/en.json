@@ -124,7 +124,7 @@
   "meta.Sinks.Hive.DataPath": "DataPath",
   "meta.Sinks.Hive.ConfDir": "ConfDir",
   "meta.Sinks.Hive.ConfDirHelp": "Upload the hive-site.xml file of the Hive cluster to a directory in HDFS, such as: /user/hive/conf",
-  "meta.Sinks.DataPathHelp": "Storage path of the DB, excluding the table name, such as: hdfs://127.0.0.1:9000/warehouse/inlong.db",
+  "meta.Sinks.Hive.DataPathHelp": "Storage path of the DB, excluding the table name, such as: hdfs://127.0.0.1:9000/warehouse/inlong.db",
   "meta.Sinks.Hive.FieldName": "FieldName",
   "meta.Sinks.Hive.FieldType": "FieldType",
   "meta.Sinks.Hive.FieldDescription": "Field description",
