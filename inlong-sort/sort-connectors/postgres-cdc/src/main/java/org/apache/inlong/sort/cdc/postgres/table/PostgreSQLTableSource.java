@@ -38,12 +38,12 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.inlong.sort.base.debezium.DebeziumDeserializationSchema;
+import org.apache.inlong.sort.base.debezium.table.MetadataConverter;
+import org.apache.inlong.sort.base.debezium.table.RowDataDebeziumDeserializeSchema;
 import org.apache.inlong.sort.base.filter.RowKindValidator;
 import org.apache.inlong.sort.cdc.postgres.PostgreSQLSource;
-import org.apache.inlong.sort.cdc.postgres.debezium.DebeziumDeserializationSchema;
 import org.apache.inlong.sort.cdc.postgres.DebeziumSourceFunction;
-import org.apache.inlong.sort.cdc.postgres.debezium.table.MetadataConverter;
-import org.apache.inlong.sort.cdc.postgres.debezium.table.RowDataDebeziumDeserializeSchema;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
@@ -150,10 +150,10 @@ public class PostgreSQLTableSource implements ScanTableSource, SupportsReadingMe
                         .setResultTypeInfo(typeInfo)
                         .setUserDefinedConverterFactory(
                                 PostgreSQLDeserializationConverterFactory.instance())
-                        .setSourceMultipleEnable(sourceMultipleEnable)
+                        .setMigrateAll(sourceMultipleEnable)
                         .setServerTimeZone(ZoneId.of(serverTimeZone))
                         .setAppendSource(appendSource)
-                        .setValueValidator(new RowKindValidator(rowKindFiltered))
+                        .setValidator(new RowKindValidator(rowKindFiltered))
                         .build();
         DebeziumSourceFunction<RowData> sourceFunction =
                 PostgreSQLSource.<RowData>builder()
