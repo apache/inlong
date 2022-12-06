@@ -50,30 +50,12 @@
             <artifactId>audit-sdk</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-postgres-cdc</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-connector-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>audit-sdk</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-json</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-postgres</artifactId>
