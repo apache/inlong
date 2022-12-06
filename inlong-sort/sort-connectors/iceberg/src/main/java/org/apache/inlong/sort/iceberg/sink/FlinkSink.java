@@ -647,9 +647,11 @@ public class FlinkSink {
         TaskWriterFactory<RowData> taskWriterFactory = new RowDataTaskWriterFactory(
                 serializableTable, serializableTable.schema(), flinkRowType, targetFileSize,
                 fileFormat, equalityFieldIds, upsert, appendMode);
-
+        // Set null for flinkRowType of IcebergSingleStreamWriter
+        // to avoid frequent Field.Getter creation in dirty data sink.
         return new IcebergProcessOperator<>(new IcebergSingleStreamWriter<>(
-                table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts, dirtyOptions, dirtySink));
+                table.name(), taskWriterFactory, inlongMetric, auditHostAndPorts,
+                null, dirtyOptions, dirtySink));
     }
 
     private static FileFormat getFileFormat(Map<String, String> properties) {

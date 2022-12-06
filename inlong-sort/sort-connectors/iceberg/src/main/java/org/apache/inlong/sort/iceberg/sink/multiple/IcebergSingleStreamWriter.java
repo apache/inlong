@@ -26,6 +26,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
+import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.flink.sink.TaskWriterFactory;
 import org.apache.iceberg.io.TaskWriter;
 import org.apache.iceberg.io.WriteResult;
@@ -68,6 +69,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     private @Nullable transient SinkMetricData metricData;
     private transient ListState<MetricState> metricStateListState;
     private transient MetricState metricState;
+    private @Nullable final RowType flinkRowType;
     private final DirtyOptions dirtyOptions;
     private @Nullable final DirtySink<Object> dirtySink;
 
@@ -76,12 +78,14 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
             TaskWriterFactory<T> taskWriterFactory,
             String inlongMetric,
             String auditHostAndPorts,
+            @Nullable RowType flinkRowType,
             DirtyOptions dirtyOptions,
             @Nullable DirtySink<Object> dirtySink) {
         this.fullTableName = fullTableName;
         this.taskWriterFactory = taskWriterFactory;
         this.inlongMetric = inlongMetric;
         this.auditHostAndPorts = auditHostAndPorts;
+        this.flinkRowType = flinkRowType;
         this.dirtyOptions = dirtyOptions;
         this.dirtySink = dirtySink;
     }
@@ -93,7 +97,6 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
 
         // Initialize the task writer factory.
         this.taskWriterFactory.initialize(subTaskId, attemptId);
-
         // Initialize the task writer.
         this.writer = taskWriterFactory.create();
 
@@ -114,7 +117,6 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
     public void prepareSnapshotPreBarrier(long checkpointId) throws Exception {
         // close all open files and emit files to downstream committer operator
         emit(writer.complete());
-
         this.writer = taskWriterFactory.create();
     }
 
@@ -134,6 +136,7 @@ public class IcebergSingleStreamWriter<T> extends IcebergProcessFunction<T, Writ
                             .setLabels(dirtyOptions.getLabels())
                             .setLogTag(dirtyOptions.getLogTag())
                             .setIdentifier(dirtyOptions.getIdentifier())
+                            .setRowType(flinkRowType)
                             .setDirtyMessage(e.getMessage());
                     dirtySink.invoke(builder.build());
                 } catch (Exception ex) {

@@ -28,6 +28,7 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.operators.BoundedOneInput;
 import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.RowType;
 import org.apache.iceberg.FileFormat;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
@@ -190,11 +191,11 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
                         .map(NestedField::fieldId)
                         .collect(Collectors.toList());
             }
-
+            RowType flinkRowType = FlinkSchemaUtil.convert(recordWithSchema.getSchema());
             TaskWriterFactory<RowData> taskWriterFactory = new RowDataTaskWriterFactory(
                     table,
                     recordWithSchema.getSchema(),
-                    FlinkSchemaUtil.convert(recordWithSchema.getSchema()),
+                    flinkRowType,
                     targetFileSizeBytes,
                     fileFormat,
                     equalityFieldIds,
@@ -204,7 +205,7 @@ public class IcebergMultipleStreamWriter extends IcebergProcessFunction<RecordWi
             if (multipleWriters.get(tableId) == null) {
                 IcebergSingleStreamWriter<RowData> writer = new IcebergSingleStreamWriter<>(
                         tableId.toString(), taskWriterFactory, null,
-                        null, dirtyOptions, dirtySink);
+                        null, flinkRowType, dirtyOptions, dirtySink);
                 writer.setup(getRuntimeContext(),
                         new CallbackCollector<>(
                                 writeResult -> collector.collect(new MultipleWriteResult(tableId, writeResult))),

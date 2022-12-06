@@ -17,8 +17,10 @@
 
 package org.apache.inlong.sort.base.dirty;
 
+import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.inlong.sort.base.util.PatternReplaceUtils;
 
+import javax.annotation.Nullable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -65,15 +67,21 @@ public class DirtyData<T> {
      */
     private final String dirtyMessage;
     /**
+     * The row type of data, it is only used for 'RowData'
+     */
+    private @Nullable final LogicalType rowType;
+    /**
      * The real dirty data
      */
     private final T data;
 
     public DirtyData(T data, String identifier, String labels,
-            String logTag, DirtyType dirtyType, String dirtyMessage) {
+            String logTag, DirtyType dirtyType, String dirtyMessage,
+            @Nullable LogicalType rowType) {
         this.data = data;
         this.dirtyType = dirtyType;
         this.dirtyMessage = dirtyMessage;
+        this.rowType = rowType;
         Map<String, String> paramMap = genParamMap();
         this.labels = PatternReplaceUtils.replace(labels, paramMap);
         this.logTag = PatternReplaceUtils.replace(logTag, paramMap);
@@ -113,6 +121,11 @@ public class DirtyData<T> {
         return identifier;
     }
 
+    @Nullable
+    public LogicalType getRowType() {
+        return rowType;
+    }
+
     public static class Builder<T> {
 
         private String identifier;
@@ -120,6 +133,7 @@ public class DirtyData<T> {
         private String logTag;
         private DirtyType dirtyType = DirtyType.UNDEFINED;
         private String dirtyMessage;
+        private LogicalType rowType;
         private T data;
 
         public Builder<T> setDirtyType(DirtyType dirtyType) {
@@ -152,8 +166,13 @@ public class DirtyData<T> {
             return this;
         }
 
+        public Builder<T> setRowType(LogicalType rowType) {
+            this.rowType = rowType;
+            return this;
+        }
+
         public DirtyData<T> build() {
-            return new DirtyData<>(data, identifier, labels, logTag, dirtyType, dirtyMessage);
+            return new DirtyData<>(data, identifier, labels, logTag, dirtyType, dirtyMessage, rowType);
         }
     }
 }
