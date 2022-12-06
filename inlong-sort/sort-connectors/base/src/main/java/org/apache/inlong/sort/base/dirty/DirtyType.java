@@ -76,6 +76,18 @@ public enum DirtyType {
      * Json process error
      */
     JSON_PROCESS_ERROR("JsonProcessError"),
+    /**
+     * Table identifier parse error
+     */
+    TABLE_IDENTIFIER_PARSE_ERROR("TableIdentifierParseError"),
+    /**
+     * Extract schema error
+     */
+    EXTRACT_SCHEMA_ERROR("ExtractSchemaError"),
+    /**
+     * Extract RowData error
+     */
+    EXTRACT_ROWDATA_ERROR("ExtractRowDataError"),
     ;
 
     private final String format;
