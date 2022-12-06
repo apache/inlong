@@ -30,7 +30,7 @@ import org.apache.flink.table.factories.FactoryUtil;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.inlong.sort.cdc.oracle.debezium.table.DebeziumOptions;
+import org.apache.inlong.sort.base.debezium.table.DebeziumOptions;
 
 import static com.ververica.cdc.debezium.table.DebeziumOptions.getDebeziumProperties;
 import static org.apache.inlong.sort.base.Constants.INLONG_AUDIT;

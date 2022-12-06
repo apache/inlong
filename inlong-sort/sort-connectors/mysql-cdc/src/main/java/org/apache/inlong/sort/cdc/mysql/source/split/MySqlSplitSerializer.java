@@ -28,7 +28,7 @@ import org.apache.flink.core.memory.DataInputDeserializer;
 import org.apache.flink.core.memory.DataOutputSerializer;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.utils.LogicalTypeParser;
-import org.apache.inlong.sort.cdc.debezium.history.FlinkJsonTableChangeSerializer;
+import org.apache.inlong.sort.base.debezium.history.FlinkJsonTableChangeSerializer;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 
 import java.io.IOException;
