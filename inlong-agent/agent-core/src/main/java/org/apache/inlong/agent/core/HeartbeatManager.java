@@ -54,13 +54,9 @@ import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HEARTBEAT_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_HEARTBEAT_INTERVAL;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_HEARTBEAT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_GROUP_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 
@@ -70,8 +66,7 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_STREAM_ID;
 public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbeatManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatManager.class);
-
-    private final AgentManager agentManager;
+    private static HeartbeatManager heartbeatManager = null;
     private final JobManager jobmanager;
     private final AgentConfiguration conf;
     private final HttpManager httpManager;
@@ -83,14 +78,31 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
     /**
      * Init heartbeat manager.
      */
-    public HeartbeatManager(AgentManager agentManager) {
+    private HeartbeatManager(AgentManager agentManager) {
         this.conf = AgentConfiguration.getAgentConf();
-        this.agentManager = agentManager;
         jobmanager = agentManager.getJobManager();
         httpManager = new HttpManager(conf);
-        baseManagerUrl = buildBaseUrl();
+        baseManagerUrl = HttpManager.buildBaseUrl();
         reportSnapshotUrl = buildReportSnapShotUrl(baseManagerUrl);
         reportHeartbeatUrl = buildReportHeartbeatUrl(baseManagerUrl);
+    }
+
+    public static HeartbeatManager getInstance(AgentManager agentManager) {
+        if (heartbeatManager == null) {
+            synchronized (HeartbeatManager.class) {
+                if (heartbeatManager == null) {
+                    heartbeatManager = new HeartbeatManager(agentManager);
+                }
+            }
+        }
+        return heartbeatManager;
+    }
+
+    public static HeartbeatManager getInstance() {
+        if (heartbeatManager == null) {
+            throw new RuntimeException("HeartbeatManager has not been initialized by agentManager");
+        }
+        return heartbeatManager;
     }
 
     @Override
@@ -224,17 +236,6 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         heartbeatMsg.setGroupHeartbeats(groupHeartbeats);
         heartbeatMsg.setStreamHeartbeats(streamHeartbeats);
         return heartbeatMsg;
-    }
-
-    /**
-     * build base url for manager according to config
-     *
-     * example - http://127.0.0.1:8080/inlong/manager/openapi
-     */
-    private String buildBaseUrl() {
-        return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
-                + ":" + conf.get(AGENT_MANAGER_VIP_HTTP_PORT)
-                + conf.get(AGENT_MANAGER_VIP_HTTP_PREFIX_PATH, DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH);
     }
 
     private String buildReportSnapShotUrl(String baseUrl) {

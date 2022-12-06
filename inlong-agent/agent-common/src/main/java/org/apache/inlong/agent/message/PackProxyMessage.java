@@ -15,11 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.message;
+package org.apache.inlong.agent.message;
 
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.message.BatchProxyMessage;
-import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.msg.AttributeConstants;
 import org.slf4j.Logger;

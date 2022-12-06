@@ -18,11 +18,11 @@
 package org.apache.inlong.agent.plugin.sinks;
 
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.message.PackProxyMessage;
 import org.apache.inlong.agent.metrics.AgentMetricItem;
 import org.apache.inlong.agent.metrics.AgentMetricItemSet;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
-import org.apache.inlong.agent.plugin.message.PackProxyMessage;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

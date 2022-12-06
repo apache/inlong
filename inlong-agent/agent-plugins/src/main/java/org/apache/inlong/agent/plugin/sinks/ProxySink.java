@@ -22,10 +22,10 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.message.BatchProxyMessage;
 import org.apache.inlong.agent.message.EndMessage;
+import org.apache.inlong.agent.message.PackProxyMessage;
 import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
-import org.apache.inlong.agent.plugin.message.PackProxyMessage;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
@@ -67,7 +67,7 @@ public class ProxySink extends AbstractSink {
                 message.getHeader().put(CommonConstants.PROXY_KEY_STREAM_ID, inlongStreamId);
                 extractStreamFromMessage(message, fieldSplitter);
                 if (!(message instanceof EndMessage)) {
-                    ProxyMessage proxyMessage = ProxyMessage.parse(message);
+                    ProxyMessage proxyMessage = new ProxyMessage(message);
                     // add proxy message to cache.
                     cache.compute(proxyMessage.getBatchKey(),
                             (s, packProxyMessage) -> {
