@@ -26,19 +26,17 @@
     </parent>
 
     <artifactId>sort-connector-postgres-cdc</artifactId>
-    <packaging>jar</packaging>
     <name>Apache InLong - Sort-connector-postgres-cdc</name>
-
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <debezium.version>1.7.0.Final</debezium.version>
-    </properties>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-postgres-cdc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
@@ -50,12 +48,6 @@
             <artifactId>audit-sdk</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-postgres</artifactId>
